@@ -1,6 +1,6 @@
 {
   "validator": "gateway-bypass",
-  "gateway_axis_total": 8.5,
+  "gateway_axis_total": 8.0,
   "n_layers": 13,
   "measured_layers": 9,
   "assessed_or_absent": 4,
@@ -53,9 +53,9 @@
     {
       "code": "D",
       "name": "Database & Storage",
-      "gateway_grade": 1.0,
-      "bypass": 0,
-      "basis": "measured",
+      "gateway_grade": 0.5,
+      "bypass": 2,
+      "basis": "measured-partial",
       "report": "canonical_sources_report.json",
       "note": "canonical v_*_truth is the value chokepoint; bypass = raw-source read / drift"
     },

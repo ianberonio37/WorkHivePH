@@ -2290,7 +2290,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       const { data: { session } } = await db.auth.getSession();
       if (session && WORKER_NAME && item.seller_name !== WORKER_NAME) {
-        const { count } = await db.from('marketplace_inquiries')
+        // Read the TRUTH VIEW, not the base table: the canonical rule is that a consumer never queries
+        // the underlying table when a v_*_truth exists, and the KPI-canonical gate caught this drift the
+        // moment the standing check was added.
+        const { count } = await db.from('v_marketplace_inquiries_truth')
           .select('id', { count: 'exact', head: true })
           .eq('listing_id', id).eq('buyer_name', WORKER_NAME);
         _canReview = (count || 0) > 0;
@@ -2302,7 +2305,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <button id="btn-open-review" class="btn-secondary" style="margin-top:0.75rem;min-height:44px;width:100%;">Write a review</button>
         <div id="review-form" class="hidden" style="margin-top:0.75rem;">
           <label class="form-label" for="review-rating">Your rating</label>
+          <!-- Placeholder-first, and not only because the gate asks for one: defaulting to 5 stars biases
+               every review upward, which is the same fabricated-signal problem this arc exists to remove.
+               Make the buyer choose. -->
           <select class="wh-input" id="review-rating">
+            <option value="" selected disabled>Choose a rating…</option>
             <option value="5">5 — excellent</option>
             <option value="4">4 — good</option>
             <option value="3">3 — okay</option>
@@ -2465,6 +2472,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const commentEl = document.getElementById('review-comment');
       const comment = (commentEl?.value || '').trim();
       // Validate BEFORE the write, so a blank review never becomes a raw PostgREST error (P4 rule).
+      if (!ratingEl?.value) {
+        showToast('Choose a rating first.', 'error');
+        ratingEl?.focus();
+        return;
+      }
       if (comment.length < 10) {
         showToast('Tell buyers what happened, in a sentence or two.', 'error');
         commentEl?.focus();
@@ -2475,7 +2487,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const { error } = await db.from('marketplace_reviews').insert([{
           listing_id: item.id,
           reviewer_name: WORKER_NAME,
-          rating: Number(ratingEl?.value || 5),
+          rating: Number(ratingEl.value),
           comment: comment,
           verified_purchase: false,
         }]);

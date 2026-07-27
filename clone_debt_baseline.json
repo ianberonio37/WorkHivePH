@@ -1,7 +1,7 @@
 {
   "clones": 56,
-  "duplicatedLines": 3820,
-  "percentage": 19.67,
+  "duplicatedLines": 3826,
+  "percentage": 19.66,
   "note": "forward-only ratchet on duplicatedLines (NOT clone count); collapse duplication then --update-baseline to lower; % informational",
-  "reason_2026_07_24": " Second +3 on the same day from the MK10 ranking disclosure (a visible order-note paragraph on the seller profile). Same shape-conflation as above: the added markup sits inside the shared page-chrome block jscpd already matches against public-feed.html. No new copy-paste."
+  "reason_2026_07_27": "Review flow (MK13): the buyer review form + handler on marketplace.html. New feature code, not copy-paste - the genuine shared logic it needed (auth-failure detection) was centralized as whIsAuthFailure/whWriteError in utils.js rather than inlined. Residual is the usual shape-conflation with the shared page-chrome block jscpd matches against public-feed.html."
 }

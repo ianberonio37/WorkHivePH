@@ -3,7 +3,7 @@
 _The corrected figure Ian asked for: a Gateway (prevention chokepoint / PEP) AND a Gate (detection ratchet) for every layer, graded by REAL depth + whether the proof is PROD-REAL or a local substitute. Deliberately stricter than the 13×6 matrix (100%) and `measure_layer_depth` coverage (84.3%), which both credit detection-presence and local substitutes._
 
 
-**★ HONEST OVERALL DEPTH = 67.9%**  (axis totals /13 — Gateway 9.0 · Gate 11.0 · Prod-real 6.5)
+**★ HONEST OVERALL DEPTH = 66.7%**  (axis totals /13 — Gateway 8.5 · Gate 11.0 · Prod-real 6.5)
 
 
 | Layer | Gateway | Gate | Prod-real | depth% |
@@ -12,7 +12,7 @@ _The corrected figure Ian asked for: a Gateway (prevention chokepoint / PEP) AND
 | Auth & Permissions | 1.0 | 1.0 | 1.0 | **100.0%** |
 | Security & RLS | 1.0 | 1.0 | 1.0 | **100.0%** |
 | Frontend | 1.0 | 1.0 | 1.0 | **100.0%** |
-| Database & Storage | 1.0 | 1.0 | 1.0 | **100.0%** |
+| Database & Storage | 0.5 | 1.0 | 1.0 | **83.3%** |
 | CI/CD & Version Control | 1.0 | 1.0 | 0.5 | **83.3%** |
 | Rate Limiting | 1.0 | 1.0 | 0.5 | **83.3%** |
 | Availability & Recovery | 1.0 | 1.0 | 0.0 | **66.7%** |
@@ -45,8 +45,8 @@ _The corrected figure Ian asked for: a Gateway (prevention chokepoint / PEP) AND
 - **Gate 1.0** — m: many F ratchets (xss, a11y, displayed-values, capture-roundtrip)
 - **Prod-real 1.0** — f: the HTML/JS runs for real users
 
-### Database & Storage — 100.0%
-- **Gateway 1.0** — m: bypass=0 via canonical_sources_report.json (measured)
+### Database & Storage — 83.3%
+- **Gateway 0.5** — m: bypass=2 via canonical_sources_report.json (measured-partial)
 - **Gate 1.0** — m: migration-immutability + truth-view + lineage ratchets
 - **Prod-real 1.0** — f: Postgres/Supabase is the prod store
 
