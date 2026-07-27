@@ -1774,10 +1774,31 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       .maybeSingle();
 
     if (!valErr && (!membership || membership.hive_status === 'kicked')) {
-      // Kicked or removed: clear all hive state and show onboard
+      // Kicked or removed from the ACTIVE hive: clear its state, then re-decide from the server.
       ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name','wh_hive_code'].forEach(k => localStorage.removeItem(k));
+      /* H8 (hive deepwalk 2026-07-27): also drop the is-supervisor paint hint. It is set early from the
+         CACHED role (a deliberate CLS optimisation, before this check can finish), so after a removal it
+         survived as a role marker outliving the role. Harmless today because the board never renders for
+         a removed member — but it is exactly HK1's caveat shape, and the moment any supervisor-only rule
+         keys off html.is-supervisor on a view a removed member CAN see, it would misapply. Revocation
+         should leave nothing behind. */
+      document.documentElement.classList.remove('is-supervisor');
       HIVE_ID = ''; HIVE_NAME = ''; HIVE_ROLE = '';
-      showView('onboard');
+      /* H8: being removed from your ACTIVE hive does not mean you have no hive. A multi-hive worker was
+         dumped straight to the create/join onboarding even while still a member elsewhere — the branch
+         only ever considered the hive that was just lost. wh_hives is deliberately NOT cleared here (it
+         is the list of the OTHER hives, and recovery rebuilds it from the server anyway). With HIVE_ID
+         now empty, this reload falls into recoverHiveMembership(), which re-queries memberships and
+         either lands the user in a hive they still belong to or shows onboard if there genuinely are
+         none. No loop is possible: the cleared HIVE_ID means the reloaded page always takes the
+         recovery path, and that path never reloads.
+         The reload is UNCONDITIONAL on purpose. Gating it on getHiveList() would decide "you have no
+         hives left" from a localStorage CACHE, so a member whose cache is empty or stale (storage
+         cleared, invited from another device) would be shown the create/join screen while the server
+         still holds their memberships. Only the server may answer that question — same rule as the
+         marketplace role-gate: judge on the session, never on the cache. Cost is one extra load on a
+         rare path. */
+      window.location.reload();
       return;
     }
     // Sync role from DB in case it changed
@@ -1838,6 +1859,14 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     }
 
     if (!memberships || !memberships.length) {
+      /* H8 (hive deepwalk 2026-07-27): the server has now DEFINITIVELY said "no memberships", so the
+         cached hive list must not outlive that answer. Left behind, it is a phantom: the switcher
+         renders straight from getHiveList(), so the moment this worker creates or joins a hive they
+         would be offered "Switch Hive (3)" listing two hives they were removed from, and picking one
+         bounces them through a kick-and-recover round trip. Cleared only on this branch — a failed
+         query (recErr above) means the server did NOT answer, and a cache must never be dropped on
+         a network error. Same rule as the reload in initHive: the server is the authority. */
+      saveHiveList([]);
       showView('onboard');
       return;
     }
