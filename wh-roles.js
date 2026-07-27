@@ -47,10 +47,24 @@
     connections:        ['supervisor'],
   };
 
+  // AUTH role -> DISPLAY role. This module reads the AUTH key (wh_hive_role, which stores what
+  // hive_members.role stores) but its capability map mirrors nav-hub's `roles` arrays, which are
+  // written in DISPLAY vocabulary. Those two vocabularies are not the same list, and that gap was a
+  // live defect found 2026-07-27 (hive deepwalk H8c): hive_members.role is 'worker' | 'supervisor',
+  // 'worker' was not in ROLES, so whRole() returned '' for it — and an empty role is deliberately
+  // treated as permissive below ("solo/new install"). Result: every real worker on the platform, 12
+  // of 16 seeded memberships, was silently granted can('approve'), can('manage_hive') and
+  // can('audit_log'). Verified in the browser before fixing. It shipped harmless ONLY because
+  // nothing calls can() yet, while every comment in the codebase tells the next change to use it.
+  // nav-hub's _defaultMode() already performs exactly this mapping (worker -> field); mirroring it
+  // here keeps the two readers agreeing instead of each inventing a vocabulary.
+  var AUTH_TO_DISPLAY = { worker: 'field' };
+
   function whRole() {
     try {
       // storage-key-allow: wh_hive_role is the canonical role key (storage_key_registry.json)
       var r = (localStorage.getItem('wh_hive_role') || '').toLowerCase().trim();
+      r = AUTH_TO_DISPLAY[r] || r;
       return ROLES.indexOf(r) !== -1 ? r : '';
     } catch (_) { return ''; }
   }

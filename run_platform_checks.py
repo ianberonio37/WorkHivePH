@@ -5058,6 +5058,16 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        # HIVE DEEPWALK · H8c — the client role reader must understand every role the DB stores.
+        "id":      "role_vocabulary_coverage",
+        "script":  "tools/validate_role_vocabulary_coverage.py",
+        "args":    [],
+        "label":   "The canonical client RBAC reader (wh-roles.js) must UNDERSTAND every role value hive_members actually stores. Found live 2026-07-27 (hive deepwalk H8c): the reader reads the AUTH key wh_hive_role (which holds what hive_members.role holds) while its capability map mirrors nav-hub's `roles` arrays, written in DISPLAY vocabulary (field|supervisor|engineer). The two were never reconciled. hive_members.role stores 'worker', 'worker' was absent from ROLES, so whRole() returned '' — and an empty role is DELIBERATELY permissive (solo mode / new install, so a lone tech is not locked out of their own tools). Two reasonable decisions combined into an unreasonable outcome: every real worker (12 of 16 seeded memberships) silently satisfied can('approve'), can('manage_hive') and can('audit_log'). Confirmed in the browser before fixing, and fixed by mirroring nav-hub's own worker->field mapping rather than inventing a second vocabulary. It shipped harmless ONLY by accident — nothing calls can() yet — while every comment in the codebase tells the next change to use it, so a latent trap stayed one call away. Compares against LIVE distinct roles on purpose: the failure was a mismatch between what the DB WRITES and what the client UNDERSTANDS, so reading only source would compare the client against itself. Verified as an instrument: against the pre-fix reader it FAILS on 'worker', against the fix it passes, and a hypothetical future role ('contractor') is caught by the selftest. Skips clean when the DB is down. Self-test: --selftest.",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         # HIVE DEEPWALK · HK2 gate — a shipped capability must be reachable by the data that EXISTS.
         "id":      "fixture_capability_coverage",
         "script":  "tools/validate_fixture_capability_coverage.py",
