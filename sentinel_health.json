@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-07-27T19:43:02.742538",
+  "timestamp": "2026-07-27T20:06:18.995757",
   "passed": 6,
   "failed": 0,
   "results": [
     {
       "id": "coverage-map",
       "status": "PASS",
-      "duration": 11.5,
+      "duration": 12.1,
       "stderr": ""
     },
     {

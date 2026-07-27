@@ -296,6 +296,7 @@
         "marketplace_saved_searches",
         "marketplace_watchlist",
         "v_inventory_items_truth",
+        "v_marketplace_inquiries_truth",
         "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth"
       ],

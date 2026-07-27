@@ -1023,12 +1023,14 @@
         ]
       },
       "realtime_published": false,
-      "comment": "",
+      "comment": "Buyer reviews. INSERT requires the reviewer to be the signed-in worker, to have an existing inquiry on that listing (the only on-platform trace of a real interaction in a contact-only marketplace), and not to own the listing. verified_purchase stays admin/system-set, and the seller rating is computed over verified reviews ONLY (20260719000003), so an open review form never inflates a score.",
       "read_by_surfaces": [
         "marketplace-seller-profile.html",
         "marketplace.html"
       ],
-      "written_by_surfaces": [],
+      "written_by_surfaces": [
+        "marketplace.html"
+      ],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
     },
@@ -6118,7 +6120,8 @@
       "defined_in": "20260520000020_v_marketplace_inquiries_truth.sql",
       "read_by_surfaces": [
         "marketplace-seller-profile.html",
-        "marketplace-seller.html"
+        "marketplace-seller.html",
+        "marketplace.html"
       ],
       "read_by_edge_fns": [],
       "columns": []
@@ -7918,6 +7921,22 @@
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "cap_marketplace_reviews_text": {
+      "defined_in": "20260724000012_marketplace_review_caps.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "enforce_marketplace_review_daily_cap": {
+      "defined_in": "20260724000012_marketplace_review_caps.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Bounds the review flow opened in 20260724000011 to 10 reviews per reviewer per day. Standing already requires an inquiry per listing, so this only bites a scripted abuser, never a real buyer. Raises rather than silently dropping, so the user is never told a review posted when it did not.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -8156,7 +8175,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 134.6
+      "size_kb": 135.2
     },
     "hive.html": {
       "tables_read": [
@@ -8335,7 +8354,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 54.1
+      "size_kb": 54.2
     },
     "marketplace-seller-profile.html": {
       "tables_read": [
@@ -8350,7 +8369,7 @@
         "get_seller_community_reputation"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 45.4
+      "size_kb": 46.5
     },
     "marketplace-seller.html": {
       "tables_read": [
@@ -8370,7 +8389,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 77.0
+      "size_kb": 77.1
     },
     "marketplace.html": {
       "tables_read": [
@@ -8382,6 +8401,7 @@
         "marketplace_saved_searches",
         "marketplace_watchlist",
         "v_inventory_items_truth",
+        "v_marketplace_inquiries_truth",
         "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth"
       ],
@@ -8389,6 +8409,7 @@
         "hive_audit_log",
         "marketplace_inquiries",
         "marketplace_listings",
+        "marketplace_reviews",
         "marketplace_saved_searches",
         "marketplace_watchlist"
       ],
@@ -8403,7 +8424,7 @@
       "edge_fns_invoked": [
         "marketplace-listing-assist"
       ],
-      "size_kb": 183.0
+      "size_kb": 191.2
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -8455,7 +8476,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 19.5
+      "size_kb": 20.4
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -9915,6 +9936,20 @@
         "v_marketplace_sellers_truth"
       ],
       "jaccard": 0.75
+    },
+    {
+      "kind": "surface_overlap",
+      "surface_a": "marketplace-seller.html",
+      "surface_b": "marketplace.html",
+      "shared_tables": [
+        "hive_audit_log",
+        "marketplace_inquiries",
+        "marketplace_listings",
+        "v_marketplace_inquiries_truth",
+        "v_marketplace_listings_truth",
+        "v_marketplace_sellers_truth"
+      ],
+      "jaccard": 0.5
     },
     {
       "kind": "surface_overlap",

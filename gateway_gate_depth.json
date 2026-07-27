@@ -1,7 +1,7 @@
 {
-  "_overall_pct": 66.7,
+  "_overall_pct": 67.9,
   "axis_totals": {
-    "gateway": 8.5,
+    "gateway": 9.0,
     "gate": 11.0,
     "prod_real": 6.5
   },
@@ -55,11 +55,11 @@
     {
       "code": "D",
       "name": "Database & Storage",
-      "gateway": 0.5,
+      "gateway": 1.0,
       "gate": 1.0,
       "prod_real": 1.0,
-      "composite_pct": 83.3,
-      "gateway_basis": "m: bypass=2 via canonical_sources_report.json (measured-partial)",
+      "composite_pct": 100.0,
+      "gateway_basis": "m: bypass=0 via canonical_sources_report.json (measured)",
       "gate_basis": "m: migration-immutability + truth-view + lineage ratchets",
       "prod_basis": "f: Postgres/Supabase is the prod store"
     },

@@ -7,11 +7,11 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **156**
 - Views:         **53**
-- RPCs:          **190**
+- RPCs:          **192**
 - HTML surfaces: **61**
 - Edge fns:      **98**
 - Phantom tables (referenced in code, not in migrations): **0**
-- Duplicate signals: **73**
+- Duplicate signals: **74**
 
 ## Tables (sorted by usage)
 
@@ -49,6 +49,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `rcm_fmea_modes` | 20 | yes | yes | asset-hub.html | asset-hub.html | fmea-populator |
 | `amc_briefings` | 14 | yes | yes | alert-hub.html | alert-hub.html | amc-orchestrator |
 | `canonical_period_summaries` | 12 | yes | no | — | — | hierarchical-summarizer |
+| `marketplace_reviews` | 7 | yes | no | marketplace-seller-profile.html, marketplace.html | marketplace.html | — |
 | `schedule_items` | 14 | yes | no | assistant.html, dayplanner.html | dayplanner.html | — |
 | `skill_profiles` | 6 | yes | no | resume.html, skillmatrix.html | skillmatrix.html | — |
 | `project_roles` | 8 | no | yes | project-manager.html | project-manager.html | — |
@@ -70,7 +71,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `inventory_transactions` | 11 | yes | no | inventory.html | inventory.html | — |
 | `marketplace_orders` | 17 | yes | no | marketplace-admin.html | marketplace-admin.html | — |
 | `marketplace_platform_admins` | 3 | yes | no | marketplace-admin.html, marketplace.html | — | — |
-| `marketplace_reviews` | 7 | yes | no | marketplace-seller-profile.html, marketplace.html | — | — |
 | `marketplace_saved_searches` | 12 | yes | no | marketplace.html | marketplace.html | — |
 | `marketplace_watchlist` | 4 | yes | no | marketplace.html | marketplace.html | — |
 | `report_contacts` | 6 | yes | no | report-sender.html | report-sender.html | — |
@@ -219,6 +219,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `cap_logbook_text_fields` |  | no | — | — |
 | `cap_marketplace_inquiries_text` |  | no | — | — |
 | `cap_marketplace_listings_text` |  | no | — | — |
+| `cap_marketplace_reviews_text` |  | yes | — | — |
 | `cap_marketplace_saved_searches_text` |  | no | — | — |
 | `cap_marketplace_sellers_text` |  | no | — | — |
 | `cap_parts_staged_reservations_text` |  | no | — | — |
@@ -262,6 +263,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `deactivate_my_account` |  | yes | — | — |
 | `delete_worker_data` | p_worker_name text | yes | — | — |
 | `enforce_ai_reply_feedback_daily_limit` |  | yes | — | — |
+| `enforce_marketplace_review_daily_cap` |  | yes | — | — |
 | `export_hive_data` | p_hive_id uuid | yes | — | export-hive-data |
 | `fetch_active_alerts` | p_hive_id uuid | yes | — | — |
 | `fetch_dialog_state` | p_session_id text | yes | — | — |
@@ -446,6 +448,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `founder-console.html` | `platform-actions.html` | hive_audit_log, marketplace_disputes, marketplace_listings, marketplace_sellers, v_marketplace_listings_truth, v_marketplace_sellers_truth | 0.55 |
 | `logbook.html` | `pm-scheduler.html` | asset_nodes, hive_audit_log, hive_members, logbook, pm_assets, pm_completions, project_links, projects, v_pm_scope_items_truth | 0.5 |
 | `marketplace-admin.html` | `marketplace-seller.html` | hive_audit_log, marketplace_listings, marketplace_sellers, v_marketplace_listings_truth, v_marketplace_sellers_truth | 0.5 |
+| `marketplace-seller.html` | `marketplace.html` | hive_audit_log, marketplace_inquiries, marketplace_listings, v_marketplace_inquiries_truth, v_marketplace_listings_truth, v_marketplace_sellers_truth | 0.5 |
 
 ### Near-duplicate column names within a table
 
