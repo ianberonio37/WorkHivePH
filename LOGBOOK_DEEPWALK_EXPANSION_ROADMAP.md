@@ -194,16 +194,27 @@ mirror finally has a foreign key).
    asset manager on this same page was writing **audit-log entries for edits the database refused**,
    repainting the UI as if they had applied, and propagating the phantom name to `pm_assets`. Fixed
    and gated. The parts/inventory actions on this page are still unswept.
-3. **LG8 sweep** — the sibling mirrors (`pm_knowledge.pm_completion_id`, `skill_knowledge`,
-   `project_links`) have not been checked for the same missing-FK shape that let the knowledge
-   corpus drift.
+3. ~~**LG8 sweep**~~ — done. `pm_knowledge` and `skill_knowledge` do not carry the shape at all
+   (no such link columns). `project_links` does, and it is polymorphic so no FK is available:
+   logbook/pm/inventory links are all valid and now held at zero, but **all 12 `asset` links are
+   dangling** — legacy `asset-*` ids pointing at a table that no longer exists, orphaned by the
+   Phase 5b/5c migration. Held forward-only rather than guess-repaired; see §7's second decision.
 4. **LB16 amendment walk** — now that deletes cascade, walk edit+delete of a *consumed* entry and
    diff asset-hub / analytics / resume before and after (LG6 earn attempt).
 5. **LB11 close/sign-off** — post-close immutability is still unwalked; gate #28 locks the audit
    *wiring*, not the behaviour (LG4 earn attempt).
 6. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
 
-**One decision left with you, deliberately not made in a migration:** one dangling
+**Two decisions left with you, deliberately not made in a migration.**
+
+*Second:* 12 project↔asset links have been broken since the `assets` → `asset_nodes` migration —
+they hold legacy `asset-*` ids and the old table is gone, so a project page shows an asset name
+that resolves to nothing. Matching by (hive, label) recovers only 5 of the 12 unambiguously; the
+other 7 match two or three assets each. I did not guess the majority, because a partial backfill
+would make the rest *look* repaired. Either re-map them by hand or accept the loss and delete them;
+the gate holds the count at 12 meanwhile so it cannot grow.
+
+*First:* one dangling
 `fault_knowledge` row survives — the mirror of the entry this arc deleted to prove the silent-loss
 defect. It holds that entry's full content (WLD-001, "Output current unstable, weld quality poor",
 "Replaced 4 carbon brushes, cleaned commutator"). Either delete the knowledge row, or restore the

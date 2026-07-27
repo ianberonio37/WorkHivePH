@@ -50,6 +50,37 @@ WHERE conrelid = 'public.fault_knowledge'::regclass AND contype = 'f'
   AND conname = 'fault_knowledge_logbook_id_fkey';
 """
 
+# ── LG8 sweep (2026-07-28): the POLYMORPHIC mirror, which cannot take a foreign key ──────────
+# project_links is (link_type, link_id text), so no FK is available to protect it the way
+# fault_knowledge now is. Measured during the sibling sweep: logbook / pm_completion /
+# inventory_item links are all currently valid, but ALL 12 link_type='asset' rows are dangling.
+# They hold legacy ids of the form 'asset-9fbe0f6f4022' and the legacy `assets` table no longer
+# EXISTS (to_regclass returns null) -- the Phase 5b/5c assets->asset_nodes migration never carried
+# project_links across, so those 12 project<->asset links have been permanently broken since. They
+# still carry a label, so a project page renders an asset name that resolves to nothing.
+#
+# Not repaired here on purpose: matching by (hive_id, label) resolves only 5 of the 12 to a single
+# asset; the other 7 match 2-3 assets each. Guessing the majority would look like a repair while
+# leaving most of them wrong -- the same reason the auth_uid backfill skipped ambiguous names.
+# So this holds the line instead: FORWARD-ONLY at the measured count, which detects any NEW
+# dangling link immediately while leaving the disposition of the existing 12 to a human.
+DANGLING_LINKS_SQL = """
+SELECT
+  (SELECT count(*) FROM project_links pl WHERE pl.link_type='logbook'
+     AND NOT EXISTS (SELECT 1 FROM logbook t WHERE t.id = pl.link_id))
++ (SELECT count(*) FROM project_links pl WHERE pl.link_type='pm_completion'
+     AND NOT EXISTS (SELECT 1 FROM pm_completions t WHERE t.id::text = pl.link_id))
++ (SELECT count(*) FROM project_links pl WHERE pl.link_type='inventory_item'
+     AND NOT EXISTS (SELECT 1 FROM inventory_items t WHERE t.id::text = pl.link_id));
+"""
+# The known, pre-existing asset-link breakage is excluded from the ratchet above and asserted
+# separately, so it can never silently GROW either.
+DANGLING_ASSET_LINKS_SQL = """
+SELECT count(*) FROM project_links pl WHERE pl.link_type='asset'
+  AND NOT EXISTS (SELECT 1 FROM asset_nodes t WHERE t.id::text = pl.link_id);
+"""
+ASSET_LINK_BASELINE = 12
+
 # A few example offenders (tag + count) for the failure message.
 SAMPLE_SQL = """
 SELECT l.machine, count(*)
@@ -88,9 +119,19 @@ def analyze():
                 tag, cnt = line.rsplit("|", 1)
                 samples.append(f"{tag.strip()} x{cnt.strip()}")
     fkdef = (psql(FK_SQL) or "").strip()
+
+    def _int(sql):
+        out = psql(sql)
+        try:
+            return int((out or "").splitlines()[0].strip())
+        except (ValueError, IndexError):
+            return None
+
     return {"skipped": False, "count": n, "samples": samples,
             "knowledge_fk": fkdef,
-            "knowledge_fk_ok": bool(fkdef) and "ON DELETE CASCADE" in fkdef.upper()}
+            "knowledge_fk_ok": bool(fkdef) and "ON DELETE CASCADE" in fkdef.upper(),
+            "dangling_links": _int(DANGLING_LINKS_SQL),
+            "dangling_asset_links": _int(DANGLING_ASSET_LINKS_SQL)}
 
 
 def run_selftest():
@@ -142,9 +183,26 @@ def main():
                       f"(found: {res.get('knowledge_fk') or 'no constraint'}). A deleted entry orphans its "
                       "knowledge row, which stays embedded and retrievable citing an entry that no longer exists.")
                 print("  Fix: re-apply migration 20260728000001_fault_knowledge_logbook_fk.sql.")
+            dl, dal = res.get("dangling_links"), res.get("dangling_asset_links")
+            if dl == 0:
+                print("  PASS: 0 dangling project_links to logbook / pm_completion / inventory_item "
+                      "(polymorphic link_id cannot take an FK, so this is the guard)")
+            elif dl is not None:
+                print(f"  FAIL: {dl} project_links point at a logbook / pm_completion / inventory_item row "
+                      "that no longer exists. A project shows a link whose target is gone.")
+            if dal is not None and dal > ASSET_LINK_BASELINE:
+                print(f"  FAIL: dangling asset project_links GREW {ASSET_LINK_BASELINE} -> {dal}")
+            elif dal is not None and dal == ASSET_LINK_BASELINE:
+                print(f"  NOTE: {dal} asset project_links are dangling (known, pre-existing: the "
+                      "assets->asset_nodes migration never carried project_links across, and the legacy "
+                      "table is gone). Held forward-only; repair is a data decision, 7 of 12 are ambiguous.")
     if res.get("skipped"):
         return 0
-    return 1 if (res["count"] > 0 or not res.get("knowledge_fk_ok")) else 0
+    bad = (res["count"] > 0
+           or not res.get("knowledge_fk_ok")
+           or (res.get("dangling_links") or 0) > 0
+           or (res.get("dangling_asset_links") or 0) > ASSET_LINK_BASELINE)
+    return 1 if bad else 0
 
 
 if __name__ == "__main__":
