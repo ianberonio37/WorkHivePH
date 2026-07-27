@@ -95,6 +95,27 @@ def check_mk3_public_rpc_pii(results: list) -> None:
     results.append(("MK3 public seller RPC leaks no PII", not leaked,
                     "returns public-safe columns only" if not leaked
                     else "anon-granted RPC projects " + ", ".join(leaked)))
+    # MK3 also covers the CONTACT step itself. Walked signed out 2026-07-24: "Contact Seller" opened the
+    # full inquiry form to an anon (name, phone number, message) and the RLS insert then 42501'd into
+    # "Failed to send inquiry. Try again." — a message that invites a retry which can never succeed, on
+    # the primary conversion path, after the buyer already typed their phone number. Both the gate and
+    # the honest auth-failure message are locked here.
+    mkt = _read("marketplace.html")
+    # Anchor on the binding and look ahead to the guard. The window is generous because the binding
+    # carries an explanatory comment; what matters is that requireAccount is reached BEFORE
+    # openInquirySheet, so the ordering is asserted rather than mere co-occurrence.
+    _bind = re.search(r"btn-detail-contact[\s\S]{0,1200}?openInquirySheet\s*\(", mkt)
+    contact_gated = bool(_bind) and "requireAccount" in _bind.group(0)
+    results.append(("MK3 contact step gated before the form", contact_gated,
+                    "Contact Seller checks the session and discloses before opening the inquiry form"
+                    if contact_gated
+                    else "the contact button opens the full inquiry form to an anon -> they type a phone "
+                         "number and get an RLS error telling them to try again"))
+    honest_retry = "Your session expired, so the inquiry was not sent" in mkt
+    results.append(("MK3 auth failure does not say 'try again'", honest_retry,
+                    "a 42501/401 explains the session instead of inviting a doomed retry" if honest_retry
+                    else "an auth failure still tells the buyer to retry, which can never work"))
+
     granted = re.search(r"GRANT\s+EXECUTE.*get_marketplace_seller_public.*\banon\b", src, re.I | re.S)
     results.append(("MK3 public seller RPC is anon-executable", bool(granted),
                     "GRANT EXECUTE ... TO anon present" if granted
@@ -184,11 +205,15 @@ def check_mk5_anon_post_discloses_upfront(results: list) -> None:
         results.append(("MK5 anon post discloses upfront", None, "marketplace.html absent — skipped"))
         return
     # The guard must (a) exist, (b) decide on the SESSION, and (c) cover BOTH entry points.
-    m = re.search(r"async function requirePostAccount\s*\([^)]*\)\s*\{(.*?)\n  \}", src, re.S)
+    # The session read lives in the SHARED requireAccount(), which requirePostAccount delegates to (the
+    # contact step reuses it too). Check that shared helper, not the wrapper — an earlier version of
+    # this check looked inside requirePostAccount and went red the moment the guard was made reusable,
+    # which is detector staleness, not a regression.
+    m = re.search(r"async function requireAccount\s*\([^)]*\)\s*\{(.*?)\n  \}", src, re.S)
     body = m.group(1) if m else ""
     # (b) A cache is not proof of an account: `wh_hive_id` survives sign-out, so the first version of
     # this guard (which accepted HIVE_ID) let a signed-out visitor on a shared device straight through.
-    session_based = bool(m) and "auth.getSession" in body
+    session_based = bool(m) and "auth.getSession" in body and "HIVE_ID" not in body
     results.append(("MK5 post guard decides on the session, not a cache", session_based,
                     "requirePostAccount reads the live session" if session_based
                     else "the post guard is missing or trusts a cached value (wh_hive_id survives "

@@ -1920,8 +1920,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // is guidance they cannot follow. Tell them what IS free to them here, and name the requirement.
       if (!canPost) {
         text = total === 0
-          ? `No ${section} listings match this view yet. Browsing and contacting sellers is free: posting your own listing needs a WorkHive account.`
-          : `Browse the ${total} listing${total === 1 ? '' : 's'} below and contact any seller directly, free of charge. Posting your own listing needs a WorkHive account.`;
+          ? `No ${section} listings match this view yet. Browsing is free and open: contacting a seller or posting your own listing needs a WorkHive account.`
+          : `Browse the ${total} listing${total === 1 ? '' : 's'} below, free and without an account. Contacting a seller or posting your own listing needs one, and joining is free.`;
       } else if (total === 0 && mine === 0) {
         text = `No ${section} listings yet. Click + Post to add the first one: listings are free, and the trust bar above shows what buyers care about (ID-verified sellers, secure inquiries).`;
       } else if (total === 0) {
@@ -2392,7 +2392,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           </a>`
         : ''}`;
 
-    document.getElementById('btn-detail-contact')?.addEventListener('click', () => {
+    document.getElementById('btn-detail-contact')?.addEventListener('click', async () => {
+      /* MK3 (2026-07-24, walked signed out): this opened the FULL inquiry form to an anonymous buyer
+         — name, phone number, message — and the RLS insert then 42501'd into a toast reading "Failed
+         to send inquiry. Try again." That message is worse than a wall: it invites a retry that can
+         never succeed, on the primary conversion path of a contact-only marketplace, after the buyer
+         has already typed their phone number. Disclose the requirement (and WHY) before the effort. */
+      if (!(await requireAccount('Contacting a seller needs a WorkHive account, so they know who is asking. Joining is free.'))) return;
       closeSheet('detail');
       openInquirySheet(item);
     });
@@ -2534,6 +2540,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      This lives in its own function because the post sheet has TWO entry points: the FAB, and the
      ?post=1&from_inventory= deep link, which calls openSheet('post') directly and would otherwise walk
      straight past the guard. Returns true when posting may proceed. */
+  /* Shared account gate for the two actions that WRITE (posting a listing, sending an inquiry). Both
+     are RLS-backed, so without this the user only discovers the requirement when the insert 42501s
+     after they have already typed everything. Takes the message because the two asks differ, and a
+     gate that explains WHY is a disclosure rather than a wall. */
+  async function requireAccount(message) {
+    let session = null;
+    try { session = (await db.auth.getSession())?.data?.session || null; } catch (_) { session = null; }
+    if (session) return true;
+    showToast(message, 'error');
+    setTimeout(function () { window.location.href = 'index.html?signin=1'; }, 2200);
+    return false;
+  }
+
   async function requirePostAccount() {
     /* Gate on the SESSION, never on a cache. The first version of this guard accepted `HIVE_ID`, and
        `wh_hive_id` SURVIVES sign-out in localStorage — so on a shared device a signed-out visitor still
@@ -2541,12 +2560,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        class as the admin-link gate and the nav-hub identity reconcile: a cache says who someone WAS,
        only the session says who they ARE. Caught by re-testing the guard signed-out instead of
        assuming it worked. */
-    let session = null;
-    try { session = (await db.auth.getSession())?.data?.session || null; } catch (_) { session = null; }
-    if (session) return true;
-    showToast('Posting a listing needs a WorkHive account. Browsing and contacting sellers stays free.', 'error');
-    setTimeout(function () { window.location.href = 'index.html?signin=1'; }, 1800);
-    return false;
+    // "Browsing stays free and open" is the accurate half: contacting a seller ALSO needs an account
+    // (marketplace_inquiries is RLS-backed), so the earlier wording here, which promised free
+    // contacting, was itself a small piece of the same over-promise this class exists to remove.
+    return requireAccount('Posting a listing needs a WorkHive account. Browsing stays free and open.');
   }
 
   async function openPostSheet() {
@@ -3055,7 +3072,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       document.getElementById('form-inquiry')?.reset();
     } catch (err) {
       console.error(err);
-      showToast('Failed to send inquiry. Try again.', 'error');
+      // "Try again" must only be said when trying again could actually work. A 42501/401 means the
+      // session is missing or expired, and no amount of retrying fixes that (MK3, 2026-07-24).
+      const _authFail = err && (String(err.code) === '42501' || String(err.status) === '401'
+                                || /row-level security|JWT|not authenticated/i.test(String(err.message || '')));
+      showToast(_authFail
+        ? 'Your session expired, so the inquiry was not sent. Sign in again and your message will go through.'
+        : 'Failed to send inquiry. Try again.', 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Send Inquiry'; }
     }

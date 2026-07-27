@@ -615,16 +615,17 @@
     },
     "MK3-contact-disclosure-staging": {
       "stages": {
-        "harvest": "partial",
-        "define": "partial",
+        "harvest": "done",
+        "define": "done",
         "detect": "done",
         "sweep": "done",
-        "fix": "todo",
+        "fix": "done",
         "gate": "done"
       },
       "seed": "Detail sheet correctly hid seller phone/email pre-contact (PASSED - lock it so it cannot regress). | 2026-07-24 RE-VERIFIED on the now-public profile: anon gets NO messenger_username from the public RPC and the contact button stays display:none -> making the profile public did NOT widen contact exposure. Still owed: an automated detector (currently hand-verified).",
       "distinct_from": "Generic XSS/PII scanners look for leaks anywhere; MK3 governs STAGE-correctness (which identity data is allowed at which step).",
-      "skill": "security"
+      "skill": "security",
+      "notes": " | 2026-07-24 HARVEST APPLIED (retrieve-first): substrate/external/external-ux-progressive-disclosure-defer-complexity.md (nngroup.com/articles/progressive-disclosure). Its second design criterion is the testable one here: 'make it OBVIOUS how users progress from primary to secondary'. DEFINE: contact details are the secondary level, correctly withheld until the buyer identifies themselves - but the PATH to that level must be visible and honest, not a control that opens and then fails. FIX (a real defect, found by walking it signed out): the PII half was already correct (anon gets no messenger_username from the public RPC, nothing leaks into the detail sheet), but 'Contact Seller' was VISIBLE to an anon and opened the FULL inquiry form - name, phone number, message - and the RLS insert then 42501'd into a toast reading 'Failed to send inquiry. Try again.' That is worse than a wall: it invites a retry that can never succeed, on the primary conversion path of a contact-only marketplace, after the buyer already typed their phone number. Now: the contact step goes through the SHARED requireAccount() session gate (the same one the post sheet uses), discloses WHY an account is needed ('so they know who is asking'), and routes to sign-in before any effort; and an auth failure no longer says 'try again' but explains the expired session. Also corrected my OWN earlier copy, which told anons 'contacting sellers stays free' - free of charge, yes, but it still needs an account, so that wording was a small instance of the same over-promise this class exists to remove. Verified live: toast shown, sheet never opens, redirect to sign-in, 0 inquiry rows written. GATE: 2 new static locks (contact gated before the form; auth failure does not say 'try again') -> 20 PASS / 0 FAIL."
     },
     "MK4-listing-lifecycle-completeness": {
       "stages": {
@@ -655,7 +656,7 @@
     },
     "MK6-parts-flow-continuity": {
       "stages": {
-        "harvest": "partial",
+        "harvest": "done",
         "define": "done",
         "detect": "done",
         "sweep": "done",
@@ -665,7 +666,7 @@
       "seed": "part_number + source_inventory_item_id are written on insert (X keystone), but the inventory->marketplace->inventory ROUND TRIP has never been walked end-to-end. | 2026-07-24 WALKED BOTH DIRECTIONS - CLEAN, no fix needed (a clean walk is a real result). J8 inventory->marketplace: 'marketplace.html?post=1&from_inventory=<id>' opens the post sheet with title, category, description AND both identity fields carried - part_number 'MS-32-AT' + source_inventory_item_id 'at-ms32-1784523395'. So a listing born from stock keeps its provenance, which is the X-keystone. J18 marketplace<-inventory: 'marketplace.html?section=parts&q=<part>' ARRIVES honestly - the search box is prefilled, the Parts section is active, 3 real matches render (JA arrival fidelity holds, no silent drop). REMAINING for this class: J17 'Received this? Add to your inventory' (the third hop) is still unwalked, and there is no GATE yet asserting the two identity fields survive. | J17 third hop WALKED CLEAN: the loop closes into inventory's own restock/add path with the part identity carried on the URL. All THREE hops of the parts-flow round trip are now verified.",
       "distinct_from": "JA (journey-arrival) covers deep-link arrival; MK6 covers IDENTITY SURVIVAL of a domain entity across a 3-hop round trip.",
       "skill": "data-engineer",
-      "notes": " | 2026-07-24 FIX = NO FIX NEEDED, recorded as evidence rather than left ambiguous: the round trip was walked end to end in both directions and every hop held. GATE now built (tools/validate_marketplace_partsflow_continuity.py, registered, 6/6 selftest, 4/4 live). It locks the two halves of the Sell deep link SEPARATELY (a link that inventory emits but marketplace never reads is a dead end that a one-sided grep would call fine), the part_number search filter, the receive round trip, and - checked LIVE against the view, not the migration text - that source_inventory_item_id stays BASE-only, since a later CREATE OR REPLACE VIEW could add it and leak one tenant's internal inventory id to buyers. A clean walk is a real result but not a durable one; this is what makes it stay true."
+      "notes": " | 2026-07-24 FIX = NO FIX NEEDED, recorded as evidence rather than left ambiguous: the round trip was walked end to end in both directions and every hop held. GATE now built (tools/validate_marketplace_partsflow_continuity.py, registered, 6/6 selftest, 4/4 live). It locks the two halves of the Sell deep link SEPARATELY (a link that inventory emits but marketplace never reads is a dead end that a one-sided grep would call fine), the part_number search filter, the receive round trip, and - checked LIVE against the view, not the migration text - that source_inventory_item_id stays BASE-only, since a later CREATE OR REPLACE VIEW could add it and leak one tenant's internal inventory id to buyers. A clean walk is a real result but not a durable one; this is what makes it stay true. | 2026-07-24 HARVEST APPLIED (retrieve-first): substrate/external/external-nng-task-flow-journey-friction-dropoff.md. Its testable rule is 'FAIL on a dead-end/restart, data re-entered that an earlier step already captured, an unclear next step, or lost context between steps'. Audited both hops against it and both hold, with the mechanism checked rather than assumed: the FORWARD hop passes only the item id and RE-FETCHES the inventory row RLS-scoped to the user's own hive, so context survives without trusting URL-supplied fields (a foreign id returns nothing and yields a blank sheet rather than a cross-tenant prefill); the RETURN hop carries part_number + title and BRANCHES on them - already-stocked opens Restock ('add the quantity you received'), new opens Add prefilled ('set the quantity you received and save it'). So: zero re-entry, zero dead ends, the next step is named in both directions, and the whole trip is 2 levels deep, within the doc's guidance against >2."
     },
     "MK7-public-seo-surface-truth": {
       "stages": {
