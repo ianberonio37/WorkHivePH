@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v201';  // bump: moderation receipts now name what happened (a rejection tells the admin the seller can see the reason and resubmit) and an expired admin session no longer says 'try again' - platform-actions + founder-console
+const CACHE_NAME  = 'workhive-shell-v202';  // bump: saved-search badge refreshes on save (the toast said saved while the counter still read 0 until reload) + the disputes empty state stops implying a capability the contact-only marketplace does not have
+// const CACHE_NAME  = 'workhive-shell-v201';  // bump: moderation receipts now name what happened (a rejection tells the admin the seller can see the reason and resubmit) and an expired admin session no longer says 'try again' - platform-actions + founder-console
 // const CACHE_NAME  = 'workhive-shell-v200';  // bump: MK3 - the Contact Seller step now gates on the live session and discloses WHY an account is needed BEFORE opening the inquiry form (an anon used to type name+phone+message and get 'Failed to send inquiry. Try again.' from a 42501), and an auth failure no longer invites a doomed retry
 // const CACHE_NAME  = 'workhive-shell-v199';  // bump: the post-sheet account guard now decides on the LIVE SESSION (wh_hive_id survives sign-out, so the previous HIVE_ID check let a signed-out visitor through) and covers BOTH doors incl. the ?post=1&from_inventory= deep link
 // const CACHE_NAME  = 'workhive-shell-v198';  // bump: tokens.css + components.css gained the general `.hidden` utility (6 pages were rendering class="hidden" elements permanently visible). A CSS shell file changed AFTER the v197 bump, so PWA users would have kept the cached copy and never received the fix — caught by validate_pwa sw_cache_staleness.

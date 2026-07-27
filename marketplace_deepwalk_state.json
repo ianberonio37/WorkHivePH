@@ -157,20 +157,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
+        "W": "done",
         "O": "done",
-        "H": "todo",
+        "H": "done",
         "R": "done"
       },
       "walked": {
         "personas": [
-          "P-buyer"
+          "P-buyer",
+          "P-seller-2"
         ],
         "states": [
+          "S-empty",
           "S-populated"
         ]
       },
-      "notes": "get_saved_search_matches RPC -> badge. Alert honesty + 0-match case unwalked. | 2026-07-24 WALKED - CLEAN. Saving the current search captured the LIVE filter state correctly: search_name, section='parts', query_text='Bearing', category null (=all), active=true, scoped to the signed-in worker. ★My verification 400'd TWICE on wrong column names (I guessed 'name'/'query'; the table uses 'search_name'/'query_text') - the feature was working the whole time. Third instance this session of my PROBE being the fault, not the page: read the schema before asserting a write failed. Row deleted after the walk. Remaining for W-done: a second persona + the match-badge/alert path (get_saved_search_matches)."
+      "notes": "get_saved_search_matches RPC -> badge. Alert honesty + 0-match case unwalked. | 2026-07-24 WALKED - CLEAN. Saving the current search captured the LIVE filter state correctly: search_name, section='parts', query_text='Bearing', category null (=all), active=true, scoped to the signed-in worker. ★My verification 400'd TWICE on wrong column names (I guessed 'name'/'query'; the table uses 'search_name'/'query_text') - the feature was working the whole time. Third instance this session of my PROBE being the fault, not the page: read the schema before asserting a write failed. Row deleted after the walk. Remaining for W-done: a second persona + the match-badge/alert path (get_saved_search_matches). | 2026-07-24 WALKED as christinedizon (2nd persona) across S-empty (no saved searches) and S-populated, driving the real UI rather than seeding rows. Saving from a live filtered view captured the filter state faithfully: section='parts', query_text='bearing', auto-named 'Parts · \"bearing\"'. The ALERT half is alive too, which is the half worth doubting after total_sales: the entry showed '3 new', matching the 3 bearing listings, so get_saved_search_matches actually fires. REAL DEFECT FOUND AND FIXED: immediately after saving, the toast said 'Search saved.' while the header badge still read 0 and stayed 0 until a full page reload - the save handler reloaded the SHEET but never called updateSavedSearchBadge(), which already existed. A receipt that contradicts the counter next to it teaches the user not to trust either. Now fired (fire-and-forget, so badge decoration can never delay or fail a save the user already completed); verified live: hidden/0 before -> '3' and shown immediately after, no reload. Also gave the failure path the honest-retry treatment (an expired session says so instead of inviting a re-tap). | H APPLIED: substrate/external/external-nng-personalization-system-memory-remember-user.md (the EXPANDED G5). Scored per sub-dimension: G5b recents is exactly what a saved search IS, user-curated rather than inferred; G5c sensible defaults shows up as the AUTO-NAME derived from the filter, so the user is never asked to invent a label; G5e transparent+controllable holds because each entry offers Apply and Delete, and personalization here only ADDS a shortcut without removing access to the unfiltered grid; G5a is covered by the existing URL filter-state mirroring. The doc's caution about stale personalization misleading the user is precisely what the stale badge was doing."
     },
     "J6-price-comps-recommend": {
       "type": "T8-commerce",
@@ -349,20 +351,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "partial",
+        "W": "done",
         "O": "done",
-        "H": "todo",
-        "R": "partial"
+        "H": "done",
+        "R": "done"
       },
       "walked": {
         "personas": [
-          "P-admin"
+          "P-admin",
+          "P-buyer"
         ],
         "states": [
-          "S-empty"
+          "S-empty",
+          "S-edge"
         ]
       },
-      "notes": "2026-07-24 RESOLVED BY EVIDENCE: the dispute lifecycle is DEAD-BY-DESIGN, not broken. A platform-wide search shows marketplace_disputes is referenced ONLY by admin resolve-handlers (marketplace-admin / founder-console / platform-actions), audit-log, grafana_reader and validators - there is NO INSERT path on any buyer or seller surface, so no one can ever FILE a dispute. That is coherent with the deliberate Stripe removal (2026-06-30, Ian: 'my marketplace is free'): contact-only, no escrow, no orders, therefore nothing to dispute. marketplace-admin already gates its tab behind PAYMENTS_ENABLED=false. NOT REMOVED unilaterally: ~20 validators + grafana_reader + audit-coverage reference the table, and the panels would be needed again if payments ever return, so ripping them out is a product call with real blast radius, not a cleanup. DISPOSITION: documented vestigial path; the honest follow-up if Ian wants it is to hide the always-empty 'Open disputes' panel on platform-actions the same way marketplace-admin already does."
+      "notes": "2026-07-24 RESOLVED BY EVIDENCE: the dispute lifecycle is DEAD-BY-DESIGN, not broken. A platform-wide search shows marketplace_disputes is referenced ONLY by admin resolve-handlers (marketplace-admin / founder-console / platform-actions), audit-log, grafana_reader and validators - there is NO INSERT path on any buyer or seller surface, so no one can ever FILE a dispute. That is coherent with the deliberate Stripe removal (2026-06-30, Ian: 'my marketplace is free'): contact-only, no escrow, no orders, therefore nothing to dispute. marketplace-admin already gates its tab behind PAYMENTS_ENABLED=false. NOT REMOVED unilaterally: ~20 validators + grafana_reader + audit-coverage reference the table, and the panels would be needed again if payments ever return, so ripping them out is a product call with real blast radius, not a cleanup. DISPOSITION: documented vestigial path; the honest follow-up if Ian wants it is to hide the always-empty 'Open disputes' panel on platform-actions the same way marketplace-admin already does. | 2026-07-24 CLOSED. Re-confirmed dead-by-design with evidence rather than memory: 0 rows in marketplace_disputes, and NO client insert path anywhere (the filing flow went with the payment rail when Stripe was removed 2026-06-30). The table keeps one INSERT policy and is deliberately left vestigial, since roughly 20 validators reference it and de-Stripe was explicitly not a redesign of the order model. REAL FIX: both admin consoles rendered 'No open disputes.' - which reads as 'none right now, but there could be' and quietly implies a capability the platform does not have. On a contact-only marketplace no buyer can EVER file one, so that empty state was the same over-promise class as an unbacked rating: an interface asserting something the system cannot deliver. Both now say so plainly and point to the lever that IS real ('A problem listing comes through the moderation queue instead'). Applied to platform-actions AND founder-console as a sibling sweep; both reload with 0 console errors. H: the NN/g empty-state rule that a cause-explanation alone is only half an empty state and must name a next step - which is exactly what naming the moderation queue supplies."
     },
     "J13-seller-profile-config": {
       "type": "T9-configuration",

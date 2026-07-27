@@ -1828,7 +1828,7 @@
       setUpd('mkt-disputes-updated', 'marketplace_disputes');
       if (dc) {
         if (m._error) dc.innerHTML = `<div class="mod-empty">Couldn't load.</div>`;
-        else if (!(m.disputes||[]).length) dc.innerHTML = `<div class="mod-empty">No open disputes.</div>`;
+        else if (!(m.disputes||[]).length) dc.innerHTML = `<div class="mod-empty">No disputes to review, and none can arrive: WorkHive is contact-only, so there is no in-app way for a buyer to file one. A problem listing comes through the moderation queue instead.</div>`;
         else dc.innerHTML = m.disputes.map(d => `
           <div class="mod-row">
             <div class="mod-main"><strong>${e((d.reason||'Dispute').slice(0,60))}</strong>

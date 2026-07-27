@@ -1522,9 +1522,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       showToast('Search saved.', 'success');
       /* Reload the sheet content with the new entry */
       openSavedSearchesSheet();
+      /* J5 (2026-07-24): the sheet was reloaded but the HEADER badge was not, so right after a save the
+         toast said "Search saved." while the button still read 0 matches until a full page reload. The
+         updater already existed; it just was not called on this path. Fire-and-forget: the badge is
+         decoration and must never delay or fail the save the user already completed. */
+      updateSavedSearchBadge();
     } catch (_err) {
       console.error('marketplace saved-search save failed:', _err);
-      showToast('Could not save. Try again.', 'error');
+      // Only offer a retry when retrying could work; an expired session needs a sign-in, not a re-tap.
+      const _authFail = _err && (String(_err.code) === '42501' || String(_err.status) === '401'
+                                 || /row-level security|JWT|not authenticated/i.test(String(_err.message || '')));
+      showToast(_authFail
+        ? 'Your session expired, so the search was not saved. Sign in again and re-save it.'
+        : 'Could not save. Try again.', 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Save Search'; }
     }
