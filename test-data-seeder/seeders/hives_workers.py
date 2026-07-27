@@ -190,9 +190,31 @@ def seed_hives_and_workers(client, log) -> dict:
                 "status":      "active",
             })
 
+    # HK2 (hive deepwalk 2026-07-27): a KICKED membership, so the revocation branch is walkable.
+    # hive.html ships an explicit rejoin-blocked path — the initHive kicked check, and submitJoin's
+    # "You have been removed from this hive. Contact the supervisor to be re-added." — but NO seeded
+    # row had status='kicked', so that copy and that branch had never once been exercised by anything
+    # except a hand-written UPDATE. Same defect the hive-switcher had (shipped, worked, unwalkable by
+    # construction) and the reason the fixture-coverage gate reads LIVE ROWS rather than this file.
+    # A kicked row is inert for every other query on the platform: membership reads filter on
+    # status='active' or neq 'kicked', so this adds a testable state without changing any count.
+    if hives:
+        _kick_hive = hives[0]["id"]
+        _kicked_of = [m for m in member_rows if m["hive_id"] == _kick_hive and m["role"] != "supervisor"]
+        if _kicked_of:
+            # A former member of the FIRST hive: a real worker_name that no longer belongs there.
+            member_rows.append({
+                "hive_id":     _kick_hive,
+                "worker_name": "Former Member (kicked fixture)",
+                "auth_uid":    None,
+                "role":        "worker",
+                "status":      "kicked",
+            })
+
     client.table("hive_members").insert(member_rows).execute()
     log(f"  inserted {len(member_rows)} hive_members"
-        f" (incl. 1 multi-hive worker so the hive-switch journey is walkable)")
+        f" (incl. 1 multi-hive worker so the hive-switch journey is walkable,"
+        f" and 1 kicked member so the revocation/rejoin-blocked branch is walkable)")
 
     hive_lookup = {h["id"]: h["name"] for h in hives}
     summary: dict = {}

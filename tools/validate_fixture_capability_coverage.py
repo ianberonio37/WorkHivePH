@@ -63,6 +63,18 @@ FIXTURES = [
         "A single-member hive cannot exercise the member list, role change, or removal flows: there "
         "is nobody to act upon.",
     ),
+    (
+        "kicked_membership",
+        "Revocation / rejoin-blocked — a membership with status='kicked'",
+        "select count(*) from public.hive_members where status = 'kicked';",
+        1,
+        "hive.html ships an explicit rejoin-blocked path — the initHive kicked check, and submitJoin's "
+        "'You have been removed from this hive. Contact the supervisor to be re-added.' — but with no "
+        "kicked row anywhere, that branch and that copy had never been exercised by anything except a "
+        "hand-written UPDATE. Found by the HK2 sweep on 2026-07-27, the same shipped-but-unwalkable "
+        "shape as the hive switcher. A kicked row is inert for every other query (membership reads "
+        "filter status='active' or neq 'kicked'), so the fixture costs nothing elsewhere.",
+    ),
 ]
 
 

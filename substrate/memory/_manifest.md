@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:566-files
-source_sha: 03686c6a63bb574a
+source_sha: 2bdb533a4f49b857
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -377,7 +377,7 @@ Entries (name · type · sha):
 - `project_megagate_run_cors_fix_2026_05_28` · project · e266e14766ccb9eb
 - `project_memento_local_memory_cache` · project · 49321e625b7389b1
 - `project_memento_p18_forcing_function_2026_06_11` · project · 0134a500bcf51e5f
-- `project_memory_index_hygiene_2026_06_24` · project · 3025d9c059f55807
+- `project_memory_index_hygiene_2026_06_24` · project · 272ebb15a8a957ca
 - `project_memory_stack_flywheel_2026_05_30` · project · 9239b9f6cbe9baf8
 - `project_memory_system_mseries_2026_06_24` · project · bba389fbfe119b2a
 - `project_native_ai_roadmap` · project · eabb6cb1e047da1d
