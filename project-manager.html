@@ -1,3 +1,7 @@
+  // PJ8: distinguish "computed, nothing critical" from "could not compute" — the old empty
+  // default drew every task non-critical with ZERO slack, which is a verdict, not an absence.
+  // PJ9: explicit columns, NOT select('*') — budget_php is revoked, and a wildcard would 42501
+  // the whole detail view. Mig 024.
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -987,7 +991,7 @@ async function loadProjects() {
   // #card-grid never flashes blank before project cards render (shared whListSkeleton).
   if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('card-grid'), 4);
   const { data, error } = await db.from('projects')
-    .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, created_at, updated_at')  /* PJ9: budget_php REMOVED — it reached every user's browser before any pane decided. Mig 024. */
+    .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, created_at, updated_at')  /* PJ9: budget_php REMOVED. Mig 024. */
     .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false }).limit(1000); // Arc L · L2: row cap (projects/hive ≤ low hundreds; newest-first so the active set is never truncated)
   if (error) { showToast('Load failed: ' + error.message, 'error'); return; }
   _projects = data || [];
@@ -1659,7 +1663,7 @@ async function wizardSubmit() {
     owner_name: $('wiz-owner').value || null,
     start_date: $('wiz-start').value || null,
     end_date: $('wiz-end').value || null,
-    budget_php: $('wiz-budget').value ? Number($('wiz-budget').value) : null,
+    // PJ2: budget_php out of the INSERT; set after creation via set_project_budget(). Mig 030.
     description: $('wiz-desc').value.trim() || null,
   };
   const { data: ins, error: insErr } = await db.from('projects').insert(projPayload).select().single();
@@ -1815,7 +1819,11 @@ async function saveProject() {
   // PJ9: only a caller who could READ the budget may write it. The key is OMITTED rather than sent
   // as null, because null is a real value here and would erase the figure — a blank field on a
   // worker's screen means "withheld", never "zero".
-  if (_budgetReadable) payload.budget_php = $('f-budget').value ? Number($('f-budget').value) : null;
+  // PJ2: budget_php is supervisor-only to WRITE too now — a worker could set one they could not
+  // see. Goes through set_project_budget() after the row write. Mig 030.
+  const _budgetToSet = _budgetReadable
+    ? ($('f-budget').value ? Number($('f-budget').value) : null)
+    : undefined;
   if (_editingId) {
     let projQuery = db.from('projects')
       .update({ ...payload, updated_at: new Date().toISOString() })
@@ -1826,6 +1834,11 @@ async function saveProject() {
     if (projRows !== null && projRows !== undefined && projRows.length === 0) {
       showToast('Project was modified by someone else, reload to see the latest.', 'error');
       return;
+    }
+    if (_budgetToSet !== undefined) {
+      const { data: _bres } = await db.rpc('set_project_budget', { p_project_id: _editingId, p_budget_php: _budgetToSet });
+      // A refusal is not a failed save — the project WAS written; say which part did not apply.
+      if (_bres && _bres.ok === false) showToast(_bres.detail || 'Budget was not changed.', 'error');
     }
     showToast('✓ Project saved → Project Report updated · refreshes wherever it is linked (Logbook · PM Scheduler)', 'success', 5000);
     closeModal('modal-project');
@@ -1842,6 +1855,13 @@ async function saveProject() {
   payload.status = 'planning';
   const { data: ins, error: insErr } = await db.from('projects').insert(payload).select().single();
   if (insErr) { showToast('Create failed: ' + insErr.message, 'error'); return; }
+  // PJ2: budget set AFTER creation via the supervisor-only RPC (INSERT on the column is revoked).
+  // A refusal is not a failed create — the project exists; only the figure did not apply.
+  const _wizBudget = $('wiz-budget').value ? Number($('wiz-budget').value) : null;
+  if (_wizBudget !== null) {
+    const { data: _br } = await db.rpc('set_project_budget', { p_project_id: ins.id, p_budget_php: _wizBudget });
+    if (_br && _br.ok === false) showToast(_br.detail || 'Project created, but the budget was not set.', 'error', 6000);
+  }
   showToast(`✓ Project ${payload.project_code} created → shows in Project Report now · linkable to assets from Logbook & PM Scheduler`, 'success', 6000);
   closeModal('modal-project');
   await loadProjects();
@@ -2661,11 +2681,8 @@ function renderBudget() {
   if (!isSupervisor()) { $('pane-budget')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty">Budget visibility is restricted to supervisors.</div>'; return; }
   const ev = _progress?.earned_value;
   if (!ev) {
-    // PJ7/PJ8 (2026-07-28): two different reasons produce no Earned Value, and only one of them is
-    // the user's to fix. The old single message told a supervisor to "add a budget, start date and
-    // end date" even when all three existed and the rollup had simply not answered — sending them
-    // to re-enter data that was already there. The engine reports {available:false, reason:...}
-    // when inputs are genuinely missing, so its absence entirely means the computation did not run.
+    // PJ7/PJ8: two reasons produce no EVM and only one is the user's to fix. The engine returns
+    // {available:false, reason} when inputs are missing, so ITS absence means it did not run.
     const _reason = _progress?.rollup?.evm_reason || (_progress ? null : 'unavailable');
     $('pane-budget')/* xss-allow: static strings only */ .innerHTML = _reason === 'unavailable'
       ? '<div class="empty">Earned Value could not be computed right now. Refresh to try again; '

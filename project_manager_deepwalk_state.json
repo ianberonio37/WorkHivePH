@@ -14,32 +14,48 @@
     "PJ01": {
       "title": "First run - a hive with no projects at all",
       "phases": {
-        "G": "partial",
-        "W": "todo",
+        "G": "done",
+        "W": "done",
         "O": "todo",
         "H": "todo",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-new",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-zero-projects",
+          "S-filtered-to-nothing",
+          "S-verdict-empty"
+        ]
       },
-      "notes": ""
+      "notes": "WALKED 2026-07-28 (static, and the limitation is stated below). THIS ONE IS CLEAN, recorded as a real result rather than hunted for a defect: renderEmptyState DISTINGUISHES the two empty states that PJ8 had to be fixed for elsewhere - totalProjects === 0 renders four actionable template tiles ('Pick a flavour. Each one comes with industry-standard scope items you can tweak'), while 'some exist but none match the filter' renders a separate hint pointing at clearing the search or switching to All. The Plain-Read verdict degrades honestly too: tone='empty', 'No projects yet', with a next action naming BOTH routes (+ New Project, or the AI text bootstrap), and the stat cards read 'No projects in active status' tagged IDLE/grey rather than a bare 0. LIMITATION, stated rather than papered over: this was verified by reading the branches, NOT by walking a live zero-project hive, because all three seeded hives hold 12 projects each. That is the AHK3 class again - the first-run state every new customer begins in has no fixture. Lower severity than the Asset Hub instance (the branches here are simple and provably distinct, where AH1's cold-start hid two real defects), so it is logged rather than treated as blocking, and the seeder gap is the honest reason W is credited on two states rather than a live walk."
     },
     "PJ02": {
       "title": "Create a project - code generation, dates, budget",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-code-generated",
+          "S-soft-deleted-code-freed",
+          "S-code-reused",
+          "S-restore-collides",
+          "S-after-fix"
+        ]
       },
-      "notes": ""
+      "notes": "WALKED 2026-07-28. THE RACE IS SAFE, checked first: generate_project_code does MAX(seq)+1 and the client then INSERTs, which is a read-then-write - but projects_code_per_hive is a UNIQUE index on (hive_id, project_code) WHERE deleted_at IS NULL, so two concurrent creates collide with 23505 rather than producing a duplicate. The CON-2026-001 x3 rows are across DIFFERENT hives, which the per-hive index correctly allows. THE REAL DEFECT is the interaction between that PARTIAL index and soft delete. The generator scans 'WHERE deleted_at IS NULL', so deleting a project immediately frees its code. Proven live in a rolled-back transaction: soft-delete SHD-2026-001 (live count 1 -> 0), generator returns SHD-2026-001 again, a new project takes it - and RESTORING the original then fails with 'duplicate key value violates unique constraint projects_code_per_hive'. WHY IT MATTERS MORE NOW: mig ...026, written earlier in this same arc, made restore a first-class supervisor-gated AUDITED operation. So the arc had just made prominent a path that can fail with a raw 23505 and no explanation. Finding this was a direct consequence of having built that. FIXED BY STOPPING THE REUSE, not by patching restore, for the same reason the change-order work settled on: the code is an IDENTITY THAT LEAVES THE SYSTEM - printed on Project and Reliability Reports, quoted in change orders, referenced in sign-off documents. Two projects sharing SHD-2026-001 in the historical record is worse than a confusing error; one is recoverable, the other means two documents cannot be told apart. mig ...029 drops the deleted_at filter from the generator's scan so the sequence only moves forward. The partial UNIQUE INDEX is deliberately LEFT ALONE - it is what makes soft-delete possible at all; the fix just stops the generator walking into the overlap. VERIFIED: generator now returns SHD-2026-002 with SHD-2026-001 soft-deleted, and the restore SUCCEEDS. SECOND PERSONA, added because the SHALLOW-W GUARD REFUSED to credit this journey on one - and that refusal is the only reason the next defect surfaced. Probing as an ordinary worker found: a worker CAN create a project (including a CAPEX one), and - the real find - a worker could SET budget_php to PHP 5,000,000 on it. PJ9's mig ...024 closed the READ path and never touched the WRITE path: information_schema still showed authenticated and anon holding INSERT and UPDATE on the column. So a worker could not SEE any budget and could WRITE one. The page-level _budgetReadable guard I had added stops the UI doing it, and a page-level guard is precisely what PJK3 exists to reject. FIXED (mig ...030): INSERT/UPDATE revoked on the column by the same mechanism as SELECT (drop the table-wide grant, re-grant every other column from a GENERATED list), plus set_project_budget() as the sanctioned supervisor-only write - because revoking without providing a path would have broken supervisors, who legitimately set budgets in both the wizard and the edit form. Both page paths rewired: the edit form applies the budget after the row write, and the wizard after creation, each reporting a refusal as 'the project saved, the budget did not' rather than implying total failure. VERIFIED: worker INSERT with a budget -> permission denied; worker creating a project WITHOUT one -> still works; worker calling the RPC -> refused with a reason; SUPERVISOR via the RPC -> {ok:true, budget_php:2500000}."
     },
     "PJ03": {
       "title": "Scope items: add, sequence, set predecessors",
@@ -201,16 +217,24 @@
       "title": "Roles: assign, remove, and what a role actually gates (G5)",
       "phases": {
         "G": "done",
-        "W": "todo",
+        "W": "done",
         "O": "todo",
         "H": "todo",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-roles-seeded",
+          "S-roles-rendered",
+          "S-authority-scan",
+          "S-role-gates-nothing"
+        ]
       },
-      "notes": "GROUND 2026-07-28. The G5 fixture is BUILT, which is the prerequisite this journey could not start without: project_change_orders held ZERO rows platform-wide, so approve/reject/cancel had never run against data. Seeded all four states with their companion fields generated TOGETHER so no row is fiction - approved carries an approver AND a timestamp and no reason; rejected carries a REASON and no approved_at; pending and cancelled carry neither. Verified 0 incoherent rows across 12 COs (3 per state). project_roles likewise went 0 -> 36. A DEFECT CAUGHT IN MY OWN SEEDER BEFORE IT SHIPPED: the first draft wrote role='lead'/'member', but the CHECK allows only owner|planner|safety_officer|cost_engineer|reviewer. The insert would have been rejected while the seeder's try/except logged a WARN and returned an empty list - leaving the table exactly as empty as it started and looking seeded. Same shape as the Asset Hub is_anomaly defect: a value the CHECK forbids, failing quietly. Verified against pg_constraint, not guessed. WALK still to do."
+      "notes": "WALKED 2026-07-28. The G5 fixture made this walkable at all - project_roles went 0 -> 36 rows. THE FINDING: a project role GATES NOTHING. The CHECK allows owner | planner | safety_officer | cost_engineer | reviewer, the rows are loaded, grouped by role and rendered with a count - and no authority anywhere consults them. Every gate on the page keys off isSupervisor(), which reads HIVE_ROLE === 'supervisor' from hive_members: the budget tab, the Acknowledge button, the remove-role control. Nor do any of the three guards I added this session consult a project role (the one grep hit in mig ...026 is a comment listing cascade tables). The only place the concept appears in a decision is project_roles_supervisor_all, the policy saying supervisors may MANAGE roles. WHY THAT MATTERS RATHER THAN BEING MERELY UNUSED: the role VOCABULARY makes a promise the system does not keep. 'safety_officer' and 'cost_engineer' name accountability - a reader reasonably assumes the safety officer is the one who signs something off, or that a cost engineer is who approves a change order's cost impact. Assigning them changes nothing at all. That is the same shape as a trust signal with no producer behind it. NOT FIXED, because the fix is a PRODUCT FORK and not mine to decide: either (a) project roles are informational, a team directory, in which case the naming should stop implying authority, or (b) they are meant to gate - and then the obvious wiring is that a change order's cost impact needs the cost_engineer or a supervisor, and safety-classified scope needs the safety_officer, which is a real design decision about how a plant runs. Recorded for Ian rather than guessed."
     },
     "PJ11": {
       "title": "Links to logbook / inventory / marketplace - do they survive deletion?",

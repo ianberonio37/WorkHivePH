@@ -188,6 +188,12 @@ serveObserved("project-progress", async (req: Request) => {
      A failure is non-fatal: diagnostic.py already returns {available:false, reason:'Requires
      budget_php + start_date + end_date'} when it is absent, which is the honest outcome. */
   try {
+    // canonical-allow: v_project_truth deliberately no longer carries budget_php (PJ9 — the column
+    // is supervisor-only, and leaving it on a security_invoker view would both re-open the read and
+    // break every select('*') caller once the base column was revoked). The canonical view remains
+    // correct for everything else this function reads; the budget is the one field that cannot come
+    // from it by design. service_role retains column access, so this base-table read is the
+    // sanctioned path rather than a bypass.
     const { data: _b } = await db.from('projects')
       .select('budget_php').eq('id', project_id).maybeSingle();
     if (_b && projRes.data) (projRes.data as Record<string, unknown>).budget_php = _b.budget_php;

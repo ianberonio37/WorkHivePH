@@ -6515,7 +6515,7 @@
       "defined_in": "20260505000000_project_manager.sql",
       "args": "p_hive_id uuid, p_type text, p_year integer",
       "security_definer": false,
-      "comment": "",
+      "comment": "Next project code for a hive/type/year. CHANGED 2026-07-28 (PJ2): the scan no longer excludes soft-deleted projects, so a code is never reissued. Reusing one made RESTORING the original fail with a raw 23505 against projects_code_per_hive - and mig ...026 had just made restore a first-class audited operation - while also leaving two projects sharing a code in reports that were already printed.",
       "called_by_surfaces": [
         "project-manager.html"
       ],
@@ -8064,6 +8064,16 @@
       "security_definer": true,
       "comment": "BEFORE UPDATE on project_progress_logs. A filed report's content is immutable, acknowledging it is a supervisor act, and nobody may acknowledge their OWN report. Before this a worker could rewrite another worker's log to claim 100% while the row still named the original reporter, and could self-acknowledge. PJ6.",
       "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "set_project_budget": {
+      "defined_in": "20260728000030_budget_write_is_supervisor_only_too.sql",
+      "args": "p_project_id uuid, p_budget_php numeric",
+      "security_definer": true,
+      "comment": "Supervisor-only WRITE of projects.budget_php. PJ9 closed the READ path and left INSERT/UPDATE on the column granted, so a worker could SET a budget they could not SEE - proven live at PHP 5,000,000. Same supervisor predicate as get_project_budget. PJ2/PJK3.",
+      "called_by_surfaces": [
+        "project-manager.html"
+      ],
       "called_by_edge_fns": []
     }
   },

@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:405
-source_sha: 6e27a817a265c001
+source: dir:supabase/migrations:407
+source_sha: c268eadf6222ce56
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (405 migrations)
+## migration · catalog (407 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260609000003_fix_community_xp_helpers_search_path` — fns:handle_community_reaction_xp,increment_community_xp
-- `20260609000004_fix_schedule_item_v1_category_enum` — (misc DDL/DML)
 - `20260609000005_fix_readiness_blocker_summary` — fns:compute_hive_readiness
 - `20260609000006_ai_reply_feedback` — policies:ai_reply_feedback_insert,ai_reply_feedback_read · fns:enforce_ai_reply_feedback_daily_limit · triggers:trg_ai_reply_feedback_daily_limit · tables:ai_reply_feedback
 - `20260610000000_fix_pm_scope_frequency_days` — (misc DDL/DML)
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260728000026_deleting_a_project_is_a_supervisor_act_and_is_recorded` — fns:guard_and_audit_project_removal · triggers:trg_project_removal_guard_audit
 - `20260728000027_a_progress_report_is_a_record_not_a_draft` — fns:guard_progress_log_is_a_record · triggers:trg_progress_log_is_a_record
 - `20260728000028_anchor_get_project_budget` — (misc DDL/DML)
+- `20260728000029_a_project_code_is_never_reused` — fns:generate_project_code
+- `20260728000030_budget_write_is_supervisor_only_too` — fns:set_project_budget
 
 (showing last 200)
 

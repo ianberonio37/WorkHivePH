@@ -2,16 +2,16 @@
 name: page-project-manager
 type: page
 source: file:project-manager.html
-source_sha: f3fb2590818f361b
+source_sha: 55cab752355ed000
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `project-manager.html` — Project Manager | WorkHive
 
-Size: 170KB · 96 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 171KB · 96 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (12): `project_change_orders.insert`, `project_change_orders.update`, `project_items.insert`, `project_items.update`, `project_links.delete`, `project_links.insert`, `project_progress_logs.insert`, `project_progress_logs.update`, `project_roles.delete`, `project_roles.insert`, `projects.insert`, `projects.update`
-**RPC calls**: `generate_change_order_number`, `generate_project_code`, `get_project_budget`
+**RPC calls**: `generate_change_order_number`, `generate_project_code`, `get_project_budget`, `set_project_budget`
 **Edge invokes**: `embed-entry`, `project-orchestrator`, `project-progress`
 **Truth views read**: `v_inventory_items_truth`, `v_logbook_truth`, `v_marketplace_listings_truth`, `v_project_items_truth`, `v_project_progress_truth`, `v_project_truth`
 
