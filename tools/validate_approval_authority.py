@@ -175,7 +175,22 @@ def main():
         "WHERE c.relname='asset_nodes' AND NOT t.tgisinternal "
         "AND p.proname IN ('bind_asset_nodes_submitter','bind_approved_by_from_hive');")
 
+    # AH12 (2026-07-28): deleting an asset node is the other governance act on this table, and it is
+    # the most destructive. Measured on the worst real node: one DELETE takes 4,331 rows — 4 FMEA
+    # modes, 2 RCM strategies, a Weibull fit, a P-F interval and 4,323 SENSOR READINGS, the evidence
+    # base every future fit would be derived from — plus 59 logbook entries orphaned. tg_guard_approval
+    # already refuses a non-supervisor deleting an APPROVED node, so authority is covered; this is the
+    # record of what it cost. BEFORE DELETE, because after the cascade the counts no longer exist.
+    delete_audit = _psql(
+        "SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid "
+        "WHERE c.relname='asset_nodes' AND NOT t.tgisinternal "
+        "AND t.tgname='trg_asset_node_delete_audit';")
+
     checks = [
+        ("delete_is_recorded",
+         "OK" if (delete_audit or "0").strip() not in ("0", "") else "MISSING", "OK",
+         "deleting an asset node records what the cascade destroyed (its FMEA, strategies, fits and "
+         "sensor history) — losing the readings means no future fit for that machine is derivable"),
         ("decision_is_recorded",
          "OK" if (decision_audit or "0").strip() not in ("0", "") else "MISSING", "OK",
          "an approve/reject DECISION is recorded by the DATABASE, with the reason and the deciding "

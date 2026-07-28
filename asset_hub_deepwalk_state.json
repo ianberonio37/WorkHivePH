@@ -220,17 +220,23 @@
     "AH12": {
       "title": "Delete / retire an asset - what happens to FMEA, RCM, history",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-reliability"
+        ],
+        "states": [
+          "S-approved-node",
+          "S-with-full-reliability-history"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28. THE FK DESIGN IS RIGHT AND IS NOT CHANGED - recorded as a real result. CASCADE covers what is genuinely PART of the asset (rcm_fmea_modes, weibull_fits, pf_intervals, sensor_readings, asset_embeddings, asset_edges) while SET NULL covers records that merely REFERENCE it and stand on their own (logbook, pm_knowledge, anomaly_signals, drone_inspections, and parent_id). A technician's written entry survives the asset being retired - the same disposition PM6 verified for logbook.pm_completion_id. And tg_guard_approval already refuses a non-supervisor deleting an APPROVED node, so the AUTHORITY half was covered. WHAT WAS MISSING IS THE EVIDENCE, and the blast radius is far larger than PM12's. Measured on the worst real node (VFD-001): one DELETE takes 4,331 rows - 4 FMEA modes, 2 RCM strategies, 1 Weibull fit, 1 P-F interval and 4,323 SENSOR READINGS - and orphans 59 logbook entries. Nothing recorded any of it. THE READINGS ARE THE PART THAT MATTERS AND THE PART LEAST OBVIOUS: losing 4,323 of them is not losing a number on a screen, it is losing the ability to EVER re-derive a Weibull fit or a P-F interval for that machine - precisely the numbers AHK2 established decide when it is next opened up. The FMEA and strategies can be re-authored by a person; the condition history cannot. FIXED by migration 20260728000016, the PM12 pattern: a BEFORE DELETE trigger counting the children while they still exist and recording fmea/strategies/weibull/pf/readings destroyed plus logbook entries ORPHANED (a separate word, because those survive - they only lose their link). BEFORE matters: after the cascade the counts no longer exist to record. Proven live in a rolled-back transaction - the audit row reads exactly {fmea 4, strategies 2, weibull 1, pf 1, sensor_readings 4323, logbook_orphaned 59} and the readings really were gone (0 left). GATED as a 7th check in validate_approval_authority; teeth proven by dropping the trigger (exit 1)."
     },
     "AH13": {
       "title": "Cross-hive: foreign reliability data cannot leak or be written",
