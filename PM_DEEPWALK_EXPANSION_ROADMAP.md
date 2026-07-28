@@ -246,8 +246,15 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
     `ai-gateway`'s proactive briefing head-counted scope-item rows and said "40 PM tasks overdue"
     where every screen says 29. Fixed to the canonical asset count. The companion is the surface a
     user can least verify, so it is the worst place to hold the minority definition.
-17. Then §5 order downward — **PM1, PM2, PM3, PM16** remain (onboarding, registration, triage,
-    templates); every ⑤-harvest that earns a class refills this queue.
+17. ~~**PM3** — worst-first triage per role.~~ Two answers. The triage VIEW is identical for both
+    roles and that is honest: `pm_scope_items` has no assignee column, so there is nothing to
+    personalise on. The write affordance was the defect — "Supervisors only." lived only in the page
+    while a WORKER could rename a supervisor's asset to 'HIJACKED' and drop its criticality.
+    Measuring first is the only reason the naive fix did not ship: it would have silently stopped
+    every asset rename from propagating (90/90 pairs). Fixed in order — RPC first
+    (`20260728000008`), then the guard (`20260728000009`).
+18. Then §5 order downward — **PM1, PM2, PM16** remain (first-run, registration, templates); every
+    ⑤-harvest that earns a class refills this queue.
 
 **Carried out of the PM7 walk, CLOSED by PM15:** the summary cards shared a first-paint reserve
 deficit — each `.sc-sub` placeholder is one line and fills to two or three, which was most of the

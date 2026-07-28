@@ -231,7 +231,28 @@ ROLLBACK;
         "         JOIN public.pm_completions c ON c.id = l.pm_completion_id "
         "        WHERE l.hive_id IS DISTINCT FROM c.hive_id);")
 
+    # PM3 (PM deepwalk, 2026-07-28): pm-scheduler says "Supervisors only." when a worker taps Edit
+    # Asset, but pm_assets_write was satisfied by ANY active member — probed live, a WORKER renamed a
+    # supervisor's asset to 'HIJACKED' and set criticality Low. Both halves are asserted, because
+    # they only work as a PAIR: the UPDATE guard (20260728000009) is safe ONLY because the legitimate
+    # rename propagation moved into sync_pm_asset_identity (20260728000008). Applying the guard
+    # without the RPC would silently stop every asset rename from reaching pm_assets — measured, all
+    # 90 pm_asset<->node pairs have a node author who is neither the asset's author nor a supervisor.
+    update_policy = _psql_value(
+        "SELECT count(*) FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid "
+        "WHERE c.relname='pm_assets' AND p.polname='pm_assets_update_guard' "
+        "AND p.polpermissive = false AND p.polcmd = 'w';")
+    sync_rpc = _psql_value(
+        "SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace "
+        "WHERE n.nspname='public' AND p.proname='sync_pm_asset_identity' AND p.prosecdef;")
+
     checks = [
+        ("update_role_gated", ("OK" if (update_policy or "0").strip() not in ("0", "") else "MISSING"), "OK",
+         "editing a PM asset is supervisor-or-author at the DATABASE, not only in the page "
+         "(criticality drives risk scoring, triage order and alert severity)"),
+        ("identity_sync_rpc_present", ("OK" if (sync_rpc or "0").strip() not in ("0", "") else "MISSING"), "OK",
+         "sync_pm_asset_identity still exists — without it the update guard silently stops every "
+         "asset rename from propagating to pm_assets"),
         ("mirror_lineage_sound", ("OK" if (mirror_bad or "0").strip() == "0" else "BROKEN"), "OK",
          "no logbook PM-mirror is dangling or sits in a different hive from its completion"),
         ("delete_role_gated", wdel, "BLOCKED",

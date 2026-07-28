@@ -2524,11 +2524,25 @@ async function syncToPMAssets(oldTagId, newTagId, newName) {
 
   if (!Object.keys(syncUpdates).length) return;
 
-  const { error } = await db.from('pm_assets')
-    .update(syncUpdates)
-    .eq('tag_id', oldTagId);
+  // PM3 (PM deepwalk, 2026-07-28): route through sync_pm_asset_identity instead of writing
+  // pm_assets directly. The direct UPDATE only worked because pm_assets was writable by ANY active
+  // member — the same gap that let a WORKER rename a supervisor's asset to 'HIJACKED' and drop its
+  // criticality. Closing that gap with the natural "supervisor or author" rule would have broken
+  // THIS call for every asset on the platform: measured, all 90 pm_asset<->node pairs have a node
+  // author who is neither the pm_asset's author nor a supervisor, and a 0-row UPDATE is not an
+  // error, so the rename would have silently stopped propagating and the name would diverge between
+  // asset_nodes and pm_assets. The propagation is a system action, so the DATABASE performs it: the
+  // RPC checks hive membership itself and can only touch asset_name / tag_id.
+  const { data: synced, error } = await db.rpc('sync_pm_asset_identity', {
+    p_old_tag:  oldTagId,
+    p_new_tag:  syncUpdates.tag_id     || null,
+    p_new_name: syncUpdates.asset_name || null,
+  });
 
   if (error) console.warn('pm_assets sync skipped:', error.message);
+  // A rename that matched nothing is worth saying out loud: the PM Scheduler will keep showing the
+  // OLD name, so the two surfaces now disagree about what the machine is called.
+  else if (!synced) console.warn('pm_assets sync matched no rows for tag', oldTagId);
 }
 
 function criticalityBadge(c) {

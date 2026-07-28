@@ -1224,7 +1224,6 @@
       "written_by_surfaces": [
         "asset-hub.html",
         "integrations.html",
-        "logbook.html",
         "pm-scheduler.html"
       ],
       "read_by_edge_fns": [
@@ -7972,6 +7971,16 @@
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "sync_pm_asset_identity": {
+      "defined_in": "20260728000008_pm_asset_identity_sync_rpc.sql",
+      "args": "p_old_tag  text,\n  p_new_tag  text DEFAULT NULL,\n  p_new_name text DEFAULT NULL",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "logbook.html"
+      ],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -8356,12 +8365,12 @@
         "asset_nodes",
         "hive_audit_log",
         "logbook",
-        "pm_assets",
         "pm_completions",
         "project_links"
       ],
       "rpcs_called": [
-        "inventory_deduct"
+        "inventory_deduct",
+        "sync_pm_asset_identity"
       ],
       "edge_fns_invoked": [
         "cmms-push-completion",
@@ -8369,7 +8378,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 308.9
+      "size_kb": 310.1
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -9241,7 +9250,7 @@
         "record_ai_chain_depth"
       ],
       "edge_fns_invoked": [],
-      "loc": 1651
+      "loc": 1662
     },
     "ai-orchestrator": {
       "tables_read": [

@@ -89,13 +89,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "The triage dashboard. G: the PDDA arc fixed worst-first sort (overdue was buried on page 2, now position 0) and getAssetOverallStatus. Per-ROLE triage is unwalked - a tech and a supervisor want different orderings."
+      "walked": {
+        "personas": [
+          "P-worker",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-triage-list",
+          "S-edit-attempt"
+        ]
+      },
+      "notes": "The triage dashboard. G: the PDDA arc fixed worst-first sort (overdue was buried on page 2, now position 0) and getAssetOverallStatus. Per-ROLE triage is unwalked - a tech and a supervisor want different orderings. WALKED 2026-07-28. TWO ANSWERS. (1) THE TRIAGE VIEW IS THE SAME FOR BOTH ROLES, and that is HONEST rather than a gap: pm_scope_items has no assignee column (id, asset_id, hive_id, item_text, frequency, anchor_date, is_custom, created_at), so there is no data on which to personalise a tech's list. Worst-first for everyone is the correct design for this schema; personalising it would need a schema change, not a UI change. Role differentiation is therefore about WRITE affordances, and HIVE_ROLE is re-derived from live membership on load rather than trusted from cache - the role-gate-on-session rule already applied. (2) THE WRITE AFFORDANCE WAS UI-ONLY, the same class as PM12's delete. The page says 'Supervisors only.' when a worker taps Edit Asset, while pm_assets_write's USING was satisfied by ANY active member. Probed live: a WORKER renamed a supervisor's asset to 'HIJACKED' and set its criticality to Low - one row, no error. That is consequential: criticality feeds risk scoring, triage order and alert severity, and asset_name is how every surface identifies the machine. THE OBVIOUS FIX WOULD HAVE BROKEN THE PLATFORM, and measuring first is the only reason it did not ship. Mirroring the delete guard ('supervisor OR the asset's author') would also have refused logbook.html's syncToPMAssets, which propagates a rename from asset_nodes into pm_assets. Measured: of 90 pm_asset<->node pairs, ALL 90 have a node author different from the pm_asset author, and in all 90 that author is not a supervisor. Every rename on the platform would have matched 0 rows - and a 0-row UPDATE is not an error, so the existing `if (error)` warning would never have fired. The name would have silently diverged between asset_nodes and pm_assets: a cross-surface identity split, the exact class this platform has spent arcs closing. FIXED IN THE RIGHT ORDER, three verified slices. 20260728000008 makes the propagation a SECURITY DEFINER RPC (sync_pm_asset_identity) that checks hive membership itself and can only touch asset_name/tag_id, so it is not a back door around the supervisor gate; logbook.html now calls it and warns when a rename matches nothing; then 20260728000009 adds the restrictive UPDATE guard. Proven together: worker direct edit -> 0 rows, worker rename via the RPC -> 1 row, supervisor direct edit -> 1 row, and a cross-hive rename through the RPC -> 0 rows with the foreign name unchanged. GATED: validate_pm_write_isolation 10 -> 12 checks, asserting BOTH halves, because they are only safe as a pair - the guard without the RPC is the silent-divergence bug. Teeth proven by dropping the guard (exit 1)."
     },
     "PM04": {
       "type": "T2-core",

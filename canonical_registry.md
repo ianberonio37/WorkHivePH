@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **156**
 - Views:         **53**
-- RPCs:          **196**
+- RPCs:          **197**
 - HTML surfaces: **61**
 - Edge fns:      **98**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -24,7 +24,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `pm_completions` | 9 | yes | no | asset-hub.html, hive.html, logbook.html, pm-scheduler.html ... | logbook.html, pm-scheduler.html | — |
 | `project_links` | 8 | no | no | inventory.html, logbook.html, pm-scheduler.html, project-manager.html ... | inventory.html, logbook.html, pm-scheduler.html ... | — |
 | `marketplace_listings` | 25 | yes | yes | founder-console.html, marketplace-admin.html, marketplace-seller.html, marketplace.html ... | founder-console.html, marketplace-admin.html, marketplace-seller.html ... | — |
-| `pm_assets` | 12 | yes | no | asset-hub.html, integrations.html, logbook.html, pm-scheduler.html | asset-hub.html, integrations.html, logbook.html ... | — |
+| `pm_assets` | 12 | yes | no | asset-hub.html, integrations.html, logbook.html, pm-scheduler.html | asset-hub.html, integrations.html, pm-scheduler.html | — |
 | `hive_members` | 7 | yes | no | asset-hub.html, hive.html, inventory.html, logbook.html ... | hive.html | — |
 | `marketplace_sellers` | 19 | yes | no | founder-console.html, marketplace-admin.html, marketplace-seller.html, platform-actions.html | founder-console.html, marketplace-admin.html, marketplace-seller.html ... | — |
 | `external_sync` | 11 | no | no | integrations.html | integrations.html | cmms-push-completion, cmms-sync, cmms-webhook-receiver |
@@ -348,6 +348,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `store_memory_turn` | p_hive_id uuid,   p_session_id text,   p_turn_num int,   p_u | yes | — | — |
 | `suppress_alert` | p_alert_id bigint, p_hours int default 24 | yes | — | — |
 | `sync_auth_uid_on_signup` |  | yes | — | — |
+| `sync_pm_asset_identity` | p_old_tag  text,   p_new_tag  text DEFAULT NULL,   p_new_nam | yes | logbook.html | — |
 | `tg_asset_nodes_touch_updated` |  | no | — | — |
 | `tg_rcm_touch_updated` |  | no | — | — |
 | `tg_shift_plans_touch_updated` |  | no | — | — |
@@ -405,7 +406,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `ipython_inline_figure.html` | — | — | — | — |
 | `lineage.html` | — | — | — | — |
 | `llm-observability.html` | ai_cost_log | — | — | — |
-| `logbook.html` | asset_nodes, equipment_reading_templates, fault_knowledge, hive_audit_log ... | asset_nodes, hive_audit_log, logbook ... | inventory_deduct | cmms-push-completion, equipment-label-ocr, visual-defect-capture |
+| `logbook.html` | asset_nodes, equipment_reading_templates, fault_knowledge, hive_audit_log ... | asset_nodes, hive_audit_log, logbook ... | inventory_deduct, sync_pm_asset_identity | cmms-push-completion, equipment-label-ocr, visual-defect-capture |
 | `marketplace-admin.html` | hive_audit_log, marketplace_disputes, marketplace_listings, marketplace_orders ... | hive_audit_log, marketplace_disputes, marketplace_listings ... | — | — |
 | `marketplace-seller-profile.html` | marketplace_reviews, v_marketplace_inquiries_truth, v_marketplace_listings_truth, v_marketplace_sellers_truth | — | get_marketplace_seller_public, get_seller_community_reputation | — |
 | `marketplace-seller.html` | hive_audit_log, marketplace_inquiries, marketplace_listings, marketplace_sellers ... | hive_audit_log, marketplace_inquiries, marketplace_listings ... | — | — |
