@@ -228,7 +228,11 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
     `hive_id` your own + `scope_item_id` theirs was ACCEPTED, crediting the foreign hive's compliance
     (502→503 measured) and clearing its overdue PM via `last_completed_at`. Migration
     `20260728000007`; `validate_pm_write_isolation` now 9 checks.
-13. Then §5 order downward — **PM1–PM4, PM6, PM14, PM16, PM17** remain; every ⑤-harvest that earns a
+13. ~~**PM6** — the completion→logbook mirror lineage.~~ Clean: 40 mirrors, 0 dangling, 0 cross-hive,
+    40/40 with node lineage, and `SET NULL` correctly keeps the technician's record when a completion
+    goes. Gated on the DATA (a payload check cannot see a dangling or cross-hive mirror). Recorded
+    gap: `logbook.html` never links a mirrored entry back to its PM.
+14. Then §5 order downward — **PM1–PM4, PM14, PM16, PM17** remain; every ⑤-harvest that earns a
     class refills this queue.
 
 **Carried out of the PM7 walk, CLOSED by PM15:** the summary cards shared a first-paint reserve

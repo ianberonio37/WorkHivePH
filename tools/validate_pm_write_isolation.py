@@ -216,7 +216,24 @@ ROLLBACK;
     if wdel == "NOFIXTURE":       # no worker + foreign-authored asset to probe with
         wdel = "BLOCKED"
 
+    # PM6 (PM deepwalk, 2026-07-28): the completion -> logbook mirror's lineage, checked in the DATA
+    # rather than in the client payload. validate_pm asserts the page SENDS pm_completion_id; that
+    # gate passed for months while 0 of 1,591 completions actually carried one, so the provenance it
+    # protects was undemonstrable until the logbook arc seeded it. Two invariants that a payload
+    # check cannot see: a mirror must not point at a completion that no longer exists, and it must
+    # never sit in a different hive from the completion it mirrors (that would be a tenancy leak
+    # through the back door — a logbook entry in hive A citing hive B's work).
+    mirror_bad = _psql_value(
+        "SELECT (SELECT count(*) FROM public.logbook l "
+        "         WHERE l.pm_completion_id IS NOT NULL AND NOT EXISTS "
+        "           (SELECT 1 FROM public.pm_completions c WHERE c.id = l.pm_completion_id)) "
+        "     + (SELECT count(*) FROM public.logbook l "
+        "         JOIN public.pm_completions c ON c.id = l.pm_completion_id "
+        "        WHERE l.hive_id IS DISTINCT FROM c.hive_id);")
+
     checks = [
+        ("mirror_lineage_sound", ("OK" if (mirror_bad or "0").strip() == "0" else "BROKEN"), "OK",
+         "no logbook PM-mirror is dangling or sits in a different hive from its completion"),
         ("delete_role_gated", wdel, "BLOCKED",
          "a worker deleting a PM asset they did not author is rejected (it would cascade the "
          "asset's whole completion history away)"),

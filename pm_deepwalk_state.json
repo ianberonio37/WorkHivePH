@@ -145,13 +145,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Completion -> logbook mirror (pm_completion_id lineage). G: gate #27 pm_mirror_asset_lineage locks the CREATE lineage, and the logbook arc seeded 40 mirrored completions so the journey is finally demonstrable (it was 0/1591 before)."
+      "walked": {
+        "personas": [
+          "P-tech",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-mirrored-completion",
+          "S-deleted-completion"
+        ]
+      },
+      "notes": "Completion -> logbook mirror (pm_completion_id lineage). G: gate #27 pm_mirror_asset_lineage locks the CREATE lineage, and the logbook arc seeded 40 mirrored completions so the journey is finally demonstrable (it was 0/1591 before). WALKED 2026-07-28 and the lineage is SOUND - recorded as a real clean result. 40 logbook rows mirror a PM completion: 0 dangling, 0 sitting in a different hive from their completion, and 40 of 40 carry node lineage (asset_node_id). The logbook arc's seeder is what made this demonstrable at all; before it, 0 of 1,591 completions carried a pm_completion_id. THE FK's SET NULL IS THE RIGHT DISPOSITION, checked rather than assumed: deleting a completion (including via the PM12 asset cascade) leaves the logbook entry standing with its pointer nulled. The entry is the technician's own written record and must survive; and its MEANING survives the lost pointer too, because the row still reads maintenance_type='Preventive Maintenance' / 'Scheduled PM'. CASCADE would delete a worker's record to tidy a foreign key; RESTRICT would block a legitimate asset deletion. GAP RECORDED, NOT INVENTED AWAY: logbook.html contains ZERO references to pm_completion_id, so the page never links a mirrored entry back to the PM that produced it. The reader can tell it IS a PM from the text; what is missing is the click-through. That is a UX addition rather than a defect fix, so it is written here instead of built mid-arc - the same call made for PM9's missing skip UI. GATE ADDED because the existing one could not see this: validate_pm asserts the PAGE SENDS pm_completion_id, and that check passed for months while no row actually had one. A payload check cannot see dangling or cross-hive mirrors, so validate_pm_write_isolation grew a 10th check on the DATA (a mirror in a different hive from its completion is a tenancy leak through the back door: an entry in hive A citing hive B's work). MY OWN MISTAKE, recorded: the teeth test mutated a REAL logbook row's hive_id and my note called it 'rolled back' when it was not in a transaction. Caught immediately, restored by rejoining the row to its completion's hive (1 row, 0 cross-hive remaining, gate back to 10/10). A walk can consume its own fixture - restore it, and do not label a bare UPDATE as rolled back."
     },
     "PM07": {
       "type": "T5-insight",
