@@ -247,9 +247,17 @@ A green headline over a short denominator produces no red anywhere.
 
 ### Deliberately NOT built (so the next reader does not re-open them)
 
-- **No job expires a parts recommendation.** The UI now refuses to act on a stale one on both
-  surfaces, but `status` stays `pending` forever. A sweep or `pg_cron` job is the real fix and was
-  out of this arc's scope.
+- ~~No job expires a parts recommendation.~~ **BUILT after all** (`...020`). Writing it into this
+  list is what showed it was a buildable unit, not a scope note: `status` already allowed
+  `'expired'` in its CHECK and nothing had ever written it — a state unreachable rather than merely
+  unseeded. `expire_stale_parts_recommendations()` + `parts-recs-expire-0550pht` mirror the existing
+  `amc_expire_stale()` pattern rather than inventing a second one. Only `pending` moves (accepted /
+  dismissed record a human decision) and a NULL `expires_at` is left alone (no shelf life declared
+  is not the same as expired), which is exactly what both surfaces already assume. Proven: 4 pending
+  -> 3 expired + 1 NULL-expiry untouched, idempotent on re-run, and of three past-expiry rows in
+  `accepted`/`dismissed`/`pending` only the pending one moved. asset-hub's loader now reads
+  `status IN ('pending','expired')` so the sweep does not make the card silently vanish — the
+  surfaces differ on VISIBILITY by design, never on the FACT.
 - **The full AIAG-VDA Action Priority table.** Its ~1000 S/O/D cells are not reproduced; inventing
   them would defeat the point of an auditable contract. Registered `partial_variant: true`.
 - **77 pre-existing orphan tags** (72 `logbook` rows with no `asset_node_id` to fall back on).

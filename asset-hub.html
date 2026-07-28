@@ -1843,9 +1843,15 @@
       if (!candidates.length) return;
 
       const { data, error } = await db.from('parts_staging_recommendations')
-        .select('id, asset_name, risk_score, failure_mode, parts, rationale, confidence, expires_at, generated_at')
+        .select('id, asset_name, risk_score, failure_mode, parts, rationale, confidence, expires_at, generated_at, status')
         .eq('hive_id', HIVE_ID)
-        .eq('status', 'pending')
+        // AH14 + the ...020 sweep: 'expired' is included ON PURPOSE. The sweep now moves stale
+        // rows out of 'pending', and a pending-only filter would make the card silently VANISH —
+        // which is the behaviour AH14 deliberately rejected for this surface. On the asset's own
+        // page, "a recommendation was made and has gone stale" explains why there is nothing to
+        // act on; alert-hub still filters expired out, because there it would be noise competing
+        // with live alerts. The two surfaces disagree on VISIBILITY by design, never on the FACT.
+        .in('status', ['pending', 'expired'])
         .in('asset_name', candidates)
         .order('generated_at', { ascending: false })
         .limit(1);
@@ -1875,7 +1881,11 @@
       // Kept VISIBLE rather than filtered out, unlike alert-hub: this is the asset's own page, where
       // "a recommendation was made and has gone stale" is worth knowing — it explains why there is
       // nothing to act on. What is removed is the false affordance, not the information.
-      rec._expired = !!(rec.expires_at && new Date(rec.expires_at) < new Date());
+      // Expired by the SWEEP (status) or by the clock (a row the sweep has not reached yet — it
+      // runs 05:50 PHT, so a recommendation can lapse hours before the row says so). Either is
+      // enough; trusting status alone would re-open the original bug for most of the day.
+      rec._expired = rec.status === 'expired'
+        || !!(rec.expires_at && new Date(rec.expires_at) < new Date());
 
       _stagingRec = rec;
       _renderStagingCard(rec);
