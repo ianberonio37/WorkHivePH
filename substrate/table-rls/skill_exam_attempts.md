@@ -2,7 +2,7 @@
 name: table-rls-skill_exam_attempts
 type: table-rls
 source: db:pg_policies+pg_trigger:skill_exam_attempts
-source_sha: 23d088277ca1d8df
+source_sha: 022f2e41d5ed7ef9
 last_verified: 2026-07-13
 supersedes: null
 ---

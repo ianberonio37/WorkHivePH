@@ -2,7 +2,7 @@
 name: table-rls-analytics_events
 type: table-rls
 source: db:pg_policies+pg_trigger:analytics_events
-source_sha: a837812f627236ea
+source_sha: 59edb3e888541f6d
 last_verified: 2026-07-13
 supersedes: null
 ---

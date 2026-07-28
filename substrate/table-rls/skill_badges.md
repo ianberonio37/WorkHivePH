@@ -2,7 +2,7 @@
 name: table-rls-skill_badges
 type: table-rls
 source: db:pg_policies+pg_trigger:skill_badges
-source_sha: 5d56f3dbeffc46f5
+source_sha: fdca62cc47bf3c9b
 last_verified: 2026-07-13
 supersedes: null
 ---

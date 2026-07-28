@@ -2,7 +2,7 @@
 name: table-rls-dialog_state
 type: table-rls
 source: db:pg_policies+pg_trigger:dialog_state
-source_sha: 2b4f072ac0da67ca
+source_sha: 3759908aff6744b3
 last_verified: 2026-07-13
 supersedes: null
 ---

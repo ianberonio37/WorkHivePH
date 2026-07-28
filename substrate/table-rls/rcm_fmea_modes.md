@@ -2,7 +2,7 @@
 name: table-rls-rcm_fmea_modes
 type: table-rls
 source: db:pg_policies+pg_trigger:rcm_fmea_modes
-source_sha: e20542651443d40a
+source_sha: d67cf70de7c9f5c5
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -20,6 +20,6 @@ Policies:
 
 Guard triggers: `tg_guard_approval`, `trg_text_caps_rcm_fmea`
 
-**Verdict:** FLAGS: rcm_fmea_modes_parent_hive_guard (ALL) USING is open ('true') — potential cross-tenant read/stream.
+**Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

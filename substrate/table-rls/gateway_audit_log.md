@@ -2,7 +2,7 @@
 name: table-rls-gateway_audit_log
 type: table-rls
 source: db:pg_policies+pg_trigger:gateway_audit_log
-source_sha: 6891ebcb4915aede
+source_sha: 005a42012a598854
 last_verified: 2026-07-13
 supersedes: null
 ---

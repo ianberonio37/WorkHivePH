@@ -2,7 +2,7 @@
 name: table-rls-pm_scope_items
 type: table-rls
 source: db:pg_policies+pg_trigger:pm_scope_items
-source_sha: f10ade3a270faca3
+source_sha: 626023cf3edaea38
 last_verified: 2026-07-13
 supersedes: null
 ---

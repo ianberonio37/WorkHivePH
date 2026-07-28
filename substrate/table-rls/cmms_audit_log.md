@@ -2,7 +2,7 @@
 name: table-rls-cmms_audit_log
 type: table-rls
 source: db:pg_policies+pg_trigger:cmms_audit_log
-source_sha: 9da3cbf16a95e6ba
+source_sha: dcdb341259462b18
 last_verified: 2026-07-13
 supersedes: null
 ---

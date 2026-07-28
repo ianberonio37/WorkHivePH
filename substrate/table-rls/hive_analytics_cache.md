@@ -2,7 +2,7 @@
 name: table-rls-hive_analytics_cache
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_analytics_cache
-source_sha: 109f8197414ff256
+source_sha: ab069aa6118e4fb3
 last_verified: 2026-07-13
 supersedes: null
 ---

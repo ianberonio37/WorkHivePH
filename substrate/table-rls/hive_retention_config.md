@@ -2,7 +2,7 @@
 name: table-rls-hive_retention_config
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_retention_config
-source_sha: 5b9dc959f47059c3
+source_sha: d12ec4bf6c49a79f
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-agent_followups
 type: table-rls
 source: db:pg_policies+pg_trigger:agent_followups
-source_sha: 259e31011f9e96a4
+source_sha: 559c7ee118a4dfb4
 last_verified: 2026-07-13
 supersedes: null
 ---

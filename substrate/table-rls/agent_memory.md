@@ -2,7 +2,7 @@
 name: table-rls-agent_memory
 type: table-rls
 source: db:pg_policies+pg_trigger:agent_memory
-source_sha: 02f0a29fb756c11d
+source_sha: 4f8d10ac0e6c2144
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-sensor_topic_map
 type: table-rls
 source: db:pg_policies+pg_trigger:sensor_topic_map
-source_sha: e28c50dc51bea916
+source_sha: 229521b52e365b4d
 last_verified: 2026-07-13
 supersedes: null
 ---

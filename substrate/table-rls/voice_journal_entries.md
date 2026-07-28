@@ -2,7 +2,7 @@
 name: table-rls-voice_journal_entries
 type: table-rls
 source: db:pg_policies+pg_trigger:voice_journal_entries
-source_sha: d9c99a130e73f9e9
+source_sha: 1488ef973746d5cc
 last_verified: 2026-07-13
 supersedes: null
 ---

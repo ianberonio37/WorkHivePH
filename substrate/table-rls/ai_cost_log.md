@@ -2,7 +2,7 @@
 name: table-rls-ai_cost_log
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_cost_log
-source_sha: 8e0ae99ca694ff7d
+source_sha: 79b3f297d3fbf96c
 last_verified: 2026-07-13
 supersedes: null
 ---

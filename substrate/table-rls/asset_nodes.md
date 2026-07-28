@@ -2,7 +2,7 @@
 name: table-rls-asset_nodes
 type: table-rls
 source: db:pg_policies+pg_trigger:asset_nodes
-source_sha: 698db827d51cad8e
+source_sha: 3574d626755484c4
 last_verified: 2026-07-13
 supersedes: null
 ---

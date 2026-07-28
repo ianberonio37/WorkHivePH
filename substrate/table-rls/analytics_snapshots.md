@@ -2,7 +2,7 @@
 name: table-rls-analytics_snapshots
 type: table-rls
 source: db:pg_policies+pg_trigger:analytics_snapshots
-source_sha: 85b924c2220b99a5
+source_sha: d05e1aad2e37cbd1
 last_verified: 2026-07-13
 supersedes: null
 ---

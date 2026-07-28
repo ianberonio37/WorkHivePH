@@ -2,7 +2,7 @@
 name: table-rls-community_xp
 type: table-rls
 source: db:pg_policies+pg_trigger:community_xp
-source_sha: d2cff75de8541854
+source_sha: 6b2309b676d9b6f9
 last_verified: 2026-07-13
 supersedes: null
 ---

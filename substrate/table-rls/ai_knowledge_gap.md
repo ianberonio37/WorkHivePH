@@ -2,7 +2,7 @@
 name: table-rls-ai_knowledge_gap
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_knowledge_gap
-source_sha: 6dbd3f09b7370a57
+source_sha: 27b5c8841d80a1a2
 last_verified: 2026-07-13
 supersedes: null
 ---

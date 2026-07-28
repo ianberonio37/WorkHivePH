@@ -2,7 +2,7 @@
 name: table-rls-schedule_items
 type: table-rls
 source: db:pg_policies+pg_trigger:schedule_items
-source_sha: 12c75d3b8da21be2
+source_sha: a2f89fc4bf4b95ba
 last_verified: 2026-07-13
 supersedes: null
 ---

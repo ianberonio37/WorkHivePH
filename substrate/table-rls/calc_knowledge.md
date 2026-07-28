@@ -2,7 +2,7 @@
 name: table-rls-calc_knowledge
 type: table-rls
 source: db:pg_policies+pg_trigger:calc_knowledge
-source_sha: 4e36b672503107e9
+source_sha: 73cd77954d7b2f6a
 last_verified: 2026-07-13
 supersedes: null
 ---

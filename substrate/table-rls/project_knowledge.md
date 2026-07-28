@@ -2,7 +2,7 @@
 name: table-rls-project_knowledge
 type: table-rls
 source: db:pg_policies+pg_trigger:project_knowledge
-source_sha: d2868c69ce55848e
+source_sha: b183f3cfa85622f0
 last_verified: 2026-07-13
 supersedes: null
 ---

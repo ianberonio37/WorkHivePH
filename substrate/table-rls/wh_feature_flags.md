@@ -2,7 +2,7 @@
 name: table-rls-wh_feature_flags
 type: table-rls
 source: db:pg_policies+pg_trigger:wh_feature_flags
-source_sha: bfb8fd8ee8f29772
+source_sha: e93f14f80a085601
 last_verified: 2026-07-13
 supersedes: null
 ---

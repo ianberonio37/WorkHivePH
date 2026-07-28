@@ -2,7 +2,7 @@
 name: table-rls-asset_watchlist
 type: table-rls
 source: db:pg_policies+pg_trigger:asset_watchlist
-source_sha: 2f7d1a5d52a467da
+source_sha: 517f16866b5a6526
 last_verified: 2026-07-13
 supersedes: null
 ---

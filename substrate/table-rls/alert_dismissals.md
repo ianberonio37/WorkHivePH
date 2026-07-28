@@ -2,7 +2,7 @@
 name: table-rls-alert_dismissals
 type: table-rls
 source: db:pg_policies+pg_trigger:alert_dismissals
-source_sha: 14e5d12146be0ff0
+source_sha: cee0b023e2a24f2b
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2558,7 +2558,7 @@ async function syncToPMAssets(oldTagId, newTagId, newName, nodeId) {
   // rename half-applied (asset_nodes moved, the history did not), and only they can resolve it by
   // choosing a different tag.
   if (sync && sync.ok === false && sync.reason === 'tag already in use') {
-    showToast(sync.detail || 'That tag already belongs to another asset — history was not moved.');
+    showToast(sync.detail || 'That tag already belongs to another asset, so history was not moved.');
     return;
   }
   // A rename that matched nothing is worth saying out loud: the PM Scheduler and the logbook will

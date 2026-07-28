@@ -2,7 +2,7 @@
 name: table-rls-knowledge_graph_facts
 type: table-rls
 source: db:pg_policies+pg_trigger:knowledge_graph_facts
-source_sha: 6f4407bbb6f7e6c5
+source_sha: 6d34218077cf1bb3
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-ai_reply_feedback
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_reply_feedback
-source_sha: b55abe665ee883ff
+source_sha: 2270d026f560816e
 last_verified: 2026-07-13
 supersedes: null
 ---

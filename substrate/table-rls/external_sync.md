@@ -2,7 +2,7 @@
 name: table-rls-external_sync
 type: table-rls
 source: db:pg_policies+pg_trigger:external_sync
-source_sha: ad28987330c5fee9
+source_sha: b707a675b582e8e6
 last_verified: 2026-07-13
 supersedes: null
 ---

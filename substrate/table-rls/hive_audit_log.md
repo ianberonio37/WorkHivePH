@@ -2,7 +2,7 @@
 name: table-rls-hive_audit_log
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_audit_log
-source_sha: c772be33e6e9b23e
+source_sha: 5568fc66f20fa2cf
 last_verified: 2026-07-13
 supersedes: null
 ---

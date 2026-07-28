@@ -2,7 +2,7 @@
 name: table-rls-sensor_readings
 type: table-rls
 source: db:pg_policies+pg_trigger:sensor_readings
-source_sha: 514a4bd9ffd10a19
+source_sha: 6e2b08097d157701
 last_verified: 2026-07-13
 supersedes: null
 ---

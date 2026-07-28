@@ -2,7 +2,7 @@
 name: table-rls-conversation_analytics
 type: table-rls
 source: db:pg_policies+pg_trigger:conversation_analytics
-source_sha: 62d9ee7decc1a4fe
+source_sha: 469b3fffda02472e
 last_verified: 2026-07-13
 supersedes: null
 ---

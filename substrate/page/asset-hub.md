@@ -2,7 +2,7 @@
 name: page-asset-hub
 type: page
 source: file:asset-hub.html
-source_sha: 732b3345f20aa3f4
+source_sha: 2a15dd458c1705a3
 last_verified: 2026-07-13
 supersedes: null
 ---

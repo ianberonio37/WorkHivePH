@@ -2,7 +2,7 @@
 name: table-rls-agent_episodic_memory
 type: table-rls
 source: db:pg_policies+pg_trigger:agent_episodic_memory
-source_sha: c0df99c8b7ed45f2
+source_sha: ac5bf7bd1c0c2b1b
 last_verified: 2026-07-13
 supersedes: null
 ---

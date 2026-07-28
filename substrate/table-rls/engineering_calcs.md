@@ -2,7 +2,7 @@
 name: table-rls-engineering_calcs
 type: table-rls
 source: db:pg_policies+pg_trigger:engineering_calcs
-source_sha: fc4fb94256851a83
+source_sha: d0cc0e8578b4c1bb
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-ai_quality_escalation
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_quality_escalation
-source_sha: 8a6cbaa8390981a5
+source_sha: 0145fda90840fa4d
 last_verified: 2026-07-13
 supersedes: null
 ---

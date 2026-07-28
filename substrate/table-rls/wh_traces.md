@@ -2,7 +2,7 @@
 name: table-rls-wh_traces
 type: table-rls
 source: db:pg_policies+pg_trigger:wh_traces
-source_sha: 3619e62600318bcb
+source_sha: 9c72021ea73c33e4
 last_verified: 2026-07-13
 supersedes: null
 ---

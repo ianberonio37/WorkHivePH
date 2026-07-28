@@ -2,7 +2,7 @@
 name: table-rls-hive_quotas
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_quotas
-source_sha: 96dc5aacfe0d093c
+source_sha: d4ebbbec8559cc0c
 last_verified: 2026-07-13
 supersedes: null
 ---

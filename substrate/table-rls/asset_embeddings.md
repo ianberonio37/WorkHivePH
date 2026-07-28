@@ -2,7 +2,7 @@
 name: table-rls-asset_embeddings
 type: table-rls
 source: db:pg_policies+pg_trigger:asset_embeddings
-source_sha: d2ec12a730ed3e5d
+source_sha: 3254edce7be0812a
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-shared_voice_notes
 type: table-rls
 source: db:pg_policies+pg_trigger:shared_voice_notes
-source_sha: 312344f1c86b71de
+source_sha: 25c6b12252cd2258
 last_verified: 2026-07-13
 supersedes: null
 ---

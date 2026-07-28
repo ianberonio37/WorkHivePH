@@ -2,7 +2,7 @@
 name: table-rls-ai_rate_limits
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_rate_limits
-source_sha: 0e2de5660d660568
+source_sha: 333e3f9b3797435c
 last_verified: 2026-07-13
 supersedes: null
 ---

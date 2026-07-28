@@ -2,7 +2,7 @@
 name: table-rls-marketplace_listings
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_listings
-source_sha: d302c38456fc5ff7
+source_sha: 7acab16378b4034a
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-integration_configs
 type: table-rls
 source: db:pg_policies+pg_trigger:integration_configs
-source_sha: c85279314ca88dc3
+source_sha: 650aaa2cc30521c2
 last_verified: 2026-07-13
 supersedes: null
 ---

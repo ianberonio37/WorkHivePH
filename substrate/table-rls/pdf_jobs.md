@@ -2,7 +2,7 @@
 name: table-rls-pdf_jobs
 type: table-rls
 source: db:pg_policies+pg_trigger:pdf_jobs
-source_sha: 824277ac1e67fce3
+source_sha: a123d9ec68fd35c2
 last_verified: 2026-07-13
 supersedes: null
 ---

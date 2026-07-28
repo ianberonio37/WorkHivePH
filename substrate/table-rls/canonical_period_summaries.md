@@ -2,7 +2,7 @@
 name: table-rls-canonical_period_summaries
 type: table-rls
 source: db:pg_policies+pg_trigger:canonical_period_summaries
-source_sha: 294922784200a72a
+source_sha: a44f8d3bb1991a21
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-community_posts
 type: table-rls
 source: db:pg_policies+pg_trigger:community_posts
-source_sha: 4e976a8bc0153875
+source_sha: 96c637d66793ad53
 last_verified: 2026-07-13
 supersedes: null
 ---

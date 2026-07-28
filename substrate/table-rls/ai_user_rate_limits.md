@@ -2,7 +2,7 @@
 name: table-rls-ai_user_rate_limits
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_user_rate_limits
-source_sha: eeee236aca92d3b1
+source_sha: d03820bb934a7a39
 last_verified: 2026-07-13
 supersedes: null
 ---

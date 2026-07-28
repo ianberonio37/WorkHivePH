@@ -2,7 +2,7 @@
 name: table-rls-hive_adoption_score
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_adoption_score
-source_sha: 7a96fe99c8215b55
+source_sha: 1e5a850fd095533d
 last_verified: 2026-07-13
 supersedes: null
 ---

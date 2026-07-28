@@ -2,7 +2,7 @@
 name: table-rls-report_contacts
 type: table-rls
 source: db:pg_policies+pg_trigger:report_contacts
-source_sha: be2c830997509313
+source_sha: 9162424a66505a1a
 last_verified: 2026-07-13
 supersedes: null
 ---

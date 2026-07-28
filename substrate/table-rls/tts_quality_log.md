@@ -2,7 +2,7 @@
 name: table-rls-tts_quality_log
 type: table-rls
 source: db:pg_policies+pg_trigger:tts_quality_log
-source_sha: 52d07a21c53ed7e8
+source_sha: 4b71804bce424a70
 last_verified: 2026-07-13
 supersedes: null
 ---

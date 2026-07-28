@@ -2,7 +2,7 @@
 name: table-rls-drone_inspections
 type: table-rls
 source: db:pg_policies+pg_trigger:drone_inspections
-source_sha: d971a4933681f6bc
+source_sha: faff5c970f5590b8
 last_verified: 2026-07-13
 supersedes: null
 ---

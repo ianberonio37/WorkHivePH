@@ -2,7 +2,7 @@
 name: table-rls-skill_profiles
 type: table-rls
 source: db:pg_policies+pg_trigger:skill_profiles
-source_sha: 69eaa0356fa815b4
+source_sha: 89595e0b39f1493b
 last_verified: 2026-07-13
 supersedes: null
 ---

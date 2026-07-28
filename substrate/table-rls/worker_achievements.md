@@ -2,7 +2,7 @@
 name: table-rls-worker_achievements
 type: table-rls
 source: db:pg_policies+pg_trigger:worker_achievements
-source_sha: d4848c56457b77ff
+source_sha: 3f17fad4595aa34c
 last_verified: 2026-07-13
 supersedes: null
 ---

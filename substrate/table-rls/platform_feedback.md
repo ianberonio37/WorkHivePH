@@ -2,7 +2,7 @@
 name: table-rls-platform_feedback
 type: table-rls
 source: db:pg_policies+pg_trigger:platform_feedback
-source_sha: f777b2ecb59fa580
+source_sha: 7a64183a9a3bb017
 last_verified: 2026-07-13
 supersedes: null
 ---

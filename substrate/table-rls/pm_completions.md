@@ -2,7 +2,7 @@
 name: table-rls-pm_completions
 type: table-rls
 source: db:pg_policies+pg_trigger:pm_completions
-source_sha: 11fbf6bee5c495c3
+source_sha: c8d79f38e65d0892
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -20,6 +20,6 @@ Policies:
 
 Guard triggers: `trg_bind_submitter_pm_completion`, `trg_daily_cap_pm_comp`, `trg_text_caps_pm_comp`
 
-**Verdict:** FLAGS: pm_completions_scope_parent_guard (ALL) USING is open ('true') — potential cross-tenant read/stream.
+**Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

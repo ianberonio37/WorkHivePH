@@ -2,7 +2,7 @@
 name: table-rls-inventory_items
 type: table-rls
 source: db:pg_policies+pg_trigger:inventory_items
-source_sha: 14f7427637a9b62a
+source_sha: c0fe52511ed6d732
 last_verified: 2026-07-13
 supersedes: null
 ---

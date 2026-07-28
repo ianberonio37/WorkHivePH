@@ -2,7 +2,7 @@
 name: table-rls-marketplace_sellers
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_sellers
-source_sha: 51cbf84860e116fc
+source_sha: 9728b0cd9fb7bad0
 last_verified: 2026-07-13
 supersedes: null
 ---

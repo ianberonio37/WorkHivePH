@@ -2,7 +2,7 @@
 name: table-rls-auth_session_events
 type: table-rls
 source: db:pg_policies+pg_trigger:auth_session_events
-source_sha: 0d33cc64396907d8
+source_sha: 4b99a78700add159
 last_verified: 2026-07-13
 supersedes: null
 ---

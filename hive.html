@@ -4765,6 +4765,19 @@ async function loadAuditLog() {
     approve_asset_node:    { icon: '✓',  color: '#4ade80', label: 'Approved asset' },
     reject_asset_node:     { icon: '✗',  color: '#f87171', label: 'Rejected asset' },
     restore_asset_node:    { icon: '↺',  color: '#29B6D9', label: 'Restored asset' },
+    // PM Scheduler + Asset Hub deepwalk arcs (2026-07-28). These are written by DB TRIGGERS, not
+    // by writeAuditLog callers, which is exactly why they were missed: the triggers were added to
+    // make an amendment or a deletion tamper-evident, and without a row here the audit log renders
+    // each one as a generic unlabelled dot - the trail exists but cannot be read, which defeats
+    // the point of adding it.
+    // No `color` key: it is DEAD in this map - nothing reads cfg.color, the glyph's colour comes
+    // from _auditColor() via the _AUD_SEC/_AUD_NEG/_AUD_POS sets below. Adding raw brand hexes
+    // here would have been dead weight AND a design-token regression, so these register their
+    // VALENCE in those sets instead, which is what actually reaches the screen.
+    amend_pm_completion:   { icon: '✎',  label: 'Amended PM completion' },
+    amend_pm_schedule:     { icon: '⏱',  label: 'Changed PM schedule' },
+    delete_asset_node:     { icon: '⊘',  label: 'Deleted asset (and its reliability history)' },
+    approved:              { icon: '✓',  label: 'Approved' },
     // Inventory CRUD
     create_inventory_item: { icon: '＋', color: '#4ade80', label: 'Added inventory item' },
     edit_inventory_item:   { icon: '✎',  color: '#29B6D9', label: 'Edited inventory item' },
@@ -4812,6 +4825,8 @@ async function loadAuditLog() {
     approve_item: 'Inaprubahan', reject_item: 'Tinanggihan', register_asset: 'Nagrehistro ng asset',
     edit_asset: 'In-edit ang asset', delete_asset: 'Binura ang asset', approve_asset_node: 'Inaprubahan ang asset',
     reject_asset_node: 'Tinanggihan ang asset', restore_asset_node: 'Ibinalik ang asset',
+    amend_pm_completion: 'Binago ang natapos na PM', amend_pm_schedule: 'Binago ang iskedyul ng PM',
+    delete_asset_node: 'Binura ang asset at ang kasaysayan nito', approved: 'Inaprubahan',
     create_inventory_item: 'Nagdagdag ng inventory item', edit_inventory_item: 'In-edit ang inventory item',
     delete_inventory_item: 'Binura ang inventory item', edit_part: 'In-edit ang piyesa',
     create_logbook_entry: 'Bagong logbook entry', edit_logbook_entry: 'In-edit ang logbook entry',
@@ -4835,9 +4850,9 @@ async function loadAuditLog() {
   // C1/K1: collapse the audit palette to a SEMANTIC set so red/amber stay meaningful instead of
   // 7-way category coding. green=create/approve · red=destroy/reject · amber=security-only · neutral=rest.
   // The glyph (from ACTION_ICON) carries the specific action; color carries only valence.
-  const _AUD_SEC = new Set(['new_device']);
-  const _AUD_POS = new Set(['member_joined','alert_handled','approve_item','register_asset','approve_asset_node','restore_asset_node','create_inventory_item','create_logbook_entry','complete_pm','approve_fmea_mode','approve_rcm_strategy','anomaly_resolved','approve_amc_brief','create_listing','resolve_dispute_order','verify','assign']);
-  const _AUD_NEG = new Set(['kick_member','reject_item','delete_asset','reject_asset_node','delete_inventory_item','delete_pm_asset','delete_fmea_mode','delete_rcm_strategy','reject_amc_brief','open_dispute','right_to_erasure']);
+  const _AUD_SEC = new Set(['new_device','amend_pm_completion','amend_pm_schedule']);
+  const _AUD_POS = new Set(['member_joined','alert_handled','approve_item','register_asset','approve_asset_node','restore_asset_node','create_inventory_item','create_logbook_entry','complete_pm','approve_fmea_mode','approve_rcm_strategy','anomaly_resolved','approve_amc_brief','create_listing','resolve_dispute_order','verify','assign','approved']);
+  const _AUD_NEG = new Set(['kick_member','reject_item','delete_asset','reject_asset_node','delete_inventory_item','delete_pm_asset','delete_fmea_mode','delete_rcm_strategy','reject_amc_brief','open_dispute','right_to_erasure','delete_asset_node']);
   const _auditColor = a => _AUD_SEC.has(a) ? '#F7A21B' : _AUD_NEG.has(a) ? '#f87171' : _AUD_POS.has(a) ? '#4ade80' : '#94a3b8';
   list.innerHTML = data.map(row => {
     const cfg = ACTION_ICON[row.action] || { icon: '·', color: '#94a3b8', label: String(row.action || '').replace(/_/g, ' ') || 'Action recorded' };

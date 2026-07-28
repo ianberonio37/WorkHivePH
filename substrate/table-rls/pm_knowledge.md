@@ -2,7 +2,7 @@
 name: table-rls-pm_knowledge
 type: table-rls
 source: db:pg_policies+pg_trigger:pm_knowledge
-source_sha: b1089e1004a9a273
+source_sha: 9b8d6d53bd9264db
 last_verified: 2026-07-13
 supersedes: null
 ---

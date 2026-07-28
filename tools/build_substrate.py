@@ -93,10 +93,13 @@ def build_table_rls(check_only: bool):
     pols = {}
     for r in (psql("SELECT tablename, policyname, cmd, array_to_string(roles,','), "
                    "regexp_replace(coalesce(qual,''), '\\s+', ' ', 'g'), "
-                   "regexp_replace(coalesce(with_check,''), '\\s+', ' ', 'g') FROM pg_policies WHERE schemaname='public';") or []):
-        if len(r) < 6:  # defensive: any row that still under-splits gets padded, never crashes the build
-            r = r + [""] * (6 - len(r))
-        pols.setdefault(r[0], []).append({"name": r[1], "cmd": r[2], "roles": r[3], "using": r[4].strip(), "check": r[5].strip()})
+                   "regexp_replace(coalesce(with_check,''), '\\s+', ' ', 'g'), "
+                   "permissive FROM pg_policies WHERE schemaname='public';") or []):
+        if len(r) < 7:  # defensive: any row that still under-splits gets padded, never crashes the build
+            r = r + [""] * (7 - len(r))
+        pols.setdefault(r[0], []).append({"name": r[1], "cmd": r[2], "roles": r[3], "using": r[4].strip(),
+                                          "check": r[5].strip(),
+                                          "permissive": (r[6].strip().upper() != "RESTRICTIVE") if len(r) > 6 else True})
     trigs = {}
     for r in (psql("SELECT c.relname, t.tgname FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid "
                    "JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal "
@@ -120,7 +123,20 @@ def build_table_rls(check_only: bool):
         for p in facts["policies"]:
             if p["cmd"] in ("INSERT",) and not p["check"]:
                 flags.append(f"{p['name']} (INSERT) has NO with_check — INSERT has no USING-fallback = WRITE-HOLE.")
-            if p["cmd"] in ("SELECT", "ALL") and (p["using"] == "true" or not p["using"]):
+            # RESTRICTIVE policies are EXEMPT from the open-USING rule, and that is not a loophole:
+            # it is what RESTRICTIVE means. A restrictive policy ANDs with the permissive ones, so
+            # `USING (true)` says "I add no further READ restriction" and cannot grant anything —
+            # it is the standard shape for a guard whose whole job is the WITH CHECK half. Only a
+            # PERMISSIVE `USING (true)` actually grants a read.
+            # Found 2026-07-28: the AHK4/PM13 parent-hive guards (weibull_fits, rcm_fmea_modes,
+            # rcm_strategies, pf_intervals, pm_completions) are exactly that shape, and flagging
+            # them cascaded — substrate verdict -> D2 adoption census -> a release-gate FAIL saying
+            # hive scoping had been DROPPED on five tables whose permissive *_read / *_write
+            # policies were fully intact. Same root as the grafana_reader over-flag above: a
+            # tenancy-HARDENING pattern that turns the tenancy detector red trains people to
+            # ignore the detector.
+            if (p["cmd"] in ("SELECT", "ALL") and p.get("permissive", True)
+                    and (p["using"] == "true" or not p["using"])):
                 # An open read by the restricted grafana_reader monitoring role (a dedicated DB role
                 # granted the read path separately in infra/mcp/grafana/grafana_reader.sql, NEVER to
                 # anon/authenticated app users) is intentional platform observability — not an

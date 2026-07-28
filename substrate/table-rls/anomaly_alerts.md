@@ -2,7 +2,7 @@
 name: table-rls-anomaly_alerts
 type: table-rls
 source: db:pg_policies+pg_trigger:anomaly_alerts
-source_sha: c86f2be61b1ba012
+source_sha: 945f88f4af5405d4
 last_verified: 2026-07-13
 supersedes: null
 ---

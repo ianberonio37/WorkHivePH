@@ -2,7 +2,7 @@
 name: table-rls-offline_snapshot_cache
 type: table-rls
 source: db:pg_policies+pg_trigger:offline_snapshot_cache
-source_sha: 59d7ee7fe0308ae9
+source_sha: 3aabd117c9c1b5f7
 last_verified: 2026-07-13
 supersedes: null
 ---

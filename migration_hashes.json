@@ -378,5 +378,22 @@
   "20260728000000_logbook_auth_uid_backfill.sql": "3c6cfe66dfadb80776c07507fad7ef8616f3a908490d52433a65b21a3ae5d4a8",
   "20260728000001_fault_knowledge_logbook_fk.sql": "693f7728c12efd842b47fcb042d264ae141744c49db6e1bddff93cc0e6adbcf1",
   "20260728000002_inventory_deduct_ledger_truth.sql": "9230a5fe3d14a1d7445872e53544d30e935cd3cdfba4eac1cf1313260e9de8d1",
-  "20260728000003_logbook_post_close_amendment_audit.sql": "c7c5ca0d8a0bad4b3e79744031e0e691e09500b51d35f92064324376c433f0a6"
+  "20260728000003_logbook_post_close_amendment_audit.sql": "c7c5ca0d8a0bad4b3e79744031e0e691e09500b51d35f92064324376c433f0a6",
+  "20260728000004_pm_completion_amendment_audit.sql": "2bdd1f8851e0ec68f273de5a36bb2a8e349baaec0130291456d72e54fa1aa778",
+  "20260728000005_pm_ontime_delivery_rpc.sql": "c86b44a775c9552adc6892fcdb5478c79e9bdaf62557fb2037875e73c9b70b5b",
+  "20260728000006_pm_asset_delete_guard_and_audit.sql": "ff8711c38a5fb00baaabcc847f1f742521ae0eb3cce2f59c850770bf28c7b26a",
+  "20260728000007_pm_completion_scope_parent_guard.sql": "000eb49e6bdc2311d225fe0fa6eef315ae250e677996b49f83b0db2f347f852c",
+  "20260728000008_pm_asset_identity_sync_rpc.sql": "daa620c89a9dd5f348fdf178dc6bf2c89f9de18f7d24c3ee7997b07d2c624cf8",
+  "20260728000009_pm_asset_update_guard.sql": "59237da03a7e1f24e60511300f7a7af67c36804a667dfdbe19df5270627c383e",
+  "20260728000010_ensure_pm_asset_for_node_rpc.sql": "c27df18bef00a73fb7c7b69bd7ead4e81ba4f66aff454b9a2a9b21cb73a25cb6",
+  "20260728000011_pm_asset_insert_guard.sql": "9546326f7d1d0cb1b9271917e2d3630fa37586759b01efde2585cb2ec615c0c4",
+  "20260728000012_pm_scope_item_schedule_audit.sql": "77e9e6f009da08245ed559f72dc34027058f11030a8bf28950c75333ebeb8f77",
+  "20260728000013_guard_rejection_is_a_reviewer_act.sql": "4437d69086e75c5c65763724acf22822013063dcd8a34d5741c7981c43aa1ebc",
+  "20260728000014_weibull_diagnostic_survives_the_reload.sql": "1e04cd0d3b725148beb3060c857d3a440840e8435a7a56c132cff7419d85eccf",
+  "20260728000015_asset_approval_decision_audit.sql": "1f1d60265f82693cc3249de10269a89b62dbe4711a5a75d483a0526c2537e67d",
+  "20260728000016_asset_node_delete_audit.sql": "6aa803b257556b734b98aae551b61433dd2e0b49b5748a64084f2d7f931a7e96",
+  "20260728000017_reliability_parent_hive_guard.sql": "d659071ab9b2fa31f65c487019baabac8c7b05a7610d4931d299cbb27a8fa365",
+  "20260728000018_sensor_anomaly_flag_that_can_be_true.sql": "237b68b26728eb7fa6fbcb17569b1f7f632b76f1dbfb0a3e731c021fe0ff7843",
+  "20260728000019_rename_carries_the_whole_identity.sql": "2e83c528e6035027066a0197122833fdb74fd9e512de00c927733b3ec0dea68c",
+  "20260728000020_expire_stale_parts_recommendations.sql": "70cedc3e895809dea6edcb4b6dd7b987c4fbb86a35d52d49848cd57aaa485d79"
 }

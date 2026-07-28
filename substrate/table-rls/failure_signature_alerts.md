@@ -2,7 +2,7 @@
 name: table-rls-failure_signature_alerts
 type: table-rls
 source: db:pg_policies+pg_trigger:failure_signature_alerts
-source_sha: cc99c2247cbdf5c6
+source_sha: 318fe8e41f0d934f
 last_verified: 2026-07-13
 supersedes: null
 ---

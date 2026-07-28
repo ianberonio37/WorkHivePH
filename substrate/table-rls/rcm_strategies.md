@@ -2,7 +2,7 @@
 name: table-rls-rcm_strategies
 type: table-rls
 source: db:pg_policies+pg_trigger:rcm_strategies
-source_sha: ce02c3a46022e173
+source_sha: 0d49ab14abfcbbdd
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -20,6 +20,6 @@ Policies:
 
 Guard triggers: `tg_guard_approval`, `trg_text_caps_rcm_strat`
 
-**Verdict:** FLAGS: rcm_strategies_parent_hive_guard (ALL) USING is open ('true') — potential cross-tenant read/stream.
+**Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

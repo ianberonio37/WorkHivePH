@@ -2,7 +2,7 @@
 name: table-rls-resume_documents
 type: table-rls
 source: db:pg_policies+pg_trigger:resume_documents
-source_sha: 5cdeea2bee3d2980
+source_sha: 26a2c7ff1c4a50ec
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-weibull_fits
 type: table-rls
 source: db:pg_policies+pg_trigger:weibull_fits
-source_sha: 99ded28061e0a7fd
+source_sha: e9dc9c9800703f72
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -18,6 +18,6 @@ Policies:
 - `weibull_fits_write` [ALL · roles=public] USING=`false` CHECK=`false`
 - `weibull_fits_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((hm.auth_uid = auth.uid()) AND` CHECK=`∅`
 
-**Verdict:** FLAGS: weibull_fits_parent_hive_guard (ALL) USING is open ('true') — potential cross-tenant read/stream.
+**Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

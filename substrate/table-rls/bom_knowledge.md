@@ -2,7 +2,7 @@
 name: table-rls-bom_knowledge
 type: table-rls
 source: db:pg_policies+pg_trigger:bom_knowledge
-source_sha: 82789e09a93d173d
+source_sha: dc6ed863da253c14
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-mfa_enrollments
 type: table-rls
 source: db:pg_policies+pg_trigger:mfa_enrollments
-source_sha: e63b7b2b230c1ad7
+source_sha: 33aa21466ef7dd7c
 last_verified: 2026-07-13
 supersedes: null
 ---

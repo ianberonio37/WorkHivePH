@@ -2,7 +2,7 @@
 name: table-rls-parts_staging_recommendations
 type: table-rls
 source: db:pg_policies+pg_trigger:parts_staging_recommendations
-source_sha: f115a27994f0e962
+source_sha: 92edf07b9a49fd0a
 last_verified: 2026-07-13
 supersedes: null
 ---

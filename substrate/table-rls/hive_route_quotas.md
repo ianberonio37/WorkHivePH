@@ -2,7 +2,7 @@
 name: table-rls-hive_route_quotas
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_route_quotas
-source_sha: 7ced1a428f0efc9b
+source_sha: 8b2bd8545b8e3a10
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-unified_events
 type: table-rls
 source: db:pg_policies+pg_trigger:unified_events
-source_sha: 10121b8a24d77948
+source_sha: 1670523fff254096
 last_verified: 2026-07-13
 supersedes: null
 ---

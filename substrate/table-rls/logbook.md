@@ -2,7 +2,7 @@
 name: table-rls-logbook
 type: table-rls
 source: db:pg_policies+pg_trigger:logbook
-source_sha: da7e18b9339d2006
+source_sha: 07da657a9dc3d39b
 last_verified: 2026-07-13
 supersedes: null
 ---

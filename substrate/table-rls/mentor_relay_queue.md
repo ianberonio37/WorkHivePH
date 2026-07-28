@@ -2,7 +2,7 @@
 name: table-rls-mentor_relay_queue
 type: table-rls
 source: db:pg_policies+pg_trigger:mentor_relay_queue
-source_sha: 745a118b0e1273a4
+source_sha: 086577955894bf8d
 last_verified: 2026-07-13
 supersedes: null
 ---

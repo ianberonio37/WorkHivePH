@@ -2,7 +2,7 @@
 name: table-rls-project_change_orders
 type: table-rls
 source: db:pg_policies+pg_trigger:project_change_orders
-source_sha: 9670a0c24b01393d
+source_sha: 5d283662fd4eeb8a
 last_verified: 2026-07-13
 supersedes: null
 ---

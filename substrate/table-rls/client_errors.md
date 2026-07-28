@@ -2,7 +2,7 @@
 name: table-rls-client_errors
 type: table-rls
 source: db:pg_policies+pg_trigger:client_errors
-source_sha: 3a4b8532d050ab95
+source_sha: 34c32858a11d3a3b
 last_verified: 2026-07-13
 supersedes: null
 ---

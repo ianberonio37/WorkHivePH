@@ -2,7 +2,7 @@
 name: table-rls-fault_knowledge
 type: table-rls
 source: db:pg_policies+pg_trigger:fault_knowledge
-source_sha: 6621053ee050c837
+source_sha: 614ad5e08c5cf483
 last_verified: 2026-07-13
 supersedes: null
 ---

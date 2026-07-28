@@ -2,7 +2,7 @@
 name: table-rls-parts_staged_reservations
 type: table-rls
 source: db:pg_policies+pg_trigger:parts_staged_reservations
-source_sha: c772204eb751ee6d
+source_sha: 92ed89ac7cf77866
 last_verified: 2026-07-13
 supersedes: null
 ---

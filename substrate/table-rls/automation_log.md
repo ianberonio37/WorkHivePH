@@ -2,7 +2,7 @@
 name: table-rls-automation_log
 type: table-rls
 source: db:pg_policies+pg_trigger:automation_log
-source_sha: e1bdb9fe599c8303
+source_sha: d2bad0a879969c0e
 last_verified: 2026-07-13
 supersedes: null
 ---

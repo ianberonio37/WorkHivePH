@@ -2,7 +2,7 @@
 name: table-rls-ai_reports
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_reports
-source_sha: 8f80d4e8a3bc76d0
+source_sha: 9bb6b3f3b8545bc9
 last_verified: 2026-07-13
 supersedes: null
 ---

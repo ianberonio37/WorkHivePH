@@ -2,7 +2,7 @@
 name: table-rls-anomaly_signals
 type: table-rls
 source: db:pg_policies+pg_trigger:anomaly_signals
-source_sha: f49ad855a43e12ff
+source_sha: 6b6c1eeb9de3cabe
 last_verified: 2026-07-13
 supersedes: null
 ---

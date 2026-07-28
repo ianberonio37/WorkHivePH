@@ -2,7 +2,7 @@
 name: table-rls-worker_profiles
 type: table-rls
 source: db:pg_policies+pg_trigger:worker_profiles
-source_sha: 6a1c57965bc61932
+source_sha: 08ccb1d546d90a38
 last_verified: 2026-07-13
 supersedes: null
 ---

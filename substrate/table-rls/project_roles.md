@@ -2,7 +2,7 @@
 name: table-rls-project_roles
 type: table-rls
 source: db:pg_policies+pg_trigger:project_roles
-source_sha: 77a4e9c4a8a91836
+source_sha: b5ed7825859f3e47
 last_verified: 2026-07-13
 supersedes: null
 ---

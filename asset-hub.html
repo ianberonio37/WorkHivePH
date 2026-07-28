@@ -640,7 +640,7 @@
         <!-- AH14 (inherited F43): shown only when the recommendation has passed its expires_at.
              Kept in the markup (rather than injected) so revealing it cannot shift the parts list
              below it — same reserve-the-space rule as the AH5 fleet cap note. -->
-        <p id="staging-expiry-note" hidden style="font-size:.75rem; font-weight:600; color:var(--wh-red); background:rgba(239,87,87,0.08); border:1px solid rgba(239,87,87,0.25); border-radius:6px; padding:8px 10px; margin:0 0 12px;"></p>
+        <p id="staging-expiry-note" hidden style="font-size:.75rem; font-weight:600; color:var(--wh-red); background:rgba(239,87,87,0.08); border:1px solid rgba(239,87,87,0.25); border-radius:var(--wh-radius-sm); padding:8px 10px; margin:0 0 12px;"></p>
         <div id="staging-parts" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
         <div style="display:flex; gap:8px;">
           <button id="staging-accept" class="btn-primary" data-i="stagesel" style="flex:1; min-height:44px; background:var(--wh-orange); color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Stage selected</button>
@@ -797,7 +797,7 @@
              particular asset carries no readings, so it no longer hedges about whether the
              bridge connected - that question is already answered by the time it appears. -->
         <div id="telemetry-empty" style="display:none; font-size:.74rem; color:var(--muted); padding:0.6rem 0;">
-          No readings in the last 30 days. Other assets in this hive are reporting, so the bridge is up &mdash; this one is not mapped to a sensor yet.
+          No readings in the last 30 days. Other assets in this hive are reporting, so the bridge is up. This one is not mapped to a sensor yet.
           <a href="integrations.html" style="display:inline-flex;align-items:center;min-height:44px;margin-left:0.35rem;color:var(--wh-blue);font-weight:600;text-decoration:none;">Map it in Integrations &rarr;</a>
         </div>
         <div id="telemetry-meta" style="font-size:.66rem; color:var(--muted); margin-top:0.5rem;"></div>
@@ -1289,7 +1289,7 @@
             ${HIVE_ROLE !== 'supervisor' ? `
               <span style="font-size:.66rem; color:var(--muted);">${n.status === 'pending'
                 ? 'Waiting for a supervisor to review this.'
-                : 'Rejected — edit and resubmit, or ask your supervisor.'}</span>
+                : 'Rejected. Edit and resubmit, or ask your supervisor.'}</span>
             ` : n.status === 'pending' ? `
               <button class="approve" data-action="asset-approve" data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(74,222,128,0.16); color:var(--wh-green); border:1px solid rgba(74,222,128,0.3); cursor:pointer; font-family:inherit;">Approve</button>
               <button class="reject"  data-action="asset-reject"  data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(239,87,87,0.14); color:var(--wh-red); border:1px solid rgba(239,87,87,0.3); cursor:pointer; font-family:inherit;">Reject</button>
@@ -1945,7 +1945,7 @@
         note.hidden = !rec._expired;
         if (rec._expired) {
           note.textContent = 'This recommendation expired ' + fmtRelative(rec.expires_at)
-            + ' and is no longer safe to act on — it was based on the asset’s risk score at the '
+            + ' and is no longer safe to act on: it was based on the asset’s risk score at the '
             + 'time it was generated. Dismiss it, or re-run staging for a current one.';
         }
       }
@@ -1964,7 +1964,7 @@
       // (feedback_ui_only_approval_gate_is_bypassable). Re-check the expiry against the clock at
       // the moment of the write, which also covers a card left open on screen past its expiry.
       if (_stagingRec.expires_at && new Date(_stagingRec.expires_at) < new Date()) {
-        showToast('That recommendation has expired — dismiss it and re-run staging for a current one.');
+        showToast('That recommendation has expired. Dismiss it and re-run staging for a current one.');
         return;
       }
       const card = document.getElementById('staging-card');
@@ -2285,7 +2285,7 @@
             .eq('asset_id', nodeId);
           if (count && count > rows.length) {
             meta.textContent = `${byParam.size} parameter(s) · latest ${rows.length} of `
-              + `${count.toLocaleString()} readings in the last 30 days — the figures above `
+              + `${count.toLocaleString()} readings in the last 30 days. The figures above `
               + `describe this most-recent sample, not the whole window.`;
           }
         }
@@ -2345,11 +2345,11 @@
     function _fmeaActionPriority(m) {
       const s = Number(m && m.severity) || 0;
       const n = Number(m && m.rpn) || 0;
-      if (s >= 9)   return { level: 'H', rank: 0, why: 'Severity ' + s + ': safety or regulatory consequence — priority regardless of how rare or how detectable (IEC 60812:2018 / AIAG-VDA 2019).' };
-      if (n >= 200) return { level: 'H', rank: 0, why: 'RPN ' + n + ' — in the top band on the classical S x O x D score.' };
+      if (s >= 9)   return { level: 'H', rank: 0, why: 'Severity ' + s + ': safety or regulatory consequence, so it takes priority regardless of how rare or how detectable it is (IEC 60812:2018 / AIAG-VDA 2019).' };
+      if (n >= 200) return { level: 'H', rank: 0, why: 'RPN ' + n + ': the top band on the classical S x O x D score.' };
       if (s >= 7)   return { level: 'M', rank: 1, why: 'Severity ' + s + ': serious consequence even though the combined RPN is ' + n + '.' };
-      if (n >= 100) return { level: 'M', rank: 1, why: 'RPN ' + n + ' — mid band on the classical S x O x D score.' };
-      return { level: 'L', rank: 2, why: 'Severity ' + (s || '?') + ', RPN ' + (n || '?') + ' — lowest band.' };
+      if (n >= 100) return { level: 'M', rank: 1, why: 'RPN ' + n + ': the mid band on the classical S x O x D score.' };
+      return { level: 'L', rank: 2, why: 'Severity ' + (s || '?') + ', RPN ' + (n || '?') + ': the lowest band.' };
     }
 
     // Action Priority first, then RPN within a band. Used by the page list AND the printed
@@ -3543,7 +3543,7 @@
   <h2>1. FMEA matrix (AIAG-VDA 2019)</h2>
   <p class="note">Ordered by <strong>Action Priority</strong>, then RPN. A severity 9-10 failure
   mode is listed as AP&nbsp;H regardless of its occurrence and detection scores, because RPN alone
-  ranks a rare, easily-detected safety failure below a frequent nuisance &mdash; the weakness
+  ranks a rare, easily-detected safety failure below a frequent nuisance, the weakness
   AIAG-VDA 2019 introduced Action Priority to address (see also IEC 60812:2018). RPN is retained
   in full for continuity with earlier reviews.</p>
   <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <div class="wh-scroll-x"><table>
@@ -3689,7 +3689,7 @@
       // inherited F18 "dead card" — AH17 gave the card its ids, this gives them their provenance.
       if (error) { meta.textContent = ''; return; }
       if (!data || !data.length) {
-        meta.textContent = 'No sync on record for these ids — they were entered or imported here, '
+        meta.textContent = 'No sync on record for these ids: they were entered or imported here, '
           + 'not confirmed by the source system.';
         return;
       }
@@ -3704,7 +3704,7 @@
         // "last contact", NOT "last successful contact": last_synced_at records when the sync last
         // RAN, and on an error row that run is precisely the one that failed. Calling it a success
         // would be the label making a claim the column does not support.
-        meta.textContent = 'Sync from ' + (r.system_type || 'CMMS') + ' is FAILING — last contact '
+        meta.textContent = 'Sync from ' + (r.system_type || 'CMMS') + ' is FAILING. Last contact '
           + fmtRelative(r.last_synced_at) + '. These ids may no longer match the source system.';
         meta.style.color = 'var(--wh-red)';
         meta.style.fontWeight = '600';
@@ -3958,8 +3958,8 @@
           if (bad.length) {
             html += '<div style="margin-top:6px; color:var(--wh-red); font-weight:600;">'
               + e(bad.length === 1
-                  ? '1 cited source could not be matched to this asset’s records — treat that part of the answer as unverified.'
-                  : bad.length + ' cited sources could not be matched to this asset’s records — treat those parts of the answer as unverified.')
+                  ? '1 cited source could not be matched to this asset’s records. Treat that part of the answer as unverified.'
+                  : bad.length + ' cited sources could not be matched to this asset’s records. Treat those parts of the answer as unverified.')
               + '</div>';
           }
           citEl.innerHTML = html;

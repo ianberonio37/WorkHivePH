@@ -2,7 +2,7 @@
 name: table-rls-wh_voice_presence
 type: table-rls
 source: db:pg_policies+pg_trigger:wh_voice_presence
-source_sha: 43fe94c7e3408615
+source_sha: 60736048da0ce564
 last_verified: 2026-07-13
 supersedes: null
 ---

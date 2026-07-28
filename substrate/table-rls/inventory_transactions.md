@@ -2,7 +2,7 @@
 name: table-rls-inventory_transactions
 type: table-rls
 source: db:pg_policies+pg_trigger:inventory_transactions
-source_sha: 40e7678c62b16a36
+source_sha: 653c62dd095fba10
 last_verified: 2026-07-13
 supersedes: null
 ---

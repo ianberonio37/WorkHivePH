@@ -2,7 +2,7 @@
 name: table-rls-project_progress_logs
 type: table-rls
 source: db:pg_policies+pg_trigger:project_progress_logs
-source_sha: e4775734d046a81e
+source_sha: 3b5433994eea2a30
 last_verified: 2026-07-13
 supersedes: null
 ---

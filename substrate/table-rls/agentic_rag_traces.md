@@ -2,7 +2,7 @@
 name: table-rls-agentic_rag_traces
 type: table-rls
 source: db:pg_policies+pg_trigger:agentic_rag_traces
-source_sha: e888c1ebb992eb22
+source_sha: 9a643a25925d8162
 last_verified: 2026-07-13
 supersedes: null
 ---

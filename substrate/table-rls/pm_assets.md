@@ -2,7 +2,7 @@
 name: table-rls-pm_assets
 type: table-rls
 source: db:pg_policies+pg_trigger:pm_assets
-source_sha: af709913cc225e60
+source_sha: 9eef76a1c2621948
 last_verified: 2026-07-13
 supersedes: null
 ---

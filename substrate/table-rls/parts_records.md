@@ -2,7 +2,7 @@
 name: table-rls-parts_records
 type: table-rls
 source: db:pg_policies+pg_trigger:parts_records
-source_sha: 8bfc060cdabb3f2a
+source_sha: b31f7bc6c2c847b9
 last_verified: 2026-07-13
 supersedes: null
 ---

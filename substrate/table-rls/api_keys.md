@@ -2,7 +2,7 @@
 name: table-rls-api_keys
 type: table-rls
 source: db:pg_policies+pg_trigger:api_keys
-source_sha: fa17147ffa2655f0
+source_sha: e1e2bb08033dde6a
 last_verified: 2026-07-13
 supersedes: null
 ---

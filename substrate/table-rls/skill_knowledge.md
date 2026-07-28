@@ -2,7 +2,7 @@
 name: table-rls-skill_knowledge
 type: table-rls
 source: db:pg_policies+pg_trigger:skill_knowledge
-source_sha: d796143687dabde5
+source_sha: 6e5cf67e6c653be1
 last_verified: 2026-07-13
 supersedes: null
 ---

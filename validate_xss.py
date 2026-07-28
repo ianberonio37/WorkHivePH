@@ -433,9 +433,22 @@ def check_esc_html_shorthand_undeclared():
             if has_global_e:
                 continue
             # Walk back to find the nearest preceding function-open line.
+            #
+            # COMMENTS ARE STRIPPED FIRST. func_open_re is `\bfunction\b\s*[(*A-Za-z_$]`, which
+            # matches ordinary English prose: a comment reading "The function now resolves each
+            # citation..." was read as a function OPENING, so the scope was taken to start mid
+            # comment and a `const e = escHtml` declared correctly at the real function top was
+            # ruled out of scope. Reported live 2026-07-28 as three ReferenceErrors in
+            # asset-hub.html's citation renderer, which had in fact run correctly in the browser
+            # minutes earlier. Same class as the "grep matched the COMMENT, not the code" lesson:
+            # a line-based scanner must strip comments before it believes what it matched.
             scope_start = 0
             for j in range(i - 1, -1, -1):
-                if func_open_re.search(lines[j]):
+                probe = re.sub(r"//.*$", "", lines[j])
+                stripped = probe.strip()
+                if stripped.startswith("*") or stripped.startswith("/*"):
+                    continue
+                if func_open_re.search(probe):
                     scope_start = j
                     break
             context = "\n".join(lines[scope_start:i + 1])

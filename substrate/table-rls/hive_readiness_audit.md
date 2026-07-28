@@ -2,7 +2,7 @@
 name: table-rls-hive_readiness_audit
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_readiness_audit
-source_sha: b12ca587db3b840a
+source_sha: 77320cb501339662
 last_verified: 2026-07-13
 supersedes: null
 ---

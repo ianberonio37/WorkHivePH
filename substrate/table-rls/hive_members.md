@@ -2,7 +2,7 @@
 name: table-rls-hive_members
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_members
-source_sha: 9d22d09819223b6f
+source_sha: 4da181cec9758324
 last_verified: 2026-07-13
 supersedes: null
 ---

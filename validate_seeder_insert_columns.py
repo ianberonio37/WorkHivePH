@@ -128,7 +128,13 @@ def find_mismatches(schema):
 
         for m in RE_BATCH.finditer(src):
             table, listvar = m.group(1), m.group(2)
-            for am in re.finditer(re.escape(listvar) + r'\.append\(', src):
+            # (?<![A-Za-z0-9_]) anchors the variable to an identifier BOUNDARY. Without it,
+            # `rows` matched inside `ext_rows`, so a seeder file with two insert targets had the
+            # SECOND table's payload keys attributed to the FIRST table — reported live 2026-07-28
+            # as six phantom "asset_nodes.<external_sync column>" offenders, and the backlog
+            # jumped 7 -> 13 for code that was entirely correct. A gate that mis-attributes is
+            # worse than a missing one: it sends you to fix a file that is not broken.
+            for am in re.finditer(r'(?<![A-Za-z0-9_])' + re.escape(listvar) + r'\.append\(', src):
                 check(table, _payload_keys(src, am.end()))
         for m in RE_INLINE.finditer(src):
             check(m.group(1), _payload_keys(src, m.end()))

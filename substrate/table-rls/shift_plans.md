@@ -2,7 +2,7 @@
 name: table-rls-shift_plans
 type: table-rls
 source: db:pg_policies+pg_trigger:shift_plans
-source_sha: 6010eeb2f7d1a879
+source_sha: cd3d91c601e4a5a5
 last_verified: 2026-07-13
 supersedes: null
 ---

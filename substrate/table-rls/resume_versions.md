@@ -2,7 +2,7 @@
 name: table-rls-resume_versions
 type: table-rls
 source: db:pg_policies+pg_trigger:resume_versions
-source_sha: afecb2ca04783975
+source_sha: 1293b83fa7afe31a
 last_verified: 2026-07-13
 supersedes: null
 ---

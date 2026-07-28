@@ -2,7 +2,7 @@
 name: table-rls-asset_edges
 type: table-rls
 source: db:pg_policies+pg_trigger:asset_edges
-source_sha: fcb06cbf138abc21
+source_sha: d4c07c2c69f3ebf3
 last_verified: 2026-07-13
 supersedes: null
 ---

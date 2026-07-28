@@ -2,7 +2,7 @@
 name: table-rls-hive_route_calls
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_route_calls
-source_sha: bcca3c77db7018f0
+source_sha: 60884f997c514eaf
 last_verified: 2026-07-13
 supersedes: null
 ---

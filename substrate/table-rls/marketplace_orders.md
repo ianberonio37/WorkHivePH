@@ -2,7 +2,7 @@
 name: table-rls-marketplace_orders
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_orders
-source_sha: 58b8ed2161957ae7
+source_sha: bf5f4a89714cda80
 last_verified: 2026-07-13
 supersedes: null
 ---

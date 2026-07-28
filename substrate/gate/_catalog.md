@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: a390318ee99915e7
+source_sha: 72227c467f6004ea
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (673) — the 'what's already gated' brain
+## gate · registered validators (674) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (108)
+### AI Validation (109)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -88,6 +88,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `pm_compliance_weighted` ⚡ [fail] — Analytics F1d: PM compliance is SMRP-weighted (hero matches its count)
 - `pm_deepwalk_ratchet` ⚡ [fail] — PM Scheduler deepwalk ANTI-DRIFT ratchet (PM_DEEPWALK_EXPANSION_ROADMAP.md §4) — the measured %-board (18 journeys x 5 phases G/W/O/H/R, PMK classes x 6 stages)
 - `pm_ontime_vs_compliance` [fail] — PMK1 · on-time vs compliance — a PM completed LATE still counts as compliant, so the headline can flatter the program to the person least able to check it. Walk
+- `project_manager_deepwalk_ratchet` [fail] — Project Manager deepwalk expansion - forward-only %-board over 18 journeys x 5 phases + the PJK dimension classes, with the shallow-W guard (a journey may not b
 - `projects_correctness` ⚡ [fail] — AI Self-Improvement: Project Manager EVM + CPM Value Accuracy
 - `public_fn_authz` ⚡ [fail] — Arc R: public-fn authZ (no verify_jwt=false LLM fn without auth/rate-limit; A01)
 - `public_fn_write_authz` ⚡ [fail] — Arc R: public-fn write authZ (no anon-triggerable service-role writer; A01/BFLA)

@@ -2,7 +2,7 @@
 name: table-rls-ai_audit_log
 type: table-rls
 source: db:pg_policies+pg_trigger:ai_audit_log
-source_sha: bb700766835039a2
+source_sha: da402bf532636b1b
 last_verified: 2026-07-13
 supersedes: null
 ---

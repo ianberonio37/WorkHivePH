@@ -2,7 +2,7 @@
 name: table-rls-asset_risk_scores
 type: table-rls
 source: db:pg_policies+pg_trigger:asset_risk_scores
-source_sha: 4a9633deb76439d5
+source_sha: b9d7545b2d15f06d
 last_verified: 2026-07-13
 supersedes: null
 ---

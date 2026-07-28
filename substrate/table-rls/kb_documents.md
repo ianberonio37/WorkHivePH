@@ -2,7 +2,7 @@
 name: table-rls-kb_documents
 type: table-rls
 source: db:pg_policies+pg_trigger:kb_documents
-source_sha: a607632b063b7c15
+source_sha: bfbd723a1293feee
 last_verified: 2026-07-13
 supersedes: null
 ---

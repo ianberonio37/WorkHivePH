@@ -2,7 +2,7 @@
 name: table-rls-hive_readiness
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_readiness
-source_sha: d10f668c97674481
+source_sha: 8c40d8180b88a5a5
 last_verified: 2026-07-13
 supersedes: null
 ---

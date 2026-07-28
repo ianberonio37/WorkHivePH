@@ -2,7 +2,7 @@
 name: table-rls-hive_benchmarks
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_benchmarks
-source_sha: c37324eb68c48dcd
+source_sha: 508c003aaeb45658
 last_verified: 2026-07-13
 supersedes: null
 ---

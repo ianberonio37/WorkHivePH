@@ -2,7 +2,7 @@
 name: table-rls-sso_configs
 type: table-rls
 source: db:pg_policies+pg_trigger:sso_configs
-source_sha: d9c668aa9c6db1b4
+source_sha: b1cb0b8913681998
 last_verified: 2026-07-13
 supersedes: null
 ---

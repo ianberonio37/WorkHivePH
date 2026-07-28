@@ -2,7 +2,7 @@
 name: table-rls-marketplace_inquiries
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_inquiries
-source_sha: 8580e0338cf7e98a
+source_sha: a5aed95354d3d4ff
 last_verified: 2026-07-13
 supersedes: null
 ---

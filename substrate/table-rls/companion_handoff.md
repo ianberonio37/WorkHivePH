@@ -2,7 +2,7 @@
 name: table-rls-companion_handoff
 type: table-rls
 source: db:pg_policies+pg_trigger:companion_handoff
-source_sha: fb522aa595222145
+source_sha: 89b4143b475aad1b
 last_verified: 2026-07-13
 supersedes: null
 ---

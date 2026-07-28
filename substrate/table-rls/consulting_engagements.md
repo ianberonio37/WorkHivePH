@@ -2,7 +2,7 @@
 name: table-rls-consulting_engagements
 type: table-rls
 source: db:pg_policies+pg_trigger:consulting_engagements
-source_sha: c4dda1c7a37aef91
+source_sha: bd18e00b7d8bd06e
 last_verified: 2026-07-13
 supersedes: null
 ---

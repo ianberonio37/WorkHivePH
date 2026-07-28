@@ -2,7 +2,7 @@
 name: table-rls-amc_briefings
 type: table-rls
 source: db:pg_policies+pg_trigger:amc_briefings
-source_sha: 98dccbcaa4774c09
+source_sha: 052b007dc6edf39f
 last_verified: 2026-07-13
 supersedes: null
 ---
