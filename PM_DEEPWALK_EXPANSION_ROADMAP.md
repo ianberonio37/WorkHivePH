@@ -183,8 +183,15 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
 4. ~~**PM11 / PMK3** — probe a post-sign-off amendment; if it is silent, port the logbook trigger.~~
    Done: back-dating a completion by 400 days was silent; migration `20260728000004` records it,
    `validate_pm_write_isolation` grew a fifth check, teeth proven by dropping the trigger.
-5. **PM5 + PM8** — the recompute and frequency-change transitions, two personas each.
-6. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
+5. ~~**PM8** — the frequency-change transition.~~ Done, and the defect was upstream of the change:
+   two writers converted an interval in days into the frequency WORD that derives the schedule, with
+   different rules and neither matching the view. The CMMS import had no Daily bucket, so a 1-day
+   PM was scheduled weekly. One shared `whFreqFromDays` (utils.js), gated by
+   `validate_pm_frequency_mapping`; earned class **PMK4**.
+6. **PM5** — complete → `next_due_date` recompute → the card changes state, across frequency bands
+   and two personas. Its derivation is now pinned by PMK4's parity check, so this walk is about the
+   TRANSITION (does every surface re-derive?), not the arithmetic.
+7. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
 
 **Carried out of the PM7 walk (found by the full-page diff, not the card):** the three summary cards
 share a first-paint reserve deficit — the row grows 137px → 184px at 390px when the data lands,

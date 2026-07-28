@@ -1289,8 +1289,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // --- PM Schedules -------------------------------------------------------
     } else if (entityType === 'pm_schedule') {
-      const FREQ_MAP = [[7,'Weekly'],[30,'Monthly'],[90,'Quarterly'],[180,'Semi-annual'],[365,'Annual']];
-      const daysToFreq = d => (FREQ_MAP.find(([t]) => d <= t) || [null,'Annual'])[1];
+      // PM08 (PM deepwalk, 2026-07-28): this used to be a local map with NO Daily bucket, taking the
+      // first bucket >= days. An imported 1-day interval became 'Weekly' — 7x rarer than the source
+      // system asked — and 14 days became 'Monthly', 45 became 'Quarterly'. Every drift ran the same
+      // way: LESS often than requested, on the exact path a plant uses to onboard its existing PM
+      // program. Now the ONE shared mapping in utils.js (whFreqFromDays), which snaps DOWN so a PM is
+      // never scheduled rarer than asked, and shares its day-values with v_pm_scope_items_truth.
+      const daysToFreq = d => whFreqFromDays(d) || 'Annual';
 
       for (let i = 0; i < total; i += CHUNK) {
         const pct = Math.round((i / total) * 100);

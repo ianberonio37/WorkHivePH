@@ -3129,3 +3129,67 @@ if (typeof window !== 'undefined') {
   else boot();
   if (typeof window !== 'undefined') window.whEnhanceClickableA11y = scan;  // pages can re-scan after a manual render
 })();
+
+
+// -----------------------------------------------------------------------------
+// whFreqFromDays / whFreqDays - ONE mapping from an interval in days to the
+// platform's PM frequency vocabulary (PM deepwalk PM08, 2026-07-28).
+// -----------------------------------------------------------------------------
+// There were TWO importers snapping intervals to frequency labels, with different
+// vocabularies AND different rounding rules:
+//   * integrations.html (CMMS / CSV import) used the FIRST bucket >= days over
+//     [7,30,90,180,365] - with NO Daily bucket at all. A 1-day interval became
+//     'Weekly' (7x too rare), 14 days became 'Monthly' (2.1x), 45 became
+//     'Quarterly' (2x). Every drift ran in the same direction: LESS often than the
+//     source system asked, which is how an imported daily inspection quietly
+//     becomes a weekly one on the first day a plant onboards its existing program.
+//   * asset-hub.html (RCM strategy) snapped to the NEAREST bucket, so 300 days
+//     became 'Annual' (365) - again rarer than requested.
+//
+// THE RULE HERE: never schedule a PM LESS often than asked. Snap DOWN to the
+// closest bucket that does not exceed the requested interval, and never below
+// Daily. Rounding to a shorter interval costs labour; rounding to a longer one
+// leaves equipment un-inspected, and only one of those is a safety decision.
+//
+// The day-values mirror v_pm_scope_items_truth's frequency_days CASE and
+// pm-scheduler's FREQ table - the same six labels, so a written value always maps
+// back to the interval the writer intended.
+(function () {
+  var FREQ_DAYS = [
+    ['Daily',         1],
+    ['Weekly',        7],
+    ['Monthly',      30],
+    ['Quarterly',    90],
+    ['Semi-Annual', 180],
+    ['Annual',      365],
+  ];
+
+  // label -> days. Case/synonym handling matches the DB view (lower + trim), so
+  // 'semi-annual', 'Semi-Annual' and 'SEMI ANNUAL' all resolve to 180.
+  function whFreqDays(label) {
+    var k = String(label == null ? '' : label).toLowerCase().trim();
+    if (k === 'semiannual' || k === 'semi annual') k = 'semi-annual';
+    if (k === 'yearly') k = 'annual';
+    if (k === 'biweekly' || k === 'fortnightly') return 14;  // the view's mapping
+    for (var i = 0; i < FREQ_DAYS.length; i++) {
+      if (FREQ_DAYS[i][0].toLowerCase() === k) return FREQ_DAYS[i][1];
+    }
+    return null;  // unknown -> caller decides; do NOT silently assume a period
+  }
+
+  function whFreqFromDays(days) {
+    var n = Number(days);
+    if (!isFinite(n) || n <= 0) return null;
+    var best = FREQ_DAYS[0][0];
+    for (var i = 0; i < FREQ_DAYS.length; i++) {
+      if (FREQ_DAYS[i][1] <= n) best = FREQ_DAYS[i][0];
+    }
+    return best;  // n < 1 is impossible here, so 'Daily' is the floor
+  }
+
+  if (typeof window !== 'undefined') {
+    window.whFreqFromDays = whFreqFromDays;
+    window.whFreqDays     = whFreqDays;
+    window.WH_FREQ_DAYS   = FREQ_DAYS;
+  }
+})();

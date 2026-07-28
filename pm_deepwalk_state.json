@@ -177,14 +177,23 @@
         "asset-hub.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Change an asset's frequency -> the whole schedule re-derives. G partial: the frequency VOCABULARY is canonical and gated (canonFreq + freq_crosspage_consistent), and asset-hub's RCM interval writer was fixed - but a frequency CHANGE on an existing program, and whether every derived surface re-derives, is unwalked."
+      "walked": {
+        "personas": [
+          "P-integrations-importer",
+          "P-reliability-eng-rcm"
+        ],
+        "states": [
+          "S-cmms-import",
+          "S-rcm-strategy-write"
+        ]
+      },
+      "notes": "Change an asset's frequency -> the whole schedule re-derives. G partial: the frequency VOCABULARY is canonical and gated (canonFreq + freq_crosspage_consistent), and asset-hub's RCM interval writer was fixed - but a frequency CHANGE on an existing program, and whether every derived surface re-derives, is unwalked. WALKED 2026-07-28 and the defect is upstream of the change itself. A PM's frequency is a WORD in the DB, and the schedule is DERIVED from that word by a CASE in v_pm_scope_items_truth - so every writer that turns an interval in DAYS into that word is deciding the real schedule, and TWO of them did it differently. integrations.html (the CMMS/CSV import a plant uses to onboard its EXISTING program) had a local map with NO Daily bucket, taking the first bucket >= days over [7,30,90,180,365]: measured, 1 day -> 'Weekly' (7x rarer than the source system asked), 14 -> 'Monthly' (2.1x), 45 -> 'Quarterly' (2x). Every drift ran the SAME direction, less often than specified - the direction that leaves equipment un-inspected. asset-hub.html rounded to the NEAREST bucket instead, so a 300-day RCM interval became 'Annual' (365). FIXED with ONE shared mapping (whFreqFromDays / whFreqDays in utils.js, loaded platform-wide) that snaps DOWN to the closest bucket not exceeding the requested interval: rounding to a shorter interval costs labour, rounding to a longer one is a safety decision. Verified live on integrations.html: 1/2/3d now Daily, 14d Weekly, 45d Monthly, 300d Semi-Annual, and zero intervals in 1..400 remain rarer than asked. The only floor is sub-daily (0.5d -> Daily), which the six-label vocabulary genuinely cannot express. ALSO PINNED, LATENT: the UI's canonFreq resolves 'biweekly'/'fortnightly' to Weekly (7d) while the view says 14d - so such a row would show a Weekly badge on a fortnightly schedule. No such rows exist (all 416 scope items map cleanly: weekly 102, monthly 99, quarterly 93, annual 91, semi-annual 31), making this the logbook arc's LG2 shape - agreement by luck of vocabulary - so the gate asserts it rather than waiting for the first import that uses the word. The view's ELSE 30 catch-all is the same bomb: 'Every 500 hours' displays as the UI's 'Other' bucket while the DB silently schedules it monthly. GATED by tools/validate_pm_frequency_mapping.py (parity live vs utils.js, safe-direction over 1..400, and no page carrying a private bucket list), registered in run_platform_checks; teeth proven by restoring the private map (exit 1) and reverting (exit 0)."
     },
     "PM09": {
       "type": "T3-collab",
@@ -389,6 +398,19 @@
         "gate": "done"
       },
       "notes": "EARNED BY THE PM11 WALK 2026-07-28. RULE: for a record that drives a regulated number, 'tamper-evident' has to mean the DATABASE recorded the amendment - a client-written row is skipped by any write that does not go through the page, and here there was no client-written row at all. EVIDENCE: a completion back-dated 400 days, silently, by its own author (pm_completions RLS is owner-scoped write, so this is a legitimate author doing an illegitimate thing). HARVEST: the logbook arc's LG4, whose migration and scoping decision transferred directly. FIX + GATE as recorded on PM11. SWEEP PARTIAL: inventory_items carries the same client-only-audit weakness (measured in the logbook arc's LG4 sweep, still unfixed) and pm_assets/pm_scope_items have not been checked for whether their amendments matter the same way."
+    },
+    "PMK4": {
+      "name": "The word that sets the schedule must mean the same thing to every writer",
+      "stages": {
+        "harvest": "done",
+        "define": "done",
+        "detect": "done",
+        "sweep": "done",
+        "fix": "done",
+        "gate": "done"
+      },
+      "gate": "tools/validate_pm_frequency_mapping.py",
+      "notes": "EARNED BY THE PM08 WALK 2026-07-28. RULE: when a schedule is DERIVED from a stored label, the label-producing code IS the scheduler. Any page converting a duration into that label must use ONE shared mapping whose day-values equal the deriving view's, and must round toward MORE frequent - under-scheduling a PM is a safety decision, over-scheduling is a cost one. EVIDENCE: two writers, two rules, neither matching the view; the CMMS import silently made every sub-weekly PM weekly. DISTINCT FROM PMK1 (which is about a metric flattering what was DONE) - this is about the SCHEDULE ITSELF being quietly wrong before any work happens. SWEEP: both known writers fixed; the gate fails any third page that grows its own bucket list."
     }
   }
 }

@@ -5051,6 +5051,14 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        "id":      "pm_frequency_mapping",
+        "script":  "tools/validate_pm_frequency_mapping.py",
+        "args":    [],
+        "label":   "PM08 · one interval-to-frequency mapping, never rarer than asked — a PM's frequency is a WORD in the database and the schedule is DERIVED from that word by a CASE in v_pm_scope_items_truth, so every writer converting an interval in DAYS into that word is deciding the real schedule. Walked 2026-07-28: integrations.html (the CMMS/CSV import a plant uses to onboard its existing program) carried a local map with NO Daily bucket, taking the first bucket >= days over [7,30,90,180,365] — measured, a 1-day interval became 'Weekly' (7x rarer than the source system asked), 14 became 'Monthly' (2.1x), 45 became 'Quarterly' (2x). Every drift ran the SAME direction: less often than specified, which is the direction that leaves equipment un-inspected. asset-hub.html rounded to the NEAREST bucket instead, so a 300-day RCM interval became 'Annual' (365). Fixed with ONE shared mapping (whFreqFromDays/whFreqDays in utils.js) that snaps DOWN — rounding to a shorter interval costs labour, rounding to a longer one is a safety decision. Asserts three things: PARITY (utils.js day-values equal the view's frequency_days CASE label-for-label, including the biweekly/fortnightly synonyms the UI's canonFreq resolves to 7 while the view says 14 — latent today, since no such rows exist, and pinned here so it stays impossible-then-detectable like the logbook arc's 'corrective' vocabulary); SAFE DIRECTION (no interval 1..400 maps to a longer period); NO PRIVATE COPIES (neither writer reintroduces its own bucket list). Parity is live-tier and skips cleanly without docker; the rest is static. Teeth proven by restoring the private map: exit 1. Self-test: --selftest pins the bucket-list shape as must-match and a non-frequency numeric array as must-not.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "pm_deepwalk_ratchet",
         "script":  "validate_pm_deepwalk.py",
         "args":    [],
