@@ -94,17 +94,24 @@
     "AH05": {
       "title": "Fleet list: search, 200-row cap, QR scan (inherited F20)",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-normal-fleet",
+          "S-at-the-200-cap",
+          "S-search-narrowed"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28 - the inherited F20, and the page turned out to be MOSTLY right already, which is worth recording precisely so the next reader does not re-open it. The summary tiles do NOT derive from the capped list: _assetTotalCount / _assetCriticalCount come from their own uncapped count queries, with a comment explaining exactly why. And the visible list is progressively paginated client-side with an honest 'showing N of M'. Both halves were already handled. WHAT WAS ACTUALLY SILENT is the SERVER cap beneath all of that: the fleet query is .limit(200), so a hive with more approved assets gets a list quietly missing the rest WHILE the tiles keep reporting the true total. The two would disagree and nothing would explain why - the reader would have to guess whether the fleet or the tile was wrong. LATENT, NOT LIVE: the largest hive holds 35 assets, so no customer has hit it. Recorded and closed anyway rather than left for the first customer big enough to find it - the same disposition as PM8's ELSE-30. FIXED with a note that appears ONLY when the cap actually truncates (_allNodes.length >= 200 AND the true total exceeds it), reserved in the markup so revealing it cannot shift the list. Logic proven over five cases including the null-total and exactly-200 boundaries; verified live both ways - hidden at the real 29-asset scale, and reading 'Showing the first 200 assets of 247. Search to narrow the list.' when simulated at the cap. AN INSTRUMENT ERROR EN ROUTE: my first simulation set window._assetTotalCount, but that binding is a top-level `let` and never lands on window, so the closure kept reading the real value and the note correctly stayed hidden - which I nearly misread as the fix not working. Assigning the binding directly proved it."
     },
     "AH06": {
       "title": "Asset detail - the 11-view roll-up renders honestly per state",

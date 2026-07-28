@@ -505,6 +505,10 @@
         </button>
       </div>
       <div id="asset-list" class="asset-list"></div>
+      <!-- AH5/F20: shown ONLY when the 200-row server cap actually truncates the fleet, so a
+           supervisor is never left comparing a short list against a correct total tile with no
+           explanation. Hidden by default; reserved inline so revealing it cannot shift the list. -->
+      <div id="asset-list-cap-note" hidden style="margin-top:0.5rem; padding:0.5rem 0.7rem; font-size:.72rem; color:var(--muted); border:1px solid var(--border); border-radius:0.5rem; background:rgba(255,255,255,0.03);"></div>
       <div id="list-empty" class="empty empty-state" style="display:none;">
         No approved assets in this hive yet. Add equipment and it surfaces here once approved.
         <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
@@ -1385,6 +1389,24 @@
       // hard cap of 100 with a progressive 30-per-click reveal).
       const visible = filtered.slice(0, _assetDisplayCount);
       if (lmWrap) lmWrap.classList.toggle('hidden', visible.length >= filtered.length);
+
+      // AH5/F20 (Asset Hub deepwalk, 2026-07-28): the client-side pagination above is honest — it
+      // says "showing N of M". What was silent is the SERVER cap beneath it: the fleet query is
+      // .limit(200), so a hive with more approved assets than that gets a list quietly missing the
+      // rest, while the summary tiles (which use their own uncapped count query) keep reporting the
+      // true total. The two would disagree with nothing explaining why. Not reached today — the
+      // largest hive holds 35 — so this is latent, and stated rather than left to be discovered by
+      // the first customer big enough to hit it.
+      const capNote = document.getElementById('asset-list-cap-note');
+      if (capNote) {
+        const capped = _allNodes.length >= 200
+          && _assetTotalCount != null && _assetTotalCount > _allNodes.length;
+        capNote.hidden = !capped;
+        if (capped) {
+          capNote.textContent = `Showing the first ${_allNodes.length} assets of `
+            + `${_assetTotalCount}. Search to narrow the list.`;
+        }
+      }
 
       list.innerHTML = visible.map(n => `
         <div class="asset-card" data-node-id="${e(n.id)}">
