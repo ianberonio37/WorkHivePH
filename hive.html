@@ -678,10 +678,10 @@
         </div>
         <div class="ss-tiles-head"><span aria-hidden="true">&#9889;</span> <span data-i="needsnow">Needs you now</span></div>
         <div class="simple-row ss-tiles" id="ss-cards">
-          <a class="simple-card ss-tile is-clear" id="ss-card-pm" href="pm-scheduler.html" data-rag-tile="hive:pm_overdue" data-rag-label="PM tasks overdue" aria-label="PM tasks overdue: open PM Scheduler to schedule them">
+          <a class="simple-card ss-tile is-clear" id="ss-card-pm" href="pm-scheduler.html" data-rag-tile="hive:pm_overdue" data-rag-label="Assets with PM overdue" aria-label="Assets with PM overdue: open PM Scheduler to schedule them">
             <div class="ss-tile-top"><span class="ss-tile-cap" aria-hidden="true">&#128295;</span><span class="ss-tile-peak" id="ss-pm-peak" data-i="dofirst" hidden>Safety &middot; do first</span></div>
             <div class="sc-hero" id="ss-pm-hero">&#8212;</div>
-            <h2 class="ss-tile-label" style="margin:0;" id="ss-pm-label" data-i="pmoverdue">PM tasks overdue</h2>
+            <h2 class="ss-tile-label" style="margin:0;" id="ss-pm-label" data-i="pmoverdue">Assets with PM overdue</h2>
             <div class="ss-tile-cta" id="ss-pm-cta" data-i="schedule">Schedule now &#8594;</div>
           </a>
           <a class="simple-card ss-tile is-clear" id="ss-card-stock" href="inventory.html" data-rag-tile="hive:low_stock" data-rag-label="Parts low on stock" aria-label="Parts low on stock: open Inventory to restock">
@@ -1235,7 +1235,7 @@
         rename_hive:"Palitan ang Pangalan",
         since:"Mula noong huli kang bumisita", updates:"mga update", synclive:"live", agosync:"&middot; naka-sync",
         eyebrow:"Hive Board", needsnow:"Kailangan ka ngayon", dofirst:"Kaligtasan &middot; unahin",
-        pmoverdue:"Lumipas na PM tasks", schedule:"I-iskedyul na &#8594;",
+        pmoverdue:"Asset na may lumipas na PM", schedule:"I-iskedyul na &#8594;",
         lowstock:"Kulang na stock ng parts", restock:"Mag-restock &#8594;",
         openjobs:"Bukas mong mga trabaho", logwork:"I-log ang trabaho &#8594;",
         why:"Bakit?", show:"Ipakita", more:"Higit pa",
@@ -2987,7 +2987,7 @@ async function loadSupervisorSummary() {
   const totalIssues = openWO + overdue + lowStock;
   const issueParts = [];
   if (openWO   > 0) issueParts.push(`${openWO} open WO${openWO === 1 ? '' : 's'}`);
-  if (overdue  > 0) issueParts.push(`${overdue} PM overdue`);
+  if (overdue  > 0) issueParts.push(`${overdue} asset${overdue === 1 ? '' : 's'} with PM overdue`);
   if (lowStock > 0) issueParts.push(outOfStock > 0
     ? `${lowStock} stock issue${lowStock === 1 ? '' : 's'} (${outOfStock} out)`
     : `${lowStock} stock issue${lowStock === 1 ? '' : 's'}`);
@@ -3010,7 +3010,7 @@ async function loadSupervisorSummary() {
     if (tier === 'critical') {
       sub = 'Adoption signals are critical. Open the Engagement Card breakdown below.';
     } else if (overdue > 5) {
-      sub = `${overdue} PMs are overdue. Open PM Scheduler to triage.`;
+      sub = `${overdue} asset${overdue === 1 ? '' : 's'} have overdue PMs. Open PM Scheduler to triage.`;
     } else {
       sub = `${openWO} open work orders piling up. Open Logbook to clear them.`;
     }
@@ -3099,8 +3099,8 @@ async function loadSupervisorSummary() {
       text = _isFil ? `Kritikal ang adoption. Ipares si ${_lastAdoption.champion_candidate || 'pinakaaktibong worker'} sa mga humihina.` : `Adoption critical. Pair ${_lastAdoption.champion_candidate || 'your top worker'} with whoever's slipping.`;
       cta = { label: _isFil ? 'Tingnan ang adoption signals →' : 'View adoption signals →', href: '#adoption-card' };
     } else if (overdue > 5) {
-      text = _isFil ? `${overdue} PM ang lumipas na. I-bulk assign sa PM Scheduler ngayong linggo.` : `${overdue} PMs overdue. Bulk-assign them in PM Scheduler this week.`;
-      cta = { label: _isFil ? `I-assign ang ${overdue} overdue PM →` : `Assign ${overdue} overdue PMs →`, href: 'pm-scheduler.html' };
+      text = _isFil ? `${overdue} asset ang may lumipas na PM. I-bulk assign sa PM Scheduler ngayong linggo.` : `${overdue} asset${overdue === 1 ? '' : 's'} have overdue PMs. Bulk-assign them in PM Scheduler this week.`;
+      cta = { label: _isFil ? `I-assign ang ${overdue} asset →` : `Assign ${overdue} asset${overdue === 1 ? '' : 's'} →`, href: 'pm-scheduler.html' };
     } else if (openWO >= 10) {
       text = _isFil ? `${openWO} work order ang bukas. Unahin ang pinakaluma sa Logbook.` : `${openWO} work orders open. Triage the oldest first in Logbook.`;
       cta = { label: _isFil ? `Ayusin ang ${openWO} bukas na work order →` : `Triage ${openWO} open work orders →`, href: 'logbook.html' };
@@ -3110,7 +3110,7 @@ async function loadSupervisorSummary() {
                 : (_isFil ? 'Nasa panganib ang adoption. Buksan ang Engagement Card para sa pangunahing signal.' : 'Adoption at risk. Open the Engagement Card for the top signal.');
       cta = { label: _isFil ? 'Tingnan ang adoption signals →' : 'View adoption signals →', href: '#adoption-card' };
     } else if (overdue > 0) {
-      text = _isFil ? `${overdue} PM task ang lumipas na. Ayusin ngayong linggo para manatiling green ang Reliability.` : `${overdue} PM task${overdue === 1 ? '' : 's'} overdue. Clear them this week to keep Reliability green.`;
+      text = _isFil ? `${overdue} asset ang may lumipas na PM. Ayusin ngayong linggo para manatiling green ang Reliability.` : `${overdue} asset${overdue === 1 ? '' : 's'} have overdue PMs. Clear them this week to keep Reliability green.`;
       cta = { label: _isFil ? 'Buksan ang PM Scheduler →' : `Open PM Scheduler →`, href: 'pm-scheduler.html' };
     } else if (openWO > 0) {
       text = _isFil ? `${openWO} bukas na work order. Isara muna ang pinakaluma sa Logbook.` : `${openWO} open work order${openWO === 1 ? '' : 's'}. Close the oldest first in Logbook.`;
@@ -4298,6 +4298,11 @@ async function loadPMHealth() {
   // still re-hides the banner on a COMPLETED run where overdue drops to 0.
   if (!pmItems.length) return;
 
+  // PM10 (PM deepwalk, 2026-07-28): the asset-scoping below is DELIBERATE and stays. What was wrong
+  // was the COPY around it — the tile said "PM tasks overdue", the nudge "29 PMs overdue" and the CTA
+  // "Assign 29 overdue PMs", all describing an ASSET count. Measured in Lucena: 29 overdue assets but
+  // 40 overdue scope items, so a supervisor reading "29 PMs" planned for 29 jobs against 40 tasks.
+  // Only the banner ("29 assets with overdue PM") had the right noun. Every label now says assets.
   // Canonical roll-up (2026-06-09): an ASSET is overdue if >=1 of its scope
   // items is overdue; due-soon if not overdue and >=1 item is due soon. Count
   // ASSETS, not items — this tile deep-links to PM Scheduler ("open PM Scheduler
@@ -4339,8 +4344,8 @@ async function loadPMHealth() {
   // Remove stale PM notifications before re-pushing fresh counts (prevents duplicates on each refresh)
   _notifs = _notifs.filter(n => n.type !== 'pm-overdue' && n.type !== 'pm-duesoon');
   if (overdue > 0) {
-    pushNotif('pm-overdue', 'PM Tasks Overdue',
-      `${overdue} PM task${overdue > 1 ? 's' : ''} overdue: check PM Scheduler.`,
+    pushNotif('pm-overdue', 'Assets With PM Overdue',
+      `${overdue} asset${overdue > 1 ? 's' : ''} with overdue PM: check PM Scheduler.`,
       'pm-scheduler.html');
   }
   if (dueSoon > 0) {

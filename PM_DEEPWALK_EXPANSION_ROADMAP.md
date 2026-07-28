@@ -219,7 +219,13 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
     live. All page-owned targets fixed (`.complete-btn` 36→44, edit/delete 40→44, Back 20→44, Load
     More 38→44) and CLS 0.13 → **0.092** by reserving the two growing sub-lines. 10 → 0 on both
     screens.
-11. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
+11. ~~**PM10** — compliance rollup parity.~~ Done. The NUMBERS agree across pm-scheduler, analytics
+    and the hive board (87.5 / 72.5 for Lucena, matching the DB) — worth checking precisely because
+    this arc had just changed the analytics card. The defect was the NOUN: the hive board's
+    deliberately ASSET-scoped overdue count was labelled "PM tasks" / "PMs" in four places against
+    only one correct "assets", under-stating the work 29-vs-40. Six sites fixed in EN and FIL.
+12. Then §5 order downward — **PM1–PM4, PM6, PM13, PM14, PM16, PM17** remain; every ⑤-harvest that
+    earns a class refills this queue.
 
 **Carried out of the PM7 walk, CLOSED by PM15:** the summary cards shared a first-paint reserve
 deficit — each `.sc-sub` placeholder is one line and fills to two or three, which was most of the

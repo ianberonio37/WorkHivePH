@@ -116,6 +116,35 @@ SKIP_GUARDED = {
 }
 
 
+# PM10 (PM deepwalk, 2026-07-28): the hive board's overdue count is ASSET-scoped on purpose — an
+# asset is overdue if >=1 of its scope items is, so the tile matches the PM Scheduler it deep-links
+# to (a deliberate 2026-06-09 disposition, documented at the derivation; counting items there once
+# showed "9 overdue" against the scheduler's "6"). The COUNT was never the bug. The NOUN was: the
+# tile said "PM tasks overdue", the nudge "29 PMs overdue", the CTA "Assign 29 overdue PMs". Measured
+# in Lucena: 29 overdue ASSETS but 40 overdue scope items, so a supervisor reading "29 PMs" planned
+# for 29 jobs against 40. Only the banner had the right noun. Same class as PMK1 — a label claiming
+# something the number does not support — so it is asserted here.
+_OVERDUE_NOUN_RE = re.compile(r"\$\{overdue\}[^`]{0,60}?PM\s*(?:task|s\b)", re.I)
+
+
+def check_overdue_noun_scope():
+    hive = ROOT / "hive.html"
+    if not hive.exists():
+        return []
+    src = hive.read_text(encoding="utf-8", errors="replace")
+    bad = []
+    for m in _OVERDUE_NOUN_RE.finditer(src):
+        frag = m.group(0)
+        # "asset(s) ... have overdue PMs" is the CORRECT shape — the noun being counted is asset.
+        if re.search(r"\$\{overdue\}[^`]{0,40}asset", frag, re.I):
+            continue
+        line = src[:m.start()].count("\n") + 1
+        bad.append(f"hive.html:{line} counts ASSETS but labels them PMs: {frag.strip()[:70]!r} — "
+                   f"the hive has more overdue scope items than overdue assets, so this under-states "
+                   f"the work a supervisor is planning for")
+    return bad
+
+
 def check_skip_credits_nothing():
     problems = []
     for obj, why in SKIP_GUARDED.items():
@@ -212,6 +241,7 @@ def run_selftest():
         skip = check_skip_credits_nothing()
         if skip:
             problems.extend(skip)
+    problems.extend(check_overdue_noun_scope())
     return problems
 
 
@@ -237,6 +267,14 @@ def main():
     print(f"  compliance (SMRP 2.1.1) : {res['compliance_pct']}%   <- what the page shows")
     print(f"  on-time delivery        : {res['ontime_pct']}%   ({res['ontime']}/{res['intervals']} intervals)")
     print(f"  the gap                 : {res['gap']} points")
+
+    noun = check_overdue_noun_scope()
+    if noun:
+        print("  FAIL: an ASSET count is labelled as PMs —")
+        for n_ in noun:
+            print(f"        {n_}")
+        return 1
+    print("  PASS: the hive board's asset-scoped overdue count is labelled as assets everywhere")
 
     skip = check_skip_credits_nothing()
     if skip:

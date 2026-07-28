@@ -238,13 +238,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Compliance rollup parity across page / analytics / hive PM Health / shift-brain. G: the PDDA arc verified SMRP 87.1% single-RPC parity between page and analytics. The other two consumers, and parity under a CHANGED program, are unwalked."
+      "walked": {
+        "personas": [
+          "P-supervisor",
+          "P-tech"
+        ],
+        "states": [
+          "S-hive-board",
+          "S-pm-scheduler-and-analytics"
+        ]
+      },
+      "notes": "Compliance rollup parity across page / analytics / hive PM Health / shift-brain. G: the PDDA arc verified SMRP 87.1% single-RPC parity between page and analytics. The other two consumers, and parity under a CHANGED program, are unwalked. WALKED 2026-07-28 across all three surfaces. THE NUMBERS AGREE: pm-scheduler shows 87.5 (rendered 88) and 72.5% on time for Lucena, analytics shows the same 88 / 72.5 from the same RPCs, and every figure matches the DB exactly. Parity held even though this arc had just CHANGED the analytics card, which is what made the check worth running when it was. AND A RECALL THAT PREVENTED A FALSE BUG: hive said '29 PMs overdue' while the DB has 40 overdue scope items in Lucena, which looks like an under-count - but the derivation carries an explicit 2026-06-09 comment saying the roll-up counts ASSETS on purpose, so the tile matches the PM Scheduler it deep-links to (counting items there once showed '9 overdue' against the scheduler's '6'). The COUNT was never wrong. Recalling the disposition before declaring the bug is exactly the discipline that saved this one. THE REAL DEFECT IS THE NOUN, and it is PMK1's class on a different surface: the same asset-scoped number was labelled four different ways in ONE page - the tile 'PM tasks overdue', the nudge '29 PMs overdue', the CTA 'Assign 29 overdue PMs', a notification 'PM Tasks Overdue' - while only the banner said '29 assets with overdue PM'. In Lucena that is 29 assets against 40 actual overdue tasks, so a supervisor reading '29 PMs' plans for 29 jobs and meets 40, a 38% under-statement of the work. SIX sites fixed in EN and FIL (the first sweep caught three; a second grep found three more - fix every path, not just the walked one), verified live in both languages, with the rationale recorded at the derivation so the next reader does not 'fix' the deliberate asset-scoping. GATED by a noun-scope check in validate_pm_ontime_vs_compliance (same class, same gate); teeth proven by restoring one old string: exit 1."
     },
     "PM11": {
       "type": "T5-lifecycle",
