@@ -1,20 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:384
-source_sha: 6c64aa37632a3a11
+source: dir:supabase/migrations:389
+source_sha: 7c128931fa4586c8
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (384 migrations)
+## migration · catalog (389 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260521125000_voice_companion_infra_tables` — policies:ai_audit_log_hive_insert,ai_audit_log_hive_select,ai_knowledge_gap_hive_all,ai_quality_escalation_hive_all,asset_watchlist_hive_all,before · tables:ai_audit_log,ai_cost_log,ai_knowledge_gap,ai_quality_escalation,asset_watchlist,companion_handoff
-- `20260521126000_fix_broken_quota_triggers` — (misc DDL/DML)
-- `20260521127000_unique_nulls_not_distinct_on_period_summaries` — tables:canonical_period_summaries
-- `20260526000001_p1_roadmap_substrate` — policies:ai_cache_service_all,ai_user_rl_service_all,wh_health_public_read,wh_health_service_all,wh_traces_hive_read,wh_traces_service_all · fns:ai_cache_bump,ai_cache_sweep_expired · tables:ai_cache,ai_user_rate_limits,wh_health_status,wh_traces
-- `20260530000000_unified_events_verified_state` — fns:unified_event_source_rank
 - `20260531000000_knowledge_graph_facts_dedup` — (misc DDL/DML)
 - `20260531000001_procedural_skill_matcher` — fns:match_procedural_memories
 - `20260531000002_agent_followups` — policies:followups_insert,followups_read,followups_update · tables:agent_followups
@@ -210,6 +205,11 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260728000005_pm_ontime_delivery_rpc` — fns:get_pm_ontime_delivery
 - `20260728000006_pm_asset_delete_guard_and_audit` — policies:pm_assets_delete_guard · fns:audit_pm_asset_delete · triggers:trg_pm_asset_delete_audit
 - `20260728000007_pm_completion_scope_parent_guard` — policies:pm_completions_scope_parent_guard
+- `20260728000008_pm_asset_identity_sync_rpc` — fns:sync_pm_asset_identity
+- `20260728000009_pm_asset_update_guard` — policies:pm_assets_update_guard
+- `20260728000010_ensure_pm_asset_for_node_rpc` — fns:ensure_pm_asset_for_node
+- `20260728000011_pm_asset_insert_guard` — policies:pm_assets_insert_guard
+- `20260728000012_pm_scope_item_schedule_audit` — fns:audit_pm_scope_item_schedule_change · triggers:trg_pm_scope_item_schedule_audit
 
 (showing last 200)
 

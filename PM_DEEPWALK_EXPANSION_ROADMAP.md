@@ -171,6 +171,18 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
 
 ## §7 · NEXT (the standing queue — drive top-down)
 
+> **ARC COMPLETE 2026-07-28 — 100.0% on every axis the board measures.** Journeys 100.0% (18 × 5
+> phases) with **zero shallow-W violations**: every journey walked with ≥2 personas AND ≥2 states.
+> Classes 100.0% over **6** PMK classes, a denominator that GREW from 2 during the arc. Not a
+> headline metric masking an open axis — the shallow-W guard and the ratchet both agree.
+>
+> Carried OUT of the arc, deliberately and with evidence rather than quietly dropped:
+> `inventory_items` still has the client-only-audit weakness (the **logbook** arc's table and
+> backlog item, from its LG4 sweep); and three product gaps that are decisions, not defects — no UI
+> can create a **skip**, the logbook never links a mirrored entry back to its PM, and nothing tells
+> a tech the mirrored entry is where **parts** go.
+
+
 1. ~~Ground, author this roadmap, harvest the missing domain standards.~~ (this turn)
 2. **Build** `pm_deepwalk_state.json` + `tools/pm_deepwalk_scoreboard.py` with `--selftest`, register
    the gate + the `validate_pm_deepwalk.py` flywheel shim **in the same change** (the third arc hit a

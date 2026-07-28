@@ -7989,6 +7989,14 @@
         "asset-hub.html"
       ],
       "called_by_edge_fns": []
+    },
+    "audit_pm_scope_item_schedule_change": {
+      "defined_in": "20260728000012_pm_scope_item_schedule_audit.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {

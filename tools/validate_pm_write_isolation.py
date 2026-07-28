@@ -259,7 +259,20 @@ ROLLBACK;
         "SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace "
         "WHERE n.nspname='public' AND p.proname='ensure_pm_asset_for_node' AND p.prosecdef;")
 
+    # PMK3 sweep (PM deepwalk, 2026-07-28): pm_completions and pm_assets are audited; pm_scope_items
+    # was not — and PM8 established the frequency WORD is the scheduler. Editing 'Weekly' to 'Annual'
+    # moves next_due_date out by 358 days (probed), clears the overdue flag, and changes both the
+    # scheduled count compliance divides by and what counts as on-time. One edit, nothing recorded,
+    # and the asset's compliance history is re-based.
+    schedule_audit = _psql_value(
+        "SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid "
+        "WHERE c.relname='pm_scope_items' AND NOT t.tgisinternal "
+        "AND t.tgname='trg_pm_scope_item_schedule_audit';")
+
     checks = [
+        ("schedule_amendment_audited", ("OK" if (schedule_audit or "0").strip() not in ("0", "") else "MISSING"), "OK",
+         "changing a scope item's frequency / anchor / task text is recorded by the DATABASE "
+         "(it re-bases the asset's whole derived schedule)"),
         ("insert_role_gated", ("OK" if (insert_policy or "0").strip() not in ("0", "") else "MISSING"), "OK",
          "creating a PM asset is supervisor-only at the DATABASE (every added asset enters the "
          "scheduled count the compliance RPC divides by)"),

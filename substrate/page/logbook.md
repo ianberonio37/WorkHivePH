@@ -2,16 +2,16 @@
 name: page-logbook
 type: page
 source: file:logbook.html
-source_sha: 5a7aef2084d505cd
+source_sha: 35e654d93c15a003
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `logbook.html` — Digital Maintenance Logbook: WorkHive
 
-Size: 308KB · 127 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 310KB · 127 top-level fns. (Retrieve THIS instead of reading the file.)
 
-**DB writes** (10): `asset_nodes.delete`, `asset_nodes.update`, `asset_nodes.upsert`, `hive_audit_log.insert`, `logbook.delete`, `logbook.insert`, `logbook.update`, `pm_assets.update`, `pm_completions.insert`, `project_links.insert`
-**RPC calls**: `inventory_deduct`
+**DB writes** (9): `asset_nodes.delete`, `asset_nodes.update`, `asset_nodes.upsert`, `hive_audit_log.insert`, `logbook.delete`, `logbook.insert`, `logbook.update`, `pm_completions.insert`, `project_links.insert`
+**RPC calls**: `inventory_deduct`, `sync_pm_asset_identity`
 **Edge invokes**: `cmms-push-completion`, `embed-entry`, `equipment-label-ocr`, `visual-defect-capture`, `voice-logbook-entry`
 **Truth views read**: `v_external_sync_truth`, `v_inventory_items_truth`, `v_inventory_transactions_truth`, `v_pm_compliance_truth`, `v_pm_scope_items_truth`
 

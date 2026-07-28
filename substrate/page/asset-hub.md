@@ -2,7 +2,7 @@
 name: page-asset-hub
 type: page
 source: file:asset-hub.html
-source_sha: e694bf06b835a190
+source_sha: d0d969436a473936
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -10,8 +10,8 @@ supersedes: null
 
 Size: 209KB · 75 top-level fns. (Retrieve THIS instead of reading the file.)
 
-**DB writes** (12): `asset_nodes.update`, `hive_audit_log.insert`, `parts_staged_reservations.upsert`, `parts_staging_recommendations.update`, `pm_assets.insert`, `pm_scope_items.insert`, `rcm_fmea_modes.delete`, `rcm_fmea_modes.insert`, `rcm_fmea_modes.update`, `rcm_strategies.delete`, `rcm_strategies.insert`, `rcm_strategies.update`
-**RPC calls**: (none)
+**DB writes** (11): `asset_nodes.update`, `hive_audit_log.insert`, `parts_staged_reservations.upsert`, `parts_staging_recommendations.update`, `pm_scope_items.insert`, `rcm_fmea_modes.delete`, `rcm_fmea_modes.insert`, `rcm_fmea_modes.update`, `rcm_strategies.delete`, `rcm_strategies.insert`, `rcm_strategies.update`
+**RPC calls**: `ensure_pm_asset_for_node`
 **Edge invokes**: `ai-gateway`, `asset-brain-query`, `fmea-populator`, `pf-calculator`, `weibull-fitter`
 **Truth views read**: `v_asset_truth`, `v_external_sync_truth`, `v_fmea_truth`, `v_logbook_truth`, `v_marketplace_listings_truth`, `v_pf_truth`, `v_rcm_truth`, `v_risk_truth`, `v_sensor_recent`, `v_sensor_truth`, `v_weibull_truth`
 

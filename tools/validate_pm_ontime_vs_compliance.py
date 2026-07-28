@@ -151,6 +151,57 @@ def _check_briefing_counts_assets():
     return []
 
 
+# PMK2 (PM deepwalk, 2026-07-28): the schedule DENOMINATOR is an approximation.
+# get_pm_compliance_smrp charges GREATEST(1, period/frequency_days) scheduled events, so inside a
+# 90-day window a Semi-annual item counts as 1 when it is truly due 0.5 times and an Annual as 1
+# against a true 0.25. Measured: 122 of 416 scope items (29%) are structurally over-counted.
+#
+# NOT "compliance is wrong", and not a redefinition either — the same disposition as PMK1 and the
+# logbook arc's LG2: the approximation is defensible (you cannot do half a PM, and SMRP counts
+# scheduled EVENTS), so allow it and make divergence DETECTABLE. Measured today the two agree to
+# 0.17 points (86.3 as-implemented vs 86.2 fractional), because those long-period items happen to
+# carry completions in the window. That is luck of the data, exactly like the 'corrective' vocabulary
+# agreeing by luck. This holds the flattery as a FORWARD-ONLY ceiling, so the day the data shifts and
+# the approximation starts materially inflating the headline, the build fails first.
+DENOMINATOR_SQL = """
+WITH per_item AS (
+  SELECT GREATEST(1, (90 / s.frequency_days))  AS sched_impl,
+         (90.0 / s.frequency_days)             AS sched_true,
+         LEAST((SELECT count(*) FROM public.pm_completions pc
+                 WHERE pc.scope_item_id = s.scope_item_id AND pc.status = 'done'
+                   AND pc.completed_at >= now() - interval '90 days'),
+               GREATEST(1, (90 / s.frequency_days))) AS done_impl
+  FROM public.v_pm_scope_items_truth s
+)
+SELECT round(100.0 * sum(done_impl) / NULLIF(sum(sched_impl), 0), 2),
+       round(100.0 * sum(LEAST(done_impl, sched_true)) / NULLIF(sum(sched_true), 0), 2),
+       count(*) FILTER (WHERE sched_true < 1),
+       count(*)
+FROM per_item;
+"""
+
+
+def check_denominator_flattery():
+    """[] when the scheduled-count approximation flatters no more than its accepted ceiling."""
+    out = psql(DENOMINATOR_SQL)
+    if out is None:
+        return None
+    try:
+        impl, true_, over, total = out.splitlines()[0].split("|")
+        gap = round(float(impl) - float(true_), 2)
+    except (ValueError, IndexError):
+        return None
+    base = _baseline().get("denominator_gap")
+    if base is None:
+        return []          # not yet accepted; --accept records it
+    if gap > base + 0.05:
+        return [f"the scheduled-count approximation now flatters compliance by {gap} points "
+                f"(was {base}): {over} of {total} scope items are charged a whole scheduled event "
+                f"for a period longer than the window. The headline is drifting above what the "
+                f"program is actually due to deliver."]
+    return []
+
+
 def check_overdue_noun_scope():
     bad = _check_briefing_counts_assets()
     hive = ROOT / "hive.html"
@@ -265,6 +316,9 @@ def run_selftest():
         skip = check_skip_credits_nothing()
         if skip:
             problems.extend(skip)
+        denom = check_denominator_flattery()
+        if denom:
+            problems.extend(denom)
     problems.extend(check_overdue_noun_scope())
     return problems
 
@@ -291,6 +345,38 @@ def main():
     print(f"  compliance (SMRP 2.1.1) : {res['compliance_pct']}%   <- what the page shows")
     print(f"  on-time delivery        : {res['ontime_pct']}%   ({res['ontime']}/{res['intervals']} intervals)")
     print(f"  the gap                 : {res['gap']} points")
+
+    # A RATCHET must stay re-baselineable. Running --accept behind the checks meant that once
+    # the ceiling was exceeded the accept path was unreachable, so the only way to re-accept a
+    # deliberately-changed baseline was to hand-edit the json. Accept is an explicit operator
+    # action; it runs before any check can short-circuit.
+
+    if "--accept" in sys.argv:
+        _dn = psql(DENOMINATOR_SQL)
+        _dgap = None
+        if _dn:
+            try:
+                _i, _t = _dn.splitlines()[0].split("|")[:2]
+                _dgap = round(float(_i) - float(_t), 2)
+            except (ValueError, IndexError):
+                _dgap = None
+        BASELINE_PATH.write_text(json.dumps(
+            {"gap": res["gap"], "ontime_pct": res["ontime_pct"],
+             "compliance_pct": res["compliance_pct"],
+             "denominator_gap": _dgap,
+             "_note": "forward-only ceiling on how far compliance may flatter on-time delivery"},
+            indent=2), encoding="utf-8")
+        print(f"  ACCEPTED  baseline gap -> {res['gap']} points")
+        return 0
+
+    denom = check_denominator_flattery()
+    if denom:
+        print("  FAIL: the scheduled-count approximation is flattering the headline —")
+        for d_ in denom:
+            print(f"        {d_}")
+        return 1
+    if denom is not None:
+        print("  PASS: the scheduled-count approximation flatters within its accepted ceiling")
 
     noun = check_overdue_noun_scope()
     if noun:
@@ -320,14 +406,6 @@ def main():
         print("  PASS: get_pm_ontime_delivery (what the card shows) matches an independent "
               "recomputation, every hive")
 
-    if "--accept" in sys.argv:
-        BASELINE_PATH.write_text(json.dumps(
-            {"gap": res["gap"], "ontime_pct": res["ontime_pct"],
-             "compliance_pct": res["compliance_pct"],
-             "_note": "forward-only ceiling on how far compliance may flatter on-time delivery"},
-            indent=2), encoding="utf-8")
-        print(f"  ACCEPTED  baseline gap -> {res['gap']} points")
-        return 0
 
     if base.get("gap") is None:
         print("  NOTE: no baseline yet — run with --accept to set the forward-only ceiling.")
