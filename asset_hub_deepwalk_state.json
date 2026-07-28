@@ -308,17 +308,23 @@
     "AH17": {
       "title": "External CMMS ids - the dead card (inherited F18)",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-reliability"
+        ],
+        "states": [
+          "S-with-cmms-ids",
+          "S-never-synced"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28 - the inherited F18 confirmed, and it was broken TWICE over, which is why it read as one vague 'KEEP-or-CUT' item in the PDDA backlog. (1) THE READ: loadDetailExternalIds does `_allNodes.find(...).external_ids`, but the fleet select at the top of the page omitted external_ids from its column list. So node.external_ids was ALWAYS undefined, keys.length was always 0, and #ext-card hid itself on every asset in the fleet - a card that could never render, on any row, ever. One word in the select is the whole read-side fix. (2) THE DATA: external_ids was populated on 0 of 95 nodes, so even with the select fixed there was nothing to show. That is AHK3 a fourth time - and it explains why nobody could tell whether the card was broken or just empty. Seeded a SAMPLE (~20%, now 16 of 95) and co-landed _external_ids_sample in asset_brain.py, because a plant that has never run a CMMS import legitimately has none and BOTH states must exist. VERIFIED LIVE on PB-001: the card renders 'Fiix FX000074 - SAP_PM EQ-PB001'. The KEEP-or-CUT question the backlog left open is answered by keeping it: the feature works, it just had no read path and no data. NOT MINE, recorded rather than swept up: the page logs a 401 on analytics_events with 'JWT issued at future' - clock skew between the local container and the host, handled gracefully by utils.js (it warns and continues). Environmental, not a page defect."
     },
     "AH18": {
       "title": "Mobile 390px at-the-asset lookup (QR -> detail)",

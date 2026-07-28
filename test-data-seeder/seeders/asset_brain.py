@@ -61,6 +61,14 @@ _REJECTION_REASONS = [
 ]
 
 
+def _external_ids_sample(tag: str | None):
+    """CMMS ids for ~20% of assets — the rest stay un-synced, which is the honest cold-start."""
+    if random.random() >= 0.20:
+        return None
+    t = (tag or "X").replace("-", "").upper()
+    return {"SAP_PM": f"EQ-{t}", "Fiix": f"FX{random.randint(1, 999999):06d}"}
+
+
 def _governance_state(a: dict):
     """(status, approved_by, approved_at, rejection_reason) — internally consistent by construction.
 
@@ -146,6 +154,11 @@ def seed_asset_brain(client, log, ctx: dict) -> dict:
             # Attribution FK. Without it the row has a submitter NAME and no identity behind it.
             "auth_uid":        a.get("auth_uid"),
             "status":          status,
+            # AH17/F18 (2026-07-28): the CMMS-id card reads node.external_ids and NOTHING ever wrote
+            # it — 0 of 95 nodes had any, so even with the page's select fixed the card had nothing to
+            # render. A SAMPLE, not all: a plant that has never run a CMMS import legitimately has
+            # none, and both states have to exist for the card to be walkable either way.
+            "external_ids":    _external_ids_sample(tag),
             "submitted_by":    a.get("submitted_by"),
             "approved_by":     approver,
             "approved_at":     approved_at,

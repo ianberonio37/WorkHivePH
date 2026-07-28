@@ -1029,7 +1029,9 @@
       if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('asset-list'), 5);
       // Narrow select per performance skill, hive-scoped per multitenant skill.
       const { data, error } = await db.from('asset_nodes')
-        .select('id, tag, name, level, criticality, location, iso_class, parent_id, pm_asset_id, legacy_asset_id, created_at')
+        .select('id, tag, name, level, criticality, location, iso_class, parent_id, pm_asset_id, legacy_asset_id, external_ids, created_at')  // AH17/F18: external_ids was omitted here while loadDetailExternalIds reads node.external_ids,
+        // so `keys.length` was always 0 and #ext-card hid itself on every asset — a card that could
+        // never render. Selecting it is the whole fix on the read side.
         .eq('hive_id', HIVE_ID)
         .eq('status', 'approved')
         .order('tag', { ascending: true })
