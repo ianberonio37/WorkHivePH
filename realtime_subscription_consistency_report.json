@@ -395,17 +395,17 @@
         {
           "table": "projects",
           "allowed": false,
-          "offset": 165705
+          "offset": 168848
         },
         {
           "table": "project_items",
           "allowed": false,
-          "offset": 165849
+          "offset": 168992
         },
         {
           "table": "project_progress_logs",
           "allowed": false,
-          "offset": 166019
+          "offset": 169162
         }
       ],
       "drift": []

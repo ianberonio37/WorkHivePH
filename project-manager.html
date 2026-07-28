@@ -2384,8 +2384,19 @@ async function ackLog(id) {
 /* ── Pane: Critical path ──────────────────────────────────── */
 function renderCpm() {
   if (!_items.length) { $('pane-cpm')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty">Add scope items with planned dates and predecessors first.</div>'; return; }
-  const cp = _progress?.critical_path || { item_ids: [], total_days: 0, slack_per_item: {} };
-  const totalDays = Math.max(cp.total_days, 1);
+  // PJ8 (2026-07-28): distinguish "computed, and nothing is on the critical path" from "we could
+  // not compute it". The old default of an empty critical_path made every task render as
+  // NON-critical with ZERO slack whenever the rollup was unavailable — a positive answer, and a
+  // self-contradictory one, since zero slack is normally what MAKES a task critical. Same shape as
+  // the is_anomaly defect: an absence rendering as a verdict.
+  const cp = _progress?.critical_path;
+  if (!cp) {
+    $('pane-cpm')/* xss-allow: static string */ .innerHTML =
+      '<div class="empty">The critical path could not be computed right now, so nothing here is '
+      + 'marked critical or slack-free. Refresh to try again.</div>';
+    return;
+  }
+  const totalDays = Math.max(cp.total_days || 0, 1);
   const dayWidth = 100 / totalDays;
   const rows = _items.map(it => {
     const isCritical = cp.item_ids.includes(it.id);

@@ -147,17 +147,25 @@
     "PJ08": {
       "title": "Critical path - what decides that a task may slip?",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-engineer",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-cpm-computed",
+          "S-no-items",
+          "S-rollup-unavailable",
+          "S-networkx-missing"
+        ]
       },
-      "notes": ""
+      "notes": "WALKED 2026-07-28. THE SERVER IMPLEMENTATION IS SOUND, and saying so is half the value of the walk: python-api/projects/prescriptive.py cites PMBOK 7th ed. §6.5.2.2 (Critical Path Method) and AACE 24R-03 (Forensic Schedule Analysis), uses networkx.dag_longest_path() rather than hand-rolled graph code, documents the forward/backward pass (ES/EF/LF/LS, slack = LS - ES, critical = slack 0), and carries real refusal paths - no items returns an empty critical path, and a missing networkx returns a stated cycle_warning instead of guessing. Its own docstring records that the PREVIOUS hand-rolled TS version silently miscomputed cycles and that networkx.find_cycle() now raises cleanly. That is the AHK2/PJK2 bar being met. A GOOD CONTRAST WITH PJ7, and it sharpens that finding: the client NEVER recomputes the critical path - 0 matches for any client-side CPM - it only reads _progress.critical_path. So the same page handles its two computed numbers with two different disciplines: the schedule verdict has ONE implementation, while Earned Value has a second, uncited copy in the browser that already diverges on rounding. THE DEFECT FOUND: an absence rendered as a VERDICT. renderCpm defaulted to {item_ids: [], total_days: 0, slack_per_item: {}} whenever the rollup was unavailable, so every task drew as NON-critical with ZERO slack. That is a positive answer where there should be none, and a self-contradictory one - zero slack is normally exactly what MAKES a task critical. Same shape as the is_anomaly defect in the Asset Hub arc. FIXED: the pane now says the critical path could not be computed and that nothing is therefore marked critical or slack-free, rather than quietly asserting a clean schedule."
     },
     "PJ09": {
       "title": "Budget: can a non-supervisor read it anyway? (G6)",
