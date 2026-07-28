@@ -942,7 +942,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // roll-up if it has already drawn, or the on-time figure silently never appears on the
       // common (cached) load. Cheap: the summary only sets four cards and the verdict.
       if (_lastSummaryData) renderAnalyticsSummary(_lastSummaryData);
-    } catch (_) { /* the card falls back to compliance alone */ }
+    } catch (_) { /* empty-catch-allow: the card falls back to compliance alone */ }
   }
 
   // ── Core fetch for a single phase ─────────────────────────────────────────
@@ -2934,6 +2934,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     } else {
       _freshness = _t('Recomputed just now', 'Kakakalkula lang');
     }
+    // source-chip-allow: analytics computes via Postgres RPCs (calc_mtbf /
+    // calc_mttr / calc_oee) over v_logbook_truth — no direct db.from() of
+    // the view, but the RPC bodies guarantee identical lineage.
+    // (RESTORED 2026-07-28: this marker was displaced when the chip gained its
+    //  saved-snapshot freshness branch, and the gate correctly went red.)
     el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
       freshness: _freshness,
       source:    'v_logbook_truth via Postgres RPCs',

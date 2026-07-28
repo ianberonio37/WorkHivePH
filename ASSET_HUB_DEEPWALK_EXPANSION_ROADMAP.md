@@ -217,3 +217,43 @@ DB functions, validators, RPCs and write tables need their registration **in the
 (commit / push / deploy) is never a stop — pivot to the remaining local work. Only these end a turn:
 (a) a fork Ian must decide, (b) a hard external ceiling, (c) an irreversible action that is the SOLE
 remaining item, (d) the local queue genuinely EMPTY and tested, (e) Ian says wrap in THIS message.
+
+---
+
+## §10 · ARC CLOSED — 100.0% on the TRUE denominator (2026-07-28)
+
+**18/18 journeys × 5 phases · 4/4 AHK classes × 6 stages · zero shallow-W violations.**
+
+The final number moved only after a correction worth recording: the board read 100% while
+`asset_hub_deepwalk_state.json` tracked **three** of the four AHK classes this document names.
+AHK4 sat at CANDIDATE and had already been *earned* by the AH13 walk — what was missing was its
+**gate**. Promoting it and building `validate_reliability_tenancy.py` is what made the 100% true.
+A green headline over a short denominator produces no red anywhere.
+
+### The defects this arc found, by shape
+
+| Shape | Where | The measurement that proved it |
+|---|---|---|
+| A view predicate the source CHECK **forbids** | `v_sensor_truth.is_anomaly` | `'ANOMALY'` not in `good\|uncertain\|bad\|stale` → false for 77,814 rows; 4 surfaces dead; a parity spec passed on `0 = 0` |
+| Order, not arithmetic, buried the risk | FMEA RPN | all 17 modes with severity ≥ 9 below the median RPN; S9 *safety* (108) under S6 *production* (180) |
+| A rename that carried 2 rows and orphaned 116 | identity spine | `logbook` 3,739/3,811, `fault_knowledge` 534/534, `asset_risk_scores` 255/259 all key on the TAG |
+| **The repair crossed a tenant boundary** | `sync_asset_identity` v1 | renaming Lucena's asset rewrote Manila's 69 rows; repaired to 0 residual |
+| An empty state that hides its own parent | `#telemetry-empty` | 62 of 79 assets silent on hives that plainly had a bridge |
+| One `if/else` fixed on one arm only | `?node_id=` vs `?tag=` | 17 of 96 assets unresolvable, landing users in the unfiltered fleet |
+| A label claiming the window, showing the sample | telemetry footer | "500 readings in the last 30 days" for an asset with 3,174; stats spanned 3.5 d |
+| Stale risk assessment rendered as actionable | parts staging (F43) | all 3 expiries passed, still `status='pending'`, on two pages |
+| A citation you cannot check — or falsify | Asset Brain (F41) | `logbook #7` with 5 rows supplied rendered identically to a real source |
+| The most mobile-specific controls under 44px | detail actions | 2 of 22, both the at-the-asset buttons |
+
+### Deliberately NOT built (so the next reader does not re-open them)
+
+- **No job expires a parts recommendation.** The UI now refuses to act on a stale one on both
+  surfaces, but `status` stays `pending` forever. A sweep or `pg_cron` job is the real fix and was
+  out of this arc's scope.
+- **The full AIAG-VDA Action Priority table.** Its ~1000 S/O/D cells are not reproduced; inventing
+  them would defeat the point of an auditable contract. Registered `partial_variant: true`.
+- **77 pre-existing orphan tags** (72 `logbook` rows with no `asset_node_id` to fall back on).
+  Reported by `validate_asset_identity_spine`, not repaired — they predate the arc and some carry
+  real content.
+- **`v_cron_health` / `v_storage_health` lack `security_invoker`.** Infra views over `pg_catalog`,
+  not tenant data; left as-is and confirmed not a regression from this arc.

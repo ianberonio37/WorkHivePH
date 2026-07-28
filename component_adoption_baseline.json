@@ -1,6 +1,6 @@
 {
   "_doc": "Component adoption baseline (Layer F). Floors are FORWARD-ONLY: validate_component_adoption.py fails any drop and auto-tightens any rise. Regenerate view: python tools/component_adoption_census.py",
-  "generated": "2026-07-27T23:34:18.962047+00:00",
+  "generated": "2026-07-28T04:37:15.315897+00:00",
   "family_pages": 32,
   "rows": [
     {
@@ -390,8 +390,8 @@
       "mode": "measured",
       "need_rule": "renders-number",
       "adopters_n": 5,
-      "need_n": 5,
-      "pct": 100,
+      "need_n": 6,
+      "pct": 83,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
@@ -399,7 +399,9 @@
         "marketplace.html",
         "ph-intelligence.html"
       ],
-      "gap": [],
+      "gap": [
+        "asset-hub.html"
+      ],
       "status": "built"
     },
     {

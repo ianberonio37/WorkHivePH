@@ -7,13 +7,13 @@ actually missing required inputs.
 
 ## Summary
 
-- Total formulas:  **22**
-- Pass:            **22**
+- Total formulas:  **23**
+- Pass:            **23**
 - Fail:            **0**
 - Partial honest:  **4** (declared with reason + label)
 - Partial silent:  **0** ❌ (labelled as full)
 
-## ⚠️ Declared partial variants (7)
+## ⚠️ Declared partial variants (8)
 
 These formulas honestly declare themselves partial relative to
 their cited standard. They are CORRECT per the contract but
@@ -29,6 +29,7 @@ fields / RPCs land.
 | `pump_total_head_api_610` | api_610_2018 §pump_head | — | Bernoulli velocity term (v_d² - v_s²)/(2g) is OMITTED in the platform's quick calc — acceptable when discharge and sucti |
 | `pf_interval_days` | sae_ja1011 §6_pm_interval | ['safety_factor'] | Surface displays the P-F interval directly without showing the safety_factor used to derive the PM interval. PM interval |
 | `oee_iso_22400_partial` | iso_22400_2_2014 §5.5_oee | ['performance_pct'] | Performance factor excluded: requires per-asset ideal_cycle_time_seconds (Tier F capture asset_ideal_cycle_time) which i |
+| `fmea_action_priority_severity_gate` | iec_60812_2018 §rpn | — | Implements the severity escalation both IEC 60812:2018 and AIAG-VDA 2019 agree on — a severity 9-10 failure mode is High |
 
 ## All results (full alignment ranking)
 
@@ -56,3 +57,4 @@ fields / RPCs land.
 | `pf_interval_days` | sae_ja1011 | 6_pm_interval | ✓ | ✅ |
 | `hive_stair_composite` | platform_maturity_stair | stair_composite |  | ✅ |
 | `oee_iso_22400_partial` | iso_22400_2_2014 | 5.5_oee | ✓ | ✅ |
+| `fmea_action_priority_severity_gate` | iec_60812_2018 | rpn | ✓ | ✅ |

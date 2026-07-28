@@ -6,7 +6,7 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **319**
+- View/column pairs scanned: **320**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
 - Files scanned: **254**
@@ -333,6 +333,7 @@ re-deriving what the canonical view should expose:
 | `v_skill_badges_truth` | `level` | ✅ OK | 4 | direct |
 | `v_weibull_truth` | `asset_id` | ✅ OK | 1 | direct |
 | `v_weibull_truth` | `beta` | ✅ OK | 3 | direct |
+| `v_weibull_truth` | `diagnostic` | ✅ OK | 1 | direct |
 | `v_weibull_truth` | `eta_days` | ✅ OK | 3 | direct |
 | `v_weibull_truth` | `failure_pattern` | ✅ OK | 3 | direct |
 | `v_weibull_truth` | `generated_at` | ✅ OK | 2 | direct |

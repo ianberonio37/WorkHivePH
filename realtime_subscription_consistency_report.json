@@ -53,67 +53,67 @@
         {
           "table": "hive_readiness",
           "allowed": true,
-          "offset": 159359
+          "offset": 159384
         },
         {
           "table": "hive_adoption_score",
           "allowed": true,
-          "offset": 167630
+          "offset": 167655
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 233134
+          "offset": 233307
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 233551
+          "offset": 233724
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 234676
+          "offset": 234849
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 235508
+          "offset": 235681
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 236970
+          "offset": 237143
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 264726
+          "offset": 265418
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 265181
+          "offset": 265873
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 266175
+          "offset": 266867
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 266638
+          "offset": 267330
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 268109
+          "offset": 268801
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 268522
+          "offset": 269214
         }
       ],
       "drift": []
@@ -189,7 +189,7 @@
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 74173
+          "offset": 76191
         }
       ],
       "drift": []
@@ -495,7 +495,6 @@
         "hive_members",
         "parts_staged_reservations",
         "parts_staging_recommendations",
-        "pm_assets",
         "pm_completions",
         "pm_scope_items",
         "rcm_fmea_modes",
@@ -516,37 +515,37 @@
         {
           "table": "sensor_readings",
           "allowed": false,
-          "offset": 117916
+          "offset": 128297
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 185439
+          "offset": 203226
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 185989
+          "offset": 203776
         },
         {
           "table": "rcm_fmea_modes",
           "allowed": false,
-          "offset": 186662
+          "offset": 204449
         },
         {
           "table": "asset_risk_scores",
           "allowed": false,
-          "offset": 187838
+          "offset": 205625
         },
         {
           "table": "rcm_strategies",
           "allowed": false,
-          "offset": 188521
+          "offset": 206308
         },
         {
           "table": "weibull_fits",
           "allowed": true,
-          "offset": 189383
+          "offset": 207170
         }
       ],
       "drift": []

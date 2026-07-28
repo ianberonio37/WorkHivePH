@@ -278,6 +278,11 @@ serveObserved("sensor-readings-ingest", async (req) => {
       const pairs = Array.from(new Set(cleanedRows.map(r => `${r.asset_id} ${r.parameter}`)));
       for (const key of pairs) {
         const [assetId, parameter] = key.split(" ");
+        // canonical-allow: the baseline needs the parameter's HISTORY, and v_sensor_truth is
+        // DISTINCT ON (hive, asset, parameter) — exactly ONE row, the latest. Reading it here
+        // would give a 1-sample baseline that BASELINE_MIN_SAMPLES rejects, so the anomaly flag
+        // would silently never fire again. The raw table is the correct source for a rolling
+        // statistic; v_sensor_truth remains correct for "what is this sensor reading now".
         const { data: hist } = await db.from("sensor_readings")
           .select("value")
           .eq("hive_id", hive_id)

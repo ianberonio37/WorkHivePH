@@ -1,6 +1,6 @@
 {
   "summary": {
-    "view_column_pairs": 319,
+    "view_column_pairs": 320,
     "at_risk": 0,
     "review": 9,
     "files_scanned": 254
@@ -6869,6 +6869,19 @@
         },
         {
           "file": "supabase/functions/batch-risk-scoring/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_weibull_truth",
+      "column": "diagnostic",
+      "consumers": [
+        {
+          "file": "asset-hub.html",
           "shape": "direct",
           "smells": []
         }
