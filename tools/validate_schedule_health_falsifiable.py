@@ -105,6 +105,22 @@ def main():
         ("EVM contract admits AC is a proxy",
          bool(evm_contract) and evm_contract.get("partial_variant") is True
          and "proxy" in (evm_contract.get("partial_reason") or "").lower()),
+
+        # PJ3 ratchet — an UNRESOLVABLE predecessor must be reported, not dropped.
+        #
+        # The CPM builder walks each item's predecessors and adds an edge for each one it can
+        # resolve. A predecessor id that matches nothing — a deleted scope item, a bad paste, an
+        # id from another project — used to be skipped in silence, so the graph was built from
+        # FEWER constraints than the plan states and the critical path came back shorter and more
+        # confident than the truth. That is the same failure this whole gate exists to prevent: a
+        # number that cannot be falsified because the thing it omitted was never mentioned.
+        #
+        # Checked on the SUCCESS path specifically. Returning the list only when the computation
+        # fails is the easy half — it is the run that SUCCEEDS while quietly ignoring a constraint
+        # that misleads, so `unresolved_predecessors` has to travel with a good answer too.
+        ("CPM collects unresolvable predecessors", "unresolved_predecessors" in cpm),
+        ("CPM reports them on the SUCCESS path, not only on failure",
+         cpm.count("unresolved_predecessors") >= 3),
     ]
 
     fails = 0

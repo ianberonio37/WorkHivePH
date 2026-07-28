@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: e4d314ca98cc54b4
+source_sha: 4e2ea8f051afbf70
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (681) — the 'what's already gated' brain
+## gate · registered validators (682) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -197,7 +197,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `memory_supersedes` ⚡ [fail] — Memory M3.2: supersedes down-rank mechanism (superseded memory ranks below its replacement)
 - `memory_write_quality` ⚡ [fail] — Memory M3.1: topic-file write-quality lint (type/name/description, no silent type=unknown)
 
-### P1 Roadmap (23)
+### P1 Roadmap (24)
 - `doctype-first` ⚡ [blocker] — Doctype First (nothing may precede <!DOCTYPE html> — content there forces quirks mode)
 - `edge-error-capture` ⚡ [regression] — Edge Error-Capture Adoption (Arc T/T2 keystone: every edge fn routes through serveObserved so unhandled throws aggregate to wh_traces via trackError; L1 wrapper
 - `embedding-index-read` [regression] — Embedding Index Is Read (every table with an embedding column has a reader, not just a writer)
@@ -212,6 +212,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `mine-cache-name-drift` ⚡ [info] — Cache-Name Drift Miner (L-1: SHELL_FILEs committed after sw.js — bump CACHE_NAME warning)
 - `mine-rls-policies` ⚡ [info] — RLS Policy Substrate Miner (L-1.5: USING(true) / WITH CHECK(true) / missing TO clause)
 - `observability-fault-walk` [regression] — Observability Fault-Inject Walk (Arc T/T2 LIVE proof: injects an unhandled throw via the auth-gated chaos hook -> asserts a wh_traces error row lands with the s
+- `project-guard-spine` [blocker] — Project Guard Spine (code-reuse / budget-write / progress-record / attribution-pin / delete-audit / lessons guards still hold)
 - `rate-limit-adoption` ⚡ [regression] — Rate-Limit Adoption (every callAI fn calls checkAIRateLimit/checkUserRateLimit/checkRouteRateLimit)
 - `render-budget` ⚡ [warn] — Render Budget (per-page HTML + inline JS + external script ratchet)
 - `reproducible-build-pin` ⚡ [regression] — Reproducible Build Pin (L1 .tool-versions + L2 package-lock + L3 engines.node agreement)

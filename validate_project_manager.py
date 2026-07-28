@@ -172,6 +172,35 @@ def layer1_page_structure():
     issues.append(_check("project_links_fabric_seed", bundle_ok,
                          "projects seeder must bundle logbook/pm/inventory/calc project_links (not just asset)"))
 
+    # PJ1 ratchet (2026-07-28) — THE FIRST RUN MUST OFFER A WAY TO START.
+    #
+    # A brand-new hive opens this page with nothing on it. That state is correct today: the grid
+    # renders a headline and four clickable templates, each of which starts a project with
+    # industry-standard scope items. But it is UNWALKABLE in any seeded environment — every seeded
+    # hive has four projects — so nothing exercises it and a regression would be silent until a
+    # real customer's first day, which is the worst possible moment to find it.
+    #
+    # This asserts the shape a walk cannot reach: the empty branch keys off the UNFILTERED total
+    # (so a filtered-to-zero view can never show a create-your-first-project wizard to someone who
+    # has projects), it names what to do, and it offers all four flavours rather than a dead
+    # sentence. Not a substitute for walking it — a stand-in for a fixture that does not exist.
+    empty_fn = re.search(r"function renderEmptyState\s*\([^)]*\)\s*\{([\s\S]{0,2500})", html)
+    empty_body = empty_fn.group(1) if empty_fn else ""
+    issues.append(_check(
+        "first_run_branches_on_unfiltered_total",
+        bool(re.search(r"totalProjects\s*===?\s*0", empty_body)),
+        "renderEmptyState must branch on the UNFILTERED project total, so a 0-result FILTER never "
+        "renders the first-run 'start a project' tiles to someone who already has projects"))
+    issues.append(_check(
+        "first_run_tells_the_user_what_to_do",
+        "No projects yet" in html and "empty-tiles-headline" in html,
+        "the first-run state must say what to do, not just report emptiness"))
+    issues.append(_check(
+        "first_run_offers_every_flavour",
+        empty_body.count("type-tile") >= 1 and all(
+            f in html for f in ("Work Order Bundle", "Shutdown", "CAPEX", "Contractor")),
+        "the first-run state must offer all four project flavours as startable templates"))
+
     return issues
 
 

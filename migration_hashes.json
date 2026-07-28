@@ -409,5 +409,7 @@
   "20260728000031_lessons_learned_is_signed_content.sql": "7de72f2141310ea7a168bdf8a66bccaed739224efaccfdc770ec3b6d13aa9663",
   "20260728000032_one_generate_project_code_not_two.sql": "ee5bf8829333da939dffe0eb483ef3b47524f888f2998bee6a69475bc8d5ffca",
   "20260728000033_a_progress_report_carries_who_filed_it.sql": "5e0f79592659737f9b493429090211af390f17a68a1e28c01b169f1a2b697a80",
-  "20260728000034_project_knowledge_is_a_write_only_index.sql": "42bf2d18183156694a00e49105c95a1bcb9e1d2312834c8187268aec74e9de13"
+  "20260728000034_project_knowledge_is_a_write_only_index.sql": "42bf2d18183156694a00e49105c95a1bcb9e1d2312834c8187268aec74e9de13",
+  "20260728000035_the_progress_log_pin_joins_the_bind_convention.sql": "8d5412a4055ba69ca616c69dd366dfdda729d3b5749944d189a5ee74c6f8a6c2",
+  "20260728000036_a_link_does_not_outlive_what_it_links_to.sql": "8140ad020b09e9b7a732bacd4a17f798df6ee29a91d9db08fb0ad8c0e45fce4a"
 }

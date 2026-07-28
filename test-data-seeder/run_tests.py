@@ -548,6 +548,71 @@ def s21_auth_uid_set(db):
     return results
 
 
+def s21_project_links_resolve(db):
+    """Every project_links row must point at a row that exists.
+
+    PJ11 (2026-07-28). project_links is the "connective tissue" binding a project to the logbook
+    entries, PM completions, inventory parts and design calcs behind it. Measured, the asset strand
+    was not connected at all: all 12 asset links pointed at ids like "asset-9fbe0f6f4022", minted by
+    the seeder's in-memory ctx["assets"] payload — which assets.py deliberately never writes to the
+    database, because asset_brain.py inserts the real rows into asset_nodes with UUIDs.
+
+    Nothing showed it. The link pill renders `label || link_id`, and the LABEL was correct
+    ("Atlas Copco GA75+ VSD"), so a reference to nothing displayed exactly like a working one. The
+    other four link types all resolved, which is why a spot check of the feature would have passed.
+
+    There is no foreign key to lean on — link_id is text and link_type chooses the table — so the
+    integrity has to be asserted here.
+    """
+    TARGETS = {
+        "asset":            ("asset_nodes", "id"),
+        "logbook":          ("logbook", "id"),
+        "pm_completion":    ("pm_completions", "id"),
+        "inventory_item":   ("inventory_items", "id"),
+        "engineering_calc": ("engineering_calcs", "id"),
+    }
+    links = db.table("project_links").select("link_type, link_id").limit(2000).execute().data or []
+    if not links:
+        return [warn("no project_links rows to check")]
+
+    results, unknown_types = [], set()
+    by_type = {}
+    for l in links:
+        by_type.setdefault(l["link_type"], []).append(str(l["link_id"]))
+
+    for ltype, ids in sorted(by_type.items()):
+        target = TARGETS.get(ltype)
+        if not target:
+            unknown_types.add(ltype)
+            continue
+        table, col = target
+        found, why = set(), ""
+        # chunked so a big hive doesn't build an unbounded IN list
+        for i in range(0, len(ids), 100):
+            chunk = ids[i:i + 100]
+            try:
+                rows = db.table(table).select(col).in_(col, chunk).execute().data or []
+            except Exception as exc:
+                # A text id against a uuid column raises 22P02 rather than returning no rows. That
+                # IS the diagnosis, so it is folded into the one failure below rather than reported
+                # separately — one defect, one line.
+                why = why or f" [{str(exc)[:90]}]"
+                rows = []
+            found.update(str(r[col]) for r in rows)
+        dangling = [i for i in ids if i not in found]
+        if dangling:
+            results.append(fail(
+                f"{ltype}: {len(dangling)}/{len(ids)} links point at no row in {table} "
+                f"(e.g. {dangling[0]}) — the pill still renders its label, so this looks healthy "
+                f"on the page while the reference is dead{why}"))
+        else:
+            results.append(ok(f"{ltype}: all {len(ids)} links resolve to a real {table} row"))
+
+    if unknown_types:
+        results.append(warn(f"link types with no known target table: {sorted(unknown_types)}"))
+    return results
+
+
 def s_canonical_tier_s_drift(db):
     """Tier-S registry: canonical/standards.json file <-> canonical_standards DB table.
 
@@ -651,6 +716,7 @@ SECTIONS = [
     ("8. Community — posts/author cap (badge_key bug avoidance)", s8_community_post_count_per_author),
     ("10. Marketplace — sections / statuses / conditions", s10_marketplace_sections),
     ("21. Cross-page — logbook ↔ assets linkage", s21_logbook_assets_link),
+    ("21. Cross-page — every project_link resolves to a real row", s21_project_links_resolve),
     ("21. Cross-page — auth_uid populated everywhere", s21_auth_uid_set),
     ("22. Canonical — Tier-S file ↔ DB registry drift", s_canonical_tier_s_drift),
     ("22. Canonical — every formula.implemented_in page exists", s_canonical_formula_pages_exist),

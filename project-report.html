@@ -161,7 +161,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <h1 class="ptitle" id="cov-title" translate="no">Project Report</h1>
 <details class="wh-help">
   <summary>How this page works</summary>
-  <p>How to read this report: SPI above 1.0 means ahead of schedule. Figures come from the linked project’s live records. There is no cost performance index (CPI) here, and that is deliberate: the platform holds no cost ledger, so the only actual cost it can compute is logged hours × an assumed rate — labour alone. Dividing a whole-project budget by labour-only spend would flatter cost performance by whatever share of the budget is materials, equipment and contractors. The labour figure is shown on its own instead, labelled for what it is.</p>
+  <p>How to read this report: SPI above 1.0 means ahead of schedule. Figures come from the linked project’s live records. There is no cost performance index (CPI) here, and that is deliberate: the platform holds no cost ledger, so the only actual cost it can compute is logged hours × an assumed rate: labour alone. Dividing a whole-project budget by labour-only spend would flatter cost performance by whatever share of the budget is materials, equipment and contractors. The labour figure is shown on its own instead, labelled for what it is.</p>
 </details>
     <div>
       <span class="ptype-pill"  id="cov-type">type</span>
@@ -495,7 +495,7 @@ function renderExecSummary(p, items, logs) {
       <p class="muted" style="margin:-4px 0 12px; font-size:9.5pt;">
         Labour logged to date: <strong>${e(fmtPHP(labourCost))}</strong>
         (${e(hoursAct.toFixed(0))} hours &times; an assumed ${e(fmtPHP(AC_LABOUR_RATE_PHP_PER_HOUR))}/hour).
-        This is labour only &mdash; it excludes materials, equipment and contractors, and it is not
+        This is labour only: it excludes materials, equipment and contractors, and it is not
         drawn from a cost ledger. A cost performance index (CPI) is not shown for that reason:
         comparing a whole-project budget against labour-only spend would overstate cost performance
         by whatever share of the budget is not labour.

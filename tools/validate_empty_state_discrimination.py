@@ -52,6 +52,22 @@ SERVER_FILTERED_VIEWS = {
     # #no-results still hidden. The discriminator here is `enriched.length` (did this hive ever have
     # assets?) rather than a view/filter flag.
     "pm-scheduler.html": ("renderDashboard", "dash-empty", "no-results", "enriched.length"),
+    # NOT project-manager.html — and the reason is worth recording, because I added it here during
+    # the PJ1 walk (2026-07-28) and had to take it back out.
+    #
+    # It looks like a candidate: it owns both a first-run CTA (four clickable template tiles) and a
+    # no-match message, and the first-run branch is loud enough that showing it to someone filtering
+    # a populated portfolio would be a bad failure. But it is CLIENT-filtered —
+    # `let list = _projects.filter(...)` and `renderEmptyState(grid, _projects.length)` — so the
+    # branch is chosen by the UNFILTERED total and the two cases can never collapse into each other.
+    # That is exactly what this file's own header excludes: "Client-filtered views are CORRECT ...
+    # Those are NOT in scope; only server-filtered search views can collapse."
+    #
+    # Adding it made the gate red against correct code, and I started widening the matcher to
+    # accommodate a page that did not belong in the list — bending a gate to admit something its
+    # doctrine deliberately excludes. Verified live instead (4-project hive, search matching
+    # nothing -> "No projects match the filter", not the first-run tiles); the standing lock for
+    # that page is the List View Contract's empty-state anchor.
 }
 
 
@@ -74,9 +90,16 @@ def _render_body(src: str, fn: str) -> str | None:
     return None
 
 
-def _first_zero_branch(body: str) -> str | None:
+def _first_zero_branch(body: str, discriminator: str = "") -> str | None:
     """The block guarded by the FIRST empty-list check (`X.length === 0` OR `!X.length`), brace-balanced
-    from its opening `{` to the matching `}` (robust to any comment length inside the branch)."""
+    from its opening `{` to the matching `}` (robust to any comment length inside the branch).
+
+    `discriminator` is accepted and unused: it exists so a future in-scope view whose guard is a
+    plain `count === 0` can be admitted deliberately. It is NOT a general widening — I briefly made
+    it one to fit project-manager into this gate, then found that page is client-filtered and out of
+    scope by this file's own header, so the page left the list rather than the matcher growing to
+    meet it.
+    """
     m = re.search(r"if\s*\(\s*(?:!\s*\w+\.length|\w+\.length\s*===?\s*0)\s*\)\s*\{", body)
     if not m:
         return None
@@ -118,9 +141,10 @@ def _check_page(page: str, fn: str, empty_id: str, nr_id: str, disc: str) -> tup
     body = _render_body(src, fn)
     if body is None:
         return False, f"FAIL  {page}:{fn}() not found - render fn renamed? re-point the gate."
-    branch = _first_zero_branch(body)
+    branch = _first_zero_branch(body, disc)
     if branch is None:
-        return False, f"FAIL  {page}:{fn}() has no `.length === 0` guard - structure changed."
+        return False, (f"FAIL  {page}:{fn}() has no empty guard (`X.length === 0`, `!X.length`, or "
+                       f"`{disc} === 0`) - structure changed.")
     if _branch_is_discriminated(branch, nr_id, disc):
         return True, f"PASS  {page}:{fn}() - searched-0 branch is view-aware (routes to #{nr_id})."
     return False, (f"FAIL  {page}:{fn}() - the first `.length === 0` branch shows the first-run "

@@ -8093,6 +8093,16 @@
         "project-manager.html"
       ],
       "called_by_edge_fns": []
+    },
+    "cleanup_project_links_on_target_delete": {
+      "defined_in": "20260728000036_a_link_does_not_outlive_what_it_links_to.sql",
+      "args": "(trigger, link_type text)",
+      "security_definer": true,
+      "comment": "AFTER DELETE on each project_links target table (logbook, pm_completions, inventory_items, engineering_calcs, asset_nodes): removes links that pointed at the deleted row. link_id is a polymorphic TEXT reference so no FK can express this. Before it, deleting one linked logbook entry orphaned 2 links which kept rendering the deleted entry's title. PJ11.",
+      "called_by_surfaces": [
+        "project-manager.html"
+      ],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {

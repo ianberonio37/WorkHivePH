@@ -247,10 +247,28 @@ def seed_projects(client, log, ctx: dict) -> dict:
             # logbook (reactive), pm_completions (preventive), inventory_items (BOM),
             # engineering_calcs (design basis). This is the connective tissue Ian's arc targets.
             links_this_project = []
-            if hive_assets:
-                asset = random.choice(hive_assets)
-                links_this_project.append(("asset", str(asset["id"]),
-                    asset.get("name") or asset.get("asset_id") or "linked asset"))
+            # The asset link must point at a REAL asset_nodes row.
+            #
+            # PJ11 (2026-07-28): this used to take the id straight off ctx["assets"], which is an
+            # IN-MEMORY payload whose ids are minted by text_id("asset") — "asset-9fbe0f6f4022" —
+            # and which assets.py deliberately never writes to the database (asset_brain.py inserts
+            # the real rows into asset_nodes, with UUIDs). So every seeded asset link pointed at an
+            # id that existed in NO table. Measured: 12 of 12 asset links dangling, while all 42
+            # links of the other four types resolved.
+            #
+            # It looked healthy on the page because the link pill renders `label || link_id`, and
+            # the label was correct — "Atlas Copco GA75+ VSD" — so a dead reference displayed as a
+            # working one. The asset link is the first item in what this seeder's own comment calls
+            # "the connective tissue Ian's arc targets"; it was the one strand not connected.
+            hive_nodes = _hive_sample(client, "asset_nodes", hive["id"], ["id", "name"], 6, log)
+            if hive_nodes:
+                node = random.choice(hive_nodes)
+                links_this_project.append(("asset", str(node["id"]),
+                    node.get("name") or "linked asset"))
+            elif hive_assets:
+                # No asset_nodes for this hive: skip rather than write a link to a synthetic id.
+                log("  warn: hive has ctx assets but no asset_nodes rows — asset link skipped "
+                    "(a link to an id that resolves to nothing is worse than no link)")
             for link_type, n in FLAVOUR_BUNDLE.get(flavour["type"], []):
                 for row in hive_sys.get(link_type, [])[:n]:
                     links_this_project.append((link_type, str(row["id"]), _link_label(link_type, row)))
@@ -277,12 +295,20 @@ def seed_projects(client, log, ctx: dict) -> dict:
                 blocker = None
                 if flavour.get("blocker_examples") and li < len(flavour["blocker_examples"]):
                     blocker = flavour["blocker_examples"][li]
+                # PJ17: pick the worker ONCE so reported_by and auth_uid describe the same person.
+                # The seeder runs as service_role, so bind_progress_log_submitter (which pins both
+                # for a browser write) correctly leaves these rows alone — which means the seeder
+                # has to attribute them itself, exactly as assets.py and the other seeders do.
+                # Without this every seeded report carries a NAME and no identity, and the
+                # attribution features built on it have nothing to exercise.
+                _reporter = random.choice(hive_workers) if hive_workers else None
                 log_rows.append({
                     "id": str(uuid.uuid4()),
                     "project_id": project_id,
                     "hive_id": hive["id"],
                     "log_date": log_date.isoformat(),
-                    "reported_by": random.choice(hive_workers)["worker_name"] if hive_workers else owner,
+                    "reported_by": _reporter["worker_name"] if _reporter else owner,
+                    "auth_uid": (_reporter or {}).get("auth_uid"),
                     "pct_complete": min(100, int(li * 100 / max(1, n_logs - 1))),
                     "hours_worked": round(random.uniform(4, 9), 1),
                     "notes": random.choice([

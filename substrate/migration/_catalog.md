@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:412
-source_sha: d0f5caaf5eaf3d66
+source: dir:supabase/migrations:413
+source_sha: 2db61b5956b84ae1
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (412 migrations)
+## migration · catalog (413 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260610000003_parts_spike_factor_nullable` — (misc DDL/DML)
 - `20260610000004_analytics_snapshots` — policies:analytics_snapshots_member_read · tables:analytics_snapshots
 - `20260610000005_retire_shift_handover_cron` — (misc DDL/DML)
 - `20260612000000_persona_knowledge` — fns:match_persona_knowledge · tables:persona_knowledge
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260728000033_a_progress_report_carries_who_filed_it` — fns:guard_progress_log_is_mine · triggers:trg_progress_log_is_mine · tables:project_progress_logs
 - `20260728000034_project_knowledge_is_a_write_only_index` — fns:search_all_knowledge
 - `20260728000035_the_progress_log_pin_joins_the_bind_convention` — fns:bind_progress_log_submitter · triggers:trg_bind_progress_log_submitter
+- `20260728000036_a_link_does_not_outlive_what_it_links_to` — fns:cleanup_project_links_on_target_delete · triggers:trg_cleanup_project_links
 
 (showing last 200)
 

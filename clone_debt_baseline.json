@@ -1,7 +1,7 @@
 {
   "clones": 56,
-  "duplicatedLines": 3826,
-  "percentage": 19.66,
+  "duplicatedLines": 3905,
+  "percentage": 19.9,
   "note": "forward-only ratchet on duplicatedLines (NOT clone count); collapse duplication then --update-baseline to lower; % informational",
-  "reason_2026_07_27": "Review flow (MK13): the buyer review form + handler on marketplace.html. New feature code, not copy-paste - the genuine shared logic it needed (auth-failure detection) was centralized as whIsAuthFailure/whWriteError in utils.js rather than inlined. Residual is the usual shape-conflation with the shared page-chrome block jscpd matches against public-feed.html."
+  "reason_2026_07_28": "PJ16 (project-report.html): +79 duplicatedLines with clone COUNT UNCHANGED at 56 - no new clone pair was created. The growth is entirely inside the already-baselined 417-line project-report.html <-> public-feed.html pair, which both sides begin at the identical shared page-footer chrome (the supabase CDN <script> with its integrity hash, then utils.js). I added ~30 lines near that region - the budget RPC read, the cost-section empty states and the labour-cost disclosure - and jscpd's existing shape-match simply ran longer. Read both sides before re-baselining, per the line-count-conflates-shape-with-copypaste lesson; the genuinely shared logic here (page chrome) is already centralized as far as a static HTML platform allows."
 }
