@@ -83,24 +83,3 @@ COMMENT ON FUNCTION public.get_project_budget(uuid) IS
 
 REVOKE ALL ON FUNCTION public.get_project_budget(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_project_budget(uuid) TO authenticated, service_role;
-
--- Canonical anchor (same-change rule, and the second time today I needed reminding of it):
--- a get_* RPC is an ENGINE-layer item and must be registered in canonical_sources or the
--- canonical-anchor gate counts it as un-anchored.
-INSERT INTO public.canonical_sources
-  (domain, source_kind, source_name, owner_skill, freshness, contract, description, notes)
-VALUES (
-  'get_project_budget_rpc', 'rpc', 'get_project_budget', 'architect', 'on_demand',
-  '{"signature": "get_project_budget(p_project_id uuid) RETURNS jsonb", "side_effects": []}'::jsonb,
-  'Supervisor-only read of projects.budget_php plus the start/end dates Earned Value needs. Exists '
-  'because RLS is ROW-level and cannot withhold one column of a row a member may otherwise read. '
-  'Returns {ok:false, reason:''not a supervisor''} with a stated detail rather than a null, so a '
-  'refusal is never mistaken for "this project has no budget".',
-  'PJ9, 2026-07-28. Paired with 20260728000024, which drops the table-wide SELECT grant and re-grants '
-  'every column except budget_php - a column-level REVOKE alone is a no-op while a table-level grant '
-  'stands.'
-)
-ON CONFLICT (domain) DO UPDATE
-  SET source_kind = EXCLUDED.source_kind, source_name = EXCLUDED.source_name,
-      owner_skill = EXCLUDED.owner_skill, freshness = EXCLUDED.freshness,
-      contract = EXCLUDED.contract, description = EXCLUDED.description, notes = EXCLUDED.notes;

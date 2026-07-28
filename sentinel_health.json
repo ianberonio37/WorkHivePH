@@ -1,42 +1,42 @@
 {
-  "timestamp": "2026-07-28T18:23:30.898206",
+  "timestamp": "2026-07-28T19:20:48.752077",
   "passed": 6,
   "failed": 0,
   "results": [
     {
       "id": "coverage-map",
       "status": "PASS",
-      "duration": 41.3,
+      "duration": 27.8,
       "stderr": ""
     },
     {
       "id": "multi-scenario-per-rule",
       "status": "PASS",
-      "duration": 3.4,
+      "duration": 0.2,
       "stderr": ""
     },
     {
       "id": "gap-proposer",
       "status": "PASS",
-      "duration": 1.8,
+      "duration": 0.2,
       "stderr": ""
     },
     {
       "id": "pattern-consistency",
       "status": "PASS",
-      "duration": 2.0,
+      "duration": 0.3,
       "stderr": ""
     },
     {
       "id": "depth",
       "status": "PASS",
-      "duration": 3.0,
+      "duration": 0.3,
       "stderr": ""
     },
     {
       "id": "freshness",
       "status": "PASS",
-      "duration": 3.1,
+      "duration": 0.2,
       "stderr": ""
     }
   ]

@@ -137,7 +137,17 @@ serveObserved("project-progress", async (req: Request) => {
       // v_project_truth aliases p.id -> project_id and p.end_date -> target_end_date,
       // and already filters deleted_at/archived internally. Alias the outputs back to
       // id/end_date so the forwarded Python payload keeps the keys it reads.
-      .select('id:project_id, hive_id, project_type, status, start_date, end_date:target_end_date, budget_php, created_at')
+      // PJ9 (2026-07-28): budget_php is NO LONGER on v_project_truth. It was removed when the
+      // column became supervisor-only, because the view is security_invoker and a revoked base
+      // column would break every select('*') caller. This function needs the figure for Earned
+      // Value, so it reads it from the BASE table below — it runs service_role, which keeps full
+      // column access.
+      //
+      // I audited the client callers when making that change and reasoned "project-progress is
+      // service_role, so it is unaffected" — true of the PRIVILEGE and false of the COLUMN. A
+      // dropped column does not care what role you are. The truth-view consumer-column gate caught
+      // it before it shipped, which is exactly what that gate is for.
+      .select('id:project_id, hive_id, project_type, status, start_date, end_date:target_end_date, created_at')
       .eq('project_id', project_id)
       .eq('hive_id', hive_id)
       .maybeSingle(),
@@ -170,6 +180,18 @@ serveObserved("project-progress", async (req: Request) => {
   if (projRes.error || !projRes.data) {
     return errJson('Project not found or not accessible', 404, req);
   }
+
+  /* ── Budget: read from the BASE table (PJ9) ─────────────────────────────
+     budget_php left v_project_truth when it became supervisor-only. Earned Value needs it, and
+     this function runs SERVICE_ROLE, which retains full column access — so it is fetched here
+     rather than through the view, and merged into the project object the Python engine receives.
+     A failure is non-fatal: diagnostic.py already returns {available:false, reason:'Requires
+     budget_php + start_date + end_date'} when it is absent, which is the honest outcome. */
+  try {
+    const { data: _b } = await db.from('projects')
+      .select('budget_php').eq('id', project_id).maybeSingle();
+    if (_b && projRes.data) (projRes.data as Record<string, unknown>).budget_php = _b.budget_php;
+  } catch (_) { /* non-fatal: the engine reports EVM unavailable rather than guessing */ }
 
   /* ── Forward to Python ──────────────────────────────────────────────── */
   try {

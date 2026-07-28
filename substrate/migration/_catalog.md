@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:404
-source_sha: a26c0e0568ee0950
+source: dir:supabase/migrations:405
+source_sha: 6e27a817a265c001
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (404 migrations)
+## migration · catalog (405 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260609000002_fix_community_post_xp_search_path` — fns:handle_community_post_xp
 - `20260609000003_fix_community_xp_helpers_search_path` — fns:handle_community_reaction_xp,increment_community_xp
 - `20260609000004_fix_schedule_item_v1_category_enum` — (misc DDL/DML)
 - `20260609000005_fix_readiness_blocker_summary` — fns:compute_hive_readiness
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260728000025_project_child_parent_hive_guard` — policies:IF
 - `20260728000026_deleting_a_project_is_a_supervisor_act_and_is_recorded` — fns:guard_and_audit_project_removal · triggers:trg_project_removal_guard_audit
 - `20260728000027_a_progress_report_is_a_record_not_a_draft` — fns:guard_progress_log_is_a_record · triggers:trg_progress_log_is_a_record
+- `20260728000028_anchor_get_project_budget` — (misc DDL/DML)
 
 (showing last 200)
 
