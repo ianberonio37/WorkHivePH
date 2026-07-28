@@ -118,6 +118,21 @@ def main() -> int:
               f"(forward ratchet held).{X}")
         return 0
     if "--accept" in sys.argv:
+        # A RATCHET ONLY TURNS ONE WAY (2026-07-28, found on the project-manager board). This metric
+        # is an INVERTED one — open_ops is a CEILING that must fall — so the drop to refuse is a
+        # RISE. --accept used to bank whatever it measured, meaning the same command that tightens
+        # the ceiling could also loosen it, silently blessing exactly the coverage drift the --check
+        # branch above exists to catch.
+        _prev = None
+        if BASELINE.exists():
+            try:
+                _prev = json.loads(BASELINE.read_text()).get("open_ops")
+            except Exception:
+                _prev = None
+        if _prev is not None and data["open_ops"] > _prev:
+            print(f"{R}ACCEPT REFUSED: OPEN operational cells ROSE {_prev}→{data['open_ops']}. This "
+                  f"ceiling only moves DOWN — cover the new cells rather than re-baselining up.{X}")
+            return 1
         BASELINE.write_text(json.dumps({"open_ops": data["open_ops"]}, indent=2), encoding="utf-8")
         print(f"{G}ratcheted baseline → OPEN operational cells = {data['open_ops']}.{X}")
     SCOREBOARD.write_text(render_md(data), encoding="utf-8")

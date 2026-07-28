@@ -464,9 +464,9 @@
     {
       "formula_id": "evm_cpi_spi_pmbok",
       "name": "Earned Value — CPI / SPI and the green/amber/red band",
-      "standard_id": "pmbok_7",
-      "standard_clause": "measurement",
-      "standard_cite": "PMI PMBOK 7th ed. (Performance Domain: Measurement); AACE International RP 80R-13",
+      "standard_id": "pmbok_evm",
+      "standard_clause": "cpi",
+      "standard_cite": "PMI PMBOK 7th ed. §3.5.7 (Earned Value: CPI = EV/AC, SPI = EV/PV); AACE International RP 80R-13",
       "inputs": [
         "budget_php",
         "start_date",

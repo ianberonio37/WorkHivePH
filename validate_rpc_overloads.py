@@ -42,9 +42,13 @@ are added or upgraded rather than being a hand-maintained ignore list.
 
 Needs the local database. Skips cleanly (0) when it cannot connect, like the other live gates.
 """
+import io
 import json
 import subprocess
 import sys
+
+if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding="utf-8", errors="replace")
 
 CONTAINER = "supabase_db_workhive"
 

@@ -293,6 +293,33 @@ def _git_diff_whitespace_only(path: str, sha_a: str, sha_b: str) -> bool:
     return result.returncode == 0
 
 
+def _git_blob_equal_ignoring_eol(path: str, sha_a: str, sha_b: str) -> bool:
+    """True if `path` has byte-identical content at both commits, ignoring line endings.
+
+    Deliberately compares the BLOBS rather than asking git for a diff. `git diff` applies the
+    repo's whitespace and eol configuration and can call a file "changed" when only CRLF/LF
+    differs — which is exactly what a Windows working-tree round-trip produces (core.autocrlf),
+    and is not an edit anyone made. Reading both blobs and normalising \\r\\n answers the only
+    question that matters here: does the file SAY the same thing at both points?
+
+    Conservatively False on any git failure — an unreadable blob must never be reported as
+    "unchanged", since that is the direction that would let a real edit through.
+    """
+    blobs = []
+    for sha in (sha_a, sha_b):
+        try:
+            result = subprocess.run(
+                ["git", "show", f"{sha}:{path.replace(os.sep, '/')}"],
+                capture_output=True, timeout=30,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return False
+        if result.returncode != 0:
+            return False
+        blobs.append(result.stdout.replace(b"\r\n", b"\n"))
+    return blobs[0] == blobs[1]
+
+
 # -- Layer 1: Migration file modified after first commit --------------------
 
 def check_modified_after_first_commit(
@@ -308,20 +335,52 @@ def check_modified_after_first_commit(
         if len(commits) <= 1:
             continue
         # newest is commits[0]; oldest is commits[-1]
+        first_sha, latest_sha = commits[-1]["sha"], commits[0]["sha"]
         report.append({
             "path":        path,
             "n_commits":   len(commits),
-            "first_sha":   commits[-1]["sha"][:8],
+            "first_sha":   first_sha[:8],
             "first_date":  commits[-1]["date"][:10],
-            "latest_sha":  commits[0]["sha"][:8],
+            "latest_sha":  latest_sha[:8],
             "latest_date": commits[0]["date"][:10],
         })
+
+        # EDITED-THEN-REVERTED IS NOT AN EDIT (2026-07-28).
+        #
+        # This layer used to fail on the COMMIT COUNT alone, which made it a gate with no way back:
+        # its own remedy is "revert the edit and add a NEW migration", and performing that remedy
+        # leaves the file touched by three commits, so it kept failing forever. That happened here —
+        # ...023 was edited after committing, restored byte-for-byte from `git show <first>:<path>`,
+        # and the addition moved to a new ...028. The correct fix was applied and the gate still
+        # said no.
+        #
+        # What the gate actually protects is the CONTENT: Supabase tracks applied migrations by
+        # filename, so what matters is whether the file says something different now from what was
+        # first committed and possibly already applied. If the latest committed bytes match the
+        # first, there is nothing for production to disagree with — the history is untidy, not
+        # unsafe. Line endings are normalised before comparing because a CRLF round-trip through the
+        # working tree (Windows, core.autocrlf) is not an edit either.
+        #
+        # A file that genuinely differs still FAILS, exactly as before, so the teeth are unchanged.
+        if _git_blob_equal_ignoring_eol(path, first_sha, latest_sha):
+            issues.append({
+                "check": "modified_after_first_commit", "skip": True,
+                "reason": (
+                    f"{path}: touched by {len(commits)} commits, but the latest committed content "
+                    f"is IDENTICAL to the first ({first_sha[:8]} == {latest_sha[:8]}, ignoring line "
+                    f"endings) — edited and then reverted, which is the prescribed remedy and "
+                    f"leaves production nothing to disagree with. History untidy, migration safe."
+                ),
+            })
+            continue
+
         issues.append({
             "check": "modified_after_first_commit", "skip": False,
             "reason": (
                 f"{path}: edited across {len(commits)} commits (first "
-                f"{commits[-1]['sha'][:8]} @ {commits[-1]['date'][:10]}, "
-                f"latest {commits[0]['sha'][:8]} @ {commits[0]['date'][:10]}). "
+                f"{first_sha[:8]} @ {commits[-1]['date'][:10]}, "
+                f"latest {latest_sha[:8]} @ {commits[0]['date'][:10]}), and the latest content "
+                f"DIFFERS from the first. "
                 f"Production keeps the FIRST version since Supabase tracks "
                 f"applied migrations by filename. Revert the edit and add a "
                 f"NEW migration with a fresh timestamp for the additional "

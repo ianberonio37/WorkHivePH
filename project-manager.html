@@ -66,6 +66,14 @@
     border-radius: 0; padding: 10px 14px; color: var(--muted); white-space: nowrap;
   }
   .tab-strip button.active { color: var(--gold); border-bottom-color: var(--gold); }
+  /* PJ18 — the same hidden-destinations defect as .detail-tabs, on the list view. Measured at
+     390px: scrollWidth 591 against clientWidth 331, so "Complete" and "All" were BOTH entirely
+     off-screen. A worker on a phone could not reach their finished projects at all, and nothing on
+     screen suggested the strip scrolled. Wrapped for the same reason: a filter row that hides two
+     of its five filters is not a filter row. */
+  @media (max-width: 640px) {
+    .tab-strip { flex-wrap: wrap; overflow-x: visible; row-gap: 0; }
+  }
   .filter-row { display: grid; grid-template-columns: 1fr 1fr 2fr auto; gap: 8px; margin-bottom: 14px; }
   @media (max-width: 720px) { .filter-row { grid-template-columns: 1fr 1fr; } .filter-row > .new-btn { grid-column: 1 / -1; } }
 
@@ -159,12 +167,28 @@
   #detail-view.open { display: block; }
   .detail-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; }
   .detail-head h2 { font-size: 1.25rem; font-weight: 700; margin: 4px 0; }
-  .detail-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 14px; overflow-x: auto; }
+  .detail-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 14px; overflow-x: auto; scroll-behavior: smooth; }
   .detail-tabs button {
     background: transparent; border: none; border-bottom: 2px solid transparent;
     border-radius: 0; padding: 9px 13px; color: var(--muted); font-size: 0.88rem; white-space: nowrap;
   }
   .detail-tabs button.active { color: var(--text); border-bottom-color: var(--gold); }
+
+  /* PJ18 — on a phone this strip hid five of its eight tabs and said nothing about it.
+     Measured at 390px: scrollWidth 854 against clientWidth 354, so 59% of the bar was off-screen,
+     with no fade, no snap and no arrow. "Sign-off" sat 787px out — more than two screen-widths of
+     swiping on an element that gave no hint it scrolled — and "Change orders" was invisible
+     entirely. A supervisor closing out a job from the field could not find the tab that closes it.
+
+     Wrapping rather than adding a scroll cue, because a cue still asks the user to discover a
+     gesture: everything is reachable only if they think to swipe. Wrapped, nothing is hidden. It
+     costs about two extra rows at 390px, which is a fair trade for the two highest-stakes
+     destinations on the page being visible at all. Above 640px the bar fits on one line anyway,
+     so the horizontal-scroll behaviour is left exactly as it was. */
+  @media (max-width: 640px) {
+    .detail-tabs { flex-wrap: wrap; overflow-x: visible; row-gap: 0; }
+    .detail-tabs button { padding: 11px 12px; }
+  }
   .detail-pane { display: none; }
   .detail-pane.active { display: block; }
 
@@ -1979,9 +2003,18 @@ function buildDetailTabs(type) {
   $('pane-overview').classList.add('active');
 }
 function setActivePane(key) {
-  $('detail-tabs').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.pane === key));
+  const strip = $('detail-tabs');
+  strip.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.pane === key));
   document.querySelectorAll('.detail-pane').forEach(p => p.classList.remove('active'));
   $('pane-' + key).classList.add('active');
+  // PJ18: below 640px the strip wraps and nothing is off-screen, but between there and the width
+  // where all eight tabs fit it still scrolls — and a tab activated from anywhere other than a tap
+  // (a deep link, a keyboard arrow) could end up selected while sitting outside the visible run.
+  // Nudging it into view costs nothing and keeps the active tab and the active pane in agreement.
+  if (strip.scrollWidth > strip.clientWidth) {
+    const btn = strip.querySelector('button.active');
+    if (btn && btn.scrollIntoView) btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
   renderActivePane(key);
 }
 function renderActivePane(key) {

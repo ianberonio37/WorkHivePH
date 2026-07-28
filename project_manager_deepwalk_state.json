@@ -389,17 +389,24 @@
     "PJ18": {
       "title": "Mobile 390px - approve a CO from the field",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-390px-list",
+          "S-390px-detail",
+          "S-390px-modals"
+        ]
       },
-      "notes": ""
+      "notes": "MOBILE 390px. Verified the viewport first (browser_resize lies — echoed innerWidth 390 at dpr 0.667 before measuring anything).\nFIND 1, and it was not a mobile bug at all: four lines of my own JS comment sat ABOVE <!DOCTYPE html> at the top of the file. They RENDERED as visible text above the page heading — internal notes naming revoked columns and 42501 — and, because a doctype that is not first is discarded, the WHOLE PAGE ran in QUIRKS MODE (measured document.compatMode === 'BackCompat'). Every layout rule on the page was being applied under the old box model, at every viewport. It took a FULL-PAGE screenshot to see it; the User-Facing Jargon gate had independently gone red on the same text, which is why that release-gate failure existed. Every measurement I took before the fix was taken on the wrong box model and had to be redone. Gate: validate_doctype_first (49 pages, teeth).\nFIND 2 — NAVIGATION DESTINATIONS HIDDEN WITH NO CUE, and it is a PLATFORM class, not a page bug. The detail tab strip measured scrollWidth 854 against clientWidth 354: five of eight tabs off-screen, with 'Sign-off' 787px out (more than two screen-widths of swiping) and 'Change orders' — the tab this whole arc hardened — invisible. No fade, no snap, no arrow. The list strip was the same: 260px hidden, 'Complete' and 'All' both entirely off-screen, so a worker on a phone could not reach their finished projects. Swept the pattern platform-wide and found it twice more: analytics' phase tabs hid 'What to do' (the prescriptive phase the page exists to deliver) and its criticality chips hid Medium and Low; community's filter chips hid a category AND set scrollbar-width:none, removing the last cue that the row scrolled.\nFIXED by WRAPPING below 640px rather than adding a scroll cue — a cue still asks the user to discover a gesture, and everything is then reachable only if they think to swipe. Desktop behaviour is untouched (verified nowrap + scrollWidth === clientWidth at 1280).\nGATED as a 10th Arc W lens (hiddennav_floor) inside the EXISTING arc_w_visual probe rather than a new harness — it already walks every page at 390 and 1280. Counts per hidden DESTINATION, and only for strips whose children are mostly buttons/links: a table or carousel scrolling horizontally is an expected gesture, a row of destinations hiding half of itself is not. Platform now 0 across 25 pages x 2 viewports (headline lens_floor 1 -> 0); baseline banked at 0 with tol 0, and the consistency ceilings tightened while I was there (radius 6->5, combo 40->35). Teeth proven against a synthetic clipped strip, with a scrolling table beside it that the detector correctly ignored.\nTAP TARGETS / OVERFLOW: 0 under 44px and 0 real horizontal overflow, in both the list and detail states — but only after correcting the INSTRUMENT twice. It first counted the closed companion widget (scale(0.4), visibility:hidden — a rect still has size) and then the off-canvas feedback drawer, whose 'overflow' was my comparing against innerWidth, which includes the 23px scrollbar, instead of clientWidth. Both would have been false bugs."
     }
   },
   "dim_classes": {

@@ -185,6 +185,20 @@ def main() -> int:
         print(f"  {YELLOW}shallow W{RESET} (needs >=2 personas AND >=2 states): " + "; ".join(m["shallow_W"][:4]))
 
     if "--accept" in sys.argv:
+        # A RATCHET ONLY TURNS ONE WAY (2026-07-28, found on the project-manager board).
+        # This used to write the measurement straight to the baseline in EITHER direction, and
+        # returned before the drop-check below — so `--accept` would happily LOWER the floor while
+        # printing "ACCEPTED". It cost a real regression: a mis-typed state value scored five
+        # phases at 0, the board fell, and --accept banked the lower number as the new floor. A
+        # ratchet that the advancing command can re-point downward is not protecting anything.
+        _dropped = [(n, b, c) for n, b, c in
+                    (("journeys", bj, m["journeys_pct"]), ("classes", bc, m["classes_pct"]))
+                    if c < b]
+        if _dropped:
+            for _n, _b, _c in _dropped:
+                print(f"  {RED}ACCEPT REFUSED{RESET}  {_n} {_b}% -> {_c}% is a DROP; the floor only "
+                      f"moves up. Fix the state (or the walk) rather than re-baselining down.")
+            return 1
         BASELINE.write_text(json.dumps(
             {"journeys_pct": m["journeys_pct"], "classes_pct": m["classes_pct"]}, indent=2), encoding="utf-8")
         print(f"  {GREEN}ACCEPTED{RESET}  baseline -> journeys {m['journeys_pct']}% / classes {m['classes_pct']}%")

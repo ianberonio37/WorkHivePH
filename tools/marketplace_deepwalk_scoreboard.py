@@ -193,6 +193,20 @@ def main() -> int:
     print(f"  -> {OUT_MD.name}")
 
     if "--accept" in sys.argv:
+        # A RATCHET ONLY TURNS ONE WAY (2026-07-28, found on the project-manager board). --accept
+        # used to write the measurement in EITHER direction and return before the --check branch
+        # below, so it could silently LOWER the floor while printing "ACCEPTED" — and the baseline
+        # this very call writes claims "a FALL below these numbers FAILs the gate", which was not
+        # true through this path. On the project-manager board that let a mis-typed state value
+        # bank a lower floor after five phases scored 0.
+        _dropped = [(n, b, c) for n, b, c in
+                    (("journeys", b_j, m["journey_pct"]), ("classes", b_c, m["class_pct"]))
+                    if c < b]
+        if _dropped:
+            for _n, _b, _c in _dropped:
+                print(f"  {RED}ACCEPT REFUSED{RESET}  {_n} {_b}% -> {_c}% is a DROP; the floor only "
+                      f"moves up. Fix the state (or the walk) rather than re-baselining down.")
+            return 1
         BASELINE.write_text(json.dumps(
             {"journey_pct": m["journey_pct"], "class_pct": m["class_pct"],
              "overall_pct": m["overall_pct"],

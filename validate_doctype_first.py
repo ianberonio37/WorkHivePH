@@ -36,9 +36,13 @@ current engine) but are reported as a warning, because they are almost always
 a mistake too.
 """
 import glob
+import io
 import os
 import re
 import sys
+
+if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding="utf-8", errors="replace")
 
 BOM = "﻿"
 

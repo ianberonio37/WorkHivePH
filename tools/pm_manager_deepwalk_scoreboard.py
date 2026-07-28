@@ -185,6 +185,29 @@ def main() -> int:
         print(f"  {YELLOW}shallow W{RESET} (needs >=2 personas AND >=2 states): " + "; ".join(m["shallow_W"][:4]))
 
     if "--accept" in sys.argv:
+        # A RATCHET ONLY TURNS ONE WAY (2026-07-28). This used to write the measurement straight to
+        # the baseline, in either direction — so `--accept` would happily LOWER the floor while
+        # printing "ACCEPTED", which is the opposite of what the header of this file promises
+        # ("`--accept` ratchets the floor UP after real progress"). It cost me a real regression:
+        # recording PJ18 I wrote boolean `True` into the phase slots instead of the "done"/"partial"
+        # /"todo" strings _score() reads, every phase scored 0, journeys fell 58.9 -> 58.3, and
+        # --accept banked the lower number as the new floor. The drop-detector below never ran,
+        # because --accept returns before it. A ratchet that can be re-pointed downward by the same
+        # command that advances it is not protecting anything.
+        #
+        # Now: the floor only ever rises. If the measurement is BELOW it, the accept is refused and
+        # the reason is printed, because a fall means either the state file is wrong or work was
+        # genuinely lost — both worth stopping for, neither worth silently blessing.
+        dropped = [
+            (name, base, cur) for name, base, cur in
+            (("journeys", bj, m["journeys_pct"]), ("classes", bc, m["classes_pct"]))
+            if cur < base
+        ]
+        if dropped:
+            for name, base, cur in dropped:
+                print(f"  {RED}ACCEPT REFUSED{RESET}  {name} {base}% -> {cur}% is a DROP; the floor "
+                      f"only moves up. Fix the state (or the walk) rather than re-baselining down.")
+            return 1
         BASELINE.write_text(json.dumps(
             {"journeys_pct": m["journeys_pct"], "classes_pct": m["classes_pct"]}, indent=2), encoding="utf-8")
         print(f"  {GREEN}ACCEPTED{RESET}  baseline -> journeys {m['journeys_pct']}% / classes {m['classes_pct']}%")

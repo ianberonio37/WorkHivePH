@@ -38,6 +38,9 @@ const VIEWPORTS = [{ name: 'desktop', width: 1280, height: 900 }, { name: 'mobil
 // we bump its tol here (the Arc V calibration discipline). lens_floor is the headline ceiling.
 const CEILINGS = [
   'lens_floor', 'depth_floor', 'focal_floor', 'whitespace_floor', 'grouping_floor', 'color_floor', 'icon_floor',
+  // N lens (PJ18): navigation destinations hidden by a clipped horizontal strip. tol 0 — there is
+  // no page type where an unreachable, unadvertised tab is correct, so this may only ever go down.
+  'hiddennav_floor',
   'consistency_radius_variants', 'consistency_pad_variants', 'consistency_combo_variants', 'consistency_shadow_variants_max',
 ];
 const TOL = 0;

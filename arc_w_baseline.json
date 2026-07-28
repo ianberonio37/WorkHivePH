@@ -1,6 +1,6 @@
 {
   "tol": 0,
-  "set": "2026-07-19T23:51:15.507Z",
+  "set": "2026-07-28T09:04:25.230Z",
   "pages_probed": 25,
   "records": 50,
   "lens_floor": 0,
@@ -10,9 +10,10 @@
   "grouping_floor": 0,
   "color_floor": 0,
   "icon_floor": 0,
-  "consistency_radius_variants": 6,
+  "hiddennav_floor": 0,
+  "consistency_radius_variants": 5,
   "consistency_pad_variants": 10,
-  "consistency_combo_variants": 40,
+  "consistency_combo_variants": 35,
   "consistency_shadow_variants_max": 3,
   "ms": {
     "active_rules": 9,

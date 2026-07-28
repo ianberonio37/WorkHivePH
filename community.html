@@ -448,7 +448,12 @@
         <!-- Search + filter -->
         <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1rem;" id="panel-feed-controls">
           <input type="text" id="search-input" class="wh-input" placeholder="Search posts…" autocomplete="off" style="font-size:1rem;" aria-label="Search posts" />
-          <div id="filter-chips" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none;">
+          <!-- PJ18 (2026-07-28): this was `overflow-x:auto; scrollbar-width:none`, which put the
+               last category chip off-screen at 390px AND hid the scrollbar that was the only thing
+               left hinting the row scrolled. A category filter the user cannot see is a category
+               they cannot browse. Wrapping instead: six short chips fit one line on desktop, so
+               this changes nothing there and makes every category reachable on a phone. -->
+          <div id="filter-chips" style="display:flex; flex-wrap:wrap; gap:8px; padding-bottom:4px;">
             <button class="filter-chip active" data-cat="all" onclick="setFilter('all')" aria-pressed="true" data-i="c_all">All</button>
             <button class="filter-chip" data-cat="general" onclick="setFilter('general')" aria-pressed="false" data-i="c_general">General</button>
             <button class="filter-chip cat-safety" data-cat="safety" onclick="setFilter('safety')" aria-pressed="false" data-i="c_safety">Safety</button>

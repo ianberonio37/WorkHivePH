@@ -252,7 +252,44 @@ export const ARC_W_PROBE = () => {
   // doesn't need a 2.3× hero metric, so focal_floor only gates pages that HAVE a KPI grid.)
   const hasKpiGrid = !!document.querySelector('.simple-row, .sc-hero');
 
+  // ── N lens: NAVIGATION DESTINATIONS HIDDEN BY A CLIPPED STRIP (PJ18, 2026-07-28) ──────────
+  // A horizontally-scrolling row of tabs/filters that overflows silently. Found at 390px on
+  // project-manager (detail tabs: scrollWidth 854 vs clientWidth 354, so "Change orders" and
+  // "Sign-off" were both invisible) and on analytics (phase tabs hiding "What to do", the
+  // prescriptive phase the whole page exists to deliver; and the criticality chips hiding Medium
+  // and Low). Every one of them looked fine on desktop and gave no cue on a phone.
+  //
+  // Counts only NAVIGATION strips — a container whose children are overwhelmingly buttons/links.
+  // A table wrapper or a media carousel scrolling horizontally is a legitimate, expected gesture;
+  // a row of destinations that hides half of itself is not, because nothing tells the user the
+  // other destinations exist. Scored per fully-hidden CHILD, not per strip: a strip clipping one
+  // chip by 10px is a nudge, one hiding four tabs is a different page.
+  let hiddenNavItems = 0;
+  const hiddenNavDetail = [];
+  document.querySelectorAll('*').forEach((el) => {
+    if (!vis(el)) return;
+    const s = getComputedStyle(el);
+    if (s.overflowX !== 'auto' && s.overflowX !== 'scroll') return;
+    if (el.scrollWidth <= el.clientWidth + 1) return;
+    const kids = [...el.children];
+    if (kids.length < 2) return;
+    const navKids = kids.filter((k) => k.matches('button, a, [role="tab"], [role="button"], label'));
+    if (navKids.length < Math.max(2, Math.ceil(kids.length * 0.6))) return;   // not a nav strip
+    const box = el.getBoundingClientRect();
+    const hidden = navKids.filter((k) => {
+      const b = k.getBoundingClientRect();
+      return b.left >= box.right - 1 || b.right <= box.left + 1;             // wholly outside
+    });
+    if (hidden.length) {
+      hiddenNavItems += hidden.length;
+      hiddenNavDetail.push((el.id || el.className || el.tagName).toString().slice(0, 40)
+        + ':' + hidden.length + '/' + navKids.length);
+    }
+  });
+
   return {
+    // N
+    hiddenNavItems, hiddenNavDetail,
     vw: VW,
     // D
     cards: cards.length, flat, shadowed, tinted,
@@ -306,10 +343,16 @@ export function scoreArcW(raw) {
   const grouping_floor = Math.max(0, raw.maxPeerPanels - TARGETS.peerPanels);    // peer-panels over 6
   const color_floor = Math.max(0, raw.distinctDecorativeHues - TARGETS.decorativeHues); // decorative hues over 2
   const icon_floor = Math.max(0, raw.iconSources - TARGETS.iconSources);         // icon sources over 1
-  const lens_floor = depth_floor + focal_floor + whitespace_floor + grouping_floor + color_floor + icon_floor;
+  // N lens — navigation destinations a clipped strip hides outright. Zero tolerance and no
+  // per-page exemption: unlike the focal proxy there is no page type for which "half your tabs are
+  // unreachable and unadvertised" is the right design. One point per hidden destination.
+  const hiddennav_floor = raw.hiddenNavItems || 0;
+  const lens_floor = depth_floor + focal_floor + whitespace_floor + grouping_floor + color_floor
+    + icon_floor + hiddennav_floor;
   return {
     ...raw,
     depth_floor, focal_floor, whitespace_floor, grouping_floor, color_floor, icon_floor,
+    hiddennav_floor,
     lens_floor,
   };
 }
@@ -340,6 +383,7 @@ export function rollupArcW(records) {
     grouping_floor: sum('grouping_floor'),
     color_floor: sum('color_floor'),
     icon_floor: sum('icon_floor'),
+    hiddennav_floor: sum('hiddennav_floor'),       // N lens (PJ18): nav destinations a clipped strip hides
     lens_floor: sum('lens_floor'),                 // the headline Arc W floor (sum of all gated lenses)
     // C lens cross-page spread (ceiling: must not grow)
     consistency_radius_variants: radiusSet.size,

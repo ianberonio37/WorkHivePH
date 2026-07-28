@@ -85,6 +85,15 @@
        joined siblings, 8px outer corners, no gap -- visually distinct from both the
        select pills (filters) and the action rects. rubric R3 third role. */
     .phase-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; overflow-x: auto; border-radius: var(--wh-radius-sm); border: 1px solid rgba(255,255,255,0.1); width: fit-content; max-width: 100%; }
+    /* PJ18 — these four tabs ARE the page: What happened / Why it happened / What's coming / What
+       to do. At 390px the strip measured scrollWidth 463 against clientWidth 333, which put "What
+       to do" (Prescriptive) entirely off the right edge — the phase that tells a maintenance
+       planner what to actually DO was the one a phone user never saw, on a strip with no scroll
+       cue. Wrapping to two rows shows all four. */
+    @media (max-width: 640px) {
+      .phase-tabs { flex-wrap: wrap; overflow-x: visible; width: 100%; }
+      .phase-tabs .phase-tab { flex: 1 1 45%; }
+    }
 
     /* ── Global filter chips (Criticality + Discipline) ──────────────── */
     .global-filters {
@@ -136,9 +145,17 @@
       border-radius: 0.4rem;
       margin-top: 0.25rem;
     }
-    /* Mobile: chips wrap; ensure horizontal scroll for long discipline list */
+    /* Mobile: chips wrap.
+       PJ18 (2026-07-28) — this used to read `overflow-x: auto; flex-wrap: nowrap`, with the comment
+       "ensure horizontal scroll for long discipline list". The intent was right for ONE group and
+       wrong for the rest: nowrap applies to every .filter-group, so the six-chip criticality row
+       was forced onto a single line too. Measured at 390px: scrollWidth 456 against clientWidth
+       309, with "🟡 Medium" and "🟢 Low" sitting past the right edge and no cue that the row
+       scrolled. A filter you cannot see is a filter you do not have.
+       Wrapping costs a row or two on the longest list and keeps every chip reachable, which is the
+       trade the original comment was reaching for ("chips wrap") before the nowrap overrode it. */
     @media (max-width: 600px) {
-      .filter-group { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.25rem; }
+      .filter-group { flex-wrap: wrap; row-gap: 0.35rem; padding-bottom: 0.25rem; }
       .filter-label { min-width: 70px; }
     }
     .phase-tab {

@@ -1,5 +1,5 @@
 {
-  "ran": "2026-07-21T20:39:27.020Z",
+  "ran": "2026-07-28T09:04:25.227Z",
   "seeder": "http://127.0.0.1:5000",
   "hive": "636cf7e8-431a-4907-8a9f-43dd4cc216d6",
   "viewports": [
@@ -16,14 +16,15 @@
     "grouping_floor": 0,
     "color_floor": 0,
     "icon_floor": 0,
+    "hiddennav_floor": 0,
     "lens_floor": 0,
-    "consistency_radius_variants": 6,
+    "consistency_radius_variants": 5,
     "consistency_pad_variants": 10,
-    "consistency_combo_variants": 40,
+    "consistency_combo_variants": 35,
     "consistency_shadow_variants_max": 3,
-    "total_cards": 827,
+    "total_cards": 777,
     "total_flat": 0,
-    "total_status_hue_misuse": 10
+    "total_status_hue_misuse": 8
   },
   "records": [
     {
@@ -31,6 +32,8 @@
       "role": "anon",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 4,
         "flat": 0,
@@ -54,14 +57,14 @@
           14
         ],
         "shadowVariants": 2,
-        "distinctAccentHues": 2,
+        "distinctAccentHues": 1,
         "distinctDecorativeHues": 0,
         "accentRatio": 0,
         "accentEls": 0,
-        "interactiveAboveFold": 12,
+        "interactiveAboveFold": 6,
         "statusHueMisuse": 0,
-        "controls": 8,
-        "withTransition": 7,
+        "controls": 7,
+        "withTransition": 6,
         "hasSkeleton": false,
         "emojiIcons": 1,
         "svgIcons": 0,
@@ -73,6 +76,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -82,6 +86,8 @@
       "role": "anon",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 4,
         "flat": 0,
@@ -124,6 +130,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -133,6 +140,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 23,
         "flat": 0,
@@ -144,7 +153,7 @@
         "distinctFontSizes": 8,
         "hasKpiGrid": false,
         "offScaleGaps": 2,
-        "totalGaps": 182,
+        "totalGaps": 180,
         "groupingRatio": 1.6,
         "maxPeerPanels": 1,
         "maxPeerRaw": 20,
@@ -179,6 +188,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -188,6 +198,8 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 23,
         "flat": 0,
@@ -199,7 +211,7 @@
         "distinctFontSizes": 8,
         "hasKpiGrid": false,
         "offScaleGaps": 2,
-        "totalGaps": 182,
+        "totalGaps": 180,
         "groupingRatio": 1.6,
         "maxPeerPanels": 1,
         "maxPeerRaw": 20,
@@ -234,6 +246,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -243,6 +256,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 13,
         "flat": 0,
@@ -271,9 +286,9 @@
         "shadowVariants": 1,
         "distinctAccentHues": 2,
         "distinctDecorativeHues": 0,
-        "accentRatio": 8.3,
+        "accentRatio": 9.1,
         "accentEls": 1,
-        "interactiveAboveFold": 12,
+        "interactiveAboveFold": 11,
         "statusHueMisuse": 1,
         "controls": 38,
         "withTransition": 31,
@@ -288,6 +303,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -297,6 +313,8 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 13,
         "flat": 0,
@@ -342,6 +360,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -351,6 +370,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 68,
         "flat": 0,
@@ -381,7 +402,7 @@
         "distinctDecorativeHues": 0,
         "accentRatio": 0,
         "accentEls": 0,
-        "interactiveAboveFold": 27,
+        "interactiveAboveFold": 38,
         "statusHueMisuse": 0,
         "controls": 69,
         "withTransition": 64,
@@ -396,6 +417,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -405,6 +427,8 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 4,
         "flat": 0,
@@ -447,6 +471,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -456,26 +481,27 @@
       "role": "supervisor",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
-        "cards": 26,
+        "cards": 27,
         "flat": 0,
-        "shadowed": 26,
-        "tinted": 8,
+        "shadowed": 27,
+        "tinted": 9,
         "medianFont": 12,
         "maxFont": 32,
         "focalRatio": 2.67,
         "distinctFontSizes": 12,
         "hasKpiGrid": true,
         "offScaleGaps": 1,
-        "totalGaps": 28,
+        "totalGaps": 50,
         "groupingRatio": 0,
         "maxPeerPanels": 3,
-        "maxPeerRaw": 5,
+        "maxPeerRaw": 6,
         "distinctLeftEdges": 10,
         "radii": [
           0,
           12,
-          10,
           999,
           16
         ],
@@ -493,10 +519,10 @@
         "accentEls": 0,
         "interactiveAboveFold": 26,
         "statusHueMisuse": 0,
-        "controls": 20,
+        "controls": 28,
         "withTransition": 2,
         "hasSkeleton": false,
-        "emojiIcons": 7,
+        "emojiIcons": 8,
         "svgIcons": 0,
         "imgIcons": 1,
         "iconSources": 1,
@@ -506,6 +532,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -515,26 +542,27 @@
       "role": "supervisor",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
-        "cards": 26,
+        "cards": 27,
         "flat": 0,
-        "shadowed": 26,
-        "tinted": 8,
+        "shadowed": 27,
+        "tinted": 9,
         "medianFont": 12,
         "maxFont": 32,
         "focalRatio": 2.67,
         "distinctFontSizes": 13,
         "hasKpiGrid": true,
         "offScaleGaps": 1,
-        "totalGaps": 28,
+        "totalGaps": 50,
         "groupingRatio": 0,
         "maxPeerPanels": 3,
-        "maxPeerRaw": 5,
+        "maxPeerRaw": 6,
         "distinctLeftEdges": 6,
         "radii": [
           0,
           12,
-          10,
           999,
           16
         ],
@@ -552,10 +580,10 @@
         "accentEls": 0,
         "interactiveAboveFold": 22,
         "statusHueMisuse": 0,
-        "controls": 20,
+        "controls": 28,
         "withTransition": 2,
         "hasSkeleton": false,
-        "emojiIcons": 7,
+        "emojiIcons": 8,
         "svgIcons": 0,
         "imgIcons": 1,
         "iconSources": 1,
@@ -565,6 +593,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -574,6 +603,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 14,
         "flat": 0,
@@ -601,14 +632,14 @@
         "shadowVariants": 1,
         "distinctAccentHues": 2,
         "distinctDecorativeHues": 0,
-        "accentRatio": 12.5,
-        "accentEls": 2,
-        "interactiveAboveFold": 16,
-        "statusHueMisuse": 2,
-        "controls": 23,
-        "withTransition": 18,
+        "accentRatio": 7.1,
+        "accentEls": 1,
+        "interactiveAboveFold": 14,
+        "statusHueMisuse": 1,
+        "controls": 22,
+        "withTransition": 17,
         "hasSkeleton": false,
-        "emojiIcons": 1,
+        "emojiIcons": 2,
         "svgIcons": 0,
         "imgIcons": 1,
         "iconSources": 1,
@@ -618,6 +649,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -627,6 +659,8 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 14,
         "flat": 0,
@@ -654,14 +688,14 @@
         "shadowVariants": 1,
         "distinctAccentHues": 1,
         "distinctDecorativeHues": 0,
-        "accentRatio": 12.5,
-        "accentEls": 1,
-        "interactiveAboveFold": 8,
-        "statusHueMisuse": 1,
-        "controls": 23,
-        "withTransition": 18,
+        "accentRatio": 0,
+        "accentEls": 0,
+        "interactiveAboveFold": 7,
+        "statusHueMisuse": 0,
+        "controls": 22,
+        "withTransition": 17,
         "hasSkeleton": false,
-        "emojiIcons": 1,
+        "emojiIcons": 2,
         "svgIcons": 0,
         "imgIcons": 1,
         "iconSources": 1,
@@ -671,6 +705,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -680,60 +715,9 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
-        "cards": 9,
-        "flat": 0,
-        "shadowed": 9,
-        "tinted": 6,
-        "medianFont": 12,
-        "maxFont": 24,
-        "focalRatio": 2,
-        "distinctFontSizes": 11,
-        "hasKpiGrid": false,
-        "offScaleGaps": 0,
-        "totalGaps": 3,
-        "groupingRatio": 0,
-        "maxPeerPanels": 3,
-        "maxPeerRaw": 6,
-        "distinctLeftEdges": 2,
-        "radii": [
-          14,
-          16
-        ],
-        "pads": [
-          16,
-          20
-        ],
-        "shadowVariants": 1,
-        "distinctAccentHues": 4,
-        "distinctDecorativeHues": 0,
-        "accentRatio": 3,
-        "accentEls": 1,
-        "interactiveAboveFold": 33,
-        "statusHueMisuse": 0,
-        "controls": 63,
-        "withTransition": 51,
-        "hasSkeleton": true,
-        "emojiIcons": 29,
-        "svgIcons": 0,
-        "imgIcons": 1,
-        "iconSources": 1,
-        "depth_floor": 0,
-        "focal_floor": 0,
-        "whitespace_floor": 0,
-        "grouping_floor": 0,
-        "color_floor": 0,
-        "icon_floor": 0,
-        "lens_floor": 0
-      },
-      "err": null
-    },
-    {
-      "page": "community.html",
-      "role": "worker",
-      "viewport": "mobile",
-      "scored": {
-        "vw": 390,
         "cards": 8,
         "flat": 0,
         "shadowed": 8,
@@ -744,11 +728,11 @@
         "distinctFontSizes": 11,
         "hasKpiGrid": false,
         "offScaleGaps": 0,
-        "totalGaps": 1,
+        "totalGaps": 3,
         "groupingRatio": 0,
         "maxPeerPanels": 3,
         "maxPeerRaw": 5,
-        "distinctLeftEdges": 1,
+        "distinctLeftEdges": 2,
         "radii": [
           14,
           16
@@ -758,11 +742,11 @@
           20
         ],
         "shadowVariants": 1,
-        "distinctAccentHues": 4,
+        "distinctAccentHues": 3,
         "distinctDecorativeHues": 0,
-        "accentRatio": 4.3,
+        "accentRatio": 3.8,
         "accentEls": 1,
-        "interactiveAboveFold": 23,
+        "interactiveAboveFold": 26,
         "statusHueMisuse": 0,
         "controls": 55,
         "withTransition": 44,
@@ -777,6 +761,63 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
+        "lens_floor": 0
+      },
+      "err": null
+    },
+    {
+      "page": "community.html",
+      "role": "worker",
+      "viewport": "mobile",
+      "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
+        "vw": 390,
+        "cards": 7,
+        "flat": 0,
+        "shadowed": 7,
+        "tinted": 4,
+        "medianFont": 12,
+        "maxFont": 24,
+        "focalRatio": 2,
+        "distinctFontSizes": 11,
+        "hasKpiGrid": false,
+        "offScaleGaps": 0,
+        "totalGaps": 1,
+        "groupingRatio": 0,
+        "maxPeerPanels": 3,
+        "maxPeerRaw": 4,
+        "distinctLeftEdges": 1,
+        "radii": [
+          14,
+          16
+        ],
+        "pads": [
+          16,
+          20
+        ],
+        "shadowVariants": 1,
+        "distinctAccentHues": 3,
+        "distinctDecorativeHues": 0,
+        "accentRatio": 4.8,
+        "accentEls": 1,
+        "interactiveAboveFold": 21,
+        "statusHueMisuse": 0,
+        "controls": 48,
+        "withTransition": 38,
+        "hasSkeleton": true,
+        "emojiIcons": 21,
+        "svgIcons": 0,
+        "imgIcons": 1,
+        "iconSources": 1,
+        "depth_floor": 0,
+        "focal_floor": 0,
+        "whitespace_floor": 0,
+        "grouping_floor": 0,
+        "color_floor": 0,
+        "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -786,14 +827,16 @@
       "role": "supervisor",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 15,
         "flat": 0,
         "shadowed": 15,
         "tinted": 1,
-        "medianFont": 12,
+        "medianFont": 11.84,
         "maxFont": 28.8,
-        "focalRatio": 2.4,
+        "focalRatio": 2.43,
         "distinctFontSizes": 10,
         "hasKpiGrid": true,
         "offScaleGaps": 0,
@@ -822,7 +865,7 @@
         "controls": 41,
         "withTransition": 31,
         "hasSkeleton": false,
-        "emojiIcons": 23,
+        "emojiIcons": 25,
         "svgIcons": 0,
         "imgIcons": 0,
         "iconSources": 1,
@@ -832,6 +875,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -841,14 +885,16 @@
       "role": "supervisor",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 15,
         "flat": 0,
         "shadowed": 15,
         "tinted": 1,
-        "medianFont": 12,
+        "medianFont": 11.84,
         "maxFont": 28.8,
-        "focalRatio": 2.4,
+        "focalRatio": 2.43,
         "distinctFontSizes": 10,
         "hasKpiGrid": true,
         "offScaleGaps": 0,
@@ -877,7 +923,7 @@
         "controls": 41,
         "withTransition": 31,
         "hasSkeleton": false,
-        "emojiIcons": 23,
+        "emojiIcons": 25,
         "svgIcons": 0,
         "imgIcons": 0,
         "iconSources": 1,
@@ -887,6 +933,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -896,6 +943,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 0,
         "flat": 0,
@@ -934,6 +983,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -943,6 +993,8 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 0,
         "flat": 0,
@@ -981,6 +1033,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -990,10 +1043,12 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
-        "cards": 154,
+        "cards": 129,
         "flat": 0,
-        "shadowed": 154,
+        "shadowed": 129,
         "tinted": 1,
         "medianFont": 11.2,
         "maxFont": 38.4,
@@ -1004,7 +1059,7 @@
         "totalGaps": 2,
         "groupingRatio": 2.35,
         "maxPeerPanels": 3,
-        "maxPeerRaw": 30,
+        "maxPeerRaw": 25,
         "distinctLeftEdges": 4,
         "radii": [
           12,
@@ -1022,7 +1077,7 @@
         "accentEls": 1,
         "interactiveAboveFold": 10,
         "statusHueMisuse": 1,
-        "controls": 7,
+        "controls": 6,
         "withTransition": 1,
         "hasSkeleton": false,
         "emojiIcons": 1,
@@ -1035,6 +1090,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1044,10 +1100,12 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
-        "cards": 154,
+        "cards": 129,
         "flat": 0,
-        "shadowed": 154,
+        "shadowed": 129,
         "tinted": 1,
         "medianFont": 11.2,
         "maxFont": 32,
@@ -1058,7 +1116,7 @@
         "totalGaps": 2,
         "groupingRatio": 2.35,
         "maxPeerPanels": 3,
-        "maxPeerRaw": 30,
+        "maxPeerRaw": 25,
         "distinctLeftEdges": 2,
         "radii": [
           12,
@@ -1076,7 +1134,7 @@
         "accentEls": 1,
         "interactiveAboveFold": 7,
         "statusHueMisuse": 1,
-        "controls": 7,
+        "controls": 6,
         "withTransition": 1,
         "hasSkeleton": false,
         "emojiIcons": 1,
@@ -1089,6 +1147,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1098,6 +1157,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 4,
         "flat": 0,
@@ -1106,7 +1167,7 @@
         "medianFont": 10.4,
         "maxFont": 38.4,
         "focalRatio": 3.69,
-        "distinctFontSizes": 11,
+        "distinctFontSizes": 10,
         "hasKpiGrid": true,
         "offScaleGaps": 0,
         "totalGaps": 0,
@@ -1123,14 +1184,14 @@
         "shadowVariants": 1,
         "distinctAccentHues": 2,
         "distinctDecorativeHues": 0,
-        "accentRatio": 53.3,
+        "accentRatio": 42.1,
         "accentEls": 8,
-        "interactiveAboveFold": 15,
+        "interactiveAboveFold": 19,
         "statusHueMisuse": 1,
-        "controls": 49,
-        "withTransition": 45,
+        "controls": 103,
+        "withTransition": 99,
         "hasSkeleton": false,
-        "emojiIcons": 45,
+        "emojiIcons": 100,
         "svgIcons": 0,
         "imgIcons": 0,
         "iconSources": 1,
@@ -1140,6 +1201,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1149,15 +1211,17 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 4,
         "flat": 0,
         "shadowed": 4,
         "tinted": 1,
-        "medianFont": 10.88,
+        "medianFont": 10.4,
         "maxFont": 32,
-        "focalRatio": 2.94,
-        "distinctFontSizes": 11,
+        "focalRatio": 3.08,
+        "distinctFontSizes": 10,
         "hasKpiGrid": true,
         "offScaleGaps": 0,
         "totalGaps": 0,
@@ -1178,10 +1242,10 @@
         "accentEls": 1,
         "interactiveAboveFold": 6,
         "statusHueMisuse": 1,
-        "controls": 49,
-        "withTransition": 45,
+        "controls": 103,
+        "withTransition": 99,
         "hasSkeleton": false,
-        "emojiIcons": 45,
+        "emojiIcons": 100,
         "svgIcons": 0,
         "imgIcons": 0,
         "iconSources": 1,
@@ -1191,6 +1255,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1200,6 +1265,8 @@
       "role": "supervisor",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 0,
         "flat": 0,
@@ -1238,6 +1305,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1247,14 +1315,16 @@
       "role": "supervisor",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 0,
         "flat": 0,
         "shadowed": 0,
         "tinted": 0,
-        "medianFont": 11.52,
+        "medianFont": 12,
         "maxFont": 20.8,
-        "focalRatio": 1.81,
+        "focalRatio": 1.73,
         "distinctFontSizes": 10,
         "hasKpiGrid": false,
         "offScaleGaps": 0,
@@ -1285,6 +1355,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1294,6 +1365,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 2,
         "flat": 0,
@@ -1336,6 +1409,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1345,6 +1419,8 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 2,
         "flat": 0,
@@ -1387,6 +1463,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1396,6 +1473,8 @@
       "role": "supervisor",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 0,
         "flat": 0,
@@ -1434,6 +1513,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1443,6 +1523,8 @@
       "role": "supervisor",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 0,
         "flat": 0,
@@ -1481,6 +1563,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1490,6 +1573,8 @@
       "role": "supervisor",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 0,
         "flat": 0,
@@ -1528,6 +1613,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1537,6 +1623,8 @@
       "role": "supervisor",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 0,
         "flat": 0,
@@ -1575,6 +1663,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1584,6 +1673,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 15,
         "flat": 0,
@@ -1592,7 +1683,7 @@
         "medianFont": 14,
         "maxFont": 48,
         "focalRatio": 3.43,
-        "distinctFontSizes": 9,
+        "distinctFontSizes": 8,
         "hasKpiGrid": false,
         "offScaleGaps": 0,
         "totalGaps": 38,
@@ -1612,9 +1703,9 @@
         "shadowVariants": 1,
         "distinctAccentHues": 2,
         "distinctDecorativeHues": 0,
-        "accentRatio": 37.5,
+        "accentRatio": 40,
         "accentEls": 6,
-        "interactiveAboveFold": 16,
+        "interactiveAboveFold": 15,
         "statusHueMisuse": 0,
         "controls": 14,
         "withTransition": 12,
@@ -1629,6 +1720,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1638,6 +1730,8 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 15,
         "flat": 0,
@@ -1683,6 +1777,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1692,6 +1787,8 @@
       "role": "supervisor",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 4,
         "flat": 0,
@@ -1724,7 +1821,7 @@
         "controls": 15,
         "withTransition": 15,
         "hasSkeleton": false,
-        "emojiIcons": 15,
+        "emojiIcons": 16,
         "svgIcons": 0,
         "imgIcons": 0,
         "iconSources": 1,
@@ -1734,6 +1831,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1743,6 +1841,8 @@
       "role": "supervisor",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 4,
         "flat": 0,
@@ -1775,7 +1875,7 @@
         "controls": 15,
         "withTransition": 15,
         "hasSkeleton": false,
-        "emojiIcons": 15,
+        "emojiIcons": 16,
         "svgIcons": 0,
         "imgIcons": 0,
         "iconSources": 1,
@@ -1785,6 +1885,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1794,6 +1895,8 @@
       "role": "supervisor",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 0,
         "flat": 0,
@@ -1832,6 +1935,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1841,6 +1945,8 @@
       "role": "supervisor",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 0,
         "flat": 0,
@@ -1879,6 +1985,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1888,6 +1995,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 32,
         "flat": 0,
@@ -1935,6 +2044,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -1944,6 +2054,8 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 32,
         "flat": 0,
@@ -1991,6 +2103,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2000,6 +2113,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 20,
         "flat": 0,
@@ -2045,6 +2160,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2054,6 +2170,8 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 20,
         "flat": 0,
@@ -2066,7 +2184,7 @@
         "hasKpiGrid": true,
         "offScaleGaps": 8,
         "totalGaps": 12,
-        "groupingRatio": 2.29,
+        "groupingRatio": 0,
         "maxPeerPanels": 5,
         "maxPeerRaw": 5,
         "distinctLeftEdges": 2,
@@ -2099,6 +2217,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2108,6 +2227,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 10,
         "flat": 0,
@@ -2151,6 +2272,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2160,6 +2282,8 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 10,
         "flat": 0,
@@ -2203,6 +2327,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2212,6 +2337,8 @@
       "role": "anon",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 18,
         "flat": 0,
@@ -2257,6 +2384,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2266,6 +2394,8 @@
       "role": "anon",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 18,
         "flat": 0,
@@ -2311,6 +2441,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2320,6 +2451,8 @@
       "role": "worker",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 1,
         "flat": 0,
@@ -2330,9 +2463,9 @@
         "focalRatio": 2,
         "distinctFontSizes": 9,
         "hasKpiGrid": false,
-        "offScaleGaps": 1,
+        "offScaleGaps": 0,
         "totalGaps": 3,
-        "groupingRatio": 1.8,
+        "groupingRatio": 2,
         "maxPeerPanels": 1,
         "maxPeerRaw": 1,
         "distinctLeftEdges": 1,
@@ -2349,7 +2482,7 @@
         "accentEls": 5,
         "interactiveAboveFold": 13,
         "statusHueMisuse": 0,
-        "controls": 13,
+        "controls": 12,
         "withTransition": 9,
         "hasSkeleton": false,
         "emojiIcons": 0,
@@ -2362,6 +2495,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2371,6 +2505,8 @@
       "role": "worker",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 1,
         "flat": 0,
@@ -2381,9 +2517,9 @@
         "focalRatio": 2,
         "distinctFontSizes": 9,
         "hasKpiGrid": false,
-        "offScaleGaps": 1,
+        "offScaleGaps": 0,
         "totalGaps": 3,
-        "groupingRatio": 1.8,
+        "groupingRatio": 2,
         "maxPeerPanels": 1,
         "maxPeerRaw": 1,
         "distinctLeftEdges": 1,
@@ -2400,7 +2536,7 @@
         "accentEls": 2,
         "interactiveAboveFold": 6,
         "statusHueMisuse": 0,
-        "controls": 13,
+        "controls": 12,
         "withTransition": 9,
         "hasSkeleton": false,
         "emojiIcons": 0,
@@ -2413,6 +2549,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2422,14 +2559,16 @@
       "role": "supervisor",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 9,
         "flat": 0,
         "shadowed": 9,
         "tinted": 1,
-        "medianFont": 11.52,
+        "medianFont": 12,
         "maxFont": 38.4,
-        "focalRatio": 3.33,
+        "focalRatio": 3.2,
         "distinctFontSizes": 11,
         "hasKpiGrid": true,
         "offScaleGaps": 2,
@@ -2466,6 +2605,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2475,14 +2615,16 @@
       "role": "supervisor",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 9,
         "flat": 0,
         "shadowed": 9,
         "tinted": 1,
-        "medianFont": 11.52,
+        "medianFont": 12,
         "maxFont": 32,
-        "focalRatio": 2.78,
+        "focalRatio": 2.67,
         "distinctFontSizes": 11,
         "hasKpiGrid": true,
         "offScaleGaps": 2,
@@ -2519,6 +2661,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2528,6 +2671,8 @@
       "role": "supervisor",
       "viewport": "desktop",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 1280,
         "cards": 5,
         "flat": 0,
@@ -2570,6 +2715,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2579,6 +2725,8 @@
       "role": "supervisor",
       "viewport": "mobile",
       "scored": {
+        "hiddenNavItems": 0,
+        "hiddenNavDetail": [],
         "vw": 390,
         "cards": 5,
         "flat": 0,
@@ -2621,6 +2769,7 @@
         "grouping_floor": 0,
         "color_floor": 0,
         "icon_floor": 0,
+        "hiddennav_floor": 0,
         "lens_floor": 0
       },
       "err": null
@@ -2722,7 +2871,7 @@
       "focal_floor": 0,
       "icon_floor": 0,
       "maxPeerPanels": 3,
-      "distinctAccentHues": 4,
+      "distinctAccentHues": 3,
       "focalRatio_min": 2
     },
     {
@@ -2737,7 +2886,7 @@
       "icon_floor": 0,
       "maxPeerPanels": 3,
       "distinctAccentHues": 4,
-      "focalRatio_min": 2.4
+      "focalRatio_min": 2.43
     },
     {
       "page": "assistant.html",
@@ -2779,7 +2928,7 @@
       "icon_floor": 0,
       "maxPeerPanels": 3,
       "distinctAccentHues": 2,
-      "focalRatio_min": 2.94
+      "focalRatio_min": 3.08
     },
     {
       "page": "audit-log.html",
@@ -2793,7 +2942,7 @@
       "icon_floor": 0,
       "maxPeerPanels": 0,
       "distinctAccentHues": 2,
-      "focalRatio_min": 1.81
+      "focalRatio_min": 1.73
     },
     {
       "page": "voice-journal.html",
@@ -2961,7 +3110,7 @@
       "icon_floor": 0,
       "maxPeerPanels": 3,
       "distinctAccentHues": 4,
-      "focalRatio_min": 2.78
+      "focalRatio_min": 2.67
     },
     {
       "page": "plant-connections.html",
