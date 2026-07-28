@@ -22,6 +22,7 @@ iso_class:
   Print Report shows "ISO 14224 class: --" for every asset.
 """
 import random
+from datetime import datetime, timedelta, timezone
 
 from .utils import batch_insert
 
@@ -167,4 +168,60 @@ def seed_asset_brain(client, log, ctx: dict) -> dict:
 
     inserted = batch_insert(client, "asset_nodes", rows, chunk=500)
     log(f"  inserted {inserted} asset_nodes ({linked} bridged to a PM program by tag)")
-    return {"asset_nodes_count": inserted, "asset_nodes_pm_linked": linked}
+
+    synced = _seed_external_sync(client, log, rows)
+    return {"asset_nodes_count": inserted, "asset_nodes_pm_linked": linked,
+            "external_sync_count": synced}
+
+
+def _seed_external_sync(client, log, rows) -> int:
+    """AH6 (Asset Hub deepwalk, 2026-07-28): give the CMMS ids a sync PROVENANCE.
+
+    external_sync held 0 rows platform-wide while asset-hub.html read v_external_sync_truth to
+    render "Last synced from SAP PM 3 days ago" under the CMMS-id card. An empty table feeding a
+    live UI element is the AHK3 class again: nothing looked broken, the line was simply always
+    blank, so an engineer saw ids with no way to tell whether they were current or left over from
+    an integration that died months ago.
+
+    NOT every id gets a row, and that is the point — the page now says "No sync on record for
+    these ids" when there is none, and both states have to exist for either to be walkable.
+    A sample also carries sync_status='error', because a sync that is FAILING is the state a
+    maintenance planner most needs to see and the one a happy-path fixture never produces.
+    """
+    now = datetime.now(timezone.utc)
+    ext_rows = []
+    for r in rows:
+        ext = r.get("external_ids") or {}
+        if not ext:
+            continue
+        # ~75% of the assets that carry ids have actually been synced; the rest were typed in.
+        if random.random() >= 0.75:
+            continue
+        for system_type, external_id in ext.items():
+            roll = random.random()
+            if roll < 0.12:
+                # Failing integration: last contact is old and the status says why it stopped.
+                status, days = "error", random.randint(9, 40)
+            elif roll < 0.25:
+                status, days = "active", random.randint(3, 8)
+            else:
+                status, days = "active", 0
+            ext_rows.append({
+                "hive_id":        r["hive_id"],
+                "system_type":    system_type,
+                "external_id":    str(external_id),
+                "entity_type":    "asset",
+                "workhive_table": "asset_nodes",
+                "sync_status":    status,
+                "last_synced_at": (now - timedelta(days=days,
+                                                   hours=random.randint(0, 20))).isoformat(),
+            })
+
+    if not ext_rows:
+        log("  no external_ids to give a sync record")
+        return 0
+
+    n = batch_insert(client, "external_sync", ext_rows, chunk=500)
+    errs = sum(1 for r in ext_rows if r["sync_status"] == "error")
+    log(f"  inserted {n} external_sync rows ({errs} in an error state)")
+    return n

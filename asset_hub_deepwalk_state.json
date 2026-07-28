@@ -126,17 +126,27 @@
     "AH06": {
       "title": "Asset detail - the 11-view roll-up renders honestly per state",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-reliability",
+          "P-worker"
+        ],
+        "states": [
+          "S-all-11-views-counted",
+          "S-cmms-synced",
+          "S-cmms-never-synced",
+          "S-cmms-sync-failing",
+          "S-cold-asset"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28. Counted all 11 truth views the page reads, live, as the signed-in user: v_asset_truth 30 (approved-only, matching the fleet list), v_fmea_truth 77, v_logbook_truth 1171, v_marketplace_listings_truth 8, v_pf_truth 31, v_rcm_truth 50, v_risk_truth 9, v_sensor_recent 19029, v_sensor_truth 18, v_weibull_truth 35 - and v_external_sync_truth ZERO. external_sync held 0 rows PLATFORM-WIDE while the page read that view to render 'Last synced from SAP PM 3 days ago' beneath the CMMS-id card. An empty table feeding a live UI element is the AHK3 class again, and it is the OTHER HALF of the inherited F18 dead card: AH17 gave the card its ids, and the ids still had no provenance. Nothing looked broken - the line was simply always blank. WORSE THAN BLANK, IT WAS AMBIGUOUS: the same empty string answered 'the lookup errored' and 'this id has never been synced', and the second is the one that matters. An asset carrying SAP_PM: EQ-GEN002 with no sync record means the id was typed in or imported once and nothing has confirmed it since - exactly what an engineer needs to know BEFORE trusting it to raise a work order in the other system. Now says so. AND A FAILING INTEGRATION READ THE SAME AS A HEALTHY ONE: 'synced 2h ago (active)' and 'broken for 30 days (error)' were the same muted grey, distinguished only by a word in parentheses. The error state now says what it MEANS ('Sync from SAP_PM is FAILING - last contact 1d ago. These ids may no longer match the source system.') in red at weight 600 - and the WORDING carries the signal too, not just the colour, so it survives greyscale printing and anyone who cannot separate the hue. ONE MORE LABEL CORRECTED BEFORE IT SHIPPED: my first wording said 'last SUCCESSFUL contact', but last_synced_at records when the sync last RAN, and on an error row that run is precisely the one that failed. Calling it a success would have been the label claiming what the column does not support - the same class as AH16's '500 readings in the last 30 days'. Seeder now produces the populated state (with an error sample, because a FAILING sync is what a planner most needs to see and a happy-path fixture never generates it), and both states verified live: RC-002 'Last synced from Fiix at 2d ago (active)', PB-001 'No sync on record for these ids', SUB-001 the red FAILING line. The other ten views were already honest per state, which the AH1/AH7/AH16 walks had exercised between them: the Workbench empty states, the risk board's 'computed daily at 13:00 PHT', the report's section-by-section refusals, and the telemetry card's two distinct silences."
     },
     "AH07": {
       "title": "FMEA: add a failure mode, RPN is computed and defensible",

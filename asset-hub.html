@@ -3617,14 +3617,42 @@
         .order('last_synced_at', { ascending: false })
         .limit(1);
 
-      if (error || !data || !data.length) {
-        meta.textContent = '';
+      // AH6 (Asset Hub deepwalk, 2026-07-28): a blank line used to be the answer to BOTH "the
+      // lookup failed" and "this id has never been synced", and the second is the one that
+      // matters. An asset carrying SAP_PM: EQ-GEN002 with no sync record means the id was typed
+      // in or imported once and nothing has confirmed it since — which is exactly what an
+      // engineer needs to know BEFORE trusting it to raise a work order in the other system.
+      // Measured: external_sync held 0 rows platform-wide, so this line was blank for every asset
+      // that had a CMMS id, and the card showed ids with no indication whether they were current
+      // or left over from an integration that died months ago. That is the other half of the
+      // inherited F18 "dead card" — AH17 gave the card its ids, this gives them their provenance.
+      if (error) { meta.textContent = ''; return; }
+      if (!data || !data.length) {
+        meta.textContent = 'No sync on record for these ids — they were entered or imported here, '
+          + 'not confirmed by the source system.';
         return;
       }
       const r = data[0];
-      meta.textContent = 'Last synced from ' + (r.system_type || 'CMMS')
-        + ' at ' + fmtRelative(r.last_synced_at)
-        + ' (' + (r.sync_status || 'active') + ')';
+      const status = r.sync_status || 'active';
+      // A FAILING integration is the state a planner most needs to notice, and it was rendering as
+      // a muted grey parenthetical identical to a healthy one — the same weight for "synced 2h ago"
+      // and "this link has been broken for 30 days". Say what it means, and let it read as a
+      // problem. Colour is not the only signal: the wording changes too, so it survives greyscale
+      // printing and anyone who cannot distinguish the hue.
+      if (status === 'error' || status === 'failed') {
+        // "last contact", NOT "last successful contact": last_synced_at records when the sync last
+        // RAN, and on an error row that run is precisely the one that failed. Calling it a success
+        // would be the label making a claim the column does not support.
+        meta.textContent = 'Sync from ' + (r.system_type || 'CMMS') + ' is FAILING — last contact '
+          + fmtRelative(r.last_synced_at) + '. These ids may no longer match the source system.';
+        meta.style.color = 'var(--wh-red)';
+        meta.style.fontWeight = '600';
+      } else {
+        meta.textContent = 'Last synced from ' + (r.system_type || 'CMMS')
+          + ' at ' + fmtRelative(r.last_synced_at) + ' (' + status + ')';
+        meta.style.color = '';
+        meta.style.fontWeight = '';
+      }
     }
 
     // ── Realtime subscription for the active asset ────────────────────────────
