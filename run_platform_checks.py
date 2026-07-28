@@ -5075,6 +5075,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "change_order_immutability",
+        "script":  "tools/validate_change_order_immutability.py",
+        "args":    [],
+        "label":   "PJK1 - a raised change order is a CONTRACT, not a draft. project_change_orders carries cost_impact_php and schedule_impact_days, so approving one commits money. The approval ACT was already guarded (wh_guard_supervisor_approval refuses a non-supervisor approving, rejecting, or editing an APPROVED order - I asserted otherwise from the policy layer and the walk refuted me), but nothing protected the CONTENT or EXISTENCE of a request awaiting review. Proven live as an ordinary worker: rewrote ANOTHER worker's pending order from PHP 500,000 to PHP 9,999,999 and replaced its scope text, with the row still reading requested_by = Wilfredo Malabanan; the same worker could DELETE a pending order outright. That is the worst place for it to be open, because the supervisor approves WHAT THEY ARE SHOWN and what they are shown was editable by anyone in the hive right up to the click - and with no auth_uid on the table and no audit trigger on projects, nothing recorded that the figure changed or who changed it. The guard is IMMUTABILITY rather than a role check, chosen after measuring the legitimate callers: exactly THREE update paths exist (approveCO/rejectCO/cancelCO), all setting status plus approver fields, with NO edit-CO path anywhere and NO delete path in any page or edge fn - so the terms were already write-once in practice and making the database agree breaks zero callers. Holds: the function and trigger exist and the trigger still covers UPDATE **and DELETE** (losing DELETE silently restores the make-it-disappear path); every commercial term is still named in the check (a term dropped from that list becomes quietly editable again, which is exactly the failure found); status/approved_by/approved_at/rejection_reason are NOT frozen, because freezing them would break the lifecycle the table exists for; and LIVE that the trigger is attached and ENABLED (a disabled trigger looks present and enforces nothing). Teeth proven by unfreezing cost_impact_php: FAIL on exactly that term.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "project_tenancy",
         "script":  "tools/validate_project_tenancy.py",
         "args":    [],

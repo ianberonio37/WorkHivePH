@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 22b55b653d680653
+source_sha: a107e44fee85795a
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (675) — the 'what's already gated' brain
+## gate · registered validators (676) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -219,7 +219,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (472)
+### Platform (473)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -317,6 +317,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `cascade-behavior` ⚡ [fail] — Cascade Behavior (4-layer: no-on-delete-clause + explicit-no-action + distribution + orphan-risk)
 - `catalog-scope` ⚡ [fail] — Catalog Approval Status Validator
 - `causal-cascade-coverage` [warn] — Causal Cascade Coverage (Phase A anti-rot: both legs — every DB-trigger AND every edge-fn cross-table data write is mapped in causal_cascades.json — surfaces a 
+- `change_order_immutability` ⚡ [fail] — PJK1 - a raised change order is a CONTRACT, not a draft. project_change_orders carries cost_impact_php and schedule_impact_days, so approving one commits money.
 - `clickable-keyboard-a11y` ⚡ [fail] — Clickable keyboard a11y (dim-8 RESOLVED, not ratcheted: a runtime polyfill in utils.js [whClickableKbdA11y] makes every mouse-only clickable div/span/li keyboar
 - `client-singleton` ⚡ [fail] — Client singleton / idle-refresh (every Supabase client routes through getDb() so it inherits the Finding-#6 token auto-refresh + visibilitychange refresh + time
 - `client-write-grants` [fail] — Client-write GRANT parity (2026-07-22) — the LOCK for the 42501 'permission denied for table' class. For every base table a client page WRITES via .from('T').in
