@@ -1,6 +1,6 @@
 {
   "summary": {
-    "view_column_pairs": 320,
+    "view_column_pairs": 319,
     "at_risk": 0,
     "review": 9,
     "files_scanned": 254
@@ -5960,19 +5960,6 @@
           "shape": "direct",
           "smells": []
         },
-        {
-          "file": "supabase/functions/project-progress/index.ts",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_project_truth",
-      "column": "budget_php",
-      "consumers": [
         {
           "file": "supabase/functions/project-progress/index.ts",
           "shape": "direct",

@@ -6,7 +6,7 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **320**
+- View/column pairs scanned: **319**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
 - Files scanned: **254**
@@ -294,7 +294,6 @@ re-deriving what the canonical view should expose:
 | `v_project_progress_truth` | `pct_complete` | ✅ OK | 2 | direct |
 | `v_project_progress_truth` | `project_id` | ✅ OK | 1 | direct |
 | `v_project_progress_truth` | `reported_by` | ✅ OK | 2 | direct |
-| `v_project_truth` | `budget_php` | ✅ OK | 1 | direct |
 | `v_project_truth` | `maintenance_nature` | ✅ OK | 1 | direct |
 | `v_project_truth` | `name` | ✅ OK | 2 | direct |
 | `v_project_truth` | `priority` | ✅ OK | 1 | direct |

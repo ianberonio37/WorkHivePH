@@ -69,6 +69,7 @@ def calculate(inputs: dict) -> dict:
     # ── Build the DAG ────────────────────────────────────────────────────
     G = nx.DiGraph()
     by_id = {}
+    unresolved = []          # PJ3: predecessors naming an item outside this project (or nothing)
     for it in items:
         iid = it.get("id")
         if not iid:
@@ -83,6 +84,15 @@ def calculate(inputs: dict) -> dict:
         for pred in (it.get("predecessors") or []):
             if pred in by_id:
                 G.add_edge(pred, iid)
+            else:
+                # PJ3 (2026-07-28): a predecessor that is not one of THIS project's items used to be
+                # skipped in silence. predecessors is jsonb and carries no foreign key, so a planner
+                # can record a dependency on an item in another project, or on a uuid that exists
+                # nowhere — both probed live and both accepted by the database. The schedule then
+                # simply did not honour it: the dependency LOOKED stored and was never acted on.
+                # This module already proves it is willing to say "your graph is malformed" via
+                # cycle_warning; it just did not say it for this case.
+                unresolved.append({"item_id": iid, "predecessor_id": pred})
 
     cycle_warning = None
     try:
@@ -102,6 +112,7 @@ def calculate(inputs: dict) -> dict:
             "fast_track_candidates": [],
             "blockers": _blockers(items),
             "cycle_warning": cycle_warning,
+            "unresolved_predecessors": unresolved,
         }
 
     try:
@@ -112,6 +123,7 @@ def calculate(inputs: dict) -> dict:
             "fast_track_candidates": [],
             "blockers": _blockers(items),
             "cycle_warning": {"message": "Topological sort failed — non-DAG structure"},
+            "unresolved_predecessors": unresolved,
         }
 
     ES, EF = {}, {}
@@ -153,6 +165,10 @@ def calculate(inputs: dict) -> dict:
         "fast_track_candidates": fast_track,
         "blockers":              _blockers(items),
         "cycle_warning":         cycle_warning,
+        # PJ3: the SUCCESS path carries it too, and that is the one that matters — a schedule can
+        # compute perfectly well while quietly ignoring a dependency the planner recorded. Reporting
+        # it only on the error paths would leave the common case exactly as silent as before.
+        "unresolved_predecessors": unresolved,
     }
 
 

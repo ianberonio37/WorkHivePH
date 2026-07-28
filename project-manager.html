@@ -2415,6 +2415,9 @@ function renderCpm() {
     return;
   }
   const totalDays = Math.max(cp.total_days || 0, 1);
+  // PJ3: dependencies the engine could not resolve are named, not dropped in silence. A schedule
+  // can compute perfectly while ignoring a predecessor the planner recorded.
+  const _unres = _progress?.unresolved_predecessors || [];
   const dayWidth = 100 / totalDays;
   const rows = _items.map(it => {
     const isCritical = cp.item_ids.includes(it.id);
@@ -2470,6 +2473,9 @@ function renderCpm() {
   }
 
   $('pane-cpm')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
+    ${_unres.length ? `<div class="empty" style="color:var(--wh-red);border:1px solid rgba(239,87,87,0.3);">
+      ${_unres.length} dependenc${_unres.length === 1 ? 'y is' : 'ies are'} not being honoured: the predecessor
+      is not a scope item on this project, so the schedule below ignores it.</div>` : ''}
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Critical path</div><div class="kpi-value">${cp.total_days}d</div><div class="kpi-sub">${cp.item_ids.length} of ${_items.length} items on critical path</div></div>
     </div>

@@ -60,17 +60,25 @@
     "PJ03": {
       "title": "Scope items: add, sequence, set predecessors",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-valid-dag",
+          "S-cycle",
+          "S-cross-project-predecessor",
+          "S-phantom-predecessor"
+        ]
       },
-      "notes": ""
+      "notes": "WALKED 2026-07-28. THE EXISTING DATA IS CLEAN: 78 of 90 items carry predecessors, and 0 point outside their own project. So the seeded DAG is well-formed and this is not a live corruption. WHAT IS UNCONSTRAINED: predecessors is JSONB, which cannot carry a foreign key, and nothing else validates it. Probed live as a worker, all three ACCEPTED - a two-item CYCLE (each naming the other), a CROSS-PROJECT predecessor (an item depending on an item in a different project), and a PHANTOM predecessor (a uuid that exists nowhere). THE ENGINE'S BEHAVIOUR IS ASYMMETRIC, and that asymmetry IS the finding. prescriptive.py handles a cycle honestly - networkx.find_cycle() raises and it returns a stated cycle_warning, so the schedule degrades to 'no critical path' with a reason rather than a wrong answer. But the DAG is built with `for pred in predecessors: if pred in by_id: G.add_edge(...)`, so a predecessor that is not one of THIS project's items is SILENTLY SKIPPED. No warning, no count. SO THE IMPACT IS NOT A WRONG CRITICAL PATH - it is a DROPPED DEPENDENCY. A planner records 'task B waits on task A', the UI accepts it, and the schedule quietly does not honour it. The dependency looks stored and is not acted on, which is the 'a string is not an announcement until it reaches a user' shape applied to a graph edge. FIX/GATE OPEN, and the shape is small because the channel already exists: count the predecessors that could not be resolved and report them alongside cycle_warning, so the pane can say which dependencies were ignored. The engine already proves it is willing to say 'your graph is malformed' - it just does not say it for this case. FIXED 2026-07-28. prescriptive.py now COLLECTS every predecessor it cannot resolve and returns them as unresolved_predecessors, on the SUCCESS path as well as the two error paths - and the success path is the one that matters, because a schedule can compute perfectly well while quietly ignoring a dependency the planner recorded. Reporting only on the error paths would have left the common case exactly as silent as before. The CPM pane now names the count and says plainly that the schedule below ignores those dependencies. VERIFIED against the engine directly: two items where B depends on A (valid) plus a phantom uuid and a foreign-project id - the critical path still computes correctly (A -> B, 5 days) AND both unresolvable predecessors are reported. Before, they vanished. NOT CHANGED, deliberately: predecessors remains jsonb with no constraint, and a cycle is still handled the way it already was (networkx.find_cycle raises, the engine returns cycle_warning and refuses to publish a critical path). Adding a database constraint to a jsonb array is not available, and the honest alternative - report what could not be honoured - is what the module was already doing for cycles. This just extends the same courtesy to the other malformed case."
     },
     "PJ04": {
       "title": "Change order: raise -> approve / reject / cancel (G5 - never walked)",

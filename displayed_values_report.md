@@ -12,7 +12,7 @@ each as contracted / uncontracted / raw / unknown.
 - **Uncontracted ⚠️:**     **0** (domain-meaningful metric, no formula registered)
 - Raw (counts/dates):      **84** (no contract needed)
 - Unknown:                 **0** (couldn't classify from id alone)
-- Formula registry:        **23** entries
+- Formula registry:        **24** entries
 
 ## Per-page breakdown
 

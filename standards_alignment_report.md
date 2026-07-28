@@ -7,11 +7,16 @@ actually missing required inputs.
 
 ## Summary
 
-- Total formulas:  **23**
+- Total formulas:  **24**
 - Pass:            **23**
-- Fail:            **0**
+- Fail:            **1**
 - Partial honest:  **4** (declared with reason + label)
 - Partial silent:  **0** ❌ (labelled as full)
+
+## ❌ Failures (1)
+
+### `evm_cpi_spi_pmbok` (cites pmbok_7 §measurement)
+- standard_id `pmbok_7` not found in standards.json
 
 ## ⚠️ Declared partial variants (8)
 
@@ -58,3 +63,4 @@ fields / RPCs land.
 | `hive_stair_composite` | platform_maturity_stair | stair_composite |  | ✅ |
 | `oee_iso_22400_partial` | iso_22400_2_2014 | 5.5_oee | ✓ | ✅ |
 | `fmea_action_priority_severity_gate` | iec_60812_2018 | rpn | ✓ | ✅ |
+| `evm_cpi_spi_pmbok` | pmbok_7 | measurement | ✓ | ❌ |
