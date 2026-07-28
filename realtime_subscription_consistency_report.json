@@ -515,37 +515,37 @@
         {
           "table": "sensor_readings",
           "allowed": false,
-          "offset": 128297
+          "offset": 129224
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 203226
+          "offset": 204153
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 203776
+          "offset": 204703
         },
         {
           "table": "rcm_fmea_modes",
           "allowed": false,
-          "offset": 204449
+          "offset": 205376
         },
         {
           "table": "asset_risk_scores",
           "allowed": false,
-          "offset": 205625
+          "offset": 206552
         },
         {
           "table": "rcm_strategies",
           "allowed": false,
-          "offset": 206308
+          "offset": 207235
         },
         {
           "table": "weibull_fits",
           "allowed": true,
-          "offset": 207170
+          "offset": 208097
         }
       ],
       "drift": []

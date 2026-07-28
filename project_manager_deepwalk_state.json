@@ -1,0 +1,339 @@
+{
+  "arc": "Project Manager Deepwalk Expansion",
+  "opened": "2026-07-28",
+  "roadmap": "PROJECT_MANAGER_DEEPWALK_EXPANSION_ROADMAP.md",
+  "phases": [
+    "G",
+    "W",
+    "O",
+    "H",
+    "R"
+  ],
+  "shallow_w_rule": "W=done requires >=2 personas AND >=2 states",
+  "journeys": {
+    "PJ01": {
+      "title": "First run - a hive with no projects at all",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ02": {
+      "title": "Create a project - code generation, dates, budget",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ03": {
+      "title": "Scope items: add, sequence, set predecessors",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ04": {
+      "title": "Change order: raise -> approve / reject / cancel (G5 - never walked)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ05": {
+      "title": "Who approved this change order? (G1 - no auth_uid exists)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ06": {
+      "title": "Progress log: submit, acknowledge, dispute",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ07": {
+      "title": "Earned Value - is green/amber/red defensible? (EVM / PMBOK)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ08": {
+      "title": "Critical path - what decides that a task may slip?",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ09": {
+      "title": "Budget: can a non-supervisor read it anyway? (G6)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ10": {
+      "title": "Roles: assign, remove, and what a role actually gates (G5)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ11": {
+      "title": "Links to logbook / inventory / marketplace - do they survive deletion?",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ12": {
+      "title": "Delete a project - what goes with it, and is it recorded? (G2)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ13": {
+      "title": "Cross-hive: a foreign project's items / COs cannot leak or be written (G3)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ14": {
+      "title": "AI: draft lessons + intent modal - grounded and attributable?",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ15": {
+      "title": "Project embeddings - what reaches the RAG, and whose?",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ16": {
+      "title": "Client rollup - the number a customer is shown",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ17": {
+      "title": "Offline / queued project writes",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    },
+    "PJ18": {
+      "title": "Mobile 390px - approve a CO from the field",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": ""
+    }
+  },
+  "dim_classes": {
+    "PJK1": {
+      "name": "A money decision needs an identity and a trail",
+      "stages": {
+        "harvest": "done",
+        "define": "todo",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "gate": null,
+      "notes": "OPEN on measured ground (2026-07-28). Six of seven project tables have NO auth_uid column at all - only `projects` has one - so raising or approving a CHANGE ORDER, which is a contract amendment, is attributable to nobody. And `projects` appears nowhere in hive_audit_log.target_type while assets, logbook, inventory_items, marketplace_listings, marketplace_sellers, worker_profiles and amc_briefings all do. AHK1 covered an approval DECISION on a forgeable name; here the identity column does not exist and the trail is absent entirely."
+    },
+    "PJK2": {
+      "name": "A schedule/health number must be falsifiable",
+      "stages": {
+        "harvest": "done",
+        "define": "todo",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "gate": null,
+      "notes": "OPEN. renderCpm reads _progress.critical_path (item_ids, total_days, slack_per_item) and renderBudget reads _progress.earned_value (bac, pv, and a green/amber/red status), both computed in the project-progress edge fn with no in-repo oracle found at ground. AHK2 governed inspection TIMING; these decide which work may slip and what health a CLIENT is told. EVM has published formulas (CPI=EV/AC, SPI=EV/PV) so the thresholds are checkable against a standard, exactly as AH7's RPN was."
+    },
+    "PJK3": {
+      "name": "Authority must be enforced where the data is",
+      "stages": {
+        "harvest": "done",
+        "define": "todo",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "gate": null,
+      "notes": "OPEN. Every project table carries ONE permissive FOR ALL policy whose WITH CHECK tests only hive_id IN user_hive_ids() - so any active member can approve, reject or cancel a change order. project_roles is the only table with a supervisor predicate. Separately, renderBudget refuses non-supervisors in the RENDERER ('Budget visibility is restricted to supervisors') while projects_hive_rw grants every member read - the number is one db.from('projects') away. Sharpens feedback_ui_only_approval_gate_is_bypassable from a button to a whole pane."
+    },
+    "PJK4": {
+      "name": "A child row's parent must live in its own hive",
+      "stages": {
+        "harvest": "done",
+        "define": "todo",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "gate": null,
+      "notes": "CANDIDATE - to be EARNED by probing, not assumed from the analogy. No policy on project_items, project_change_orders, project_progress_logs, project_links or project_knowledge joins `projects`, so nothing checks that the parent project lives in the same hive. That is the PM13/AHK4 shape. Tracked in the denominator from day one BECAUSE the Asset Hub board read 100% with its fourth class untracked - a green headline over a missing axis produces no red."
+    }
+  }
+}

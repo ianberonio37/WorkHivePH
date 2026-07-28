@@ -5116,6 +5116,15 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "project_manager_deepwalk_ratchet",
+        "script":  "validate_project_manager_deepwalk.py",
+        "args":    [],
+        "label":   "Project Manager deepwalk expansion - forward-only %-board over 18 journeys x 5 phases + the PJK dimension classes, with the shallow-W guard (a journey may not be credited W=done on fewer than 2 personas AND 2 states). Opened 2026-07-28 after the Asset Hub arc closed at 100%; project-manager was chosen on measured evidence - the WRITE-HEAVIEST surface on the platform (21 client writes across 7 tables: 9 insert / 10 update / 2 delete), 68 interactive elements, 96 top-level functions, and the page where the platform handles MONEY and COMMITMENTS (a change order is a contract amendment, an Earned Value status is a health claim to a client, a critical path decides which work may slip). SIX GROUND FINDINGS the board exists to drive out, all measured before any journey: (G1) six of seven project tables have NO auth_uid column AT ALL - only `projects` has one - so approving a change order is attributable to nobody; (G2) `projects` appears nowhere in hive_audit_log.target_type while assets/logbook/inventory_items/marketplace/worker_profiles all do, so the write-heaviest domain has no tamper-evident trail; (G3) every child table validates only its OWN hive_id and no policy joins `projects`, which is the PM13/AHK4 child-parent gap un-probed; (G4) one PERMISSIVE FOR ALL policy per table means any active member can approve/reject/cancel a change order, and project_roles is the ONLY table with a supervisor predicate; (G5) project_change_orders = 0 rows and project_roles = 0 rows, so the entire CO approve/reject path and the role flow have never had data (the AHK3 class); (G6) renderBudget hides the budget from non-supervisors in the RENDERER while projects_hive_rw grants every member read, so the number is one db.from('projects') away. PJK4 is in the denominator from day one as a CANDIDATE precisely because the Asset Hub board read 100% with its fourth class untracked. Fails on a REGRESSION below the accepted baseline. Self-test: --selftest.",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         "id":      "asset_hub_deepwalk_ratchet",
         "script":  "validate_asset_hub_deepwalk.py",
         "args":    [],
