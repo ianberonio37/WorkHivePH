@@ -2840,7 +2840,7 @@
 
     async function loadLatestWeibull(nodeId) {
       const { data, error } = await db.from('v_weibull_truth')
-        .select('beta, eta_days, failure_pattern, n_failures, n_censored, log_likelihood, source_window_days, generated_at')
+        .select('beta, eta_days, failure_pattern, n_failures, n_censored, log_likelihood, source_window_days, diagnostic, generated_at')
         .eq('hive_id', HIVE_ID)
         .eq('asset_id', nodeId)
         .is('fmea_mode_id', null)

@@ -294,6 +294,12 @@ async function persistFit(
     fit_method:         fit.fit_method || "mle_lifelines",
     log_likelihood:     fit.log_likelihood,
     source_window_days: sinceDays,
+    // AH9/AHK2 (Asset Hub deepwalk, 2026-07-28): persist the REASON, not just the absence of a
+    // number. This row is what loadLatestWeibull reads on every later page load; without the
+    // diagnostic the refusal explanation ("Need at least N corrective events... log more breakdowns
+    // or widen since_days") was visible only in the response to Compute and blank ever after, so a
+    // planner opening the asset the next day saw beta "--", eta "--" and an empty box.
+    diagnostic:         fit.diagnostic ?? null,
   };
   const { data, error } = await db.from("weibull_fits")
     .insert(row).select("id").single();

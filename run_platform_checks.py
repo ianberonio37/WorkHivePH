@@ -5067,6 +5067,15 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "refusal_reason_persists",
+        "script":  "tools/validate_refusal_reason_persists.py",
+        "args":    [],
+        "label":   "AHK2 - when a reliability calculation REFUSES, the reason must outlive the click. python-api/reliability/weibull.py declines below MIN_FAILURES_FOR_FIT=4 and returns beta/eta NULL with an actionable diagnostic ('Need at least 4 corrective events in the lookback window (have 2). Log more breakdowns or widen since_days before refitting.') - that sentence is the entire product of the refusal, telling a planner why there is no number and how to get one. But weibull_fits had NO diagnostic column, so persistFit never wrote it, v_weibull_truth could not expose it, and loadLatestWeibull selected a column set that could not contain it: fit.diagnostic was undefined and the box was cleared. Visible for seconds after Compute, BLANK on every page load after. A planner opening the asset the next day saw beta '--', eta '--', a pill reading 'insufficient data', and an empty bordered box - the F18 dead-card shape landing on the most important sentence in the reliability workbench. Fixed by 20260728000014 plus the fitter writing it and the page selecting it on the LOAD path; verified live end-to-end. Holds the whole round-trip (column, view exposure, the view still returning the LATEST fit per asset via its DISTINCT ON, the fitter persisting, the page selecting, and every refused fit actually carrying a reason) because breaking ANY link restores the silent blank. Teeth proven twice: reverting the page select -> exit 1, dropping the column -> exit 1. Live-tier, skips without docker. Self-test: --selftest.",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         "id":      "approval_authority",
         "script":  "tools/validate_approval_authority.py",
         "args":    [],

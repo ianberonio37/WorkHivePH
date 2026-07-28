@@ -154,17 +154,24 @@
     "AH09": {
       "title": "Weibull fit - with too few failures, does it refuse or guess?",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-reliability",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-fitted-wearout",
+          "S-insufficient-data",
+          "S-after-reload"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28. THE ENGINE'S REFUSAL PATH IS EXCELLENT AND STAYS - recorded as a real result, because the arc's premise (AHK2) half-expected it to be missing. python-api/reliability/weibull.py sets MIN_FAILURES_FOR_FIT=4 and below it attempts NO fit: beta NULL, eta NULL, failure_pattern='insufficient_data', plus a degenerate-likelihood guard for all-identical durations. That is why min(n_failures) across 91 fits is exactly 4 - nothing weaker ever gets a number. It also writes an ACTIONABLE diagnostic: 'Need at least 4 corrective events in the lookback window (have 2). Log more breakdowns or widen since_days before refitting.' THE DEFECT IS THAT THE SENTENCE COULD ONLY EVER BE SEEN ONCE. weibull_fits had no diagnostic column, so persistFit never wrote it, v_weibull_truth could not expose it, and loadLatestWeibull selected a column set that could not contain it - fit.diagnostic was undefined and diagEl.textContent = fit.diagnostic || '' cleared the box. Visible for a few seconds after Compute; blank on every load after that. What a planner opening the asset the next day saw: beta '--', eta '--', a pill reading 'insufficient data', and an EMPTY bordered box where the explanation belongs. The number is correctly absent and the REASON is silently absent too - the F18 dead-card shape landing on the most important sentence in the reliability workbench. FIXED as ONE definition rather than two: the engine already writes the sentence, so persist what it wrote (migration 20260728000014 adds the column and re-exposes the view; the fitter writes it; the page selects it on the LOAD path). Re-deriving the wording client-side would have put the same sentence in two places and let them drift - the logbook arc's three-ways-to-say-'corrective'. A NEAR-MISS OF MY OWN, caught by reading before rewriting: v_weibull_truth is NOT a plain projection - it is DISTINCT ON (hive_id, asset_id, COALESCE(fmea_mode_id,'_')) ORDER BY generated_at DESC, which is what makes it the LATEST fit per asset, and it aliases id AS fit_id. My first migration draft recreated it from the column list alone, which would have silently handed every consumer the FULL fit history and renamed a column. Caught by dumping the real definition first; the gate now asserts the DISTINCT ON survives. AND ONE MORE INSTRUMENT ERROR: my post-migration leak check ran as the postgres superuser (BYPASSRLS) and reported 'LEAK'. Re-run as a real authenticated member: 1 hive visible, 31 rows, no leak. VERIFIED LIVE on a page LOAD (not the compute path): beta '--', eta '--', pattern 'insufficient data', meta 'n_failures 2 - n_censored 1 - window 365d', and the diagnostic now reads in full. GATED by tools/validate_refusal_reason_persists.py (registered), which holds the whole round-trip because breaking any link restores the silent blank; teeth proven twice - reverting the page select and dropping the column each give exit 1."
     },
     "AH10": {
       "title": "P-F interval - the number that sets inspection frequency",
@@ -319,15 +326,15 @@
     "AHK2": {
       "name": "A number that sets inspection timing must be FALSIFIABLE",
       "stages": {
-        "harvest": "todo",
+        "harvest": "done",
         "define": "done",
-        "detect": "todo",
-        "sweep": "todo",
-        "fix": "todo",
-        "gate": "todo"
+        "detect": "done",
+        "sweep": "partial",
+        "fix": "done",
+        "gate": "done"
       },
-      "gate": null,
-      "notes": "OPEN on measured evidence. Weibull beta/eta, the P-F interval and FMEA RPN each DECIDE WHEN A MACHINE IS NEXT OPENED UP - they do not report history, they set future action, so being wrong is physical rather than cosmetic. Ground measured 172 RCM strategies and 300 FMEA modes, all approved, computed by edge functions (weibull-fitter, pf-calculator) with no in-repo oracle found. Each needs a stated method, a REFUSAL path when the data cannot support the fit, and a checkable oracle. Distinct from PMK1: that was a metric flattering what was DONE; this is a computed value deciding what happens NEXT."
+      "gate": "tools/validate_refusal_reason_persists.py",
+      "notes": "OPEN on measured evidence. Weibull beta/eta, the P-F interval and FMEA RPN each DECIDE WHEN A MACHINE IS NEXT OPENED UP - they do not report history, they set future action, so being wrong is physical rather than cosmetic. Ground measured 172 RCM strategies and 300 FMEA modes, all approved, computed by edge functions (weibull-fitter, pf-calculator) with no in-repo oracle found. Each needs a stated method, a REFUSAL path when the data cannot support the fit, and a checkable oracle. Distinct from PMK1: that was a metric flattering what was DONE; this is a computed value deciding what happens NEXT. REFINED BY THE AH9 WALK. The premise was that these numbers might be produced without a refusal path; the measurement says otherwise and the correction is the finding. Weibull HAS a well-designed refusal (MIN_FAILURES_FOR_FIT=4, no fit attempted, an actionable diagnostic) and it is the honest kind - it declines rather than guessing. What was broken is the DURABILITY of the refusal's reason: computed, returned once, never stored, so the explanation was blank on every page load after the first. A calculation that refuses is only as useful as the sentence that survives with it. SWEEP PARTIAL, stated rather than quietly closed: the P-F interval calculator (pf_intervals, 91 rows) has the same shape and is UNWALKED - whether it refuses on thin data, and whether ITS reason persists, is AH10 and the next slice. FMEA RPN (300 modes) is arithmetic on three 1-10 inputs and needs a different question - whether the inputs are defensible, not whether the product is."
     },
     "AHK3": {
       "name": "The fixture must contain every state the workflow can be in",

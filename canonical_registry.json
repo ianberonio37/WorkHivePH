@@ -2648,7 +2648,8 @@
         "fit_method",
         "log_likelihood",
         "source_window_days",
-        "generated_at"
+        "generated_at",
+        "diagnostic"
       ],
       "rls_enabled": true,
       "grants": {
@@ -5572,7 +5573,8 @@
         "fit_method",
         "log_likelihood",
         "source_window_days",
-        "generated_at"
+        "generated_at",
+        "diagnostic"
       ]
     },
     "v_pf_truth": {
@@ -9937,7 +9939,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 273
+      "loc": 279
     }
   },
   "phantom_tables": {},

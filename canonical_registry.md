@@ -79,7 +79,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `failure_signature_alerts` | 16 | no | no | — | — | failure-signature-scan |
 | `asset_risk_scores` | 12 | no | no | — | — | batch-risk-scoring |
 | `rcm_strategies` | 16 | yes | yes | asset-hub.html | asset-hub.html | — |
-| `weibull_fits` | 13 | yes | yes | — | — | weibull-fitter |
+| `weibull_fits` | 14 | yes | yes | — | — | weibull-fitter |
 | `pf_intervals` | 11 | yes | no | — | — | pf-calculator |
 | `agent_memory` | 21 | yes | no | — | — | _shared/memory.ts |
 | `ai_quality_log` | 11 | yes | no | — | — | ai-eval-runner |
