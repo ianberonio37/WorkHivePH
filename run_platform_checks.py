@@ -5042,6 +5042,23 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "pm_ontime_vs_compliance",
+        "script":  "tools/validate_pm_ontime_vs_compliance.py",
+        "args":    [],
+        "label":   "PMK1 · on-time vs compliance — a PM completed LATE still counts as compliant, so the headline can flatter the program to the person least able to check it. Walked live 2026-07-28 as two personas in two hives: the page reads '0 of 31 on track now · 88% PM compliance (SMRP)' for a supervisor with 20 overdue, and '3 of 30 on track · 86%' for a worker with 24 overdue. Measured at the DB, which explains how both are true at once: 331 of 1,224 consecutive-completion intervals (27.0%) ran past frequency_days, 14.5% past 1.5x, and get_pm_compliance_smrp counts every one. Currently compliance 86.3% vs on-time 73.0% — a 13.3-point gap. Deliberately does NOT redefine the RPC: it implements a NAMED standard (SMRP 2.1.1) with verified analytics parity, so changing it silently would break a documented contract and move a number a plant acts on. Instead it holds the GAP as a forward-only ratchet, so the day delivery drifts further from on-time the build fails before anyone reads a healthy percentage and relaxes. Standard harvested on a genuine bag miss (the external corpus held 144 chunks and none on maintenance): substrate/external/external-pm-schedule-compliance-metric.md, which states the formula, the 90% world-class benchmark and the explicit late-PM blind spot. Live-tier, skips cleanly without docker. Teeth proven by tightening the ceiling. Self-test: --selftest.",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "pm_deepwalk_ratchet",
+        "script":  "validate_pm_deepwalk.py",
+        "args":    [],
+        "label":   "PM Scheduler deepwalk ANTI-DRIFT ratchet (PM_DEEPWALK_EXPANSION_ROADMAP.md §4) — the measured %-board (18 journeys x 5 phases G/W/O/H/R, PMK classes x 6 stages) held as a forward-only FLOOR, so a cell that was walked/observed/resolved/locked cannot silently revert. Computed from pm_deepwalk_state.json, never asserted in prose. Carries the shallow_W guard: a journey cannot claim W=done without >=2 personas AND >=2 states, which matters more here than anywhere yet — the PDDA arc NAMED the supervisor-plans/tech-completes split as its heavyweight and then walked it as one signed-in user, and this arc's keystone (27% of PM intervals ran late while the compliance RPC reports 85-87%) is invisible to any single-persona glance. `--accept` ratchets after real progress. Static/fast. Self-test: --selftest.",
+        "group":   "AI Validation",
+        "report":  None,
+    },
+    {
         "id":      "logbook_deepwalk_ratchet",
         "script":  "validate_logbook_deepwalk.py",
         "args":    [],

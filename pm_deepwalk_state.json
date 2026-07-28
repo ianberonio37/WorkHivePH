@@ -1,0 +1,372 @@
+{
+  "_doc": "Anti-drift compass for the PM SCHEDULER DEEPWALK EXPANSION arc (Ian 2026-07-28: 'let's now plan for another page' -> PM Scheduler, chosen after measuring the candidates). Companion to PM_DEEPWALK_EXPANSION_ROADMAP.md. tools/pm_deepwalk_scoreboard.py reads this and emits a MEASURED % per phase and per PMK class. EXPANSION means growing BOTH denominators: journeys x personas x states (board 1) and new PMK dimension classes (board 2). A cell moves only on cited live evidence.",
+  "_phases_def": [
+    [
+      "G",
+      "ground - map the screens, handlers, tables and derived values the journey touches"
+    ],
+    [
+      "W",
+      "walk - live-MCP journey walk carrying the full lens; requires >=2 personas AND >=2 states"
+    ],
+    [
+      "O",
+      "observe - record friction with evidence (a clean walk is a real result, record it as such)"
+    ],
+    [
+      "H",
+      "harvest - Engine B at spoke 5; retrieve-first, crawl on a genuine bag miss"
+    ],
+    [
+      "R",
+      "resolve - fix, then LOCK with a gate; a fix without a gate is not done"
+    ]
+  ],
+  "_phase_values": [
+    "todo",
+    "partial",
+    "done"
+  ],
+  "_class_stages": [
+    "harvest",
+    "define",
+    "detect",
+    "sweep",
+    "fix",
+    "gate"
+  ],
+  "_coverage_rule": "A journey's W phase is 'done' only when walked in >=2 personas AND >=2 states. One-persona/one-state is the shallowness this arc exists to kill.",
+  "personas": [
+    "P-tech",
+    "P-supervisor",
+    "P-multi",
+    "P-teammate",
+    "P-new"
+  ],
+  "states": [
+    "S-overdue",
+    "S-due-soon",
+    "S-compliant",
+    "S-never-completed",
+    "S-late-but-done",
+    "S-error"
+  ],
+  "journeys": {
+    "PM01": {
+      "type": "T1-onboarding",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "First run - a hive with registered assets but no PM program yet. The empty/first-run state was never mapped by the PDDA arc."
+    },
+    "PM02": {
+      "type": "T2-core",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Register a PM asset -> scope items -> frequency. G: the PDDA arc mapped the 3-screen wizard (screen-dashboard / screen-add / screen-detail), saveAsset/saveNewTask, and the canonical FREQ registry + canonFreq()."
+    },
+    "PM03": {
+      "type": "T2-core",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "The triage dashboard. G: the PDDA arc fixed worst-first sort (overdue was buried on page 2, now position 0) and getAssetOverallStatus. Per-ROLE triage is unwalked - a tech and a supervisor want different orderings."
+    },
+    "PM04": {
+      "type": "T2-core",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Complete a PM at the asset (checklist, readings, sign-off). G: pmCompleteHandler + markDone mapped; the completion writes pm_completions and mirrors to logbook."
+    },
+    "PM05": {
+      "type": "T4-transition",
+      "surfaces": [
+        "pm-scheduler.html",
+        "analytics.html"
+      ],
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "PRIORITY. Complete -> next_due_date recompute -> the card changes state. G partial: the PDDA arc verified ONE reschedule loop live (overdue Weekly -> complete -> next_due +7), but the recompute is DERIVED in v_pm_scope_items_truth and its completeness across frequency bands and personas is unwalked."
+    },
+    "PM06": {
+      "type": "T6-fabric",
+      "surfaces": [
+        "pm-scheduler.html",
+        "logbook.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Completion -> logbook mirror (pm_completion_id lineage). G: gate #27 pm_mirror_asset_lineage locks the CREATE lineage, and the logbook arc seeded 40 mirrored completions so the journey is finally demonstrable (it was 0/1591 before)."
+    },
+    "PM07": {
+      "type": "T5-insight",
+      "surfaces": [
+        "pm-scheduler.html",
+        "analytics.html",
+        "hive.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "partial"
+      },
+      "walked": {
+        "personas": [
+          "P-supervisor",
+          "P-tech"
+        ],
+        "states": [
+          "S-overdue",
+          "S-late-but-done"
+        ]
+      },
+      "notes": "THE KEYSTONE. MEASURED 2026-07-28 before this roadmap existed: across 1,224 consecutive-completion intervals, 331 (27.0%) were completed AFTER frequency_days had elapsed, and 14.5% at more than 1.5x the interval - while get_pm_compliance_smrp reports 85.7-87.5% per hive, which reads as near-world-class against the 90% benchmark. The RPC counts a completion whenever it lands in the period, regardless of whether it was on schedule. HARVESTED (bag miss -> crawl): the SMRP-derived standard states PM compliance = completed / scheduled x 100, world-class 90%, and explicitly that it 'does not account for late PMs' (substrate/external/external-pm-schedule-compliance-metric.md). W/R open: the walk needs 2 personas x 2 states, and the disposition (surface on-time% beside compliance% vs change the metric) is a judgement to make WITH the walk, not before it. WALKED LIVE 2026-07-28, TWO personas in TWO hives, and the contradiction is on the glass: supervisor/Lucena sees '0 of 31 on track now - 88% PM compliance (SMRP)' with 20 overdue, and worker/Manila sees '3 of 30 on track now - 86% PM compliance (SMRP)' with 24 overdue. The page's headline ('PM compliance is in the red') and its next-action ('Assign 24 overdue PMs') are honest; the SMRP figure sits in the ON TRACK card's subtitle right beside the real-time count, so a historical late-blind metric reads as reassurance about the present. QUANTIFIED by the new detector: compliance 86.3% vs on-time 73.0% = a 13.3-POINT flattery. R PARTIAL and deliberately so: the gap is now MEASURED and ratcheted (tools/validate_pm_ontime_vs_compliance.py, registered, teeth proven), but SURFACING an on-time figure beside the compliance figure is a product change to a number a plant acts on - that is the next unit, not a drive-by."
+    },
+    "PM08": {
+      "type": "T4-transition",
+      "surfaces": [
+        "pm-scheduler.html",
+        "asset-hub.html"
+      ],
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Change an asset's frequency -> the whole schedule re-derives. G partial: the frequency VOCABULARY is canonical and gated (canonFreq + freq_crosspage_consistent), and asset-hub's RCM interval writer was fixed - but a frequency CHANGE on an existing program, and whether every derived surface re-derives, is unwalked."
+    },
+    "PM09": {
+      "type": "T3-collab",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Skip / defer a PM. pm_completions carries status='skipped' (~5% of seeded rows) but nothing models what a skip MEANS in the compliance number - neither silently compliant nor silently overdue. Feeds PMK5."
+    },
+    "PM10": {
+      "type": "T6-fabric",
+      "surfaces": [
+        "pm-scheduler.html",
+        "analytics.html",
+        "hive.html",
+        "shift-brain.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Compliance rollup parity across page / analytics / hive PM Health / shift-brain. G: the PDDA arc verified SMRP 87.1% single-RPC parity between page and analytics. The other two consumers, and parity under a CHANGED program, are unwalked."
+    },
+    "PM11": {
+      "type": "T5-lifecycle",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "todo",
+        "O": "partial",
+        "H": "done",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "PRIORITY. Amend or delete a completion after sign-off. O partial on MEASURED evidence from the logbook arc's LG4 sweep: pm_completions has 6 user triggers and NONE of them audit, so an amendment by any path that skips the page leaves no record - exactly the weakness LG4 closed for logbook with trg_logbook_post_close_audit. HARVEST: that arc's own finding plus the pattern and migration to copy (20260728000003). Feeds PMK3."
+    },
+    "PM12": {
+      "type": "T4-transition",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Delete a PM asset -> what happens to its scope items, its completion history and the compliance denominator. The 2 unconfirmed DB writes (pm_assets update + delete, ~L2640) live here. Feeds PMK6."
+    },
+    "PM13": {
+      "type": "T7-tenancy",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Cross-hive boundary: a foreign completion must not inflate another hive's compliance. G: ALREADY HARDENED by the PDDA arc - 3 write holes fixed by migration 20260712000012, gate validate_pm_write_isolation.py 4/4, and get_pm_compliance_smrp raises 42501 for a non-member. The walk re-confirms it from the UI side across personas rather than re-litigating it."
+    },
+    "PM14": {
+      "type": "T6-fabric",
+      "surfaces": [
+        "pm-scheduler.html",
+        "logbook.html",
+        "inventory.html"
+      ],
+      "phases": {
+        "G": "done",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Parts / readings on a PM. G: the PDDA arc's reuse verdict was completion->logbook = the canonical FUSION (one event) and parts-on-a-PM = KEEP-DISTINCT (logbook owns parts). The walk tests whether that boundary holds for a tech who consumed parts during a PM."
+    },
+    "PM15": {
+      "type": "T2-core",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Mobile 390px at-the-asset completion - the tech is THE persona for this page. G partial: the PDDA arc's A-axis was axe-clean (0 violations) but axe measures a11y, not one-handed reachability of the completion flow."
+    },
+    "PM16": {
+      "type": "T3-collab",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Templates + scope-item reuse across assets. G partial: populateTemplateOptions / selectTmplCat / pickTaskChip mapped; whether a template edit propagates to assets already using it is unwalked."
+    },
+    "PM17": {
+      "type": "T6-fabric",
+      "surfaces": [
+        "pm-scheduler.html",
+        "shift-brain.html"
+      ],
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Shift-brain 'PMs Due' + the AI companion grounding must read the same truth as the page. G partial: setPmCompanionContext ships a piiSafe snapshot (registered live by the PDDA arc); the shift-planner-orchestrator's PM read is a separate path and unverified against the page."
+    },
+    "PM18": {
+      "type": "T4-transition",
+      "surfaces": [
+        "pm-scheduler.html"
+      ],
+      "phases": {
+        "G": "todo",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {},
+      "notes": "Offline completion at the asset - the plant has no signal where the machine is. pm-scheduler registers a shared queue (window._whPmQueue via whCreateQueue, table pm_completions), which the logbook arc's LG3 fix now protects from reporting a lost write as synced. The journey itself is unwalked."
+    }
+  },
+  "dim_classes": {
+    "PMK1": {
+      "name": "On-time is not the same as done",
+      "stages": {
+        "harvest": "done",
+        "define": "done",
+        "detect": "done",
+        "sweep": "done",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "notes": "OPEN on measured evidence. RULE: a compliance metric must distinguish a PM completed ON SCHEDULE from one completed late, or it flatters the program to the person least able to check it. EVIDENCE (2026-07-28): 331 of 1,224 intervals (27.0%) ran past frequency_days, 14.5% past 1.5x, while the RPC reports 85.7-87.5%. HARVEST: crawled on a genuine bag miss - the corpus held 144 external chunks and NOT ONE on maintenance; substrate/external/external-pm-schedule-compliance-metric.md now states the formula, the 90% world-class benchmark, and the explicit blind spot ('does not account for late PMs'). DETECT/FIX/GATE open: the disposition is a real judgement (surface an on-time% beside compliance%, vs change what compliance means) and belongs WITH the walk, since changing a number a plant acts on is not a drive-by. DETECT DONE: tools/validate_pm_ontime_vs_compliance.py computes both figures like-for-like (it mirrors the RPC's own scheduled-count so the comparison is fair) and holds the GAP as a forward-only ratchet at 13.3 points. SWEEP DONE: the metric has exactly one producer - get_pm_compliance_smrp - which every consumer (page, analytics, hive PM Health, shift-brain) reads, so there is no second definition to reconcile; the class is about what that one definition CANNOT SEE, not about drift between definitions. FIX/GATE remain open: the gate exists but the product still shows only the flattering number, and deciding whether to surface on-time% beside it, or to change what compliance means, is a judgement for Ian since it moves a figure a plant acts on and is covered by a named standard."
+    },
+    "PMK2": {
+      "name": "A derived schedule needs a real denominator",
+      "stages": {
+        "harvest": "done",
+        "define": "done",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "notes": "OPEN on measured evidence, and deliberately framed as LATENT-AND-CONTAINED rather than 'compliance is wrong'. get_pm_compliance_smrp charges GREATEST(1, period/frequency_days) scheduled events, so in a 90-day window a Semi-annual PM (31 items) counts as 1 when it is truly due 0.5 times and an Annual PM (91 items) counts as 1 against a true 0.25 - 122 of 416 scope items (29%) structurally over-counted. MEASURED IMPACT TODAY: under one point per hive (85.7->85.3, 85.7->86.1, 87.5->87.1), because those items happen to carry completions in the window. So the honest disposition is the LG2 one: allow the approximation, make divergence detectable, and let a gate catch the day the data stops being kind. Same source as PMK1."
+    }
+  }
+}
