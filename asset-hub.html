@@ -558,13 +558,18 @@
           <span class="crit-pill" id="detail-crit"></span>
           <span class="crit-pill" id="detail-level" style="background:rgba(255,255,255,0.08);color:var(--muted);"></span>
           <span class="crit-pill" id="detail-location" style="background:rgba(255,255,255,0.08);color:var(--muted);display:none;"></span>
+          <!-- AH18 (Asset Hub deepwalk, 2026-07-28): min-height 44px, not 36. Measured at a TRUE 390px
+               viewport, these two were 104x36 and 110x36 - and they are precisely the buttons the
+               at-the-asset journey reaches for: a worker standing at the machine, gloved, having just
+               scanned the QR, wants alerts or a replacement tag. 36px is the wrong size for exactly
+               that context. Every other action on this page was already 44. -->
           <!-- Generate the scannable tag (the other half of the scan loop) -->
           <button type="button" id="detail-qr-btn" aria-label="Print a scannable QR tag for this asset"
-            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;font-family:inherit;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.4);" data-i="printqr">⤓ Print QR tag</button>
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;font-family:inherit;background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.4);" data-i="printqr">⤓ Print QR tag</button>
           <!-- Cross-page connectivity (ASSET_ALERT_SHIFT): complete the asset<->alert loop —
                emit alert-hub.html?asset=<tag>, which alert-hub reads (F4) to focus this asset. -->
           <a id="detail-alerts-link" href="#" aria-label="View this asset's alerts in Alert Hub"
-            style="display:none;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(41,182,217,0.13);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.4);">🔔 View alerts</a>
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(41,182,217,0.13);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.4);">🔔 View alerts</a>
         </div>
       </div>
 

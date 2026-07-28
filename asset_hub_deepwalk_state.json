@@ -399,17 +399,25 @@
     "AH18": {
       "title": "Mobile 390px at-the-asset lookup (QR -> detail)",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-worker",
+          "P-reliability"
+        ],
+        "states": [
+          "S-qr-tag-arrival",
+          "S-detail-at-390",
+          "S-engineer-view-390",
+          "S-full-page-diff"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28 at a TRUE 390px, via the QR path (?tag=WLD-001) rather than a node_id, because that is the link the printed tag on the machine actually encodes. INSTRUMENT FIRST, per feedback_browser_resize_lies_check_innerwidth: browser_resize(390) would have given 585 at this display's dpr 0.667, making every measurement 1.5x wrong. Resized to 260 and ECHOED window.innerWidth = 390 before measuring anything. WHAT HELD: no horizontal overflow anywhere (documentElement.scrollWidth 367 < 390), and zero overflowing elements inside #detail-view. The initial sweep flagged 8 'overflowing' nodes, but reading them showed they were the closed slide-out feedback drawer and the search overlay, both positioned off-screen BY DESIGN - a raw right>innerWidth test does not distinguish 'broken layout' from 'deliberately parked off-canvas', so each one had to be looked at rather than counted. FOUND: 'Print QR tag' (104x36) and 'View alerts' (110x36) were the only two controls in the whole detail view under 44px - every other action on the page was already 44. And they are precisely the two the at-the-asset journey reaches for: a worker standing at the machine, gloved, having just scanned the tag, wants the alerts or a replacement tag. 36px is the wrong size for exactly that context, and the fact that these two are the page's most MOBILE-specific actions while the desk-bound ones were already compliant is the tell that they were added without a 390 walk. Raised both to 44. Re-measured: all 22 visible controls in the detail view now >= 44px. EVERY ELEMENT THIS ARC ADDED re-measured at 390 with zero overflow: the AP pill (41x20, leading each FMEA row as intended), the FMEA row head (271 wide, wrapping cleanly), the telemetry sample footer, the fleet cap note, the staging expiry note, the CMMS sync line ('Last synced from Fiix at 5d ago (active)', 301 wide) and the citations list. FULL-PAGE screenshot taken and read top to bottom, not a viewport crop - the Whole-Artifact Discipline, since everything below the fold is exactly where a mobile regression hides. Header, risk profile, Reliability Workbench with all three AP-ordered FMEA rows, Live Telemetry, Timeline, External Systems and the Ask box all render within the 367px content width with nothing clipped."
     }
   },
   "dim_classes": {
