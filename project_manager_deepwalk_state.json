@@ -215,17 +215,25 @@
     "PJ11": {
       "title": "Links to logbook / inventory / marketplace - do they survive deletion?",
       "phases": {
-        "G": "partial",
-        "W": "todo",
+        "G": "done",
+        "W": "done",
         "O": "todo",
         "H": "todo",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-engineer"
+        ],
+        "states": [
+          "S-links-by-type",
+          "S-dangling-scan",
+          "S-legacy-id-mismatch",
+          "S-label-only-render"
+        ]
       },
-      "notes": ""
+      "notes": "WALKED 2026-07-28. project_links is POLYMORPHIC (link_type + link_id across logbook, asset, inventory_item, pm_completion, engineering_calc) and carries exactly ONE foreign key - to `projects`. link_id itself has NO constraint, which is unavoidable for a polymorphic reference and is exactly why it can drift silently. Same class as fault_knowledge.logbook_id. THE DANGLING SCAN LOOKED ALARMING AND THE FIRST READING WAS WRONG: 12 of 12 ASSET links failed to match asset_nodes.id, while logbook 0/9, inventory 0/21 and pm_completion 0/6 were clean. A type-specific total failure is not deletion drift, it is a wrong-table id - and it is: every asset link stores a value like 'asset-9fbe0f6f4022', and all 12 match asset_nodes.LEGACY_ASSET_ID. So three link types use the modern id and one uses the legacy one. WHY NOBODY NOTICED: renderLinked draws a label-only pill - ${l.label || l.link_id} plus a remove button - with NO navigation at all. Nothing ever resolves link_id, so a mismatched id costs nothing today and would break the moment anyone made links clickable. That is the reachable-capability shape in reverse: a stored reference nothing follows. AND IT EXPOSES A GAP IN MY OWN AH11 WORK, which is the most useful thing here: all 12 asset-link LABELS match an asset NAME (0 match a tag), and project_links appears NOWHERE in sync_asset_identity. So renaming an asset leaves the project's linked-items list showing the OLD name, with no id-based way to refresh it since link_id points at a legacy id nothing resolves. AH11 measured the identity spine as five text columns; this is a SIXTH, and it is keyed by NAME rather than TAG, which is why a tag-driven sweep would never have found it. FIX/GATE OPEN, and the shape is known: sync_asset_identity would need the OLD NAME threaded through as well as the old tag (logbook.html's updateAsset has both), and link_id should carry a resolvable asset_nodes.id so the label stops being the only thing holding the reference together."
     },
     "PJ12": {
       "title": "Delete a project - what goes with it, and is it recorded? (G2)",

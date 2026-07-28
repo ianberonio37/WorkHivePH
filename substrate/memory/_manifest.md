@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:574-files
-source_sha: 05b4c9d550c67adf
+source: memory-curated:575-files
+source_sha: 0fc38bdce7f7c88f
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (574 durable topic files)
+## memory · curated auto-memory (575 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=197 · project=288 · reference=89
+**By type:** feedback=198 · project=288 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -45,6 +45,7 @@ Entries (name · type · sha):
 - `feedback_classify_by_evidence_not_heuristic` · feedback · 92f9179e6ac707cd
 - `feedback_cls_late_reserve_and_shared_chrome_dedup` · feedback · 6cbbbdc4be7db3cd
 - `feedback_coarse_lens_100_is_not_deep_100` · feedback · e49b39cdc46bdbd7
+- `feedback_column_revoke_is_a_noop_under_table_grant` · feedback · 766308781f2c80f7
 - `feedback_commit_only_ian_decides_push` · feedback · d2ef55dbbb57adff
 - `feedback_commit_workflow` · feedback · 0569ad290e0e5fd3
 - `feedback_community_complete_redesign_authorized` · feedback · 19b6e6375689d9d8
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `reference_checkproactive_dead_wh_db` · reference · e6a9066feafe09ee
 - `reference_chronicle_erp_article` · reference · 473afbc9e2b8aa62
 - `reference_claude_code_mcp_config` · reference · b858c51809eae19a
-- `reference_cmms_integrations_security_fixes` · reference · 1e8802173bbed74e
-- … +74 more (all included in the fingerprint)
+- … +75 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]
