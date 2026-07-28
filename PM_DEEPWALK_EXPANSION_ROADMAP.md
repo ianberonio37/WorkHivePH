@@ -253,8 +253,30 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
     Measuring first is the only reason the naive fix did not ship: it would have silently stopped
     every asset rename from propagating (90/90 pairs). Fixed in order — RPC first
     (`20260728000008`), then the guard (`20260728000009`).
-18. Then §5 order downward — **PM1, PM2, PM16** remain (first-run, registration, templates); every
-    ⑤-harvest that earns a class refills this queue.
+18. ~~**PM1, PM2, PM16**~~ walked. PM1 found a DEAD empty state — filtering to nothing told a
+    31-asset hive "No assets yet, tap + to add your first asset", while the correctly-worded
+    `#no-results` was referenced nowhere in the code. PM2 and PM16 are clean and together prove the
+    view's `ELSE 30` is unreachable from the UI (the `<select>` is built from `FREQ` keys; all four
+    template frequencies are in-vocabulary).
+
+### Carried forward — the third verb of the UI-only-gate class
+
+**`pm_assets` INSERT is still open.** `goAddAsset()` is supervisor-gated in the page, but a WORKER
+inserting into their own hive succeeds at the database (probed, 1 row). Lower severity than the
+DELETE (PM12) and UPDATE (PM3) holes — own hive, self-authored — but it lets a member the UI says
+cannot add assets move their hive's compliance denominator.
+
+**Do NOT ship a bare INSERT guard:** `resolvePmAssetId()` in asset-hub lazily creates a `pm_assets`
+row when an RCM strategy is linked, with no role gate, so a supervisor-only rule would break that
+flow for every worker using RCM. This is the same trap that would have broken all 90 asset renames
+in PM3. The established fix is to move that system-owned creation into a SECURITY DEFINER RPC (as
+`sync_pm_asset_identity` did) and *then* add the guard.
+
+**Also carried (recorded, deliberately not built mid-arc):** no UI can create a SKIP (PM9);
+`logbook.html` never links a mirrored entry back to its PM (PM6); nothing tells a tech the mirrored
+entry is where parts go (PM14). The four journeys the shallow-W guard still holds at `partial`
+(PM02 now cleared; PM14/PM16/PM18 walked with one persona) are honest — the board reads **91.4%**,
+not a fabricated 100%.
 
 **Carried out of the PM7 walk, CLOSED by PM15:** the summary cards shared a first-paint reserve
 deficit — each `.sc-sub` placeholder is one line and fills to two or three, which was most of the

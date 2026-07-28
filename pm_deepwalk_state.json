@@ -58,14 +58,23 @@
         "pm-scheduler.html"
       ],
       "phases": {
-        "G": "todo",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "First run - a hive with registered assets but no PM program yet. The empty/first-run state was never mapped by the PDDA arc."
+      "walked": {
+        "personas": [
+          "P-supervisor",
+          "P-new"
+        ],
+        "states": [
+          "S-filtered-to-nothing",
+          "S-populated"
+        ]
+      },
+      "notes": "First run - a hive with registered assets but no PM program yet. The empty/first-run state was never mapped by the PDDA arc. WALKED 2026-07-28 and found a DEAD EMPTY STATE - the D3 discrimination class on a client-filtered view. renderDashboard's zero-result branch showed #dash-empty for BOTH situations, and #dash-empty is the first-run onboarding CTA: 'No assets yet - Tap the + button to add your first asset and set up its PM schedule.' So a supervisor in Lucena - 31 REGISTERED PM assets - who tapped the 'On Track' chip (Lucena has 0 on track) was told their PM program was empty and instructed to create their first asset. The correctly-worded element existed the whole time: '#no-results - No PM tasks match those filters.' was authored, styled, and referenced NOWHERE in the code. A grep for 'no-results' returned exactly ONE hit, the markup line. Proven live before fixing: clicking On Track took the list 10 cards -> 0 cards with #no-results still hidden. AN INSTRUMENT CORRECTION EN ROUTE: my first attempt drove a bogus value into the category combobox and nothing happened - because that filter only applies on an EXACT match, so a typed-but-unknown value is correctly ignored. The page was right and my probe was wrong; the real path to a zero-result state is a status chip. FIXED by discriminating on enriched.length (did this hive EVER have assets?) rather than on the filtered count. Verified live in three states: normal 10 cards with neither message, filtered-to-nothing showing only 'No PM tasks match those filters.', and restored back to 10. GATED by extending tools/validate_empty_state_discrimination.py - the existing D3 gate from the logbook team-search bug - rather than writing a new one. It went RED on my correct fix first: its detector only recognised the `classList.remove('hidden')` idiom, while pm-scheduler's #no-results uses the `hidden` ATTRIBUTE. Taught the gate that shape (both are valid, and it was blind to the attribute idiom on ANY page) instead of bending the code. Teeth re-proven after teaching: reverting the fix -> exit 1."
     },
     "PM02": {
       "type": "T2-core",
@@ -74,13 +83,23 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Register a PM asset -> scope items -> frequency. G: the PDDA arc mapped the 3-screen wizard (screen-dashboard / screen-add / screen-detail), saveAsset/saveNewTask, and the canonical FREQ registry + canonFreq()."
+      "walked": {
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-new-asset",
+          "S-scope-item-add",
+          "S-worker-registration-attempt"
+        ]
+      },
+      "notes": "Register a PM asset -> scope items -> frequency. G: the PDDA arc mapped the 3-screen wizard (screen-dashboard / screen-add / screen-detail), saveAsset/saveNewTask, and the canonical FREQ registry + canonFreq(). WALKED 2026-07-28 - CLEAN on every axis this arc has reason to doubt. The asset insert CONFIRMS (.from('pm_assets').insert(payload).select().single()) and the scope-item insert confirms too, so neither can report a write that landed nowhere. Partial failure is reported HONESTLY: if the asset saves but its scope items fail, the toast says 'Asset saved but scope items failed. Please edit and retry.' rather than claiming the whole registration succeeded - the same discipline as the PM4 logbook mirror. AND IT CLOSES PM8's OPEN QUESTION: the frequency <select> is built from FREQ.map(f => f.key), so the six canonical keys are the ONLY values a user can choose. Combined with PM16's template audit, that makes the view's ELSE-30 catch-all UNREACHABLE from the UI - the latent bomb can only be armed by an import, and that path now routes through whFreqFromDays. SECOND PERSONA (worker) WALKED, and it completes the CRUD sweep on pm_assets that PM12 and PM3 started. goAddAsset() is supervisor-gated in the UI, but a WORKER inserting a pm_asset into their OWN hive succeeds at the database - 1 row, probed rolled-back. That is the THIRD verb of the same UI-only-gate class (PM12 closed DELETE, PM3 closed UPDATE, INSERT is still open). LOWER SEVERITY than the other two, stated plainly: the row lands in the worker's OWN hive and is self-authored, so it is not a cross-tenant hole. What it does allow is a member the UI says cannot add assets adding one anyway, which moves the PM compliance DENOMINATOR for their hive. NOT SHIPPED, AND THE REASON IS MEASURED rather than assumed: asset-hub's resolvePmAssetId() lazily CREATES a pm_assets row on demand when an RCM strategy is linked to a scope item, with no role gate of its own. A supervisor-only INSERT guard would break that flow for every worker using RCM - the same trap that would have broken all 90 asset renames in PM3, caught the same way. The fix pattern is already established (route the system-owned creation through a SECURITY DEFINER RPC, as sync_pm_asset_identity does, THEN add the guard) but it needs asset-hub's newRow construction moved into the function, so it is queued rather than rushed. The 72-of-91 worker-authored assets in the data are SEEDER output (service_role), not evidence that workers create assets through the page - checked, because that number would otherwise have argued the gate was wrong."
     },
     "PM03": {
       "type": "T2-core",
@@ -409,14 +428,22 @@
         "pm-scheduler.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Templates + scope-item reuse across assets. G partial: populateTemplateOptions / selectTmplCat / pickTaskChip mapped; whether a template edit propagates to assets already using it is unwalked."
+      "walked": {
+        "personas": [
+          "P-supervisor"
+        ],
+        "states": [
+          "S-template-pick",
+          "S-custom-item"
+        ]
+      },
+      "notes": "Templates + scope-item reuse across assets. G partial: populateTemplateOptions / selectTmplCat / pickTaskChip mapped; whether a template edit propagates to assets already using it is unwalked. WALKED 2026-07-28 - CLEAN, and it supplies the last piece of PM8's reachability proof. Audited every frequency literal in PM_TEMPLATES: exactly four distinct values (Monthly, Quarterly, Semi-Annual, Yearly), ALL in the canonical vocabulary - 'Yearly' resolves through canonFreq to Annual and the view maps it to 365. So no template can plant a scope item that silently becomes a 30-day schedule. Templates route through canonFreq on both the wizard path (freq: canonFreq(t.freq) || t.freq) and the save path, and custom items go through the same constrained <select>. Combined with PM2, every UI path into pm_scope_items.frequency is vocabulary-bounded, so the view's ELSE 30 is dead code from the UI's side - it can only be reached by an import, which PM8 fixed."
     },
     "PM17": {
       "type": "T6-fabric",

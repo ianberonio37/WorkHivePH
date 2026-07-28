@@ -1668,13 +1668,23 @@ function renderDashboard() {
     (STATUS_RANK[a.overall] ?? 9) - (STATUS_RANK[b.overall] ?? 9) || soonestDue(a) - soonestDue(b)
   );
 
+  // PM1 (PM deepwalk, 2026-07-28): "nothing matched your filter" and "you have no assets" are
+  // DIFFERENT situations and must not share a message. This branch showed dash-empty for both, so a
+  // supervisor in a hive with 31 registered assets who tapped the "On Track" chip (Lucena has 0 on
+  // track) was told "No assets yet - Tap the + button to add your first asset and set up its PM
+  // schedule." The correctly-worded #no-results element was authored, styled, and referenced NOWHERE
+  // in the code - a dead empty state. Walked live: 10 cards -> 0 cards, #no-results still hidden.
+  const noResults = document.getElementById('no-results');
   if (!filtered.length) {
-    empty.classList.remove('hidden');
+    const neverHadAny = enriched.length === 0;
+    empty.classList.toggle('hidden', !neverHadAny);
+    if (noResults) noResults.hidden = neverHadAny;
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     document.getElementById('pm-load-more-wrap').classList.add('hidden');
     return;
   }
   empty.classList.add('hidden');
+  if (noResults) noResults.hidden = true;
 
   const visible = filtered.slice(0, _pmDisplayCount);
   const pmWrap = document.getElementById('pm-load-more-wrap');

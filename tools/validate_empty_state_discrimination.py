@@ -43,6 +43,15 @@ ROOT = Path(__file__).resolve().parent.parent
 SERVER_FILTERED_VIEWS = {
     "logbook.html":     ("renderEntries",  "empty-state", "no-results", "_viewMode"),
     "marketplace.html": ("renderListings", "empty-state", "no-results", "_filterActive"),
+    # PM1 (PM deepwalk, 2026-07-28): the same class, client-filtered. pm-scheduler's 0-result branch
+    # showed dash-empty ("No assets yet - Tap the + button to add your first asset and set up its PM
+    # schedule") for BOTH situations, so a supervisor in a hive with 31 registered assets who tapped
+    # the "On Track" chip (Lucena has 0 on track) was told their PM program was empty and instructed
+    # to create their first asset. The correctly-worded #no-results element was authored, styled, and
+    # referenced NOWHERE in the code — a dead empty state. Walked live: 10 cards -> 0 cards, with
+    # #no-results still hidden. The discriminator here is `enriched.length` (did this hive ever have
+    # assets?) rather than a view/filter flag.
+    "pm-scheduler.html": ("renderDashboard", "dash-empty", "no-results", "enriched.length"),
 }
 
 
@@ -90,6 +99,11 @@ def _branch_is_discriminated(branch: str, no_results_id: str, discriminator: str
     routes_no_results = bool(
         re.search(r"(noResults?|noRes)\b[^\n]*remove\(\s*['\"]hidden['\"]\s*\)", branch)
         or re.search(r"getElementById\(\s*['\"]" + re.escape(no_results_id) + r"['\"]\s*\)[^\n]*remove\(\s*['\"]hidden['\"]", branch)
+        # The `hidden` ATTRIBUTE is as valid as the `hidden` CLASS, and pm-scheduler's #no-results
+        # uses it. Recognising only the class idiom made this gate blind to a correct fix on any page
+        # that authored its empty state with the attribute — it went red on live-verified code
+        # (PM1, 2026-07-28). Accept `el.hidden = <expr>` on a no-results-ish binding.
+        or re.search(r"(noResults?|noRes)\b\s*\.\s*hidden\s*=", branch)
         or re.search(r"no\s+\w+\s+match|match\s+(those\s+)?(filter|search)|match\s+your\s+(search|filter)", branch, re.IGNORECASE)
     )
     has_discriminator = discriminator in branch
