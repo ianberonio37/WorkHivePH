@@ -188,8 +188,13 @@
     .filter-chip:hover:not(.active) { color: rgba(255,255,255,0.8); border-color: rgba(255,255,255,0.25); }
 
     /* Completion checkbox in detail view */
+    /* PM15 (PM deepwalk, 2026-07-28): measured 36x36 at a true 390px viewport. This is the PRIMARY
+       at-the-asset action — a technician standing at a machine, often gloved, recording that a PM
+       was done — and it was the smallest target on the screen after the shared chrome. 44px is the
+       platform's mobile-fit floor; WCAG 2.5.8's 24px minimum is not the right bar for the one
+       control this whole journey exists to press. */
     .complete-btn {
-      min-height: 36px; min-width: 36px; border-radius: 50%;
+      min-height: 44px; min-width: 44px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       border: 2px solid rgba(255,255,255,0.2); background: transparent;
       cursor: pointer; transition: all 0.15s; flex-shrink: 0;
@@ -358,13 +363,16 @@
       <div class="simple-card tag-grey" id="pm-card-duesoon" data-rag-tile="pm-scheduler:due_soon" data-rag-label="Due soon (14d)">
         <h2 class="sc-label" style="margin:0;" data-i="duesoon">Due soon (14d)</h2>
         <div class="sc-hero" id="stat-duesoon">0</div>
-        <div class="sc-sub" id="pm-duesoon-sub">Next 14 days</div>
+        <div class="sc-sub" id="pm-duesoon-sub" style="min-height:2.8em;">Next 14 days</div>
         <span class="sc-tag" id="pm-duesoon-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="pm-card-ontrack" data-rag-tile="pm-scheduler:on_track" data-rag-label="On track">
         <h2 class="sc-label" style="margin:0;" data-i="ontrack">On track</h2>
         <div class="sc-hero" id="stat-ontrack">0</div>
-        <div class="sc-sub" id="pm-ontrack-sub">Compliance %</div>
+        <!-- PM15: reserve the THREE lines this fills at 390px ("0 of 31 on track now - 88% PM
+             compliance (SMRP)"). Measured deficit 31px against its one-line placeholder; that
+             growth is most of the row's 137->184px jump and the page's 0.13 CLS. -->
+        <div class="sc-sub" id="pm-ontrack-sub" style="min-height:4.2em;">Compliance %</div>
         <!-- PMK1: compliance counts a PM done inside its period however late, so it can read
              world-class while the schedule slips. This line carries the half it omits.
              min-height reserves the TWO lines the filled value occupies (measured 31px at both 390px
@@ -447,7 +455,7 @@
 
     <!-- Wizard header -->
     <div class="mb-6">
-      <button onclick="goBack()" class="flex items-center gap-1.5 text-white/80 hover:text-white/70 text-sm mb-4 transition-colors">
+      <button onclick="goBack()" style="min-height:44px;" class="flex items-center gap-1.5 text-white/80 hover:text-white/70 text-sm mb-4 transition-colors">
         <span class="ic ic-back" aria-hidden="true"></span>
         <span data-i="back">Back</span>
       </button>
@@ -627,13 +635,13 @@
 
     <!-- Back + actions -->
     <div class="flex items-center justify-between mb-5">
-      <button onclick="goBack()" class="flex items-center gap-1.5 text-white/80 hover:text-white/70 text-sm transition-colors">
+      <button onclick="goBack()" style="min-height:44px;" class="flex items-center gap-1.5 text-white/80 hover:text-white/70 text-sm transition-colors">
         <span class="ic ic-back" aria-hidden="true"></span>
         <span data-i="back">Back</span>
       </button>
       <div class="flex gap-2">
-        <button id="btn-edit-asset" class="hidden text-xs font-bold px-3 py-2 rounded-lg transition-colors" style="background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue-text);" onclick="openEditPMAsset()" data-i="editasset">Edit Asset</button>
-        <button id="btn-delete-asset" class="btn-danger hidden" onclick="confirmDeleteAsset()" data-i="deleteasset">Delete Asset</button>
+        <button id="btn-edit-asset" class="hidden text-xs font-bold px-3 py-2 rounded-lg transition-colors" style="min-height:44px;background:rgba(41,182,217,0.12);border:1px solid rgba(41,182,217,0.3);color:var(--wh-blue-text);" onclick="openEditPMAsset()" data-i="editasset">Edit Asset</button>
+        <button id="btn-delete-asset" class="btn-danger hidden" style="min-height:44px;" onclick="confirmDeleteAsset()" data-i="deleteasset">Delete Asset</button>
       </div>
     </div>
 
@@ -674,7 +682,7 @@
       <div id="det-history" class="divide-y divide-white/5"></div>
       <div id="det-history-empty" class="hidden text-center py-6 text-white/80 text-xs">No completions recorded yet. Completions land here once a PM task is done.</div>
       <div id="det-history-more" class="hidden mt-3">
-        <button onclick="loadMoreHistory()" class="w-full py-2.5 rounded-xl text-xs font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
+        <button onclick="loadMoreHistory()" class="w-full py-2.5 rounded-xl text-xs font-semibold" style="min-height:44px;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
       </div>
     </div>
 

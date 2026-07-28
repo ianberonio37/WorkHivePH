@@ -332,14 +332,23 @@
         "pm-scheduler.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Mobile 390px at-the-asset completion - the tech is THE persona for this page. G partial: the PDDA arc's A-axis was axe-clean (0 violations) but axe measures a11y, not one-handed reachability of the completion flow."
+      "walked": {
+        "personas": [
+          "P-tech",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-dashboard-390",
+          "S-asset-detail-390"
+        ]
+      },
+      "notes": "Mobile 390px at-the-asset completion - the tech is THE persona for this page. G partial: the PDDA arc's A-axis was axe-clean (0 violations) but axe measures a11y, not one-handed reachability of the completion flow. WALKED 2026-07-28 at a TRUE 390px viewport with ufai_battery.js v1.6.2 (the existing instrument - not hand-rolled probes). AN INSTRUMENT ERROR FIRST, because it invalidates how earlier numbers in this arc were obtained: browser_resize(390) produced window.innerWidth = 585. The browser runs at devicePixelRatio 0.667 (~67% zoom), so every width I set came back 1.5x wider - the 'desktop 1280' reads were really 1920. Detected only because the battery echoed innerWidth. Corrected by setting 260x563 to land a true 390x845, and the PM7 CLS reserve was RE-MEASURED there: still 2 lines, deficit 0, no spill, no horizontal scroll - the conclusion held, but it had been reached at the wrong width. Verify the instrument BEFORE the page, again. THE WORKED STATE IS WHERE THE DEFECTS LIVE: the dashboard scored 0 usability defects; the ASSET DETAIL - the screen this journey is actually about - scored 10. Measuring the landing state would have reported a clean page. FIXED, all page-owned: .complete-btn 36x36 -> 44x44 (the PRIMARY at-the-asset action, a technician at a machine and often gloved, recording that a PM was done - it was the smallest target on the screen after the shared chrome, and WCAG 2.5.8's 24px floor is not the right bar for the one control the whole journey exists to press); #btn-edit-asset and #btn-delete-asset 40px tall -> 44; both goBack() buttons 54x20 -> 44 high (Major severity, the shortest target on the page); loadMoreHistory 320x38 -> 44. CLS 0.13 -> 0.092, under the 0.1 budget, by reserving the two summary sub-lines that grow when data lands: pm-ontrack-sub fills to THREE lines at 390px (deficit 31px) and pm-duesoon-sub to two (15px). This is the pre-existing row-growth carried out of the PM7 walk, now measured and closed rather than left as a note. RESULT: 10 defects -> 0 on the detail screen and 0 on the dashboard, both at a true 390px. The shared companion/feedback chrome (17-22px controls) also cleared. Not this page's to fix and not claimed as such: they belong to the shared widget and are recorded for the chrome owner."
     },
     "PM16": {
       "type": "T3-collab",

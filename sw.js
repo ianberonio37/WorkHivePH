@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v220';  // bump: an offline PM completion retried after a lost response is no longer dead-lettered as stuck - without this bump an installed user keeps a queue that reports saved work as stuck
+const CACHE_NAME  = 'workhive-shell-v221';  // bump: the at-the-asset completion control is a 44px target and the summary row no longer shifts - without this bump an installed user keeps the 36px button
+// const CACHE_NAME  = 'workhive-shell-v220';  // bump: an offline PM completion retried after a lost response is no longer dead-lettered as stuck - without this bump an installed user keeps a queue that reports saved work as stuck
 // const CACHE_NAME  = 'workhive-shell-v219';  // bump: deleting a PM asset is supervisor-gated at the database and confirms its own write - without this bump an installed user keeps a page that reports a refused delete as done
 // const CACHE_NAME  = 'workhive-shell-v218';  // bump: analytics no longer claims a saved snapshot was recomputed live - without this bump an installed user keeps a chip that overstates how fresh the numbers are
 // const CACHE_NAME  = 'workhive-shell-v217';  // bump: one shared interval->frequency mapping in utils.js - without this bump an installed user keeps the import that turns a daily PM into a weekly one

@@ -212,15 +212,19 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
    23505, was dead-lettered, and the widget told the worker their saved PM was **stuck**. Fixed in
    the shared drain as an OPT-IN (`insertDedupIndexed`), because it is only sound where the unique
    index is a true idempotency key; gated three ways.
-10. **PM15** — the mobile-390px at-the-asset completion path.
+10. ~~**PM15** — the mobile-390px completion path.~~ Done, with an instrument correction that
+    matters: `browser_resize(390)` was yielding `innerWidth` **585** (the browser runs at dpr 0.667,
+    so every width came back 1.5x). Re-measured at a true 390 via a 260-wide window. The dashboard
+    scored **0** usability defects; the asset DETAIL scored **10** — the worked state is where they
+    live. All page-owned targets fixed (`.complete-btn` 36→44, edit/delete 40→44, Back 20→44, Load
+    More 38→44) and CLS 0.13 → **0.092** by reserving the two growing sub-lines. 10 → 0 on both
+    screens.
 11. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
 
-**Carried out of the PM7 walk (found by the full-page diff, not the card):** the three summary cards
-share a first-paint reserve deficit — the row grows 137px → 184px at 390px when the data lands,
-because each `.sc-sub` placeholder is one line and fills to two or three. My own added line was
-brought to zero (`min-height:2.8em`), but the pre-existing three are untouched and belong to a
-render/CLS cell rather than PMK1. `.sc-sub` is shared across ~17 pages, so the fix is a scoped
-per-card reserve, not a change to the shared class.
+**Carried out of the PM7 walk, CLOSED by PM15:** the summary cards shared a first-paint reserve
+deficit — each `.sc-sub` placeholder is one line and fills to two or three, which was most of the
+page's 0.13 CLS. Closed with scoped per-card reserves (`.sc-sub` is shared across ~17 pages, so the
+fix is per-card, never a change to the shared class). CLS now **0.092**.
 
 ---
 
