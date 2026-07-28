@@ -161,7 +161,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <h1 class="ptitle" id="cov-title" translate="no">Project Report</h1>
 <details class="wh-help">
   <summary>How this page works</summary>
-  <p>How to read this report: CPI and SPI above 1.0 mean under budget and ahead of schedule. Figures come from the linked project’s live records.</p>
+  <p>How to read this report: SPI above 1.0 means ahead of schedule. Figures come from the linked project’s live records. There is no cost performance index (CPI) here, and that is deliberate: the platform holds no cost ledger, so the only actual cost it can compute is logged hours × an assumed rate — labour alone. Dividing a whole-project budget by labour-only spend would flatter cost performance by whatever share of the budget is materials, equipment and contractors. The labour figure is shown on its own instead, labelled for what it is.</p>
 </details>
     <div>
       <span class="ptype-pill"  id="cov-type">type</span>
@@ -202,7 +202,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       Measurement / EVM), <strong>IDCON 6-Phase</strong> shutdown management model, and
       <strong>ISO 21500:2021</strong> (Guidance on project management). Critical path
       computed via Forward + Backward Pass (PMBOK &sect;6.5.2.2). Earned Value formulas:
-      PV = BAC &times; planned %, EV = BAC &times; actual %, AC = labour hours &times; rate.
+      PV = BAC &times; planned %, EV = BAC &times; actual %, SPI = EV / PV. CPI is deliberately
+      omitted: it requires an actual cost, the platform holds no cost ledger, and labour hours
+      &times; an assumed &#8369;200/hour covers only part of a project&rsquo;s spend. Labour to date
+      is reported as its own figure instead.
     </p>
   </div>
 </div>
@@ -292,6 +295,33 @@ async function loadAndRender(projectId) {
   const items   = itemsRes.data || [];
   const links   = linksRes.data || [];
   const logs    = logsRes.data  || [];
+
+  // PJ16 — the budget has to be ASKED FOR now, and this report had stopped asking.
+  //
+  // PJ9 made projects.budget_php supervisor-only and removed it from v_project_truth, because the
+  // view is security_invoker and a revoked base column would break every select('*') caller. This
+  // page selects('*') from that view, so `project.budget_php` became undefined — and the entire
+  // EVM block is behind `if (p.budget_php && ...)`, so Budget, Earned Value, SPI/CPI and EVM
+  // Status ALL disappeared from the client-facing report without a word. Confirmed live on
+  // CAP-2026-001, which carries a PHP 1,850,000 budget and rendered none of it.
+  //
+  // I made the same mistake in the project-progress edge function and fixed it there, reasoning
+  // "service_role, so unaffected" — true of the PRIVILEGE, false of the COLUMN. A dropped column
+  // does not care what role you are. This is the second surface of one change, and the reason the
+  // truth-view consumer-column gate exists.
+  //
+  // get_project_budget() is the sanctioned read: SECURITY DEFINER, supervisor-only, same predicate
+  // as set_project_budget. `ok:false` means the reader is not a supervisor — which is a legitimate
+  // state for a report opened by a worker, and is SAID rather than silently rendered as an absent
+  // section.
+  let budgetPhp = null, budgetWithheld = false;
+  try {
+    const { data: b } = await db.rpc('get_project_budget', { p_project_id: projectId });
+    if (b && b.ok) budgetPhp = b.budget_php;
+    else if (b && b.ok === false) budgetWithheld = true;
+  } catch (_) { /* empty-catch-allow: a failed budget read must not take the whole report down */ }
+  project.budget_php = budgetPhp;
+  project._budget_withheld = budgetWithheld;
   document.title = `${project.project_code}: Project Report`;
   $('tb-title').textContent = `${project.project_code}: ${project.name}`;
   // Phase 6.1 — feed floating-ai context for this project
@@ -398,6 +428,16 @@ function renderExecSummary(p, items, logs) {
   else                              hero = `${p.project_code} is ${pct}% complete: ${items.length} scope items defined, ${itemsDone} done.`;
 
   let evHtml = '';
+  // PJ16 — an absent cost section used to look identical whether the budget was withheld, never
+  // set, or the dates were missing. On a document a client signs, "no cost figures here" needs a
+  // reason attached, or the reader is left to assume the project simply has no budget.
+  if (!p.budget_php && (p._budget_withheld || p.start_date)) {
+    evHtml = `<p class="muted" style="margin:0 0 12px; font-size:10pt;">${
+      p._budget_withheld
+        ? 'Cost performance (budget, earned value, CPI) is not shown: the budget is visible to hive supervisors only, and this report was opened by a non-supervisor.'
+        : 'Cost performance (budget, earned value, CPI) is not shown: no budget has been set for this project.'
+    }</p>`;
+  }
   if (p.budget_php && p.start_date && p.end_date) {
     const BAC = Number(p.budget_php);
     const dt = (a, b) => a && b ? Math.max(1, Math.ceil((new Date(b) - new Date(a)) / 86400000)) : 0;
@@ -406,18 +446,60 @@ function renderExecSummary(p, items, logs) {
     const plannedPct  = Math.min(1, daysElapsed / daysTotal);
     const PV  = BAC * plannedPct;
     const EV  = BAC * (pct / 100);
-    const AC  = hoursAct * 200;
+    // PJ16 — this rate is an ASSUMPTION, and this is a document a client signs.
+    //
+    // The platform has no cost ledger, so Actual Cost is derived as logged hours x a labour rate.
+    // The rate is not configurable anywhere and no caller passes one, so every project on the
+    // platform is costed at the same figure regardless of trade, shift or region. CPI is EV/AC, so
+    // the CPI printed here is wrong by exactly the ratio of the real rate to this one.
+    //
+    // canonical/formula_contracts.json already declares evm_cpi_spi_pmbok a partial_variant for
+    // precisely this reason. That honesty existed in the contract and never reached the customer:
+    // the report presented CPI as a measured fact and told the reader "figures come from the linked
+    // project's live records", which is true of every number here EXCEPT this one.
+    //
+    // The number stays, because the trend it shows is still useful and suppressing it would leave
+    // the reader with less. What changes is that the assumption is now printed next to it, so
+    // nobody signs a cost conclusion believing it came from their payroll.
+    const AC_LABOUR_RATE_PHP_PER_HOUR = 200;
+    const labourCost = hoursAct * AC_LABOUR_RATE_PHP_PER_HOUR;
     const SPI = PV > 0 ? (EV / PV).toFixed(2) : '-';
-    const CPI = AC > 0 ? (EV / AC).toFixed(2) : '-';
-    const min = Math.min(SPI === '-' ? 1 : Number(SPI), CPI === '-' ? 1 : Number(CPI));
-    const cls = min >= 0.95 ? 'green' : min >= 0.85 ? 'amber' : 'red';
-    evHtml = `
+
+    // CPI IS DELIBERATELY NOT PRINTED, and this is the honest call rather than the cautious one.
+    //
+    // CPI = EV / AC. EV is a share of the WHOLE budget — materials, equipment, contractors and
+    // labour. AC here could only ever be logged hours x an assumed rate, because the platform has
+    // no cost ledger. Those two are not the same category of money, so the ratio is not a slightly
+    // imprecise cost index; it is a comparison between a full project budget and a labour-only
+    // spend. Measured on CAP-2026-001: BAC PHP 1,850,000, EV PHP 1,184,000, 277 logged hours ->
+    // AC PHP 55,400 -> CPI 21.36. A signed report telling a client their project returns twenty-one
+    // pesos of value per peso spent is worse than telling them nothing.
+    //
+    // My first pass kept CPI and printed the rate assumption beside it. Seeing 21.36 on a real
+    // project showed that a footnote cannot rescue a number that is wrong by an order of magnitude
+    // for structural reasons — the disclosure was true and the figure was still indefensible.
+    //
+    // What replaces it is a statement that IS true: the labour cost logged so far, at a named
+    // assumed rate, clearly not claimed to be total spend. SPI stays, because it is method-sound —
+    // both sides come from the project's own budget and dates. EVM status therefore reflects
+    // SCHEDULE only, and says so, rather than blending a sound index with a broken one.
+    const spiNum = SPI === '-' ? 1 : Number(SPI);
+    const cls = spiNum >= 0.95 ? 'green' : spiNum >= 0.85 ? 'amber' : 'red';
+    evHtml += `
       <div class="kpi-strip">
         <div class="kpi"><div class="kpi-label">Budget (BAC)</div><div class="kpi-value">${e(fmtPHP(BAC))}</div></div>
-        <div class="kpi"><div class="kpi-label">Earned (EV)</div><div class="kpi-value">${e(fmtPHP(EV))}</div></div>
-        <div class="kpi ${cls}"><div class="kpi-label">SPI / CPI</div><div class="kpi-value">${e(SPI)} / ${e(CPI)}</div><div class="kpi-sub">schedule / cost</div></div>
-        <div class="kpi ${cls}"><div class="kpi-label">EVM Status</div><div class="kpi-value" style="font-size: 14pt; text-transform: uppercase;">${e(cls)}</div><div class="kpi-sub">AACE 80R-13</div></div>
-      </div>`;
+        <div class="kpi"><div class="kpi-label">Earned (EV)</div><div class="kpi-value">${e(fmtPHP(EV))}</div><div class="kpi-sub">budget &times; ${e(String(pct))}% complete</div></div>
+        <div class="kpi ${cls}"><div class="kpi-label">SPI</div><div class="kpi-value">${e(SPI)}</div><div class="kpi-sub">schedule performance</div></div>
+        <div class="kpi ${cls}"><div class="kpi-label">Schedule Status</div><div class="kpi-value" style="font-size: 14pt; text-transform: uppercase;">${e(cls)}</div><div class="kpi-sub">AACE 80R-13 &middot; schedule only</div></div>
+      </div>
+      <p class="muted" style="margin:-4px 0 12px; font-size:9.5pt;">
+        Labour logged to date: <strong>${e(fmtPHP(labourCost))}</strong>
+        (${e(hoursAct.toFixed(0))} hours &times; an assumed ${e(fmtPHP(AC_LABOUR_RATE_PHP_PER_HOUR))}/hour).
+        This is labour only &mdash; it excludes materials, equipment and contractors, and it is not
+        drawn from a cost ledger. A cost performance index (CPI) is not shown for that reason:
+        comparing a whole-project budget against labour-only spend would overstate cost performance
+        by whatever share of the budget is not labour.
+      </p>`;
   }
 
   $('exec-summary').innerHTML = `

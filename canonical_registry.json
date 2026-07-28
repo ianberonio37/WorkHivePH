@@ -8084,11 +8084,11 @@
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
-    "guard_progress_log_is_mine": {
-      "defined_in": "20260728000033_a_progress_report_carries_who_filed_it.sql",
+    "bind_progress_log_submitter": {
+      "defined_in": "20260728000035_the_progress_log_pin_joins_the_bind_convention.sql",
       "args": "(trigger)",
       "security_definer": true,
-      "comment": "BEFORE INSERT on project_progress_logs. Stamps auth_uid and forces reported_by to the caller's own hive_members.worker_name. Before this the table had no auth_uid at all and a live probe filed a report as another worker - which also defeated migration 027's no-self-ack rule, since that rule is matched on reported_by. PJ17.",
+      "comment": "BEFORE INSERT on project_progress_logs. Stamps auth_uid and forces reported_by to the caller's own hive_members.worker_name. Renamed from guard_progress_log_is_mine to join the platform's bind_* convention, which the DB-adoption census uses to recognise a server-side attribution pin. PJ17.",
       "called_by_surfaces": [
         "project-manager.html"
       ],

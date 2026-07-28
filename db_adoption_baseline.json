@@ -1,6 +1,6 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-07-28T08:54:05.041376+00:00",
+  "generated": "2026-07-28T09:43:38.301323+00:00",
   "surfaces": 161,
   "rows": [
     {
@@ -235,8 +235,8 @@
       "name": "auth_uid ownership policy",
       "satisfies": "write attribution",
       "mode": "measured",
-      "adopters_n": 27,
-      "need_n": 27,
+      "adopters_n": 28,
+      "need_n": 28,
       "pct": 100,
       "adopters": [
         "agent_memory",
@@ -256,6 +256,7 @@
         "platform_feedback",
         "pm_assets",
         "pm_completions",
+        "project_progress_logs",
         "projects",
         "resume_documents",
         "resume_versions",
@@ -340,7 +341,7 @@
       "name": "bind_* attribution triggers",
       "satisfies": "attribution pin",
       "mode": "census-only",
-      "adopters_n": 14,
+      "adopters_n": 15,
       "adopters": [
         "analytics_events",
         "asset_nodes",
@@ -354,6 +355,7 @@
         "platform_feedback",
         "pm_assets",
         "pm_completions",
+        "project_progress_logs",
         "projects",
         "voice_journal_entries"
       ]
@@ -362,7 +364,7 @@
   "floors": {
     "D1": 102,
     "D2": 98,
-    "D3": 27,
+    "D3": 28,
     "D4": 49
   }
 }

@@ -366,17 +366,24 @@
     "PJ16": {
       "title": "Client rollup - the number a customer is shown",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-budget-set",
+          "S-no-budget",
+          "S-budget-withheld"
+        ]
       },
-      "notes": ""
+      "notes": "CLIENT ROLLUP — the number a customer is shown, on project-report.html, the printable document whose footer reads 'By signing below, the parties acknowledge...'.\nFIND 1 — MY OWN PJ9 REGRESSION, SECOND SURFACE. PJ9 made projects.budget_php supervisor-only and dropped it from v_project_truth. This page does select('*') from that view, so project.budget_php became undefined — and the whole EVM block sits behind `if (p.budget_php && ...)`, so Budget, Earned Value, SPI/CPI and EVM Status ALL vanished from the client report without a word. Proven live on CAP-2026-001, which carries a PHP 1,850,000 budget and rendered none of it. I made the identical mistake in the project-progress edge fn and fixed it there reasoning 'service_role, so unaffected' — true of the PRIVILEGE, false of the COLUMN. Fixed: the page now reads the budget through get_project_budget() (the sanctioned supervisor-only RPC).\nFIND 2 — AND THE FIX I FIRST WROTE WAS NOT ENOUGH. AC was `hoursAct * 200`, a hardcoded rate, while the page told the reader 'Figures come from the linked project's live records'. My first pass kept CPI and printed the rate assumption beside it. Then I looked at the RESTORED number on a real project: CPI 21.36. EV is a share of the WHOLE budget (materials, equipment, contractors, labour); AC could only ever be labour hours x an assumed rate, because there is no cost ledger. Those are different categories of money, so the ratio is not an imprecise index — on a PHP 1.85M capex job with 277 logged hours it says the client gets twenty-one pesos of value per peso spent. A footnote cannot rescue a number that is wrong by an order of magnitude for structural reasons. CPI is now NOT PRINTED. SPI stays (method-sound: both sides from the project's own budget and dates), the status tile says 'schedule only', and the labour actually logged is reported as its own figure — 'Labour logged to date: PHP 55,440 (277 hours x an assumed PHP 200/hour), labour only, excludes materials/equipment/contractors'. A true statement replaces a false one rather than a disclosed false one.\nFIND 3 — AN ABSENT SECTION NEEDED A REASON. Withheld, never-set and missing-dates all rendered identically: nothing. On a signed document that leaves the reader to assume the project has no budget. Each now states which it is. VERIFIED in all three states and BOTH personas: supervisor with a budget (tiles + labour line), supervisor without one ('no budget has been set'), and worker ('visible to hive supervisors only' — with the PHP 1,850,000 figure confirmed absent from the page while the rest of the report still renders).\nSTATED, NOT FIXED: the project-manager detail Budget pane still shows the python engine's CPI, which rests on the same labour-only proxy. That surface is internal (supervisor-facing) rather than a signed client document, and canonical/formula_contracts.json already declares evm_cpi_spi_pmbok a partial_variant for exactly this reason. Left open deliberately rather than silently widening this journey's scope."
     },
     "PJ17": {
       "title": "Offline / queued project writes",

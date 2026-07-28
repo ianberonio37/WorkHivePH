@@ -3,9 +3,9 @@
 Generated for 54 uncovered CHECK(s) across 11 per-page validators. Each check is one rule
 the platform should obey - and currently no Playwright spec exercises it.
 
-**Check coverage:** 82.7% (272 of 329 per-page checks - HONEST behavioral coverage)
-**Topic coverage:** 93.6% (44 of 47 per-page validators - loose, validator-level)
-**Raw coverage:** 77.3% (317 of 410 validators)
+**Check coverage:** 82.7% (273 of 330 per-page checks - HONEST behavioral coverage)
+**Topic coverage:** 93.8% (45 of 48 per-page validators - loose, validator-level)
+**Raw coverage:** 77.4% (318 of 411 validators)
 
 Each section below groups uncovered checks by validator. Use the per-check
 list as your test backlog - one scenario per check, not one scenario per
