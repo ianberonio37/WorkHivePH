@@ -89,12 +89,22 @@ def seed_sensor_readings(client, log, ctx: dict) -> dict:
                     if _anomaly_pattern(day_idx, DAYS):
                         lo, hi = prof["anomaly_burst"]
                         v = random.uniform(lo, hi)
-                        quality = "uncertain"
+                        # AH16 (2026-07-28): an anomaly burst used to be written as
+                        # quality_flag='uncertain', which says the SENSOR is unreliable. That is
+                        # the wrong claim and it is the same conflation migration
+                        # 20260728000018 untangles: this is a trustworthy reading of a machine
+                        # behaving badly. So the reading is 'good' quality AND is_anomaly.
+                        # Measured before the fix: 0 of 77,814 readings had is_anomaly true, so
+                        # the asset-hub anomaly banner, index.html's Today ranker and
+                        # get_hive_dashboard all read a flag no row could ever carry.
+                        quality = "good"
+                        anomaly = True
                     else:
                         # Smooth seasonal-ish curve so the chart isn't pure noise
                         seasonal = math.sin((t.hour * 60 + t.minute) / 1440 * 2 * math.pi) * prof["noise"] * 0.4
                         v = prof["baseline"] + seasonal + random.gauss(0, prof["noise"])
                         quality = "good"
+                        anomaly = False
                     rows.append({
                         "hive_id":      hive_id,
                         "asset_id":     asset_id,

@@ -2169,6 +2169,15 @@
           ? Math.sqrt(values.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1))
           : 0;
         const z = std > 0 ? Math.abs(Number(latest.value) - mean) / std : 0;
+        // AH16 (2026-07-28): say how long this parameter's sample actually spans. mean / range /
+        // sigma are all computed over THESE rows, and the 500-row fetch above usually covers a
+        // few days, not the 30 the card's footer names - a slow drift across the full month reads
+        // as perfectly normal against a 5-day baseline, so the span is what makes sigma readable.
+        const oldest   = list[list.length - 1];
+        const spanMs   = (new Date(latest.recorded_at) - new Date(oldest.recorded_at)) || 0;
+        const spanDays = spanMs / 86400000;
+        const spanTxt  = spanDays >= 1 ? spanDays.toFixed(1) + ' d'
+          : Math.max(1, Math.round(spanMs / 3600000)) + ' h';
         const chip = z >= 3
           ? '<span style="font-size:.55rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:5px; background:rgba(248,113,113,0.18); color:var(--wh-red);">ANOMALY ' + z.toFixed(1) + 'σ</span>'
           : z >= 2
@@ -2183,14 +2192,32 @@
           '    </div>' +
           '    ' + chip +
           '  </div>' +
-          '  <div style="font-size:.6rem; color:var(--muted); margin-top:4px;">n=' + n + ' &middot; mean ' + mean.toFixed(3) + ' &middot; range ' + min.toFixed(2) + '..' + max.toFixed(2) + ' &middot; latest ' + e(latest.recorded_at) + '</div>' +
+          '  <div style="font-size:.6rem; color:var(--muted); margin-top:4px;">n=' + n + ' over ' + e(spanTxt) + ' &middot; mean ' + mean.toFixed(3) + ' &middot; range ' + min.toFixed(2) + '..' + max.toFixed(2) + ' &middot; latest ' + e(latest.recorded_at) + '</div>' +
           '</div>'
         );
       }
       list.innerHTML = blocks.join('');
 
       if (meta) {
+        // AH16 (2026-07-28): this used to read "<rows.length> reading(s) in the last 30 days",
+        // which is a CLAIM about the window when rows.length is really the .limit(500) fetch size.
+        // Measured on RC-001: it said "500 reading(s) in the last 30 days" for an asset with 3,174
+        // - so the footer under-reported by 6x while every mean, range and sigma above it was
+        // computed from that same truncated slice. Same shape as AH5's silent fleet cap, but worse
+        // here because the number is stated as a fact about the window rather than just omitted.
+        const CAP = 500;
         meta.textContent = `${byParam.size} parameter(s) · ${rows.length} reading(s) in the last 30 days`;
+        if (rows.length >= CAP) {
+          const { count } = await db.from('v_sensor_recent')
+            .select('id', { count: 'exact', head: true })
+            .eq('hive_id', HIVE_ID)
+            .eq('asset_id', nodeId);
+          if (count && count > rows.length) {
+            meta.textContent = `${byParam.size} parameter(s) · latest ${rows.length} of `
+              + `${count.toLocaleString()} readings in the last 30 days — the figures above `
+              + `describe this most-recent sample, not the whole window.`;
+          }
+        }
       }
 
       // Realtime: subscribe to new readings for this asset only.

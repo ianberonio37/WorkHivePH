@@ -310,17 +310,26 @@
     "AH16": {
       "title": "Telemetry / sensor panel with and without data",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-reliability"
+        ],
+        "states": [
+          "S-no-telemetry-anywhere",
+          "S-hive-bridged-asset-unmapped",
+          "S-telemetry-at-the-500-cap",
+          "S-telemetry-under-cap",
+          "S-anomaly-present"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28. THE HEADLINE: v_sensor_truth.is_anomaly was defined as quality_flag = 'ANOMALY', and the sensor_readings CHECK allows only good|uncertain|bad|stale. The database FORBADE the one value that would make the flag true - false for all 77,814 readings and always would be, so this is dead by construction, not a fixture gap a reseed fixes. FOUR SURFACES were built on it and none had ever fired: asset-hub's #sensor-anomaly-banner (added in Tier4.4 expressly to close the 'anomaly buried in the per-parameter Z-score chip' gap - so that gap stayed open the whole time; measured live on RC-001, the chip read ANOMALY 4.5-sigma while the banner above it stayed hidden), index.html's Today's One Thing ranker, the get_hive_dashboard RPC, and the Companion source registry. A Playwright parity spec asserts on it and PASSES, because 0 = 0. And formula_contracts.json z_score_anomaly_3sigma claimed since 2026-05-20 that sensor-readings-ingest sets it - that string appears nowhere in the function. Three layers each assuming another did the work. FIX, and why not just widen the CHECK: quality_flag is a DATA-QUALITY field (is this reading trustworthy?); an anomaly is a different claim (the reading is trustworthy AND the machine is behaving oddly). Folding ANOMALY into that enum would make a stale sensor and a failing bearing raise the same flag. So mig ...018 gives the anomaly its own boolean column + partial index, the view keeps its exact column name and position (every consumer untouched, they simply start seeing true), the ingest fn got the z-score writer that was documented but never built, and the contract now describes what exists. Baseline discipline in the writer: incoming rows are judged against history that PRECEDES them, so a batch of identical faulty readings cannot establish its own normal; under 12 samples or zero variance it flags nothing rather than guessing; and a failed baseline pass never drops a bridge's readings. LIVE-PROVEN end to end through the real edge function, not simulated: posted 2 normal vibration readings and one 7.4-sigma outlier -> {inserted:3, anomalies:1}, only the outlier flagged, and the banner rendered for the first time in the platform's life: 'vibration reading 3-sigma off baseline / Latest anomaly at Jul 28, 2026, 11:37 AM. Value: 14.8.' SECOND DEFECT - the telemetry footer claimed the window: it read '500 reading(s) in the last 30 days' for an asset with 3,174, because rows.length IS the .limit(500). Worse than AH5's silent fleet cap, since the number is stated as a fact about the window while every mean, range and sigma above it came from that truncated slice - measured, the sample spans 3.5 days, not 30, so a month-long drift reads as normal. Now: 'latest 500 of 3,174 readings in the last 30 days - the figures above describe this most-recent sample, not the whole window', and each parameter line carries its actual span (n=167 over 3.5 d). Under-cap path proven unchanged at 120 rows by stubbing the query. MY OWN NEAR-MISS, caught by the file-memory hook: CREATE OR REPLACE VIEW does NOT carry reloptions forward - my first apply WIPED security_invoker (pg_class.reloptions went NULL), which would have made a canonical read bypass sensor_readings RLS into a cross-hive leak. Restored, restated in the migration with a comment, and validate_truth_view_security_invoker.py (which already existed) confirms all v_*_truth views green. The seeder also stopped writing anomaly bursts as quality_flag='uncertain', which was the same conflation in fixture form."
     },
     "AH17": {
       "title": "External CMMS ids - the dead card (inherited F18)",

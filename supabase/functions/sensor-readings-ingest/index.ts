@@ -88,6 +88,32 @@ interface ReadingRow {
   recorded_at: string;
   source:      string;
   meta:        Record<string, unknown>;
+  is_anomaly?: boolean;
+}
+
+// ── Z-score anomaly, formula z_score_anomaly_3sigma ──────────────────────────
+// AH16 (2026-07-28): formula_contracts.json has claimed since 2026-05-20 that THIS function
+// "sets quality_flag='ANOMALY' when |z|>3", and it did no such thing — the string appeared
+// nowhere in this file. Meanwhile v_sensor_truth.is_anomaly tested for that same 'ANOMALY'
+// value, which the sensor_readings CHECK constraint forbids, so the flag four surfaces read
+// (the asset-hub banner, index.html's Today ranker, get_hive_dashboard, the Companion registry)
+// could never be true. Migration 20260728000018 gave the anomaly its own boolean column; this
+// is the writer that was documented but never built.
+const ANOMALY_SIGMA        = 3;      // |z| > 3 — the contract's threshold
+const BASELINE_MIN_SAMPLES = 12;     // below this, sigma is not worth trusting; flag nothing
+const BASELINE_WINDOW_DAYS = 30;
+const BASELINE_MAX_ROWS    = 500;
+
+/** Population mean + sample stddev. Returns null when the baseline is too thin to judge. */
+function baselineOf(values: number[]): { mean: number; std: number } | null {
+  const xs = values.filter(v => Number.isFinite(v));
+  if (xs.length < BASELINE_MIN_SAMPLES) return null;
+  const mean = xs.reduce((a, b) => a + b, 0) / xs.length;
+  const std  = Math.sqrt(xs.reduce((a, b) => a + (b - mean) ** 2, 0) / (xs.length - 1));
+  // A perfectly flat baseline gives sigma 0, and every deviation would divide to Infinity.
+  // A constant signal has no anomalies to speak of, so say so rather than flagging everything.
+  if (!(std > 0)) return null;
+  return { mean, std };
 }
 
 function validateReading(
@@ -236,6 +262,42 @@ serveObserved("sensor-readings-ingest", async (req) => {
       );
     }
 
+    // ── Flag anomalies before writing (formula z_score_anomaly_3sigma) ───────
+    // One baseline query per (asset, parameter) actually present in this batch, not per row.
+    // Baseline is the PRIOR history only — the incoming rows are judged against what came
+    // before them, never against themselves, or a batch of identical faulty readings would
+    // establish its own normal and flag nothing.
+    //
+    // NOTE (CANONICAL_SOURCES_AUDIT #6): the Brain's statistical baseline and this one are
+    // meant to share a definition rather than drift apart. There was nothing to share with
+    // until now — this is the first baseline this function has ever computed — so the window,
+    // minimum-sample and sigma constants live at the top of this file as the single place to
+    // reconcile them when that unification happens.
+    try {
+      const sinceIso = new Date(Date.now() - BASELINE_WINDOW_DAYS * 86400000).toISOString();
+      const pairs = Array.from(new Set(cleanedRows.map(r => `${r.asset_id} ${r.parameter}`)));
+      for (const key of pairs) {
+        const [assetId, parameter] = key.split(" ");
+        const { data: hist } = await db.from("sensor_readings")
+          .select("value")
+          .eq("hive_id", hive_id)
+          .eq("asset_id", assetId)
+          .eq("parameter", parameter)
+          .gte("recorded_at", sinceIso)
+          .order("recorded_at", { ascending: false })
+          .limit(BASELINE_MAX_ROWS);
+        const base = baselineOf((hist || []).map(h => Number(h.value)));
+        if (!base) continue;   // too little history to judge — leave the default false
+        for (const row of cleanedRows) {
+          if (row.asset_id !== assetId || row.parameter !== parameter) continue;
+          row.is_anomaly = Math.abs(row.value - base.mean) / base.std > ANOMALY_SIGMA;
+        }
+      }
+    } catch (_) {
+      // An anomaly flag is an enrichment, never a reason to drop a plant bridge's readings on
+      // the floor. If the baseline pass fails the rows still land, is_anomaly stays false.
+    }
+
     // Bulk insert with conflict ignore on external_key (generated column).
     const { data: ins, error: insErr } = await db.from("sensor_readings")
       .upsert(cleanedRows as unknown as AnyRow[], {
@@ -253,12 +315,16 @@ serveObserved("sensor-readings-ingest", async (req) => {
 
     const inserted    = ins ? ins.length : 0;
     const skipped_dup = cleanedRows.length - inserted;
+    const anomalies   = cleanedRows.filter(r => r.is_anomaly).length;
 
     return new Response(
       JSON.stringify({
         inserted,
         skipped_dup,
         rejected: errors.length,
+        // Reported so a plant bridge can see the flag was applied, and so a caller that
+        // suddenly starts flagging everything notices before the dashboards do.
+        anomalies,
         errors,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
