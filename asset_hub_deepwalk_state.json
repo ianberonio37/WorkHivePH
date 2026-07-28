@@ -1,0 +1,313 @@
+{
+  "arc": "asset-hub-deepwalk-expansion",
+  "opened": "2026-07-28",
+  "roadmap": "ASSET_HUB_DEEPWALK_EXPANSION_ROADMAP.md",
+  "phases": [
+    "G",
+    "W",
+    "O",
+    "H",
+    "R"
+  ],
+  "shallow_w_rule": "W=done requires >=2 personas AND >=2 states",
+  "journeys": {
+    "AH01": {
+      "title": "First run - a hive with assets but no reliability work",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH02": {
+      "title": "Worker submits an asset -> it enters the pending queue",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial and BLOCKED ON A FIXTURE, measured 2026-07-28: asset_nodes has 95 rows, ALL seeder-created (auth_uid NULL on every one), ALL status='approved', ZERO pending and ZERO rejected, and 0 rows authored by any worker or supervisor. rcm_strategies is 172 approved / 0 unapproved. So the submit -> review -> approve/reject -> restore workflow has no data in any state but the terminal one, which is exactly why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) was never diagnosed - there has never been a pending asset to see. The fixture, not the walker, is the binding constraint (LB13/LB17 again)."
+    },
+    "AH03": {
+      "title": "Supervisor approves / rejects - and the rejection must SAY WHY",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial and BLOCKED ON A FIXTURE, measured 2026-07-28: asset_nodes has 95 rows, ALL seeder-created (auth_uid NULL on every one), ALL status='approved', ZERO pending and ZERO rejected, and 0 rows authored by any worker or supervisor. rcm_strategies is 172 approved / 0 unapproved. So the submit -> review -> approve/reject -> restore workflow has no data in any state but the terminal one, which is exactly why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) was never diagnosed - there has never been a pending asset to see. The fixture, not the walker, is the binding constraint (LB13/LB17 again)."
+    },
+    "AH04": {
+      "title": "Restore a rejected asset - can the submitter see what happened?",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial and BLOCKED ON A FIXTURE, measured 2026-07-28: asset_nodes has 95 rows, ALL seeder-created (auth_uid NULL on every one), ALL status='approved', ZERO pending and ZERO rejected, and 0 rows authored by any worker or supervisor. rcm_strategies is 172 approved / 0 unapproved. So the submit -> review -> approve/reject -> restore workflow has no data in any state but the terminal one, which is exactly why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) was never diagnosed - there has never been a pending asset to see. The fixture, not the walker, is the binding constraint (LB13/LB17 again)."
+    },
+    "AH05": {
+      "title": "Fleet list: search, 200-row cap, QR scan (inherited F20)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH06": {
+      "title": "Asset detail - the 11-view roll-up renders honestly per state",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH07": {
+      "title": "FMEA: add a failure mode, RPN is computed and defensible",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH08": {
+      "title": "RCM strategy -> interval -> push to PM Scheduler",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH09": {
+      "title": "Weibull fit - with too few failures, does it refuse or guess?",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH10": {
+      "title": "P-F interval - the number that sets inspection frequency",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH11": {
+      "title": "Asset identity: rename propagates to PM + logbook",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH12": {
+      "title": "Delete / retire an asset - what happens to FMEA, RCM, history",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH13": {
+      "title": "Cross-hive: foreign reliability data cannot leak or be written",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH14": {
+      "title": "Parts staging: accept / dismiss (inherited F43 expires_at)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH15": {
+      "title": "Asset Brain Q&A - citations are checkable (inherited F41)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH16": {
+      "title": "Telemetry / sensor panel with and without data",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH17": {
+      "title": "External CMMS ids - the dead card (inherited F18)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    },
+    "AH18": {
+      "title": "Mobile 390px at-the-asset lookup (QR -> detail)",
+      "phases": {
+        "G": "partial",
+        "W": "todo",
+        "O": "todo",
+        "H": "todo",
+        "R": "todo"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+    }
+  },
+  "dim_classes": {
+    "AHK1": {
+      "name": "A governance decision needs an IDENTITY, not a name",
+      "stages": {
+        "harvest": "todo",
+        "define": "done",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "gate": null,
+      "notes": "OPEN on measured evidence (2026-07-28 ground). asset_nodes carries submitted_by and approved_by as TEXT while 0 of 95 rows have auth_uid at all, and the table has 0 audit triggers. So an approval - the governance act the whole queue exists for - is attributed to a typed NAME, recorded nowhere the database can vouch for, and performed on rows nobody is provably the author of. Distinct from PMK3, which covered a COMPLETION's tamper-evidence: this is the DECISION itself, plus the forgeable-name half PMK3 never had to face because pm_completions has a real auth_uid."
+    },
+    "AHK2": {
+      "name": "A number that sets inspection timing must be FALSIFIABLE",
+      "stages": {
+        "harvest": "todo",
+        "define": "done",
+        "detect": "todo",
+        "sweep": "todo",
+        "fix": "todo",
+        "gate": "todo"
+      },
+      "gate": null,
+      "notes": "OPEN on measured evidence. Weibull beta/eta, the P-F interval and FMEA RPN each DECIDE WHEN A MACHINE IS NEXT OPENED UP - they do not report history, they set future action, so being wrong is physical rather than cosmetic. Ground measured 172 RCM strategies and 300 FMEA modes, all approved, computed by edge functions (weibull-fitter, pf-calculator) with no in-repo oracle found. Each needs a stated method, a REFUSAL path when the data cannot support the fit, and a checkable oracle. Distinct from PMK1: that was a metric flattering what was DONE; this is a computed value deciding what happens NEXT."
+    }
+  }
+}

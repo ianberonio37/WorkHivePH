@@ -5067,6 +5067,15 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "asset_hub_deepwalk_ratchet",
+        "script":  "validate_asset_hub_deepwalk.py",
+        "args":    [],
+        "label":   "Asset Hub deepwalk expansion - forward-only %-board over 18 journeys x 5 phases + the AHK dimension classes, with the shallow-W guard (a journey may not be credited W=done on fewer than 2 personas AND 2 states). Opened 2026-07-28 after the PM Scheduler arc closed at 100%; Asset Hub was chosen on measured evidence - the widest truth-view surface on the platform (11), 11 DB writes, the asset IDENTITY spine every other page reads, and TWO defects the PM arc found in it independently (an RCM interval rounded to a rarer frequency; a lazy pm_assets create with no role gate). THE GROUND FINDING the board exists to drive out: the page's whole governance workflow is UNWALKABLE - asset_nodes has 95 rows, all seeder-created with auth_uid NULL, all status='approved', ZERO pending, ZERO rejected, zero authored by any worker or supervisor, and rcm_strategies is 172 approved / 0 unapproved. That is why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) was never diagnosed: there has never been a pending asset to see. Plus 0 audit triggers across asset_nodes / rcm_strategies / rcm_fmea_modes (567 rows). Fails on a REGRESSION below the accepted baseline, so a walked cell cannot silently revert. Self-test: --selftest (pins the scoring and the shallow-W refusal).",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         "id":      "pm_deepwalk_ratchet",
         "script":  "validate_pm_deepwalk.py",
         "args":    [],
