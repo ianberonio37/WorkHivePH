@@ -1,10 +1,10 @@
 {
   "_doc": "Redundant-display detector (Phase C). Value-identity = shared terminus table (reliable, from registry adjacency). Verdicts are proposals; Ian disposes.",
   "totals": {
-    "value_identity_clusters": 14,
+    "value_identity_clusters": 13,
     "kpi_metric_clusters": 2,
     "semantic_units_in_corpus": 6,
-    "verdicts_curated": 14,
+    "verdicts_curated": 13,
     "verdicts_pending_review": 0
   },
   "value_identity_clusters": [
@@ -224,22 +224,6 @@
       "canonical_home": "project-manager.html",
       "ux_law": "context read",
       "why": "Project\u2194entity links read where projects surface; KEEP (Ian 2026-06-29)."
-    },
-    {
-      "terminus_table": "pm_assets",
-      "is_infra": false,
-      "display_pages": [
-        "asset-hub",
-        "integrations",
-        "logbook",
-        "pm-scheduler"
-      ],
-      "page_count": 4,
-      "via_canonical_views": [],
-      "verdict": "KEEP-context",
-      "canonical_home": "pm-scheduler.html",
-      "ux_law": "context read",
-      "why": "PM asset list referenced by pickers; KEEP (Ian 2026-06-29)."
     },
     {
       "terminus_table": "external_sync",

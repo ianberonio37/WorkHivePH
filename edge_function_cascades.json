@@ -103,8 +103,8 @@
         {
           "fn": "analytics-orchestrator",
           "to_table": "analytics_snapshots",
-          "line": 1179,
-          "evidence": "functions/analytics-orchestrator/index.ts:1179",
+          "line": 1182,
+          "evidence": "functions/analytics-orchestrator/index.ts:1182",
           "downstream_pages": [
             "analytics"
           ],
@@ -611,8 +611,8 @@
         {
           "fn": "pf-calculator",
           "to_table": "pf_intervals",
-          "line": 296,
-          "evidence": "functions/pf-calculator/index.ts:296",
+          "line": 300,
+          "evidence": "functions/pf-calculator/index.ts:300",
           "downstream_pages": [
             "asset-hub"
           ],
@@ -718,8 +718,8 @@
         {
           "fn": "sensor-readings-ingest",
           "to_table": "sensor_readings",
-          "line": 240,
-          "evidence": "functions/sensor-readings-ingest/index.ts:240",
+          "line": 307,
+          "evidence": "functions/sensor-readings-ingest/index.ts:307",
           "downstream_pages": [
             "asset-hub"
           ],
@@ -727,6 +727,7 @@
         }
       ],
       "reads": [
+        "sensor_readings",
         "v_asset_truth"
       ],
       "invoked_by_pages": []
@@ -851,8 +852,8 @@
         {
           "fn": "weibull-fitter",
           "to_table": "weibull_fits",
-          "line": 298,
-          "evidence": "functions/weibull-fitter/index.ts:298",
+          "line": 304,
+          "evidence": "functions/weibull-fitter/index.ts:304",
           "downstream_pages": [
             "asset-hub"
           ],

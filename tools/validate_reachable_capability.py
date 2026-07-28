@@ -54,6 +54,13 @@ SERVER_FED_ALLOW = {
     "equipment_reading_templates",    # migration-seeded catalog (see the catalog-tables rule: these are
                                       # INSERT-only from migrations and must never be in RESET_TABLES)
     "parts_staging_recommendations",  # produced by the scheduled parts-staging agent
+    # Reviewed 2026-07-28 (PJ-arc release sweep). fault_knowledge is DERIVED: embed-entry writes it
+    # from a logbook row as the entry is embedded (cmms-sync and ai-gateway also write it
+    # server-side). There is no client insert anywhere and there should not be — the whole point is
+    # that the corpus is generated from what technicians already wrote, not typed twice. logbook.html
+    # only READS it, to surface past repairs for the selected machine. Verified: 0 client
+    # .insert/.upsert on the table across every shipped page.
+    "fault_knowledge",
 }
 
 

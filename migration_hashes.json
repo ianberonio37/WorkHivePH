@@ -395,5 +395,9 @@
   "20260728000017_reliability_parent_hive_guard.sql": "d659071ab9b2fa31f65c487019baabac8c7b05a7610d4931d299cbb27a8fa365",
   "20260728000018_sensor_anomaly_flag_that_can_be_true.sql": "237b68b26728eb7fa6fbcb17569b1f7f632b76f1dbfb0a3e731c021fe0ff7843",
   "20260728000019_rename_carries_the_whole_identity.sql": "2e83c528e6035027066a0197122833fdb74fd9e512de00c927733b3ec0dea68c",
-  "20260728000020_expire_stale_parts_recommendations.sql": "70cedc3e895809dea6edcb4b6dd7b987c4fbb86a35d52d49848cd57aaa485d79"
+  "20260728000020_expire_stale_parts_recommendations.sql": "70cedc3e895809dea6edcb4b6dd7b987c4fbb86a35d52d49848cd57aaa485d79",
+  "20260728000021_register_pm_ontime_delivery_canonical.sql": "6875bc352f1149a2553aca870131898797746c2dc2c3d217a2c68a82b965b072",
+  "20260728000022_a_change_order_is_a_contract_not_a_draft.sql": "2e693921de568d135e9b22660c6c5e2c549e15902aaa0cf943be87c33631afc8",
+  "20260728000023_budget_is_supervisor_only_at_the_database.sql": "aabff19f5e9ca4d32390a2a60eae64821acc78a0902bf7de77e41e56b2ca59ab",
+  "20260728000024_close_the_budget_hole.sql": "f0b7c77029abe9f2fd9c2239b882d3f74a336ecf8a5f2f5a462b7e27ba2a9c61"
 }

@@ -867,6 +867,7 @@ let _links      = [];                      // links for opened project
 let _logs       = [];                      // progress logs for opened project
 let _progress   = null;                    // edge-fn rollup result
 let _roles      = [];                      // project_roles rows (Phase 5B)
+let _budgetReadable = false;              // PJ9: did get_project_budget() actually return a figure?
 let _changeOrders = [];                    // project_change_orders rows (Phase 5D)
 let _editingId          = null;  // null = new project, uuid = edit
 let _editingScopeId     = null;
@@ -986,7 +987,7 @@ async function loadProjects() {
   // #card-grid never flashes blank before project cards render (shared whListSkeleton).
   if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('card-grid'), 4);
   const { data, error } = await db.from('projects')
-    .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, budget_php, created_at, updated_at')
+    .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, created_at, updated_at')  /* PJ9: budget_php REMOVED. It was read here for EVERY user and BAC computed client-side, so the figure was already in the browser of anyone who opened the page, before any pane decided whether to show it. Supervisors now get it from get_project_budget(). */
     .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false }).limit(1000); // Arc L · L2: row cap (projects/hive ≤ low hundreds; newest-first so the active set is never truncated)
   if (error) { showToast('Load failed: ' + error.message, 'error'); return; }
   _projects = data || [];
@@ -1782,7 +1783,16 @@ function openEditProject() {
   $('f-owner').value = _detail.owner_name || '';
   $('f-start').value = _detail.start_date || '';
   $('f-end').value = _detail.end_date || '';
-  $('f-budget').value = _detail.budget_php || '';
+  // PJ9: the budget is no longer on _detail. Fetch it through the supervisor-only RPC and record
+  // whether it was returned — saveProject() uses that flag so a non-supervisor's blank field can
+  // never be written back as null. Without that, opening Edit as a worker and saving would WIPE the
+  // budget, which would be a data-loss bug introduced by a security fix.
+  $('f-budget').value = '';
+  _budgetReadable = false;
+  db.rpc('get_project_budget', { p_project_id: _detail.id }).then(({ data }) => {
+    if (data && data.ok) { _budgetReadable = true; $('f-budget').value = data.budget_php ?? ''; }
+    else { $('f-budget').disabled = true; $('f-budget').placeholder = 'Visible to supervisors'; }
+  }).catch(() => { $('f-budget').disabled = true; });
   $('f-desc').value = _detail.description || '';
   toggleBudgetField(_detail.project_type);
   openModal('modal-project');
@@ -1802,9 +1812,12 @@ async function saveProject() {
     owner_name: $('f-owner').value || null,
     start_date: $('f-start').value || null,
     end_date:   $('f-end').value || null,
-    budget_php: $('f-budget').value ? Number($('f-budget').value) : null,
     description: $('f-desc').value.trim() || null,
   };
+  // PJ9: only a caller who could READ the budget may write it. The key is OMITTED rather than sent
+  // as null, because null is a real value here and would erase the figure — a blank field on a
+  // worker's screen means "withheld", never "zero".
+  if (_budgetReadable) payload.budget_php = $('f-budget').value ? Number($('f-budget').value) : null;
   if (_editingId) {
     let projQuery = db.from('projects')
       .update({ ...payload, updated_at: new Date().toISOString() })
@@ -1852,7 +1865,13 @@ async function deleteProject() {
 /* ── Detail view ────────────────────────────────────────────── */
 async function openDetail(id) {
   _detailId = id;
-  const { data, error } = await db.from('projects').select('*').eq('id', id).is('deleted_at', null).maybeSingle();
+  // PJ9: explicit columns, NOT select('*'). budget_php is revoked from `authenticated`, and a
+  // select('*') against a column the caller cannot read fails outright — so a wildcard here would
+  // have broken the whole detail view for everyone the moment the revoke landed. Supervisors get
+  // the figure from get_project_budget().
+  const { data, error } = await db.from('projects')
+    .select('id, hive_id, worker_name, auth_uid, project_code, name, project_type, status, priority, owner_name, description, start_date, end_date, meta, created_at, updated_at, closed_at, deleted_at')
+    .eq('id', id).is('deleted_at', null).maybeSingle();
   if (error || !data) { showToast('Could not load project', 'error'); return; }
   _detail = data;
   pushRecent(data);
@@ -2819,9 +2838,19 @@ async function clientRollup(projectId) {
   const daysElapsed = proj.start_date ? daysBetween(proj.start_date, new Date().toISOString()) : 0;
   const daysTotal   = (proj.start_date && proj.end_date) ? daysBetween(proj.start_date, proj.end_date) : 0;
 
+  // PJ9: budget_php is no longer on the shared read, so the client fallback asks the supervisor-only
+  // RPC for it. A non-supervisor gets no figure and therefore no Earned Value block, which is the
+  // correct outcome — the pane it feeds is supervisor-only anyway, and computing EVM the caller may
+  // not see would only put the number back in their browser by another route.
+  let _bac = null;
+  try {
+    const { data: b } = await db.rpc('get_project_budget', { p_project_id: projectId });
+    if (b && b.ok) _bac = b.budget_php;
+  } catch (_) { /* empty-catch-allow: no budget means no EVM block, which renders its own empty state */ }
+
   let earnedValue = null;
-  if (proj.budget_php && proj.start_date && proj.end_date) {
-    const BAC = Number(proj.budget_php);
+  if (_bac && proj.start_date && proj.end_date) {
+    const BAC = Number(_bac);
     const plannedPct = daysTotal > 0 ? Math.min(1, daysElapsed / daysTotal) : 0;
     const PV  = BAC * plannedPct;
     const EV  = BAC * (pctComplete / 100);
