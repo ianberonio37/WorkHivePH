@@ -508,6 +508,19 @@
       },
       "gate": "tools/validate_pm_frequency_mapping.py",
       "notes": "EARNED BY THE PM08 WALK 2026-07-28. RULE: when a schedule is DERIVED from a stored label, the label-producing code IS the scheduler. Any page converting a duration into that label must use ONE shared mapping whose day-values equal the deriving view's, and must round toward MORE frequent - under-scheduling a PM is a safety decision, over-scheduling is a cost one. EVIDENCE: two writers, two rules, neither matching the view; the CMMS import silently made every sub-weekly PM weekly. DISTINCT FROM PMK1 (which is about a metric flattering what was DONE) - this is about the SCHEDULE ITSELF being quietly wrong before any work happens. SWEEP: both known writers fixed; the gate fails any third page that grows its own bucket list."
+    },
+    "PMK5": {
+      "name": "A count and its NOUN must agree, on every surface that quotes it",
+      "stages": {
+        "harvest": "done",
+        "define": "done",
+        "detect": "done",
+        "sweep": "done",
+        "fix": "done",
+        "gate": "done"
+      },
+      "gate": "tools/validate_pm_ontime_vs_compliance.py (overdue-noun-scope, covering hive.html + ai-gateway)",
+      "notes": "EARNED BY THREE INDEPENDENT INSTANCES in one arc, which is what makes it a class rather than three incidents. RULE: whenever a number is quoted to a user, the NOUN must name what was actually counted, and every surface quoting the same underlying figure must count it the same way. A number is a claim; its unit is part of the claim. INSTANCE 1 (PM7, analytics): the SMRP completed/scheduled counts were labelled '541 of 618 PMs ON TIME'. The standard explicitly does not account for late PMs and 27% of intervals ran late - the words claimed the one thing the number could not support. INSTANCE 2 (PM10, hive board): a deliberately ASSET-scoped overdue count was labelled 'PM tasks' / 'PMs' in four places and 'assets' in one - 29 assets against 40 actual overdue tasks, a 38% under-statement on the tile whose whole job is saying how much work there is. INSTANCE 3 (PM17, ai-gateway): the proactive briefing head-counted scope-item rows and said '40 PM tasks overdue' where every screen said 29. Worst placement of the three: on a page a user can click through and count, in a briefing they can only believe it. WHAT THE THREE HAVE IN COMMON: in each case the COMPUTATION was defensible and the LABEL was not, so no correctness gate could see it - the numbers were all 'right'. Detection has to compare the noun against the aggregation, which is why the gate reads the query shape (head-count vs DISTINCT parent) rather than the value. DISTINCT FROM PMK1, which is about a metric flattering what was DONE; this is about a number being quoted in the wrong UNIT. SWEEP: all three fixed in EN and FIL. GATE: the overdue-noun-scope check covers hive.html's copy and ai-gateway's query shape; teeth proven on both by reverting each."
     }
   }
 }

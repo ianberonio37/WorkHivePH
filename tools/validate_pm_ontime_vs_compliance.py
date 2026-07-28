@@ -127,12 +127,36 @@ SKIP_GUARDED = {
 _OVERDUE_NOUN_RE = re.compile(r"\$\{overdue\}[^`]{0,60}?PM\s*(?:task|s\b)", re.I)
 
 
+def _check_briefing_counts_assets():
+    """PM17: the AI proactive briefing must report the SAME canonical asset count as the tiles.
+
+    It head-counted `v_pm_scope_items_truth` rows filtered `is_overdue` — which counts SCOPE ITEMS —
+    and said "40 PM tasks overdue" where every screen said 29 assets. agentic-rag-loop already had
+    it right (DISTINCT pm_asset_id, with a "Matches the tiles" comment); ai-gateway was the outlier.
+    The companion is the surface a user can least verify, so it is the worst place to hold the
+    minority definition.
+    """
+    fn = ROOT / "supabase" / "functions" / "ai-gateway" / "index.ts"
+    if not fn.exists():
+        return []
+    src = fn.read_text(encoding="utf-8", errors="replace")
+    m = re.search(r'from\("v_pm_scope_items_truth"\)\.select\(([^)]*)\)[^;\n]*is_overdue', src)
+    if not m:
+        return []
+    if "count:" in m.group(1) or '"*"' in m.group(1):
+        return ["ai-gateway/index.ts head-counts v_pm_scope_items_truth rows for the proactive "
+                "briefing — that counts SCOPE ITEMS, while the tiles, the PM Scheduler card and "
+                "agentic-rag-loop all report DISTINCT pm_asset_id. The briefing would quote a "
+                "number no screen the user can check agrees with."]
+    return []
+
+
 def check_overdue_noun_scope():
+    bad = _check_briefing_counts_assets()
     hive = ROOT / "hive.html"
     if not hive.exists():
-        return []
+        return bad
     src = hive.read_text(encoding="utf-8", errors="replace")
-    bad = []
     for m in _OVERDUE_NOUN_RE.finditer(src):
         frag = m.group(0)
         # "asset(s) ... have overdue PMs" is the CORRECT shape — the noun being counted is asset.
