@@ -308,9 +308,155 @@ def seed_projects(client, log, ctx: dict) -> dict:
         client.table("project_progress_logs").insert(log_rows).execute()
         log(f"  inserted {len(log_rows)} project_progress_logs")
 
+    co_rows   = _seed_change_orders(client, log, project_rows, workers)
+    role_rows = _seed_project_roles(client, log, project_rows, workers)
+
     return {
         "projects": project_rows,
         "project_items": item_rows,
         "project_links": link_rows,
         "project_progress_logs": log_rows,
+        "project_change_orders": co_rows,
+        "project_roles": role_rows,
     }
+
+
+# PJK1 / G5 (Project Manager deepwalk, 2026-07-28): project_change_orders had ZERO rows
+# platform-wide, and project_roles too — two tables with policies, triggers and a complete UI
+# (openNewCO, approveCO, rejectCO, cancelCO, openAddRole, removeRole) that no walk could reach.
+# A change order is a CONTRACT AMENDMENT carrying cost_impact_php and schedule_impact_days, so
+# "approve" here is a money decision, and it had never once been exercised against real data.
+#
+# The four statuses are generated with their companion fields TOGETHER so no row is fiction —
+# the same discipline the Asset Hub arc used after the logbook arc produced 78 "skipped" PMs
+# carrying completion notes. Specifically:
+#   pending   -> no approver, no approved_at, no rejection_reason
+#   approved  -> an approver AND a timestamp, never a rejection_reason
+#   rejected  -> a REASON and no approved_at (the submitter has to learn something from it)
+#   cancelled -> withdrawn by the requester before review: no approver, no reason
+_CO_TEMPLATES = [
+    ("Additional foundation reinforcement",
+     "Soil test at pier 3 returned lower bearing capacity than the geotech report assumed; add "
+     "rebar cage and 0.4 m of mass concrete.", 185000, 6),
+    ("Upgrade switchgear to 630 A",
+     "Client added two extrusion lines after design freeze; existing 400 A board would trip on "
+     "simultaneous start.", 420000, 9),
+    ("Relocate compressed-air header",
+     "Header as drawn clashes with the new mezzanine beam at grid C.", 62000, 3),
+    ("Substitute imported bearings with local equivalent",
+     "12-week lead time on the specified SKF units; proposed NSK equivalent meets the same "
+     "ISO 281 L10 rating.", -38000, -14),
+    ("Extend commissioning window",
+     "Client requested night-shift-only commissioning to avoid production loss.", 95000, 11),
+]
+
+_CO_REJECTION_REASONS = [
+    "Cost impact exceeds the remaining contingency; resubmit with a value-engineered option.",
+    "No client sign-off attached - this changes the contract sum and needs their approval first.",
+    "The schedule impact pushes past the turnover date; propose a recovery plan alongside it.",
+]
+
+
+def _seed_change_orders(client, log, project_rows: list, workers: list) -> list:
+    if not project_rows:
+        return []
+    rows = []
+    per_hive_seq: dict = {}
+    for proj in project_rows:
+        # Not every project has a change order; a clean job that ran to plan is a real state too.
+        if random.random() >= 0.55:
+            continue
+        hive_workers = [w for w in workers if w["hive_id"] == proj["hive_id"]]
+        if not hive_workers:
+            continue
+        supervisors = [w for w in hive_workers if w["role"] == "supervisor"]
+        for _ in range(random.randint(1, 3)):
+            title, scope, cost, days = random.choice(_CO_TEMPLATES)
+            requester = random.choice(hive_workers)
+            seq = per_hive_seq.get(proj["hive_id"], 0) + 1
+            per_hive_seq[proj["hive_id"]] = seq
+
+            roll = random.random()
+            if roll < 0.45:
+                status, approver, approved_at, reject = "approved", (
+                    supervisors[0]["worker_name"] if supervisors else requester["worker_name"]
+                ), to_iso(datetime.now(timezone.utc) - timedelta(days=random.randint(1, 20))), None
+            elif roll < 0.70:
+                status, approver, approved_at, reject = "pending", None, None, None
+            elif roll < 0.90:
+                # A refusal must SAY WHY (the AH3 lesson, and the schema already has the column).
+                status, approver, approved_at, reject = (
+                    "rejected", None, None, random.choice(_CO_REJECTION_REASONS))
+            else:
+                status, approver, approved_at, reject = "cancelled", None, None, None
+
+            rows.append({
+                "project_id":           proj["id"],
+                "hive_id":              proj["hive_id"],
+                "co_number":            f"CO-{seq:03d}",
+                "title":                title,
+                "scope_change":         scope,
+                "reason":               scope,
+                "cost_impact_php":      cost,
+                "schedule_impact_days": days,
+                "status":               status,
+                # NOTE (G1): requested_by / approved_by are TEXT NAMES. There is no auth_uid on
+                # this table, so nothing here can prove WHO amended a contract — that is the
+                # defect PJK1 exists to close, and the fixture must not paper over it.
+                "requested_by":         requester["worker_name"],
+                "requested_at":         to_iso(datetime.now(timezone.utc)
+                                               - timedelta(days=random.randint(21, 60))),
+                "approved_by":          approver,
+                "approved_at":          approved_at,
+                "rejection_reason":     reject,
+            })
+
+    if rows:
+        try:
+            client.table("project_change_orders").insert(rows).execute()
+            by = {}
+            for r in rows:
+                by[r["status"]] = by.get(r["status"], 0) + 1
+            log(f"  inserted {len(rows)} project_change_orders ({by})")
+        except Exception as e:  # pragma: no cover — never crash the seed on a fixture table
+            log(f"  WARN: project_change_orders insert failed: {type(e).__name__}: {e}")
+            return []
+    return rows
+
+
+def _seed_project_roles(client, log, project_rows: list, workers: list) -> list:
+    """G5: project_roles was also empty, so 'what a role actually gates' had nothing to test."""
+    if not project_rows:
+        return []
+    rows = []
+    for proj in project_rows:
+        hive_workers = [w for w in workers if w["hive_id"] == proj["hive_id"]]
+        if not hive_workers:
+            continue
+        picked = random.sample(hive_workers, k=min(len(hive_workers), random.randint(2, 3)))
+        supervisors = [w for w in hive_workers if w["role"] == "supervisor"]
+        assigner = supervisors[0]["worker_name"] if supervisors else picked[0]["worker_name"]
+        for i, w in enumerate(picked):
+            rows.append({
+                "project_id":  proj["id"],
+                "hive_id":     proj["hive_id"],
+                "worker_name": w["worker_name"],
+                # The CHECK allows exactly owner | planner | safety_officer | cost_engineer |
+                # reviewer. Verified against pg_constraint rather than guessed — a first draft
+                # here used 'lead'/'member', which the constraint would have rejected at runtime
+                # while the seeder's try/except logged a WARN and returned an EMPTY list, leaving
+                # the table exactly as empty as it started and looking like it had been seeded.
+                # That is the same shape as the is_anomaly defect: writing a value the CHECK
+                # forbids, and the failure being quiet.
+                "role":        "owner" if i == 0 else random.choice(
+                    ["planner", "safety_officer", "cost_engineer", "reviewer"]),
+                "assigned_by": assigner,
+            })
+    if rows:
+        try:
+            client.table("project_roles").insert(rows).execute()
+            log(f"  inserted {len(rows)} project_roles")
+        except Exception as e:  # pragma: no cover
+            log(f"  WARN: project_roles insert failed: {type(e).__name__}: {e}")
+            return []
+    return rows

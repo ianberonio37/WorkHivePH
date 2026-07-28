@@ -59,7 +59,7 @@
     "PJ04": {
       "title": "Change order: raise -> approve / reject / cancel (G5 - never walked)",
       "phases": {
-        "G": "partial",
+        "G": "done",
         "W": "todo",
         "O": "todo",
         "H": "todo",
@@ -69,12 +69,12 @@
         "personas": [],
         "states": []
       },
-      "notes": ""
+      "notes": "GROUND 2026-07-28. The G5 fixture is BUILT, which is the prerequisite this journey could not start without: project_change_orders held ZERO rows platform-wide, so approve/reject/cancel had never run against data. Seeded all four states with their companion fields generated TOGETHER so no row is fiction - approved carries an approver AND a timestamp and no reason; rejected carries a REASON and no approved_at; pending and cancelled carry neither. Verified 0 incoherent rows across 12 COs (3 per state). project_roles likewise went 0 -> 36. A DEFECT CAUGHT IN MY OWN SEEDER BEFORE IT SHIPPED: the first draft wrote role='lead'/'member', but the CHECK allows only owner|planner|safety_officer|cost_engineer|reviewer. The insert would have been rejected while the seeder's try/except logged a WARN and returned an empty list - leaving the table exactly as empty as it started and looking seeded. Same shape as the Asset Hub is_anomaly defect: a value the CHECK forbids, failing quietly. Verified against pg_constraint, not guessed. WALK still to do."
     },
     "PJ05": {
       "title": "Who approved this change order? (G1 - no auth_uid exists)",
       "phases": {
-        "G": "partial",
+        "G": "done",
         "W": "todo",
         "O": "todo",
         "H": "todo",
@@ -84,7 +84,7 @@
         "personas": [],
         "states": []
       },
-      "notes": ""
+      "notes": "GROUND 2026-07-28. The G5 fixture is BUILT, which is the prerequisite this journey could not start without: project_change_orders held ZERO rows platform-wide, so approve/reject/cancel had never run against data. Seeded all four states with their companion fields generated TOGETHER so no row is fiction - approved carries an approver AND a timestamp and no reason; rejected carries a REASON and no approved_at; pending and cancelled carry neither. Verified 0 incoherent rows across 12 COs (3 per state). project_roles likewise went 0 -> 36. A DEFECT CAUGHT IN MY OWN SEEDER BEFORE IT SHIPPED: the first draft wrote role='lead'/'member', but the CHECK allows only owner|planner|safety_officer|cost_engineer|reviewer. The insert would have been rejected while the seeder's try/except logged a WARN and returned an empty list - leaving the table exactly as empty as it started and looking seeded. Same shape as the Asset Hub is_anomaly defect: a value the CHECK forbids, failing quietly. Verified against pg_constraint, not guessed. WALK still to do."
     },
     "PJ06": {
       "title": "Progress log: submit, acknowledge, dispute",
@@ -149,7 +149,7 @@
     "PJ10": {
       "title": "Roles: assign, remove, and what a role actually gates (G5)",
       "phases": {
-        "G": "partial",
+        "G": "done",
         "W": "todo",
         "O": "todo",
         "H": "todo",
@@ -159,7 +159,7 @@
         "personas": [],
         "states": []
       },
-      "notes": ""
+      "notes": "GROUND 2026-07-28. The G5 fixture is BUILT, which is the prerequisite this journey could not start without: project_change_orders held ZERO rows platform-wide, so approve/reject/cancel had never run against data. Seeded all four states with their companion fields generated TOGETHER so no row is fiction - approved carries an approver AND a timestamp and no reason; rejected carries a REASON and no approved_at; pending and cancelled carry neither. Verified 0 incoherent rows across 12 COs (3 per state). project_roles likewise went 0 -> 36. A DEFECT CAUGHT IN MY OWN SEEDER BEFORE IT SHIPPED: the first draft wrote role='lead'/'member', but the CHECK allows only owner|planner|safety_officer|cost_engineer|reviewer. The insert would have been rejected while the seeder's try/except logged a WARN and returned an empty list - leaving the table exactly as empty as it started and looking seeded. Same shape as the Asset Hub is_anomaly defect: a value the CHECK forbids, failing quietly. Verified against pg_constraint, not guessed. WALK still to do."
     },
     "PJ11": {
       "title": "Links to logbook / inventory / marketplace - do they survive deletion?",
@@ -287,20 +287,20 @@
       "name": "A money decision needs an identity and a trail",
       "stages": {
         "harvest": "done",
-        "define": "todo",
-        "detect": "todo",
+        "define": "done",
+        "detect": "done",
         "sweep": "todo",
         "fix": "todo",
         "gate": "todo"
       },
       "gate": null,
-      "notes": "OPEN on measured ground (2026-07-28). Six of seven project tables have NO auth_uid column at all - only `projects` has one - so raising or approving a CHANGE ORDER, which is a contract amendment, is attributable to nobody. And `projects` appears nowhere in hive_audit_log.target_type while assets, logbook, inventory_items, marketplace_listings, marketplace_sellers, worker_profiles and amc_briefings all do. AHK1 covered an approval DECISION on a forgeable name; here the identity column does not exist and the trail is absent entirely."
+      "notes": "OPEN on measured ground (2026-07-28). Six of seven project tables have NO auth_uid column at all - only `projects` has one - so raising or approving a CHANGE ORDER, which is a contract amendment, is attributable to nobody. And `projects` appears nowhere in hive_audit_log.target_type while assets, logbook, inventory_items, marketplace_listings, marketplace_sellers, worker_profiles and amc_briefings all do. AHK1 covered an approval DECISION on a forgeable name; here the identity column does not exist and the trail is absent entirely. DETECT COMPLETE 2026-07-28: measured via pg_attribute that auth_uid exists on `projects` ONLY - project_items, project_change_orders, project_progress_logs, project_roles, project_links and project_knowledge have no such column - and via a DISTINCT on hive_audit_log.target_type that `projects` has never written one audit row. The change-order schema makes it concrete: requested_by text NOT NULL and approved_by text, on a row carrying cost_impact_php and schedule_impact_days. project_roles.assigned_by is a text name too. SWEEP/FIX/GATE open."
     },
     "PJK2": {
       "name": "A schedule/health number must be falsifiable",
       "stages": {
         "harvest": "done",
-        "define": "todo",
+        "define": "done",
         "detect": "todo",
         "sweep": "todo",
         "fix": "todo",
@@ -313,20 +313,20 @@
       "name": "Authority must be enforced where the data is",
       "stages": {
         "harvest": "done",
-        "define": "todo",
-        "detect": "todo",
+        "define": "done",
+        "detect": "done",
         "sweep": "todo",
         "fix": "todo",
         "gate": "todo"
       },
       "gate": null,
-      "notes": "OPEN. Every project table carries ONE permissive FOR ALL policy whose WITH CHECK tests only hive_id IN user_hive_ids() - so any active member can approve, reject or cancel a change order. project_roles is the only table with a supervisor predicate. Separately, renderBudget refuses non-supervisors in the RENDERER ('Budget visibility is restricted to supervisors') while projects_hive_rw grants every member read - the number is one db.from('projects') away. Sharpens feedback_ui_only_approval_gate_is_bypassable from a button to a whole pane."
+      "notes": "OPEN. Every project table carries ONE permissive FOR ALL policy whose WITH CHECK tests only hive_id IN user_hive_ids() - so any active member can approve, reject or cancel a change order. project_roles is the only table with a supervisor predicate. Separately, renderBudget refuses non-supervisors in the RENDERER ('Budget visibility is restricted to supervisors') while projects_hive_rw grants every member read - the number is one db.from('projects') away. Sharpens feedback_ui_only_approval_gate_is_bypassable from a button to a whole pane. DETECT COMPLETE 2026-07-28: all seven policies dumped from pg_policy - each is a single PERMISSIVE FOR ALL whose WITH CHECK tests only auth.uid() IS NOT NULL AND hive_id IN user_hive_ids(). project_roles_supervisor_all is the ONLY one with a supervisor predicate. So the approve/reject/cancel buttons are gated by nothing but hive membership. Separately renderBudget refuses non-supervisors in the RENDERER while projects_hive_rw grants every member SELECT. SWEEP/FIX/GATE open - the live probe (read the budget as a worker) is the next unit."
     },
     "PJK4": {
       "name": "A child row's parent must live in its own hive",
       "stages": {
         "harvest": "done",
-        "define": "todo",
+        "define": "done",
         "detect": "todo",
         "sweep": "todo",
         "fix": "todo",
