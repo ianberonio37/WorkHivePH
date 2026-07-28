@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **156**
 - Views:         **53**
-- RPCs:          **199**
+- RPCs:          **200**
 - HTML surfaces: **61**
 - Edge fns:      **98**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -183,6 +183,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `ai_cache_sweep_expired` |  | yes | — | — |
 | `amc_expire_stale` |  | yes | — | — |
 | `anomaly_signals_forward_only_status` |  | no | — | — |
+| `audit_asset_approval_decision` |  | yes | — | — |
 | `audit_logbook_post_close_amendment` |  | yes | — | — |
 | `audit_pm_asset_delete` |  | yes | — | — |
 | `audit_pm_completion_amendment` |  | yes | — | — |

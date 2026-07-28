@@ -161,7 +161,30 @@ def main():
               f"(the governance fixture is what makes this walkable at all)")
         return 0
 
-    checks = [("guard_static", "OK" if not static else "BROKEN", "OK",
+    # AHK1 sweep (2026-07-28): the guard says who MAY decide; this says who DID. 83 asset_nodes sat in
+    # a decided state with ZERO records — the 11 approve/reject rows in hive_audit_log were all
+    # CLIENT-written and none were for assets, and a client-written row is skipped by any write that
+    # does not go through the page (the path AH3 proved reachable). Fixed by 20260728000015.
+    decision_audit = _psql(
+        "SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid "
+        "WHERE c.relname='asset_nodes' AND NOT t.tgisinternal "
+        "AND t.tgname='trg_asset_approval_decision_audit';")
+    # And the identity behind those names is bound server-side, not accepted from the client.
+    binders = _psql(
+        "SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_proc p ON p.oid=t.tgfoid "
+        "WHERE c.relname='asset_nodes' AND NOT t.tgisinternal "
+        "AND p.proname IN ('bind_asset_nodes_submitter','bind_approved_by_from_hive');")
+
+    checks = [
+        ("decision_is_recorded",
+         "OK" if (decision_audit or "0").strip() not in ("0", "") else "MISSING", "OK",
+         "an approve/reject DECISION is recorded by the DATABASE, with the reason and the deciding "
+         "identity (a client-written row is skipped by any write that bypasses the page)"),
+        ("identity_bound_server_side",
+         "OK" if (binders or "0").strip() == "2" else "MISSING", "OK",
+         "submitted_by / approved_by are bound from the session, so neither the submitter nor the "
+         "approver can be typed in by the client"),
+        ("guard_static", "OK" if not static else "BROKEN", "OK",
                f"the guard still treats both reviewer outcomes AND the reason field as privileged "
                f"({len(GUARDED_TABLES)} tables share it)"),
               ("self_reject_blocked", res.get("selfreject"), "BLOCKED",

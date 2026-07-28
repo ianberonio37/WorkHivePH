@@ -7999,6 +7999,14 @@
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "audit_asset_approval_decision": {
+      "defined_in": "20260728000015_asset_approval_decision_audit.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -9644,7 +9652,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 292
+      "loc": 296
     },
     "platform-gateway": {
       "tables_read": [
