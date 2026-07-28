@@ -460,6 +460,29 @@
       "unit": "priority band (H | M | L)",
       "description": "Priority band for an FMEA failure mode. H when severity >= 9 (safety or regulatory consequence, regardless of how rare or how detectable) or RPN >= 200; M when severity >= 7 or RPN >= 100; L otherwise. Rows are ordered by band, then by RPN within a band. WHY THIS EXISTS: ordering by RPN alone buries exactly what must not be buried — measured on the seeded fleet, all 17 modes with severity >= 9 fell below the median RPN, and 'Cable insulation breakdown' (S9, safety, RPN 108) ranked below 'Coupling misalignment beyond 0.05 mm' (S6, production, RPN 180) on every asset page and every printed report. canonical/standards.json already recorded that AIAG-VDA 2019 favours Action Priority over RPN; the UI sorted by RPN anyway. The band only ever RAISES priority — the RPN colour banding is unchanged, so nothing that reads as urgent today is quietly demoted.",
       "added_in": "20260728 (AH7, ASSET_HUB_DEEPWALK_EXPANSION_ROADMAP)"
+    },
+    {
+      "formula_id": "evm_cpi_spi_pmbok",
+      "name": "Earned Value — CPI / SPI and the green/amber/red band",
+      "standard_id": "pmbok_7",
+      "standard_clause": "measurement",
+      "standard_cite": "PMI PMBOK 7th ed. (Performance Domain: Measurement); AACE International RP 80R-13",
+      "inputs": [
+        "budget_php",
+        "start_date",
+        "end_date",
+        "project_items.pct_complete",
+        "project_items.estimated_hours",
+        "project_items.actual_hours",
+        "labor_rate_php_per_hour"
+      ],
+      "partial_variant": true,
+      "partial_reason": "AC is a PROXY: actual cost is derived as hours_actual x labor_rate_php_per_hour rather than from real posted costs, because the platform has no cost ledger. The rate defaults to PHP 200/hour and is overridable per call - but MEASURED 2026-07-28, no caller ever passes an override, so every project on the platform is currently costed at PHP 200/hour regardless of trade or region. CPI is EV/AC, so CPI is wrong by exactly the ratio of the real rate to 200 until a rate source is wired. The formulas and bands themselves are NOT partial - they are the standard ones.",
+      "implemented_in": "python-api/projects/diagnostic.py (PARTIAL: AC is an hours x rate proxy, not posted cost), reached via the project-progress edge fn",
+      "freshness": "on_demand",
+      "unit": "index (CPI/SPI) + band (green|amber|red)",
+      "description": "PV = BAC x (days_elapsed / days_total); EV = BAC x (pct_complete / 100) where pct_complete is weighted by estimated_hours; AC = hours_actual x labor_rate; SPI = EV/PV; CPI = EV/AC. Band per AACE EV interpretation guidance: green when min(SPI,CPI) >= 0.95, amber to 0.85, red below. REFUSES with {available:false, reason:'Requires budget_php + start_date + end_date'} rather than guessing when inputs are missing. ONE IMPLEMENTATION ONLY as of 2026-07-28: project-manager.html previously carried a second, uncited copy in clientRollup() that had already diverged - it rounded pct_complete to an integer where the engine keeps the float, moving EV by up to 0.5% of BAC (about PHP 9,250 on a PHP 1,850,000 project) - and it was the number a supervisor saw whenever the edge fn had not answered. That duplicate was DELETED; the pane now states it could not compute, the same way the critical-path pane does.",
+      "added_in": "20260728 (PJ7, PROJECT_MANAGER_DEEPWALK_EXPANSION_ROADMAP)"
     }
   ]
 }

@@ -2662,7 +2662,19 @@ async function cancelCO(id) {
 function renderBudget() {
   if (!isSupervisor()) { $('pane-budget')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty">Budget visibility is restricted to supervisors.</div>'; return; }
   const ev = _progress?.earned_value;
-  if (!ev) { $('pane-budget')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div class="empty">Add a budget, start date and end date to enable Earned Value tracking.</div>'; return; }
+  if (!ev) {
+    // PJ7/PJ8 (2026-07-28): two different reasons produce no Earned Value, and only one of them is
+    // the user's to fix. The old single message told a supervisor to "add a budget, start date and
+    // end date" even when all three existed and the rollup had simply not answered — sending them
+    // to re-enter data that was already there. The engine reports {available:false, reason:...}
+    // when inputs are genuinely missing, so its absence entirely means the computation did not run.
+    const _reason = _progress?.rollup?.evm_reason || (_progress ? null : 'unavailable');
+    $('pane-budget')/* xss-allow: static strings only */ .innerHTML = _reason === 'unavailable'
+      ? '<div class="empty">Earned Value could not be computed right now. Refresh to try again; '
+        + 'no cost or schedule verdict is being shown until it can be.</div>'
+      : '<div class="empty">Add a budget, start date and end date to enable Earned Value tracking.</div>';
+    return;
+  }
   const cls = ev.status === 'green' ? 'green' : ev.status === 'amber' ? 'amber' : 'red';
   $('pane-budget')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="kpi-row">
@@ -2852,32 +2864,27 @@ async function clientRollup(projectId) {
   // PJ9: budget_php is no longer on the shared read, so the client fallback asks the supervisor-only
   // RPC for it. A non-supervisor gets no figure and therefore no Earned Value block, which is the
   // correct outcome — the pane it feeds is supervisor-only anyway, and computing EVM the caller may
-  // not see would only put the number back in their browser by another route.
-  let _bac = null;
-  try {
-    const { data: b } = await db.rpc('get_project_budget', { p_project_id: projectId });
-    if (b && b.ok) _bac = b.budget_php;
-  } catch (_) { /* empty-catch-allow: no budget means no EVM block, which renders its own empty state */ }
+  // PJ7 (2026-07-28): the client no longer computes Earned Value AT ALL, and that is the fix.
+  //
+  // This block used to re-implement EVM in the browser: `AC = hoursActual * 200` with a hardcoded
+  // PHP 200/hour rate and invented-looking 0.95/0.85 bands. Reading the implementation it falls
+  // back FROM showed those are NOT invented — python-api/projects/diagnostic.py cites PMBOK 7th ed.
+  // and AACE RP 80R-13, states every formula, attributes the bands, refuses on missing inputs, and
+  // treats PHP 200 as a documented, OVERRIDABLE default proxy.
+  //
+  // The real defect was having TWO implementations of one cited metric, and they had already
+  // diverged: both weight pct_complete by estimated_hours, but this one wrapped it in Math.round()
+  // while the server keeps the float. EV = BAC x (pct/100), so that rounding moves EV by up to 0.5%
+  // of BAC — roughly PHP 9,250 on the seeded PHP 1,850,000 project — and this was the number a
+  // supervisor saw whenever the edge fn had not answered.
+  //
+  // Deleting the duplicate rather than patching the rounding, for the same reason PJ8 settled on:
+  // renderCpm has NO client fallback and degrades to an honest "could not compute". A cost figure
+  // that silently disagrees with the cited engine is worse than no figure, especially one that
+  // feeds a client-facing report. The rest of clientRollup (progress %, hours, counts) is unaffected
+  // and still serves the page when functions are unavailable.
+  const earnedValue = null;
 
-  let earnedValue = null;
-  if (_bac && proj.start_date && proj.end_date) {
-    const BAC = Number(_bac);
-    const plannedPct = daysTotal > 0 ? Math.min(1, daysElapsed / daysTotal) : 0;
-    const PV  = BAC * plannedPct;
-    const EV  = BAC * (pctComplete / 100);
-    const AC  = hoursActual * 200;
-    const SPI = PV > 0 ? EV / PV : null;
-    const CPI = AC > 0 ? EV / AC : null;
-    const minVal = Math.min(SPI ?? 1, CPI ?? 1);
-    const status = minVal >= 0.95 ? 'green' : minVal >= 0.85 ? 'amber' : 'red';
-    earnedValue = {
-      bac: Math.round(BAC), pv: Math.round(PV), ev: Math.round(EV), ac: Math.round(AC),
-      sv: Math.round(EV - PV), cv: Math.round(EV - AC),
-      spi: SPI ? Number(SPI.toFixed(2)) : null,
-      cpi: CPI ? Number(CPI.toFixed(2)) : null,
-      status,
-    };
-  }
   return {
     project_id: projectId,
     rollup: {
