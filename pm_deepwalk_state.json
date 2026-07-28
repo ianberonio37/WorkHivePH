@@ -104,13 +104,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Complete a PM at the asset (checklist, readings, sign-off). G: pmCompleteHandler + markDone mapped; the completion writes pm_completions and mirrors to logbook."
+      "walked": {
+        "personas": [
+          "P-tech",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-online-completion",
+          "S-duplicate-submit"
+        ]
+      },
+      "notes": "Complete a PM at the asset (checklist, readings, sign-off). G: pmCompleteHandler + markDone mapped; the completion writes pm_completions and mirrors to logbook. WALKED 2026-07-28. THE WRITE PATH IS SOUND, and checked against the two failure shapes this arc found elsewhere. (1) It CONFIRMS: .insert(compPayload).select().single(), so a write that lands nowhere cannot be reported as saved - the LG3 shape does not apply here. (2) It already treats 23505 as EXACTLY-ONCE: a double-tap hits pm_completions_dedup_uidx and the page says 'Already recorded for this task today' rather than a scary failure. That is the SAME reasoning I applied to the offline drain in PM18, arrived at independently by the page months earlier - so the online and offline paths now agree instead of one calling a saved PM stuck. (3) NO HIDDEN-FIELD LEAK: the logbook arc's LB03 defect was a hidden section whose inputs were still collected. The PM completion sheet has exactly THREE inputs (findings, action, log toggle) and zero conditional or hidden blocks, so the class cannot occur - a real clean result, checked rather than assumed. (4) The logbook mirror's failure is reported HONESTLY: if the PM saves but the mirror fails, the toast says 'PM saved -> PM compliance updated. Logbook entry failed: check connection' instead of claiming both. The at-the-asset tap target for this journey was 36px and is now 44px (PM15)."
     },
     "PM05": {
       "type": "T4-transition",
@@ -345,13 +354,21 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Parts / readings on a PM. G: the PDDA arc's reuse verdict was completion->logbook = the canonical FUSION (one event) and parts-on-a-PM = KEEP-DISTINCT (logbook owns parts). The walk tests whether that boundary holds for a tech who consumed parts during a PM."
+      "walked": {
+        "personas": [
+          "P-tech"
+        ],
+        "states": [
+          "S-pm-signoff",
+          "S-logbook-mirror"
+        ]
+      },
+      "notes": "Parts / readings on a PM. G: the PDDA arc's reuse verdict was completion->logbook = the canonical FUSION (one event) and parts-on-a-PM = KEEP-DISTINCT (logbook owns parts). The walk tests whether that boundary holds for a tech who consumed parts during a PM. WALKED 2026-07-28 as the reuse boundary it is, and the boundary is DELIBERATE and coherent. The PM completion captures a light sign-off only - findings and action - and does NOT capture parts or readings. Those live in the logbook, and the completion's log toggle mirrors into a real logbook row the same worker owns (auth_uid set, asset_node_id resolved, pm_completion_id linked), which they can then open and enrich with the parts picker. So the capability is not missing, it is two steps: sign off the PM, then add parts to the entry it created. KEEP-DISTINCT is the right verdict - duplicating a parts picker into the PM sheet would put a second writer on inventory_transactions, which is precisely the ledger-tamper class the platform has spent two arcs closing. RECORDED AS A FRICTION, not a defect: a tech whose PM consumed a filter has to remember the second step, and nothing on the PM sheet tells them the mirrored entry is where parts go. A one-line hint on the sheet would close it without duplicating the writer. Written here rather than built mid-arc, same call as PM9's skip UI and PM6's missing back-link. THE MIRROR PAYLOAD ITSELF IS WELL-FORMED, and its comments record three earlier bugs worth not repeating: logbook.id is TEXT NOT NULL with no default (omitting it 23502'd every mirror), machine must be the asset TAG not the display name (every machine-keyed consumer and v_logbook_truth expect the tag), and auth_uid + asset_node_id were both being dropped, orphaning the row from attribution and from v_asset_truth history."
     },
     "PM15": {
       "type": "T2-core",

@@ -232,7 +232,16 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
     40/40 with node lineage, and `SET NULL` correctly keeps the technician's record when a completion
     goes. Gated on the DATA (a payload check cannot see a dangling or cross-hive mirror). Recorded
     gap: `logbook.html` never links a mirrored entry back to its PM.
-14. Then §5 order downward — **PM1–PM4, PM14, PM16, PM17** remain; every ⑤-harvest that earns a
+14. ~~**PM4** — the core at-the-asset completion.~~ Sound: it confirms with `.select().single()`,
+    already treats 23505 as exactly-once (the same reasoning PM18 applied offline, reached
+    independently here months earlier), has no hidden-field leak, and reports a failed logbook mirror
+    honestly instead of claiming both wrote.
+15. ~~**PM14** — the parts/readings reuse boundary.~~ KEEP-DISTINCT, and deliberately so: the PM
+    sheet signs off (findings + action) while parts and readings live in the logbook entry the
+    mirror creates. Duplicating a parts picker into the PM sheet would put a second writer on
+    `inventory_transactions` — the ledger-tamper class two arcs have been closing. Recorded friction:
+    nothing tells the tech the mirrored entry is where parts go.
+16. Then §5 order downward — **PM1, PM2, PM3, PM16, PM17** remain; every ⑤-harvest that earns a
     class refills this queue.
 
 **Carried out of the PM7 walk, CLOSED by PM15:** the summary cards shared a first-paint reserve
