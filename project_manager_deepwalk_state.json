@@ -214,17 +214,26 @@
     "PJ12": {
       "title": "Delete a project - what goes with it, and is it recorded? (G2)",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-worker",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-worker-soft-delete",
+          "S-worker-hard-delete",
+          "S-supervisor-delete",
+          "S-ordinary-edit",
+          "S-audit-row"
+        ]
       },
-      "notes": ""
+      "notes": "WALKED 2026-07-28. THREE MEASURED FACTS. (1) A WORKER COULD SOFT-DELETE ANY PROJECT IN THEIR HIVE. deleteProject() sets deleted_at, the button carries no role check, and neither did the database - projects_hive_rw is a single PERMISSIVE FOR ALL testing only membership. Probed live: an ordinary worker hid SHD-2026-001, a shutdown project they do not own, and every view filters deleted_at IS NULL so it vanishes for everyone. (2) NOTHING RECORDED IT - the G2 ground finding confirmed live: hive_audit_log held ZERO rows for target_type='projects' or any project-named action. A project could disappear and the log could not say it had ever existed, let alone who removed it. (3) A HARD delete cascades to ALL SIX child tables (every FK is ON DELETE CASCADE), and it is currently refused for any project carrying a change order because 20260728000022's immutability trigger fires on the cascade. That is an ACCIDENTAL side effect of a fix aimed at something else. Recorded rather than left to be discovered: nothing legitimate breaks today because the UI only soft-deletes, but a future admin hard-delete WILL fail with a change-order error that reads as unrelated. FIXED (mig ...026): removing or restoring a project is a supervisor act and is recorded either way, with the children counted BEFORE the statement because after a cascade there is nothing left to describe what was lost - the same reason trg_asset_node_delete_audit is a BEFORE trigger. Guarded rather than forbidden, because soft-delete is the intended workflow. VERIFIED: worker soft-delete -> blocked with a plain reason; worker ORDINARY EDIT -> still works (no over-blocking, which is the failure mode a broad guard invites); supervisor delete -> succeeds AND writes the platform's first ever projects audit row: 'Leandro Marquez | delete_project | SHD-2026-001 | 1 COs, 7 items'. The three new actions are registered in hive.html's ACTION_ICON with EN+FIL labels and their valence, so the trail is READABLE rather than a row of unlabelled dots - the exact gap the audit-coverage gate caught earlier today."
     },
     "PJ13": {
       "title": "Cross-hive: a foreign project's items / COs cannot leak or be written (G3)",

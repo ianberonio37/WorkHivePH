@@ -4774,6 +4774,11 @@ async function loadAuditLog() {
     // from _auditColor() via the _AUD_SEC/_AUD_NEG/_AUD_POS sets below. Adding raw brand hexes
     // here would have been dead weight AND a design-token regression, so these register their
     // VALENCE in those sets instead, which is what actually reaches the screen.
+    // PJ12 (2026-07-28): project removal is now supervisor-gated AND audited — the first
+    // `projects` rows hive_audit_log has ever carried.
+    delete_project:        { icon: '⊘',  label: 'Removed project' },
+    hard_delete_project:   { icon: '⊘',  label: 'Permanently deleted project (and its change orders)' },
+    restore_project:       { icon: '↺',  label: 'Restored project' },
     amend_pm_completion:   { icon: '✎',  label: 'Amended PM completion' },
     amend_pm_schedule:     { icon: '⏱',  label: 'Changed PM schedule' },
     delete_asset_node:     { icon: '⊘',  label: 'Deleted asset (and its reliability history)' },
@@ -4825,6 +4830,8 @@ async function loadAuditLog() {
     approve_item: 'Inaprubahan', reject_item: 'Tinanggihan', register_asset: 'Nagrehistro ng asset',
     edit_asset: 'In-edit ang asset', delete_asset: 'Binura ang asset', approve_asset_node: 'Inaprubahan ang asset',
     reject_asset_node: 'Tinanggihan ang asset', restore_asset_node: 'Ibinalik ang asset',
+    delete_project: 'Inalis ang proyekto', hard_delete_project: 'Tuluyang binura ang proyekto',
+    restore_project: 'Ibinalik ang proyekto',
     amend_pm_completion: 'Binago ang natapos na PM', amend_pm_schedule: 'Binago ang iskedyul ng PM',
     delete_asset_node: 'Binura ang asset at ang kasaysayan nito', approved: 'Inaprubahan',
     create_inventory_item: 'Nagdagdag ng inventory item', edit_inventory_item: 'In-edit ang inventory item',
@@ -4851,8 +4858,8 @@ async function loadAuditLog() {
   // 7-way category coding. green=create/approve · red=destroy/reject · amber=security-only · neutral=rest.
   // The glyph (from ACTION_ICON) carries the specific action; color carries only valence.
   const _AUD_SEC = new Set(['new_device','amend_pm_completion','amend_pm_schedule']);
-  const _AUD_POS = new Set(['member_joined','alert_handled','approve_item','register_asset','approve_asset_node','restore_asset_node','create_inventory_item','create_logbook_entry','complete_pm','approve_fmea_mode','approve_rcm_strategy','anomaly_resolved','approve_amc_brief','create_listing','resolve_dispute_order','verify','assign','approved']);
-  const _AUD_NEG = new Set(['kick_member','reject_item','delete_asset','reject_asset_node','delete_inventory_item','delete_pm_asset','delete_fmea_mode','delete_rcm_strategy','reject_amc_brief','open_dispute','right_to_erasure','delete_asset_node']);
+  const _AUD_POS = new Set(['member_joined','alert_handled','approve_item','register_asset','approve_asset_node','restore_asset_node','create_inventory_item','create_logbook_entry','complete_pm','approve_fmea_mode','approve_rcm_strategy','anomaly_resolved','approve_amc_brief','create_listing','resolve_dispute_order','verify','assign','approved','restore_project']);
+  const _AUD_NEG = new Set(['kick_member','reject_item','delete_asset','reject_asset_node','delete_inventory_item','delete_pm_asset','delete_fmea_mode','delete_rcm_strategy','reject_amc_brief','open_dispute','right_to_erasure','delete_asset_node','delete_project','hard_delete_project']);
   const _auditColor = a => _AUD_SEC.has(a) ? '#F7A21B' : _AUD_NEG.has(a) ? '#f87171' : _AUD_POS.has(a) ? '#4ade80' : '#94a3b8';
   list.innerHTML = data.map(row => {
     const cfg = ACTION_ICON[row.action] || { icon: '·', color: '#94a3b8', label: String(row.action || '').replace(/_/g, ' ') || 'Action recorded' };

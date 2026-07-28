@@ -8049,6 +8049,14 @@
       "comment": "Cron (parts-recs-expire-0550pht): moves pending parts_staging_recommendations past expires_at to status='expired'. The state was in the table CHECK from creation with no producer. Leaves accepted/dismissed (human decisions) and NULL expires_at alone. Mirrors amc_expire_stale.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "guard_and_audit_project_removal": {
+      "defined_in": "20260728000026_deleting_a_project_is_a_supervisor_act_and_is_recorded.sql",
+      "args": "(trigger)",
+      "security_definer": true,
+      "comment": "BEFORE UPDATE OR DELETE on projects. Removing or restoring a project is a supervisor act and is recorded either way. Before this any active member could set deleted_at on any project in their hive, and hive_audit_log held ZERO rows for projects. Counts children BEFORE the statement because a hard delete cascades to all six child tables. PJ12.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
