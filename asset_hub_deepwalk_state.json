@@ -331,17 +331,25 @@
     "AH15": {
       "title": "Asset Brain Q&A - citations are checkable (inherited F41)",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-reliability",
+          "P-worker"
+        ],
+        "states": [
+          "S-all-citations-resolve",
+          "S-mixed-resolved-and-not",
+          "S-none-resolve",
+          "S-no-citations-at-all"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28 - the inherited F41, and it had TWO halves, only one of which was obvious. THE VISIBLE HALF: the model returns { kind, index } and the page rendered it literally - 'Sources: logbook #1, fmea #3'. That index points into an array the EDGE FUNCTION assembled and the page has never seen, so the single thing a citation exists for - letting a reader verify the claim - was impossible. Provenance rendered as internals, which is exactly feedback_provenance_user_voice_not_internals. THE HALF THAT MAKES IT A CORRECTNESS BUG, NOT A UX ONE: an index PAST THE END of the array rendered identically to a real one. If the model cited 'logbook #7' when only 5 entries were supplied, the reader saw a confident, plausible source for a sentence nothing supports. A FABRICATED citation was indistinguishable from a grounded one - and grounding is the entire product claim of an Asset Brain. Nothing validated the index anywhere in the chain. FIXED WHERE THE CONTEXT ACTUALLY LIVES: resolveCitations() in asset-brain-query maps each {kind,index} against the arrays that function built and returns a human-readable label plus resolved:true|false. All ten kinds covered (logbook, pm, neighbor, similar, fmea, rcm, pf, risk-factor, and the singletons weibull/risk/stat), duplicates collapsed (the same source cited twice adds no evidence and reads as two), kind/index preserved for any existing consumer. UNRESOLVED ONES ARE SHOWN, NOT DROPPED: an answer leaning on a source that does not exist is the most important thing to know about it, and silently filtering them would restore the original invisibility under a nicer surface. And no citations AT ALL now says so explicitly rather than rendering an empty line. VERIFIED LIVE, twice over. Direct edge invoke on WLD-001 returned resolved labels: 'FMEA - MCCB trip unit drift (RPN 168)'. Then a real Ask through the PAGE's own handler (which routes via ai-gateway, so this also proves the structured passthrough preserves the new fields) rendered: 'Based on: FMEA - MCCB trip unit drift (RPN 168) / FMEA - Switch-mode PSU output ripple (RPN 150) / FMEA - Cable insulation breakdown (RPN 108) / Weibull fit - wearout (beta 3.59, eta 165 d) / P-F interval - temperature_c - inspect every 6 d'. Every one of those is checkable against the asset's own records in seconds. All four surface states exercised: all-resolved, mixed, all-unresolved, and none. INSTRUMENT NOTE: the four-state check ran a COPY of the page's render logic, so the real proof of the page path is the live Ask above, not that simulation - which is why I ran it."
     },
     "AH16": {
       "title": "Telemetry / sensor panel with and without data",

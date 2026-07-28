@@ -301,6 +301,114 @@ async function fetchReliability(
 // Compose narrow payload
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// AH15 (Asset Hub deepwalk, 2026-07-28) — the inherited F41: a citation you cannot check.
+//
+// The model returns { kind, index } and asset-hub rendered it literally: "Sources: logbook #1,
+// fmea #3". That index points into an array the EDGE FUNCTION built and the page has never seen,
+// so the one thing a citation exists for — letting a reader verify the claim — was impossible.
+//
+// Worse, and this is the half that makes it a correctness problem rather than a UX one: an index
+// past the end of the array rendered EXACTLY like a real one. If the model cited "logbook #7"
+// when only 5 entries were supplied, the reader saw a confident, plausible source for a sentence
+// nothing supports. A fabricated citation was indistinguishable from a grounded one.
+//
+// So resolution happens HERE, where the context actually exists: each citation gets a
+// human-readable label drawn from the row it names, and anything pointing past the end of its
+// array is marked resolved:false so the surface can say so instead of parroting a number.
+// kind/index are preserved for any existing consumer.
+// ---------------------------------------------------------------------------
+function resolveCitations(context: AnyRow, cited: unknown): AnyRow[] {
+  if (!Array.isArray(cited)) return [];
+  const ctx = context as {
+    stats?: AnyRow | null; risk?: AnyRow | null; neighbors?: AnyRow[];
+    timeline?: { logbook?: AnyRow[]; pm?: AnyRow[] };
+    similar?: AnyRow[];
+    reliability?: { fmea?: AnyRow[]; rcm?: AnyRow[]; weibull?: AnyRow | null; pf?: AnyRow[] };
+  };
+  const trim = (s: unknown, n = 70) => {
+    const t = String(s ?? "").trim().replace(/\s+/g, " ");
+    return t.length > n ? t.slice(0, n - 1) + "…" : t;
+  };
+  const day = (s: unknown) => (s ? String(s).slice(0, 10) : "undated");
+
+  const out: AnyRow[] = [];
+  const seen = new Set<string>();
+
+  for (const c of cited) {
+    if (!c || typeof c !== "object") continue;
+    const kind = String((c as AnyRow).kind ?? "").toLowerCase();
+    const rawIdx = (c as AnyRow).index;
+    const idx = Number.isFinite(Number(rawIdx)) ? Number(rawIdx) : null;
+
+    // The same source cited twice adds no evidence and reads as two.
+    const key = `${kind}#${idx ?? "-"}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    const pick = (arr: AnyRow[] | undefined) =>
+      (idx != null && Array.isArray(arr) && idx >= 0 && idx < arr.length) ? arr[idx] : null;
+
+    let label: string | null = null;
+    let row: AnyRow | null = null;
+
+    switch (kind) {
+      case "logbook":
+        row = pick(ctx.timeline?.logbook);
+        if (row) label = `Logbook · ${day(row.when)} · ${trim(row.problem || row.root_cause || row.action || "entry")}`;
+        break;
+      case "pm":
+        row = pick(ctx.timeline?.pm);
+        if (row) label = `PM completed · ${day(row.when)}`;
+        break;
+      case "neighbor":
+        row = pick(ctx.neighbors);
+        if (row) label = `Connected asset · ${trim(row.tag, 30)}${row.edge_type ? ` (${trim(row.edge_type, 20)})` : ""}`;
+        break;
+      case "similar":
+        row = pick(ctx.similar);
+        if (row) label = `Peer asset ${trim(row.peer_tag, 24)} · ${day(row.when)} · ${trim(row.problem, 44)}`;
+        break;
+      case "fmea":
+        row = pick(ctx.reliability?.fmea);
+        if (row) label = `FMEA · ${trim(row.failure_mode, 50)} (RPN ${row.rpn ?? "?"})`;
+        break;
+      case "rcm":
+        row = pick(ctx.reliability?.rcm);
+        if (row) label = `RCM strategy · ${trim(row.decision, 26)}${row.task ? `: ${trim(row.task, 44)}` : ""}`;
+        break;
+      case "pf":
+        row = pick(ctx.reliability?.pf);
+        if (row) label = `P-F interval · ${trim(row.parameter, 28)}${row.recommended_interval_days ? ` · inspect every ${row.recommended_interval_days} d` : ""}`;
+        break;
+      case "risk-factor":
+        row = pick((ctx.risk?.top_factors as AnyRow[] | undefined));
+        if (row) label = `Risk factor · ${trim(row.factor, 60)}`;
+        break;
+      // Singletons: no index to validate, they either exist in the context or they do not.
+      case "weibull":
+        row = (ctx.reliability?.weibull as AnyRow | null) ?? null;
+        if (row) label = `Weibull fit · ${trim(row.failure_pattern, 20)} (beta ${row.beta ?? "?"}, eta ${row.eta_days ?? "?"} d)`;
+        break;
+      case "risk":
+        row = (ctx.risk as AnyRow | null) ?? null;
+        if (row) label = `Risk snapshot · ${trim(row.risk_level, 12)} ${row.risk_score ?? "?"} · ${day(row.generated_at)}`;
+        break;
+      case "stat":
+        row = (ctx.stats as AnyRow | null) ?? null;
+        if (row) label = `Asset totals · ${row.lifetime_logbook_entries ?? 0} logbook entries, ${row.pm_completed_count ?? 0} PMs completed`;
+        break;
+    }
+
+    out.push(label
+      ? { kind, index: idx, label, resolved: true }
+      // Unresolved: the model named a source that is not in what it was given. Kept rather than
+      // dropped so the surface can show the answer is leaning on something that does not exist.
+      : { kind: kind || "unknown", index: idx, label: null, resolved: false });
+  }
+  return out;
+}
+
 function composeContext(
   graph: { node: AnyRow | null; overview: AnyRow | null; parent: AnyRow | null; neighbors: AnyRow[] },
   timeline: { logbook: AnyRow[]; pm: AnyRow[] },
@@ -586,9 +694,14 @@ serveObserved("asset-brain-query", async (req) => {
       parsed = { answer: raw, cited: [] };
     }
 
+    // AH15: resolve each { kind, index } against the context THIS function assembled, so the
+    // surface can show a checkable source instead of an opaque "#3", and can tell a real citation
+    // from one pointing past the end of what the model was given.
+    const citations = resolveCitations(context as AnyRow, parsed.cited);
+
     return jsonResponse({
       answer:    String(parsed.answer || "").trim(),
-      cited:     Array.isArray(parsed.cited) ? parsed.cited : [],
+      cited:     citations,
       // Persona narration (1-2 sentences in Hezekiah/Zaniah voice). Capped to
       // keep responses sane if the model overruns.
       narration: String(parsed.narration || "").trim().slice(0, 280),

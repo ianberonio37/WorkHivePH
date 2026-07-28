@@ -3920,11 +3920,37 @@
           window.speakPersona(narration);
         }
 
+        // AH15 (Asset Hub deepwalk, 2026-07-28) — the inherited F41. This used to render
+        // "Sources: logbook #1, fmea #3": an index into an array built inside the edge function
+        // and never sent to the page, so the one thing a citation is FOR — letting a reader check
+        // the claim — was impossible. And an index past the end of that array looked exactly like
+        // a real one, so a fabricated source read as a confident, grounded one.
+        //
+        // The function now resolves each citation against the context it assembled and returns a
+        // label plus resolved:true|false. Unresolved ones are called out rather than hidden: an
+        // answer leaning on a source that does not exist is the single most important thing to
+        // know about it, and quietly dropping them would restore the original invisibility.
         if (citEl && Array.isArray(cited) && cited.length) {
-          const summary = cited.map(c => e(c.kind || 'src') + ' #' + e(String(c.index ?? '?'))).join(', ');
-          citEl.innerHTML = 'Sources: ' + summary;
+          const good = cited.filter(c => c && c.resolved !== false && c.label);
+          const bad  = cited.filter(c => c && (c.resolved === false || !c.label));
+          let html = '';
+          if (good.length) {
+            html += '<div style="font-weight:600; margin-bottom:3px;">Based on:</div>'
+              + '<ul style="margin:0; padding-left:1.1rem; display:flex; flex-direction:column; gap:2px;">'
+              + good.map(c => '<li>' + e(c.label) + '</li>').join('')
+              + '</ul>';
+          }
+          if (bad.length) {
+            html += '<div style="margin-top:6px; color:var(--wh-red); font-weight:600;">'
+              + e(bad.length === 1
+                  ? '1 cited source could not be matched to this asset’s records — treat that part of the answer as unverified.'
+                  : bad.length + ' cited sources could not be matched to this asset’s records — treat those parts of the answer as unverified.')
+              + '</div>';
+          }
+          citEl.innerHTML = html;
         } else if (citEl) {
-          citEl.innerHTML = '';
+          // No citations at all is itself worth stating: the answer rests on nothing specific.
+          citEl.innerHTML = '<span style="color:var(--muted);">No specific record was cited for this answer.</span>';
         }
 
         if (metaEl && typeof remaining === 'number') {
