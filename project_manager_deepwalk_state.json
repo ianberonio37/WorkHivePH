@@ -124,7 +124,7 @@
     "PJ07": {
       "title": "Earned Value - is green/amber/red defensible? (EVM / PMBOK)",
       "phases": {
-        "G": "partial",
+        "G": "done",
         "W": "todo",
         "O": "todo",
         "H": "todo",
@@ -134,7 +134,7 @@
         "personas": [],
         "states": []
       },
-      "notes": ""
+      "notes": "GROUND 2026-07-28, found while walking PJ9 rather than by looking for it. clientRollup() is a CLIENT-SIDE Earned Value fallback that runs when the project-progress edge fn has not supplied a rollup, and it decides the green/amber/red a CLIENT is shown from two invented inputs:   const AC = hoursActual * 200;   <- a hardcoded PHP 200/hour labour rate, in the browser \n  const status = minVal >= 0.95 ? 'green' : minVal >= 0.85 ? 'amber' : 'red';   <- invented bands \nCost Performance Index is EV/AC, so a wrong AC makes CPI wrong by exactly the ratio of the real rate to PHP 200 - and the platform serves plants whose rates differ by more than that. This is the AHK2/AH7 shape in a new domain: EVM has published formulas (CPI=EV/AC, SPI=EV/PV, PMBOK / ANSI EIA-748) so the MATH is checkable against a standard, and it is the INPUTS and the BANDS that are unfounded here. Worse than RPN's case, because RPN at least used values an engineer entered; this invents the rate silently. WALK/ORACLE open: the question to answer is whether the edge fn's own earned_value uses the same constants, and whether either path states its method anywhere a supervisor could check it."
     },
     "PJ08": {
       "title": "Critical path - what decides that a task may slip?",
@@ -154,17 +154,24 @@
     "PJ09": {
       "title": "Budget: can a non-supervisor read it anyway? (G6)",
       "phases": {
-        "G": "partial",
-        "W": "todo",
+        "G": "done",
+        "W": "done",
         "O": "todo",
         "H": "todo",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-worker",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-worker-direct-read",
+          "S-ui-refusal-shown",
+          "S-view-exposes-it"
+        ]
       },
-      "notes": ""
+      "notes": "WALKED 2026-07-28. G6 CONFIRMED LIVE, and it is a UI-only gate on commercially sensitive data. renderBudget() tells a non-supervisor 'Budget visibility is restricted to supervisors' while projects_hive_rw grants every active member SELECT. Probed as worker Bryan Garcia: read budget_php straight off the table - CAP-2026-001 PHP 1,850,000 and CON-2026-001 PHP 280,000. The page renders a refusal; the database hands it over. WIDER THAN THE PANE: budget_php is in the MAIN project-list select (line 989) for every user, not just supervisors, and BAC is then computed client-side - so the number is already in the browser of everyone who opens the page, before any pane decides whether to show it. It is also exposed through v_project_truth. LEGITIMATE READERS MEASURED: the page itself (list select + the edit form + the client-side EVM), and two edge fns (project-orchestrator, project-progress) which run service-role and are unaffected by a client-side tightening. FIX/GATE open - the shape that fits this codebase is the one used twice already this session: move the privileged read into a SECURITY DEFINER RPC that checks supervisor role itself, drop budget_php from the client select, and let the edge fns keep their reach. PARTIAL FIX 2026-07-28 (mig ...023), and the partiality is stated deliberately rather than rounded up: get_project_budget() is a SECURITY DEFINER RPC that returns budget_php + the EVM dates ONLY to an active supervisor of that hive, using the same predicate as wh_guard_supervisor_approval so authority lives in one place. Verified both ways - supervisor gets PHP 1,850,000; worker gets {ok:false, reason:'not a supervisor'} with a stated detail rather than a silent null, so a refusal is not mistaken for 'this project has no budget'. THE HOLE IS NOT YET CLOSED and it would be dishonest to mark this journey done: the RPC adds a SANCTIONED path, it does not remove the unsanctioned one. A worker can still db.from('projects').select('budget_php') because RLS is row-level. Closing it needs three things together, which is why it is the next slice rather than a quick follow-on: REVOKE SELECT (budget_php) ON projects FROM authenticated (Postgres column privileges - the only mechanism that can withhold ONE column of a readable row), drop budget_php from the page's list select at line 989 and route renderBudget/clientRollup through the RPC, and decide what v_project_truth should expose, since it carries the column too. The edge fns are unaffected either way - both run service-role."
     },
     "PJ10": {
       "title": "Roles: assign, remove, and what a role actually gates (G5)",

@@ -2,7 +2,7 @@
 name: doc-PROJECT_MANAGER_DEEPWALK_EXPANSION_ROADMAP
 type: doc
 source: file:PROJECT_MANAGER_DEEPWALK_EXPANSION_ROADMAP.md
-source_sha: 3d51f2c9fbd8e7f7
+source_sha: 53b5adbe954f81c2
 last_verified: 2026-07-13
 supersedes: null
 ---

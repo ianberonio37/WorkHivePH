@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:398
-source_sha: d99dbe8d5dc10806
+source: dir:supabase/migrations:400
+source_sha: 0317bb3612142c5e
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (398 migrations)
+## migration · catalog (400 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260607000003_definer_hive_membership_gates` — fns:compute_anomaly_signals,fetch_active_alerts,get_adoption_risk_current,get_hive_readiness_current,semantic_search_kb,semantic_search_kg_facts
-- `20260607000004_definer_revoke_service_role_only` — (misc DDL/DML)
 - `20260607000005_definer_hive_membership_gates_batch2` — fns:compute_adoption_risk,compute_hive_readiness,export_hive_data,store_memory_turn,update_dialog_state
 - `20260607000006_export_hive_data_service_role_only` — (misc DDL/DML)
 - `20260607000007_get_hive_dashboard_pm_overdue_unify` — fns:get_hive_dashboard
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260728000019_rename_carries_the_whole_identity` — fns:sync_asset_identity,sync_pm_asset_identity
 - `20260728000020_expire_stale_parts_recommendations` — fns:expire_stale_parts_recommendations
 - `20260728000021_register_pm_ontime_delivery_canonical` — (misc DDL/DML)
+- `20260728000022_a_change_order_is_a_contract_not_a_draft` — fns:guard_change_order_terms_immutable · triggers:trg_change_order_terms_immutable
+- `20260728000023_budget_is_supervisor_only_at_the_database` — fns:get_project_budget
 
 (showing last 200)
 

@@ -8025,6 +8025,30 @@
         "logbook.html"
       ],
       "called_by_edge_fns": []
+    },
+    "guard_change_order_terms_immutable": {
+      "defined_in": "20260728000022_a_change_order_is_a_contract_not_a_draft.sql",
+      "args": "(trigger)",
+      "security_definer": true,
+      "comment": "BEFORE UPDATE OR DELETE on project_change_orders. A raised change order's commercial terms (cost, schedule, scope, title, requester, project, hive) are immutable and it cannot be deleted - cancel instead. Status and approver fields stay mutable; wh_guard_supervisor_approval decides who may move them. Added after PJ4 showed a worker rewriting another worker's pending order from PHP 500,000 to PHP 9,999,999 with the original requester's name still on it.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "get_project_budget": {
+      "defined_in": "20260728000023_budget_is_supervisor_only_at_the_database.sql",
+      "args": "p_project_id uuid",
+      "security_definer": true,
+      "comment": "Supervisor-only read of projects.budget_php + the EVM dates. Exists because RLS is ROW-level and cannot withhold one column of a row a member may otherwise read, while project-manager.html claimed in its renderer that budget visibility was supervisor-only. PJ9.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "expire_stale_parts_recommendations": {
+      "defined_in": "20260728000020_expire_stale_parts_recommendations.sql",
+      "args": "(none)",
+      "security_definer": true,
+      "comment": "Cron (parts-recs-expire-0550pht): moves pending parts_staging_recommendations past expires_at to status='expired'. The state was in the table CHECK from creation with no producer. Leaves accepted/dismissed (human decisions) and NULL expires_at alone. Mirrors amc_expire_stale.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
