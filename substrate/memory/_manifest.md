@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:569-files
-source_sha: 29b39f92823ade0b
+source: memory-curated:571-files
+source_sha: 5651ee055df0c339
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (569 durable topic files)
+## memory · curated auto-memory (571 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=192 · project=288 · reference=89
+**By type:** feedback=194 · project=288 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -34,6 +34,7 @@ Entries (name · type · sha):
 - `feedback_axe_incomplete_is_a_false_100` · feedback · 1ee90dac3d5ad978
 - `feedback_be_proactive_flywheel` · feedback · d90540cf6e6308f8
 - `feedback_bge_local_false_ceiling_own_embedder` · feedback · 0ee89e886beab70e
+- `feedback_browser_resize_lies_check_innerwidth` · feedback · 4ca4bd7ab6279cbe
 - `feedback_build_own_minimal_dependencies` · feedback · b2c31fd6d026718a
 - `feedback_build_structure_to_make_it_liveable` · feedback · 57d882251cd6bba3
 - `feedback_canonical_audit_reflex` · feedback · d9fee199f5963282
@@ -116,6 +117,7 @@ Entries (name · type · sha):
 - `feedback_measure_the_worked_state_not_the_generator` · feedback · 5242b6458d5c3110
 - `feedback_measured_percent_not_qualitative_done` · feedback · a0140544db758050
 - `feedback_memento_visible_confirmation` · feedback · e015e662599822a1
+- `feedback_metric_label_is_a_claim_add_the_missing_half` · feedback · eabf1862f3e18699
 - `feedback_mobile_fit_rubric_gap_and_two_bugs` · feedback · e101498c62dd7da7
 - `feedback_momentum_stop_guard` · feedback · 93fd80bedf0520f8
 - `feedback_native_ui_approach` · feedback · b8163279e8813ae5
@@ -514,8 +516,6 @@ Entries (name · type · sha):
 - `reference_community_ai_axis_piisafe_context` · reference · 3bded5b2d7559dae
 - `reference_community_replies_attribution_pin` · reference · 7a0ab4c3a500a1b7
 - `reference_community_xp_write_hole_and_reputation_bridge` · reference · e2cd9b515e6427be
-- `reference_companion_action_fabrication_rail` · reference · db60da0c94079af0
-- `reference_companion_grader_fit` · reference · 461f92653b060be4
-- … +69 more (all included in the fingerprint)
+- … +71 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

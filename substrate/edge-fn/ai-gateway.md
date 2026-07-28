@@ -2,7 +2,7 @@
 name: edge-fn-ai-gateway
 type: edge-fn
 source: file:supabase/functions/ai-gateway/index.ts
-source_sha: 89a3da92a6110a55
+source_sha: ddc38dd719b0dacb
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: eb90e2b4a389e193
+source_sha: b660f51a6af79610
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (664) — the 'what's already gated' brain
+## gate · registered validators (666) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -216,7 +216,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (464)
+### Platform (466)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -547,6 +547,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `playwright-staleness` ⚡ [fail] — Playwright Staleness Gate (L13 — walkthrough coverage + finding closure + chip assertions)
 - `pm` ⚡ [fail] — PM Scheduler Validator
 - `pm-write-isolation` [fail] — PM-write hive isolation (LIVE two-tenant, rolled-back: simulates a real authenticated member and asserts a hive-A member CANNOT [42501] inject a pm_scope_item o
+- `pm_frequency_mapping` ⚡ [fail] — PM08 · one interval-to-frequency mapping, never rarer than asked — a PM's frequency is a WORD in the database and the schedule is DERIVED from that word by a CA
 - `policy-hive-binding` ⚡ [fail] — Gateway Policy Hive-Binding (Pillar P: anon-capable fns must rate-limit on the verified tenant, never a raw client hive_id)
 - `post_action_coherence` ⚡ [fail] — MK12 · post-action coherence — a handler that writes and then tells the user it SUCCEEDED must also re-derive the surfaces it just invalidated, or the page cont
 - `predictive` ⚡ [fail] — Predictive Analytics Data Quality Validator
@@ -624,6 +625,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `skillmatrix` ⚡ [fail] — Skill Matrix Validator
 - `soft-delete` ⚡ [fail] — Soft-Delete Read-Path Validator (.is(deleted_at, null) on every SELECT)
 - `source-chip-truth` ⚡ [fail] — Source-Chip Truth (every renderSourceChip view is actually .from()-read on the page; forward-only ratchet)
+- `source_chip_freshness` ⚡ [fail] — PM5 · a saved copy must not claim to be live — the source chip is the platform's provenance UI, so reporting freshness is its only job and overstating it is wor
 - `sso-readiness` ⚡ [fail] — SSO Readiness Validator
 - `standards-alignment` ⚡ [fail] — Standards Alignment Auditor (Tier S — formula required_inputs supersets cited standard OR honestly declared partial_variant)
 - `state-machine-integrity` ⚡ [fail] — State Machine Integrity (4-layer: invalid writes + unreachable states + unconstrained columns + writer matrix)

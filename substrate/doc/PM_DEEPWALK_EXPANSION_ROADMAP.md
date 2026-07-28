@@ -2,7 +2,7 @@
 name: doc-PM_DEEPWALK_EXPANSION_ROADMAP
 type: doc
 source: file:PM_DEEPWALK_EXPANSION_ROADMAP.md
-source_sha: 0b876ccf46ed482d
+source_sha: f626c3853bd4378f
 last_verified: 2026-07-13
 supersedes: null
 ---

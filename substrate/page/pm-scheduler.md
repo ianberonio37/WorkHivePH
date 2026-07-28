@@ -2,16 +2,16 @@
 name: page-pm-scheduler
 type: page
 source: file:pm-scheduler.html
-source_sha: 53c080e1d4044599
+source_sha: 950fbb0eedc88199
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `pm-scheduler.html` — PM Scheduler: WorkHive
 
-Size: 144KB · 69 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 150KB · 69 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (8): `hive_audit_log.insert`, `logbook.insert`, `pm_assets.delete`, `pm_assets.insert`, `pm_assets.update`, `pm_completions.insert`, `pm_scope_items.insert`, `project_links.insert`
-**RPC calls**: `get_pm_compliance_smrp`
+**RPC calls**: `get_pm_compliance_smrp`, `get_pm_ontime_delivery`
 **Edge invokes**: `embed-entry`
 **Truth views read**: `v_asset_truth`, `v_pm_scope_items_truth`
 

@@ -2,7 +2,7 @@
 name: skill-maintenance-expert
 type: skill
 source: skill:maintenance-expert
-source_sha: 9487381a37a09ad3
+source_sha: 27adc703388555ed
 last_verified: 2026-07-13
 supersedes: null
 ---

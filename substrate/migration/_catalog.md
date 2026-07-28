@@ -1,19 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:380
-source_sha: a848323880fe1ec0
+source: dir:supabase/migrations:384
+source_sha: 6c64aa37632a3a11
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (380 migrations)
+## migration · catalog (384 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260521121000_canonical_period_summaries` — policies:cps_insert,cps_read,cps_update · tables:canonical_period_summaries
-- `20260521122000_agent_episodic_memory` — policies:aem_insert,aem_read,aem_update · tables:agent_episodic_memory
-- `20260521123000_unified_events` — policies:ue_insert,ue_read · tables:unified_events
-- `20260521124000_register_agentic_rag_tables` — tables:migration
 - `20260521125000_voice_companion_infra_tables` — policies:ai_audit_log_hive_insert,ai_audit_log_hive_select,ai_knowledge_gap_hive_all,ai_quality_escalation_hive_all,asset_watchlist_hive_all,before · tables:ai_audit_log,ai_cost_log,ai_knowledge_gap,ai_quality_escalation,asset_watchlist,companion_handoff
 - `20260521126000_fix_broken_quota_triggers` — (misc DDL/DML)
 - `20260521127000_unique_nulls_not_distinct_on_period_summaries` — tables:canonical_period_summaries
@@ -210,6 +206,10 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260728000001_fault_knowledge_logbook_fk` — tables:fault_knowledge
 - `20260728000002_inventory_deduct_ledger_truth` — fns:inventory_deduct
 - `20260728000003_logbook_post_close_amendment_audit` — fns:audit_logbook_post_close_amendment · triggers:trg_logbook_post_close_audit
+- `20260728000004_pm_completion_amendment_audit` — fns:audit_pm_completion_amendment · triggers:trg_pm_completion_amendment_audit
+- `20260728000005_pm_ontime_delivery_rpc` — fns:get_pm_ontime_delivery
+- `20260728000006_pm_asset_delete_guard_and_audit` — policies:pm_assets_delete_guard · fns:audit_pm_asset_delete · triggers:trg_pm_asset_delete_audit
+- `20260728000007_pm_completion_scope_parent_guard` — policies:pm_completions_scope_parent_guard
 
 (showing last 200)
 

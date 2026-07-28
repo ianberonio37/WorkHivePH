@@ -2,7 +2,7 @@
 name: table-rls-pm_assets
 type: table-rls
 source: db:pg_policies+pg_trigger:pm_assets
-source_sha: 783c12b19b06876b
+source_sha: cc9a7ec4c12789e8
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,6 +15,7 @@ Columns (*=NOT NULL): id*, hive_id, worker_name*, asset_name*, tag_id, location,
 
 Policies:
 - `pm_assets_write` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (((hive_id IS NULL) AND (auth_uid = auth.uid())) OR (hive_id IN ( SELECT hm.hive_id FROM h` CHECK=`((auth.uid() IS NOT NULL) AND (((hive_id IS NULL) AND (auth_uid = auth.uid())) OR (hive_id IN ( SELECT hm.hive_id FROM h`
+- `pm_assets_delete_guard` [DELETE · roles=public] USING=`(((hive_id IS NULL) AND (auth_uid = auth.uid())) OR ((hive_id IS NOT NULL) AND ((auth_uid = auth.uid()) OR (EXISTS ( SEL` CHECK=`∅`
 - `pm_assets_read` [SELECT · roles=public] USING=`((auth.uid() IS NOT NULL) AND (((hive_id IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE ((h` CHECK=`∅`
 
 Guard triggers: `trg_bind_submitter_pm_asset`, `trg_daily_cap_pm_assets`, `trg_text_caps_pm_assets`
