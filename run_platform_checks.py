@@ -5075,6 +5075,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "reliability_tenancy",
+        "script":  "tools/validate_reliability_tenancy.py",
+        "args":    [],
+        "label":   "AHK4 - reliability data is hive-private, PARENT included. FMEA modes, RCM strategies, Weibull fits and P-F intervals are competitive plant knowledge: what breaks, how often, and what a plant does about it. The AH13 walk found reads correctly isolated (0 rows across all four tables read as a member of another hive - recorded as a real result, not assumed) and WRITES carrying the PM13 gap: the WITH CHECK validated that hive_id is one the caller belongs to and said NOTHING about whether the PARENT lived there. Probed live, both accepted - an FMEA mode with hive_id=MINE and asset_id=ANOTHER hive's node, and a strategy with hive_id=MINE and fmea_mode_id=THEIRS. An instrument error nearly recorded that walk as clean: the first probe came back BLOCKED with 23514 and it looked like isolation holding, but 23514 is check_violation, not 42501 - the decision-enum CHECK rejecting an invalid value of the probe's OWN making, with the tenancy question still untested. Verify WHAT blocked a write, never merely THAT something did. Migration ...017 closed it with four RESTRICTIVE policies; this gate keeps them closed. It asserts each policy EXISTS, is RESTRICTIVE (a PERMISSIVE rewrite ORs with the others and WIDENS access while looking like a guard - a gate checking only 'a policy by this name exists' would pass that happily), and still JOINS the parent table to compare its hive rather than the row's own. Plus a live scan for rows that already cross a boundary, because WITH CHECK never applies retroactively - a guard added over existing violations would silently keep them. Teeth proven three ways: policy dropped -> FAIL, rewritten PERMISSIVE -> FAIL, weakened to own-hive-only -> FAIL, each with the right diagnosis.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "asset_identity_spine",
         "script":  "tools/validate_asset_identity_spine.py",
         "args":    [],
