@@ -175,17 +175,23 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
 2. **Build** `pm_deepwalk_state.json` + `tools/pm_deepwalk_scoreboard.py` with `--selftest`, register
    the gate + the `validate_pm_deepwalk.py` flywheel shim **in the same change** (the third arc hit a
    phantom block for want of that shim; the fourth should not).
-3. **PM7 / PMK1** — ~~walked (2 personas × 2 hives), measured at the DB (27.0% of 1,224 intervals ran
-   past their own frequency), harvested the SMRP definition, gated as a forward-only ratchet.~~ The
-   disposition is settled and only half-executed: **do not** redefine `get_pm_compliance_smrp` (a
-   named standard holding verified parity), **do** surface the on-time figure beside it — a supervisor
-   reading "88% compliance" against the 90% benchmark cannot currently see that almost nothing was
-   on schedule. **Remaining: put on-time% on the page.**
+3. ~~**PM7 / PMK1** — walked, measured, harvested, gated, and now SURFACED.~~ Done: the on-time
+   figure is on the PM Scheduler card and the analytics KPI card, both from one RPC
+   (`get_pm_ontime_delivery`, migration `20260728000005`); `get_pm_compliance_smrp` untouched. The
+   sibling sweep found the sharper defect — analytics called the SMRP counts "PMs **on time**" —
+   plus an un-swept `LOW` tag and a static "30 days" label on a 90-day number.
 4. ~~**PM11 / PMK3** — probe a post-sign-off amendment; if it is silent, port the logbook trigger.~~
    Done: back-dating a completion by 400 days was silent; migration `20260728000004` records it,
    `validate_pm_write_isolation` grew a fifth check, teeth proven by dropping the trigger.
 5. **PM5 + PM8** — the recompute and frequency-change transitions, two personas each.
 6. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
+
+**Carried out of the PM7 walk (found by the full-page diff, not the card):** the three summary cards
+share a first-paint reserve deficit — the row grows 137px → 184px at 390px when the data lands,
+because each `.sc-sub` placeholder is one line and fills to two or three. My own added line was
+brought to zero (`min-height:2.8em`), but the pre-existing three are untouched and belong to a
+render/CLS cell rather than PMK1. `.sc-sub` is shared across ~17 pages, so the fix is a scoped
+per-card reserve, not a change to the shared class.
 
 ---
 

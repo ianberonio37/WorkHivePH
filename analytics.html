@@ -536,11 +536,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.80);margin-top:4px;">ISO 14224:2016 · Counts calendar days between failures, not running hours.</small>
       </div>
       <div class="simple-card tag-grey" id="an-card-pm" data-rag-tile="analytics:pm_compliance" data-rag-label="PM compliance (30d approx)">
-        <div class="sc-label" data-i="lblpm">PM compliance (30 days)</div>
+        <!-- The period is written by renderAnalyticsSummary from the payload's own period_days.
+             Both of these read "30 days" statically until 2026-07-28 while the page DEFAULTS to 90
+             and never rewrote them on a period switch — so the card labelled a 90-day number as 30
+             days, in both languages. Kept period-neutral here so the pre-data state cannot lie. -->
+        <div class="sc-label" data-i="lblpm" id="an-pm-label">PM compliance</div>
         <div class="sc-hero" id="an-pm-hero">-</div>
         <div class="sc-sub" id="an-pm-sub">Loading...</div>
         <span class="sc-tag" id="an-pm-tag">-</span>
-        <small style="display:block;font-size:.55rem;color:rgba(255,255,255,0.80);margin-top:4px;">SMRP v5.0 · Estimated from the last 30 days.</small>
+        <small id="an-pm-foot" style="display:block;font-size:.55rem;color:rgba(255,255,255,0.80);margin-top:4px;">SMRP v5.0</small>
       </div>
     </div>
     <div class="action-card">
@@ -909,8 +913,32 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     updateFilterActiveBanner();
   }
 
+  // PMK1 (PM deepwalk, 2026-07-28): SMRP compliance credits a PM completed inside its period
+  // however late, so this card's ladder read STAIR-READY on a program where 27% of the work ran
+  // past its own frequency. Held here rather than recomputed, because get_pm_ontime_delivery is the
+  // one definition of on-time (the PM Scheduler card and validate_pm_ontime_vs_compliance read the
+  // same RPC). renderAnalyticsSummary is synchronous, so it is fetched alongside the phase data and
+  // read from here — null until it lands, which the ladder falls back over safely.
+  let anPmOntime = null;
+  let _lastSummaryData = null;
+  async function loadPmOntime() {
+    if (!HIVE_ID) return;
+    try {
+      const { data, error } = await db.rpc('get_pm_ontime_delivery',
+        { p_hive_id: HIVE_ID, p_period_days: _period });
+      if (error || !data || data.ontime_pct == null) return;
+      anPmOntime = data;
+      // The summary renders from TWO paths — a live phase fetch and loadSnapshots()' cached
+      // replay — and the cached one paints immediately, well before this RPC lands. Repaint the
+      // roll-up if it has already drawn, or the on-time figure silently never appears on the
+      // common (cached) load. Cheap: the summary only sets four cards and the verdict.
+      if (_lastSummaryData) renderAnalyticsSummary(_lastSummaryData);
+    } catch (_) { /* the card falls back to compliance alone */ }
+  }
+
   // ── Core fetch for a single phase ─────────────────────────────────────────
   async function fetchPhase(phase) {
+    loadPmOntime();
     try {
       // Cross-hive fix (2026-06-07): the orchestrator now re-checks hive
       // membership, so forward the USER's session JWT (not the anon key) as the
@@ -1011,6 +1039,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // compute live (snapshots are hive-keyed, default-view only).
   async function loadSnapshots() {
     if (!HIVE_ID) return [];
+    loadPmOntime();  // the cached path renders without ever calling fetchPhase
     if (_filters.criticality !== 'all' || _filters.discipline !== 'all') return [];
     try {
       const { data, error } = await db.from('analytics_snapshots')
@@ -1139,6 +1168,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   // Layer D — analytics summary. Cheap roll-up of the descriptive phase.
   function renderAnalyticsSummary(data) {
+    _lastSummaryData = data;  // so the on-time RPC can repaint this when it lands (see loadPmOntime)
+
+    // Write the PM card's period from the payload that produced the number, so the label cannot
+    // claim a window the figure was not computed over. setLang restores the static [data-i] copy
+    // and then re-renders the active phase, which lands back here — so this survives a locale swap.
+    const _pmPeriod = (data && data.period_days) || _period;
+    const _pmLabel = document.getElementById('an-pm-label');
+    if (_pmLabel) _pmLabel.textContent = _t(`PM compliance (${_pmPeriod} days)`, `PM compliance (${_pmPeriod} araw)`);
+    const _pmFoot = document.getElementById('an-pm-foot');
+    if (_pmFoot) _pmFoot.textContent = _t(`SMRP v5.0 · Estimated from the last ${_pmPeriod} days.`,
+                                          `SMRP v5.0 · Tinatayang mula sa huling ${_pmPeriod} araw.`);
     const setCard = (name, hero, sub, tag, tone) => {
       const card = document.getElementById('an-card-' + name);
       if (card) {
@@ -1211,14 +1251,33 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const totalSched = rows.reduce((s, r) => s + (Number(r.scheduled) || 0), 0);
         const failing = rows.filter(r => Number(r.compliance_pct) < 85).length;
         const _fail = failing ? _t(` · ${failing} asset${failing === 1 ? '' : 's'} under 85%`, ` · ${failing} asset ang mababa sa 85%`) : '';
-        pmSub = _t(`${totalDone} of ${totalSched} PMs on time${_fail}`, `${totalDone} sa ${totalSched} PM ang nasa oras${_fail}`);
+        // PMK1 (PM deepwalk, 2026-07-28): these are the SMRP 2.1.1 completed/scheduled counts, and
+        // SMRP credits a PM completed anywhere inside its period however late — the standard
+        // explicitly "does not account for late PMs". Calling them "on time" told the reader the one
+        // thing the number cannot support. Measured platform-wide the same day: 27.0% of 1,224
+        // completion intervals ran past the item's own frequency, all of them counted here.
+        // "completed" is what these counts actually mean; the real on-time figure is
+        // get_pm_ontime_delivery, surfaced on the PM Scheduler card.
+        pmSub = _t(`${totalDone} of ${totalSched} PMs completed${_fail}`, `${totalDone} sa ${totalSched} PM ang natapos${_fail}`);
       }
     }
     if (pmPct == null) {
       setCard('pm', '-', pmSub, 'NO DATA', 'grey');
     } else {
-      const tag  = pmPct >= 80 ? _t('STAIR-READY','HANDA SA STAIR') : pmPct >= 60 ? _t('BUILDING','PAPALAKI') : _t('LOW','MABABA');
-      const tone = pmPct >= 80 ? 'green' : pmPct >= 60 ? 'amber' : 'red';
+      // "LOW" alone reads as ambiguous (low what?) — fixed on the PM Scheduler card in the
+      // 2026-05-14 walkthrough to complete the ladder STAIR-READY / BUILDING / BELOW STAIR, but the
+      // sibling here was never swept. Same ladder, same wording.
+      // PMK1: and the same ladder runs on the WEAKER of compliance and on-time delivery, on the
+      // principle that a program is only as ready as its weakest measure. Thresholds unchanged
+      // (80/60), applied to the honest input. Falls back to compliance alone if the RPC has not
+      // landed. This is the PM Scheduler card's rule, swept here so the two pages cannot disagree.
+      const _lad = (anPmOntime && anPmOntime.ontime_pct != null)
+        ? Math.min(pmPct, anPmOntime.ontime_pct) : pmPct;
+      const tag  = _lad >= 80 ? _t('STAIR-READY','HANDA SA STAIR') : _lad >= 60 ? _t('BUILDING','PAPALAKI') : _t('BELOW STAIR','MABABA SA STAIR');
+      const tone = _lad >= 80 ? 'green' : _lad >= 60 ? 'amber' : 'red';
+      if (anPmOntime && anPmOntime.ontime_pct != null && anPmOntime.late > 0) {
+        pmSub += _t(` · ${anPmOntime.ontime_pct}% on time`, ` · ${anPmOntime.ontime_pct}% nasa oras`);
+      }
       setCard('pm', pmPct + '%', pmSub, tag, tone);
     }
 
@@ -2864,7 +2923,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     d30:'30 araw', d90:'90 araw', d180:'180 araw', d365:'1 taon',
     refresh:'I-refresh', recompute:'Muling kalkulahin', pdfreport:'PDF na Ulat', send:'Ipadala',
     assetrisk:'Panganib ng Asset', shiftbrain:'Shift Brain', networkview:'Network View',
-    lbloee:'OEE (karaniwan, bahagi)', lblmtbf:'Pinakamababang MTBF (bahagi)', lblpm:'PM compliance (30 araw)',
+    lbloee:'OEE (karaniwan, bahagi)', lblmtbf:'Pinakamababang MTBF (bahagi)', lblpm:'PM compliance',
     whatnext:'Ano ang susunod', showdetails:'Ipakita ang detalye',
     ph1:'Ano ang nangyari',  ph1s:'Descriptive',
     ph2:'Bakit ito nangyari', ph2s:'Diagnostic',

@@ -4,7 +4,9 @@
 THE BUG: SMRP Metric 2.1.1 PM Compliance = total_completed / total_scheduled across the program
 (WEIGHTED). `get_pm_compliance_smrp` (canonical, read by analytics + pm-scheduler) returned
 overall_pct = round(avg(compliance_pct)) — the UNWEIGHTED mean of per-asset %, letting a 1-PM asset
-count the same as a 20-PM asset. That drifts from the "N of M PMs on time" count shown beside it
+count the same as a 20-PM asset. That drifts from the "N of M PMs completed" count shown beside it
+(that label read "PMs on time" until the PM deepwalk 2026-07-28 corrected it — SMRP credits a PM
+completed late, so the words "on time" claimed something the number never measured)
 (a self-contradicting tile) and from journey_trace.py's terminus assertion (overall_pct ==
 100·completed/scheduled). descriptive.calc_pm_compliance had the same np.mean.
 

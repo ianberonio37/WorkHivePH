@@ -244,8 +244,10 @@ def calc_pm_compliance(pm_completions: list[dict], pm_scope_items: list[dict], p
 
     # SMRP 2.1.1 PM Compliance = total completed / total scheduled across the program
     # (WEIGHTED), NOT the unweighted mean of per-asset % — the mean lets a 1-PM asset
-    # count the same as a 20-PM asset and drifts from the "N of M PMs on time" count
-    # shown beside it (analytics arc F1d). This matches journey_trace's terminus
+    # count the same as a 20-PM asset and drifts from the "N of M PMs completed" count
+    # shown beside it (analytics arc F1d; that label read "on time" until the PM deepwalk
+    # 2026-07-28 — SMRP counts a late PM as compliant, so it never meant on time).
+    # This matches journey_trace's terminus
     # assertion (overall_pct == 100·completed/scheduled) + the RPC fix.
     _tot_sched = sum(r["scheduled"] for r in results)
     _tot_done  = sum(r["completed"] for r in results)

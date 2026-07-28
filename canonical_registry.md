@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **156**
 - Views:         **53**
-- RPCs:          **193**
+- RPCs:          **195**
 - HTML surfaces: **61**
 - Edge fns:      **98**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -184,6 +184,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `amc_expire_stale` |  | yes | — | — |
 | `anomaly_signals_forward_only_status` |  | no | — | — |
 | `audit_logbook_post_close_amendment` |  | yes | — | — |
+| `audit_pm_completion_amendment` |  | yes | — | — |
 | `auth_worker_names` |  | yes | — | — |
 | `award_achievement_xp` | p_worker    text,   p_ach_id    text,   p_xp        int,   p | yes | — | — |
 | `bind_acknowledged_by_from_hive` |  | no | — | — |
@@ -289,6 +290,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `get_mttr_by_machine` | "p_hive_id" "uuid" DEFAULT NULL::"uuid", "p_worker" "text" D | no | — | analytics-orchestrator, scheduled-agents |
 | `get_oee_by_machine` | p_hive_id     uuid,   p_period_days int DEFAULT 90 | yes | — | analytics-orchestrator |
 | `get_pm_compliance_smrp` | p_hive_id     uuid,   p_period_days int DEFAULT 90 | yes | pm-scheduler.html | analytics-orchestrator |
+| `get_pm_ontime_delivery` | p_hive_id uuid,   p_period_days integer DEFAULT 90 | yes | analytics.html, pm-scheduler.html | — |
 | `get_repeat_failures` | "p_hive_id" "uuid" DEFAULT NULL::"uuid", "p_worker" "text" D | no | — | analytics-orchestrator, scheduled-agents |
 | `get_saved_search_matches` |  | yes | marketplace.html | — |
 | `get_seller_community_reputation` | p_worker_name text, p_hive_id uuid | yes | marketplace-seller-profile.html | — |
@@ -384,7 +386,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `alert-hub.html` | alert_dismissals, amc_briefings, anomaly_signals, automation_log ... | alert_dismissals, amc_briefings, anomaly_signals ... | compute_anomaly_signals | analytics-orchestrator |
 | `all_figures.html` | — | — | — | — |
 | `analytics-report.html` | v_hives_truth | — | — | — |
-| `analytics.html` | analytics_snapshots | — | — | batch-risk-scoring |
+| `analytics.html` | analytics_snapshots | — | get_pm_ontime_delivery | batch-risk-scoring |
 | `architecture.html` | — | — | — | — |
 | `asset-hub.html` | asset_nodes, equipment_reading_templates, hive_audit_log, hive_members ... | asset_nodes, hive_audit_log, parts_staged_reservations ... | — | ai-gateway, asset-brain-query, fmea-populator |
 | `assistant.html` | ai_reply_feedback, schedule_items, v_inventory_items_truth, v_logbook_truth ... | ai_reply_feedback | — | ai-gateway |
@@ -411,7 +413,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `ph-intelligence.html` | hive_benchmarks, ph_intelligence_reports | — | — | intelligence-report |
 | `plant-connections.html` | gateway_audit_log, hive_retention_config, integration_configs, sensor_topic_map ... | — | — | — |
 | `platform-actions.html` | hive_audit_log, marketplace_disputes, marketplace_listings, marketplace_sellers ... | hive_audit_log, marketplace_disputes, marketplace_listings ... | — | — |
-| `pm-scheduler.html` | asset_nodes, hive_audit_log, hive_members, logbook ... | hive_audit_log, logbook, pm_assets ... | get_pm_compliance_smrp | — |
+| `pm-scheduler.html` | asset_nodes, hive_audit_log, hive_members, logbook ... | hive_audit_log, logbook, pm_assets ... | get_pm_compliance_smrp, get_pm_ontime_delivery | — |
 | `poster-v1.html` | — | — | — | — |
 | `poster-v2.html` | — | — | — | — |
 | `poster-v3.html` | — | — | — | — |

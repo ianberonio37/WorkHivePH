@@ -71,6 +71,52 @@ SELECT round(100.0 * sum(completed) / NULLIF(sum(scheduled), 0), 1) FROM per_ite
 """
 
 
+# PARITY (added 2026-07-28, when the PM Scheduler card began SHOWING on-time beside compliance).
+# The measure now has two readers — this validator and get_pm_ontime_delivery, which the page calls —
+# so it must have exactly ONE definition. This recomputes the RPC's scope inline and asserts the two
+# agree per hive. It is the logbook arc's LG2 disposition applied before the divergence exists rather
+# than after: three ways of saying "corrective" agreed for months purely by luck of vocabulary.
+PARITY_SQL = """
+WITH gaps AS (
+  SELECT pc.hive_id, pc.completed_at, s.frequency_days,
+         LAG(pc.completed_at) OVER (PARTITION BY pc.scope_item_id ORDER BY pc.completed_at) AS prev_at
+  FROM public.pm_completions pc
+  JOIN public.v_pm_scope_items_truth s ON s.scope_item_id = pc.scope_item_id
+  WHERE pc.status = 'done'
+), inline AS (
+  SELECT hive_id,
+         count(*) FILTER (WHERE prev_at IS NOT NULL
+                            AND completed_at >= now() - interval '90 days') AS total,
+         count(*) FILTER (WHERE prev_at IS NOT NULL
+                            AND completed_at >= now() - interval '90 days'
+                            AND completed_at <= prev_at + (frequency_days || ' days')::interval) AS ontime
+  FROM gaps GROUP BY hive_id
+)
+SELECT h.name,
+       CASE WHEN i.total = 0 OR i.total IS NULL THEN NULL
+            ELSE round(100.0 * i.ontime::numeric / i.total, 1) END AS inline_pct,
+       (public.get_pm_ontime_delivery(h.id, 90)->>'ontime_pct')::numeric AS rpc_pct
+FROM public.hives h LEFT JOIN inline i ON i.hive_id = h.id
+ORDER BY h.name;
+"""
+
+
+def check_parity():
+    """[] when the RPC and an independent inline computation agree for every hive."""
+    out = psql(PARITY_SQL)
+    if out is None:
+        return None  # DB down; the caller already skips
+    bad = []
+    for ln in out.splitlines():
+        if "|" not in ln:
+            continue
+        name, inline_pct, rpc_pct = (c.strip() for c in ln.split("|")[:3])
+        if inline_pct != rpc_pct:
+            bad.append(f"{name}: inline {inline_pct or 'NULL'} vs get_pm_ontime_delivery "
+                       f"{rpc_pct or 'NULL'} — the page and this gate would show different numbers")
+    return bad
+
+
 def psql(sql):
     try:
         r = subprocess.run(DOCKER_DB + [sql], capture_output=True, text=True,
@@ -121,11 +167,17 @@ def run_selftest():
     if "GREATEST(1," not in COMPLIANCE_SQL:
         problems.append("COMPLIANCE_SQL must mirror the RPC's scheduled-count, or the two figures "
                         "are not comparable")
+    if "get_pm_ontime_delivery" not in PARITY_SQL:
+        problems.append("PARITY_SQL must call the RPC the page reads, or it is not proving the page "
+                        "and this gate share one definition")
     live = analyze()
     if not live.get("skipped"):
         base = _baseline()
         if base.get("gap") is not None and live["gap"] is not None and live["gap"] > base["gap"] + 0.05:
             problems.append(f"gap widened {base['gap']} -> {live['gap']} (forward-only ratchet)")
+        drift = check_parity()
+        if drift:
+            problems.extend(drift)
     return problems
 
 
@@ -151,6 +203,16 @@ def main():
     print(f"  compliance (SMRP 2.1.1) : {res['compliance_pct']}%   <- what the page shows")
     print(f"  on-time delivery        : {res['ontime_pct']}%   ({res['ontime']}/{res['intervals']} intervals)")
     print(f"  the gap                 : {res['gap']} points")
+
+    drift = check_parity()
+    if drift:
+        print("  FAIL: the on-time measure has drifted into two different answers —")
+        for d in drift:
+            print(f"        {d}")
+        return 1
+    if drift is not None:
+        print("  PASS: get_pm_ontime_delivery (what the card shows) matches an independent "
+              "recomputation, every hive")
 
     if "--accept" in sys.argv:
         BASELINE_PATH.write_text(json.dumps(
