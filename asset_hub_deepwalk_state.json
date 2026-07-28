@@ -307,17 +307,26 @@
     "AH14": {
       "title": "Parts staging: accept / dismiss (inherited F43 expires_at)",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-planner"
+        ],
+        "states": [
+          "S-expired-recommendation",
+          "S-live-recommendation",
+          "S-no-expiry-set",
+          "S-forced-bypass",
+          "S-alert-hub-feed"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28 - the inherited F43, and it was live on TWO pages. asset-hub SELECTED expires_at and then never used it: not in the filter, not in the render. MEASURED: all 3 recommendations carrying an expiry had already passed it (2026-07-27, the day before this walk) and were still status='pending', so the card rendered them as live and actionable with checkboxes ticked and a 'Stage selected' button. Nothing anywhere expires them - no job, no trigger, no filter - so a recommendation stays pending forever and status='pending' does NOT mean current. WHY IT MATTERS: a parts recommendation is a RISK ASSESSMENT with a shelf life. It says 'given this asset's risk score today, stage these parts'. Acting on an expired one means committing stock against a model run the system itself already declared stale. alert-hub had the SAME bug and worse - its query did not even SELECT expires_at, so expired recommendations sat in the 'what needs attention now' feed. TWO DIFFERENT DISPOSITIONS, deliberately: asset-hub KEEPS the card and marks it expired (this is the asset's own page, where 'a recommendation was made and went stale' explains why there is nothing to act on - the false affordance is removed, not the information); alert-hub FILTERS it out (a stale risk assessment there is not context, it is noise competing with real alerts). AND THE DISABLED BUTTON IS NOT THE GUARD. A UI-only gate is bypassable (feedback_ui_only_approval_gate_is_bypassable), and there is a second reason to re-check: a card left open on screen can cross its own expiry while the user reads it. _onStagingAccept re-tests expires_at against the clock at the moment of the write. VERIFIED LIVE on AC-002: note reads 'This recommendation expired 23h ago and is no longer safe to act on...', Accept disabled and relabelled 'Expired', all 3 checkboxes disabled, Dismiss still enabled (clearing a stale card is exactly what a planner should be able to do). BYPASS ATTEMPTED AND REFUSED: force-enabling the button and its checkboxes then calling the handler produced 'That recommendation has expired' and parts_staged_reservations stayed at 1 - no write. alert-hub: 2 pending -> 1 after the filter, and the feed now carries exactly one staging item, the non-expired one. A NULL expires_at is correctly KEPT on both surfaces - no expiry set means no shelf life was declared, which is not the same as expired."
     },
     "AH15": {
       "title": "Asset Brain Q&A - citations are checkable (inherited F41)",

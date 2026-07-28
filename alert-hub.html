@@ -1078,9 +1078,19 @@
         .limit(20),
 
       db.from('parts_staging_recommendations')
-        .select('id, asset_name, risk_score, parts, rationale, confidence, generated_at')
+        .select('id, asset_name, risk_score, parts, rationale, confidence, generated_at, expires_at')
         .eq('hive_id', HIVE_ID)
         .eq('status', 'pending')
+        // AH14 (Asset Hub deepwalk, 2026-07-28) — the inherited F43, which was here too and worse:
+        // this query did not even SELECT expires_at. status='pending' alone is not "current",
+        // because nothing ever expires a recommendation — no job, no trigger — so a row stays
+        // pending forever. Measured: all 3 recommendations carrying an expiry had already passed
+        // it and were surfacing in this list as things to act on today.
+        //
+        // FILTERED OUT here, unlike asset-hub which shows it marked expired: this is the "what
+        // needs attention now" list, so a stale risk assessment is not context, it is noise
+        // competing with real alerts. The asset's own page is where its history belongs.
+        .or('expires_at.is.null,expires_at.gt.' + new Date().toISOString())
         .order('generated_at', { ascending: false })
         .limit(20),
     ]);

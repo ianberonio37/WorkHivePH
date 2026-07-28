@@ -632,6 +632,10 @@
           <span id="staging-confidence" style="font-size:.7rem; color:var(--muted); background:#fb923c22; padding:2px 8px; border-radius:8px;"></span>
         </div>
         <p id="staging-rationale" style="font-size:.78rem; color:var(--muted); margin:6px 0 12px;"></p>
+        <!-- AH14 (inherited F43): shown only when the recommendation has passed its expires_at.
+             Kept in the markup (rather than injected) so revealing it cannot shift the parts list
+             below it — same reserve-the-space rule as the AH5 fleet cap note. -->
+        <p id="staging-expiry-note" hidden style="font-size:.75rem; font-weight:600; color:var(--wh-red); background:rgba(239,87,87,0.08); border:1px solid rgba(239,87,87,0.25); border-radius:6px; padding:8px 10px; margin:0 0 12px;"></p>
         <div id="staging-parts" style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;"></div>
         <div style="display:flex; gap:8px;">
           <button id="staging-accept" class="btn-primary" data-i="stagesel" style="flex:1; min-height:44px; background:var(--wh-orange); color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Stage selected</button>
@@ -1853,6 +1857,21 @@
       // Normalize to a real array so the render + accept paths read it uniformly.
       rec.parts = _parsePartsField(rec.parts);
 
+      // AH14 (Asset Hub deepwalk, 2026-07-28) — the inherited F43. expires_at was SELECTED and then
+      // never used: not in the filter, not in the render. Measured: all 3 recommendations carrying
+      // an expiry had already passed it (2026-07-27, one day before this walk) and were still
+      // status='pending', so the card rendered them as live and actionable. Nothing anywhere expires
+      // them — no job, no trigger, no filter — so a recommendation stays "pending" forever.
+      //
+      // A parts recommendation is a RISK ASSESSMENT with a shelf life: it says "given this asset's
+      // risk score today, stage these parts". Acting on an expired one means ordering stock against
+      // a model run that the system itself already declared stale.
+      //
+      // Kept VISIBLE rather than filtered out, unlike alert-hub: this is the asset's own page, where
+      // "a recommendation was made and has gone stale" is worth knowing — it explains why there is
+      // nothing to act on. What is removed is the false affordance, not the information.
+      rec._expired = !!(rec.expires_at && new Date(rec.expires_at) < new Date());
+
       _stagingRec = rec;
       _renderStagingCard(rec);
     }
@@ -1902,10 +1921,37 @@
       const dismissBtn = document.getElementById('staging-dismiss');
       if (acceptBtn)  acceptBtn.onclick  = _onStagingAccept;
       if (dismissBtn) dismissBtn.onclick = _onStagingDismiss;
+
+      // AH14: an expired recommendation keeps its detail (the parts and the reasoning stay
+      // readable) but loses the ability to be actioned. Dismiss stays enabled — clearing a stale
+      // card is exactly what a planner should be able to do with it.
+      const note = document.getElementById('staging-expiry-note');
+      if (note) {
+        note.hidden = !rec._expired;
+        if (rec._expired) {
+          note.textContent = 'This recommendation expired ' + fmtRelative(rec.expires_at)
+            + ' and is no longer safe to act on — it was based on the asset’s risk score at the '
+            + 'time it was generated. Dismiss it, or re-run staging for a current one.';
+        }
+      }
+      if (acceptBtn) {
+        acceptBtn.disabled = !!rec._expired;
+        acceptBtn.textContent = rec._expired ? 'Expired' : 'Stage selected';
+      }
+      (partsEl ? partsEl.querySelectorAll('input[data-staging-idx]') : []).forEach(cb => {
+        cb.disabled = !!rec._expired;
+      });
     }
 
     async function _onStagingAccept() {
       if (!_stagingRec) return;
+      // AH14: the disabled button above is a UI-only gate, and a UI-only gate is bypassable
+      // (feedback_ui_only_approval_gate_is_bypassable). Re-check the expiry against the clock at
+      // the moment of the write, which also covers a card left open on screen past its expiry.
+      if (_stagingRec.expires_at && new Date(_stagingRec.expires_at) < new Date()) {
+        showToast('That recommendation has expired — dismiss it and re-run staging for a current one.');
+        return;
+      }
       const card = document.getElementById('staging-card');
       const btn  = document.getElementById('staging-accept');
       if (btn) { btn.disabled = true; btn.textContent = 'Staging...'; }
