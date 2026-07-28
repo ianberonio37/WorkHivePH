@@ -188,10 +188,16 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
    different rules and neither matching the view. The CMMS import had no Daily bucket, so a 1-day
    PM was scheduled weekly. One shared `whFreqFromDays` (utils.js), gated by
    `validate_pm_frequency_mapping`; earned class **PMK4**.
-6. **PM5** — complete → `next_due_date` recompute → the card changes state, across frequency bands
-   and two personas. Its derivation is now pinned by PMK4's parity check, so this walk is about the
-   TRANSITION (does every surface re-derive?), not the arithmetic.
-7. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
+6. ~~**PM5** — the recompute transition.~~ Done. The arithmetic is clean: `next_due_date` is derived
+   in the view and every consumer reads the derived columns, so a completion re-derives everywhere by
+   construction (recorded as a real clean result). The defect was the OTHER half of the transition —
+   analytics replays a saved snapshot under a chip hardcoded to "Live recomputation each refresh",
+   so a tech who completes a PM sees compliance unmoved with nothing saying the number predates
+   their work. Chip now reports snapshot-vs-live per phase; gated by
+   `validate_source_chip_freshness`.
+7. **PM12 · PM9 · PM15/PM18** — asset delete and its history, skip/defer honesty, then the mobile and
+   offline completion paths.
+8. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
 
 **Carried out of the PM7 walk (found by the full-page diff, not the card):** the three summary cards
 share a first-paint reserve deficit — the row grows 137px → 184px at 390px when the data lands,

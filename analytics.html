@@ -737,6 +737,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // ── Result cache — one entry per phase, survives tab switching ────────────
   let _cache = { descriptive: null, diagnostic: null, predictive: null, prescriptive: null };
   let _cacheTime = { descriptive: null, diagnostic: null, predictive: null, prescriptive: null };  // reassigned to {} in setFilter() to invalidate — must be let, not const (was a TypeError on every filter click; deep-walk dim-9 2026-07-06)
+  // PM5 (PM deepwalk, 2026-07-28): which phases are being shown from a SAVED snapshot rather than
+  // recomputed. The source chip claimed "Live recomputation each refresh" on every load, but
+  // loadSnapshots() renders the first-view-of-the-PHT-day copy instantly — measured: the numbers were
+  // on screen at 0ms, up to ~24h old, under a chip promising they were live. A provenance chip that
+  // overstates freshness is worse than none, because reporting freshness is its only job.
+  let _snapshotPhases = new Set();
   const PHASES = ['descriptive', 'diagnostic', 'predictive', 'prescriptive'];
 
   // WCAG 4.1.2 (Name, Role, Value) + 1.4.1 (Use of Color): selection state was carried by
@@ -790,6 +796,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     document.querySelectorAll('.phase-tab:not(.soon)').forEach(b => {
       setActive(b, (b.dataset.phase || b.textContent.toLowerCase()) === phase);
     });
+    // PM5: freshness is per-phase — one tab can be a saved snapshot while another was just
+    // recomputed — so the chip has to follow the active tab, not only period/locale changes.
+    if (typeof _refreshSourceChip === 'function') _refreshSourceChip();
     const banner = document.getElementById('phase-banner');
     if (banner && PHASE_BANNERS[phase]) {
       const icons = { descriptive:'📊', diagnostic:'🔍', predictive:'🔮', prescriptive:'⚡' };
@@ -969,6 +978,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (data.error) throw new Error(data.error);
       _cache[phase]     = data;
       _cacheTime[phase] = Date.now();
+      _snapshotPhases.delete(phase);   // this one really was recomputed just now
+      if (typeof _refreshSourceChip === 'function') _refreshSourceChip();
       if (_phase === phase) {
         renderPhase(phase, data);
         updateStatusBar(phase);
@@ -1058,6 +1069,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (t >= phtMidnightUtc && row.payload && !row.payload.error) {
           _cache[row.phase]     = row.payload;
           _cacheTime[row.phase] = t;
+          _snapshotPhases.add(row.phase);   // rendered from a SAVED copy, not recomputed
           fresh.push(row.phase);
         }
       }
@@ -1091,6 +1103,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     stopLoadingMessages();
     document.getElementById('status-spinner').style.display = 'none';
     updateStatusBar('descriptive');
+    // PM5: the chip is first drawn before this hydration decides snapshot-vs-live, so it has to be
+    // re-read once the answer is known — otherwise a saved copy keeps the "recomputed" claim.
+    if (typeof _refreshSourceChip === 'function') _refreshSourceChip();
 
     // Remaining phases load in background (don't block UI)
     Promise.allSettled(
@@ -2900,8 +2915,27 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // source-chip-allow: analytics computes via Postgres RPCs (calc_mtbf /
     // calc_mttr / calc_oee) over v_logbook_truth — no direct db.from() of
     // the view, but the RPC bodies guarantee identical lineage.
+    // PM5: say which of the two it actually is. A saved snapshot is a deliberate feature (the first
+    // view of the PHT day computes, the rest render instantly), but the reader has to know the
+    // number predates anything they did since — completing a PM does not move it until Refresh.
+    const _fromSnapshot = _snapshotPhases.has(_phase);
+    const _age = _cacheTime[_phase];
+    let _freshness;
+    if (_fromSnapshot && _age) {
+      const mins = Math.max(0, Math.round((Date.now() - _age) / 60000));
+      const when = mins < 60 ? `${mins} min ago`
+                 : mins < 1440 ? `${Math.round(mins / 60)}h ago`
+                 : `${Math.round(mins / 1440)}d ago`;
+      const whenFil = mins < 60 ? `${mins} min ang nakalipas`
+                    : mins < 1440 ? `${Math.round(mins / 60)} oras ang nakalipas`
+                    : `${Math.round(mins / 1440)} araw ang nakalipas`;
+      _freshness = _t(`Saved snapshot, computed ${when} · Refresh to recompute`,
+                      `Naka-save na snapshot, kinalkula ${whenFil} · I-refresh para muling kalkulahin`);
+    } else {
+      _freshness = _t('Recomputed just now', 'Kakakalkula lang');
+    }
     el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
-      freshness: _t('Live recomputation each refresh', 'Muling kinakalkula sa bawat refresh'),
+      freshness: _freshness,
       source:    'v_logbook_truth via Postgres RPCs',
       method:    [`MTBF / MTTR / OEE @ ${_period}d ${_t('window (selected period)', 'window (piniling panahon)')}`],
     });

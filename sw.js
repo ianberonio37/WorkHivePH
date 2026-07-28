@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v217';  // bump: one shared interval->frequency mapping in utils.js - without this bump an installed user keeps the import that turns a daily PM into a weekly one
+const CACHE_NAME  = 'workhive-shell-v218';  // bump: analytics no longer claims a saved snapshot was recomputed live - without this bump an installed user keeps a chip that overstates how fresh the numbers are
+// const CACHE_NAME  = 'workhive-shell-v217';  // bump: one shared interval->frequency mapping in utils.js - without this bump an installed user keeps the import that turns a daily PM into a weekly one
 // const CACHE_NAME  = 'workhive-shell-v216';  // bump: the PM card now shows on-time delivery beside SMRP compliance - without this bump an installed user keeps the shell that shows only the flattering number
 // const CACHE_NAME  = 'workhive-shell-v215';  // bump: the offline queue no longer reports a lost edit as synced, and logbook stops offering writes the database refuses - without this bump the PWA would keep serving the stale offline-queue.js and none of it would reach an installed user
 // const CACHE_NAME  = 'workhive-shell-v214';  // bump: rename is single-flight locked and its failures are now LOGGED as well as shown (three gates caught my own new code: P7 double-submit, Layer-L show-but-do-not-log, and an em dash in user copy)

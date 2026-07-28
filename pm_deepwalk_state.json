@@ -119,14 +119,23 @@
         "analytics.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "PRIORITY. Complete -> next_due_date recompute -> the card changes state. G partial: the PDDA arc verified ONE reschedule loop live (overdue Weekly -> complete -> next_due +7), but the recompute is DERIVED in v_pm_scope_items_truth and its completeness across frequency bands and personas is unwalked."
+      "walked": {
+        "personas": [
+          "P-tech",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-cached-snapshot",
+          "S-after-refresh"
+        ]
+      },
+      "notes": "PRIORITY. Complete -> next_due_date recompute -> the card changes state. G partial: the PDDA arc verified ONE reschedule loop live (overdue Weekly -> complete -> next_due +7), but the recompute is DERIVED in v_pm_scope_items_truth and its completeness across frequency bands and personas is unwalked. WALKED 2026-07-28. THE ARITHMETIC IS CLEAN: next_due_date is DERIVED in v_pm_scope_items_truth from COALESCE(last_completed_at, anchor_date, created_at) + frequency_days, and every consumer reads the derived columns rather than recomputing - alert-hub, dayplanner, hive and logbook all select is_overdue / days_until_due / next_due_date straight from the view, and hive.html documents deleting its own HIVE_FREQ_DAYS map on 2026-05-20 for exactly this reason. So a completion re-derives everywhere by construction, and PMK4 now pins the frequency_days half of that derivation against the client. Recorded as a real clean result. THE DEFECT IS THE OTHER HALF OF THE TRANSITION - WHETHER THE READER IS TOLD WHAT THEY ARE LOOKING AT. analytics.html renders analytics_snapshots: the first view of the PHT day computes and saves, every later view replays the saved copy, and only Refresh recomputes. Good feature. But the source chip hardcoded 'Live recomputation each refresh' on EVERY load. Measured: the KPI numbers were on screen at 0ms, up to ~24h old, under a chip promising they were live. In this journey's terms: a tech completes a PM, opens analytics, compliance has not moved, and nothing says the number predates their work. FIXED: the chip now reports which of the two it actually is, per phase (one tab can be a snapshot while another was just recomputed) - 'Saved snapshot, computed 1 min ago - Refresh to recompute' vs 'Recomputed just now', verified live in both states and both languages. Three call sites had to be reconciled, because the chip is first drawn BEFORE hydration decides snapshot-vs-live: the live fetch, the post-hydration render, and the phase switch. My first attempt fixed only the live path and the cached load kept the false claim - the same two-render-paths mistake PMK1 caught, made twice in one arc. GATED by tools/validate_source_chip_freshness.py (registered): a page reading a *_snapshots/*_cache table must COMPUTE its freshness string, never hardcode a liveness claim. The existing 'Source-chip truth' dimension only checks that a chip names views the page READS, which is how this shipped green. Teeth proven by restoring the hardcoded claim: exit 1."
     },
     "PM06": {
       "type": "T6-fabric",

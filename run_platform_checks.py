@@ -5051,6 +5051,14 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        "id":      "source_chip_freshness",
+        "script":  "tools/validate_source_chip_freshness.py",
+        "args":    [],
+        "label":   "PM5 · a saved copy must not claim to be live — the source chip is the platform's provenance UI, so reporting freshness is its only job and overstating it is worse than having no chip. Walked 2026-07-28: analytics.html renders analytics_snapshots (the first view of the PHT day computes and saves; every later view replays the saved copy and only Refresh recomputes — a deliberate, good feature) while the chip hardcoded 'Live recomputation each refresh' on EVERY load. Measured: the KPI numbers were on screen at 0ms, up to ~24h old, under a chip promising they were live. For this arc's journey that means a technician completes a PM, opens analytics, sees compliance unmoved, and nothing on the page says the figure predates their work. The existing 'Source-chip truth' dimension in canonical_status.py checks that a chip names views the page actually READS and says nothing about the freshness CLAIM, which is how this shipped green. Asserts: any page that reads a *_snapshots / *_cache table must COMPUTE its freshness string rather than hardcode a liveness claim; pages with no cache path may keep a literal, because for them it is true. Static/fast. Teeth proven by restoring the hardcoded claim (exit 1). Self-test pins the pre-fix shape as must-detect, the computed fix as must-not-flag, and a cache-free page as must-not-flag.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "pm_frequency_mapping",
         "script":  "tools/validate_pm_frequency_mapping.py",
         "args":    [],
