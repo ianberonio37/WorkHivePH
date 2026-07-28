@@ -176,17 +176,24 @@
     "AH10": {
       "title": "P-F interval - the number that sets inspection frequency",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-reliability",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-no-pf-row",
+          "S-compute-refused",
+          "S-after-reload"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28 - CLEAN, with one measured asymmetry recorded rather than migrated away. The P-F engine refuses properly, with FOUR distinct diagnostics (fewer than 2 valid readings, no detectable P-F pair, and two degenerate cases), and the compute path COMMUNICATES the refusal: #pf-status shows data.diagnostic and the toast says 'No P-F pair detected, see diagnostic.' So unlike AH9, the user is told why at the moment it happens. THE ASYMMETRY, and its cause measured rather than assumed: a P-F refusal has NO ROW AT ALL, so its reason cannot survive a reload the way weibull_fits.diagnostic now does. Verified live on the SAME asset - the Weibull card reads 'insufficient data' with its full reason, while the P-F panel shows only its first-run copy. AND THE STATED REASON WAS WRONG IN BOTH COMMENTS. python-api/reliability/pf_interval.py and supabase/functions/pf-calculator/index.ts each said refusals are not persisted 'because pf_intervals.pf_days has a CHECK > 0'. That is not the blocker: in SQL `NULL > 0` evaluates to NULL and a CHECK treats NULL as SATISFIED, so the CHECK would happily accept a NULL. Probed it - the insert fails 23502, the NOT NULL constraint. The distinction is load-bearing for the next reader: someone relaxing the CHECK to persist refusals would find them still rejected and not know why. Both comments corrected to name the real constraint and to record the consequence. NOT MIGRATED, deliberately: making pf_days nullable to store refusals would weaken a column whose not-nullness is what guarantees every stored P-F row HAS a window - the same reasoning that kept get_pm_compliance_smrp intact in the PM arc. The first-run copy is also correct guidance in the state where it actually appears (this asset has never had a P-F computed); it only reads oddly in the seconds right after a refusal, where #pf-status carries the truth directly beneath it. Recorded as a low-severity nit, not a defect. FMEA RPN is the remaining third of AHK2 and needs a DIFFERENT question - it is arithmetic on three 1-10 inputs, so the issue is whether the inputs are defensible, not whether the product is."
     },
     "AH11": {
       "title": "Asset identity: rename propagates to PM + logbook",
@@ -329,12 +336,12 @@
         "harvest": "done",
         "define": "done",
         "detect": "done",
-        "sweep": "partial",
+        "sweep": "done",
         "fix": "done",
         "gate": "done"
       },
       "gate": "tools/validate_refusal_reason_persists.py",
-      "notes": "OPEN on measured evidence. Weibull beta/eta, the P-F interval and FMEA RPN each DECIDE WHEN A MACHINE IS NEXT OPENED UP - they do not report history, they set future action, so being wrong is physical rather than cosmetic. Ground measured 172 RCM strategies and 300 FMEA modes, all approved, computed by edge functions (weibull-fitter, pf-calculator) with no in-repo oracle found. Each needs a stated method, a REFUSAL path when the data cannot support the fit, and a checkable oracle. Distinct from PMK1: that was a metric flattering what was DONE; this is a computed value deciding what happens NEXT. REFINED BY THE AH9 WALK. The premise was that these numbers might be produced without a refusal path; the measurement says otherwise and the correction is the finding. Weibull HAS a well-designed refusal (MIN_FAILURES_FOR_FIT=4, no fit attempted, an actionable diagnostic) and it is the honest kind - it declines rather than guessing. What was broken is the DURABILITY of the refusal's reason: computed, returned once, never stored, so the explanation was blank on every page load after the first. A calculation that refuses is only as useful as the sentence that survives with it. SWEEP PARTIAL, stated rather than quietly closed: the P-F interval calculator (pf_intervals, 91 rows) has the same shape and is UNWALKED - whether it refuses on thin data, and whether ITS reason persists, is AH10 and the next slice. FMEA RPN (300 modes) is arithmetic on three 1-10 inputs and needs a different question - whether the inputs are defensible, not whether the product is."
+      "notes": "OPEN on measured evidence. Weibull beta/eta, the P-F interval and FMEA RPN each DECIDE WHEN A MACHINE IS NEXT OPENED UP - they do not report history, they set future action, so being wrong is physical rather than cosmetic. Ground measured 172 RCM strategies and 300 FMEA modes, all approved, computed by edge functions (weibull-fitter, pf-calculator) with no in-repo oracle found. Each needs a stated method, a REFUSAL path when the data cannot support the fit, and a checkable oracle. Distinct from PMK1: that was a metric flattering what was DONE; this is a computed value deciding what happens NEXT. REFINED BY THE AH9 WALK. The premise was that these numbers might be produced without a refusal path; the measurement says otherwise and the correction is the finding. Weibull HAS a well-designed refusal (MIN_FAILURES_FOR_FIT=4, no fit attempted, an actionable diagnostic) and it is the honest kind - it declines rather than guessing. What was broken is the DURABILITY of the refusal's reason: computed, returned once, never stored, so the explanation was blank on every page load after the first. A calculation that refuses is only as useful as the sentence that survives with it. SWEEP PARTIAL, stated rather than quietly closed: the P-F interval calculator (pf_intervals, 91 rows) has the same shape and is UNWALKED - whether it refuses on thin data, and whether ITS reason persists, is AH10 and the next slice. FMEA RPN (300 modes) is arithmetic on three 1-10 inputs and needs a different question - whether the inputs are defensible, not whether the product is. SWEEP CLOSED by AH10 across both computed numbers. Weibull: refuses well AND its reason now persists (fixed + gated). P-F: refuses well and communicates at compute time, but its reason cannot persist because pf_days is NOT NULL - measured, and deliberately left that way rather than weakening the column that guarantees every stored P-F row has a real window. The class's rule stands with a caveat worth keeping: a refusal's reason should persist WHERE A ROW EXISTS TO CARRY IT; where the schema legitimately forbids the row, the refusal must at least be unmistakable at the moment it happens, which P-F does. RPN is arithmetic on human 1-10 inputs and belongs to a different question (are the inputs defensible), noted on AH07."
     },
     "AHK3": {
       "name": "The fixture must contain every state the workflow can be in",

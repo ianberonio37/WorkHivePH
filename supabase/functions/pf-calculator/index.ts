@@ -274,7 +274,11 @@ serveObserved("pf-calculator", async (req) => {
       );
     }
 
-    // pf_intervals.pf_days has CHECK > 0 — only persist when we actually have a window.
+    // Only persist when we actually have a window. The hard blocker is pf_days being NOT NULL
+    // (a NULL insert fails 23502); the CHECK > 0 alone would NOT reject NULL, since `NULL > 0`
+    // is NULL and a CHECK treats that as satisfied. Verified 2026-07-28 (AH10). So a refusal
+    // has no row at all, and its reason lives only in this response — unlike weibull_fits,
+    // where the diagnostic is now persisted and survives a reload.
     let interval_id: string | null = null;
     if (
       result.pf_days != null &&

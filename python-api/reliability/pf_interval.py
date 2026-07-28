@@ -29,8 +29,14 @@ Output (matches pf_intervals row shape):
 Insufficient-data rule:
   - fewer than 2 valid readings, or
   - no detectable P-F pair
-  -> returns pf_days=None and a diagnostic; the edge fn does NOT persist
-     because pf_intervals.pf_days has a CHECK > 0.
+  -> returns pf_days=None and a diagnostic; the edge fn does NOT persist.
+     The blocker is pf_intervals.pf_days being NOT NULL, not the CHECK > 0 as
+     this note used to say: in SQL `NULL > 0` evaluates to NULL and a CHECK
+     treats that as satisfied, so relaxing the CHECK alone would still leave
+     refusals rejected with 23502. Verified 2026-07-28 (AH10) by attempting the
+     insert. Consequence to keep in mind: a refusal has NO row, so its reason
+     cannot survive a reload the way weibull_fits.diagnostic now does — the
+     compute response is the only place it exists.
 """
 from __future__ import annotations
 
