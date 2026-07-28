@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: b660f51a6af79610
+source_sha: a390318ee99915e7
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (666) — the 'what's already gated' brain
+## gate · registered validators (673) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (106)
+### AI Validation (108)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -28,6 +28,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `article-taxonomy` ⚡ [fail] — Content Grounding: Article<->Page Taxonomy Consistency (forward-only ratchet)
 - `artifact_alignment` ⚡ [fail] — AI Self-Improvement: Artifact-Alignment Correctness (§13.13)
 - `asr_confidence_gate` ⚡ [fail] — Arc H: ASR-confidence clarify-gate intact (X-FIND, garbled voice does not confabulate)
+- `asset_hub_deepwalk_ratchet` [fail] — Asset Hub deepwalk expansion - forward-only %-board over 18 journeys x 5 phases + the AHK dimension classes, with the shallow-W guard (a journey may not be cred
 - `auth_idle_timeout_live` [fail] — Arc I: live idle-timeout (shared-device idle→prompt→hard-clear sequence)
 - `auth_live_db` [fail] — Arc I: live data-layer auth proofs (synthetic-email/non-active/server-tenancy/backfill)
 - `auth_live_gotrue` [fail] — Arc I: live credential-strength (GoTrue rejects weak password, 422)
@@ -95,6 +96,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `realtime_subscription_isolation` [fail] — Arc J: realtime subscription isolation (no realtime-published table streams to anon)
 - `reasoning_scaffold_strip` ⚡ [fail] — AI Companion: reasoning/persona-scaffold leak strip (untagged CoT never reaches the reply)
 - `redact_iso` ⚡ [fail] — Arc H: PII-egress redaction ISO carve-out (D25, shared redactPII.ts, deterministic)
+- `refusal_reason_persists` [fail] — AHK2 - when a reliability calculation REFUSES, the reason must outlive the click. python-api/reliability/weibull.py declines below MIN_FAILURES_FOR_FIT=4 and re
 - `reliability_correctness` ⚡ [fail] — AI Self-Improvement: Reliability P-F Interval Value Accuracy
 - `report_email_escaping` ⚡ [fail] — Analytics I3/I6: send-report-email HTML-injection (every email sink escaped)
 - `response_format_validation` ⚡ [fail] — AI Self-Improvement: Response Format Validation
@@ -216,7 +218,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (466)
+### Platform (471)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -274,12 +276,14 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `anomaly-status-forward` [fail] — Anomaly status forward-only machine (LIVE) — anomaly_signals must keep the BEFORE UPDATE OF status trigger that makes resolved/expired TERMINAL (bug-hunt alert-
 - `api-adoption` ⚡ [fail] — API Adoption (canonical _shared/ module adoption per edge function; forward-only floors, auto-tighten)
 - `approval-lock` ⚡ [fail] — Approval optimistic-lock class (static) — every client approve-write that stamps `approved_at: new Date()` must carry an optimistic lock (`.eq('status','pending
+- `approval_authority` ⚡ [fail] — AHK1 - approving and REJECTING are the same authority. wh_guard_supervisor_approval correctly refused a non-supervisor who APPROVED, but its UPDATE clause treat
 - `arc-u-focus-trap` [fail] — Arc U modal focus-trap + focus-restore (WCAG 2.1.2 No Keyboard Trap + 2.4.3 Focus Order — axe is STATIC and cannot see a focus trap. LIVE headless probe [tools/
 - `arc-x-befamily` [fail] — Arc X Family B+E scanner (B2 information-scent floor at 0; B3/E3 candidate lists)
 - `arc-x-cfamily` [fail] — Arc X Family C scanner (C2 placeholder-as-label + C1 recall-entity floor at 0)
 - `arc-x-cognitive` ⚡ [fail] — Arc X Cognitive-Load HARD Gate (L1 real-login hive resolution / Issue #1)
 - `aria-label-coverage` ⚡ [fail] — ARIA Label Coverage (every interactive element has an accessible name; forward-only ratchet)
 - `asset-brain` ⚡ [blocker] — Asset Brain Foundation Validator (schema, RLS, realtime publication)
+- `asset_identity_spine` ⚡ [fail] — AH11 - a rename must carry the WHOLE identity, and only inside ONE hive. An asset's identity is stored as free text in five tables and sync_pm_asset_identity pr
 - `assistant` ⚡ [fail] — Assistant Validator
 - `assistant-recall` ⚡ [fail] — Assistant multi-turn recall (ai-orchestrator's 0-agents 'not enough data' deflection must stay MEMORY-AWARE — guarded by memoryBlock + RECALL_RE — so a 'what di
 - `attribution` ⚡ [fail] — Attribution integrity (every CLIENT insert/upsert into an auth_uid-no-default table must set auth_uid — locks the auth_uid-drop bug class found live 2026-07-06 
@@ -415,6 +419,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `fixture_capability_coverage` [fail] — A shipped capability must be EXERCISABLE by the data that actually exists, not merely by seeder code that could create it. Found 2026-07-27 (hive deepwalk): the
 - `fk-on-delete` ⚡ [fail] — FK ON DELETE (every REFERENCES declares explicit ON DELETE behavior; covers ALTER ADD CONSTRAINT supersede; forward-only ratchet)
 - `flywheel-turn` ⚡ [fail] — Flywheel Turn (walks every Mega Gate layer; ratchet/regression diff vs prior turn)
+- `fmea_priority_order` ⚡ [fail] — AH7 - a severity-9 failure mode must never be buried by RPN. The RPN arithmetic was already sound (rpn is a GENERATED ALWAYS column S x O x D, inputs CHECK-boun
 - `followup-queue-wiring` ⚡ [fail] — Follow-up Queue Wiring (Prospective layer: agent_followups store + _shared/followups.ts enqueue/recall-due/surface + ai-gateway surfacing + envelope-driven enqu
 - `form-submission-target` ⚡ [fail] — <form> Submission Target (every form has action OR onsubmit OR addEventListener('submit'); forward-only ratchet)
 - `formula-invocation` ⚡ [fail] — Formula Invocation Drift (Tier D-f refinement: same formula called with different period_days across consumers)
@@ -584,6 +589,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `refresh-retry-dedup` ⚡ [fail] — DEEPWALK D2 gate (static teeth) — a NON-idempotent client write (a fresh-id INSERT or a decrement/increment RPC) has no idempotency key, so a refresh-mid-submit
 - `reliability-kpi-faithfulness` [fail] — Reliability-KPI faithfulness (LIVE: precomputed `asset_risk_scores.mtbf_days` must mirror the live canonical `get_mtbf_by_machine` engine — a divergence is allo
 - `reliability-workbench` ⚡ [fail] — Reliability Workbench Validator (FMEA + RCM + Weibull + P-F schema, RLS, canonical registration)
+- `reliability_tenancy` ⚡ [fail] — AHK4 - reliability data is hive-private, PARENT included. FMEA modes, RCM strategies, Weibull fits and P-F intervals are competitive plant knowledge: what break
 - `report-sender` ⚡ [fail] — Report Sender Validator (32 checks: structure + UI + logic + PWA)
 - `reset-coverage` ⚡ [blocker] — Reset Coverage Validator (every migration table is in reset.py)
 - `resilience` ⚡ [fail] — Resilience Validator (Phase 1.10 reframe: offline queue + network-loss UI + fetchWithTimeout + shared-device sign-out)
@@ -681,6 +687,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `voice-phase2` ⚡ [fail] — Voice Companion Phase 2 (multi-model A/B testing)
 - `voice-phase3` ⚡ [fail] — Voice Companion Phase 3 (error recovery + anon memory)
 - `voice-routing-unification` ⚡ [fail] — Voice Routing Unification (Phase 0: router output passing)
+- `workflow_states_present` ⚡ [fail] — AHK3 - a workflow state with no rows is a state nobody has walked, and the seeder is part of the test surface. The Asset Hub arc hit this THREE times for three 
 - `write-path-monitor` ⚡ [fail] — Write Path Monitor (4-layer: shape drift + orphan RPCs + write hotspots + single-layer writers)
 - `xss` ⚡ [fail] — XSS / escHtml Coverage Validator
 

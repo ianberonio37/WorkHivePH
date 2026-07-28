@@ -1,23 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:389
-source_sha: 7c128931fa4586c8
+source: dir:supabase/migrations:397
+source_sha: 58d0a10f6cd15fbf
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (389 migrations)
+## migration · catalog (397 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260531000000_knowledge_graph_facts_dedup` — (misc DDL/DML)
-- `20260531000001_procedural_skill_matcher` — fns:match_procedural_memories
-- `20260531000002_agent_followups` — policies:followups_insert,followups_read,followups_update · tables:agent_followups
-- `20260601000000_v_asset_state_truth_meta_columns` — (misc DDL/DML)
-- `20260603000000_resume_builder` — policies:resume_documents_delete,resume_documents_insert,resume_documents_read,resume_documents_update,resume_versions_delete,resume_versions_insert · fns:resume_documents_touch_updated_at · triggers:trg_resume_documents_touch · tables:resume_documents,resume_versions
-- `20260606000000_get_hive_dashboard` — fns:get_hive_dashboard
-- `20260607000000_get_hive_board_dashboard` — fns:get_hive_board_dashboard
-- `20260607000001_get_hive_board_dashboard_phase2` — fns:get_hive_board_dashboard
 - `20260607000002_get_hive_board_dashboard_phase3` — fns:get_hive_board_dashboard
 - `20260607000003_definer_hive_membership_gates` — fns:compute_anomaly_signals,fetch_active_alerts,get_adoption_risk_current,get_hive_readiness_current,semantic_search_kb,semantic_search_kg_facts
 - `20260607000004_definer_revoke_service_role_only` — (misc DDL/DML)
@@ -210,6 +202,14 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260728000010_ensure_pm_asset_for_node_rpc` — fns:ensure_pm_asset_for_node
 - `20260728000011_pm_asset_insert_guard` — policies:pm_assets_insert_guard
 - `20260728000012_pm_scope_item_schedule_audit` — fns:audit_pm_scope_item_schedule_change · triggers:trg_pm_scope_item_schedule_audit
+- `20260728000013_guard_rejection_is_a_reviewer_act` — fns:wh_guard_supervisor_approval
+- `20260728000014_weibull_diagnostic_survives_the_reload` — tables:weibull_fits
+- `20260728000015_asset_approval_decision_audit` — fns:audit_asset_approval_decision · triggers:trg_asset_approval_decision_audit
+- `20260728000016_asset_node_delete_audit` — fns:audit_asset_node_delete · triggers:trg_asset_node_delete_audit
+- `20260728000017_reliability_parent_hive_guard` — policies:pf_intervals_parent_hive_guard,rcm_fmea_modes_parent_hive_guard,rcm_strategies_parent_hive_guard,weibull_fits_parent_hive_guard
+- `20260728000018_sensor_anomaly_flag_that_can_be_true` — tables:sensor_readings
+- `20260728000019_rename_carries_the_whole_identity` — fns:sync_asset_identity,sync_pm_asset_identity
+- `20260728000020_expire_stale_parts_recommendations` — fns:expire_stale_parts_recommendations
 
 (showing last 200)
 

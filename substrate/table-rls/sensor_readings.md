@@ -2,7 +2,7 @@
 name: table-rls-sensor_readings
 type: table-rls
 source: db:pg_policies+pg_trigger:sensor_readings
-source_sha: e6d665de6ec7abf7
+source_sha: 514a4bd9ffd10a19
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: False
 
-Columns (*=NOT NULL): id*, hive_id*, asset_id*, parameter*, unit, quality_flag, value*, recorded_at*, source*, meta*, external_key*
+Columns (*=NOT NULL): id*, hive_id*, asset_id*, parameter*, unit, quality_flag, value*, recorded_at*, source*, meta*, external_key*, is_anomaly*
 
 Policies:
 - `sensor_readings_no_delete` [DELETE · roles=public] USING=`false` CHECK=`∅`

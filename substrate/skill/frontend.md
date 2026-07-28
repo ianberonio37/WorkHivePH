@@ -2,7 +2,7 @@
 name: skill-frontend
 type: skill
 source: skill:frontend
-source_sha: 2e7bebd91286f297
+source_sha: e673ce39324113a0
 last_verified: 2026-07-13
 supersedes: null
 ---
