@@ -5075,6 +5075,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "asset_identity_spine",
+        "script":  "tools/validate_asset_identity_spine.py",
+        "args":    [],
+        "label":   "AH11 - a rename must carry the WHOLE identity, and only inside ONE hive. An asset's identity is stored as free text in five tables and sync_pm_asset_identity propagated a rename into exactly one: measured live, renaming GEN-002 moved 2 pm_assets rows and left 116 others pointing at a tag that no longer existed (103 logbook.machine, 12 fault_knowledge.machine, 1 asset_risk_scores). Every one of those columns holds the TAG even where the column is NAMED asset_name, so a display-name change is harmless and a TAG change is what breaks them. fault_knowledge has NO uuid column at all, so a rename severed the AI's learned fault corpus permanently; asset_risk_scores is worse still, because the asset page then renders 'No risk score yet for this asset... a score will appear here' - honest about a cold start, a lie about a rename. THE SECOND DEFECT WAS INTRODUCED BY THE FIX and is the reason this gate is per-statement: the first draft scoped its UPDATEs to 'any hive the caller belongs to', and tags are unique per HIVE not per platform, so renaming Lucena's GEN-002 also rewrote Manila Electronics Assembly's 60 logbook rows, 6 fault_knowledge rows, its risk score, a parts recommendation and a pm_asset. A cross-tenant write caused by the repair; found on the revert leg, repaired to 0 residual. Holds: every identity column is still updated by the RPC (a NEW table denormalising a tag goes red here and nowhere else), and EACH UPDATE carries BOTH hive_id = v_hive AND the caller's membership - v_hive alone would trust a tag from any tenant, membership alone IS the cross-tenant bug. Also that the merge guard exists and excludes the node being renamed (without that it refuses every rename, since callers update asset_nodes first), and that the caller passes the node id and surfaces the refusal. Teeth: the FIRST version of this gate counted '= v_hive' occurrences globally and PASSED with the bug reintroduced - it now slices the migration per UPDATE, and deleting one predicate fails exactly that statement. Live tier reports orphan tags (a row naming a tag no asset in its hive carries) - 77 pre-existing, 72 of them the logbook rows that have no asset_node_id to fall back on.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "fmea_priority_order",
         "script":  "tools/validate_fmea_priority_order.py",
         "args":    [],

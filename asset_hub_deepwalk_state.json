@@ -230,17 +230,26 @@
     "AH11": {
       "title": "Asset identity: rename propagates to PM + logbook",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-reliability"
+        ],
+        "states": [
+          "S-tag-rename",
+          "S-name-only-change",
+          "S-rename-onto-an-existing-tag",
+          "S-multi-hive-duplicate-tags",
+          "S-revert"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28. sync_pm_asset_identity (added by PM3 earlier in this same arc) does its job correctly - and pm_assets is not the only place an asset's identity lives. FOUR other tables key off the asset TAG as free text and none of them moved. MEASURED LIVE renaming GEN-002 -> GEN-002X through the signed-in client: asset_nodes 1, pm_assets 2 synced, and left behind 103 logbook.machine + 12 fault_knowledge.machine + 1 asset_risk_scores pointing at a tag that no longer existed. Platform-wide: logbook 3,739 of 3,811 rows hold a live tag; fault_knowledge 534 of 534 (100%); asset_risk_scores 255 of 259; parts_staging_recommendations 3 of 4. EVERY ONE OF THOSE COLUMNS HOLDS THE TAG - including the two literally named asset_name - so a display-name change is harmless and a TAG change is what breaks them. That distinction decides the whole fix and I only found it by measuring which values the columns actually contain rather than trusting the column names. SEVERITY IS NOT UNIFORM, which is worth recording: logbook is the least severe because 3,739 of 3,811 rows also carry asset_node_id, so the timeline survives by uuid and only the displayed string goes stale (the 72 text-only rows do genuinely sever). fault_knowledge has NO uuid column at all, so a rename severs the AI's learned fault corpus permanently with nothing reporting it. asset_risk_scores is the worst, because the page does not merely lose the score - it ASSERTS something false: the risk card falls back to 'No risk score yet for this asset. Scores are computed daily at 13:00 PHT... a score will appear here.' That sentence is honest about a cold start and a lie about a renamed asset. FIX: sync_asset_identity covers all five in one transaction and returns per-table counts so the caller can report what actually moved; sync_pm_asset_identity stays as a thin wrapper (it is in canonical_registry and logbook.html called it) so the narrow behaviour is no longer reachable even by accident. Plus a MERGE GUARD: renaming onto a tag another asset already holds would fuse two machines' logbook, fault knowledge and risk history with nothing able to separate them again - refused outright, and surfaced to the user via toast, because only they can pick another tag. TWO BUGS IN MY OWN FIX, both caught live, both now gated: (1) The merge guard fired against the asset renaming ITSELF. Callers update asset_nodes.tag FIRST and then ask for propagation, so by the time the RPC runs the new tag is already in use - by the very row being renamed. Added p_node_id to exclude it; logbook.html passes it (its `id` IS the asset_nodes id). (2) FAR WORSE - THE FIX WROTE ACROSS A TENANT BOUNDARY. The first draft scoped its UPDATEs to 'any hive the caller belongs to'. Tags are unique per HIVE, not per platform, and the fixture gives every hive its own GEN-002. Renaming Lucena's asset also rewrote Manila Electronics Assembly's 60 logbook rows, 6 fault_knowledge rows, its risk score, a parts recommendation and a pm_asset. Found because the REVERT leg was refused by another tenant's asset - the false clash was the symptom that exposed the real corruption. Repaired to 0 residual across all three hives, verified per hive. Every UPDATE now carries BOTH hive_id = v_hive AND the membership check: v_hive alone would trust a tag from any tenant, membership alone was the bug. RE-PROVEN with hive scoping: rename moved 50 rows ALL in my hive (43 logbook + 6 fault + 1 pm); the other hive's 60 logbook rows untouched; revert symmetric; final state identical to start, 0 rows on the test tag. GATE validate_asset_identity_spine. Its FIRST version had no teeth on the check that mattered most - it counted '= v_hive' occurrences globally, and deleting the predicate from one UPDATE still cleared the >= 6 threshold because the SELECT INTO and the merge guard also use v_hive. It now slices the migration per UPDATE statement and checks each on its own; teeth re-proven, one deleted predicate -> FAIL on exactly that statement. A counting threshold is not a gate. The live half reports orphan tags (a row naming a tag no asset in its hive carries): 77 pre-existing, 72 of them the logbook rows with no asset_node_id to fall back on."
     },
     "AH12": {
       "title": "Delete / retire an asset - what happens to FMEA, RCM, history",

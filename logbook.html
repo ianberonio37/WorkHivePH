@@ -2508,7 +2508,9 @@ async function saveEditAsset() {
   const oldAsset = loadAssets().find(a => a.id === id);
   const oldAssetId = oldAsset?.asset_id || asset?.asset_id;
   if (oldAssetId && (asset_id !== oldAssetId || name !== (oldAsset?.name || ''))) {
-    syncToPMAssets(oldAssetId, asset_id, name);
+    // `id` is the asset_nodes id, and the node has ALREADY been updated above — the sync needs
+    // both facts (AH11).
+    syncToPMAssets(oldAssetId, asset_id, name, id);
   }
 
   showToast(needsReapproval ? 'Asset updated and sent for supervisor approval.' : 'Asset updated.');
@@ -2516,7 +2518,7 @@ async function saveEditAsset() {
   saveBtn.textContent = 'Save Changes';
 }
 
-async function syncToPMAssets(oldTagId, newTagId, newName) {
+async function syncToPMAssets(oldTagId, newTagId, newName, nodeId) {
   // pm_assets uses tag_id to identify assets: sync name and tag_id on match
   const syncUpdates = {};
   if (newName)  syncUpdates.asset_name = newName;
@@ -2533,16 +2535,35 @@ async function syncToPMAssets(oldTagId, newTagId, newName) {
   // error, so the rename would have silently stopped propagating and the name would diverge between
   // asset_nodes and pm_assets. The propagation is a system action, so the DATABASE performs it: the
   // RPC checks hive membership itself and can only touch asset_name / tag_id.
-  const { data: synced, error } = await db.rpc('sync_pm_asset_identity', {
+  // AH11 (Asset Hub deepwalk, 2026-07-28): widened from sync_pm_asset_identity to
+  // sync_asset_identity. pm_assets was never the only place an asset's identity is stored as free
+  // text — measured live, renaming GEN-002 moved 2 pm_assets rows and left 116 others pointing at
+  // a tag that no longer existed: 103 logbook.machine, 12 fault_knowledge.machine (which has NO
+  // uuid column at all, so the AI's learned fault corpus for that machine was severed permanently)
+  // and its asset_risk_scores row. That last one is the worst, because the asset page does not
+  // merely lose the score — it falls back to "No risk score yet... a score will appear here",
+  // which is honest about a cold start and a lie about a renamed asset.
+  const { data: sync, error } = await db.rpc('sync_asset_identity', {
     p_old_tag:  oldTagId,
     p_new_tag:  syncUpdates.tag_id     || null,
     p_new_name: syncUpdates.asset_name || null,
+    // The node row was updated BEFORE this call, so without its id the RPC's merge guard would
+    // see the new tag already in use — by the very asset being renamed — and refuse.
+    p_node_id:  nodeId || null,
   });
 
-  if (error) console.warn('pm_assets sync skipped:', error.message);
-  // A rename that matched nothing is worth saying out loud: the PM Scheduler will keep showing the
-  // OLD name, so the two surfaces now disagree about what the machine is called.
-  else if (!synced) console.warn('pm_assets sync matched no rows for tag', oldTagId);
+  if (error) { console.warn('identity sync skipped:', error.message); return; }
+
+  // The merge refusal is the one outcome a user must SEE rather than find in a console: their
+  // rename half-applied (asset_nodes moved, the history did not), and only they can resolve it by
+  // choosing a different tag.
+  if (sync && sync.ok === false && sync.reason === 'tag already in use') {
+    showToast(sync.detail || 'That tag already belongs to another asset — history was not moved.');
+    return;
+  }
+  // A rename that matched nothing is worth saying out loud: the PM Scheduler and the logbook will
+  // keep showing the OLD tag, so the surfaces now disagree about what the machine is called.
+  if (sync && sync.ok && !sync.total) console.warn('identity sync matched no rows for tag', oldTagId);
 }
 
 function criticalityBadge(c) {
