@@ -372,13 +372,13 @@
       "stages": {
         "harvest": "done",
         "define": "done",
-        "detect": "todo",
-        "sweep": "todo",
-        "fix": "todo",
-        "gate": "todo"
+        "detect": "done",
+        "sweep": "done",
+        "fix": "done",
+        "gate": "done"
       },
-      "gate": null,
-      "notes": "OPEN. renderCpm reads _progress.critical_path (item_ids, total_days, slack_per_item) and renderBudget reads _progress.earned_value (bac, pv, and a green/amber/red status), both computed in the project-progress edge fn with no in-repo oracle found at ground. AHK2 governed inspection TIMING; these decide which work may slip and what health a CLIENT is told. EVM has published formulas (CPI=EV/AC, SPI=EV/PV) so the thresholds are checkable against a standard, exactly as AH7's RPN was."
+      "gate": "tools/validate_schedule_health_falsifiable.py",
+      "notes": "OPEN. renderCpm reads _progress.critical_path (item_ids, total_days, slack_per_item) and renderBudget reads _progress.earned_value (bac, pv, and a green/amber/red status), both computed in the project-progress edge fn with no in-repo oracle found at ground. AHK2 governed inspection TIMING; these decide which work may slip and what health a CLIENT is told. EVM has published formulas (CPI=EV/AC, SPI=EV/PV) so the thresholds are checkable against a standard, exactly as AH7's RPN was. CLOSED 2026-07-28 by the PJ7 + PJ8 walks. HALF THE FINDING WAS THAT THE ENGINE IS GOOD, and my ground note claiming otherwise was WRONG and is corrected: prescriptive.py cites PMBOK 7 §6.5.2.2 + AACE 24R-03 and uses networkx.dag_longest_path(); diagnostic.py cites PMBOK 7 + AACE RP 80R-13, states every formula, attributes the bands, and refuses on missing inputs. What was wrong was TWO IMPLEMENTATIONS (the client's uncited EVM copy, already diverging on rounding by up to 0.5% of BAC) and AN ABSENCE RENDERED AS A VERDICT (an unavailable rollup drawing every task as non-critical with zero slack, and a budget pane telling a supervisor to add data that already existed). Both fixed; the EVM contract is registered partial_variant with the honest reason - the FORMULAS are standard, it is AC that is a proxy, and no caller passes the rate override that exists. GATE validate_schedule_health_falsifiable, which also asserts the ENGINE keeps its citations so a future 'simplification' cannot quietly remove them. It strips COMMENTS before hunting the deleted client implementation - its own first run failed because the comment recording the removal quotes the removed code, the third comment-vs-code scanner bug in one session. Teeth proven by reinstating the magic rate in code."
     },
     "PJK3": {
       "name": "Authority must be enforced where the data is",

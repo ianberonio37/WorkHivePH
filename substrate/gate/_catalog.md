@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 9fcc46dd7198fdf1
+source_sha: 841b3e306cbfad9d
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (677) — the 'what's already gated' brain
+## gate · registered validators (678) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -219,7 +219,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (474)
+### Platform (475)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -612,6 +612,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `rubric-coverage` [warn] — UFAI rubric coverage board (UR-P4, 2026-07-21) — aggregates the 61 single-page dims (family_rubric_scoreboard.json) + the 2 cross-page dims S2/S3 (component_con
 - `rubric-parity` ⚡ [fail] — UFAI rubric SSOT parity (UR-P0 lock, 2026-07-21) — the prose ruler (substrate/reference/ufai-ux-rubric.md) and the code lens (survey_ufai_rubric.js, which tags 
 - `saas-layer-scoreboard` [fail] — per-page SaaS-LAYER bughunt ANTI-DRIFT scoreboard (PER_PAGE_SAAS_LAYER_BUGHUNT_ROADMAP.md §0) — regenerates PER_PAGE_SAAS_LAYER_SCOREBOARD.md (every page × the 
+- `schedule_health_falsifiable` ⚡ [fail] — PJK2 - a number that decides what may slip, or what a CLIENT is told, must be falsifiable. Half of what this gate holds is that the ENGINE IS GOOD, asserted so 
 - `schema` ⚡ [fail] — Schema Consistency Validator
 - `schema-coverage` ⚡ [blocker] — Schema Coverage Validator (auto-derived from migrations, table+column existence)
 - `schema-drift` ⚡ [fail] — Schema Drift Validator (HTML SELECT columns exist in EXPECTED_SCHEMA)

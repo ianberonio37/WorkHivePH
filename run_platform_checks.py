@@ -5075,6 +5075,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "schedule_health_falsifiable",
+        "script":  "tools/validate_schedule_health_falsifiable.py",
+        "args":    [],
+        "label":   "PJK2 - a number that decides what may slip, or what a CLIENT is told, must be falsifiable. Half of what this gate holds is that the ENGINE IS GOOD, asserted so nobody 'simplifies' it away: prescriptive.py cites PMBOK 7 §6.5.2.2 + AACE 24R-03 and uses networkx.dag_longest_path() rather than hand-rolled graph code (its own docstring records that the PREVIOUS hand-rolled version silently miscomputed cycles), and diagnostic.py cites PMBOK 7 + AACE RP 80R-13, states every EVM formula, attributes the green/amber/red bands and returns {available:False, reason:...} rather than guessing. THE DEFECTS IT LOCKS OUT: (1) TWO IMPLEMENTATIONS - clientRollup re-computed EVM in the browser, uncited, and had already diverged by rounding pct_complete to an integer where the engine keeps the float, moving EV by up to 0.5% of BAC (about PHP 9,250 on a PHP 1,850,000 project) and being the number a supervisor saw whenever the edge fn had not answered; deleted, not patched, because a cost figure that silently disagrees with the cited engine is worse than none. (2) AN ABSENCE RENDERED AS A VERDICT - renderCpm defaulted to an empty critical path when the rollup was unavailable, so every task drew as NON-critical with ZERO slack, a positive and self-contradictory answer since zero slack is normally what MAKES a task critical; renderBudget likewise told a supervisor to 'add a budget, start date and end date' when all three already existed. Also asserts the EVM contract is registered partial_variant with a partial_reason admitting AC is an hours x rate PROXY (no cost ledger; the rate defaults to PHP 200/hr and measured, no caller passes the override). NOTE: this gate STRIPS COMMENTS before hunting the deleted implementation - its own first run failed because the comment RECORDING the removal quotes the removed code, the third comment-vs-code scanner bug found in one session. Teeth proven by reinstating the magic rate in code: FAIL.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "project_authority",
         "script":  "tools/validate_project_authority.py",
         "args":    [],
