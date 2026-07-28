@@ -6512,10 +6512,10 @@
       "called_by_edge_fns": []
     },
     "generate_project_code": {
-      "defined_in": "20260505000000_project_manager.sql",
+      "defined_in": "20260728000032_one_generate_project_code_not_two.sql",
       "args": "p_hive_id uuid, p_type text, p_year integer",
-      "security_definer": false,
-      "comment": "Next project code for a hive/type/year. CHANGED 2026-07-28 (PJ2): the scan no longer excludes soft-deleted projects, so a code is never reissued. Reusing one made RESTORING the original fail with a raw 23505 against projects_code_per_hive - and mig ...026 had just made restore a first-class audited operation - while also leaving two projects sharing a code in reports that were already printed.",
+      "security_definer": true,
+      "comment": "Next project code for a hive/type/year. Scans ALL projects including soft-deleted ones so a code is never reissued. Gated on active hive membership (DEFINER + a hive id in the args). Migration 029 retyped p_year to text, which created a SECOND overload instead of replacing - PostgREST then refused both call shapes with PGRST203 and project creation was dead in production; 032 dropped the stray overload and relanded the fix on the integer signature the client actually sends. PJ18/PJ2.",
       "called_by_surfaces": [
         "project-manager.html"
       ],

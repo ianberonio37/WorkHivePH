@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 841b3e306cbfad9d
+source_sha: 40684b912b3f21ad
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (678) — the 'what's already gated' brain
+## gate · registered validators (680) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -197,7 +197,8 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `memory_supersedes` ⚡ [fail] — Memory M3.2: supersedes down-rank mechanism (superseded memory ranks below its replacement)
 - `memory_write_quality` ⚡ [fail] — Memory M3.1: topic-file write-quality lint (type/name/description, no silent type=unknown)
 
-### P1 Roadmap (20)
+### P1 Roadmap (22)
+- `doctype-first` ⚡ [blocker] — Doctype First (nothing may precede <!DOCTYPE html> — content there forces quirks mode)
 - `edge-error-capture` ⚡ [regression] — Edge Error-Capture Adoption (Arc T/T2 keystone: every edge fn routes through serveObserved so unhandled throws aggregate to wh_traces via trackError; L1 wrapper
 - `envelope-conformance` ⚡ [regression] — Envelope Conformance (every edge fn imports _shared/envelope.ts OR is exempt)
 - `envelope-return-shape` ⚡ [warn] — Envelope Return-Shape Adoption (true adoption: fns that actually call ok(ctx, ...); floor ratchet)
@@ -214,6 +215,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `render-budget` ⚡ [warn] — Render Budget (per-page HTML + inline JS + external script ratchet)
 - `reproducible-build-pin` ⚡ [regression] — Reproducible Build Pin (L1 .tool-versions + L2 package-lock + L3 engines.node agreement)
 - `rls-strict` ⚡ [regression] — RLS Strict Baseline (L0 ratchet over mine_rls_policies: USING(true) + WITH CHECK(true) frozen at baseline)
+- `rpc-overloads` [blocker] — RPC Overloads (no PostgREST-exposed function may have two signatures — PGRST203 kills the endpoint)
 - `slo-rollup` [regression] — SLO Error-Budget Rollup Gate (Arc T/T3: v_wh_traces_slo view + slo_error_budget() RPC exist AND compute correctly - per-route error counts excl. 401/403/429 pol
 - `structured-log-adoption` ⚡ [warn] — Structured Log Adoption (count of fns importing + calling log.* from _shared/logger.ts; floor ratchet)
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)

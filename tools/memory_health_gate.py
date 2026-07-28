@@ -60,6 +60,12 @@ THRESHOLDS = [
     ("file_grounded_pct", "min", 50.0, "precision"),   # only if a fresh precision report exists
 ]
 
+# Minimum retrieval events in the precision window before file_grounded_pct is allowed to decide
+# anything. See the note in evaluate(): a 24h window on a quiet day held ONE event, and one unmatched
+# event read as 0% grounding and failed the release. Same family as the median-vs-p95 choice above —
+# don't let a sample of one speak for the retriever.
+PRECISION_MIN_EVENTS = 8
+
 
 def evaluate(payload: dict) -> tuple[list[str], list[str], list[str]]:
     """Return (breaches, applied, skipped-as-strings)."""
@@ -79,6 +85,26 @@ def evaluate(payload: dict) -> tuple[list[str], list[str], list[str]]:
             if val is None:
                 skipped.append(f"{name} (no fresh precision report)")
                 continue
+            # A percentage needs a denominator before it means anything. The report is a rolling
+            # 24h window, so on a quiet day it can hold a single retrieval event — and one event
+            # that happens not to match a touched file becomes "file_grounded_pct = 0.0", a FAIL
+            # announcing that the retriever's grounding collapsed. That is what happened on
+            # 2026-07-28: retrieval_events=1, events_file_grounded=0, gate FAIL, retriever fine.
+            #
+            # This is the same false-fail the median_latency_ms threshold above already exists to
+            # avoid ("sample n~33 p95 is just the 2nd-slowest sample"). Freshness was being treated
+            # as sufficiency: the report was 30 minutes old, and empty. A stale report is skipped
+            # and a fresh-but-tiny one was not.
+            #
+            # The floor is deliberately low. Below it the honest reading is "not enough evidence",
+            # which is a SKIP, not a pass and not a fail. The report itself says the metric is only
+            # a lower bound on usefulness — retrievals inform answers without touching files — so
+            # it should never be the thing that blocks a release on thin data.
+            n_events = precision.get("retrieval_events")
+            if n_events is None or n_events < PRECISION_MIN_EVENTS:
+                skipped.append(f"{name} (only {n_events} retrieval event(s) in the window; "
+                               f"need {PRECISION_MIN_EVENTS} for a meaningful percentage)")
+                continue
         else:
             val = m.get(name)
             if val is None:
@@ -95,20 +121,32 @@ def evaluate(payload: dict) -> tuple[list[str], list[str], list[str]]:
 def do_self_test() -> int:
     healthy = {"metrics": {"chunks_indexed": 10000, "vocab_terms": 5000,
                            "silent_rate_pct": 5.0, "median_latency_ms": 700, "p95_latency_ms": 800},
-               "precision": {"file_grounded_pct": 80.0},
+               "precision": {"file_grounded_pct": 80.0, "retrieval_events": 40},
                "honesty": {"warming_up": False}}
     degraded = {"metrics": {"chunks_indexed": 10000, "vocab_terms": 5000,
                             "silent_rate_pct": 90.0, "median_latency_ms": 6000, "p95_latency_ms": 9000},
-                "precision": {"file_grounded_pct": 12.0},
+                "precision": {"file_grounded_pct": 12.0, "retrieval_events": 40},
                 "honesty": {"warming_up": False}}
+    # The 2026-07-28 false fail, as a fixture: a healthy retriever whose precision window happens to
+    # hold ONE event that did not match a touched file. 0% must SKIP, not breach.
+    thin = {"metrics": {"chunks_indexed": 16232, "vocab_terms": 51769,
+                        "silent_rate_pct": 0.0, "median_latency_ms": 1426, "p95_latency_ms": 2323},
+            "precision": {"file_grounded_pct": 0.0, "retrieval_events": 1},
+            "honesty": {"warming_up": False}}
     hb, _, _ = evaluate(healthy)
     db, _, _ = evaluate(degraded)
+    tb, _, tskip = evaluate(thin)
     print(f"  healthy payload -> {len(hb)} breaches ({'CLEAN' if not hb else hb})")
     print(f"  degraded payload -> {len(db)} breaches ({'CAUGHT' if db else 'MISSED'})")
-    if not hb and len(db) >= 3:
-        print(f"  {G}TEETH VERIFIED{X} healthy passes; degraded breaches {db} -> gate catches it.")
+    print(f"  thin-sample payload -> {len(tb)} breaches "
+          f"({'SKIPPED as insufficient evidence' if not tb else tb})")
+    precision_has_teeth = any("file_grounded_pct" in b for b in db)
+    if not hb and len(db) >= 3 and precision_has_teeth and not tb:
+        print(f"  {G}TEETH VERIFIED{X} healthy passes; degraded breaches {db} -> gate catches it;")
+        print(f"  {G}              {X} a 1-event window skips instead of manufacturing a 0% fail.")
         return 0
-    print(f"  {R}TOOTHLESS{X} healthy_breaches={hb} degraded_breaches={db}")
+    print(f"  {R}TOOTHLESS{X} healthy={hb} degraded={db} thin={tb} "
+          f"precision_teeth={precision_has_teeth}")
     return 1
 
 

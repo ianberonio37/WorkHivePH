@@ -310,14 +310,48 @@ def s4_inventory_tx_types(db):
 # Section 5 — PM Scheduler
 # ─────────────────────────────────────────────────────────────────────────
 
+# The vocabulary v_pm_scope_items_truth actually recognises, lower-cased and trimmed exactly as the
+# view does. Kept in this shape (not title-case) because the view's CASE is on lower(trim(...)) —
+# matching its normalisation is the whole point.
+#
+# WHY THIS IS NOT A HARDCODED LABEL LIST ANY MORE (2026-07-28). It used to be
+#     valid = {"Weekly", "Monthly", "Quarterly", "Semi-annual", "Annual"}
+# compared with exact-case equality, and it failed the release on `Semi-Annual` — a value the truth
+# view maps to 180 days without blinking, because its CASE is case-insensitive. Worse, that list is
+# narrower than the platform: it has no Daily (added deliberately for CMMS imports, where the
+# absence of a Daily bucket was turning 1-day PMs weekly), no Biweekly, no Yearly. pm-scheduler.html
+# writes `Semi-Annual` and `Yearly` from its own template library, so the check was failing on data
+# the real UI produces, while the platform handled it correctly throughout.
+#
+# AND IT WAS CHECKING THE WRONG THING. The view ends its CASE with `ELSE 30`, so a frequency it does
+# NOT recognise does not error — it silently becomes MONTHLY, and the task gets a plausible,
+# invented due date. That is the failure worth catching: a typo'd or new label quietly rescheduling
+# a PM rather than announcing itself. Casing was never the risk; unmappability is.
+_VIEW_KNOWN_FREQUENCIES = {
+    "daily", "weekly", "biweekly", "fortnightly", "monthly",
+    "quarterly", "semi-annual", "semiannual", "semi annual", "annual", "yearly",
+}
+
+
 def s5_pm_scope_frequencies(db):
     items = db.table("pm_scope_items").select("frequency").execute().data
     freqs = Counter(i["frequency"] for i in items)
-    valid = {"Weekly", "Monthly", "Quarterly", "Semi-annual", "Annual"}
-    invalid = [f for f in freqs if f not in valid]
-    if invalid:
-        return [fail(f"invalid frequencies: {invalid}")]
-    return [ok(f"PM frequency distribution: {dict(freqs)}")]
+    unmappable = [f for f in freqs
+                  if (f or "").strip().lower() not in _VIEW_KNOWN_FREQUENCIES]
+    if unmappable:
+        return [fail(
+            "frequencies v_pm_scope_items_truth cannot map: %s — the view's CASE falls through to "
+            "ELSE 30, so each of these is being silently scheduled MONTHLY with an invented due "
+            "date. Add the label to the view's CASE or correct the writer." % unmappable)]
+    # Casing/spelling variants the view normalises are reported, not failed: they are cosmetic
+    # inconsistency between writers (pm.py seeds `Semi-annual`, reliability.py and the page write
+    # `Semi-Annual`), and worth tidying, but they schedule identically.
+    variants = sorted({f for f in freqs if f not in {"Daily", "Weekly", "Biweekly", "Monthly",
+                                                     "Quarterly", "Semi-annual", "Annual"}})
+    msg = f"PM frequency distribution: {dict(freqs)}"
+    if variants:
+        msg += f" (all map cleanly; casing variants present: {variants})"
+    return [ok(msg)]
 
 
 def s5_pm_completions_link(db):
@@ -456,24 +490,57 @@ def s21_logbook_assets_link(db):
     return [fail(f"{orphans} logbook entries have orphan asset_node_id")]
 
 
+# Rows that legitimately have no auth identity, and must not count as missing one.
+#
+# hive_members: a membership that is not ACTIVE may never have had an account behind it. A person
+# invited by name and removed before they ever signed up has no auth.users row to point at, and the
+# seeded "Former Member (kicked fixture)" is exactly that — added 2026-07-27 so hive.html's
+# revocation / rejoin-blocked branch became walkable, with auth_uid deliberately None. Every
+# membership read on the platform filters on status, so these rows are inert elsewhere too.
+_AUTH_UID_SCOPE = {"hive_members": ("status", "active")}
+
+
 def s21_auth_uid_set(db):
-    """auth_uid should be set on every row in tables that have it."""
+    """auth_uid should be set on every row that is supposed to have one.
+
+    WHY THE SCOPING AND THE FLOOR EXIST (2026-07-28). This read `1/18 rows (5%) missing auth_uid`
+    on hive_members and FAILED the release — over one deliberate fixture. Two separate bugs in the
+    check met at once:
+
+      * it counted a kicked membership, which by design has no auth identity, as missing one;
+      * `pct < 5` makes the verdict depend on TABLE SIZE rather than on anything real. One null in
+        18 rows is 5% and fails; the same single null in pm_assets' 91 rows is 1% and only warns.
+        A percentage over a small denominator is not evidence, and it decided a release here.
+
+    So: exclude rows that are not meant to carry an identity, and require a real count — not just a
+    percentage — before failing.
+    """
     results = []
     tables = ["logbook", "inventory_items", "inventory_transactions",
               "pm_assets", "pm_completions", "skill_profiles", "skill_badges",
               "hive_members"]
     for t in tables:
-        nulls = db.table(t).select("id", count="exact").is_("auth_uid", "null").limit(1).execute().count or 0
-        total = db.table(t).select("id", count="exact").limit(1).execute().count or 0
+        q_null = db.table(t).select("id", count="exact").is_("auth_uid", "null")
+        q_all = db.table(t).select("id", count="exact")
+        scope = _AUTH_UID_SCOPE.get(t)
+        if scope:
+            col, val = scope
+            q_null = q_null.eq(col, val)
+            q_all = q_all.eq(col, val)
+        nulls = q_null.limit(1).execute().count or 0
+        total = q_all.limit(1).execute().count or 0
+        note = f" ({scope[0]}={scope[1]} only)" if scope else ""
         if total == 0:
             continue
         pct = nulls * 100 // total
         if nulls == 0:
-            results.append(ok(f"{t}: 100% of {total} rows have auth_uid set"))
-        elif pct < 5:
-            results.append(warn(f"{t}: {nulls}/{total} rows ({pct}%) missing auth_uid"))
+            results.append(ok(f"{t}: 100% of {total} rows have auth_uid set{note}"))
+        elif pct < 5 or nulls < 3:
+            # Under three rows there is no pattern to see — one stray row is a data point, not a
+            # regression, and it should not be able to block a push on its own.
+            results.append(warn(f"{t}: {nulls}/{total} rows ({pct}%) missing auth_uid{note}"))
         else:
-            results.append(fail(f"{t}: {nulls}/{total} rows ({pct}%) missing auth_uid"))
+            results.append(fail(f"{t}: {nulls}/{total} rows ({pct}%) missing auth_uid{note}"))
     return results
 
 

@@ -635,7 +635,13 @@ def _link_strategy_sample(client, log, sample_rate: float = 0.15) -> int:
                                   .select("id, pm_asset_id, hive_id")
                                   .not_.is_("pm_asset_id", "null").limit(4000).execute().data or [])}
 
-    buckets = [(365, "Annual"), (180, "Semi-Annual"), (90, "Quarterly"),
+    # Labels match seeders/pm.py's PM_FREQUENCIES. They used to differ by one letter — this wrote
+    # "Semi-Annual" where pm.py writes "Semi-annual" — which put two spellings of the same bucket in
+    # one column from two seeders in the same repo. v_pm_scope_items_truth lower-cases before
+    # mapping, so nothing was ever scheduled wrongly, but a seeded table should not need the view's
+    # tolerance to look consistent. Daily is deliberately kept and is NOT in pm.py's list: it exists
+    # for the CMMS-import path, where having no Daily bucket was turning 1-day PMs weekly (PMK4).
+    buckets = [(365, "Annual"), (180, "Semi-annual"), (90, "Quarterly"),
                (30, "Monthly"), (7, "Weekly"), (1, "Daily")]
 
     def freq_from_days(days):
