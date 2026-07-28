@@ -141,17 +141,25 @@
     "AH07": {
       "title": "FMEA: add a failure mode, RPN is computed and defensible",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-reliability",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-high-severity-low-rpn",
+          "S-high-rpn-low-severity",
+          "S-printed-report",
+          "S-cold-no-modes"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28. The arithmetic was NOT the problem and it is worth saying so precisely: rpn is a GENERATED ALWAYS column (COALESCE(severity,0) * COALESCE(occurrence,0) * COALESCE(detection,0)), so it cannot drift from its inputs - 0 of 300 rows disagree - and severity, occurrence and detection are each CHECK-bounded 1..10, with consequence_class bounded to a fixed set. The inputs are defensible. THE DEFECT IS WHAT THE PAGE DOES WITH THEM. Every FMEA surface ordered by rpn DESC alone, and RPN multiplies severity by how RARE and how DETECTABLE a failure is - so a rare, easily-caught SAFETY failure scores below a frequent, hard-to-spot nuisance. MEASURED: all 17 modes with severity >= 9 fall below the median RPN, and on WLD-001 'Cable insulation breakdown' (S9, consequence_class=safety, RPN 108) ranked BELOW 'MCCB trip unit drift' (S8, RPN 168) and 'Switch-mode PSU output ripple' (S5, production, RPN 150). Fleet-wide the worst case is that same S9 safety mode sitting under 'Coupling misalignment beyond 0.05 mm' (S6, production, RPN 180). The electrocution risk sat under the alignment nuisance on every asset page and every printed report. AND WE HAD ALREADY WRITTEN THE CAVEAT DOWN. canonical/standards.json iec_60812_2018.rpn says 'Newer guidance (AIAG-VDA 2019) favours Action Priority over RPN' - and the Print Report's own section header reads '1. FMEA matrix (AIAG-VDA 2019)', citing the standard that replaced RPN because of exactly this, while the table under it was in RPN order. Documented the weakness, then shipped it. FIX: an Action Priority band (_fmeaActionPriority / _fmeaPriorityOrder) - H when severity >= 9 (safety or regulatory consequence, regardless of how rare or detectable) or RPN >= 200; M when severity >= 7 or RPN >= 100; L otherwise; ordered by band then RPN within a band. It only ever RAISES priority: the RPN colour banding is untouched, so nothing that reads as urgent today is quietly demoted - the safety item simply stops being buried under it. The pill carries WHY in its title so an engineer who wonders why a mid-RPN row is on top gets the reason without leaving the page. HONEST SCOPE, and this is the part that mattered most to get right: this is NOT the full AIAG-VDA AP lookup, which is a ~1000-cell S/O/D table. I did not reproduce it, because inventing a standard's table contents would defeat the entire point of an auditable contract - the surfaces say AP and cite the standards rather than claiming full AIAG-VDA conformance, and the formula is registered with partial_variant=true and a partial_reason that says exactly this. What IS implemented is the severity escalation both IEC 60812:2018 and AIAG-VDA agree on, which is what fixes the measured burial. BOTH SURFACES, one order: the printed report goes through the same function as the screen, because an auditor and an engineer disagreeing about which failure matters most would be worse than the original bug. Report also gained an AP column, 'highest severity' and 'N at Action Priority H' in the executive summary, and a sentence explaining why the table is not in RPN order. VERIFIED LIVE on WLD-001: the S9 safety mode now renders first (AP H, RPN 108) above the RPN 168 and 150, and the generated report table matches row for row. GATE validate_fmea_priority_order, teeth proven TWICE: reverting the report to rpn order -> FAIL; dropping the severity CHECK -> FAIL. Its live half deliberately does NOT sort by its own rule and then assert its own rule holds - that tautology can never fail - it checks the substrate the bands stand on (rpn still generated, S/O/D still bounded 1..10) and reports the 17-mode burial count so the reason for the rule stays visible instead of becoming folklore."
     },
     "AH08": {
       "title": "RCM strategy -> interval -> push to PM Scheduler",

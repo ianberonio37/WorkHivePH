@@ -273,6 +273,16 @@
     .fmea-rpn-medium   { background: rgba(247,162,27,0.18);  color: var(--wh-orange); }
     .fmea-rpn-high     { background: rgba(251,146,60,0.20);  color: var(--wh-orange); }
     .fmea-rpn-critical { background: rgba(239,87,87,0.22);   color: var(--wh-red); }
+    /* AH7: Action Priority sits BEFORE the RPN chip, because it is what decides the row order.
+       Bordered rather than filled so it reads as a verdict about the row, not a second score. */
+    .fmea-ap {
+      font-size: 0.62rem; font-weight: 800; letter-spacing: .05em;
+      padding: 2px 7px; border-radius: var(--wh-radius-sm); border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .fmea-ap-h { border-color: rgba(239,87,87,0.55);  color: var(--wh-red);    background: rgba(239,87,87,0.10); }
+    .fmea-ap-m { border-color: rgba(247,162,27,0.50); color: var(--wh-orange); background: rgba(247,162,27,0.08); }
+    .fmea-ap-l { border-color: rgba(255,255,255,0.20);color: var(--muted);     background: rgba(255,255,255,0.03); }
     .fmea-sod {
       display: inline-flex; gap: 4px; font-size: 0.62rem; color:rgba(255,255,255,0.80);
     }
@@ -2247,6 +2257,50 @@
       return 'fmea-rpn-low';
     }
 
+    // ── Action Priority · formula fmea_action_priority_severity_gate ──────────
+    // AH7 (Asset Hub deepwalk, 2026-07-28). The RPN arithmetic here is sound — rpn is a
+    // GENERATED ALWAYS column (S x O x D), each input CHECK-constrained to 1..10, and 0 of 300
+    // rows disagree with the product. The defect is what we DO with it: every FMEA surface
+    // ordered by rpn DESC alone, and that buries exactly what must not be buried.
+    //
+    // MEASURED on the real fleet: 17 modes carry severity >= 9, and ALL 17 sit below the median
+    // RPN. Concretely, "Cable insulation breakdown" (S9, consequence_class=safety, RPN 108) ranks
+    // BELOW "Coupling misalignment beyond 0.05 mm" (S6, production, RPN 180). On every asset page
+    // and every printed report, the electrocution risk sat under the alignment nuisance.
+    //
+    // This is the known weakness of RPN, and the platform had already written it down:
+    // canonical/standards.json iec_60812_2018.rpn notes "Newer guidance (AIAG-VDA 2019) favours
+    // Action Priority over RPN" — and the Print Report header cites AIAG-VDA 2019, the very
+    // standard that replaced RPN because of this. We documented the caveat and then sorted by RPN.
+    //
+    // HONEST SCOPE — this is NOT the full AIAG-VDA AP lookup. That is a ~1000-cell S/O/D table and
+    // inventing its contents would be worse than not claiming it, since the entire point is
+    // auditability. What is implemented is the part both IEC 60812:2018 and AIAG-VDA agree on and
+    // which fixes the measured burial: a high-severity failure gets priority attention regardless
+    // of how rare or how detectable it is. Registered as a PARTIAL formula variant for that reason.
+    //
+    // It only ever RAISES priority: the RPN band colouring is untouched, so nothing that reads as
+    // urgent today is quietly demoted — the safety item simply stops being buried under it.
+    function _fmeaActionPriority(m) {
+      const s = Number(m && m.severity) || 0;
+      const n = Number(m && m.rpn) || 0;
+      if (s >= 9)   return { level: 'H', rank: 0, why: 'Severity ' + s + ': safety or regulatory consequence — priority regardless of how rare or how detectable (IEC 60812:2018 / AIAG-VDA 2019).' };
+      if (n >= 200) return { level: 'H', rank: 0, why: 'RPN ' + n + ' — in the top band on the classical S x O x D score.' };
+      if (s >= 7)   return { level: 'M', rank: 1, why: 'Severity ' + s + ': serious consequence even though the combined RPN is ' + n + '.' };
+      if (n >= 100) return { level: 'M', rank: 1, why: 'RPN ' + n + ' — mid band on the classical S x O x D score.' };
+      return { level: 'L', rank: 2, why: 'Severity ' + (s || '?') + ', RPN ' + (n || '?') + ' — lowest band.' };
+    }
+
+    // Action Priority first, then RPN within a band. Used by the page list AND the printed
+    // report so an auditor and an engineer never see two different orders for the same asset.
+    function _fmeaPriorityOrder(rows) {
+      return (rows || []).slice().sort((a, b) => {
+        const d = _fmeaActionPriority(a).rank - _fmeaActionPriority(b).rank;
+        if (d) return d;
+        return (Number(b.rpn) || 0) - (Number(a.rpn) || 0);
+      });
+    }
+
     // Arc Y Y4 (fork#3 ADAPTIVE): the Reliability Workbench is gated by the per-device
     // view mode. Workers default to the asset SUMMARY (workbench hidden); an engineer
     // toggles it on and the choice persists. Data still LOADS while hidden so it's
@@ -2289,7 +2343,10 @@
         console.warn('fmea load:', error.message);
         _fmeaModes = [];
       } else {
-        _fmeaModes = data || [];
+        // AH7: the query still orders by rpn DESC (it is the tie-break and keeps the .limit(50)
+        // deterministic); Action Priority re-orders on top so a severity-9 mode cannot sit below
+        // a lower-severity one just because its occurrence and detection scores are favourable.
+        _fmeaModes = _fmeaPriorityOrder(data || []);
       }
       // Phase R.4: load strategies attached to those FMEA modes (one row per mode max).
       // L2 anchor (asset_hub_rcm_realtime + asset_hub_pm_writeback):
@@ -2393,9 +2450,15 @@
             + '</div>';
         }
 
+        // AH7: the Action Priority pill carries WHY in its title, so an engineer who wonders
+        // why a mid-RPN row sits at the top gets the reason without leaving the page.
+        const ap = _fmeaActionPriority(m);
+        const apHtml = '<span class="fmea-ap fmea-ap-' + ap.level.toLowerCase() + '" title="' + e(ap.why) + '">AP ' + ap.level + '</span>';
+
         return ''
           + '<div class="fmea-row">'
           +   '<div class="fmea-row-head">'
+          +     apHtml
           +     '<span class="fmea-rpn ' + rpnClass + '">' + e(String(m.rpn ?? '?')) + '</span>'
           +     '<div style="flex:1; min-width:0;">'
           +       '<div style="font-size:.85rem; font-weight:700;">' + e(m.failure_mode || '(unspecified)') + aiBadge + '</div>'
@@ -3246,9 +3309,15 @@
       const engineer = (typeof WORKER_NAME !== 'undefined' && WORKER_NAME) ? WORKER_NAME : 'Reliability engineer';
       const hiveTag  = (typeof HIVE_ID !== 'undefined' && HIVE_ID) ? HIVE_ID.slice(0, 8) : '';
 
-      const approvedFmea = fmea;     // v_fmea_truth already filters approved-only
+      // AH7: same Action-Priority order the page uses. The report is the AUDITOR-facing artifact
+      // and its own header cites AIAG-VDA 2019 — the standard that replaced RPN precisely because
+      // rpn DESC buries high-severity modes. Having the printed table disagree with the screen
+      // about which failure matters most would be the worse of the two bugs.
+      const approvedFmea = _fmeaPriorityOrder(fmea);   // v_fmea_truth already filters approved-only
       const linkedRcm    = rcm.filter(r => r.written_to_pm_scope_item_id);
       const topRpn       = approvedFmea.length ? Math.max.apply(null, approvedFmea.map(r => Number(r.rpn) || 0)) : 0;
+      const topSeverity  = approvedFmea.length ? Math.max.apply(null, approvedFmea.map(r => Number(r.severity) || 0)) : 0;
+      const apHigh       = approvedFmea.filter(r => _fmeaActionPriority(r).level === 'H').length;
       const weibullPattern = weibull ? weibull.failure_pattern : 'no_fit';
 
       const rcmByMode = {};
@@ -3256,6 +3325,7 @@
 
       const fmeaRows = approvedFmea.length ? approvedFmea.map(r => `
         <tr>
+          <td class="num">${esc(_fmeaActionPriority(r).level)}</td>
           <td class="rpn-cell">${esc(r.rpn ?? '?')}</td>
           <td>${esc(r.function_text || '(unspecified)')}</td>
           <td>${esc(r.failure_mode || '(unspecified)')}</td>
@@ -3267,7 +3337,7 @@
           <td>${esc(r.consequence_class || '')}</td>
           <td>${esc(r.source || 'manual')}</td>
         </tr>`).join('')
-        : '<tr><td colspan="10" class="empty">No approved FMEA modes registered for this asset.</td></tr>';
+        : '<tr><td colspan="11" class="empty">No approved FMEA modes registered for this asset.</td></tr>';
 
       const rcmRows = rcm.length ? rcm.map(s => `
         <tr>
@@ -3354,6 +3424,8 @@
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
   td.empty { color: #777; font-style: italic; text-align: center; }
   .rpn-cell { font-weight: 700; text-align: center; }
+  /* AH7: the sentence that tells an auditor why the table is not in RPN order. */
+  .note { font-size: 8.8pt; color: #555; margin: 2px 0 6px; line-height: 1.35; }
   .meta-table th { width: 38%; }
   .pm-yes { color: #1a7a3a; font-weight: 700; }
   .pm-no  { color: #888; }
@@ -3398,7 +3470,7 @@
 <section class="summary">
   <strong>Executive Summary</strong>
   <ul>
-    <li>Approved FMEA failure modes: <strong>${approvedFmea.length}</strong>${approvedFmea.length ? ` &middot; top RPN <strong>${esc(topRpn)}</strong>` : ''}.</li>
+    <li>Approved FMEA failure modes: <strong>${approvedFmea.length}</strong>${approvedFmea.length ? ` &middot; top RPN <strong>${esc(topRpn)}</strong> &middot; highest severity <strong>${esc(topSeverity)}</strong> &middot; <strong>${esc(apHigh)}</strong> at Action Priority H` : ''}.</li>
     <li>Approved RCM strategies: <strong>${rcm.length}</strong>${rcm.length ? ` &middot; ${linkedRcm.length} pushed to PM Scheduler` : ''}.</li>
     <li>Weibull pattern: <strong>${esc(weibullPattern)}</strong>${weibull && weibull.beta != null ? ` (beta=${esc(Number(weibull.beta).toFixed(2))}, eta=${esc(Math.round(Number(weibull.eta_days)))}d, n=${esc(weibull.n_failures || 0)})` : ''}.</li>
     <li>P-F intervals computed: <strong>${pf.length}</strong>${pf.length ? ` parameter${pf.length === 1 ? '' : 's'}` : ''}.</li>
@@ -3408,9 +3480,14 @@
 
 <section>
   <h2>1. FMEA matrix (AIAG-VDA 2019)</h2>
+  <p class="note">Ordered by <strong>Action Priority</strong>, then RPN. A severity 9-10 failure
+  mode is listed as AP&nbsp;H regardless of its occurrence and detection scores, because RPN alone
+  ranks a rare, easily-detected safety failure below a frequent nuisance &mdash; the weakness
+  AIAG-VDA 2019 introduced Action Priority to address (see also IEC 60812:2018). RPN is retained
+  in full for continuity with earlier reviews.</p>
   <!-- table-name-allow: asset-hub reliability metric table (Weibull/RPN/RCM/P-F/history) --> <div class="wh-scroll-x"><table>
     <thead><tr>
-      <th>RPN</th><th>Function</th><th>Failure mode</th><th>Effect</th><th>Cause</th>
+      <th>AP</th><th>RPN</th><th>Function</th><th>Failure mode</th><th>Effect</th><th>Cause</th>
       <th>S</th><th>O</th><th>D</th><th>Conseq.</th><th>Source</th>
     </tr></thead>
     <tbody>${fmeaRows}</tbody>

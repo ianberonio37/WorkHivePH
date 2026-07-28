@@ -440,6 +440,26 @@
       "unit": "pct (0..100)",
       "description": "Partial OEE = Availability × Quality. Used when per-asset ideal cycle time (the Performance factor input) is not yet captured. Always declared 'partial' in the source chip so users don't conflate with full OEE. Closing this gap requires capture contract asset_ideal_cycle_time (Tier F next-build).",
       "added_in": "formal contract 2026-05-20 (captures existing platform reality + flags the gap)"
+    },
+    {
+      "formula_id": "fmea_action_priority_severity_gate",
+      "name": "FMEA Action Priority — severity gate (partial AIAG-VDA)",
+      "standard_id": "iec_60812_2018",
+      "standard_clause": "rpn",
+      "standard_cite": "AIAG-VDA FMEA Handbook 2019 (Action Priority); IEC 60812:2018 §RPN",
+      "inputs": [
+        "severity_1_to_10",
+        "occurrence_1_to_10",
+        "detection_1_to_10",
+        "rpn"
+      ],
+      "partial_variant": true,
+      "partial_reason": "Implements the severity escalation both IEC 60812:2018 and AIAG-VDA 2019 agree on — a severity 9-10 failure mode is High priority regardless of occurrence and detection — plus RPN banding. It is NOT the full AIAG-VDA ~1000-cell S/O/D Action Priority lookup table. That table is not reproduced here because inventing its contents would defeat the point of an auditable contract; the surfaces label the column AP and cite the standards rather than claiming full AIAG-VDA conformance.",
+      "implemented_in": "asset-hub.html: _fmeaActionPriority() + _fmeaPriorityOrder(), used by the FMEA list and the printed Reliability Report. PARTIAL implementation of AIAG-VDA Action Priority - the severity escalation only, not the full S/O/D lookup table.",
+      "freshness": "realtime",
+      "unit": "priority band (H | M | L)",
+      "description": "Priority band for an FMEA failure mode. H when severity >= 9 (safety or regulatory consequence, regardless of how rare or how detectable) or RPN >= 200; M when severity >= 7 or RPN >= 100; L otherwise. Rows are ordered by band, then by RPN within a band. WHY THIS EXISTS: ordering by RPN alone buries exactly what must not be buried — measured on the seeded fleet, all 17 modes with severity >= 9 fell below the median RPN, and 'Cable insulation breakdown' (S9, safety, RPN 108) ranked below 'Coupling misalignment beyond 0.05 mm' (S6, production, RPN 180) on every asset page and every printed report. canonical/standards.json already recorded that AIAG-VDA 2019 favours Action Priority over RPN; the UI sorted by RPN anyway. The band only ever RAISES priority — the RPN colour banding is unchanged, so nothing that reads as urgent today is quietly demoted.",
+      "added_in": "20260728 (AH7, ASSET_HUB_DEEPWALK_EXPANSION_ROADMAP)"
     }
   ]
 }
