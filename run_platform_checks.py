@@ -5075,6 +5075,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "project_authority",
+        "script":  "tools/validate_project_authority.py",
+        "args":    [],
+        "label":   "PJK3 - authority is enforced where the DATA is, not in the renderer. project-manager.html carried three claims only its renderer believed, each probed live as an ordinary worker and each true of the screen and false of the database: renderBudget printed 'Budget visibility is restricted to supervisors' while projects_hive_rw granted every member SELECT (a worker read CAP-2026-001's PHP 1,850,000 off the table, and budget_php was in the MAIN list select for everyone so the figure reached the browser before any pane decided to show it); the Delete button had no role check and neither did the DB, so a worker soft-deleted a shutdown project they did not own while hive_audit_log held ZERO project rows; and ackLog wrote acknowledged_by = WORKER_NAME with no role check, so any member could acknowledge any progress report including their own. A UI-only gate is not a control, it is a label. This gate asserts each is now enforced in the database. IT CHECKS MECHANISMS, NOT NAMES - the budget one is enforced by COLUMN PRIVILEGES and a column-level REVOKE is a NO-OP while a table-wide GRANT stands, which is exactly how the first attempt failed silently with information_schema still listing authenticated on budget_php while the page looked fixed. So it asks the CATALOG 'does authenticated hold SELECT on budget_php' rather than grepping a migration for the word REVOKE. Also holds: budget_php absent from v_project_truth (security_invoker, so re-adding it re-opens the read AND breaks every select('*') caller), the supervisor-only RPC still exists, and the three guard triggers are attached and NOT disabled (tgenabled <> 'D' - a disabled trigger looks present and enforces nothing). Teeth proven by re-granting the column: FAIL with the no-op warning inline.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "change_order_immutability",
         "script":  "tools/validate_change_order_immutability.py",
         "args":    [],
