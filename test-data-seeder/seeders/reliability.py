@@ -610,6 +610,68 @@ def _between_days(lo: int, hi: int) -> str:
     return (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
 
 
+def _link_strategy_sample(client, log, sample_rate: float = 0.15) -> int:
+    """Push a SAMPLE of approved strategies into pm_scope_items and record the link.
+
+    Mirrors what asset-hub's pushStrategyToPm() does, so the seeded lineage matches the shape the
+    page produces: the scope item's frequency is derived from interval_days by snapping DOWN to the
+    closest canonical bucket (never scheduling a task RARER than the strategy specifies — the PMK4
+    rule from the PM arc, where a CMMS import with no Daily bucket was turning 1-day PMs weekly).
+    Resolves the PM asset through asset_nodes.pm_asset_id, never by feeding a pm_assets id into an
+    asset_nodes FK — the mistake that once silently starved pm_knowledge to zero rows.
+    """
+    strategies = (client.table("rcm_strategies")
+                  .select("id, hive_id, fmea_mode_id, task_text, interval_days, approved_at")
+                  .not_.is_("approved_at", "null")
+                  .is_("written_to_pm_scope_item_id", "null")
+                  .limit(2000).execute().data or [])
+    if not strategies:
+        return 0
+
+    # fmea_mode -> asset_node -> pm_asset
+    modes = {m["id"]: m for m in (client.table("rcm_fmea_modes")
+                                  .select("id, asset_id").limit(4000).execute().data or [])}
+    nodes = {n["id"]: n for n in (client.table("asset_nodes")
+                                  .select("id, pm_asset_id, hive_id")
+                                  .not_.is_("pm_asset_id", "null").limit(4000).execute().data or [])}
+
+    buckets = [(365, "Annual"), (180, "Semi-Annual"), (90, "Quarterly"),
+               (30, "Monthly"), (7, "Weekly"), (1, "Daily")]
+
+    def freq_from_days(days):
+        for d, label in buckets:            # descending: the largest bucket that fits
+            if days >= d:
+                return label
+        return "Daily"
+
+    linked = 0
+    for s in strategies:
+        if random.random() >= sample_rate:
+            continue
+        mode = modes.get(s.get("fmea_mode_id"))
+        node = nodes.get((mode or {}).get("asset_id"))
+        if not node or not node.get("pm_asset_id") or not s.get("interval_days"):
+            continue
+        try:
+            item = (client.table("pm_scope_items").insert({
+                "asset_id":  node["pm_asset_id"],
+                "hive_id":   s["hive_id"],
+                "item_text": s.get("task_text") or "RCM strategy task",
+                "frequency": freq_from_days(s["interval_days"]),
+                "is_custom": True,
+            }).execute().data or [])
+            if not item:
+                continue
+            client.table("rcm_strategies").update(
+                {"written_to_pm_scope_item_id": item[0]["id"]}).eq("id", s["id"]).execute()
+            linked += 1
+        except Exception:
+            continue
+
+    log(f"  linked {linked} approved strategies to a PM scope item (sample; the rest stay cold-start)")
+    return linked
+
+
 def seed_reliability(client, log, ctx: dict) -> dict:
     """Seed FMEA + RCM + Weibull + P-F per seeded asset_node."""
     log("Seeding Reliability Workbench (FMEA + RCM + Weibull + P-F)...")
@@ -731,6 +793,15 @@ def seed_reliability(client, log, ctx: dict) -> dict:
             # actually create the pm_scope_item row here — the link target
             # is null so the UI shows "not linked"; that's the realistic
             # cold-start state).
+            # AH8/AHK3 (Asset Hub deepwalk, 2026-07-28): this used to approve EVERY strategy
+            # unconditionally — 172 of 172 — while the FMEA rows twelve lines above already had an
+            # is_approved branch (245 of 300). Same file, adjacent tables, one of them walkable.
+            #
+            # It matters because pushStrategyToPm() refuses an unapproved strategy ("Strategy must be
+            # approved before pushing to PM Scheduler"), so with no unapproved rows in existence that
+            # REFUSAL has never once been exercised — the guard could have been inverted or dead and
+            # nothing would have shown it. A state with no rows is a state nobody has walked.
+            strategy_approved = random.random() < 0.85
             strategy_rows.append({
                 "hive_id":      m["hive_id"],
                 "fmea_mode_id": m["id"],
@@ -739,8 +810,10 @@ def seed_reliability(client, log, ctx: dict) -> dict:
                 "interval_days": interval,
                 "rationale":    f"Seeded for tester. RPN={m.get('rpn')}, consequence={conseq}.",
                 "source":       "manual",
-                "approved_by":  "seed",
-                "approved_at":  _between_days(0, 14),
+                # Kept together so they cannot disagree: an unapproved strategy has NEITHER an
+                # approver nor a timestamp, the same coherence rule the asset_nodes states follow.
+                "approved_by":  "seed" if strategy_approved else None,
+                "approved_at":  _between_days(0, 14) if strategy_approved else None,
             })
 
     rcm_inserted = 0
@@ -750,6 +823,23 @@ def seed_reliability(client, log, ctx: dict) -> dict:
             log(f"  inserted {rcm_inserted} rcm_strategies")
         except Exception as e:
             log(f"  WARN: rcm_strategies insert failed: {type(e).__name__}: {e}")
+
+    # AH8/AHK3 (Asset Hub deepwalk, 2026-07-28): link a SAMPLE of approved strategies to a real
+    # pm_scope_items row, so the RCM -> PM push has BOTH branches in the data.
+    #
+    # The unlinked majority is DELIBERATE and stays — the comment above calls it "the realistic
+    # cold-start state", and recalling that disposition is what stopped this being filed as a bug.
+    # But with 0 of 172 linked, the linked branch was undemonstrable: pushStrategyToPm's idempotence
+    # guard ("Already linked to PM Scheduler") had never been exercised, and neither had the
+    # written_to_pm_scope_item_id FK. That is the logbook arc's LB13 exactly — a gate protecting
+    # provenance that no row could demonstrate. A sample gives both states without pretending every
+    # plant has finished its RCM roll-out.
+    linked_strategies = 0
+    try:
+        pushed = _link_strategy_sample(client, log, sample_rate=0.15)
+        linked_strategies = pushed
+    except Exception as e:
+        log(f"  WARN: strategy->PM sample link skipped: {type(e).__name__}: {e}")
 
     # ── 3. Weibull fits ──────────────────────────────────────────────────────
     weibull_rows = []

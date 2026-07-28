@@ -132,17 +132,24 @@
     "AH08": {
       "title": "RCM strategy -> interval -> push to PM Scheduler",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-reliability",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-approved-strategy",
+          "S-unapproved-strategy",
+          "S-pushed-linked"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28, after building the TWO fixture states it needed - and the fixture work is the finding. (1) rcm_strategies was 172 approved / 0 unapproved, because reliability.py set approved_by/approved_at UNCONDITIONALLY while the fmea_modes rows twelve lines above already had an is_approved branch (245 of 300). Same file, adjacent tables, one walkable and one not. It matters because pushStrategyToPm() refuses an unapproved strategy - 'Strategy must be approved before pushing to PM Scheduler' - so with no unapproved rows in existence that REFUSAL had never once been exercised; the guard could have been inverted or dead and nothing would have shown it. Fixed to mirror the FMEA branch, coherently (an unapproved strategy has NEITHER an approver nor a timestamp). Live: 146 approved / 26 unapproved. (2) 0 of 172 strategies were linked to a PM scope item. RECALLING THE DISPOSITION stopped this being filed as a bug: the seeder comment calls the unlinked state 'the realistic cold-start state', and that is right. But with EVERY row cold-start the linked branch was undemonstrable - pushStrategyToPm's idempotence guard ('Already linked to PM Scheduler') and the written_to_pm_scope_item_id FK had no row to protect. That is the logbook arc's LB13 exactly. Resolved the same way: seed a SAMPLE so BOTH branches exist without pretending every plant has finished its RCM roll-out. Live: 21 of 172 linked, 0 dangling. THE CORRECTNESS RESULT: no pushed scope item is scheduled RARER than its strategy specifies (0 of 21), none sits in a different hive from its strategy, and the pairs are exact - 30d->Monthly, 90d->Quarterly, 180d->Semi-Annual. That property does not rest on the fixture: only 3 distinct intervals exist in the data (30/90/180, all canonical buckets), so the mapping is barely exercised here - it holds for ARBITRARY intervals because validate_pm_frequency_mapping proves never-rarer across 1..400, the PMK4 gate from the PM arc. A MISTAKE OF MY OWN, caught and undone: my first bulk link paired rows by two unrelated row_number() orderings, so 18 of 21 strategies got ANOTHER strategy's scope item (a 30-day strategy pointing at a Semi-Annual task). Caught by verifying the pairing rather than the row count, fully reverted (links cleared, the 21 wrong scope items deleted, 0 completions orphaned), and redone one row at a time so an insert cannot drift from its strategy. The seeder helper already inserts per-row and never had the bug. Compliance moved 86.3 -> 85.2 as the 21 new scope items entered the scheduled denominator with no completions yet; the on-time gap NARROWED 13.3 -> 12.2, so the forward-only ratchet passed and was re-accepted at the tighter ceiling."
     },
     "AH09": {
       "title": "Weibull fit - with too few failures, does it refuse or guess?",
@@ -328,11 +335,11 @@
         "harvest": "done",
         "define": "done",
         "detect": "done",
-        "sweep": "partial",
+        "sweep": "done",
         "fix": "done",
         "gate": "todo"
       },
-      "notes": "EARNED BY THE AH2 WALK 2026-07-28, and it earned itself by BLOCKING one. RULE: a workflow state with no rows is a state nobody has walked, so the seeder is part of the test surface - and the failure is quiet, because a fixture missing a STATE looks exactly like a fixture that is fine. EVIDENCE: asset_nodes had 95 rows, ALL status='approved', 0 pending, 0 rejected, 0 with auth_uid. Every affordance built for the other states - the pending queue, the rejection reason, the restore path - was unreachable, which is why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) sat undiagnosed: there had never been a pending asset to see. The hole in AH3 had been sitting behind that same gap. SHARPENS LB13/LB17 from missing RELATIONSHIPS to missing STATES. FIX: the seeder now generates status and its companion fields together (_governance_state), so the states exist AND cannot be internally incoherent. SWEEP PARTIAL: rcm_strategies is still 172 approved / 0 unapproved, so the strategy approval gate remains unwalkable - that is AH8's fixture and the next slice. GATE TODO: a check that each governed table holds >0 rows in every non-terminal state it defines."
+      "notes": "EARNED BY THE AH2 WALK 2026-07-28, and it earned itself by BLOCKING one. RULE: a workflow state with no rows is a state nobody has walked, so the seeder is part of the test surface - and the failure is quiet, because a fixture missing a STATE looks exactly like a fixture that is fine. EVIDENCE: asset_nodes had 95 rows, ALL status='approved', 0 pending, 0 rejected, 0 with auth_uid. Every affordance built for the other states - the pending queue, the rejection reason, the restore path - was unreachable, which is why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) sat undiagnosed: there had never been a pending asset to see. The hole in AH3 had been sitting behind that same gap. SHARPENS LB13/LB17 from missing RELATIONSHIPS to missing STATES. FIX: the seeder now generates status and its companion fields together (_governance_state), so the states exist AND cannot be internally incoherent. SWEEP PARTIAL: rcm_strategies is still 172 approved / 0 unapproved, so the strategy approval gate remains unwalkable - that is AH8's fixture and the next slice. GATE TODO: a check that each governed table holds >0 rows in every non-terminal state it defines. SWEEP CLOSED by AH8: rcm_strategies now carries its non-terminal state (146/26) and the strategy->PM link has both branches (21 linked / 151 cold-start). Three tables were missing a state for three DIFFERENT reasons - asset_nodes because a seeder hand-off dropped the field, rcm_strategies because an approval flag was unconditional, and the PM link because the empty state was DELIBERATE and nobody had seeded its counterpart. The last is the subtle one: a documented, correct disposition can still leave a branch undemonstrable, and the answer is a SAMPLE rather than overriding the disposition."
     }
   }
 }
