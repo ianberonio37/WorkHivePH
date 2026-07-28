@@ -8257,7 +8257,7 @@
         "benchmark-compute",
         "supervisor-reset-password"
       ],
-      "size_kb": 331.2
+      "size_kb": 331.8
     },
     "index.html": {
       "tables_read": [],
@@ -8542,7 +8542,7 @@
         "get_pm_ontime_delivery"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 149.0
+      "size_kb": 150.3
     },
     "project-manager.html": {
       "tables_read": [

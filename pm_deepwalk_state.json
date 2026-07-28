@@ -310,13 +310,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Cross-hive boundary: a foreign completion must not inflate another hive's compliance. G: ALREADY HARDENED by the PDDA arc - 3 write holes fixed by migration 20260712000012, gate validate_pm_write_isolation.py 4/4, and get_pm_compliance_smrp raises 42501 for a non-member. The walk re-confirms it from the UI side across personas rather than re-litigating it."
+      "walked": {
+        "personas": [
+          "P-multi",
+          "P-teammate"
+        ],
+        "states": [
+          "S-cross-hive-write",
+          "S-own-hive-foreign-scope"
+        ]
+      },
+      "notes": "Cross-hive boundary: a foreign completion must not inflate another hive's compliance. G: ALREADY HARDENED by the PDDA arc - 3 write holes fixed by migration 20260712000012, gate validate_pm_write_isolation.py 4/4, and get_pm_compliance_smrp raises 42501 for a non-member. The walk re-confirms it from the UI side across personas rather than re-litigating it. WALKED 2026-07-28 and found a REAL cross-tenant hole the PDDA arc's own xcomp test could not catch. pm_completions_write's WITH CHECK required that the row's ASSET belong to the same hive as its hive_id (mig 20260712000012), and said NOTHING about scope_item_id. So a member of hive A could insert a completion with hive_id = their OWN hive (passes membership), asset_id = their OWN asset (passes the existing parent check), and scope_item_id = a scope item in hive B - and it was ACCEPTED. WHY THAT MATTERS: every consumer joins completions to scope items by scope_item_id, NOT by the completion's own hive_id. get_pm_compliance_smrp counts per scope item, so the foreign hive's credited completions went 502 -> 503 from one row. get_pm_ontime_delivery counts the same intervals. And v_pm_scope_items_truth's last_completed_at takes the newest completion for the item, which drives next_due_date - so the row silently CLEARS an overdue PM in another plant. That last consequence is the sharp one: it does not just move a percentage, it removes work from someone else's overdue list. xcomp misses it because that probe sets hive_id to the FOREIGN hive (correctly blocked). Aiming hive_id at your OWN hive while pointing scope_item_id at theirs slips through the gap BETWEEN the two columns - a child/ledger-table WITH CHECK that validates one parent and not the other. FIXED by migration 20260728000007: a RESTRICTIVE policy requiring the scope item to belong to the SAME ASSET the completion names. Since the existing check already ties that asset to the hive, one condition closes both the tenancy hole and the nonsense pairing. Verified safe BEFORE applying: of 1,591 completions, zero have a scope item in another hive, on another asset, or a NULL scope_item_id, so it rejects nothing that exists. NULL scope_item_id still passes, for a future ad-hoc completion. GATED as a 9th check in validate_pm_write_isolation; teeth proven by dropping the policy (the probe reports OPEN_VULN, exit 1) and re-applying (exit 0). A GATE-HARNESS BUG OF MY OWN, found because the whole probe went silent: my new SQL comment contained an EM DASH, and psql input piped through subprocess on Windows is encoded cp1252, so Postgres rejected the batch with 'invalid byte sequence for encoding UTF8: 0x97' and NONE of the five RESULT lines were emitted. Every check read None and the gate reported 5 failures that were really one encoding error. SQL sent through subprocess must be pure ASCII."
     },
     "PM14": {
       "type": "T6-fabric",

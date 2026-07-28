@@ -132,6 +132,19 @@ BEGIN
   EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'RESULT xasset=BLOCKED';
             WHEN others THEN RAISE NOTICE 'RESULT xasset=OTHER:%', SQLSTATE;
   END;
+  -- PM13 (PM deepwalk, 2026-07-28): the sharper cross-tenant shape, which xcomp above CANNOT catch.
+  -- hive_id and asset_id are the member's OWN (so both existing checks pass) while scope_item_id
+  -- points at a FOREIGN hive's item. Every consumer joins completions to scope items by
+  -- scope_item_id, not by the completion's hive_id, so the row credited the foreign hive's
+  -- compliance (probed: 502 -> 503 credited completions) AND moved its last_completed_at, which
+  -- drives next_due_date - silently clearing an overdue PM in someone else's plant.
+  BEGIN
+    INSERT INTO pm_completions(asset_id,scope_item_id,hive_id,worker_name,status,completed_at,auth_uid)
+    VALUES('{own_asset}','{foreign_scope}','{own_hive}','gate','done',now(),'{uid}');
+    RAISE NOTICE 'RESULT xscopeparent=OPEN_VULN';
+  EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'RESULT xscopeparent=BLOCKED';
+            WHEN others THEN RAISE NOTICE 'RESULT xscopeparent=OTHER:%', SQLSTATE;
+  END;
   BEGIN
     INSERT INTO pm_completions(asset_id,scope_item_id,hive_id,worker_name,status,completed_at,auth_uid)
     VALUES('{own_asset}','{own_scope}','{own_hive}','gate','done',now(),'{uid}');
@@ -217,6 +230,9 @@ ROLLBACK;
          "a hive-A member's scope-item INSERT onto a hive-B asset is rejected"),
         ("xcomp_blocked", results.get("xcomp"), "BLOCKED",
          "a hive-A member's completion INSERT into hive B is rejected (compliance poisoning)"),
+        ("xscope_parent_blocked", results.get("xscopeparent"), "BLOCKED",
+         "a completion with the member's OWN hive_id but a FOREIGN scope_item_id is rejected — it "
+         "would credit the other hive's compliance and clear its overdue PM"),
         ("xasset_blocked", results.get("xasset"), "BLOCKED",
          "a hive-A member's asset INSERT into hive B is rejected (phantom asset)"),
         ("legit_ok", results.get("legit"), "OK",

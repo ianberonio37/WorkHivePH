@@ -224,8 +224,12 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
     this arc had just changed the analytics card. The defect was the NOUN: the hive board's
     deliberately ASSET-scoped overdue count was labelled "PM tasks" / "PMs" in four places against
     only one correct "assets", under-stating the work 29-vs-40. Six sites fixed in EN and FIL.
-12. Then §5 order downward — **PM1–PM4, PM6, PM13, PM14, PM16, PM17** remain; every ⑤-harvest that
-    earns a class refills this queue.
+12. ~~**PM13** — the cross-hive boundary.~~ Done, and it found a REAL hole `xcomp` could not catch:
+    `hive_id` your own + `scope_item_id` theirs was ACCEPTED, crediting the foreign hive's compliance
+    (502→503 measured) and clearing its overdue PM via `last_completed_at`. Migration
+    `20260728000007`; `validate_pm_write_isolation` now 9 checks.
+13. Then §5 order downward — **PM1–PM4, PM6, PM14, PM16, PM17** remain; every ⑤-harvest that earns a
+    class refills this queue.
 
 **Carried out of the PM7 walk, CLOSED by PM15:** the summary cards shared a first-paint reserve
 deficit — each `.sc-sub` placeholder is one line and fills to two or three, which was most of the
