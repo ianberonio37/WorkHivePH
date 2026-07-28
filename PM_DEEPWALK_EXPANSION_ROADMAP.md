@@ -241,8 +241,13 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
     mirror creates. Duplicating a parts picker into the PM sheet would put a second writer on
     `inventory_transactions` — the ledger-tamper class two arcs have been closing. Recorded friction:
     nothing tells the tech the mirrored entry is where parts go.
-16. Then §5 order downward — **PM1, PM2, PM3, PM16, PM17** remain; every ⑤-harvest that earns a
-    class refills this queue.
+16. ~~**PM17** — shift-brain + AI grounding parity.~~ Found the PM10 noun defect again, in the
+    grounding: `agentic-rag-loop` counts DISTINCT assets (and says "Matches the tiles"), while
+    `ai-gateway`'s proactive briefing head-counted scope-item rows and said "40 PM tasks overdue"
+    where every screen says 29. Fixed to the canonical asset count. The companion is the surface a
+    user can least verify, so it is the worst place to hold the minority definition.
+17. Then §5 order downward — **PM1, PM2, PM3, PM16** remain (onboarding, registration, triage,
+    templates); every ⑤-harvest that earns a class refills this queue.
 
 **Carried out of the PM7 walk, CLOSED by PM15:** the summary cards shared a first-paint reserve
 deficit — each `.sc-sub` placeholder is one line and fills to two or three, which was most of the

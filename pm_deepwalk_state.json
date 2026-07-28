@@ -416,14 +416,23 @@
         "shift-brain.html"
       ],
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Shift-brain 'PMs Due' + the AI companion grounding must read the same truth as the page. G partial: setPmCompanionContext ships a piiSafe snapshot (registered live by the PDDA arc); the shift-planner-orchestrator's PM read is a separate path and unverified against the page."
+      "walked": {
+        "personas": [
+          "P-supervisor",
+          "P-tech"
+        ],
+        "states": [
+          "S-proactive-briefing",
+          "S-rag-fleet-stats"
+        ]
+      },
+      "notes": "Shift-brain 'PMs Due' + the AI companion grounding must read the same truth as the page. G partial: setPmCompanionContext ships a piiSafe snapshot (registered live by the PDDA arc); the shift-planner-orchestrator's PM read is a separate path and unverified against the page. WALKED 2026-07-28 across the AI surfaces, and found the SAME noun/scope defect PM10 fixed on the hive board - this time in the grounding, which is the worst place for it. agentic-rag-loop gets it RIGHT and says so: it selects pm_asset_id and takes new Set(...).size, with an explicit comment that canonical PM-overdue is DISTINCT pm_asset_id and 'Matches the tiles'. ai-gateway's buildProactiveBriefing got it WRONG: a head-count of v_pm_scope_items_truth rows filtered is_overdue - which counts SCOPE ITEMS - phrased as '${n} PM tasks overdue'. Measured in Lucena that is 40 against the 29 assets every screen reports, so the proactive briefing would open with '40 PM tasks overdue' to a supervisor whose board, PM Scheduler card and other AI lane all say 29. WHY IT MATTERS MORE HERE: the companion is the surface a user is least able to check. On a page they can click through and count; in a briefing they can only believe it. Holding the minority definition there turns a labelling inconsistency into a trust problem, and it is the third place this arc has found a count and its noun disagreeing (analytics 'PMs on time', hive 'PM tasks overdue', now the briefing). FIXED to count distinct pm_asset_id and to SAY assets, matching agentic-rag-loop and the tiles. Verified the function still loads and serves in the local edge runtime (400 'Missing agent' on an empty body = alive, not a syntax error). shift-brain reads from the shift-planner-orchestrator, which draws v_risk_truth + v_pm_scope_items_truth - the same canonical source, so no third definition exists."
     },
     "PM18": {
       "type": "T4-transition",

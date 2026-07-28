@@ -380,7 +380,15 @@ async function buildProactiveBriefing(client: SupabaseClient, hiveId: string): P
   try {
     const [alertsRes, pmRes, invRes, riskRes, taskRes] = await Promise.all([
       client.from("v_alert_truth").select("severity").eq("hive_id", hiveId).eq("status", "active"),
-      client.from("v_pm_scope_items_truth").select("*", { count: "exact", head: true }).eq("hive_id", hiveId).eq("is_overdue", true),
+      // PM17 (PM deepwalk, 2026-07-28): count DISTINCT pm_asset_id, not scope-item rows. The
+      // canonical PM-overdue figure across this platform is the ASSET count (an asset is overdue if
+      // >=1 of its items is) — that is what the hive tile, the PM Scheduler card and
+      // agentic-rag-loop all report, the last with an explicit "Matches the tiles" comment. A
+      // head-count of is_overdue rows counts ITEMS instead: measured in Lucena, 40 items against 29
+      // assets, so this briefing told a supervisor "40 PM tasks overdue" while every screen they
+      // could check said 29. The companion is the surface a user is least able to verify, so it is
+      // the worst place to hold the minority definition.
+      client.from("v_pm_scope_items_truth").select("pm_asset_id").eq("hive_id", hiveId).eq("is_overdue", true).limit(2000),
       client.from("v_inventory_items_truth").select("part_name,is_out_of_stock,is_low_stock,is_critical_low").eq("hive_id", hiveId),
       client.from("v_risk_truth").select("asset_name,risk_level,risk_score,days_until_failure").eq("hive_id", hiveId),
       client.from("v_project_items_truth").select("title,is_blocked").eq("hive_id", hiveId).eq("is_blocked", true),
@@ -392,8 +400,11 @@ async function buildProactiveBriefing(client: SupabaseClient, hiveId: string): P
     if (crit) items.push(`${crit} CRITICAL alert${crit > 1 ? "s" : ""} active — offer to pull the details and help log a response.`);
     else if (high) items.push(`${high} high-severity alert${high > 1 ? "s" : ""} active — offer to review them.`);
     // 2) overdue PM.
-    const overdue = pmRes.count ?? 0;
-    if (overdue) items.push(`${overdue} PM task${overdue > 1 ? "s" : ""} overdue — offer to help prioritise and schedule them.`);
+    // Distinct assets, and named as assets — the noun has to match what was counted.
+    const overdue = new Set(
+      ((pmRes.data ?? []) as Array<{ pm_asset_id?: string }>).map((r) => r.pm_asset_id).filter(Boolean),
+    ).size;
+    if (overdue) items.push(`${overdue} asset${overdue > 1 ? "s" : ""} with overdue PM — offer to help prioritise and schedule them.`);
     // 3) stock-outs, else low stock.
     const inv = (invRes.data ?? []) as Array<{ part_name?: string; is_out_of_stock?: boolean; is_low_stock?: boolean; is_critical_low?: boolean }>;
     const out = inv.filter((p) => p.is_out_of_stock);
