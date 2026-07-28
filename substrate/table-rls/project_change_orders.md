@@ -2,7 +2,7 @@
 name: table-rls-project_change_orders
 type: table-rls
 source: db:pg_policies+pg_trigger:project_change_orders
-source_sha: 5d283662fd4eeb8a
+source_sha: 5a5a454117f378db
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,6 +15,7 @@ Columns (*=NOT NULL): id*, project_id*, hive_id*, co_number*, title*, scope_chan
 
 Policies:
 - `project_change_orders_hive_rw` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
+- `project_change_orders_parent_hive_guard` [ALL · roles=public] USING=`true` CHECK=`((auth.uid() IS NULL) OR (project_id IS NULL) OR (EXISTS ( SELECT 1 FROM projects p WHERE ((p.id = project_change_orders`
 
 Guard triggers: `tg_guard_approval_project_co`, `trg_daily_cap_project_co`, `trg_text_caps_project_co`
 

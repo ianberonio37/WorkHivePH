@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 72227c467f6004ea
+source_sha: 22b55b653d680653
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (674) — the 'what's already gated' brain
+## gate · registered validators (675) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -219,7 +219,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (471)
+### Platform (472)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -561,6 +561,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `proactive-alerts` ⚡ [fail] — Proactive Alerts (Phase 5: KPI spikes, risk escalation, overdue PM)
 - `prod-path-leak` ⚡ [fail] — Prod path leak (no committed /workhive/ resource paths — they 404 in production)
 - `project-manager` ⚡ [fail] — Project Manager Validator (4-layer: HTML + Edge + Python + Smoke)
+- `project_tenancy` ⚡ [fail] — PJK4 - a project child row's PARENT must live in its own hive. EARNED BY PROBING, not assumed from the AHK4 analogy: reads were measured clean first (as a membe
 - `provider-bypass` ⚡ [fail] — Direct Provider Bypass (4-layer: client provider + edge bypass + SDK drift + distribution)
 - `pwa` ⚡ [fail] — PWA Integrity Validator
 - `python-tool-pattern-mining` [fail] — Python Tool Pattern Miner (L-1 Convention Mining -- informational)

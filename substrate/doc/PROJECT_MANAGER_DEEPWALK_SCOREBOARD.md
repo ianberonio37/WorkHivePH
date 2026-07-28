@@ -2,7 +2,7 @@
 name: doc-PROJECT_MANAGER_DEEPWALK_SCOREBOARD
 type: doc
 source: file:PROJECT_MANAGER_DEEPWALK_SCOREBOARD.md
-source_sha: d4e46f10ba5aa38d
+source_sha: bcb730b8362d1a7f
 last_verified: 2026-07-13
 supersedes: null
 ---

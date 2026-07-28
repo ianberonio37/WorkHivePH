@@ -2,7 +2,7 @@
 name: table-rls-project_progress_logs
 type: table-rls
 source: db:pg_policies+pg_trigger:project_progress_logs
-source_sha: 3b5433994eea2a30
+source_sha: 75fcbd32dc7a0469
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,6 +15,7 @@ Columns (*=NOT NULL): id*, project_id*, hive_id*, log_date*, reported_by*, pct_c
 
 Policies:
 - `project_progress_logs_hive_rw` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
+- `project_progress_logs_parent_hive_guard` [ALL · roles=public] USING=`true` CHECK=`((auth.uid() IS NULL) OR (project_id IS NULL) OR (EXISTS ( SELECT 1 FROM projects p WHERE ((p.id = project_progress_logs`
 
 Guard triggers: `trg_daily_cap_project_progress`, `trg_text_caps_project_progress`
 

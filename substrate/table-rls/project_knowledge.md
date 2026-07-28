@@ -2,7 +2,7 @@
 name: table-rls-project_knowledge
 type: table-rls
 source: db:pg_policies+pg_trigger:project_knowledge
-source_sha: b183f3cfa85622f0
+source_sha: fce8f19dd8a8d5d8
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -15,6 +15,7 @@ Columns (*=NOT NULL): id*, hive_id, project_id, source_type*, source_id, project
 
 Policies:
 - `project_knowledge_hive_rw` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((auth.uid() IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
+- `project_knowledge_parent_hive_guard` [ALL · roles=public] USING=`true` CHECK=`((auth.uid() IS NULL) OR (project_id IS NULL) OR (EXISTS ( SELECT 1 FROM projects p WHERE ((p.id = project_knowledge.pro`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

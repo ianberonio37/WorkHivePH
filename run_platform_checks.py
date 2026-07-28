@@ -5075,6 +5075,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "project_tenancy",
+        "script":  "tools/validate_project_tenancy.py",
+        "args":    [],
+        "label":   "PJK4 - a project child row's PARENT must live in its own hive. EARNED BY PROBING, not assumed from the AHK4 analogy: reads were measured clean first (as a member of one hive, projects/project_items/project_change_orders all return 0 rows for another hive - recorded as a real result), then the write side was probed with MY hive_id and ANOTHER hive's project_id and all three were ACCEPTED - project_items, project_progress_logs, and a project_change_order attached to a project the writer cannot even see. Every policy is a single PERMISSIVE FOR ALL testing only hive_id IN user_hive_ids(); nothing joined `projects`. AN INSTRUMENT NOTE: the first probes failed with 23514 (a status enum I got wrong) and 23502 (a NOT NULL I omitted), neither of which is 42501, and taking either as 'isolation holds' would have recorded a false clean - the same trap the AH13 walk hit. SEVERITY MEASURED AND HONESTLY CONTAINED: v_project_truth's rollup subqueries (item_count, estimated_total_hours, approved_change_orders, approved_co_cost_php, link_count) carry NO hive filter, and what stops an injected row reaching the VICTIM's numbers is that the view is security_invoker, so those subqueries run as the READER and RLS hides the foreign row - proven by injecting an item with 999 estimated hours and watching the victim's rollup stay at 7 items / 33.00 est hrs. FIXED ANYWAY because that containment rests entirely on security_invoker staying ON, and earlier the SAME DAY a routine CREATE OR REPLACE silently cleared that option from v_sensor_truth (CREATE VIEW does not carry reloptions forward) - one such slip on v_project_truth turns every unfiltered rollup into a cross-tenant read. Mig ...025 adds five RESTRICTIVE parent-hive policies; 0 existing rows violated them, so nothing that exists was rejected. Holds each policy's existence, RESTRICTIVE-ness (a PERMISSIVE rewrite ORs and would WIDEN while looking like a guard) and that it still JOINS `projects` to compare hive_id, plus a live cross-boundary row scan since WITH CHECK never applies retroactively. Teeth proven by dropping a policy: FAIL on exactly that table.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "reliability_tenancy",
         "script":  "tools/validate_reliability_tenancy.py",
         "args":    [],

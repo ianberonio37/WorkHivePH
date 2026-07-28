@@ -229,17 +229,28 @@
     "PJ13": {
       "title": "Cross-hive: a foreign project's items / COs cannot leak or be written (G3)",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-multi",
+          "P-worker",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-foreign-read",
+          "S-foreign-parent-item",
+          "S-foreign-parent-log",
+          "S-foreign-parent-co",
+          "S-own-hive-write",
+          "S-rollup-containment"
+        ]
       },
-      "notes": ""
+      "notes": "WALKED 2026-07-28, and this is the probe that EARNS PJK4 rather than assuming it from the AHK4 analogy. READS ARE CORRECTLY ISOLATED, measured first and worth recording as a real result: as a member of one hive, projects / project_items / project_change_orders all return 0 rows for another hive. WRITES HAD THE PM13 GAP - with MY hive_id and ANOTHER hive's project_id, all three were ACCEPTED: a project_item, a progress log, and a CHANGE ORDER attached to a project the writer cannot even see. An APPROVED change order was refused, but by wh_guard_supervisor_approval on the STATUS, not by anything tenancy-related - worth stating so the next reader does not mistake that for isolation. INSTRUMENT NOTE, and it nearly produced a false clean: my first two probes failed with 23514 (a status enum I got wrong) and 23502 (a NOT NULL I omitted). Neither is 42501. Verify WHAT blocked a write, never merely THAT something did - the same trap AH13 hit on the reliability tables. SEVERITY MEASURED, AND HONESTLY CONTAINED - TODAY. v_project_truth's rollup subqueries (item_count, estimated_total_hours, approved_change_orders, approved_co_cost_php, link_count) carry NO hive filter; they are plain WHERE pi.project_id = p.id. What keeps an injected row out of the VICTIM's numbers is that the view is security_invoker, so those subqueries execute as the READER and RLS hides the foreign row. Proven: injecting an item with 999 estimated hours left the victim's rollup at 7 items / 33.00 est hrs, and the victim could not see the row. FIXED ANYWAY (mig ...025, five RESTRICTIVE parent-hive policies) because that containment rests ENTIRELY on security_invoker staying ON - and earlier the SAME DAY a routine CREATE OR REPLACE silently cleared that exact option from v_sensor_truth, since CREATE VIEW does not carry reloptions forward. One such slip on v_project_truth turns every unfiltered rollup subquery into a cross-tenant read, instantly and silently. Closing it at the WRITE removes the dependence on that option and on every future consumer remembering to be hive-scoped. 0 existing rows violated the new policies, so nothing that exists was rejected. VERIFIED: foreign -parent item and change-order inserts both blocked BY NAME (the policy is named in the error, which is far more diagnosable than the 23514 confusion above), and a legitimate own-hive write still succeeds. GATE validate_project_tenancy, teeth proven by dropping a policy -> FAIL on exactly that table."
     },
     "PJ14": {
       "title": "AI: draft lessons + intent modal - grounded and attributable?",
@@ -362,13 +373,13 @@
       "stages": {
         "harvest": "done",
         "define": "done",
-        "detect": "todo",
-        "sweep": "todo",
-        "fix": "todo",
-        "gate": "todo"
+        "detect": "done",
+        "sweep": "done",
+        "fix": "done",
+        "gate": "done"
       },
-      "gate": null,
-      "notes": "CANDIDATE - to be EARNED by probing, not assumed from the analogy. No policy on project_items, project_change_orders, project_progress_logs, project_links or project_knowledge joins `projects`, so nothing checks that the parent project lives in the same hive. That is the PM13/AHK4 shape. Tracked in the denominator from day one BECAUSE the Asset Hub board read 100% with its fourth class untracked - a green headline over a missing axis produces no red."
+      "gate": "tools/validate_project_tenancy.py",
+      "notes": "CANDIDATE - to be EARNED by probing, not assumed from the analogy. No policy on project_items, project_change_orders, project_progress_logs, project_links or project_knowledge joins `projects`, so nothing checks that the parent project lives in the same hive. That is the PM13/AHK4 shape. Tracked in the denominator from day one BECAUSE the Asset Hub board read 100% with its fourth class untracked - a green headline over a missing axis produces no red. EARNED + CLOSED 2026-07-28 by the PJ13 walk. WALKED 2026-07-28, and this is the probe that EARNS PJK4 rather than assuming it from the AHK4 analogy. READS ARE CORRECTLY ISOLATED, measured first and worth recording as a real result: as a member of one hive, projects / project_items / project_change_orders all return 0 rows for another hive. WRITES HAD THE PM13 GAP - with MY hive_id and ANOTHER hive's project_id, all three were ACCEPTED: a project_item, a progress log, and a CHANGE ORDER attached to a project the writer cannot even see. An APPROVED change order was refused, but by wh_guard_supervisor_approval on the STATUS, not by anything tenancy-related - worth stating so the next reader does not mistake that for isolation. INSTRUMENT NOTE, and it nearly produced a false clean: my first two probes failed with 23514 (a status enum I got wrong) and 23502 (a NOT NULL I omitted). Neither is 42501. Verify WHAT blocked a write, never merely THAT something did - the same trap AH13 hit on the reliability tables. SEVERITY MEASURED, AND HONESTLY CONTAINED - TODAY. v_project_truth's rollup subqueries (item_count, estimated_total_hours, approved_change_orders, approved_co_cost_php, link_count) carry NO hive filter; they are plain WHERE pi.project_id = p.id. What keeps an injected row out of the VICTIM's numbers is that the view is security_invoker, so those subqueries execute as the READER and RLS hides the foreign row. Proven: injecting an item with 999 estimated hours left the victim's rollup at 7 items / 33.00 est hrs, and the victim could not see the row. FIXED ANYWAY (mig ...025, five RESTRICTIVE parent-hive policies) because that containment rests ENTIRELY on security_invoker staying ON - and earlier the SAME DAY a routine CREATE OR REPLACE silently cleared that exact option from v_sensor_truth, since CREATE VIEW does not carry reloptions forward. One such slip on v_project_truth turns every unfiltered rollup subquery into a cross-tenant read, instantly and silently. Closing it at the WRITE removes the dependence on that option and on every future consumer remembering to be hive-scoped. 0 existing rows violated the new policies, so nothing that exists was rejected. VERIFIED: foreign -parent item and change-order inserts both blocked BY NAME (the policy is named in the error, which is far more diagnosable than the 23514 confusion above), and a legitimate own-hive write still succeeds. GATE validate_project_tenancy, teeth proven by dropping a policy -> FAIL on exactly that table."
     }
   }
 }
