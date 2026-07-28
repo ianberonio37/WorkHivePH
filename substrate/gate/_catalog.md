@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 40684b912b3f21ad
+source_sha: e4d314ca98cc54b4
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (680) — the 'what's already gated' brain
+## gate · registered validators (681) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -197,9 +197,10 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `memory_supersedes` ⚡ [fail] — Memory M3.2: supersedes down-rank mechanism (superseded memory ranks below its replacement)
 - `memory_write_quality` ⚡ [fail] — Memory M3.1: topic-file write-quality lint (type/name/description, no silent type=unknown)
 
-### P1 Roadmap (22)
+### P1 Roadmap (23)
 - `doctype-first` ⚡ [blocker] — Doctype First (nothing may precede <!DOCTYPE html> — content there forces quirks mode)
 - `edge-error-capture` ⚡ [regression] — Edge Error-Capture Adoption (Arc T/T2 keystone: every edge fn routes through serveObserved so unhandled throws aggregate to wh_traces via trackError; L1 wrapper
+- `embedding-index-read` [regression] — Embedding Index Is Read (every table with an embedding column has a reader, not just a writer)
 - `envelope-conformance` ⚡ [regression] — Envelope Conformance (every edge fn imports _shared/envelope.ts OR is exempt)
 - `envelope-return-shape` ⚡ [warn] — Envelope Return-Shape Adoption (true adoption: fns that actually call ok(ctx, ...); floor ratchet)
 - `fullstack-gate-coverage` ⚡ [blocker] — Full-Stack × Gate Coverage Meta-Gate (every artefact named in the study's 13×6 matrix must exist)

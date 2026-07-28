@@ -344,17 +344,24 @@
     "PJ15": {
       "title": "Project embeddings - what reaches the RAG, and whose?",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-embed-write",
+          "S-retrieval",
+          "S-cross-tenant"
+        ]
       },
-      "notes": ""
+      "notes": "PROJECT EMBEDDINGS — what reaches the RAG, and whose.\nTHE ANSWER WAS: it reaches a TABLE, and never reaches the RAG. project-manager.html has embedded every scope-item add (project_item) and every lessons save (project_lesson) into project_knowledge since Phase 6.5, through embed-entry. Measured platform-wide, that table's readers were NONE — no database function referenced it (searched pg_get_functiondef across pg_proc), no edge function, no page. Compare fault_knowledge, written by the SAME edge function and read by search_all_knowledge, search_fault_knowledge and five edge functions. search_all_knowledge unions fault + skill + pm and simply never gained a project branch when the writer shipped. So a supervisor asking the assistant 'what went wrong on the last pump overhaul?' got an answer that could not see the lessons that project recorded — the exact content embedded for that question. FIXED (mig 034): a project branch in the same shape as the other three (hive_id filter, ORDER BY + LIMIT inside the subquery, embedding IS NOT NULL). Live-verified — own hive returns the project record, foreign hive returns nothing.\nWHY IT SURVIVED: the table holds 0 rows in every seeded environment, because ONLY a UI action populates it — the seeder inserts projects straight into the tables and never calls the page's embed path. An isolation probe against an empty table passes vacuously, and a row count reads as 'not used yet' rather than 'not readable'. It was found by asking who READS it, not by querying it.\nTWO OF MY OWN PROBES WERE WRONG BEFORE THEY WERE RIGHT, and both would have been recorded as findings. (1) I first called embed-entry with type:'project', got 'Unknown type', and nearly wrote up a producer/consumer mismatch — the page actually sends project_item / project_lesson, both supported. The code was fine; my probe invented the type. (2) That same bad call made my cross-tenant write probe return non-2xx, which I nearly recorded as 'isolation holds' — it was refused for the WRONG REASON and the tenancy check never ran. Re-probed with a supported type: foreign hive genuinely refused with not_a_member, own hive accepted.\nGATED: validate_embedding_index_is_read — every table with an embedding column must have a reader. Its first cut only counted search-named db functions and failed four HEALTHY tables (asset_embeddings is searched in TypeScript inside asset-brain-query; agent_memory via fetch_session_memory; canonical_period_summaries and unified_events via the temporal-RAG and summarizer fns), so it was broadened to any reader in any layer. It also had to EXCLUDE the writer: embed-entry names every table it writes, so counting it would have marked project_knowledge 'read by code' on the strength of the very insert that created the problem — the gate would have passed the exact defect it exists for. Teeth proven by restoring the pre-PJ15 function: FAILs on project_knowledge, PASSes once the branch is back."
     },
     "PJ16": {
       "title": "Client rollup - the number a customer is shown",
