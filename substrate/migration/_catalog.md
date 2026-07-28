@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:407
-source_sha: c268eadf6222ce56
+source: dir:supabase/migrations:408
+source_sha: 87a54210ad17eb5b
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (407 migrations)
+## migration · catalog (408 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260609000005_fix_readiness_blocker_summary` — fns:compute_hive_readiness
 - `20260609000006_ai_reply_feedback` — policies:ai_reply_feedback_insert,ai_reply_feedback_read · fns:enforce_ai_reply_feedback_daily_limit · triggers:trg_ai_reply_feedback_daily_limit · tables:ai_reply_feedback
 - `20260610000000_fix_pm_scope_frequency_days` — (misc DDL/DML)
 - `20260610000001_get_pm_compliance_smrp` — fns:get_pm_compliance_smrp
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260728000028_anchor_get_project_budget` — (misc DDL/DML)
 - `20260728000029_a_project_code_is_never_reused` — fns:generate_project_code
 - `20260728000030_budget_write_is_supervisor_only_too` — fns:set_project_budget
+- `20260728000031_lessons_learned_is_signed_content` — fns:guard_lessons_learned_is_supervisor · triggers:trg_lessons_learned_supervisor
 
 (showing last 200)
 

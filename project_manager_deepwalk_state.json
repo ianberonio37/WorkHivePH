@@ -320,17 +320,26 @@
     "PJ14": {
       "title": "AI: draft lessons + intent modal - grounded and attributable?",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-ai-draft-loaded",
+          "S-draft-kept",
+          "S-draft-rewritten",
+          "S-no-logs-refusal",
+          "S-worker-writes-meta"
+        ]
       },
-      "notes": ""
+      "notes": "WALKED 2026-07-28. MOSTLY GOOD, and the good parts are worth asserting because they are the pattern other surfaces should copy: the AI draft is NOT auto-saved - it fills a textarea and the toast says 'review and Save lessons to keep it', so a human decides; it REFUSES up front when there are no progress logs to draft from rather than inventing lessons; saveLessons carries an optimistic-concurrency guard on updated_at with the 0-row case handled by reloading (the 0-row-write-is-not-an-error lesson, already applied here); and the AI provenance tag DOES survive the save, because saveLessons spreads _detail.meta rather than replacing it. THE DEFECT IS NARROW AND IS THE AI-ACCOUNTABILITY CLASS INVERTED: aiDraftLessons tags meta._ai_generated_lessons the moment a draft LOADS, and nothing ever compares that to what is finally saved. So a supervisor who drafted with AI, then deleted the text and wrote their own, still got the badge '🤖 AI-drafted on <date>: supervisor edit before sign-off recommended' printed over their own words. AI6 was about AI output attributed to a HUMAN; this is human output attributed to AI. Both misdescribe who is answerable for the text on a document that gets signed. FIXED: the drafted text is remembered, and the badge fields are dropped at save time if what is being written is no longer that draft. The badge now describes what is SAVED rather than what was once loaded. SECOND PERSONA, again forced by the shallow-W guard, and again it is where the real defect was. Neither button is role-gated (aiDraftLessons and saveLessons carry no isSupervisor check, unlike Acknowledge which does) - and beneath them, projects.meta is an unstructured jsonb grab-bag writable by any active member through the table's single PERMISSIVE FOR ALL policy. Probed live as a worker: ONE statement set meta.lessons_learned AND forged _ai_generated_lessons=true on EVERY project in the hive. WHY THAT IS NOT JUST ANOTHER FIELD: meta.lessons_learned renders on project-report.html, the printable document whose own footer reads 'By signing below, the parties acknowledge...'. It is content on a document people SIGN, and the same write forged the badge a reviewer would rely on to know whether a human wrote it. FIXED (mig ...031): only a supervisor may CHANGE meta.lessons_learned; every other meta key stays writable by any member, because meta genuinely is a grab-bag (wizard state, flags, UI prefs) and locking the column would break unrelated writes. VERIFIED: worker writing lessons -> blocked by name; worker writing a different meta key -> still works; SUPERVISOR writing lessons -> works. LEFT OPEN AND STATED: the AI badge itself is not validated, because it is set CLIENT-side and the database cannot tell a truthful badge from a forged one. The honest fix is for the orchestrator to stamp provenance SERVER-side; adding a check here would only catch the careless case and would read as protection that is not there."
     },
     "PJ15": {
       "title": "Project embeddings - what reaches the RAG, and whose?",

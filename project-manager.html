@@ -871,6 +871,7 @@ let _links      = [];                      // links for opened project
 let _logs       = [];                      // progress logs for opened project
 let _progress   = null;                    // edge-fn rollup result
 let _roles      = [];                      // project_roles rows (Phase 5B)
+let _aiDraftedText  = null;               // PJ14: the exact text the AI produced, if any
 let _budgetReadable = false;              // PJ9: did get_project_budget() actually return a figure?
 let _changeOrders = [];                    // project_change_orders rows (Phase 5D)
 let _editingId          = null;  // null = new project, uuid = edit
@@ -2773,6 +2774,7 @@ async function aiDraftLessons() {
     if (data?._unavailable) { showToast('AI: ' + (data.reason || 'unavailable'), 'error'); return; }
     if (!data?.lessons_text) { showToast('AI returned no draft'); return; }
     $('lessons-text').value = data.lessons_text;
+    _aiDraftedText = data.lessons_text;   // PJ14: so the badge can tell a kept draft from a rewrite
     // Phase 6.8 — audit tag in meta
     const meta = { ...(_detail.meta || {}),
       _ai_generated_lessons: true,
@@ -2789,7 +2791,16 @@ async function aiDraftLessons() {
 async function saveLessons() {
   if (!_detail) return;
   const text = $('lessons-text').value.trim();
+  // PJ14 (2026-07-28): the AI badge must describe what is actually SAVED. aiDraftLessons tagged
+  // _detail.meta the moment a draft loaded, and saveLessons spreads that meta — so a supervisor who
+  // drafted with AI and then rewrote the text entirely still got "🤖 AI-drafted" on their own words.
+  // That is the AI-accountability class inverted: not AI output attributed to a human, but human
+  // output attributed to AI. Both misdescribe who is answerable for the text.
   const meta = { ...(_detail.meta || {}), lessons_learned: text };
+  if (meta._ai_generated_lessons && _aiDraftedText !== null && text !== _aiDraftedText.trim()) {
+    delete meta._ai_generated_lessons;
+    delete meta._ai_generated_at;
+  }
   // Optimistic-concurrency guard: meta is read-modify-written from the cached _detail, so a blind
   // update would clobber a concurrent edit to the SAME project (lessons or any other field). Guard on
   // the snapshot; trg_projects_updated_at bumps updated_at on every write, so a stale write 0-rows.

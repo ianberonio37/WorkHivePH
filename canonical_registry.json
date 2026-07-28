@@ -8075,6 +8075,14 @@
         "project-manager.html"
       ],
       "called_by_edge_fns": []
+    },
+    "guard_lessons_learned_is_supervisor": {
+      "defined_in": "20260728000031_lessons_learned_is_signed_content.sql",
+      "args": "(trigger)",
+      "security_definer": true,
+      "comment": "BEFORE UPDATE on projects. Only a supervisor may change meta.lessons_learned - it is rendered on the printable project report that parties SIGN. Before this any active member could set it, and forge the AI-drafted badge alongside it, on every project in the hive in one statement. Other meta keys stay freely writable. PJ14.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
