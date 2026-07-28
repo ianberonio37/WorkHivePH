@@ -374,17 +374,24 @@
     "PJ17": {
       "title": "Offline / queued project writes",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-worker"
+        ],
+        "states": [
+          "S-online",
+          "S-offline-enqueued",
+          "S-reconnect-drained"
+        ]
       },
-      "notes": ""
+      "notes": "OFFLINE / QUEUED WRITES. Retrieved the Y1b doctrine first, and it changed the target: 'every write page needs a queue' is WRONG. Field-CAPTURE writes queue; approvals, financial, role and moderation writes stay ONLINE-ONLY, because the shared drain carries no optimistic-lock guard and a queued approval could land on a stale row and forge attribution.\nDISPOSITION of this page's 20 write sites: exactly ONE is field capture — the daily progress report (percent complete, hours, blockers, filed from a shutdown site). The other nineteen are authority writes (budget set, change-order approve/reject/cancel, acknowledgement, lessons sign-off, status close-out, roles, delete) and deliberately stay online-only.\nSTATE BEFORE: the page LOADED offline-queue.js and never called it — the 'loaded but never wired = dead code' class. A field worker's report died with a raw 'Failed to fetch' toast.\nLOAD-ORDER RACE AVOIDED BY CONSTRUCTION: init runs from an immediate (async()=>{})() IIFE while offline-queue.js is <script defer> at the end of body, so window.whCreateQueue does not exist at init — wiring it there would have failed SILENTLY, which is exactly how the dayplanner adoption lost this race. The queue is created lazily on first use instead, so there is no ordering dependency to get wrong.\nLIVE ROUND TRIP PROVEN: offline save -> queue depth 1 under 'project-manager-progress' -> 0 rows in the DB -> reconnect -> autoSync drained on the 'online' event -> row present with pct 42 / 7h -> depth 0, 0 errors -> probe row deleted (never pollute the shared DB). The toast never claims the report is filed: 'Saved on this device. Your report will be filed when you reconnect.'\nAND THE BIGGER FIND, from probing the write itself: project_progress_logs had NO auth_uid column at all. Signed in as Leandro Marquez I filed a report as 'Bryan Garcia' and it was ACCEPTED. That is not a mislabelled row — a supervisor ACKNOWLEDGES these reports (mig 027 made that a signed-off act), they feed v_project_progress_truth and the Earned Value hours, and 027's no-self-ack rule is MATCHED ON reported_by, so filing under a colleague's name also let you acknowledge your own work. 027 saw half of this — its own header noted the naming — but it is a BEFORE UPDATE trigger and never touched the INSERT that decides whose name goes on the report. Fixed (mig 033): auth_uid column + BEFORE INSERT trigger that stamps it and FORCES reported_by to the caller's own worker_name. Forces rather than refuses, because the field is an identity claim rather than user content — it makes forgery impossible instead of merely detected, and it is a no-op in every honest flow. Verified three ways: impersonation attempt stored under the real filer, honest write unchanged, non-member refused. Column added to the auth_uid census."
     },
     "PJ18": {
       "title": "Mobile 390px - approve a CO from the field",

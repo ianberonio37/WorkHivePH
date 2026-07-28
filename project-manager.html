@@ -2415,8 +2415,60 @@ async function saveProgressLog() {
     notes: $('p-notes').value.trim() || null,
     blockers: $('p-blockers').value.trim() || null,
   };
+  // PJ17 — offline capture. A daily progress report is the one FIELD-CAPTURE write on this page:
+  // someone standing on a shutdown site with no signal recording percent complete, hours and
+  // blockers. Every OTHER write here is an authority write (budget, change-order approve/reject,
+  // acknowledgement, sign-off, roles, delete) and deliberately stays ONLINE-ONLY — the shared
+  // queue's drain carries no optimistic-lock guard, so a queued approval could land on a stale row
+  // and forge attribution. Capture queues; authority does not.
+  //
+  // The queue is created HERE, on first use, not in init. init runs from an immediate
+  // `(async () => {})()` IIFE while offline-queue.js is `<script defer>` at the end of the body —
+  // so `window.whCreateQueue` does not exist yet when init runs, and wiring it there would fail
+  // silently with no error, which is exactly how the dayplanner adoption lost this race. By the
+  // time anyone opens the progress modal the deferred script has long executed.
+  const _pmQueue = () => {
+    if (!window.whCreateQueue) return null;
+    if (!window._whPmProgressQueue) {
+      window._whPmProgressQueue = window.whCreateQueue({
+        db: 'wh_projectmgr_offline', table: 'project_progress_logs',
+        postSync: () => { try { refreshDetail(); } catch (_) { /* empty-catch-allow: post-sync refresh best-effort */ } },
+      });
+      if (window.whRegisterQueue) window.whRegisterQueue('project-manager-progress', window._whPmProgressQueue);
+      window._whPmProgressQueue.startAutoSync(db);
+    }
+    return window._whPmProgressQueue;
+  };
+  const _qid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+    : (String(Date.now()) + '-' + Math.random().toString(36).slice(2));
+
+  if (!navigator.onLine) {
+    const q = _pmQueue();
+    if (q) {
+      await q.enqueue({ id: _qid(), op: 'insert', payload });
+      closeModal('modal-progress');
+      // Never claim it is filed — it is not, until it drains. Say where it is and what happens next.
+      showToast('Saved on this device. Your report will be filed when you reconnect.', 'success');
+      return;
+    }
+    showToast('You are offline and this report could not be saved. Keep this window open until you reconnect.', 'error');
+    return;
+  }
+
   const { error } = await db.from('project_progress_logs').insert(payload);
-  if (error) { showToast(error.message, 'error'); return; }
+  if (error) {
+    // A network hiccup while nominally online loses a field capture just as thoroughly as being
+    // offline does. Anything that is NOT a network failure is a real refusal and must be shown.
+    const q = /fetch|network|load failed|connection|timeout/i.test(error.message || '') ? _pmQueue() : null;
+    if (q) {
+      await q.enqueue({ id: _qid(), op: 'insert', payload });
+      closeModal('modal-progress');
+      showToast('Network problem. Your report is saved on this device and will retry automatically.', 'success');
+      return;
+    }
+    showToast(error.message, 'error');
+    return;
+  }
   closeModal('modal-progress');
   showToast('Logged.', 'success');
   await refreshDetail();

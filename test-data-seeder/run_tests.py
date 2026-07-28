@@ -518,7 +518,11 @@ def s21_auth_uid_set(db):
     results = []
     tables = ["logbook", "inventory_items", "inventory_transactions",
               "pm_assets", "pm_completions", "skill_profiles", "skill_badges",
-              "hive_members"]
+              "hive_members",
+              # PJ17: added with the column itself. Until 2026-07-28 this table had NO auth_uid at
+              # all and its only attribution was `reported_by`, free text the client chose — a live
+              # probe filed a report under a colleague's name and it was accepted.
+              "project_progress_logs"]
     for t in tables:
         q_null = db.table(t).select("id", count="exact").is_("auth_uid", "null")
         q_all = db.table(t).select("id", count="exact")

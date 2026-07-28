@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:409
-source_sha: 06136e14da1f6345
+source: dir:supabase/migrations:410
+source_sha: 3fb0101f82efe7d3
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (409 migrations)
+## migration · catalog (410 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260610000000_fix_pm_scope_frequency_days` — (misc DDL/DML)
 - `20260610000001_get_pm_compliance_smrp` — fns:get_pm_compliance_smrp
 - `20260610000002_v_marketplace_orders_truth_reviewed_at` — (misc DDL/DML)
 - `20260610000003_parts_spike_factor_nullable` — (misc DDL/DML)
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260728000030_budget_write_is_supervisor_only_too` — fns:set_project_budget
 - `20260728000031_lessons_learned_is_signed_content` — fns:guard_lessons_learned_is_supervisor · triggers:trg_lessons_learned_supervisor
 - `20260728000032_one_generate_project_code_not_two` — fns:generate_project_code
+- `20260728000033_a_progress_report_carries_who_filed_it` — fns:guard_progress_log_is_mine · triggers:trg_progress_log_is_mine · tables:project_progress_logs
 
 (showing last 200)
 
