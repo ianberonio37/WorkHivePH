@@ -226,13 +226,22 @@
       ],
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "partial",
+        "W": "done",
+        "O": "done",
         "H": "done",
-        "R": "todo"
+        "R": "done"
       },
-      "walked": {},
-      "notes": "PRIORITY. Amend or delete a completion after sign-off. O partial on MEASURED evidence from the logbook arc's LG4 sweep: pm_completions has 6 user triggers and NONE of them audit, so an amendment by any path that skips the page leaves no record - exactly the weakness LG4 closed for logbook with trg_logbook_post_close_audit. HARVEST: that arc's own finding plus the pattern and migration to copy (20260728000003). Feeds PMK3."
+      "walked": {
+        "personas": [
+          "P-tech",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-compliant",
+          "S-late-but-done"
+        ]
+      },
+      "notes": "PRIORITY. Amend or delete a completion after sign-off. O partial on MEASURED evidence from the logbook arc's LG4 sweep: pm_completions has 6 user triggers and NONE of them audit, so an amendment by any path that skips the page leaves no record - exactly the weakness LG4 closed for logbook with trg_logbook_post_close_audit. HARVEST: that arc's own finding plus the pattern and migration to copy (20260728000003). Feeds PMK3. WALKED LIVE 2026-07-28 and the defect is the sharp version. A technician silently BACK-DATED their own completion by 400 days: one row affected, no error, nothing recorded anywhere. completed_at is the most consequential field on a compliance record - it drives the compliance window, the on-time measure and next_due_date - so moving it moves the number a plant and an auditor both read: back-dating a late PM makes it on-time. Unlike logbook, there was no client-written audit row either, so the trigger is not a backstop here, it is the ONLY record there has ever been. FIXED by migration 20260728000004: an AFTER UPDATE trigger recording amend_pm_completion with completed_at before/after, status before/after, and days_moved - the number an auditor actually wants. Scoped to fields that change what the record CLAIMS (completed_at / status / scope_item_id), so a notes edit stays silent and the log remains readable enough to be audited. Proven in a rolled-back transaction: insert 0 rows, notes-edit 0 rows, back-date 1 row with days_moved -400.00. The probe row was restored exactly. GATED by extending tools/validate_pm_write_isolation.py (the arc's own gate template) from 4 checks to 5; teeth proven by dropping the trigger (exit 1) and re-applying (exit 0)."
     },
     "PM12": {
       "type": "T4-transition",
@@ -367,6 +376,18 @@
         "gate": "todo"
       },
       "notes": "OPEN on measured evidence, and deliberately framed as LATENT-AND-CONTAINED rather than 'compliance is wrong'. get_pm_compliance_smrp charges GREATEST(1, period/frequency_days) scheduled events, so in a 90-day window a Semi-annual PM (31 items) counts as 1 when it is truly due 0.5 times and an Annual PM (91 items) counts as 1 against a true 0.25 - 122 of 416 scope items (29%) structurally over-counted. MEASURED IMPACT TODAY: under one point per hive (85.7->85.3, 85.7->86.1, 87.5->87.1), because those items happen to carry completions in the window. So the honest disposition is the LG2 one: allow the approximation, make divergence detectable, and let a gate catch the day the data stops being kind. Same source as PMK1."
+    },
+    "PMK3": {
+      "name": "Completion immutability is tamper-EVIDENT at the database",
+      "stages": {
+        "harvest": "done",
+        "define": "done",
+        "detect": "done",
+        "sweep": "partial",
+        "fix": "done",
+        "gate": "done"
+      },
+      "notes": "EARNED BY THE PM11 WALK 2026-07-28. RULE: for a record that drives a regulated number, 'tamper-evident' has to mean the DATABASE recorded the amendment - a client-written row is skipped by any write that does not go through the page, and here there was no client-written row at all. EVIDENCE: a completion back-dated 400 days, silently, by its own author (pm_completions RLS is owner-scoped write, so this is a legitimate author doing an illegitimate thing). HARVEST: the logbook arc's LG4, whose migration and scoping decision transferred directly. FIX + GATE as recorded on PM11. SWEEP PARTIAL: inventory_items carries the same client-only-audit weakness (measured in the logbook arc's LG4 sweep, still unfixed) and pm_assets/pm_scope_items have not been checked for whether their amendments matter the same way."
     }
   }
 }

@@ -175,9 +175,15 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
 2. **Build** `pm_deepwalk_state.json` + `tools/pm_deepwalk_scoreboard.py` with `--selftest`, register
    the gate + the `validate_pm_deepwalk.py` flywheel shim **in the same change** (the third arc hit a
    phantom block for want of that shim; the fourth should not).
-3. **PM7 / PMK1 walk** — the keystone. Build the on-time measure, decide the disposition (surface an
-   on-time% beside compliance% vs change the metric), and gate it.
-4. **PM11 / PMK3** — probe a post-sign-off amendment; if it is silent, port the logbook trigger.
+3. **PM7 / PMK1** — ~~walked (2 personas × 2 hives), measured at the DB (27.0% of 1,224 intervals ran
+   past their own frequency), harvested the SMRP definition, gated as a forward-only ratchet.~~ The
+   disposition is settled and only half-executed: **do not** redefine `get_pm_compliance_smrp` (a
+   named standard holding verified parity), **do** surface the on-time figure beside it — a supervisor
+   reading "88% compliance" against the 90% benchmark cannot currently see that almost nothing was
+   on schedule. **Remaining: put on-time% on the page.**
+4. ~~**PM11 / PMK3** — probe a post-sign-off amendment; if it is silent, port the logbook trigger.~~
+   Done: back-dating a completion by 400 days was silent; migration `20260728000004` records it,
+   `validate_pm_write_isolation` grew a fifth check, teeth proven by dropping the trigger.
 5. **PM5 + PM8** — the recompute and frequency-change transitions, two personas each.
 6. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
 

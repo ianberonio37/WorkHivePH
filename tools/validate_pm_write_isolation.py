@@ -64,6 +64,19 @@ def _skip(reason: str) -> int:
     return 0
 
 
+
+def _psql_value(sql):
+    """Read a single scalar from the local docker DB; None when docker/db is absent."""
+    try:
+        p = subprocess.run(["docker", "exec", DB, "psql", "-U", "postgres", "-d", "postgres",
+                            "-t", "-A", "-c", sql],
+                           capture_output=True, text=True, encoding="utf-8",
+                           errors="replace", timeout=45)
+        return None if p.returncode != 0 else (p.stdout or "").strip()
+    except Exception:
+        return None
+
+
 def main() -> int:
     print(f"\n{BOLD}PM WRITE ISOLATION (live two-tenant){RESET}")
     print("─" * 44)
@@ -140,7 +153,21 @@ ROLLBACK;
                 k, v = body.split("=", 1)
                 results[k.strip()] = v.strip()
 
+    # PMK3 (PM deepwalk, 2026-07-28): a completion's AMENDMENT must be evident at the database.
+    # Walked live — a technician silently BACK-DATED their own completion by 400 days: one row
+    # affected, no error, and nothing recorded, because pm_completions carried six triggers and not
+    # one of them audits. completed_at is the most consequential field on the record: it drives the
+    # compliance window, the on-time measure, and next_due_date, so moving it moves the number a
+    # plant and an auditor both read. Migration 20260728000004 records it; this asserts the trigger
+    # is still attached, because a later migration could drop it and nothing else would notice.
+    amend_audit = _psql_value(
+        "SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid "
+        "WHERE c.relname='pm_completions' AND NOT t.tgisinternal "
+        "AND t.tgname='trg_pm_completion_amendment_audit';")
+
     checks = [
+        ("amendment_audited", ("OK" if (amend_audit or "0").strip() not in ("0", "") else "MISSING"), "OK",
+         "an amendment to a PM completion (completed_at / status / scope) is recorded by the DATABASE"),
         ("xscope_blocked", results.get("xscope"), "BLOCKED",
          "a hive-A member's scope-item INSERT onto a hive-B asset is rejected"),
         ("xcomp_blocked", results.get("xcomp"), "BLOCKED",
@@ -158,7 +185,7 @@ ROLLBACK;
             fails += 1
             print(f"  {RED}FAIL{RESET}  {name}: expected {want}, got {got!r} — {desc}")
 
-    print(f"\n  Summary: {4 - fails} pass · {fails} fail  (actor uid={uid[:8]}… own_hive={own_hive[:8]}…)")
+    print(f"\n  Summary: {len(checks) - fails} pass · {fails} fail  (actor uid={uid[:8]}… own_hive={own_hive[:8]}…)")
     REPORT.write_text(json.dumps({"validator": "pm_write_isolation", "skipped": False,
                                   "results": results, "fail": fails}, indent=2), encoding="utf-8")
     return 0 if fails == 0 else 1
