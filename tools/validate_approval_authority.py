@@ -186,7 +186,23 @@ def main():
         "WHERE c.relname='asset_nodes' AND NOT t.tgisinternal "
         "AND t.tgname='trg_asset_node_delete_audit';")
 
+    # AH13 (2026-07-28): the PM13 child/parent gap on the four reliability tables. The WITH CHECK
+    # validated hive_id membership and said nothing about whether the PARENT lived there, so
+    # hive_id=MINE + asset_id/fmea_mode_id=THEIRS was accepted. Lower severity than PM13 (measured:
+    # the victim sees nothing, because every reliability view filters by hive_id) — but the
+    # containment is CONSUMER-DEPENDENT, and PM13 is the proof that one RPC joining by the child key
+    # turns exactly this into a live cross-tenant defect. Closed at the write by 20260728000017.
+    parent_guards = _psql(
+        "SELECT count(*) FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid "
+        "WHERE p.polpermissive = false AND p.polname IN ("
+        "'rcm_fmea_modes_parent_hive_guard','rcm_strategies_parent_hive_guard',"
+        "'weibull_fits_parent_hive_guard','pf_intervals_parent_hive_guard');")
+
     checks = [
+        ("reliability_parent_hive_guarded",
+         "OK" if (parent_guards or "0").strip() == "4" else "MISSING", "OK",
+         "all four reliability tables require their PARENT to live in the same hive — without it a "
+         "member can attach a failure mode or a fit to another plant's asset"),
         ("delete_is_recorded",
          "OK" if (delete_audit or "0").strip() not in ("0", "") else "MISSING", "OK",
          "deleting an asset node records what the cascade destroyed (its FMEA, strategies, fits and "

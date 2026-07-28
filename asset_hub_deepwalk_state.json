@@ -241,17 +241,24 @@
     "AH13": {
       "title": "Cross-hive: foreign reliability data cannot leak or be written",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-multi",
+          "P-reliability"
+        ],
+        "states": [
+          "S-foreign-read",
+          "S-foreign-parent-write",
+          "S-own-hive-write"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28. READS ARE CORRECTLY ISOLATED - 0 rows across all four reliability tables (fmea, strategies, weibull, pf) when read as a member of another hive. Recorded as a real result: this is competitive plant knowledge and the boundary holds. WRITES HAD THE PM13 GAP: the WITH CHECK validates that hive_id is one the caller belongs to and says NOTHING about whether the PARENT lives there. Probed live, both accepted - an FMEA mode with hive_id=MINE and asset_id=ANOTHER HIVE'S node, and a strategy with hive_id=MINE and fmea_mode_id=THEIRS. AN INSTRUMENT ERROR THAT NEARLY BECAME A FALSE 'CLEAN': my first probe came back BLOCKED with 23514 and I almost recorded isolation as holding. 23514 is check_violation, not 42501 - it was rcm_strategies_decision_check rejecting my own invalid enum value ('scheduled_task' is not in the allowed set). The tenancy question was still untested. Re-probed with a valid decision and both writes went through. Verify WHAT blocked it, not merely THAT something did. SEVERITY MEASURED, AND GENUINELY LOWER THAN PM13's: there the injected completion CREDITED the foreign hive (502->503) because get_pm_compliance_smrp joins by scope_item_id regardless of hive. Here every reliability view filters by hive_id, so reading v_fmea_truth AS a member of the target hive returns 0 rows for an injected severity-10 mode. The attacker pollutes their OWN hive with a phantom row pointing at an asset they cannot see. FIXED ANYWAY, and the reason is the point: the containment is CONSUMER-DEPENDENT - it holds only while every reader, current and future, filters by hive_id rather than joining through asset_id or fmea_mode_id. PM13 is the proof of what happens when one RPC does not. Migration 20260728000017 adds a RESTRICTIVE parent-hive WITH CHECK to all four tables. Safe to tighten, measured first: 0 existing rows violate it on any table. Proven: both injections BLOCKED, both legitimate own-hive writes still 1 row. GATED as an 8th check in validate_approval_authority; teeth proven by dropping one of the four guards (exit 1)."
     },
     "AH14": {
       "title": "Parts staging: accept / dismiss (inherited F43 expires_at)",
