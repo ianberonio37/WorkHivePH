@@ -28,7 +28,7 @@ before anyone reads a healthy percentage and relaxes.
 Live-tier; SKIPS cleanly (exit 0) when the local DB is down. Self-test: --selftest.
 """
 from __future__ import annotations
-import io, json, subprocess, sys
+import io, json, re, subprocess, sys
 from pathlib import Path
 
 if sys.platform == "win32":
@@ -99,6 +99,37 @@ SELECT h.name,
 FROM public.hives h LEFT JOIN inline i ON i.hive_id = h.id
 ORDER BY h.name;
 """
+
+
+# PM9 (PM deepwalk, 2026-07-28): a SKIPPED PM must credit nothing. Walked and proven in a
+# rolled-back transaction — inserting a status='skipped' completion moved neither the hive's
+# compliance (85.7 → 85.7) nor the item's next_due_date — so the numbers are honest today. That
+# honesty rests entirely on three independent `status = 'done'` filters, any one of which could be
+# dropped by a later edit, at which point declining to do a PM would start counting as doing it.
+# Asserted here rather than left to luck, in the same spirit as the corrective-vocabulary parity
+# ratchet: the invariant is cheap to state and expensive to rediscover.
+SKIP_GUARDED = {
+    "get_pm_compliance_smrp": "the compliance RPC — a skip would count as completed work",
+    "get_pm_ontime_delivery": "the on-time RPC — a skip would count as an on-time interval",
+    "v_pm_scope_items_truth": "the truth view's last_completed_at — a skip would push next_due_date "
+                              "forward, so declining a PM would clear its own overdue flag",
+}
+
+
+def check_skip_credits_nothing():
+    problems = []
+    for obj, why in SKIP_GUARDED.items():
+        if obj.startswith("v_"):
+            ddl = psql(f"SELECT pg_get_viewdef('public.{obj}'::regclass, true);")
+        else:
+            ddl = psql("SELECT pg_get_functiondef(p.oid) FROM pg_proc p "
+                       "JOIN pg_namespace n ON n.oid=p.pronamespace "
+                       f"WHERE n.nspname='public' AND p.proname='{obj}' LIMIT 1;")
+        if ddl is None:
+            return None  # DB down -> caller skips
+        if not re.search(r"status\s*=\s*'done'", ddl):
+            problems.append(f"{obj} no longer filters status = 'done' — {why}")
+    return problems
 
 
 def check_parity():
@@ -178,6 +209,9 @@ def run_selftest():
         drift = check_parity()
         if drift:
             problems.extend(drift)
+        skip = check_skip_credits_nothing()
+        if skip:
+            problems.extend(skip)
     return problems
 
 
@@ -203,6 +237,16 @@ def main():
     print(f"  compliance (SMRP 2.1.1) : {res['compliance_pct']}%   <- what the page shows")
     print(f"  on-time delivery        : {res['ontime_pct']}%   ({res['ontime']}/{res['intervals']} intervals)")
     print(f"  the gap                 : {res['gap']} points")
+
+    skip = check_skip_credits_nothing()
+    if skip:
+        print("  FAIL: a SKIPPED PM would now credit the program —")
+        for s_ in skip:
+            print(f"        {s_}")
+        return 1
+    if skip is not None:
+        print("  PASS: a skipped PM credits no compliance, no on-time interval, and does not move "
+              "next_due_date")
 
     drift = check_parity()
     if drift:

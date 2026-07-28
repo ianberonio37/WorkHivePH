@@ -77,6 +77,36 @@ def _scope_for(category: str):
     return SCOPE_ITEMS_BY_CATEGORY.get(category, GENERIC_SCOPE)
 
 
+# A completion's status and its note have to agree, or the state is fiction. Drawing them
+# independently produced 78 'skipped' rows carrying notes like "All readings nominal" — and a skip
+# is the one PM state whose whole value is the REASON it was not done. Walked 2026-07-28 (PM9): the
+# numbers already treat a skip honestly (it credits no compliance and does not move next_due_date),
+# so the only thing standing between "skipped" and a testable state was a coherent fixture.
+_DONE_NOTES = [
+    "Completed as scheduled",
+    "Within spec",
+    "Minor adjustment made",
+    "All readings nominal",
+    "",
+]
+_SKIP_REASONS = [
+    "Line still running, could not isolate",
+    "Deferred: no spare gasket in stores",
+    "Access blocked by stacked pallets",
+    "Rescheduled with production for next window",
+    "Machine already down for corrective work",
+]
+
+
+def _completion_status_and_note() -> dict:
+    """Status plus a note that matches it. Kept together so the two cannot drift apart again."""
+    status = random.choices(["done", "skipped"], weights=[95, 5])[0]
+    return {
+        "status": status,
+        "notes": random.choice(_DONE_NOTES if status == "done" else _SKIP_REASONS),
+    }
+
+
 def seed_pm(client, log, ctx: dict) -> dict:
     """ctx must include 'workers' and 'assets'."""
     workers = ctx["workers"]
@@ -160,14 +190,12 @@ def seed_pm(client, log, ctx: dict) -> dict:
                 "scope_item_id": scope["id"],
                 "hive_id": scope["hive_id"],
                 "worker_name": worker["worker_name"],
-                "status": random.choices(["done", "skipped"], weights=[95, 5])[0],
-                "notes": random.choice([
-                    "Completed as scheduled",
-                    "Within spec",
-                    "Minor adjustment made",
-                    "All readings nominal",
-                    "",
-                ]),
+                # PM9 (PM deepwalk, 2026-07-28): the status and the note used to be drawn
+                # INDEPENDENTLY, so a 'skipped' row carried a completion note — 78 skips in the
+                # database said things like "All readings nominal", which is incoherent: if the
+                # readings were nominal the PM was done, not skipped. A skip needs a skip REASON, or
+                # the whole state is untestable fiction (the seeder decides what can be tested).
+                **_completion_status_and_note(),
                 "completed_at": to_iso(ts),
                 "auth_uid": worker.get("auth_uid"),
             })

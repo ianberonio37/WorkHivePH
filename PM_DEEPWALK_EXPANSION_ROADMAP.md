@@ -200,9 +200,14 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
    with no database record, because the supervisor-only rule lived only in the page. Migration
    `20260728000006` adds a restrictive DELETE policy and a BEFORE DELETE trigger recording what the
    cascade cost; `validate_pm_write_isolation` grew 5 → 8 checks.
-8. **PM9 · PM15/PM18** — skip/defer honesty in the numbers, then the mobile-390px and offline
-   completion paths.
-9. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
+8. ~~**PM9** — skip/defer honesty.~~ Done, and the answer is that the numbers ARE honest: a skip
+   credits no compliance and does not move `next_due_date` (proven, and now asserted against the
+   three `status='done'` filters it depends on). Two things recorded rather than papered over: the
+   seeder was drawing status and note independently, so 78 skips carried completion notes (fixed);
+   and **no UI can create a skip** — a tech who cannot do a PM must either leave it overdue or mark
+   it done. Building that flow is a product decision, so it is written here, not invented mid-arc.
+9. **PM15 / PM18** — the mobile-390px and offline completion paths.
+10. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
 
 **Carried out of the PM7 walk (found by the full-page diff, not the card):** the three summary cards
 share a first-paint reserve deficit — the row grows 137px → 184px at 390px when the data lands,

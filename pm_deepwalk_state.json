@@ -210,14 +210,23 @@
         "pm-scheduler.html"
       ],
       "phases": {
-        "G": "todo",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Skip / defer a PM. pm_completions carries status='skipped' (~5% of seeded rows) but nothing models what a skip MEANS in the compliance number - neither silently compliant nor silently overdue. Feeds PMK5."
+      "walked": {
+        "personas": [
+          "P-tech",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-skipped-with-reason",
+          "S-done"
+        ]
+      },
+      "notes": "Skip / defer a PM. pm_completions carries status='skipped' (~5% of seeded rows) but nothing models what a skip MEANS in the compliance number - neither silently compliant nor silently overdue. Feeds PMK5. WALKED 2026-07-28. THE ANSWER TO THE JOURNEY'S QUESTION IS YES - the numbers are honest, and that is a real result, not an absence of one. Proven in a rolled-back transaction: inserting a status='skipped' completion moved neither the hive's compliance (85.7 -> 85.7) nor the scope item's next_due_date. A skip therefore cannot be used to clear an overdue flag or flatter the program. That honesty rests on three independent status='done' filters (the compliance RPC, the on-time RPC, and the truth view's last_completed_at LATERAL), any one of which a later edit could drop, so it is now asserted rather than left to luck - teeth proven by replacing the on-time RPC with one that omits the filter (exit 1). AN INSTRUMENT ERROR OF MY OWN, caught before it became a false finding: grepping the pages for the literal 'skipped' returned nothing outside backup dirs, and I nearly recorded 'no surface shows a skip'. The detail view DOES render them - it tests c.status === 'done' ? 'Completed' : 'Deferred', so it matches on the COMPLEMENT and my literal grep could never have found it. THE REAL GAP IS REACHABILITY, recorded honestly rather than papered over: 78 skipped rows exist and render as 'Deferred' in the per-asset history, but NOTHING in the page can create one. A technician who cannot do a PM has no way to say so - the choice is to leave it overdue (indistinguishable from untouched) or mark it done, which is a lie. Building that flow is a product decision, not a defect fix, so it is written here rather than invented mid-arc. The related triage gap: the dashboard cannot distinguish overdue-and-untouched from deferred-with-a-reason. FIXTURE FIXED (the seeder decides what can be tested - HK2's lesson again): status and note were drawn INDEPENDENTLY, so 'skipped' rows carried completion notes - 78 skips saying things like 'All readings nominal', which is incoherent, since if the readings were nominal the PM was done. Status and note are now generated together (_completion_status_and_note) with real skip reasons - 'Line still running, could not isolate', 'Deferred: no spare gasket in stores'. Verified over 400 draws: 29 skips, 0 incoherent."
     },
     "PM10": {
       "type": "T6-fabric",
