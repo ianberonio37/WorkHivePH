@@ -2660,45 +2660,29 @@
     // Resolve or create the pm_assets row that mirrors this asset_node.
     // Uses asset_nodes.pm_asset_id when present; otherwise looks up by name in the
     // hive; otherwise creates a new pm_assets row and back-links via asset_nodes.pm_asset_id.
+    // PM2 (PM deepwalk, 2026-07-28): the lookup-or-create-and-link is now ONE call to
+    // ensure_pm_asset_for_node. It used to insert into pm_assets straight from the client, and that
+    // only worked because pm_assets accepted an INSERT from any active member — the last of the
+    // three verbs whose "supervisor only" rule lived solely in pm-scheduler's UI (PM12 closed
+    // DELETE, PM3 closed UPDATE). Gating INSERT while this function still wrote directly would have
+    // broken the RCM push for every worker, exactly as the naive PM3 rule would have broken all 90
+    // asset renames.
+    // Moving it server-side is also strictly SAFER than what it replaces: the RPC reads every field
+    // off the asset_node, so a caller can no longer choose the new asset's name, category or
+    // criticality, and the hive-membership check happens where the write lands. It is idempotent —
+    // a second call returns the same id — and refuses a node in another hive with 42501.
     async function resolvePmAssetId(nodeId) {
       const node = _allNodes.find(n => n.id === nodeId);
       if (!node) return null;
       if (node.pm_asset_id) return node.pm_asset_id;
 
-      // Look up by tag/name match
-      const targetName = (node.tag || node.name || '').trim();
-      if (targetName) {
-        const { data: existing } = await db.from('pm_assets')
-          .select('id').eq('hive_id', HIVE_ID).eq('asset_name', targetName).limit(1);
-        if (existing && existing.length) {
-          await db.from('asset_nodes')
-            .update({ pm_asset_id: existing[0].id }).eq('id', nodeId).eq('hive_id', HIVE_ID);
-          node.pm_asset_id = existing[0].id;
-          return existing[0].id;
-        }
-      }
-
-      // Create a new pm_assets row keyed to this node
-      const newRow = {
-        hive_id:     HIVE_ID,
-        worker_name: WORKER_NAME || 'system',
-        auth_uid:    _authUid || null,  // attribution FK (was dropped)
-        asset_name:  targetName || 'Untitled asset',
-        tag_id:      node.tag || null,
-        location:    node.location || null,
-        category:    node.iso_class || 'Other',
-        criticality: node.criticality || 'Major',
-      };
-      const { data: created, error: createErr } = await db.from('pm_assets')
-        .insert(newRow).select('id').single();
-      if (createErr || !created) {
-        console.warn('pm asset create failed:', createErr && createErr.message);
+      const { data: pmAssetId, error } = await db.rpc('ensure_pm_asset_for_node', { p_node_id: nodeId });
+      if (error || !pmAssetId) {
+        console.warn('pm asset resolve failed:', error && error.message);
         return null;
       }
-      await db.from('asset_nodes')
-        .update({ pm_asset_id: created.id }).eq('id', nodeId).eq('hive_id', HIVE_ID);
-      node.pm_asset_id = created.id;
-      return created.id;
+      node.pm_asset_id = pmAssetId;   // keep the local cache in step with the row the DB linked
+      return pmAssetId;
     }
 
     // Push the strategy task to PM Scheduler as a pm_scope_items row.

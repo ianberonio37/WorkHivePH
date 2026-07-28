@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **156**
 - Views:         **53**
-- RPCs:          **197**
+- RPCs:          **198**
 - HTML surfaces: **61**
 - Edge fns:      **98**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -24,12 +24,12 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `pm_completions` | 9 | yes | no | asset-hub.html, hive.html, logbook.html, pm-scheduler.html ... | logbook.html, pm-scheduler.html | — |
 | `project_links` | 8 | no | no | inventory.html, logbook.html, pm-scheduler.html, project-manager.html ... | inventory.html, logbook.html, pm-scheduler.html ... | — |
 | `marketplace_listings` | 25 | yes | yes | founder-console.html, marketplace-admin.html, marketplace-seller.html, marketplace.html ... | founder-console.html, marketplace-admin.html, marketplace-seller.html ... | — |
-| `pm_assets` | 12 | yes | no | asset-hub.html, integrations.html, logbook.html, pm-scheduler.html | asset-hub.html, integrations.html, pm-scheduler.html | — |
 | `hive_members` | 7 | yes | no | asset-hub.html, hive.html, inventory.html, logbook.html ... | hive.html | — |
 | `marketplace_sellers` | 19 | yes | no | founder-console.html, marketplace-admin.html, marketplace-seller.html, platform-actions.html | founder-console.html, marketplace-admin.html, marketplace-seller.html ... | — |
 | `external_sync` | 11 | no | no | integrations.html | integrations.html | cmms-push-completion, cmms-sync, cmms-webhook-receiver |
 | `fault_knowledge` | 17 | yes | no | logbook.html | — | cmms-sync, visual-defect-capture |
 | `inventory_items` | 21 | yes | no | integrations.html, inventory.html, logbook.html | integrations.html, inventory.html | cmms-webhook-receiver |
+| `pm_assets` | 12 | yes | no | integrations.html, logbook.html, pm-scheduler.html | integrations.html, pm-scheduler.html | — |
 | `integration_configs` | 17 | no | no | integrations.html, plant-connections.html | integrations.html | cmms-sync |
 | `marketplace_disputes` | 16 | yes | no | founder-console.html, marketplace-admin.html, platform-actions.html | founder-console.html, marketplace-admin.html, platform-actions.html | — |
 | `pm_scope_items` | 8 | yes | no | asset-hub.html, integrations.html, pm-scheduler.html | asset-hub.html, integrations.html, pm-scheduler.html | — |
@@ -267,6 +267,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `delete_worker_data` | p_worker_name text | yes | — | — |
 | `enforce_ai_reply_feedback_daily_limit` |  | yes | — | — |
 | `enforce_marketplace_review_daily_cap` |  | yes | — | — |
+| `ensure_pm_asset_for_node` | p_node_id uuid | yes | asset-hub.html | — |
 | `export_hive_data` | p_hive_id uuid | yes | — | export-hive-data |
 | `fetch_active_alerts` | p_hive_id uuid | yes | — | — |
 | `fetch_dialog_state` | p_session_id text | yes | — | — |
@@ -390,7 +391,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `analytics-report.html` | v_hives_truth | — | — | — |
 | `analytics.html` | analytics_snapshots | — | get_pm_ontime_delivery | batch-risk-scoring |
 | `architecture.html` | — | — | — | — |
-| `asset-hub.html` | asset_nodes, equipment_reading_templates, hive_audit_log, hive_members ... | asset_nodes, hive_audit_log, parts_staged_reservations ... | — | ai-gateway, asset-brain-query, fmea-populator |
+| `asset-hub.html` | asset_nodes, equipment_reading_templates, hive_audit_log, hive_members ... | asset_nodes, hive_audit_log, parts_staged_reservations ... | ensure_pm_asset_for_node | ai-gateway, asset-brain-query, fmea-populator |
 | `assistant.html` | ai_reply_feedback, schedule_items, v_inventory_items_truth, v_logbook_truth ... | ai_reply_feedback | — | ai-gateway |
 | `audit-log.html` | hive_audit_log | — | — | — |
 | `community.html` | community_posts, community_reactions, community_replies, community_xp ... | community_posts, community_reactions, community_replies ... | get_community_reputation, get_hive_trade_peers, set_community_best_answer | — |

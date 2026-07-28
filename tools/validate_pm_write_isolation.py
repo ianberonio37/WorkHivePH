@@ -246,7 +246,26 @@ ROLLBACK;
         "SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace "
         "WHERE n.nspname='public' AND p.proname='sync_pm_asset_identity' AND p.prosecdef;")
 
+    # PM2 (PM deepwalk, 2026-07-28): the THIRD verb. goAddAsset() is supervisor-gated in the page
+    # while pm_assets accepted an INSERT from any active member. Both halves again, because the
+    # guard is only safe WITH the RPC: 20260728000010 moved asset-hub's lazy creation
+    # (resolvePmAssetId, on an RCM strategy push) server-side, so gating INSERT does not break the
+    # RCM flow for workers — the same trap that would have stopped all 90 renames in PM3.
+    insert_policy = _psql_value(
+        "SELECT count(*) FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid "
+        "WHERE c.relname='pm_assets' AND p.polname='pm_assets_insert_guard' "
+        "AND p.polpermissive = false AND p.polcmd = 'a';")
+    ensure_rpc = _psql_value(
+        "SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace "
+        "WHERE n.nspname='public' AND p.proname='ensure_pm_asset_for_node' AND p.prosecdef;")
+
     checks = [
+        ("insert_role_gated", ("OK" if (insert_policy or "0").strip() not in ("0", "") else "MISSING"), "OK",
+         "creating a PM asset is supervisor-only at the DATABASE (every added asset enters the "
+         "scheduled count the compliance RPC divides by)"),
+        ("rcm_ensure_rpc_present", ("OK" if (ensure_rpc or "0").strip() not in ("0", "") else "MISSING"), "OK",
+         "ensure_pm_asset_for_node still exists — without it the INSERT guard breaks the RCM "
+         "strategy push for every worker"),
         ("update_role_gated", ("OK" if (update_policy or "0").strip() not in ("0", "") else "MISSING"), "OK",
          "editing a PM asset is supervisor-or-author at the DATABASE, not only in the page "
          "(criticality drives risk scoring, triage order and alert severity)"),

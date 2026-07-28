@@ -1216,13 +1216,11 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "asset-hub.html",
         "integrations.html",
         "logbook.html",
         "pm-scheduler.html"
       ],
       "written_by_surfaces": [
-        "asset-hub.html",
         "integrations.html",
         "pm-scheduler.html"
       ],
@@ -7981,6 +7979,16 @@
         "logbook.html"
       ],
       "called_by_edge_fns": []
+    },
+    "ensure_pm_asset_for_node": {
+      "defined_in": "20260728000010_ensure_pm_asset_for_node_rpc.sql",
+      "args": "p_node_id uuid",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "asset-hub.html"
+      ],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -8079,7 +8087,6 @@
         "hive_members",
         "parts_staged_reservations",
         "parts_staging_recommendations",
-        "pm_assets",
         "pm_completions",
         "pm_scope_items",
         "rcm_fmea_modes",
@@ -8101,12 +8108,13 @@
         "hive_audit_log",
         "parts_staged_reservations",
         "parts_staging_recommendations",
-        "pm_assets",
         "pm_scope_items",
         "rcm_fmea_modes",
         "rcm_strategies"
       ],
-      "rpcs_called": [],
+      "rpcs_called": [
+        "ensure_pm_asset_for_node"
+      ],
       "edge_fns_invoked": [
         "ai-gateway",
         "asset-brain-query",
@@ -8114,7 +8122,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 209.2
+      "size_kb": 209.1
     },
     "assistant.html": {
       "tables_read": [
@@ -8551,7 +8559,7 @@
         "get_pm_ontime_delivery"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 150.3
+      "size_kb": 151.1
     },
     "project-manager.html": {
       "tables_read": [

@@ -259,18 +259,22 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
     view's `ELSE 30` is unreachable from the UI (the `<select>` is built from `FREQ` keys; all four
     template frequencies are in-vocabulary).
 
-### Carried forward — the third verb of the UI-only-gate class
+### ~~Carried forward — the third verb~~ CLOSED, and it earned class **PMK6**
 
-**`pm_assets` INSERT is still open.** `goAddAsset()` is supervisor-gated in the page, but a WORKER
-inserting into their own hive succeeds at the database (probed, 1 row). Lower severity than the
-DELETE (PM12) and UPDATE (PM3) holes — own hive, self-authored — but it lets a member the UI says
-cannot add assets move their hive's compliance denominator.
+**The `pm_assets` CRUD sweep is complete:** DELETE (`…006`), UPDATE (`…009`), INSERT (`…011`). One
+rule, three verbs, all enforced where the write lands instead of in a page anyone can bypass.
 
-**Do NOT ship a bare INSERT guard:** `resolvePmAssetId()` in asset-hub lazily creates a `pm_assets`
-row when an RCM strategy is linked, with no role gate, so a supervisor-only rule would break that
-flow for every worker using RCM. This is the same trap that would have broken all 90 asset renames
-in PM3. The established fix is to move that system-owned creation into a SECURITY DEFINER RPC (as
-`sync_pm_asset_identity` did) and *then* add the guard.
+Shipped in the order the measurement demanded — `…010` first, moving asset-hub's
+`resolvePmAssetId` into `ensure_pm_asset_for_node` (a SECURITY DEFINER RPC that reads every field
+off the asset_node, so a caller can no longer choose the new asset's name, category or
+criticality), *then* the guard. Proven together: worker direct insert BLOCKED, worker RCM push
+still works, supervisor insert 1 row.
+
+**PMK6 — a UI-only permission rule is not a permission rule.** The harder half, and why it is a
+class rather than three fixes: in TWO of the three verbs the obvious guard would have broken a
+legitimate flow relying on the same looseness (all 90 asset renames; every worker's RCM push).
+Both were caught by measuring the legitimate callers first, and both were fixed the same way. A
+0-row UPDATE is not an error, so neither breakage would have announced itself.
 
 **Also carried (recorded, deliberately not built mid-arc):** no UI can create a SKIP (PM9);
 `logbook.html` never links a mirrored entry back to its PM (PM6); nothing tells a tech the mirrored
