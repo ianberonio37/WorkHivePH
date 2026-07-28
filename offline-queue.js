@@ -88,6 +88,9 @@
       identityKey:  null,
       identityFn:   null,
       onConflict:   null,   // Y1b: upsert conflict target for a NON-PK unique column (e.g. 'worker_name')
+      // PM18: opt in ONLY when the table's unique index is a true idempotency key for the same
+      // logical write, so a 23505 on retry means "already saved" rather than "did not land".
+      insertDedupIndexed: false,
       onSyncedRow:  null,
       postSync:     null,
     }, opts || {});
@@ -169,10 +172,36 @@
           // backoff into the dead-letter, where the widget surfaces them as stuck. Never dropped
           // silently, never counted as synced.
           let unconfirmed = false;
+          // Set when the row was already present (a dedup index refused a retry): the write
+          // is DONE, so the item drains, but it is worth distinguishing from a first-try write.
+          let alreadyApplied = false;
           try {
             if (op === 'insert') {
               const r = await supabase.from(cfg.table).insert(item.payload);
               error = r.error;
+              // PM18 (PM deepwalk, 2026-07-28): a retry after a LOST RESPONSE is not a failure.
+              // If the write landed and the reply never arrived, the item is still queued and the
+              // next drain re-inserts it — which a dedup UNIQUE index correctly refuses with 23505.
+              // Treating that as an error sent the item through the backoff into the dead-letter,
+              // so the widget told the worker their PM was STUCK when it was already saved. That is
+              // the mirror of the 0-row bug the same drain was fixed for: one claimed a write that
+              // never happened, this denies one that did. Proven against pm_completions'
+              // (scope_item_id, worker_name, date) index: the second insert raises 23505.
+              // A dedup index exists precisely to make the re-insert benign, so honour it — the row
+              // is present and the queue's job is done.
+              // OPT-IN per queue, deliberately. This is only sound when the unique index is a true
+              // IDEMPOTENCY KEY for the same logical write — pm_completions' (scope_item_id,
+              // worker_name, date) is, because a second insert can only be this worker's own retry
+              // of the same PM on the same day. It is NOT sound where the unique column can be
+              // owned by a DIFFERENT row (skill_profiles.worker_name), since there 23505 means the
+              // write genuinely did not land. Of the queue's tables only pm_completions,
+              // inventory_items, rcm_fmea_modes and skill_profiles carry a business unique index at
+              // all, so defaulting this on would change semantics for surfaces nobody has walked.
+              if (cfg.insertDedupIndexed && error
+                  && (error.code === '23505' || /duplicate key value/i.test(error.message || ''))) {
+                error = null;
+                alreadyApplied = true;
+              }
             } else if (op === 'upsert') {
               // Y1b (2026-07-23): client-keyed rows (dayplanner schedule_items) enqueue as
               // upsert so an offline CREATE followed by an offline EDIT (same keyPath id →
@@ -216,6 +245,10 @@
           if (!error && !unconfirmed) {
             await remove(item.id);
             drained += 1;
+            if (alreadyApplied && typeof console !== 'undefined' && console.info) {
+              console.info('[offline-queue] ' + cfg.table + ': a retry found the row already saved '
+                + '(dedup index); draining it rather than reporting the work as stuck.');
+            }
             if (typeof cfg.onSyncedRow === 'function') {
               try { cfg.onSyncedRow(item); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ } // empty-catch-allow: consumer hook isolation
             }

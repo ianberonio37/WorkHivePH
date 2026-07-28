@@ -1171,6 +1171,12 @@ async function init() {
     window._whPmQueue = window.whCreateQueue({
       db: 'wh_pm_offline', table: 'pm_completions',
       identityKey: 'worker_name', identityFn: () => WORKER_NAME,
+      // PM18 (2026-07-28): pm_completions_dedup_uidx is (scope_item_id, worker_name, date) — a true
+      // idempotency key, since a second insert can only be this worker's own retry of the same PM
+      // on the same day. Without this, a retry after a LOST RESPONSE raised 23505, rode the backoff
+      // into the dead-letter, and the widget told the worker their completion was STUCK when it was
+      // already saved. (Proven: the second insert raises 23505.)
+      insertDedupIndexed: true,
       postSync: () => { try { renderDashboard(); } catch (_) { /* empty-catch-allow: post-sync refresh is best-effort */ } },
     });
     window.whRegisterQueue('pm', window._whPmQueue);

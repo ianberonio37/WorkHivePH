@@ -206,8 +206,14 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
    seeder was drawing status and note independently, so 78 skips carried completion notes (fixed);
    and **no UI can create a skip** — a tech who cannot do a PM must either leave it overdue or mark
    it done. Building that flow is a product decision, so it is written here, not invented mid-arc.
-9. **PM15 / PM18** — the mobile-390px and offline completion paths.
-10. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
+9. ~~**PM18** — the offline completion path.~~ Done. The good result first: pm-scheduler queues
+   through the SHARED helper, so it inherited the logbook arc's 0-row confirmation with no change
+   here. The defect was the mirror image — a retry after a LOST RESPONSE hit the dedup index's
+   23505, was dead-lettered, and the widget told the worker their saved PM was **stuck**. Fixed in
+   the shared drain as an OPT-IN (`insertDedupIndexed`), because it is only sound where the unique
+   index is a true idempotency key; gated three ways.
+10. **PM15** — the mobile-390px at-the-asset completion path.
+11. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
 
 **Carried out of the PM7 walk (found by the full-page diff, not the card):** the three summary cards
 share a first-paint reserve deficit — the row grows 137px → 184px at 390px when the data lands,

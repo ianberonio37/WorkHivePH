@@ -378,14 +378,22 @@
         "pm-scheduler.html"
       ],
       "phases": {
-        "G": "todo",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Offline completion at the asset - the plant has no signal where the machine is. pm-scheduler registers a shared queue (window._whPmQueue via whCreateQueue, table pm_completions), which the logbook arc's LG3 fix now protects from reporting a lost write as synced. The journey itself is unwalked."
+      "walked": {
+        "personas": [
+          "P-tech"
+        ],
+        "states": [
+          "S-offline-capture",
+          "S-retry-after-lost-response"
+        ]
+      },
+      "notes": "Offline completion at the asset - the plant has no signal where the machine is. pm-scheduler registers a shared queue (window._whPmQueue via whCreateQueue, table pm_completions), which the logbook arc's LG3 fix now protects from reporting a lost write as synced. The journey itself is unwalked. WALKED 2026-07-28. THE GOOD RESULT FIRST: pm-scheduler queues its completion through the SHARED whCreateQueue, so it inherited the logbook arc's 0-row confirmation fix without any change here - which is exactly what a shared component is for, and worth recording as a real result rather than an absence of one. THE DEFECT IS THE OPPOSITE ERROR. pm-scheduler's own comment claimed 'the dedup UNIQUE index makes a reconnect re-insert benign'. Half true: the index prevents a duplicate ROW, but the drain does a plain .insert() and does not know that. If the write LANDS and the reply is lost - the ordinary brownout case this queue exists for - the item stays queued, the next drain re-inserts, and pm_completions_dedup_uidx (scope_item_id, worker_name, completed_at::date) raises 23505. The drain recorded that as an error, rode the backoff to MAX_RETRIES, and dead-lettered the item, so the connectivity widget told the worker their PM was STUCK when it was already saved. That is the exact MIRROR of the LG3 bug the same drain was fixed for: one claimed a write that never happened, this denies one that did. Both leave the worker unable to trust what the app says about their own work. Proven at the DB: the first insert succeeds, the retry raises 23505. FIXED in the shared drain: a 23505 on insert now drains the item as already-applied, which is precisely what a dedup index is FOR. Deliberately OPT-IN (insertDedupIndexed) rather than default, because it is only sound where the unique index is a true idempotency key for the same logical write - pm_completions' is (only this worker's own retry of the same PM on the same day can collide), but skill_profiles.worker_name is NOT, since there a 23505 means a DIFFERENT row owns the key and the write genuinely did not land. Measured across the queue's tables: only pm_completions, inventory_items, rcm_fmea_modes and skill_profiles carry a business unique index at all, so defaulting it on would have changed semantics for surfaces nobody has walked. GATED: validate_offline_queue_confirm grew a retry-idempotency check asserting BOTH halves - the shared drain still recognises 23505 under the flag, the flag still defaults to false, and pm-scheduler still opts in. Teeth proven three ways (remove the opt-in -> exit 1; default the flag to true -> exit 1; restore -> exit 0)."
     }
   },
   "dim_classes": {

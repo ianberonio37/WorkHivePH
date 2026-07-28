@@ -298,6 +298,43 @@ def _selftest() -> int:
     return 0 if ok else 1
 
 
+def audit_retry_idempotency():
+    """PM18: a retry after a LOST RESPONSE must not be reported as stuck work.
+
+    The shared drain re-inserts a queued item whose reply never arrived. Where the table carries a
+    dedup UNIQUE index, that second insert correctly raises 23505 — and treating it as an error sent
+    the item through the backoff into the dead-letter, so the widget told the worker their PM was
+    STUCK when it was already saved. That is the mirror of the 0-row bug this gate exists for: one
+    claims a write that never happened, the other denies one that did.
+
+    The handling is deliberately OPT-IN (`insertDedupIndexed`), because it is only sound when the
+    unique index is a true idempotency key for the same logical write. Both halves are asserted: the
+    shared drain still knows how, and pm_completions — whose index is
+    (scope_item_id, worker_name, date) — still opts in.
+    """
+    problems = []
+    q = (ROOT / "offline-queue.js")
+    if q.exists():
+        src = q.read_text(encoding="utf-8", errors="replace")
+        if "insertDedupIndexed" not in src:
+            problems.append("offline-queue.js no longer honours insertDedupIndexed — a retry after a "
+                            "lost response would be dead-lettered as stuck work that is already saved")
+        elif not re.search(r"23505", src):
+            problems.append("offline-queue.js checks insertDedupIndexed but no longer recognises "
+                            "23505, so the duplicate-on-retry is still treated as a failure")
+        if re.search(r"insertDedupIndexed:\s*true", src):
+            problems.append("offline-queue.js defaults insertDedupIndexed to TRUE — it must stay "
+                            "opt-in: where a unique column can be owned by a DIFFERENT row "
+                            "(skill_profiles.worker_name) a 23505 means the write did not land")
+    pm = (ROOT / "pm-scheduler.html")
+    if pm.exists():
+        src = pm.read_text(encoding="utf-8", errors="replace")
+        if "whCreateQueue" in src and not re.search(r"insertDedupIndexed:\s*true", src):
+            problems.append("pm-scheduler.html queues pm_completions but no longer opts in to "
+                            "insertDedupIndexed — its dedup index would make every retry look stuck")
+    return problems
+
+
 def main() -> int:
     if "--selftest" in sys.argv:
         return _selftest()
@@ -323,6 +360,16 @@ def main() -> int:
         print(f"  {status}  {fname} — {names}  ({why})")
         for line in v:
             print(f"          {RED}->{RESET} {line}")
+
+    retry = audit_retry_idempotency()
+    if retry:
+        print(f"  {RED}FAIL{RESET}  retry idempotency (PM18)")
+        for line in retry:
+            print(f"          {RED}->{RESET} {line}")
+        all_violations += retry
+    else:
+        print(f"  {GREEN}OK  {RESET}  retry idempotency — a re-insert refused by a dedup index "
+              f"drains instead of dead-lettering saved work")
 
     if not checked:
         print(f"  {RED}FAIL{RESET}  no drain functions found at all — the detector lost its targets")
