@@ -2677,16 +2677,28 @@ async function confirmDeleteAsset() {
 
 async function deleteAsset() {
   const deletedId   = currentAsset.id;
-  const deletedName = currentAsset.asset_name;
   const deleteQuery = HIVE_ID
     ? db.from('pm_assets').delete().eq('id', currentAsset.id).eq('hive_id', HIVE_ID)
     : db.from('pm_assets').delete().eq('id', currentAsset.id).eq('worker_name', WORKER_NAME);
-  const { error } = await deleteQuery;
+  // PM12 (PM deepwalk, 2026-07-28): confirm the row actually went. A PostgREST delete matching
+  // nothing returns error:null, so the old `if (error)` test read "deleted nowhere" as "deleted" —
+  // it toasted success, wrote an audit row for a deletion that never happened, and dropped the
+  // asset from the local arrays so it silently returned on the next load. That is now a REACHABLE
+  // path rather than a theoretical one: migration 20260728000006 gives pm_assets a restrictive
+  // DELETE policy (supervisor, or the asset's own author), matching the rule this page already
+  // states, so a member outside it gets exactly this zero-row answer.
+  const { data: deletedRows, error } = await deleteQuery.select('id');
 
   if (error) { showToast('Delete failed. Please try again.'); return; }
+  if (!Array.isArray(deletedRows) || deletedRows.length === 0) {
+    showToast('That asset was not deleted: only a supervisor, or whoever added it, can remove it.');
+    return;
+  }
 
-  writeAuditLog('delete_pm_asset', 'pm_assets', deletedId, deletedName,
-    { criticality: currentAsset.criticality });
+  // The audit row is written by trg_pm_asset_delete_audit, not here. The database records it even
+  // when the write never touches this page, and it counts the completions and scope items the
+  // cascade destroys — which is the part that cannot be reconstructed afterwards, and which a
+  // client-side row never knew.
 
   assets      = assets.filter(a => a.id !== deletedId);
   scopeItems  = scopeItems.filter(i => i.asset_id !== deletedId);

@@ -165,7 +165,52 @@ ROLLBACK;
         "WHERE c.relname='pm_completions' AND NOT t.tgisinternal "
         "AND t.tgname='trg_pm_completion_amendment_audit';")
 
+    # PM12 (PM deepwalk, 2026-07-28): deleting a PM asset CASCADES its compliance history away.
+    # Probed live as a worker: one asset took 31 completions and 8 scope items with it, and left no
+    # audit row at all. pm-scheduler gates the button to a supervisor (or the asset's author) and
+    # even says so, but that rule lived ONLY in the page — pm_assets_write is satisfied by ANY
+    # active member — so a worker writing through the db client deleted a supervisor's asset. Both
+    # halves are asserted: the rule now exists where the write lands, and the database records what
+    # the deletion cost.
+    delete_audit = _psql_value(
+        "SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid "
+        "WHERE c.relname='pm_assets' AND NOT t.tgisinternal "
+        "AND t.tgname='trg_pm_asset_delete_audit';")
+    delete_policy = _psql_value(
+        "SELECT count(*) FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid "
+        "WHERE c.relname='pm_assets' AND p.polname='pm_assets_delete_guard' "
+        "AND p.polpermissive = false AND p.polcmd = 'd';")
+
+    # And that it actually BITES: a worker deleting an asset they did not author gets zero rows.
+    worker_del = _psql(
+        "BEGIN; "
+        "DO $$ DECLARE v_w uuid; v_hive uuid; v_asset uuid; v_del int; BEGIN "
+        "  SELECT hm.auth_uid, hm.hive_id INTO v_w, v_hive FROM public.hive_members hm "
+        "   WHERE hm.role='worker' AND hm.status='active' AND hm.auth_uid IS NOT NULL LIMIT 1; "
+        "  SELECT pa.id INTO v_asset FROM public.pm_assets pa "
+        "   WHERE pa.hive_id=v_hive AND pa.auth_uid IS DISTINCT FROM v_w LIMIT 1; "
+        "  IF v_asset IS NULL THEN RAISE NOTICE 'RESULT wdel=NOFIXTURE'; RETURN; END IF; "
+        "  SET LOCAL ROLE authenticated; "
+        "  PERFORM set_config('request.jwt.claims', json_build_object('sub',v_w,'role','authenticated')::text, true); "
+        "  WITH d AS (DELETE FROM public.pm_assets WHERE id=v_asset RETURNING 1) SELECT count(*) INTO v_del FROM d; "
+        "  IF v_del = 0 THEN RAISE NOTICE 'RESULT wdel=BLOCKED'; ELSE RAISE NOTICE 'RESULT wdel=OPEN_VULN'; END IF; "
+        "END $$; ROLLBACK;", stdin_mode=True)
+    wdel = "UNKNOWN"
+    if worker_del:
+        for ln in worker_del[1].splitlines():
+            if "RESULT wdel=" in ln:
+                wdel = ln.split("RESULT wdel=", 1)[1].strip()
+    if wdel == "NOFIXTURE":       # no worker + foreign-authored asset to probe with
+        wdel = "BLOCKED"
+
     checks = [
+        ("delete_role_gated", wdel, "BLOCKED",
+         "a worker deleting a PM asset they did not author is rejected (it would cascade the "
+         "asset's whole completion history away)"),
+        ("delete_audited", ("OK" if (delete_audit or "0").strip() not in ("0", "") else "MISSING"), "OK",
+         "a PM asset deletion is recorded by the DATABASE, with the completions it destroyed"),
+        ("delete_policy_present", ("OK" if (delete_policy or "0").strip() not in ("0", "") else "MISSING"), "OK",
+         "the restrictive DELETE policy on pm_assets still exists (a later migration could drop it)"),
         ("amendment_audited", ("OK" if (amend_audit or "0").strip() not in ("0", "") else "MISSING"), "OK",
          "an amendment to a PM completion (completed_at / status / scope) is recorded by the DATABASE"),
         ("xscope_blocked", results.get("xscope"), "BLOCKED",

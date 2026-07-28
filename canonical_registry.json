@@ -7964,6 +7964,14 @@
         "pm-scheduler.html"
       ],
       "called_by_edge_fns": []
+    },
+    "audit_pm_asset_delete": {
+      "defined_in": "20260728000006_pm_asset_delete_guard_and_audit.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -8045,7 +8053,7 @@
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 179.2
+      "size_kb": 181.6
     },
     "architecture.html": {
       "tables_read": [],
@@ -8287,7 +8295,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 127.5
+      "size_kb": 128.0
     },
     "inventory.html": {
       "tables_read": [
@@ -8534,7 +8542,7 @@
         "get_pm_ontime_delivery"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 148.0
+      "size_kb": 149.0
     },
     "project-manager.html": {
       "tables_read": [

@@ -267,14 +267,23 @@
         "pm-scheduler.html"
       ],
       "phases": {
-        "G": "todo",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
-      "walked": {},
-      "notes": "Delete a PM asset -> what happens to its scope items, its completion history and the compliance denominator. The 2 unconfirmed DB writes (pm_assets update + delete, ~L2640) live here. Feeds PMK6."
+      "walked": {
+        "personas": [
+          "P-worker",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-asset-with-history",
+          "S-refused-delete"
+        ]
+      },
+      "notes": "Delete a PM asset -> what happens to its scope items, its completion history and the compliance denominator. The 2 unconfirmed DB writes (pm_assets update + delete, ~L2640) live here. Feeds PMK6. WALKED 2026-07-28 and it is the most consequential defect of the arc so far. pm_completions.asset_id and pm_scope_items.asset_id both CASCADE from pm_assets, so deleting one asset destroys its whole compliance history. Probed live in a rolled-back transaction as a WORKER: deleting 'Caterpillar 3516B' took 31 completion records and 8 scope items, history reaching back to 2026-04-29, and left ZERO audit rows at the database. Those 31 rows are the evidence that named people did named jobs on dated occasions; they feed compliance %, on-time delivery and the reliability figures downstream, so the deletion also rewrites HISTORICAL compliance. TWO SEPARATE HOLES. (1) AUTHORIZATION: pm-scheduler gates the Delete button to a supervisor or the asset's author and even toasts 'Only supervisors can delete other members' assets' - but that rule lived ONLY in the page. pm_assets_write is a single ALL policy satisfied by ANY active member, so a worker writing through the db client deleted a supervisor's asset. The canonical UI-only-gate-is-bypassable class, with the sharpest possible payload. (2) EVIDENCE: there was no DELETE trigger on pm_assets at all; the only record was one the PAGE wrote afterwards, which any non-page write skips - and which never knew what the cascade cost. FIXED by migration 20260728000006: a RESTRICTIVE DELETE policy (ANDed with the existing permissive one, the smallest change that cannot widen anything else) matching the rule the UI already states, plus a BEFORE DELETE trigger that counts the children while they still exist and records completions_destroyed / scope_items_destroyed / history_began. Proven: WORKER delete -> 0 rows, SUPERVISOR delete -> 1 row, audit meta reads {completions_destroyed: 31, scope_items_destroyed: 8, history_began: 2026-04-29}. THE CLIENT ALSO CLAIMED A REFUSED DELETE AS DONE: deleteAsset() tested only `if (error)`, and a PostgREST delete matching nothing returns error:null - so it toasted success, wrote an audit row for a deletion that never happened, and dropped the asset locally so it silently returned on reload. The restrictive policy makes that path REACHABLE rather than theoretical, so it is now confirmed with .select('id'); the client-side audit write was deleted outright because the trigger supersedes it and duplicating it would double-count. GATED: validate_pm_write_isolation grew from 5 checks to 8 (delete_role_gated live-probes a worker deleting an asset they did not author; delete_audited and delete_policy_present assert the trigger and policy survive a later migration). Teeth proven by dropping the policy: 2 checks fail, exit 1."
     },
     "PM13": {
       "type": "T7-tenancy",
@@ -406,7 +415,7 @@
         "fix": "done",
         "gate": "done"
       },
-      "notes": "EARNED BY THE PM11 WALK 2026-07-28. RULE: for a record that drives a regulated number, 'tamper-evident' has to mean the DATABASE recorded the amendment - a client-written row is skipped by any write that does not go through the page, and here there was no client-written row at all. EVIDENCE: a completion back-dated 400 days, silently, by its own author (pm_completions RLS is owner-scoped write, so this is a legitimate author doing an illegitimate thing). HARVEST: the logbook arc's LG4, whose migration and scoping decision transferred directly. FIX + GATE as recorded on PM11. SWEEP PARTIAL: inventory_items carries the same client-only-audit weakness (measured in the logbook arc's LG4 sweep, still unfixed) and pm_assets/pm_scope_items have not been checked for whether their amendments matter the same way."
+      "notes": "EARNED BY THE PM11 WALK 2026-07-28. RULE: for a record that drives a regulated number, 'tamper-evident' has to mean the DATABASE recorded the amendment - a client-written row is skipped by any write that does not go through the page, and here there was no client-written row at all. EVIDENCE: a completion back-dated 400 days, silently, by its own author (pm_completions RLS is owner-scoped write, so this is a legitimate author doing an illegitimate thing). HARVEST: the logbook arc's LG4, whose migration and scoping decision transferred directly. FIX + GATE as recorded on PM11. SWEEP PARTIAL: inventory_items carries the same client-only-audit weakness (measured in the logbook arc's LG4 sweep, still unfixed) and pm_assets/pm_scope_items have not been checked for whether their amendments matter the same way. SWEEP COMPLETED BY PM12: tamper-evidence has to cover DESTRUCTION, not just amendment. A completion cannot be silently edited any more, but until 20260728000006 the entire history could be removed by deleting its parent asset - a bigger hole reached by a different door, and open to any member rather than the record's author. The general rule: for a record that drives a regulated number, enumerate every path that can CHANGE OR REMOVE it (direct update, parent cascade, bulk delete) and make each one leave a database-level trace. The trigger must run BEFORE the cascade, or the thing worth recording - how much was destroyed - is already gone."
     },
     "PMK4": {
       "name": "The word that sets the schedule must mean the same thing to every writer",

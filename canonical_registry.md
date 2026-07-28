@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **156**
 - Views:         **53**
-- RPCs:          **195**
+- RPCs:          **196**
 - HTML surfaces: **61**
 - Edge fns:      **98**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -184,6 +184,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `amc_expire_stale` |  | yes | — | — |
 | `anomaly_signals_forward_only_status` |  | no | — | — |
 | `audit_logbook_post_close_amendment` |  | yes | — | — |
+| `audit_pm_asset_delete` |  | yes | — | — |
 | `audit_pm_completion_amendment` |  | yes | — | — |
 | `auth_worker_names` |  | yes | — | — |
 | `award_achievement_xp` | p_worker    text,   p_ach_id    text,   p_xp        int,   p | yes | — | — |

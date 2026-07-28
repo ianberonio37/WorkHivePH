@@ -195,9 +195,14 @@ never means the arc is done** — both boards *plus* the §7 queue define it.
    so a tech who completes a PM sees compliance unmoved with nothing saying the number predates
    their work. Chip now reports snapshot-vs-live per phase; gated by
    `validate_source_chip_freshness`.
-7. **PM12 · PM9 · PM15/PM18** — asset delete and its history, skip/defer honesty, then the mobile and
-   offline completion paths.
-8. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
+7. ~~**PM12** — asset delete and its history.~~ Done, and the sharpest finding of the arc: a WORKER
+   could delete a supervisor's PM asset, cascading **31 completion records and 8 scope items** away
+   with no database record, because the supervisor-only rule lived only in the page. Migration
+   `20260728000006` adds a restrictive DELETE policy and a BEFORE DELETE trigger recording what the
+   cascade cost; `validate_pm_write_isolation` grew 5 → 8 checks.
+8. **PM9 · PM15/PM18** — skip/defer honesty in the numbers, then the mobile-390px and offline
+   completion paths.
+9. Then §5 order downward; every ⑤-harvest that earns a class refills this queue.
 
 **Carried out of the PM7 walk (found by the full-page diff, not the card):** the three summary cards
 share a first-paint reserve deficit — the row grows 137px → 184px at 390px when the data lands,
