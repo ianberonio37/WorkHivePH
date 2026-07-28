@@ -72,17 +72,24 @@
     "AH04": {
       "title": "Restore a rejected asset - can the submitter see what happened?",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-worker",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-rejected",
+          "S-pending",
+          "S-no-submissions"
+        ]
       },
-      "notes": "G partial and BLOCKED ON A FIXTURE, measured 2026-07-28: asset_nodes has 95 rows, ALL seeder-created (auth_uid NULL on every one), ALL status='approved', ZERO pending and ZERO rejected, and 0 rows authored by any worker or supervisor. rcm_strategies is 172 approved / 0 unapproved. So the submit -> review -> approve/reject -> restore workflow has no data in any state but the terminal one, which is exactly why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) was never diagnosed - there has never been a pending asset to see. The fixture, not the walker, is the binding constraint (LB13/LB17 again)."
+      "notes": "WALKED 2026-07-28, and it closes the loop the whole arc has been circling. The queue that holds rejection_reason was loaded ONLY for supervisors (`if (HIVE_ROLE === 'supervisor') loadPendingAssets()`), which is the inherited PDDA finding F21 - but F21 undersold it. It is not just that a worker's Pending tile reads 0: rejection_reason is the sentence a reviewer writes FOR THE SUBMITTER, rendered as 'Why: ...', and it was shown to everyone EXCEPT the person it was addressed to. Measured: 6 worker-submitted pending and 3 rejected, all 3 carrying a reason, none visible to the 3 people who wrote the submissions. So this arc secured that field (AH3 - a submitter could forge it), recorded the decision behind it (AHK1 - 83 decisions, 0 records), and the reader it exists for could not see it. FIXED: the queue loads for everyone, and the QUERY is scoped by role - a supervisor reviews the hive's queue, anyone else sees only rows they authored. Scoped on auth_uid rather than worker_name, because the name is display text while the uid is the identity bind_asset_nodes_submitter bound on insert. The reviewer BUTTONS stay supervisor-only; a submitter sees their standing instead ('Waiting for a supervisor to review this.' / 'Rejected - edit and resubmit, or ask your supervisor.'). VERIFIED BOTH SIDES. With submissions: running the page's exact new query as Ricardo Morales (worker) returns 3 of HIS OWN rows rather than the hive-wide 6, and he can now read 'Duplicate of an existing tag - please check the fleet list first.' Without submissions: as Christine Dizon (worker, none) the card stays hidden, 0 rows, page alive - no crash and no empty card shouting at her."
     },
     "AH05": {
       "title": "Fleet list: search, 200-row cap, QR scan (inherited F20)",
@@ -351,9 +358,10 @@
         "detect": "done",
         "sweep": "done",
         "fix": "done",
-        "gate": "todo"
+        "gate": "done"
       },
-      "notes": "EARNED BY THE AH2 WALK 2026-07-28, and it earned itself by BLOCKING one. RULE: a workflow state with no rows is a state nobody has walked, so the seeder is part of the test surface - and the failure is quiet, because a fixture missing a STATE looks exactly like a fixture that is fine. EVIDENCE: asset_nodes had 95 rows, ALL status='approved', 0 pending, 0 rejected, 0 with auth_uid. Every affordance built for the other states - the pending queue, the rejection reason, the restore path - was unreachable, which is why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) sat undiagnosed: there had never been a pending asset to see. The hole in AH3 had been sitting behind that same gap. SHARPENS LB13/LB17 from missing RELATIONSHIPS to missing STATES. FIX: the seeder now generates status and its companion fields together (_governance_state), so the states exist AND cannot be internally incoherent. SWEEP PARTIAL: rcm_strategies is still 172 approved / 0 unapproved, so the strategy approval gate remains unwalkable - that is AH8's fixture and the next slice. GATE TODO: a check that each governed table holds >0 rows in every non-terminal state it defines. SWEEP CLOSED by AH8: rcm_strategies now carries its non-terminal state (146/26) and the strategy->PM link has both branches (21 linked / 151 cold-start). Three tables were missing a state for three DIFFERENT reasons - asset_nodes because a seeder hand-off dropped the field, rcm_strategies because an approval flag was unconditional, and the PM link because the empty state was DELIBERATE and nobody had seeded its counterpart. The last is the subtle one: a documented, correct disposition can still leave a branch undemonstrable, and the answer is a SAMPLE rather than overriding the disposition."
+      "notes": "EARNED BY THE AH2 WALK 2026-07-28, and it earned itself by BLOCKING one. RULE: a workflow state with no rows is a state nobody has walked, so the seeder is part of the test surface - and the failure is quiet, because a fixture missing a STATE looks exactly like a fixture that is fine. EVIDENCE: asset_nodes had 95 rows, ALL status='approved', 0 pending, 0 rejected, 0 with auth_uid. Every affordance built for the other states - the pending queue, the rejection reason, the restore path - was unreachable, which is why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) sat undiagnosed: there had never been a pending asset to see. The hole in AH3 had been sitting behind that same gap. SHARPENS LB13/LB17 from missing RELATIONSHIPS to missing STATES. FIX: the seeder now generates status and its companion fields together (_governance_state), so the states exist AND cannot be internally incoherent. SWEEP PARTIAL: rcm_strategies is still 172 approved / 0 unapproved, so the strategy approval gate remains unwalkable - that is AH8's fixture and the next slice. GATE TODO: a check that each governed table holds >0 rows in every non-terminal state it defines. SWEEP CLOSED by AH8: rcm_strategies now carries its non-terminal state (146/26) and the strategy->PM link has both branches (21 linked / 151 cold-start). Three tables were missing a state for three DIFFERENT reasons - asset_nodes because a seeder hand-off dropped the field, rcm_strategies because an approval flag was unconditional, and the PM link because the empty state was DELIBERATE and nobody had seeded its counterpart. The last is the subtle one: a documented, correct disposition can still leave a branch undemonstrable, and the answer is a SAMPLE rather than overriding the disposition. GATE CLOSED: tools/validate_workflow_states_present.py holds six states open across the three tables this arc found empty, so a future seeder change cannot quietly re-close a branch. It asserts REPRESENTATION rather than a ratio - the point is never the proportion, it is that the next walk has something to walk. Teeth proven by emptying one state (exit 1).",
+      "gate": "tools/validate_workflow_states_present.py"
     }
   }
 }

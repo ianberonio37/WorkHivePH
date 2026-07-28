@@ -1085,7 +1085,13 @@
       renderAssetSummary();
       // Supervisor-only: load the pending/rejected approval queue alongside.
       // Workers see only the approved list above.
-      if (HIVE_ROLE === 'supervisor') loadPendingAssets();
+      // AH4 (Asset Hub deepwalk, 2026-07-28): load for EVERYONE. This used to be supervisor-only,
+      // which is the inherited F21 finding — and it is worse than a tile reading 0: the queue is
+      // where `rejection_reason` lives, so the sentence a reviewer writes FOR the submitter was
+      // shown to everyone except the submitter. Measured: 6 worker-submitted pending and 3
+      // rejected, all 3 carrying a reason, none of it visible to the 3 people it was written for.
+      // The query below scopes what each role sees; the reviewer BUTTONS stay supervisor-only.
+      loadPendingAssets();
     }
 
     // ── Pending asset_nodes approval queue (supervisor only) ─────────────────
@@ -1094,10 +1100,15 @@
     async function loadPendingAssets() {
       const card = document.getElementById('pending-assets-card');
       if (!card) return;
-      const { data, error } = await db.from('asset_nodes')
+      // A supervisor reviews the hive's queue; anyone else sees only what they submitted themselves.
+      // Scoped on auth_uid, not worker_name — the name is display text, the uid is the identity the
+      // row was bound to on insert (bind_asset_nodes_submitter).
+      let q = db.from('asset_nodes')
         .select('id, tag, name, level, criticality, location, iso_class, status, submitted_by, created_at, rejection_reason')
         .eq('hive_id', HIVE_ID)
-        .in('status', ['pending', 'rejected'])
+        .in('status', ['pending', 'rejected']);
+      if (HIVE_ROLE !== 'supervisor') q = q.eq('auth_uid', _authUid);
+      const { data, error } = await q
         .order('created_at', { ascending: false })
         .limit(50);
       if (error) {
@@ -1241,7 +1252,11 @@
               + '</div>'
             : ''}
           <div style="display:flex; gap:6px; margin-top:2px;">
-            ${n.status === 'pending' ? `
+            ${HIVE_ROLE !== 'supervisor' ? `
+              <span style="font-size:.66rem; color:var(--muted);">${n.status === 'pending'
+                ? 'Waiting for a supervisor to review this.'
+                : 'Rejected — edit and resubmit, or ask your supervisor.'}</span>
+            ` : n.status === 'pending' ? `
               <button class="approve" data-action="asset-approve" data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(74,222,128,0.16); color:var(--wh-green); border:1px solid rgba(74,222,128,0.3); cursor:pointer; font-family:inherit;">Approve</button>
               <button class="reject"  data-action="asset-reject"  data-id="${e(n.id)}" style="font-size:.66rem; padding:4px 9px; border-radius:5px; background:rgba(239,87,87,0.14); color:var(--wh-red); border:1px solid rgba(239,87,87,0.3); cursor:pointer; font-family:inherit;">Reject</button>
             ` : `

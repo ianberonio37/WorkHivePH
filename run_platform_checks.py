@@ -5067,6 +5067,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "workflow_states_present",
+        "script":  "tools/validate_workflow_states_present.py",
+        "args":    [],
+        "label":   "AHK3 - a workflow state with no rows is a state nobody has walked, and the seeder is part of the test surface. The Asset Hub arc hit this THREE times for three different reasons: asset_nodes had 95 rows ALL status='approved' with 0 auth_uid (assets.py computed the author, asset_brain.py dropped it in the hand-off and hardcoded the status) - which is why the PDDA arc's F21 sat undiagnosed and AH3's authority hole hid behind the same gap; rcm_strategies was 172 approved / 0 unapproved (reliability.py set approved_at unconditionally while the fmea rows twelve lines above already branched), so pushStrategyToPm's REFUSAL had never once run; and weibull_fits had 91 fits and 0 'insufficient_data', so the state that tells a planner NOT to act on a number had never been rendered. Holds six states open (asset pending/rejected/authored, strategy unapproved/pushed, weibull insufficient_data). Demands REPRESENTATION, not a ratio - the point is that the next walk has something to walk. Teeth proven by emptying one state: exit 1. Live-tier, skips without docker. Self-test: --selftest.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "refusal_reason_persists",
         "script":  "tools/validate_refusal_reason_persists.py",
         "args":    [],
