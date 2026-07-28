@@ -8057,6 +8057,14 @@
       "comment": "BEFORE UPDATE OR DELETE on projects. Removing or restoring a project is a supervisor act and is recorded either way. Before this any active member could set deleted_at on any project in their hive, and hive_audit_log held ZERO rows for projects. Counts children BEFORE the statement because a hard delete cascades to all six child tables. PJ12.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "guard_progress_log_is_a_record": {
+      "defined_in": "20260728000027_a_progress_report_is_a_record_not_a_draft.sql",
+      "args": "(trigger)",
+      "security_definer": true,
+      "comment": "BEFORE UPDATE on project_progress_logs. A filed report's content is immutable, acknowledging it is a supervisor act, and nobody may acknowledge their OWN report. Before this a worker could rewrite another worker's log to claim 100% while the row still named the original reporter, and could self-acknowledge. PJ6.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {

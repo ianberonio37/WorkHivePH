@@ -109,17 +109,25 @@
     "PJ06": {
       "title": "Progress log: submit, acknowledge, dispute",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-worker",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-rewrite-others-log",
+          "S-worker-ack",
+          "S-self-ack",
+          "S-supervisor-ack-others"
+        ]
       },
-      "notes": ""
+      "notes": "WALKED 2026-07-28, three defects, all probed live as an ordinary worker. (1) REWROTE ANOTHER WORKER'S REPORT: set pct_complete=100 and replaced the notes on a log filed by Leandro Marquez, and the row still read reported_by = Leandro Marquez. The record of what a technician said they did now said what somebody else wrote. (2) ACKNOWLEDGED SOMEONE ELSE'S REPORT: acknowledgement is the supervisor's 'I have seen this' signal and any active member could write it - ackLog() sets acknowledged_by = WORKER_NAME with no role check, and wh_guard_supervisor_approval does not cover this table. (3) ACKNOWLEDGED THEIR OWN REPORT - 'Bryan Garcia acked their OWN report as Bryan Garcia'. That is the self-approval class AH3 closed for asset submissions, still open here: the one signal that a supervisor reviewed the work could be manufactured by the person being reviewed. LEGITIMATE CALLERS MEASURED FIRST (fourth time in two arcs that this changed the fix): exactly TWO write paths exist - the INSERT that files a log and the acknowledge UPDATE - and NO edit-log path anywhere. So the content was already write-once in practice and making the database agree breaks nothing. FIXED (mig ...027): a filed report is a RECORD - content immutable, acknowledging is a supervisor act, and nobody may acknowledge their own. VERIFIED all four ways: worker rewrite -> blocked; worker ack -> blocked; SUPERVISOR self-ack -> blocked ('Another supervisor must review it'); supervisor acking someone else -> works. A LIMIT STATED RATHER THAN HIDDEN: the self-check compares worker_name, because project_progress_logs has no auth_uid - six of seven project tables do not. So the guard is as strong as a NAME, which is exactly PJK1's open attribution half."
     },
     "PJ07": {
       "title": "Earned Value - is green/amber/red defensible? (EVM / PMBOK)",
