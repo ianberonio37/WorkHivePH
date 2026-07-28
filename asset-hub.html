@@ -774,9 +774,12 @@
           <span style="font-size:.6rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--wh-blue);">MQTT / OPC-UA</span>
         </div>
         <div id="telemetry-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+        <!-- AH1/AH16: this now renders ONLY when the hive HAS a bridge running and this
+             particular asset carries no readings, so it no longer hedges about whether the
+             bridge connected - that question is already answered by the time it appears. -->
         <div id="telemetry-empty" style="display:none; font-size:.74rem; color:var(--muted); padding:0.6rem 0;">
-          No readings in the last 30 days. The plant MQTT bridge has not connected yet, or this asset is not mapped to a sensor.
-          <a href="integrations.html" style="display:inline-flex;align-items:center;min-height:44px;margin-left:0.35rem;color:var(--wh-blue);font-weight:600;text-decoration:none;">Connect a bridge in Integrations &rarr;</a>
+          No readings in the last 30 days. Other assets in this hive are reporting, so the bridge is up &mdash; this one is not mapped to a sensor yet.
+          <a href="integrations.html" style="display:inline-flex;align-items:center;min-height:44px;margin-left:0.35rem;color:var(--wh-blue);font-weight:600;text-decoration:none;">Map it in Integrations &rarr;</a>
         </div>
         <div id="telemetry-meta" style="font-size:.66rem; color:var(--muted); margin-top:0.5rem;"></div>
       </div>
@@ -1097,7 +1100,13 @@
       // shown to everyone except the submitter. Measured: 6 worker-submitted pending and 3
       // rejected, all 3 carrying a reason, none of it visible to the 3 people it was written for.
       // The query below scopes what each role sees; the reviewer BUTTONS stay supervisor-only.
-      loadPendingAssets();
+      //
+      // AWAITED (AH1, 2026-07-28): this used to be fire-and-forget, which raced the ?node_id=
+      // deep-link resolution below it — the link arrived, _pendingNodes was still empty, and a
+      // link to a genuinely-pending asset reported "could not be resolved". Caught live: the
+      // node WAS in the queue 2s later. Awaiting costs one query on a path that already awaits
+      // loadAssetNodes, and makes the arrival deterministic instead of timing-dependent.
+      await loadPendingAssets();
     }
 
     // ── Pending asset_nodes approval queue (supervisor only) ─────────────────
@@ -2039,6 +2048,9 @@
     // ticks live as new readings arrive from the plant MQTT bridge.
 
     let _telemetryChannel = null;
+    // Hive-scoped, resolved once per session: does ANY asset here report readings?
+    // null = not yet probed (an errored probe stays null so the next asset re-tries).
+    let _hiveHasTelemetry = null;
 
     async function loadDetailTelemetry(nodeId) {
       const card = document.getElementById('telemetry-card');
@@ -2106,9 +2118,29 @@
 
       const rows = data || [];
       if (!rows.length) {
-        // Hide entirely if this asset has no telemetry - keeps Asset Hub
-        // clean for hives that have not wired the MQTT bridge yet.
-        card.style.display = 'none';
+        // AH1/AH16 (Asset Hub deepwalk, 2026-07-28): this used to hide the card
+        // unconditionally, which made #telemetry-empty DEAD - the only branch that
+        // could ever have shown it hid its parent instead. Two different situations
+        // were being collapsed into one silence:
+        //   * the hive has no bridge at all  -> nothing to say; hiding is right, and
+        //     is what the original "keeps Asset Hub clean" intent was actually about.
+        //   * the hive HAS telemetry, just not on THIS asset -> the asset is unmapped.
+        //     Measured on the seeded fleet: 17 of 79 assets carry readings, so 62 sat
+        //     silent on hives that plainly do have a bridge running. An engineer asking
+        //     "why is there no telemetry for this pump?" got no answer at all.
+        // So: hide only in the first case, and in the second say which one it is.
+        if (_hiveHasTelemetry == null) {
+          const { count, error: cErr } = await db.from('v_sensor_recent')
+            .select('asset_id', { count: 'exact', head: true })
+            .eq('hive_id', HIVE_ID);
+          // On error leave it null so a later asset re-probes rather than caching a lie.
+          if (!cErr) _hiveHasTelemetry = (count || 0) > 0;
+        }
+        if (_hiveHasTelemetry !== true) { card.style.display = 'none'; return; }
+        card.style.display = 'block';
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        if (meta) meta.textContent = '';
         return;
       }
 
@@ -3824,6 +3856,34 @@
         const initialNode = params.get('node_id');
         if (initialNode && _allNodes.some(n => n.id === initialNode)) {
           openDetail(initialNode);
+        } else if (initialNode) {
+          // AH1/AH18 (Asset Hub deepwalk, 2026-07-28): this branch had NO else at all, so an
+          // inbound ?node_id= that did not resolve dropped the user into the full unfiltered
+          // fleet with no explanation - the EXACT failure the ?tag= arm below was fixed for in
+          // §12 JA1/JA2 (2026-07-23). The fix was applied to one arm of the same if/else and
+          // not the other, which is the "fix every path, not just the walked one" class.
+          //
+          // It is not a rare edge either: the fleet list is approved-only, so EVERY pending or
+          // rejected asset is unresolvable here - measured 17 of 96 nodes, ~18% of the fleet -
+          // and a supervisor following a link to a submission they were asked to review landed
+          // on the whole list, unable to tell their target had been missed.
+          //
+          // We do not force the detail view open for a non-approved node: openDetail and ~10
+          // downstream renderers all resolve from _allNodes and would each render a blank.
+          // Instead say WHICH of the two things happened, and point at the card that can act.
+          const pend = (_pendingNodes || []).find(n => n.id === initialNode);
+          if (pend) {
+            const label = pend.tag || pend.name || 'That asset';
+            const card = document.getElementById('pending-assets-card');
+            if (card && card.style.display !== 'none') card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (typeof showToast === 'function') {
+              showToast(pend.status === 'rejected'
+                ? `${label} was rejected, so it is not in the fleet list yet - see Pending Approvals.`
+                : `${label} is still awaiting approval, so it is not in the fleet list yet - see Pending Approvals.`);
+            }
+          } else if (typeof showToast === 'function') {
+            showToast('That asset link could not be resolved in this hive.');
+          }
         } else {
           const rawTag = (params.get('tag') || '').trim();
           const initialTag = rawTag.toLowerCase();

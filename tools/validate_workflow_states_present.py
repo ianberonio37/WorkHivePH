@@ -59,6 +59,14 @@ REQUIRED_STATES = [
     ("weibull_fits.insufficient_data",
      "SELECT count(*) FROM public.weibull_fits WHERE failure_pattern = 'insufficient_data'",
      "the REFUSAL state — the one that tells a planner not to act on a number"),
+    ("asset_nodes.cold_start",
+     "SELECT count(*) FROM public.asset_nodes n WHERE n.status = 'approved'"
+     " AND NOT EXISTS (SELECT 1 FROM public.rcm_fmea_modes m WHERE m.asset_id = n.id)"
+     " AND NOT EXISTS (SELECT 1 FROM public.weibull_fits  w WHERE w.asset_id = n.id)"
+     " AND NOT EXISTS (SELECT 1 FROM public.pf_intervals  p WHERE p.asset_id = n.id)",
+     "an asset with NO reliability work at all — the state every newly-commissioned machine and "
+     "every new customer's whole fleet is in. reliability.py used to fit EVERY node, so 0 of 79 "
+     "approved assets were cold and the three Workbench empty states could never render"),
 ]
 
 
@@ -76,7 +84,7 @@ def psql(sql):
 def main():
     if "--selftest" in sys.argv:
         probs = []
-        if len(REQUIRED_STATES) < 6:
+        if len(REQUIRED_STATES) < 7:
             probs.append("REQUIRED_STATES shrank — the gate is losing the states three walks opened")
         if not all(len(t) == 3 and t[1].lower().startswith("select count(") for t in REQUIRED_STATES):
             probs.append("every entry must be a single scalar count query")

@@ -715,11 +715,31 @@ def seed_reliability(client, log, ctx: dict) -> dict:
         except Exception as e:
             log(f"  WARN: assets.type lookup failed: {type(e).__name__}: {e}")
 
-    log(f"  seeding reliability rows for {len(nodes)} asset_nodes ({len(type_by_legacy)} with type)")
+    # AH1 / AHK3 (Asset Hub deepwalk, 2026-07-28): leave a sample of assets with NO reliability
+    # work at all — the state every newly-commissioned machine is in, and the state an entire new
+    # customer's fleet is in on day one.
+    #
+    # Measured before this: 79 approved nodes, and 0 of them lacked a Weibull fit — this seeder
+    # fitted EVERY node unconditionally. So the cold-start experience, which is the first thing
+    # any real user sees, had never once been rendered. The three carefully-written empty states
+    # on the Reliability Workbench ("Tap below to add the first one", "Compute on the Weibull tab
+    # once at least 4 corrective events are logged") had no asset that could display them.
+    #
+    # Skipping ALL FOUR artifacts together is the point: an asset with an FMEA but no fit is a
+    # different, already-covered state. This is the genuinely-untouched one.
+    cold_start = set()
+    if len(nodes) >= 8:
+        n_cold = max(1, round(len(nodes) * 0.12))
+        cold_start = {n["id"] for n in random.sample(nodes, k=n_cold)}
+
+    log(f"  seeding reliability rows for {len(nodes)} asset_nodes ({len(type_by_legacy)} with type"
+        f", {len(cold_start)} left cold-start)")
 
     # ── 1. FMEA failure modes ────────────────────────────────────────────────
     fmea_rows = []
     for n in nodes:
+        if n["id"] in cold_start:
+            continue
         asset_type = type_by_legacy.get(n.get("legacy_asset_id"))
         pool       = _resolve_pool(asset_type, n.get("iso_class"))
         if not pool:
@@ -844,6 +864,8 @@ def seed_reliability(client, log, ctx: dict) -> dict:
     # ── 3. Weibull fits ──────────────────────────────────────────────────────
     weibull_rows = []
     for n in nodes:
+        if n["id"] in cold_start:
+            continue
         # Distribution biased toward wear-out for older / critical assets.
         crit = (n.get("criticality") or "medium").lower()
         if crit == "critical":
@@ -898,6 +920,8 @@ def seed_reliability(client, log, ctx: dict) -> dict:
     }
     pf_rows = []
     for n in nodes:
+        if n["id"] in cold_start:
+            continue
         cat = n.get("iso_class") or "Mechanical"
         if cat not in PF_BY_CAT:
             continue

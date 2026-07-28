@@ -14,17 +14,27 @@
     "AH01": {
       "title": "First run - a hive with assets but no reliability work",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-supervisor",
+          "P-reliability"
+        ],
+        "states": [
+          "S-cold-asset-no-reliability",
+          "S-unmapped-telemetry",
+          "S-deeplink-approved",
+          "S-deeplink-pending",
+          "S-deeplink-rejected",
+          "S-deeplink-unresolvable"
+        ]
       },
-      "notes": "G partial: grounded from the substrate page summary + the ASSET_ALERT_SHIFT PDDA backlog (see roadmap section 0)."
+      "notes": "WALKED 2026-07-28. GROUND first: there was no cold-start asset to walk. Measured 79 approved nodes and 0 of them lacked a Weibull fit - reliability.py fitted EVERY node unconditionally - so the state every newly-commissioned machine, and every new customer's entire fleet on day one, had never once been rendered. Built one (COLD-001) and made it reproducible in the seeder (~12% of nodes left with no FMEA, no fit, no P-F - all four skipped TOGETHER, since an asset with an FMEA but no fit is a different, already-covered state). Gate extended: asset_nodes.cold_start, now 7 states held open. WHAT HELD UP on a genuinely cold asset: all three Workbench empty states render with an actionable next step; the risk board says a score is computed daily at 13:00 PHT rather than showing a zero; and the Print Report is honest section by section - 'No approved FMEA modes registered', 'No Weibull fit yet. Compute on the Weibull tab once at least 4 corrective events are logged', 'No P-F intervals computed' - each naming the tab to go to. That is a good cold start. TWO DEFECTS FOUND. (1) TELEMETRY: the card hid itself whenever an asset had no readings, which made #telemetry-empty DEAD CODE - the only branch that could show it hid its parent instead. It collapsed two different situations into one silence: 'this hive has no bridge' (hiding is right) and 'the bridge is up, this asset is unmapped' (silence is a wrong answer). Measured 17 of 79 assets carry readings, so 62 sat silent on hives that plainly do have a bridge. Now hive-scoped: hide only when the hive has no telemetry at all, otherwise say which one it is. (2) DEEP-LINK: the ?node_id= branch had NO else - an unresolvable id dropped the user into the full unfiltered fleet with no explanation. This is EXACTLY the failure the ?tag= arm was fixed for in §12 JA1/JA2 on 2026-07-23; the fix went to one arm of the same if/else and not the other. Not an edge case: the fleet list is approved-only, so EVERY pending or rejected asset is unresolvable - 17 of 96 nodes, ~18% - and a supervisor following a link to a submission they were asked to review could not tell their target had been missed. Fixed to name the asset and its actual state and scroll to Pending Approvals. Deliberately NOT forcing the detail open for a non-approved node: openDetail and ~10 downstream renderers all resolve from _allNodes and would each render a blank. A RACE FOUND WHILE VERIFYING IT: loadPendingAssets() was fire-and-forget, so the deep-link resolved against an empty _pendingNodes and a genuinely-pending asset reported 'could not be resolved' - the node was in the queue 2s later. Now awaited. All four arrivals verified live: approved -> detail opens; pending -> 'CR-001 is still awaiting approval... see Pending Approvals' + card scrolled to top; rejected -> 'GEN-004 was rejected...'; bogus uuid -> 'That asset link could not be resolved in this hive.' INSTRUMENT ERROR EN ROUTE, twice worth recording: I first probed v_sensor_recent with a quality_flag column copied from v_sensor_truth and read the 42703 as evidence about the page; and I polled for toasts with [class*=toast] when the element is id=toast with NO class, so two correct fixes read as silent failures. Verify the instrument before believing the page."
     },
     "AH02": {
       "title": "Worker submits an asset -> it enters the pending queue",
