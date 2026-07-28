@@ -5067,6 +5067,14 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        "id":      "approval_authority",
+        "script":  "tools/validate_approval_authority.py",
+        "args":    [],
+        "label":   "AHK1 - approving and REJECTING are the same authority. wh_guard_supervisor_approval correctly refused a non-supervisor who APPROVED, but its UPDATE clause treated a status change as privileged only when 'approved' was on one side, so pending -> rejected slipped through on ALL SIX tables the trigger guards (asset_nodes, inventory_items, logbook, project_change_orders, rcm_fmea_modes, rcm_strategies). Walked live 2026-07-28 once the Asset Hub governance fixture existed to walk at all: a WORKER set their own pending asset to 'rejected' and wrote rejection_reason = 'Rejected by the supervisor - not fit for the register.' - 1 row, no error. Reachable rather than theoretical: asset-hub's reject is caught only incidentally because it also writes approved_by/approved_at, while hive.html's rejectItem() updates { status:'rejected' } ALONE behind a client-side role check. WHY THE REASON FIELD MATTERS: rejection_reason is the REVIEWER'S VOICE - the queue renders it back to the submitter as 'Why: ...' - so a submitter who can write it authors a verdict in a supervisor's name, and the next supervisor cannot tell. Fixed by 20260728000013 (reviewer_states + a rejection_reason clause); safe to tighten because both legitimate reject paths are already supervisor-only in their UI and service_role is exempt. Asserts the guard STATICALLY (both outcomes + the reason field still privileged) and LIVE in a rolled-back probe (worker self-reject blocked, reason-edit blocked, supervisor still able to reject). Teeth proven against the REAL pre-fix guard: 3 of 4 checks fail. Skips cleanly without docker or a worker-authored pending row. Self-test: --selftest.",
+        "group":   "Platform",
+        "report":  None,
+    },
+    {
         "id":      "asset_hub_deepwalk_ratchet",
         "script":  "validate_asset_hub_deepwalk.py",
         "args":    [],

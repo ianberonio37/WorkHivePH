@@ -29,32 +29,45 @@
     "AH02": {
       "title": "Worker submits an asset -> it enters the pending queue",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-worker",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-pending",
+          "S-approved",
+          "S-rejected"
+        ]
       },
-      "notes": "G partial and BLOCKED ON A FIXTURE, measured 2026-07-28: asset_nodes has 95 rows, ALL seeder-created (auth_uid NULL on every one), ALL status='approved', ZERO pending and ZERO rejected, and 0 rows authored by any worker or supervisor. rcm_strategies is 172 approved / 0 unapproved. So the submit -> review -> approve/reject -> restore workflow has no data in any state but the terminal one, which is exactly why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) was never diagnosed - there has never been a pending asset to see. The fixture, not the walker, is the binding constraint (LB13/LB17 again)."
+      "notes": "FIXTURE BUILT, THEN WALKED 2026-07-28. The blocker was real and it was in the SEEDER hand-off: assets.py computes auth_uid from the submitter but builds ctx in memory only, and asset_brain.py - which does the actual asset_nodes insert - DROPPED auth_uid from its row mapping and hardcoded status='approved'. Two omissions, and between them the page's whole governance workflow was untestable: 95 rows, 0 with an author, 0 pending, 0 rejected. Fixed at the source (_governance_state generates the status and its companion fields TOGETHER so a pending row cannot claim a reviewer and a rejected row cannot lack a reason - the PM9 coherence lesson), and auth_uid is now carried through. Verified over 400 draws: 82/12/6 approved/pending/rejected, ZERO internally inconsistent rows. Applied to the live fixture too: 79 approved / 12 pending / 4 rejected, authors attached (5 approved rows keep no author because they had no submitted_by to resolve - recorded, not hidden)."
     },
     "AH03": {
       "title": "Supervisor approves / rejects - and the rejection must SAY WHY",
       "phases": {
-        "G": "partial",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
-        "R": "todo"
+        "G": "done",
+        "W": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-worker",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-pending",
+          "S-rejected"
+        ]
       },
-      "notes": "G partial and BLOCKED ON A FIXTURE, measured 2026-07-28: asset_nodes has 95 rows, ALL seeder-created (auth_uid NULL on every one), ALL status='approved', ZERO pending and ZERO rejected, and 0 rows authored by any worker or supervisor. rcm_strategies is 172 approved / 0 unapproved. So the submit -> review -> approve/reject -> restore workflow has no data in any state but the terminal one, which is exactly why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) was never diagnosed - there has never been a pending asset to see. The fixture, not the walker, is the binding constraint (LB13/LB17 again)."
+      "notes": "WALKED 2026-07-28 and found a REAL authority hole - the first thing the new fixture made visible. THE GOOD HALF FIRST: wh_guard_supervisor_approval is a well-built generic trigger (SECURITY DEFINER, six tables, service_role exempt) and it correctly refuses a non-supervisor who APPROVES - a worker approving their own pending asset is rejected 42501 with a message naming the user and hive. That is the opposite of the PM arc's pattern and stays exactly as it is. THE HOLE: its UPDATE clause treated a status change as privileged only when 'approved' was on one side, so pending -> rejected slipped through. ('rejected' does appear in sup_states, but that array is only consulted for the wo_state column.) Probed live: a WORKER set their own pending asset to 'rejected' AND wrote rejection_reason = 'Rejected by the supervisor - not fit for the register.' One row, no error. REACHABLE, not theoretical: asset-hub's own reject is caught only INCIDENTALLY, because it also writes approved_by/approved_at and the guard notices those. hive.html's rejectItem() updates { status: 'rejected' } ALONE, behind a client-side role check - PMK6's class on the approval queue. WHY THE REASON FIELD IS THE SHARP PART: rejection_reason is the REVIEWER'S VOICE. The queue renders it back to the submitter as 'Why: ...' and the PDDA arc added it precisely so a rejection would explain itself. A submitter who can write it authors a verdict in a supervisor's name, and the next supervisor reading the queue cannot tell. FIXED centrally in migration 20260728000013 - one clause, SIX tables, because every approval queue on the platform shared the hole. Safe to tighten, measured first: both legitimate reject paths are already supervisor-only in their UI and service_role is exempt. Proven: worker self-reject BLOCKED, worker editing the reason alone BLOCKED, supervisor reject still 1 row. GATED by tools/validate_approval_authority.py (registered); teeth proven against the REAL pre-fix guard - 3 of 4 checks fail, exit 1."
     },
     "AH04": {
       "title": "Restore a rejected asset - can the submitter see what happened?",
@@ -286,15 +299,15 @@
     "AHK1": {
       "name": "A governance decision needs an IDENTITY, not a name",
       "stages": {
-        "harvest": "todo",
+        "harvest": "done",
         "define": "done",
-        "detect": "todo",
-        "sweep": "todo",
-        "fix": "todo",
-        "gate": "todo"
+        "detect": "done",
+        "sweep": "partial",
+        "fix": "done",
+        "gate": "done"
       },
-      "gate": null,
-      "notes": "OPEN on measured evidence (2026-07-28 ground). asset_nodes carries submitted_by and approved_by as TEXT while 0 of 95 rows have auth_uid at all, and the table has 0 audit triggers. So an approval - the governance act the whole queue exists for - is attributed to a typed NAME, recorded nowhere the database can vouch for, and performed on rows nobody is provably the author of. Distinct from PMK3, which covered a COMPLETION's tamper-evidence: this is the DECISION itself, plus the forgeable-name half PMK3 never had to face because pm_completions has a real auth_uid."
+      "gate": "tools/validate_approval_authority.py",
+      "notes": "OPEN on measured evidence (2026-07-28 ground). asset_nodes carries submitted_by and approved_by as TEXT while 0 of 95 rows have auth_uid at all, and the table has 0 audit triggers. So an approval - the governance act the whole queue exists for - is attributed to a typed NAME, recorded nowhere the database can vouch for, and performed on rows nobody is provably the author of. Distinct from PMK3, which covered a COMPLETION's tamper-evidence: this is the DECISION itself, plus the forgeable-name half PMK3 never had to face because pm_completions has a real auth_uid. REFINED BY THE AH3 WALK, which is what a walk is for. The premise was half wrong and the correction is worth more than the guess: the approval ACT is NOT ungoverned - wh_guard_supervisor_approval enforces it at the database across six tables. What was missing was the OTHER outcome. Approving and refusing are the same authority exercised two ways, and the guard recognised only the first, so a submitter could reject their own work and write the reviewer's explanation. Fixed + gated (see AH03). SWEEP PARTIAL - two halves of the original premise remain and are stated rather than quietly closed: (1) submitted_by and approved_by are still TEXT names, not identity FKs, so attribution is forgeable even where the ACT is now gated; (2) asset_nodes / rcm_strategies / rcm_fmea_modes still carry 0 audit triggers across 567 rows, so an approval decision leaves no database record - the PMK3 shape on a governance act rather than a completion."
     },
     "AHK2": {
       "name": "A number that sets inspection timing must be FALSIFIABLE",
@@ -308,6 +321,18 @@
       },
       "gate": null,
       "notes": "OPEN on measured evidence. Weibull beta/eta, the P-F interval and FMEA RPN each DECIDE WHEN A MACHINE IS NEXT OPENED UP - they do not report history, they set future action, so being wrong is physical rather than cosmetic. Ground measured 172 RCM strategies and 300 FMEA modes, all approved, computed by edge functions (weibull-fitter, pf-calculator) with no in-repo oracle found. Each needs a stated method, a REFUSAL path when the data cannot support the fit, and a checkable oracle. Distinct from PMK1: that was a metric flattering what was DONE; this is a computed value deciding what happens NEXT."
+    },
+    "AHK3": {
+      "name": "The fixture must contain every state the workflow can be in",
+      "stages": {
+        "harvest": "done",
+        "define": "done",
+        "detect": "done",
+        "sweep": "partial",
+        "fix": "done",
+        "gate": "todo"
+      },
+      "notes": "EARNED BY THE AH2 WALK 2026-07-28, and it earned itself by BLOCKING one. RULE: a workflow state with no rows is a state nobody has walked, so the seeder is part of the test surface - and the failure is quiet, because a fixture missing a STATE looks exactly like a fixture that is fine. EVIDENCE: asset_nodes had 95 rows, ALL status='approved', 0 pending, 0 rejected, 0 with auth_uid. Every affordance built for the other states - the pending queue, the rejection reason, the restore path - was unreachable, which is why the PDDA arc's F21 (a worker's Pending-assets tile always reads 0) sat undiagnosed: there had never been a pending asset to see. The hole in AH3 had been sitting behind that same gap. SHARPENS LB13/LB17 from missing RELATIONSHIPS to missing STATES. FIX: the seeder now generates status and its companion fields together (_governance_state), so the states exist AND cannot be internally incoherent. SWEEP PARTIAL: rcm_strategies is still 172 approved / 0 unapproved, so the strategy approval gate remains unwalkable - that is AH8's fixture and the next slice. GATE TODO: a check that each governed table holds >0 rows in every non-terminal state it defines."
     }
   }
 }
