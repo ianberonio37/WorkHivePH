@@ -326,6 +326,27 @@ def audit_retry_idempotency():
             problems.append("offline-queue.js defaults insertDedupIndexed to TRUE — it must stay "
                             "opt-in: where a unique column can be owned by a DIFFERENT row "
                             "(skill_profiles.worker_name) a 23505 means the write did not land")
+    # PM18 second persona (2026-07-28): the queue is per-DEVICE and this file names shared tablets as
+    # the operating reality, but the identity guard was an .eq() on the update/delete WHERE clause
+    # only — an insert has no WHERE. So a drain running under worker B attempted worker A's queued
+    # completion, and the DB did not refuse it: bind_pm_completion_submitter sets
+    # NEW.auth_uid := auth.uid() and overwrites worker_name from the session, so A's PM was recorded
+    # as B's work. The trigger is correct (it is what stops forged attribution); the drain must not
+    # offer it the choice. Asserted as a SKIP — the item stays queued for its owner rather than
+    # erroring into the dead-letter.
+    if q.exists():
+        src = q.read_text(encoding="utf-8", errors="replace")
+        drain = next((b for n, b in _find_functions(src) if n == "drain"), "")
+        if not re.search(r"item\.payload\s*&&\s*item\.payload\[\s*cfg\.identityKey", drain):
+            problems.append("offline-queue.js drain() no longer compares the item's CAPTURED "
+                            "identity against the current one before attempting it — on a shared "
+                            "tablet another worker's queued insert gets re-attributed to whoever "
+                            "drains it")
+        elif not re.search(r"captured\s*!==\s*current\s*\)\s*continue", drain):
+            problems.append("offline-queue.js drain() compares identities but does not SKIP on a "
+                            "mismatch — a foreign item must stay queued, not error into the "
+                            "dead-letter")
+
     pm = (ROOT / "pm-scheduler.html")
     if pm.exists():
         src = pm.read_text(encoding="utf-8", errors="replace")

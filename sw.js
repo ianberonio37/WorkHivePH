@@ -3,7 +3,8 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v225';  // bump: creating a PM asset is supervisor-gated at the database and the RCM push routes through an RPC - without this bump an installed user keeps a direct insert the database now refuses
+const CACHE_NAME  = 'workhive-shell-v226';  // bump: on a shared tablet one worker's queued PM no longer drains under another worker's name - without this bump an installed user keeps the misattribution
+// const CACHE_NAME  = 'workhive-shell-v225';  // bump: creating a PM asset is supervisor-gated at the database and the RCM push routes through an RPC - without this bump an installed user keeps a direct insert the database now refuses
 // const CACHE_NAME  = 'workhive-shell-v224';  // bump: filtering the PM list to nothing no longer tells a 31-asset hive it has no assets - without this bump an installed user keeps the wrong empty state
 // const CACHE_NAME  = 'workhive-shell-v223';  // bump: asset renames propagate through an RPC so pm_assets can be supervisor-gated - without this bump an installed user keeps a direct write the database now refuses, and renames stop reaching PM Scheduler
 // const CACHE_NAME  = 'workhive-shell-v222';  // bump: the hive board's overdue count says assets, which is what it counts - without this bump an installed user keeps copy that under-states the work

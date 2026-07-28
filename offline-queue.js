@@ -156,6 +156,23 @@
 
         for (const item of pending) {
           if (!_due(item)) continue;   // Arc S D-002: stalled (dead-letter) or still in backoff
+
+          // PM18 (PM deepwalk, 2026-07-28): this queue lives in a per-DEVICE IndexedDB, and this
+          // file's own header names shared tablets as the operating reality. The identity guard was
+          // applied only to update/delete (as an .eq() on the WHERE clause) — an insert has no
+          // WHERE, so a drain running under worker B attempted worker A's queued completion.
+          // Walked at the DB: it is not refused, it is silently RE-ATTRIBUTED.
+          // bind_pm_completion_submitter sets NEW.auth_uid := auth.uid() and overwrites worker_name
+          // from the session, so A's PM is recorded as B's work. That trigger is CORRECT — it is
+          // what stops a client forging attribution — and it cannot tell a forgery from a
+          // completion legitimately captured by someone else earlier on this device. So the fix
+          // belongs here: do not attempt an item captured under a different identity. SKIP it, so
+          // it stays queued (no retry burn, no dead-letter) until that worker signs back in.
+          if (cfg.identityKey && cfg.identityFn) {
+            const captured = item.payload && item.payload[cfg.identityKey];
+            const current  = cfg.identityFn();
+            if (captured && current && captured !== current) continue;
+          }
           const op = item.op || 'insert';
           let error = null;
           // LB7 (2026-07-28): a PostgREST update/delete that matches ZERO rows is NOT an error —
