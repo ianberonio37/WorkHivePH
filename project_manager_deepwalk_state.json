@@ -60,31 +60,51 @@
       "title": "Change order: raise -> approve / reject / cancel (G5 - never walked)",
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
+        "W": "done",
+        "O": "done",
+        "H": "done",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-worker",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-approve-blocked",
+          "S-reject-blocked",
+          "S-approved-cost-edit-blocked",
+          "S-pending-cost-tampered",
+          "S-pending-deleted",
+          "S-cancel-own"
+        ]
       },
-      "notes": "GROUND 2026-07-28. The G5 fixture is BUILT, which is the prerequisite this journey could not start without: project_change_orders held ZERO rows platform-wide, so approve/reject/cancel had never run against data. Seeded all four states with their companion fields generated TOGETHER so no row is fiction - approved carries an approver AND a timestamp and no reason; rejected carries a REASON and no approved_at; pending and cancelled carry neither. Verified 0 incoherent rows across 12 COs (3 per state). project_roles likewise went 0 -> 36. A DEFECT CAUGHT IN MY OWN SEEDER BEFORE IT SHIPPED: the first draft wrote role='lead'/'member', but the CHECK allows only owner|planner|safety_officer|cost_engineer|reviewer. The insert would have been rejected while the seeder's try/except logged a WARN and returned an empty list - leaving the table exactly as empty as it started and looking seeded. Same shape as the Asset Hub is_anomaly defect: a value the CHECK forbids, failing quietly. Verified against pg_constraint, not guessed. WALK still to do."
+      "notes": "WALKED 2026-07-28 as a real WORKER (SET LOCAL ROLE authenticated + request.jwt.claims), every probe inside a transaction that ROLLED BACK. THE WALK REFUTED MY OWN GROUND FINDING, which is the most useful thing it did. G4 claimed 'one permissive ALL policy per table means any active member can approve a change order'. I had asserted that from the POLICY layer alone and it is WRONG: wh_guard_supervisor_approval() is a TRIGGER over six tables and project_change_orders is one of them - I had even written that list into the AHK1 gate label earlier in the same session and still did not check it here. Measured: approve -> BLOCKED, reject -> BLOCKED (the AH3 clause working), edit an APPROVED CO's cost -> BLOCKED ('remove signed-off work'). Recall the disposition before declaring a bug. WHAT IS ACTUALLY OPEN, and it is sharper than what I guessed: the guard protects the approval ACT and signed-off work, and nothing protects the CONTENT or the EXISTENCE of a request awaiting review. Proven live - worker Bryan Garcia rewrote worker Wilfredo Malabanan's PENDING change order from PHP 500,000 to PHP 9,999,999 and replaced its scope text, and the row still reads requested_by = Wilfredo Malabanan. A worker can also DELETE a pending CO outright. Combined with G1 (no auth_uid on the table) and G2 (no audit trigger on projects), nothing records that it changed or who changed it: the supervisor approves what they are SHOWN, and what they are shown is editable by anyone in the hive. A FIXTURE WEAKNESS FOUND EN ROUTE: my seeder assigns every CO in a hive the same requested_by (m.rn=2), so the first 'can a worker edit ANOTHER's CO' probe returned UPDATE 0 and looked like a block. It was not - there was simply no other requester's row to match. Inserting one made the tamper succeed immediately. UPDATE 0 is not evidence of a guard; it is the 0-row-write-is-not-an-error lesson in probe form. FIX/GATE still open. FIXED by 20260728000022: a raised change order's COMMERCIAL TERMS are immutable (cost, schedule, scope, title, requester, project, hive) and it cannot be DELETED - cancel instead, so the request stays visible in the amendment trail. Status and the approver fields stay mutable, with wh_guard_supervisor_approval still deciding who may move them. LEGITIMATE CALLERS MEASURED FIRST, because twice in the previous arc the obvious guard would have broken more than the bug: there are exactly THREE update paths on this table in the whole codebase (approveCO/rejectCO/cancelCO), all of which set status plus approver fields and nothing else; there is NO edit-CO path anywhere and NO delete path in any page or edge fn. The terms were already write-once in practice, so making the DATABASE agree breaks zero callers - and immutability is a stronger guarantee than a role check. VERIFIED: worker cost-tamper -> blocked, delete -> blocked, worker cancel -> still allowed, SUPERVISOR APPROVE -> still allowed (UPDATE 1)."
     },
     "PJ05": {
       "title": "Who approved this change order? (G1 - no auth_uid exists)",
       "phases": {
         "G": "done",
-        "W": "todo",
-        "O": "todo",
-        "H": "todo",
+        "W": "done",
+        "O": "done",
+        "H": "done",
         "R": "todo"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-worker",
+          "P-supervisor"
+        ],
+        "states": [
+          "S-approve-blocked",
+          "S-reject-blocked",
+          "S-approved-cost-edit-blocked",
+          "S-pending-cost-tampered",
+          "S-pending-deleted",
+          "S-cancel-own"
+        ]
       },
-      "notes": "GROUND 2026-07-28. The G5 fixture is BUILT, which is the prerequisite this journey could not start without: project_change_orders held ZERO rows platform-wide, so approve/reject/cancel had never run against data. Seeded all four states with their companion fields generated TOGETHER so no row is fiction - approved carries an approver AND a timestamp and no reason; rejected carries a REASON and no approved_at; pending and cancelled carry neither. Verified 0 incoherent rows across 12 COs (3 per state). project_roles likewise went 0 -> 36. A DEFECT CAUGHT IN MY OWN SEEDER BEFORE IT SHIPPED: the first draft wrote role='lead'/'member', but the CHECK allows only owner|planner|safety_officer|cost_engineer|reviewer. The insert would have been rejected while the seeder's try/except logged a WARN and returned an empty list - leaving the table exactly as empty as it started and looking seeded. Same shape as the Asset Hub is_anomaly defect: a value the CHECK forbids, failing quietly. Verified against pg_constraint, not guessed. WALK still to do."
+      "notes": "WALKED 2026-07-28 as a real WORKER (SET LOCAL ROLE authenticated + request.jwt.claims), every probe inside a transaction that ROLLED BACK. THE WALK REFUTED MY OWN GROUND FINDING, which is the most useful thing it did. G4 claimed 'one permissive ALL policy per table means any active member can approve a change order'. I had asserted that from the POLICY layer alone and it is WRONG: wh_guard_supervisor_approval() is a TRIGGER over six tables and project_change_orders is one of them - I had even written that list into the AHK1 gate label earlier in the same session and still did not check it here. Measured: approve -> BLOCKED, reject -> BLOCKED (the AH3 clause working), edit an APPROVED CO's cost -> BLOCKED ('remove signed-off work'). Recall the disposition before declaring a bug. WHAT IS ACTUALLY OPEN, and it is sharper than what I guessed: the guard protects the approval ACT and signed-off work, and nothing protects the CONTENT or the EXISTENCE of a request awaiting review. Proven live - worker Bryan Garcia rewrote worker Wilfredo Malabanan's PENDING change order from PHP 500,000 to PHP 9,999,999 and replaced its scope text, and the row still reads requested_by = Wilfredo Malabanan. A worker can also DELETE a pending CO outright. Combined with G1 (no auth_uid on the table) and G2 (no audit trigger on projects), nothing records that it changed or who changed it: the supervisor approves what they are SHOWN, and what they are shown is editable by anyone in the hive. A FIXTURE WEAKNESS FOUND EN ROUTE: my seeder assigns every CO in a hive the same requested_by (m.rn=2), so the first 'can a worker edit ANOTHER's CO' probe returned UPDATE 0 and looked like a block. It was not - there was simply no other requester's row to match. Inserting one made the tamper succeed immediately. UPDATE 0 is not evidence of a guard; it is the 0-row-write-is-not-an-error lesson in probe form. FIX/GATE still open. FIXED by 20260728000022: a raised change order's COMMERCIAL TERMS are immutable (cost, schedule, scope, title, requester, project, hive) and it cannot be DELETED - cancel instead, so the request stays visible in the amendment trail. Status and the approver fields stay mutable, with wh_guard_supervisor_approval still deciding who may move them. LEGITIMATE CALLERS MEASURED FIRST, because twice in the previous arc the obvious guard would have broken more than the bug: there are exactly THREE update paths on this table in the whole codebase (approveCO/rejectCO/cancelCO), all of which set status plus approver fields and nothing else; there is NO edit-CO path anywhere and NO delete path in any page or edge fn. The terms were already write-once in practice, so making the DATABASE agree breaks zero callers - and immutability is a stronger guarantee than a role check. VERIFIED: worker cost-tamper -> blocked, delete -> blocked, worker cancel -> still allowed, SUPERVISOR APPROVE -> still allowed (UPDATE 1)."
     },
     "PJ06": {
       "title": "Progress log: submit, acknowledge, dispute",
@@ -289,8 +309,8 @@
         "harvest": "done",
         "define": "done",
         "detect": "done",
-        "sweep": "todo",
-        "fix": "todo",
+        "sweep": "done",
+        "fix": "done",
         "gate": "todo"
       },
       "gate": null,
@@ -315,7 +335,7 @@
         "harvest": "done",
         "define": "done",
         "detect": "done",
-        "sweep": "todo",
+        "sweep": "done",
         "fix": "todo",
         "gate": "todo"
       },
