@@ -3269,6 +3269,22 @@ lane (behaviour covered). The durable fix — the first item in the harness NEXT
 each operator to its intended guard so a shared variable name cannot bleed a service_request mutant onto every
 guard that reuses it. Platform mutation stays a clean **77/77** across the 9 fully-scored guards.
 
+### §14.3b · Third guard scored: `guard_change_order_terms_immutable` — clean, no bleed
+
+Contract-terms immutability. A change order is a contract amendment, so once raised its cost, schedule, scope,
+title, CO number, requester, project and hive are fixed, and it cannot be deleted (cancel it, so it stays on
+the amendment trail). Banked as `TB-CO-change-order-terms`: a user is refused on every term edit and on DELETE,
+while the guard's own backend branch still allows a seeder write (the positive that isolates this trigger).
+
+Unlike `guard_service_review`, this guard shares **no** variable names with the status machines and calls
+neither `is_marketplace_admin()` nor a system-write GUC, so **no generic operator bleeds** — it scores against
+its own five operators, each keyed on a column unique to `project_change_orders` (or the guard's own DELETE
+message). One survivor first — `co_delete_allowed` replaced the DELETE raise with `PERFORM 1`, which let control
+fall through to the terms-check and error on the NULL `NEW` of a DELETE, so the delete stayed blocked by a
+downstream accident rather than a clean allow; changing the replacement to `RETURN OLD` (which actually permits
+the delete) killed it. **5/5, zero survivors.** This is the pattern for the remaining guards: key operators on
+text unique to the guard, and mind that a BEFORE-DELETE trigger only permits a delete by returning a non-null row.
+
 ### §14.4 · NEXT (the standing queue — ranked, drive top-down)
 
 The remaining 21 guards, highest protection value first. Each: probe live → if broken, fix; author a judging

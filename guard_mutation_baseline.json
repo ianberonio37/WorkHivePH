@@ -1,7 +1,7 @@
 {
   "score": 100.0,
-  "viable": 77,
-  "killed": 77,
+  "viable": 82,
+  "killed": 82,
   "fixture_kills": 2,
   "_doc": "forward-only, on THREE axes. `killed` may never fall - that is the absolute teeth count. `score` may only fall when `viable` GREW (new operators asked new questions); at an unchanged vocabulary it may never fall. `fixture_kills` may only fall: a kill via an errored fixture is weaker evidence than a kill via an assertion, and a spike in it is the signature of a broken injection (which once produced a fabricated 100% here)."
 }

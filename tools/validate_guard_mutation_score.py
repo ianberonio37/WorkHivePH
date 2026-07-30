@@ -94,6 +94,11 @@ GUARDS = {
     # (roadmap S14.3a / S14.4), the first harness improvement in the queue. The TB-SREVIEW cell still runs in the
     # SQL lane, so the guard's behaviour is covered; only the mutation SCORE waits for the scoping.
     # "guard_service_review": "marketplace_reviews",
+    # ── ARC 13 / F — contract-terms immutability. A change order is a contract amendment; once raised its
+    # commercial terms are fixed. Shares NO variable names with the status machines and calls neither
+    # is_marketplace_admin() nor a system-write GUC, so no generic operator bleeds — it scores against its own
+    # five column/DELETE operators alone. Judge: TB-CO. Clean — a bank, not a fix.
+    "guard_change_order_terms_immutable": "project_change_orders",
 }
 
 
@@ -364,6 +369,29 @@ OPERATORS = [
     # _provider_direction_unchecked) were removed alongside deferring that guard from GUARDS above. They only
     # match guard_service_review's text, so they are re-added with it once operator scoping lands (roadmap
     # S14.3a) — keeping them here now would be dead code that matches nothing.
+
+    # ── ARC 13 / F · guard_change_order_terms_immutable's five rot modes. Each pattern names a column UNIQUE to
+    # project_change_orders (cost_impact_php / scope_change / co_number / schedule_impact_days) or the guard's own
+    # DELETE message, so none can bleed onto another guard — the operator-scoping problem is avoided by keying on
+    # text only this guard has. Dropping a pin makes that one term user-writable; TB-CO's matching negative
+    # (user_edits_cost/scope/conumber/schedule) catches it. The DELETE operator lets a user delete a raised order,
+    # caught by user_deletes. The title pin has no operator (title is not unique enough to mutate without bleed);
+    # it is still locked by the cell's user_edits_title assertion in the SQL lane.
+    ("co_cost_pin_removed", r"NEW\.cost_impact_php\s+IS DISTINCT FROM OLD\.cost_impact_php", "false",
+     "a raised change order's COST becomes user-writable - the money term of a contract amendment, silently"),
+    ("co_scope_pin_removed", r"NEW\.scope_change\s+IS DISTINCT FROM OLD\.scope_change", "false",
+     "the SCOPE of a raised change order becomes rewritable - what work the amendment covers, changed after the fact"),
+    ("co_number_pin_removed", r"NEW\.co_number\s+IS DISTINCT FROM OLD\.co_number", "false",
+     "the CO number becomes rewritable, so the amendment's own identity on the trail can be reassigned"),
+    ("co_schedule_pin_removed", r"NEW\.schedule_impact_days\s+IS DISTINCT FROM OLD\.schedule_impact_days", "false",
+     "the SCHEDULE impact becomes rewritable - the delay the amendment commits to, restated"),
+    # RETURN OLD, not PERFORM 1: a BEFORE-DELETE trigger allows the delete only by returning a non-null row.
+    # Replacing the raise with PERFORM 1 let control fall THROUGH to the terms-check, which references NEW.* —
+    # NULL on a DELETE — and errored, so the delete stayed blocked by a downstream accident and the mutant
+    # SURVIVED (blocked, but not by the rule this operator removes). RETURN OLD skips the terms check and
+    # actually permits the delete, which TB-CO's user_deletes assertion then catches.
+    ("co_delete_allowed", r"RAISE EXCEPTION 'A change order cannot be deleted[^;]*;", "RETURN OLD;",
+     "a raised change order can be DELETED outright, erasing it from the amendment trail instead of cancelling"),
 ]
 
 VOCAB_EXTRA = "'settled'"

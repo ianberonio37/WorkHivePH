@@ -6163,6 +6163,47 @@
         "this is the ONE trust guard that already party-guards its admin bypass (is_marketplace_admin AND NOT v_is_party), so an admin reviewing their OWN job does not get the moderator pass - the mig-003 rule, already applied here"
       ],
       "provenance": "guard_service_review, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Correct but unwatched. Unlike the seller/provider trust guards it already applies the admin-not-a-party self-deal rule."
+    },
+    {
+      "id": "TB-CO-change-order-terms",
+      "source": "authored",
+      "kind": "authority-negative",
+      "journey": "J-projects-change-order",
+      "authority": "owner",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "project_change_orders"
+      ],
+      "probe": {
+        "file": "TB-CO-change-order-terms.sql",
+        "expect": {
+          "backend_edit": "allowed",
+          "user_edits_cost": "blocked",
+          "user_edits_title": "blocked",
+          "user_edits_scope": "blocked",
+          "user_edits_conumber": "blocked",
+          "user_edits_schedule": "blocked",
+          "user_deletes": "blocked"
+        }
+      },
+      "asserts": [
+        "a raised change order's commercial terms are immutable to a user: cost_impact_php, title, scope_change, co_number and schedule_impact_days are all refused - a contract amendment whose terms can be quietly rewritten is not a record",
+        "a change order cannot be DELETED by a user (cancel it instead, so it stays on the amendment trail)",
+        "the guard's own backend branch (auth.uid() null) still allows a seeder/service write, so the positive isolates THIS trigger rather than depending on another's verdict",
+        "no generic operator bleeds onto this guard - it shares no variable names with the status machines and calls neither is_marketplace_admin() nor a system-write GUC, so it scores against its own five column/DELETE operators alone"
+      ],
+      "provenance": "guard_change_order_terms_immutable, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). A change order is a contract amendment (fix 8059cc4); the lifecycle fields are owned by wh_guard_supervisor_approval, this guard owns the immutable terms."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
