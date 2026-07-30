@@ -3379,4 +3379,16 @@ claims RLS-bypassed to isolate the guard; check the table's co-triggers (verify 
      the four EXISTING §12 quota operators (`quota_enforcement_disabled`, `quota_warn_log_removed`,
      `quota_boundary_narrowed`, `quota_null_escape_widened`) score it with no new operators — the guards share
      `check_hive_quota_ai_reports`'s exact two-branch shape (enforce → 54000 · warn-only → automation_log row
-     read back). Mirror `TB-QUOTA-ai-reports-both-modes`.
+     read back). Mirror `TB-QUOTA-ai-reports-both-modes`. **`check_hive_quota_logbook` DONE this way
+     (§14 / TB-QUOTA-logbook-cumulative).**
+   - **Three-way conflation on `community_posts`.** `check_hive_quota_community` (cumulative) shares its table
+     with `community_post_rate_limit` (a short-window "posting too fast" limit, per author) AND
+     `check_daily_row_cap`. Two extra isolations on top of yesterday-rows: (a) a probe runs in ONE transaction,
+     so every insert carries the same `now()` — the per-author short-window limit then counts the cell's own
+     later inserts and refuses them, so use a DIFFERENT `author_name` per test insert (the per-hive quota still
+     counts them all; the per-author rate limit does not); (b) confirm `check_daily_row_cap`'s cap sits above
+     the handful of test rows or set it high. The community quota is otherwise a direct mirror of
+     TB-QUOTA-logbook (table `community_posts`, cap `max_rows_community`, log `hive_quota_community_over`). The
+     same short-window/per-author reasoning inverts to score `community_post_rate_limit` /
+     `community_reply_rate_limit` directly: insert two posts by the SAME author to trip the recent-window limit,
+     with the cumulative quota cap pinned high.
