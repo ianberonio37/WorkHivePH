@@ -428,6 +428,14 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "audit-actor-hive-scoped",
+        "script":  "tools/validate_audit_actor_hive_scoped.py",
+        "args":    [],
+        "label":   "AUDIT ACTOR RESOLUTION — every audit trigger must resolve the acting worker IN THE AUDITED ROW'S HIVE. Seven triggers do `SELECT hm.worker_name INTO v_actor FROM hive_members hm WHERE hm.auth_uid = auth.uid() ... LIMIT 1`, and two of them (fixed by mig 20260730000007) did it WITHOUT constraining the hive. `LIMIT 1` with no ORDER BY and no hive predicate picks an ARBITRARY membership, so a member of two hives could have an amendment in hive A logged under the worker_name they use in hive B — the same limit(1)-picked-the-wrong-hive shape this platform has been bitten by before. MEASURED, not assumed: it is LATENT rather than live, because there are 2 multi-hive members today and ZERO use a different worker_name across memberships, so the arbitrary pick currently returns the same string either way; it becomes a real misattribution the first time one person is 'Pablo Aguilar' in one hive and 'P. Aguilar' in another, which needs no code change to happen. WHY THIS IS A STATIC GATE AND NOT A BANK CELL: the fix is correct by construction but NOT verifiable by an outcome test, and I proved that rather than assuming it — a behavioural probe manufactured the missing state (two hives, deliberately different names for one person, an amendment in hive B), then restored the PRE-FIX definition inside the same rolled-back transaction to watch it fail, and it did NOT fail: the arbitrary LIMIT 1 returned the hive-B row anyway, so the probe reported the correct actor in BOTH worlds. A test that passes against the bug is not evidence, and banking it would have been precisely the false-green this platform keeps finding — so the property is locked where it IS deterministic, in the source. The check requires the predicate in the SAME STATEMENT as the lookup, because several of these functions also read hive_members elsewhere for a role check and accepting that would let an unscoped actor lookup hide behind an unrelated scoped query. Self-test strips the predicate from one function THROUGH THE READER (nothing on disk or in the DB is touched) and requires the gate to go red naming it. Static, fast, always runs.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
         "id":      "hive-capture-invariant",
         "script":  "tools/validate_hive_capture_invariant.py",
         "args":    [],

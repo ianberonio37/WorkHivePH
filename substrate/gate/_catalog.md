@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 15b5ed819f7575ee
+source_sha: 45ca433e04473cd6
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (704) — the 'what's already gated' brain
+## gate · registered validators (705) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -224,7 +224,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (495)
+### Platform (496)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -295,6 +295,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `attribution` ⚡ [fail] — Attribution integrity (every CLIENT insert/upsert into an auth_uid-no-default table must set auth_uid — locks the auth_uid-drop bug class found live 2026-07-06 
 - `attribution-pinned` [fail] — Attribution-forge lock (LIVE) — every hive-scoped ACTION-attribution column (actor, approved_by, acknowledged_by, resolved_by, reviewed_by, assigned_by, submitt
 - `au-adoption` ⚡ [fail] — AU Adoption (client auth floor: identity restore + session-settled reads per page; forward-only floors)
+- `audit-actor-hive-scoped` ⚡ [fail] — AUDIT ACTOR RESOLUTION — every audit trigger must resolve the acting worker IN THE AUDITED ROW'S HIVE. Seven triggers do `SELECT hm.worker_name INTO v_actor FRO
 - `audit-log-coverage` ⚡ [fail] — Audit Log Coverage (4-layer: unaudited writers + dead audit columns + critical-table coverage + writer matrix)
 - `audit-scanner-scope` ⚡ [fail] — Audit Scanner Scope (meta-validator: every consumer-scanning audit covers _shared + subdir HTML)
 - `audit-trail-coverage` ⚡ [fail] — Audit Trail Coverage (2-layer: lifecycle status updates write to hive_audit_log + every action name has ACTION_ICON entry)

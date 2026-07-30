@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:451
-source_sha: 59a507b51f311646
+source: dir:supabase/migrations:452
+source_sha: 8a925f1d9ac53375
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (451 migrations)
+## migration · catalog (452 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260629000000_realtime_publish_risk_schedule` — tables:public
 - `20260630000000_remove_stripe_free_marketplace` — tables:marketplace_orders,marketplace_sellers
 - `20260701000000_regate_match_procedural_memories` — fns:match_procedural_memories
 - `20260702000000_realign_display_count_chip_asset_hub` — (misc DDL/DML)
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260730000004_scope_avatar_and_language_policies_to_owner` — policies:avatar_state_authenticated_rw,avatar_state_owner_read,avatar_state_owner_rw,avatar_state_read,language_prefs_owner_read,language_prefs_read · tables:avatar_state
 - `20260730000005_pin_topup_intake_facts_against_redirect` — fns:guard_service_topup_status
 - `20260730000006_pin_order_and_listing_identity_fields` — fns:guard_marketplace_listing_status,guard_marketplace_order_status
+- `20260730000007_scope_audit_actor_lookup_to_the_rows_hive` — fns:audit_logbook_post_close_amendment,audit_pm_completion_amendment
 
 (showing last 200)
 

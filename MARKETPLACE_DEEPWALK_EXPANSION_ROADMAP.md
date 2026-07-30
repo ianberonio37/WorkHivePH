@@ -2595,3 +2595,95 @@ mutation 100.0% (47/47)  ·  SQL lane 157/157  ·  TB-I2 now 12 assertions
 > be editable mid-statement) and `NEW` for the effect is usually right (the effect lands where the row now
 > points) — which is exactly why this is easy to ship: **both halves are individually correct.** The defect
 > lives in the gap between them, and the fix is to pin the column so the gap cannot open.
+
+#### §11.19a · How far the sweep actually went, and what it deliberately did not touch
+
+Stated precisely, because "we swept the platform" is the kind of claim that rots into a false sense of
+coverage. Trigger functions in `public` that combine an authority predicate (`is_marketplace_admin` /
+`auth_worker_names` / `auth.uid`) with a write are **nine**:
+
+- the **four marketplace status guards** — the population the class actually lives in. Three were holed and are
+  now fixed (`20260730000005`, `20260730000006`); `guard_service_request_status` was already immune because it
+  already pinned its identity fields;
+- **`guard_and_audit_project_removal`** — a real guard, and **structurally immune**: it acts on
+  `TG_OP = 'DELETE'`, where there is no `NEW` row for a decision and an effect to disagree about;
+- **eight `audit_*` writers** (asset approval/delete, logbook post-close amendment, PM asset delete, PM
+  completion amendment, PM scope schedule change, `journal_service_request`). These are a **different class** —
+  they record rather than authorise, so the failure mode is a MISATTRIBUTED audit row, not a bypass. Not swept
+  here, and named individually so the follow-up is a work list rather than a vague intention.
+
+So the authority-bypass form of this class is closed on the guards that can express it. The
+attribution form is **open and enumerated**: for each `audit_*` above, the question is whether the row it
+writes is keyed on `NEW.<actor>` while the decision to allow the write was made on `OLD` — which would let an
+actor amend a record and have the amendment logged against someone else.
+
+### §11.20 · The attribution half of the sweep — 5 of 7 already correct, 2 fixed, and a probe that proved nothing
+
+§11.19a enumerated the eight `audit_*` writers as the un-swept half of the row-version class. Swept now, and
+the yield is smaller and more interesting than expected.
+
+**Five of the seven actor lookups were already correct.** They resolve the acting worker server-side from
+`auth.uid()` — never from a client-supplied name — and constrain the membership to the audited row's hive:
+
+```sql
+SELECT hm.worker_name INTO v_actor FROM public.hive_members hm
+ WHERE hm.auth_uid = auth.uid()
+   AND (NEW.hive_id IS NULL OR hm.hive_id = NEW.hive_id)   -- <- the predicate that matters
+ LIMIT 1;
+```
+
+**Two did not**: `audit_logbook_post_close_amendment` and `audit_pm_completion_amendment` ended at
+`WHERE hm.auth_uid = auth.uid() LIMIT 1`. `LIMIT 1` with no `ORDER BY` and no hive predicate picks an
+**arbitrary** membership, so a member of two hives could have an amendment in hive A logged under the
+worker_name they use in hive B. Same shape as a limit(1) that once picked the wrong hive
+([[feedback_resolving_live_is_not_enough_be_deterministic]]). Those same two are also the only ones carrying a
+`COALESCE(v_actor, NEW.worker_name, …)` fallback — they were written to an earlier, looser pattern, and the
+class was hardened on five of seven with two missed. **The inconsistency is the evidence**: the correct form was
+already in the repo five times.
+
+`20260730000007` copies that form verbatim, `IS NULL OR` allowance included.
+
+#### Measured, and honestly bounded
+
+**Latent, not live.** There are **2** multi-hive members today and **0** use a different worker_name across
+memberships, so the arbitrary pick currently returns the same string either way. It becomes a real
+misattribution the first time one person is "Pablo Aguilar" in one hive and "P. Aguilar" in another — which
+needs no code change to happen.
+
+#### The probe that proved nothing, and why it is recorded rather than banked
+
+A behavioural probe was written and it **failed to be evidence**. It manufactured the state the live data
+cannot show — two hives, deliberately different worker_names for one person, an amendment in hive B — and
+confirmed the fixed function attributes to `Name In Hive B`. Then the **pre-fix definition was restored inside
+the same rolled-back transaction** to watch it fail. It did not fail: the arbitrary `LIMIT 1` returned the
+hive-B row anyway, so the probe reported the correct actor in **both** worlds.
+
+**A test that passes against the bug is not evidence.** Banking it would have been exactly the false-green this
+whole arc exists to detect — a cell asserting a property it cannot distinguish. Three smaller things the probe
+also taught, each a lesson this platform already had and I still walked into:
+
+- `amendment_accepted=yes` meant only *no exception was raised*. The UPDATE had matched **zero rows** because
+  `logbook_update` is `USING (auth_uid = auth.uid())` and the fixture never set `auth_uid` — so a filtered write
+  looked exactly like a broken trigger ([[feedback_zero_row_write_is_not_an_error]]). Fixed by reading
+  `GET DIAGNOSTICS row_count` instead of trusting the absence of an error.
+- The first reachability count said **all seven** lookups were unscoped. A regex matching only
+  `auth_uid = … AND hm.hive_id` missed the five that write the predicate in a parenthesised `IS NULL OR` form.
+  Reading each lookup verbatim corrected 7 → 2.
+
+#### So it is locked where it IS deterministic
+
+A non-deterministic failure cannot be reliably reproduced, so the property is asserted in the **source**:
+`tools/validate_audit_actor_hive_scoped.py` (registered `audit-actor-hive-scoped`) requires the hive predicate
+in the **same statement** as every `INTO v_actor` lookup — same-statement specifically, because several of these
+functions also read `hive_members` elsewhere for a role check, and accepting that would let an unscoped actor
+lookup hide behind an unrelated scoped query. Its self-test strips the predicate from one function *through the
+reader* and requires a red naming it, so the claim is falsifiable even though the runtime failure is not.
+
+```
+7 actor lookups · 5 already correct · 2 fixed (mig 007) · 7/7 scoped now
+gate PASS + self-test discriminates · registry 705 gates, still clean
+```
+
+> **The generalisable point:** when a fix removes NON-DETERMINISM, an outcome test may pass against the bug by
+> luck — so the honest lock is a static assertion about the code, not a green cell about the behaviour. Knowing
+> which of the two you have is the difference between evidence and decoration.
