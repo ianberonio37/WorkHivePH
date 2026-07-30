@@ -141,6 +141,10 @@ GUARDS = {
     # no new ones. Judge: TB-QUOTA-pm (isolated from check_daily_row_cap by dating seed rows' completed_at
     # yesterday). Clean. With this, ALL FIVE hive quotas are scored (ai_reports §12 + logbook/community/inv_tx/pm).
     "check_hive_quota_pm_completions":    "pm_completions",
+    # ── ARC 13 / F — the recent-window anti-flood rate limit (per author, 30s, >=3). Judge: TB-RATE-community
+    # (three posts fit, the fourth by the same author trips, a different author is unaffected). One operator on
+    # the guard's own raise message. Clean.
+    "community_post_rate_limit":          "community_posts",
 }
 
 
@@ -494,6 +498,12 @@ OPERATORS = [
     # per-user rule and not this guard's identically-messaged hive-cap raise (which differs only in the HINT).
     ("logbook_user_rate_removed", r"RAISE EXCEPTION 'You have logged[^;]*logbook_daily_user';", "NULL;",
      "the per-user/day logbook rate limit stops firing, so one account can flood the logbook past its abuse cap"),
+
+    # ── ARC 13 / F · the community recent-window anti-flood. Keyed on the guard's own raise message. (The same
+    # message is used by community_reply_rate_limit, but operators are applied per-guard, so it targets whichever
+    # guard is under score.)
+    ("community_rate_removed", r"RAISE EXCEPTION 'Posting too fast\. Wait a few seconds\.'[^;]*;", "NULL;",
+     "the 30-second anti-flood stops firing, so one author can post an unbounded burst"),
 ]
 
 VOCAB_EXTRA = "'settled'"

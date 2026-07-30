@@ -6577,6 +6577,42 @@
         "non-vacuity: below the cap the write works and nothing is logged"
       ],
       "provenance": "check_hive_quota_pm_completions, the FIFTH and last hive quota, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Scored by the four §12 quota operators, no new ones."
+    },
+    {
+      "id": "TB-RATE-community-post",
+      "source": "authored",
+      "kind": "resource-cap",
+      "journey": "J-community-rate",
+      "authority": "any",
+      "state": "populated",
+      "path": "edge",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "community_posts"
+      ],
+      "probe": {
+        "file": "TB-RATE-community-post.sql",
+        "expect": {
+          "first_three": "allowed",
+          "fourth_same_author": "blocked",
+          "other_author": "allowed"
+        }
+      },
+      "asserts": [
+        "the short-window anti-flood refuses a 4th post by the same author in the same hive within 30s while the first three succeed - tested from both sides",
+        "it is PER AUTHOR, not a freeze: a different author is unaffected",
+        "isolated from the cumulative community quota (cap pinned to 1000) and check_daily_row_cap (200/hive, well under), so the rate limit is the sole refuser at the 4th"
+      ],
+      "provenance": "community_post_rate_limit, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Recent-window rate-limit exemplar; same shape as community_reply_rate_limit."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
