@@ -3057,3 +3057,44 @@ That is the same move as §12.0, and it is becoming the arc's signature: **measu
 structured collapses it far faster than auditing its members.** 27 guards became 4; 32 edge functions became 3.
 Both times the measurement also produced the reassuring half — the class is centrally handled here, just as it
 was structurally absent from the trigger layer.
+
+### §12.3b · C CLOSED — the edge layer is clean, and that is a result, not an absence
+
+All five hand-read functions verified. The remaining three:
+
+- `analytics-orchestrator` — introspects the FORWARDED JWT with `getUser(jwt)` (its own comment names the
+  `export-hive-data` pattern it follows), then scopes every query and the RPC to the same `hiveId`.
+- `batch-risk-scoring` — `getUser(bearer)`, then checks the caller's role with
+  `.eq("hive_id", reqHiveId).eq("auth_uid", caller.id)` before any read: the caller must belong to the hive being
+  requested. Every subsequent query carries the same `hiveId`.
+- `asset-brain-query` — the strongest of the three, and the one that answers the AHK4 question directly: **every**
+  read is `.eq("hive_id", hiveId)`, *including the parent lookup* (`.eq("hive_id", hiveId).eq("asset_id",
+  parent_id)`). The gap that needed four RESTRICTIVE policies at the RLS layer — a child row pointing at a parent
+  in another hive — cannot open here, because the parent is fetched under the same hive constraint.
+
+**So the read/act divergence does not exist at the edge layer.** 26 functions delegate tenancy to one shared
+helper, 6 derive it from the data, and all 5 that roll their own get it right. That is a finding worth recording
+rather than a blank: the class was found in 3 of 4 marketplace status guards and is absent from both the other 27
+triggers and all 32 edge candidates — so it was a localised defect in one family, now fixed and ratcheted, not a
+systemic pattern.
+
+#### §12 closing scorecard
+
+| option | outcome |
+|---|---|
+| **A** | all four unmonitored guards scored. 3 correct-but-unwatched, **1 genuinely broken and fixed** (mig 008) |
+| **B** | done — one retry for idempotent reads, writes excluded by construction, locked by `fetch-retry-contract` |
+| **C** | closed with **zero findings**, after narrowing 32 → 5 by measuring how tenancy is obtained |
+
+```
+mutation 100.0% (70/70) across EIGHT guards (four at arc start)
+SQL lane 161/161 · bank 279 cells · transition 99.6% (278/279)
+registry 706 gates: ids unique · scripts resolve · reports unclaimed twice
+substrate 720 fresh · canonical_status all green
+FOUR security migrations this session (005/006/007/008), all applied LOCAL only
+```
+
+> **The method result, stated once because it recurred three times:** measuring how a population is STRUCTURED
+> collapses it faster than auditing its members. 27 guards → 4. 32 edge functions → 5. And each measurement
+> produced a reassuring half as well as a work list — the row-version class is confined, the edge layer is
+> centrally handled. Neither of those would have been *known* from a green suite; both had to be measured.
