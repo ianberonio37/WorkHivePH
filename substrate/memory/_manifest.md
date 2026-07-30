@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:610-files
-source_sha: b40b132b10ffc3c7
+source: memory-curated:612-files
+source_sha: 3692181e5f075ed6
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (610 durable topic files)
+## memory · curated auto-memory (612 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=232 · project=289 · reference=89
+**By type:** feedback=234 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -22,6 +22,7 @@ Entries (name · type · sha):
 - `feedback_a_metamorphic_relation_needs_a_non_vacuity_check` · feedback · 3ef9b3ad98824df5
 - `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 2a14bd543da8cc63
 - `feedback_a_promise_that_never_settles_is_invisible` · feedback · 2513be62fb16874c
+- `feedback_a_proxy_oracle_reports_success_while_the_payoff_is_missing` · feedback · 61078c461656a546
 - `feedback_a_ratchet_that_turns_both_ways` · feedback · 59d0483a7b3cc459
 - `feedback_a_silently_failed_edit_becomes_a_false_report` · feedback · 7975acad3596a373
 - `feedback_a_skipped_partition_reads_as_a_covered_one` · feedback · 7ed63cc64e09df23
@@ -88,6 +89,7 @@ Entries (name · type · sha):
 - `feedback_engine_a_drives_engine_b_journey_seeds_harvest` · feedback · 5f49337e62b0d128
 - `feedback_error_on_returning_is_not_a_failed_write` · feedback · 0ff58b705a51f9cd
 - `feedback_eval_refusal_detection_multilingual` · feedback · c9a771b27fb1a81b
+- `feedback_every_video_shipped_10db_quiet_no_one_measured` · feedback · ab5fc253b6bc06c2
 - `feedback_expand_dimensions_not_reverify` · feedback · cb9386cdf70a09d6
 - `feedback_expansion_arc_flywheel_with_inloop_crawl` · feedback · 1e46290519d16bee
 - `feedback_external_reference_is_a_research_task_not_a_ceiling` · feedback · b4ce91f9b25b3cd2
@@ -514,8 +516,6 @@ Entries (name · type · sha):
 - `project_streamline_roadmap_2026_06_12` · project · 018a75633719a3f5
 - `project_streamline_s1_pm_truth_2026_06_13` · project · 863da29cd84dc8d4
 - `project_streamline_s2_s5_2026_06_13` · project · 819390470e91b4de
-- `project_streamline_tile_dedup_ai_unification_charter` · project · 96483b49cdae0c9d
-- `project_stripe_removal_free_marketplace` · project · 0c7523edc07eb4cd
-- … +110 more (all included in the fingerprint)
+- … +112 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

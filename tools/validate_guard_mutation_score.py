@@ -166,6 +166,26 @@ OPERATORS = [
      "the PROVIDER may mark the job settled - self-certifying that the client paid, which mints the "
      "commission"),
 
+    # ── FIFTH WAVE. Four behaviours none of the 24 above can express. The pattern that justifies another
+    # wave: every previous one (9 -> 15 -> 20 -> 24) found either a real gap or a defect in this harness, and
+    # not one merely confirmed the previous number.
+    ("provider_chain_skip_allowed",
+     r"old\.status\s*=\s*'on_site'\s+and\s+new\.status\s*=\s*'in_progress'",
+     "old.status in ('on_site','en_route') and new.status = 'in_progress'",
+     "a provider may SKIP a state in the job chain - starting work without ever arriving on site, which is "
+     "the sequence a client's timeline is reconstructed from"),
+    ("verified_by_stamp_removed",
+     r"new\.verified_by\s*:=\s*coalesce\(new\.verified_by,\s*auth\.uid\(\)\)",
+     "new.verified_by := new.verified_by",
+     "a top-up verification stops recording WHO verified it - the money path keeps the credit and loses the "
+     "accountability ([[feedback_records_that_outlive_the_action]])"),
+    ("order_deny_list_narrowed", r"NEW\.status\s+IN\s*\('released',\s*'refunded'\)", "NEW.status IN ('released')",
+     "'refunded' drops out of the escrow-only list, so a buyer or seller may refund an order directly"),
+    ("is_client_reads_new", r"v_is_client\s*:=\s*\(old\.client_auth_uid\s*=\s*auth\.uid\(\)\)",
+     "v_is_client := (new.client_auth_uid = auth.uid())",
+     "ownership is read from the INCOMING row rather than the stored one, so a caller could assert who they "
+     "are in the same statement that uses it"),
+
     ("cancel_window_widened",
      r"and\s+new\.status\s*=\s*'cancelled_by_provider'", "and new.status is not null",
      "the provider-cancel rule stops naming its target state, so it authorises any transition from those "
@@ -196,6 +216,18 @@ EXCLUDED = {
         "definition a party, and the mutated branch only governs non-parties. Evidence on disk: "
         "TB-FIELD-nonstatus-edits-and-hive-party asserts stranger_edits_field_layer=rls-filtered, which "
         "fails if RLS ever stops pre-empting."
+    ),
+    ("guard_service_request_status", "is_client_reads_new"): (
+        "Equivalent under every OUTCOME, because a later rule backstops the only paths where it could matter. "
+        "`v_is_client` is read from OLD; the mutant reads NEW. Those two agree on every UPDATE that leaves "
+        "`client_auth_uid` alone, so the mutation is a no-op there. The only way they can disagree is an UPDATE "
+        "that CHANGES `client_auth_uid` - and the guard's own field rule (`new.client_auth_uid is distinct from "
+        "old.client_auth_uid` -> 'request ownership cannot be reassigned') refuses precisely those, after the "
+        "status branch and the party branch have run. So whichever way v_is_client computes, such a write is "
+        "still refused: the mutant can change WHICH rule objects, never WHETHER one does. Killing it would "
+        "require asserting an error MESSAGE rather than an outcome, which is a brittle oracle this bank "
+        "deliberately avoids. Falsifiable by construction: the mutant is still executed every run, and if any "
+        "cell ever does object the gate FAILS as a STALE EXCLUSION rather than pocketing the kill."
     ),
 }
 

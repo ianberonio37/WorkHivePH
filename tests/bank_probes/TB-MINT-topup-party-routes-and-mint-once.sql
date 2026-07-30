@@ -157,4 +157,24 @@ begin
 end
 $ledger$;
 
+-- WHO verified it. The guard stamps `verified_by := coalesce(new.verified_by, auth.uid())` on the way through,
+-- and NOTHING asserted that stamp existed: a mutation operator that deleted it left every cell green while
+-- the money path kept minting credit and lost the accountability for it. A credit with no verifier is
+-- unauditable — the same class as a write whose actor is not pinned
+-- ([[feedback_records_that_outlive_the_action]], [[feedback_authuid_attribution_on_every_write]]).
+--
+-- Asserted on the LEGITIMATE moderation path, because that is the only one that reaches the stamp: the two
+-- self-deal attempts above are refused before it.
+do $stamp$
+declare who uuid; whenv timestamptz;
+begin
+  select verified_by, verified_at into who, whenv
+    from public.service_credit_topups where id='e3333333-0000-4000-8000-00000000000c';
+  raise notice 'RESULT verifier_is_the_admin=%',
+    case when who = 'e1111111-0000-4000-8000-00000000000a' then 'yes'
+         when who is null then 'NULL-no-stamp' else 'someone-else' end;
+  raise notice 'RESULT verified_at_stamped=%', case when whenv is not null then 'yes' else 'NULL' end;
+end
+$stamp$;
+
 rollback;

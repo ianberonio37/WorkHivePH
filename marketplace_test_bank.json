@@ -5835,7 +5835,8 @@
           "stranger_edits_field_layer": "rls-filtered",
           "hiveadmin_is_admin": "t",
           "hive_party_admin_illegal_transition": "blocked",
-          "hive_member_acts_for_provider": "works"
+          "hive_member_acts_for_provider": "works",
+          "provider_skips_on_site": "blocked"
         }
       },
       "asserts": [
@@ -5844,7 +5845,8 @@
         "the permission that branch exists to grant is asserted too: an active hive member may act for the hive's provider profile (accepted -> en_route)",
         "the stranger case records the LAYER (`rls-filtered`), because a USING clause hides the row and the guard never speaks - crediting the guard with that refusal would keep reading green if its rule were deleted",
         "the cancel window is asserted from OUTSIDE its boundary: a SETTLED (done and paid) job cannot be cancelled by the client - the case the state_list_widened mutant demanded, which 109 cells missed because the derived grid enumerates neither that transition nor that illegal origin",
-        "the ownership case asserts the LAYER, not the refusal: strip the guard's rule and RLS still rejects the row, so `blocked` would stay green - only `guard` vs `rls` can tell the difference"
+        "the ownership case asserts the LAYER, not the refusal: strip the guard's rule and RLS still rejects the row, so `blocked` would stay green - only `guard` vs `rls` can tell the difference",
+        "the chain's ORDER, not just its membership: en_route -> in_progress skips on_site, so a provider would be recorded as working without having arrived. The grid proves each hop is PERMITTED; nothing proved the hops cannot be SHORT-CIRCUITED, and a mutation widening that clause survived 121 cells"
       ],
       "provenance": "Found 2026-07-30 by the guard mutation score. `reassignment_allowed`, `ownership_transfer_allowed`, `stranger_field_edit_allowed` and `hive_provider_branch_removed` all survived across 107 cells on guard_service_request_status - the four rules that live in the `status unchanged` branch. The hive one is a self-deal hole rather than a field rule: v_is_party is satisfied EITHER by owning the provider (TB-I2 covers that) OR by active membership of the hive that owns it (nothing covered that), so dropping the hive branch would let an admin whose own hive is doing the work compute as a non-party moderator and take the bypass. The operator rewrites the FIRST occurrence, which is the copy inside v_is_party used only by the admin bypass - so an ADMIN party-via-hive is the only caller who can observe the mutant, which is why no ordinary-caller cell could ever have killed it."
     },
@@ -5882,13 +5884,16 @@
           "credit_minted_own_provider": "0",
           "credit_minted_own_wallet": "0",
           "credit_minted_unrelated": "1",
-          "credit_after_reverify": "1"
+          "credit_after_reverify": "1",
+          "verifier_is_the_admin": "yes",
+          "verified_at_stamped": "yes"
         }
       },
       "asserts": [
         "party-ness on the money guard is a THREE-branch disjunction and each branch is its own authorisation path: the payer route (TB-I2), the provider-account route and the consumer-wallet route are asserted separately, because an admin who owns the DESTINATION mints into an account they control",
         "the mint fires ONCE: re-saving an already-verified top-up is accepted but adds no second ledger row, which only a ledger COUNT can show since the status column is identical either way",
-        "the moderation half is asserted in the same run: verifying a top-up the admin is a party to in no way still works, and mints exactly one entry"
+        "the moderation half is asserted in the same run: verifying a top-up the admin is a party to in no way still works, and mints exactly one entry",
+        "WHO verified it is recorded: the guard stamps verified_by/verified_at and nothing asserted the stamp existed, so an operator deleting it left every cell green while the money path kept minting credit and lost the accountability for it"
       ],
       "provenance": "Found 2026-07-30 by a FOURTH wave of mutation operators written to re-challenge a 100% rather than bank it - the previous 100% on this tool had been fabricated by a broken injection, so an unchallenged score was not trusted. mint_on_any_prior_status, party_provider_account_branch_removed and party_consumer_account_branch_removed all survived the guard s 4 existing cells. The shipped guard is CORRECT in all three cases: these were test gaps, so the fix is a cell, not a migration."
     }

@@ -74,7 +74,11 @@ values
    'TB field scope','c2222222-0000-4000-8000-00000000000c'),
   -- a finished, PAID job, for the cancel-window case below
   ('c3333333-0000-4000-8000-00000000000d','c1111111-0000-4000-8000-00000000000a','instant','settled',
-   'TB field scope','c2222222-0000-4000-8000-00000000000a');
+   'TB field scope','c2222222-0000-4000-8000-00000000000a'),
+  -- EN_ROUTE and matched to the hive provider: the origin the chain-order case needs, since `in_progress` is
+  -- reachable only from `on_site` and the mutation under test widens that to include `en_route`.
+  ('c3333333-0000-4000-8000-00000000000e','c1111111-0000-4000-8000-00000000000a','instant','en_route',
+   'TB field scope','c2222222-0000-4000-8000-00000000000c');
 
 -- ── the request's own client ────────────────────────────────────────────────────────────────────────────
 set local role authenticated;
@@ -185,6 +189,27 @@ begin
       case when n>0 then 'ALLOWED' else 'blocked' end;
   exception when others then
     raise notice 'RESULT hive_party_admin_illegal_transition=blocked'; end;
+
+  -- 4c. THE CHAIN'S ORDER, not just its membership. `en_route -> in_progress` skips `on_site`: the provider
+  --     would be recorded as working without ever having arrived, and the client's timeline is reconstructed
+  --     from exactly that sequence. Each individual hop is asserted by the derived grid, but the grid proves
+  --     each hop is PERMITTED — nothing proved the hops cannot be SHORT-CIRCUITED, so a mutation that let
+  --     `in_progress` be reached from `en_route` survived 121 cells. A chain is a claim about ORDER, and
+  --     order needs its own negative.
+  --
+  --     Asserted here rather than in the derived lane because the grid enumerates authorised triples: a hop
+  --     that is not authorised produces no positive cell, and the out-of-order sneak variant for this
+  --     transition is `covered_by` an existing gate and so is not re-executed by this runner.
+  --     The attempt must start from `en_route`, which is the hop the rule actually governs. My first draft
+  --     attempted it from `accepted` — illegal under the shipped guard AND under the mutation, so the cell
+  --     would have passed without ever exercising the rule. A negative has to be aimed at the exact clause
+  --     it is meant to defend, or it is a refusal proving nothing.
+  begin
+    update public.service_requests set status='in_progress'
+     where id='c3333333-0000-4000-8000-00000000000e';
+    get diagnostics n = row_count;
+    raise notice 'RESULT provider_skips_on_site=%', case when n>0 then 'ALLOWED' else 'blocked' end;
+  exception when others then raise notice 'RESULT provider_skips_on_site=blocked'; end;
 
   -- 4b. THE PERMISSION THE BRANCH EXISTS TO GRANT: acting for the hive's provider profile on a job that hive
   --     accepted. accepted -> en_route is the matched provider's own transition, and an active member of the
