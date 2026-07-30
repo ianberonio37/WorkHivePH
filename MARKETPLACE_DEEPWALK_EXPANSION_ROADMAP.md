@@ -3098,3 +3098,99 @@ FOUR security migrations this session (005/006/007/008), all applied LOCAL only
 > collapses it faster than auditing its members. 27 guards → 4. 32 edge functions → 5. And each measurement
 > produced a reassuring half as well as a work list — the row-version class is confined, the edge layer is
 > centrally handled. Neither of those would have been *known* from a green suite; both had to be measured.
+
+## §13 · THE HELPER 30 FUNCTIONS TRUST — behavioural teeth on the tenancy boundary (2026-07-31)
+
+> **Ian picked D + E + F** from the next-step list. This is **D**: build genuine behavioural teeth on the
+> shared tenancy helper `_shared/tenant-context.ts`, because §12's four "covering" gates
+> (`edge-fn-auth-gate`, `public-fn-authz`, `gateway-bypass`, `public-fn-write-authz`) are all **regex markers
+> over CALLER source** — they assert callers *import* the helper. Not one executes it. The helper is imported
+> by 42 edge functions and 30 route their tenancy decision through `resolveContext`/`resolveTenancy`, so a
+> weakened predicate here would pass every gate. Building the teeth found a live cross-tenant escalation.
+
+### §13.0 · The finding — membership resolved by a user-mutable string
+
+`resolveTenancy` reads `v_worker_truth` filtered on `auth_uid AND hive_id AND hive_status='active'` — correct.
+But `v_worker_truth` itself resolved **who is a member** with
+
+```sql
+LEFT JOIN public.hive_members hm ON hm.worker_name = wp.display_name AND hm.status = 'active'
+```
+
+`worker_name`/`display_name` is a **display string, not an identity**. `worker_profiles.display_name` is
+UPDATE-granted to `authenticated`/`anon`; the RLS policy `profiles update own` (`USING auth.uid() = auth_uid`,
+no `WITH CHECK`) lets a user set it to **any value**; there is **no UNIQUE constraint** on it. So a member of
+hive A renames their own profile to a member of hive B's display name and the view joins their `auth_uid` to
+hive B's membership row.
+
+**PROVEN, rolled back (2026-07-31).** Pablo Aguilar — a member of Manila Electronics, **not** of Baguio
+Textile Mills — runs, as himself under RLS:
+
+```sql
+update public.worker_profiles set display_name='Leandro Marquez' where auth_uid = <pablo>;   -- allowed
+```
+
+and then `resolveTenancy(<pablo>, <baguio-hive>)`, run **service-role** exactly as the edge functions run it,
+returns `{ ok:true, role:'supervisor' }` for a hive he never joined. Through `project-progress` (and 29 other
+service-role functions) that is full read access to another tenant's projects, budgets and earned-value
+figures. The helper is blameless — **the view lied to it.**
+
+Why `anon`/`authenticated` did not already leak it: `v_worker_truth` is `security_invoker`, so under the
+caller's own role RLS on `hive_members` hides other hives. But the edge functions call it on a **service-role
+client with RLS bypassed** — the whole reason `resolveTenancy` exists — scoped only by the client-supplied
+`hive_id`, so for them the phantom membership row is fully visible. This is the exact
+[[feedback_resolving_live_is_not_enough_be_deterministic]] name-keyed-join hazard, one layer beneath where it
+was last seen.
+
+### §13.1 · D2 — the linchpin that saved a second fabricated 100%
+
+Before trusting **any** HTTP-based mutation of the helper, I tested the premise the whole approach rests on:
+**does an on-disk edit reach the running function?** I changed the `not_a_member` message string to a unique
+sentinel and called `project-progress` twice, two seconds apart. **The running function kept returning the
+original message.** The Supabase edge runtime serves a **cached module** — edits do not take effect without a
+restart.
+
+That is decisive. A mutation harness that edits the file and calls the function over HTTP would have scored
+**every mutant "killed"** because the runtime never changed — a suite that never ran, reading green: the exact
+fabricated-100% shape §11 already corrected once, in a new costume. The linchpin is why D pivoted to two
+**cache-immune** locks instead.
+
+### §13.2 · The fix and the two locks
+
+| Piece | What | Teeth |
+|---|---|---|
+| **mig `20260731000001`** | re-keys `v_worker_truth`'s membership join **and** its `active_hive_count` subquery from `display_name` to the **immutable `auth_uid`** | proven behaviour-identical on live data: all 17 active memberships carry a non-null `auth_uid`; name-keyed and `auth_uid`-keyed joins return the **same 17 rows** (0-row delta). Escalation probe: **1 → 0**; own-hive control still **1** even after renaming away from the real name; all-active still **17** |
+| **`validate_membership_resolved_by_auth_uid.py`** (DB) | a **behavioural** probe (the escalation is deterministic, unlike the audit-actor case which had to be locked in source): discovers an (attacker∉H, victim∈H) pair, and in one rolled-back txn renames the attacker as `authenticated`, asks the **real** view under `service_role` (must be 0), mutates the view **back** to name-keying and asks again (**must be ≥1 — the teeth**), rolls back, re-reads the live def to confirm no mutant persists | selftest control: **without** the rename even the name-keyed mutant escalates 0 — so the escalation is attributable to the rename, nothing else |
+| **`validate_tenant_context_contract.py`** (helper logic) | the cache-immune teeth: Node v24 strips the TS types, loads the **real** helper (only the type-only `SupabaseClient` import neutralized), runs it against a stubbed Supabase client, and mutates the source text | **16 behavioural assertions** + **6/6 viable mutants killed** (prefix-match service-role, dropped empty-bearer guard, removed 401, removed 403, dropped `hive_id` filter, dropped active-status filter), **1 equivalent excluded with a falsifiable mechanism** (dropping the redundant `Boolean(key)` conjunct — killed ⇒ stale exclusion ⇒ fail) |
+
+Both gates registered (`Platform`, `severity: fail`) → **708 gates**, ids unique, scripts resolve.
+
+### §13.3 · "Fix every path that mutates" — the sibling triage
+
+The name-keyed hazard is not unique to `v_worker_truth`; a catalog scan flagged **7 views + 6 functions**. A
+regex match is a *candidate, not a finding*, so each was triaged against the discriminator that made
+`v_worker_truth` dangerous — **is the name-join on a service-role authorization-resolution path?**
+
+- `v_worker_truth` — the membership resolver, service-role-trusted → **fixed.**
+- `v_service_request_truth` — already resolves authz by `hm.auth_uid = auth.uid()` → **safe.**
+- `v_service_provider_truth` — selects `worker_name`/`display_name` as columns; joins on `matched_provider_id`
+  → not a name-keyed authz path.
+- `v_skill_badges_truth`, `v_worker_achievements_truth`, `v_worker_assignment_truth`, `v_worker_skill_truth` —
+  the name-join is **decoration** (adds a display name); the authoritative identity in each base table is
+  `auth_uid`. The two sensitive ones have **0 edge-fn consumers** (client-only, RLS-enforced); the two used by
+  orchestrators scope by `hive_id` at query time. **Lower-severity hygiene backlog**, recorded, re-key as a
+  follow-up — not this critical class.
+
+### §13.4 · Where D got to
+
+```
+FIXED   a cross-tenant privilege escalation reachable by 30 service-role edge functions (mig 20260731000001)
+LOCKED  twice — a DB behavioural probe (rename→resolve, teeth proven) + a cache-immune node-lift mutation gate
+FOUND   the edge runtime caches modules → HTTP mutation is unreliable → the fabricated-100% trap avoided
+method  the four gates that "covered" the helper asserted callers IMPORT it; none ran it. A marker is not a test.
+```
+
+> **The recurring lesson, once more:** a green gate that *names* the right code is not a gate that *exercises*
+> it. §12 found guards no gate named; §13 found a helper four gates named and none ran. Both are the same
+> false-confidence shape — coverage that reads as protection — and both were only visible by trying to break
+> the thing, not by reading that it looked right.
