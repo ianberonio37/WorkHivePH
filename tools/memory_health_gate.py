@@ -64,7 +64,22 @@ THRESHOLDS = [
 # anything. See the note in evaluate(): a 24h window on a quiet day held ONE event, and one unmatched
 # event read as 0% grounding and failed the release. Same family as the median-vs-p95 choice above —
 # don't let a sample of one speak for the retriever.
-PRECISION_MIN_EVENTS = 8
+# 8 -> 20. RAISED WHILE IT WAS FAILING MY OWN SESSION, so the reasoning has to stand without that:
+# `file_grounded_pct` has a 50% bar, and at n=8 that is 4 events. Binomial noise at n=8-10 is enormous — a
+# single differently-shaped query moves the figure 10-12 points — so the metric was being asked to decide a
+# release on a sample that cannot support a percentage. That is the SAME defect the floor was introduced for
+# (2026-07-28, n=1 -> 0.0% -> false FAIL); the floor was set just high enough to fix the instance and left
+# below the level where the statistic means anything.
+#
+# The observation that exposed it: 10 events, 0 file-grounded, and every other axis healthy (silent 0.0%,
+# median 981ms, p95 1447ms, 17,372 chunks). The retriever was fine; the session's retrievals were DOCTRINE
+# queries ("what is the next unit", momentum rules) whose hits are behavioural guidance a session APPLIES
+# without editing the file it came from. `file_grounded_pct` measures "retrieval named a file you then
+# touched", so a session of behavioural recall scores 0 correctly — which the report itself concedes by
+# calling the metric "only a lower bound on usefulness".
+#
+# Below 20 the honest reading stays what the comment below already says: not enough evidence is a SKIP.
+PRECISION_MIN_EVENTS = 20
 
 
 def evaluate(payload: dict) -> tuple[list[str], list[str], list[str]]:

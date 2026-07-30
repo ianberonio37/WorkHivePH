@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:615-files
-source_sha: 05e1c5c5eacf9250
+source: memory-curated:616-files
+source_sha: 1ba469e417e2fe67
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (615 durable topic files)
+## memory · curated auto-memory (616 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=237 · project=289 · reference=89
+**By type:** feedback=238 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -124,6 +124,7 @@ Entries (name · type · sha):
 - `feedback_i18n_unresolved_marker_is_broken_translation` · feedback · c101b9d0372623ae
 - `feedback_i_rebuilt_a_guard_from_a_partial_read` · feedback · 540f9076400be154
 - `feedback_infra_role_vs_app_user_isolation` · feedback · 497b761a53eda173
+- `feedback_invented_motion_reads_weird_measure_the_camera` · feedback · 1862e0b3f62cd1d5
 - `feedback_jscpd_line_count_conflates_shape_with_copypaste` · feedback · 77998364f346934d
 - `feedback_jsonb_double_encode_reads_empty` · feedback · 37540d802b4ae7f0
 - `feedback_landing_page_always_in_scope` · feedback · ec1a33d21bc9088f
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_streamline_E6_formatter_2026_06_14` · project · 3ca8a58cd26ce2b8
 - `project_streamline_E6_rollout_2026_06_14` · project · dbb7236195e595c5
 - `project_streamline_E7_request_budget_2026_06_14` · project · 01d3b3bbc0ecd871
-- `project_streamline_extension_plan_2026_06_14` · project · 239205fd2b14f242
-- … +115 more (all included in the fingerprint)
+- … +116 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

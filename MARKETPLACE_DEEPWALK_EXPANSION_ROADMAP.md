@@ -2794,3 +2794,72 @@ cleanup is mechanical:
 Left as a precise work list rather than done, because the ceiling already stops the count growing and the
 21-entry edit carries no functional change. What is NOT left open is the question — the split above is the
 answer, so the next pass is an edit, not an investigation.
+
+---
+
+## §12 · THE TEETH METRIC BEYOND THE MARKETPLACE — scoped by measurement, not by ambition
+
+Ian, after §11 closed: *"do all of that option and extend it to our roadmap."* Three candidates were on the
+table (extend the mutation score to other guards · the `_timeoutFetch` retry · the row-version lens at the
+edge-function layer). Before committing to any of them the frontier was **measured**, and the measurement
+shrank the biggest one by an order of magnitude — which is the whole point of measuring first.
+
+### §12.0 · The sweep that scoped this arc
+
+Every trigger function in `public` that raises an exception, minus the four already scored, is **27 guards**.
+Each was scored on four signals: what table it protects, whether it makes a decision from `OLD` and takes an
+action on `NEW` (the shape that produced three live exploits), whether it writes at all, and how many
+registered gates name it or its table.
+
+**Two findings, and the first is the reassuring one:**
+
+| finding | consequence |
+|---|---|
+| **0 of 27 carry the row-version shape** | the class found in §11.18–11.19 is **CONFINED to the four marketplace status guards**, three of which were holed. The trigger layer platform-wide is clean of it — asserted by measurement, not assumed because the fixes landed |
+| **4 of 27 are named by NO registered gate** | `check_hive_quota_ai_reports` (writes, protects `ai_reports`), `guard_service_provider_writes`, `check_platform_feedback_rate_limit`, `cap_pdf_job_size`. Nothing would notice if these changed |
+
+The high-risk-looking guards by table (`wh_guard_supervisor_approval`, `check_daily_row_cap`,
+`guard_change_order_terms_immutable`) are heavily gate-mentioned (95, 95, 5), so the scoring's own ranking
+argues *against* starting there. **Option A is therefore not "score 27 guards" — it is "4 unmonitored
+guards"**, which is small enough to do properly instead of broadly.
+
+`gate_mentions` is a PROXY (a text search of gate labels and script paths), so a guard could be covered by a
+gate that never names it. Zero mentions is a strong signal, not a proof — each of the four gets its coverage
+question answered directly before anything is built for it.
+
+### §12.1 · A — the four unmonitored guards
+
+For each: does any gate actually exercise it (proxy → verified), what does it protect, and would anything
+object if its rule were deleted? Where the answer is nothing, the guard gets a cell and the mutation harness
+gets a judge for that table. `check_hive_quota_ai_reports` leads because it is the only one of the four that
+WRITES, and a quota guard that stops refusing is a cost leak rather than a data-integrity one — the failure
+mode is an invoice, which is exactly the class this platform cares about.
+
+**Open design fork, deliberately not resolved by guessing:** the harness judges a guard by re-running *bank
+cells for its table*, and none of these four tables has a bank. Either build cells (slower; the denominator
+then grows by itself as the marketplace one does) or judge against existing registered gates (faster; the score
+then measures those gates' teeth, a weaker claim). Ian's steer was "do all of that option", so the cheap sweep
+above ran first precisely so this fork is answered per-guard on evidence rather than once in the abstract.
+
+### §12.2 · B — the `_timeoutFetch` idempotent retry
+
+The standing decision that closes **both** known flakes at their source rather than per-spec:
+`push-runtime-delivery` (1 red vs 4 green) and the smoke transport blip. The §11 sweep already established the
+adjacent fact — `fetchWithTimeout` returns **null** on timeout and three callers dereferenced it, two of them
+telling the user the wrong thing — so the retry question is now better posed: a single retry on a transport
+failure for an **idempotent read** is the narrow version, and it must not silently retry a write.
+
+### §12.3 · C — the row-version lens at the edge-function layer
+
+The trigger layer is clean (§12.0), but the class generalises: *a check and the action it authorises must read
+the same version of the same thing.* At the edge, the analogue is a function that validates one field of a
+client payload and then acts on another — "verify id X, act on id Y". 57 edge functions were swept
+2026-07-20 for **caller entitlement** and all were gated; none was audited for read/act divergence, which is a
+different question about the same functions.
+
+### §12.4 · Method, unchanged from §11
+
+Every claim measured before it is acted on; every fix locked twice (a cell that asserts the behaviour **and**
+a mutation operator that deletes the rule); every exclusion names the mechanism that makes observation
+impossible and stays executable so a stale one fails loudly. And the standing lesson that produced this whole
+arc: **check an implausibly good result with the same suspicion as a bad one.**

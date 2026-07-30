@@ -5912,6 +5912,125 @@
         "the RECEIPT is pinned too: gcash_ref is the evidence a verification is justified by, and nothing asserted it until an 8th wave deleted it from the pin"
       ],
       "provenance": "Found 2026-07-30 by a FOURTH wave of mutation operators written to re-challenge a 100% rather than bank it - the previous 100% on this tool had been fabricated by a broken injection, so an unchallenged score was not trusted. mint_on_any_prior_status, party_provider_account_branch_removed and party_consumer_account_branch_removed all survived the guard s 4 existing cells. The shipped guard is CORRECT in all three cases: these were test gaps, so the fix is a cell, not a migration. 2026-07-30 addendum: probing what coalesce(old.X,new.X) MEANS on an UPDATE found a live money exploit - an admin who is a party to NOTHING could redirect a stranger s top-up to their own provider account and verify it in one statement. Closed by mig 20260730000005 (the intake facts are immutable for any real caller; the backend and system-write paths are untouched) and locked here plus by the intake_immutability_removed operator."
+    },
+    {
+      "id": "TB-QUOTA-ai-reports-both-modes",
+      "source": "authored",
+      "kind": "quota-guard",
+      "journey": "J14-seller-analytics",
+      "authority": "owner",
+      "state": "edge",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "ai_reports"
+      ],
+      "probe": {
+        "file": "TB-QUOTA-ai-reports-both-modes.sql",
+        "expect": {
+          "at_cap_blocking": "blocked sqlstate=54000",
+          "at_cap_warnonly_write": "allowed",
+          "at_cap_warnonly_logged": "1",
+          "under_cap_write": "works",
+          "under_cap_logged_nothing": "yes"
+        }
+      },
+      "asserts": [
+        "BOTH modes of a two-mode guard: enforce_blocking=true refuses at cap with 54000 (the code that means QUOTA, asserted rather than merely \"something refused\"), and enforce_blocking=false ALLOWS the write and LOGS the overrun to automation_log",
+        "the WARN-ONLY log is read BACK, because that mode fails SILENTLY - if the log INSERT ever stops, quota overruns simply stop being recorded and nothing goes red",
+        "non-vacuous in both directions: under the cap the write works AND nothing is logged, so a guard that cried wolf would fail even though the warn-only assertion alone would pass"
+      ],
+      "provenance": "One of FOUR guards no registered gate names, found 2026-07-30 by ranking all 27 un-scored guards. It is the only one of the four that WRITES, and its failure mode is a COST leak - an invoice, not a corrupted row. It is live and attached but had NEVER fired: 3 hive_quotas rows all enforcing at cap 5000 against 16 ai_reports rows, so the cap sat three orders of magnitude from the data and neither branch had executed. The probe plants a cap of 2 instead of approaching 5000."
+    },
+    {
+      "id": "TB-RATE-platform-feedback-identity-bucket",
+      "source": "authored",
+      "kind": "rate-limit",
+      "journey": "J1-anon-discovery",
+      "authority": "anon",
+      "state": "edge",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "platform_feedback"
+      ],
+      "probe": {
+        "file": "TB-RATE-platform-feedback-identity-bucket.sql",
+        "expect": {
+          "stable_identity_accepted": "5",
+          "sixth_refused_sqlstate": "23P01"
+        }
+      },
+      "asserts": [
+        "the limit holds for a STABLE identity: 5 accepted, the 6th refused with 23P01 - the code this guard chose so the client can show a friendly toast, asserted rather than merely \"something refused\"",
+        "DELIBERATELY does not assert the evasion. Six submissions under six DIFFERENT worker_names were all accepted (probed live), because each free-text name is its own bucket. Encoding that as an expectation would make the eventual FIX look like a regression - a test must not ratify a weakness it observes"
+      ],
+      "provenance": "Second of the four guards no registered gate names (2026-07-30 ranking of all 27 un-scored guards). platform_feedback is ANON-WRITABLE, and the rate bucket is COALESCE(auth_uid, worker_name, contact_email, anonymous) - so for an unauthenticated submitter the key is a field the CLIENT supplies. The evasion is an OPEN FINDING with a product fork (spam resistance vs anonymous throughput), not a silent fix. The probe first reported \"not evadable\" because a wrong column name (42703) looked exactly like a working limit - verify WHAT blocked a write, never merely THAT something did."
+    },
+    {
+      "id": "TB-TRUST-provider-cannot-self-verify",
+      "source": "authored",
+      "kind": "authority-negative",
+      "journey": "J16-trust-badges",
+      "authority": "owner",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "service_providers"
+      ],
+      "probe": {
+        "file": "TB-TRUST-provider-cannot-self-verify.sql",
+        "expect": {
+          "provider_is_not_admin": "t",
+          "self_verify_update": "blocked",
+          "self_verify_timestamp": "blocked",
+          "self_set_on_job": "blocked",
+          "born_verified": "blocked",
+          "own_profile_edit": "works",
+          "own_availability_toggle": "works",
+          "final_verified": "false",
+          "final_availability": "offline",
+          "born_on_job": "blocked",
+          "platform_can_grant_badge": "works"
+        }
+      },
+      "asserts": [
+        "a provider cannot award themselves the trust badge, on either branch: not by UPDATE, not at INSERT, and not by touching verified_at alone - a badge with a forged date has forged provenance even if the boolean is untouched",
+        "a provider cannot set on_job, which is DISPATCH state - appearing busy dodges the matcher and appearing free while working oversubscribes them",
+        "both legitimate writes survive: an ordinary profile edit AND the offline/online toggle, which is the one availability control a provider is supposed to have. A guard that pinned the whole column would pass the four negatives while breaking the product",
+        "the trust column is read BACK with the identity dropped: a refused self-verify that nevertheless left verified=true would be the worst outcome and every status assertion would still read blocked",
+        "the born-ON_JOB case sets verified=false so the BADGE rule cannot answer first: the guard tests new.verified before new.availability, so a born-verified-AND-on_job row never reaches the availability clause and that mutation SURVIVED until the case was aimed properly",
+        "the badge-GRANTING path is asserted as a permission, not leaned on as a fixture: the first version planted a verified provider in setup, which killed the backend-branch mutation by BREAKING SETUP - a weaker kill the evidence-quality ratchet went red for, correctly"
+      ],
+      "provenance": "Third of the four guards no registered gate names (2026-07-30 ranking of all 27 un-scored guards), and the one that protects TRUST. The guard is CORRECT - it was unwatched, so deleting any of its four rules would have gone unnoticed. Same family the platform was already burned by: a forgeable trust counter and trust signals standing on nothing."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

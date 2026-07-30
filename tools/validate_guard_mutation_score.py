@@ -64,6 +64,18 @@ GUARDS = {
     "guard_service_topup_status":       "service_credit_topups",
     "guard_marketplace_order_status":   "marketplace_orders",
     "guard_marketplace_listing_status": "marketplace_listings",
+    # §12.1 — the first guard scored OUTSIDE the marketplace four. It is one of only four guards on the
+    # platform that no registered gate names (found by ranking all 27 un-scored guards), and the only one of
+    # those four that WRITES, so its failure mode is a cost leak rather than a corrupted row.
+    #
+    # This also settles the arc's open design fork for this guard, empirically rather than in the abstract: the
+    # harness judges a guard by re-running the bank cells for its table, and `ai_reports` has no derived bank.
+    # An AUTHORED cell (TB-QUOTA, declaring covers_tables: ai_reports) is a sufficient judge, so a full derived
+    # lane was not needed here. That answer is per-guard, not general — a guard with many states would still
+    # want the derived treatment.
+    "check_hive_quota_ai_reports":      "ai_reports",
+    # The TRUST guard (§12.1, third of the four unmonitored). Its judge is TB-TRUST, an authored cell.
+    "guard_service_provider_writes":    "service_providers",
 }
 
 
@@ -252,6 +264,39 @@ OPERATORS = [
      r"\s*OR NEW\.hive_id IS DISTINCT FROM OLD\.hive_id\) THEN", ") THEN",
      "hive_id drops out of the pin (orders AND listings), so a moderator can move a stranger's row into "
      "ANOTHER TENANT and settle or publish it there - a cross-hive transfer wearing a moderation action"),
+
+    # ── §12.1 · the QUOTA guard's four rot modes. Its two branches fail differently, so both are probed: the
+    # enforcing one refuses, the warn-only one records. The second is the dangerous one to lose, because losing
+    # it is SILENT — overruns simply stop being recorded.
+    ("quota_enforcement_disabled", r"IF q_enforce THEN", "IF false THEN",
+     "the quota's BLOCKING mode stops blocking and silently degrades to warn-only, so a hive over its cap "
+     "keeps writing while the platform keeps paying"),
+    ("quota_warn_log_removed",
+     r"INSERT INTO public\.automation_log \(job_name, status, detail, triggered_at\)", "PERFORM 1; -- (",
+     "the WARN-ONLY branch stops RECORDING the overrun - the failure that produces no error, no red gate and "
+     "no row, so nobody learns a cap was passed"),
+    ("quota_boundary_narrowed", r"current_n >= q_max", "current_n > q_max",
+     "the cap becomes off-by-one: a hive exactly AT its limit is allowed one more, which is the boundary the "
+     "guard exists to hold"),
+    ("quota_null_escape_widened", r"IF q_max IS NULL OR NEW\.hive_id IS NULL THEN", "IF true THEN",
+     "the guard returns early for EVERY row, so quotas stop existing entirely - the whole-guard-disabled case"),
+
+    # ── §12.1 · the TRUST guard's four rules, each its own operator. `verified` is the badge buyers price
+    # against and `on_job` is dispatch state; both are protected on BOTH branches, and a guard covering only
+    # one branch is a guard with a hole — which is exactly what these four operators check for.
+    ("trust_insert_verified_allowed", r"if new\.verified then", "if false then",
+     "a provider may be BORN verified - self-awarding the marketplace's trust badge at creation time, the "
+     "branch a transition-shaped suite never enters"),
+    ("trust_update_verified_pin_removed",
+     r"if new\.verified is distinct from old\.verified or new\.verified_at is distinct from old\.verified_at then",
+     "if false then",
+     "the verification pin drops, so a provider can award themselves the badge (or forge only its DATE, which "
+     "fakes the provenance while leaving the boolean honest)"),
+    ("trust_insert_on_job_allowed", r"if new\.availability = 'on_job' then", "if false then",
+     "a provider may be born ON_JOB - dispatch state self-declared at creation"),
+    ("trust_update_on_job_allowed",
+     r"if new\.availability = 'on_job' and old\.availability <> 'on_job' then", "if false then",
+     "a provider may set themselves on_job, appearing busy to dodge the matcher or free while already working"),
 
     ("cancel_window_widened",
      r"and\s+new\.status\s*=\s*'cancelled_by_provider'", "and new.status is not null",
