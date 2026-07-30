@@ -78,6 +78,8 @@ GUARDS = {
     "guard_service_provider_writes":    "service_providers",
     # The rate limiter, scored once its global ceiling existed (mig 20260730000008). Judge: TB-RATE.
     "check_platform_feedback_rate_limit": "platform_feedback",
+    # The fourth and mildest of the unmonitored four: a resource ceiling. Judge: TB-CAP.
+    "cap_pdf_job_size":                 "pdf_jobs",
 }
 
 
@@ -308,6 +310,16 @@ OPERATORS = [
      "again - the evasion this migration closed"),
     ("anon_ceiling_widened", r"IF v_anon_count >= 20 THEN", "IF v_anon_count >= 100000 THEN",
      "the ceiling is raised out of reach, which is the same hole with a number in front of it"),
+
+    # ── §12.1 · the PDF chunk ceiling. A resource bound, so its failure mode is a stalled embedding queue
+    # rather than a stolen row — but a ceiling nobody tests quietly becomes a suggestion.
+    ("pdf_cap_removed", r"IF n > 200 THEN", "IF false THEN",
+     "the 200-chunk ceiling disappears, so one oversized upload can turn into an unbounded embedding run"),
+    ("pdf_cap_widened", r"IF n > 200 THEN", "IF n > 100000 THEN",
+     "the ceiling is raised out of reach - the same hole with a number in front of it"),
+    ("pdf_array_typecheck_broken", r"jsonb_typeof\(NEW\.chunks_json\) = 'array'", "jsonb_typeof(NEW.chunks_json) = 'nope'",
+     "every payload counts as ZERO chunks because the array test can never match, so the cap is computed but "
+     "never triggered - a guard that runs and decides nothing"),
 
     ("cancel_window_widened",
      r"and\s+new\.status\s*=\s*'cancelled_by_provider'", "and new.status is not null",

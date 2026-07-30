@@ -2960,3 +2960,38 @@ computed-headroom assertion never was.
 mutation 100.0% (67/67) across SEVEN guards  ·  SQL lane 160/160  ·  bank 278 cells
 substrate 720 fresh  ·  canonical_status green
 ```
+
+### §12.7 · §12.1 closed — all four unmonitored guards scored, 8 guards at 100% (70/70)
+
+| guard | ops | protects | outcome |
+|---|---|---|---|
+| `check_hive_quota_ai_reports` | 4 | a cost ceiling (the only one that WRITES) | correct in both modes; the silent warn-only log now has an oracle |
+| `guard_service_provider_writes` | 4 | `verified` (trust badge) + `on_job` (dispatch) | correct on all four rules |
+| `check_platform_feedback_rate_limit` | 2 | 5/hour per identity + **20/hour anonymous ceiling** | was EVADABLE; fixed by mig 008 |
+| `cap_pdf_job_size` | 3 | a 200-chunk resource bound | correct; boundary pinned from both sides |
+
+Three were correct and merely unwatched. One was genuinely broken. That ratio is the argument for the sweep:
+**you cannot tell which is which by reading, and the measurement cost less than either outcome.**
+
+#### Every cell in this section was wrong at least once first, and the same discipline caught each
+
+- **the on_job negative never reached its clause** — the guard tests `new.verified` first, so a
+  born-verified-AND-on_job row is refused by the badge rule. Aimed properly, with every earlier clause satisfied.
+- **a fixture killed a mutant by BREAKING SETUP** — my first backend-branch fix planted a verified provider in
+  the fixture. The evidence-quality ratchet went red (fixture-kills 2 → 3 at an unchanged 100%), correctly: a
+  mutant that dies because a cell could not RUN is not one the bank noticed. Restated as a permission assertion.
+- **the rate probe never reached the wall** — 11 submissions against a ceiling of 20.
+- **then it computed its headroom as 20 when the truth was 15** — the `anon` role cannot SELECT unpublished
+  feedback, so it was blind to rows it had just written while the SECURITY DEFINER guard counted every one.
+- **the pdf cell reported the cap rejecting a legitimate 200-chunk job** — it was blocked at **23514** by
+  `pdf_jobs_target_table_check`, not the guard's **54000**. Only the sqlstate distinguished them.
+
+That last one is the section's lesson in miniature, and it is the same one the AHK4 gate records from an earlier
+arc: **verify WHAT blocked a write, never merely THAT something did.** Five cells, five wrong-first drafts, five
+caught by asserting the mechanism rather than the outcome.
+
+```
+mutation 100.0% (70/70) across EIGHT guards (was four at the start of §12)
+SQL lane 161/161  ·  bank 279 cells  ·  transition 99.6% (278/279)
+substrate 720 fresh  ·  ratchet holds
+```

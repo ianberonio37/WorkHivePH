@@ -6036,6 +6036,42 @@
         "the badge-GRANTING path is asserted as a permission, not leaned on as a fixture: the first version planted a verified provider in setup, which killed the backend-branch mutation by BREAKING SETUP - a weaker kill the evidence-quality ratchet went red for, correctly"
       ],
       "provenance": "Third of the four guards no registered gate names (2026-07-30 ranking of all 27 un-scored guards), and the one that protects TRUST. The guard is CORRECT - it was unwatched, so deleting any of its four rules would have gone unnoticed. Same family the platform was already burned by: a forgeable trust counter and trust signals standing on nothing."
+    },
+    {
+      "id": "TB-CAP-pdf-job-chunk-ceiling",
+      "source": "authored",
+      "kind": "resource-ceiling",
+      "journey": "P7-ai-triage",
+      "authority": "owner",
+      "state": "edge",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "pdf_jobs"
+      ],
+      "probe": {
+        "file": "TB-CAP-pdf-job-chunk-ceiling.sql",
+        "expect": {
+          "at_ceiling_200": "allowed",
+          "over_ceiling_201": "blocked sqlstate=54000",
+          "non_array_payload": "allowed"
+        }
+      },
+      "asserts": [
+        "the boundary from BOTH sides: exactly 200 chunks is allowed and 201 is refused. Testing only 201 would pass a guard written >= 200, which would reject a legitimate 200-chunk document",
+        "the sqlstate is asserted (54000, the code this guard chose) and not merely the refusal - the first run of this cell was blocked at 23514 by pdf_jobs_target_table_check, which without the code would have read as \"the cap rejects a legitimate 200-chunk job\"",
+        "a non-array payload counts as ZERO chunks and passes, which is deliberate - pinned so a future rewrite cannot start rejecting ordinary jobs"
+      ],
+      "provenance": "Fourth and mildest of the guards no registered gate names (2026-07-30 ranking of all 27 un-scored guards). A resource bound, not money or tenancy: its failure mode is a stalled embedding queue. Included for completeness because a ceiling nobody tests quietly becomes a suggestion."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
