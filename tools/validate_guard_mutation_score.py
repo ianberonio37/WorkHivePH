@@ -157,6 +157,10 @@ GUARDS = {
     # ── ARC 13 / F — the per-reviewer 10/day review cap. Judge: TB-RATE-review (10 planted today, 11th trips, a
     # different reviewer unaffected). One operator on its own raise message. Clean.
     "enforce_marketplace_review_daily_cap": "marketplace_reviews",
+    # ── ARC 13 / F — the SHARED per-hive/per-user daily row cap (TG_ARGV, ~20 tables). Scored on pdf_jobs
+    # (lowest caps, only sibling is the size cap - not a count guard). Judge: TB-DAILY-pdf (hive_id NULL isolates
+    # the per-user branch; 10 planted, 11th trips). One operator keyed on the per-user raise's HINT. Clean.
+    "check_daily_row_cap":                "pdf_jobs",
 }
 
 
@@ -524,6 +528,10 @@ OPERATORS = [
      "the per-user 200/day AI-reply-feedback cap stops firing, so one account can flood feedback unbounded"),
     ("review_cap_removed", r"RAISE EXCEPTION 'Daily review limit reached[^;]*;", "NULL;",
      "the per-reviewer 10/day review cap stops firing, so one reviewer can flood a listing with reviews"),
+    # The per-user daily-row-cap raise, keyed on its HINT (daily_user_) so it targets the per-user branch and
+    # not the identically-messaged per-hive raise (which ends daily_hive_).
+    ("daily_row_cap_user_removed", r"RAISE EXCEPTION 'You have reached[^;]*daily_user_[^;]*;", "NULL;",
+     "the shared per-user daily row cap stops firing, so one identity can flood any capped table past its limit"),
 ]
 
 VOCAB_EXTRA = "'settled'"

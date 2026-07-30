@@ -6751,6 +6751,40 @@
         "a different reviewer_name is unaffected (per reviewer, not a freeze); LISTING reviews (request_id null) so guard_service_review returns immediately and the daily cap is the sole refuser"
       ],
       "provenance": "enforce_marketplace_review_daily_cap, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Per-reviewer daily cap, threshold 10."
+    },
+    {
+      "id": "TB-DAILY-pdf-user-cap",
+      "source": "authored",
+      "kind": "resource-cap",
+      "journey": "J-pdf-daily-cap",
+      "authority": "any",
+      "state": "populated",
+      "path": "edge",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "pdf_jobs"
+      ],
+      "probe": {
+        "file": "TB-DAILY-pdf-user-cap.sql",
+        "expect": {
+          "over_user_cap": "blocked sqlstate=54000",
+          "other_uploader": "allowed"
+        }
+      },
+      "asserts": [
+        "the SHARED per-user daily row cap (check_daily_row_cap, uploaded_by, 10/day on pdf_jobs) refuses the 11th (10 planted today) with 54000 - one uploader cannot flood the ingest queue",
+        "a different uploader is unaffected (per user, not a freeze); hive_id NULL skips the per-hive branch and chunks_json NULL keeps the size cap out, so the daily cap is the sole refuser"
+      ],
+      "provenance": "check_daily_row_cap, the shared TG_ARGV daily cap on ~20 tables, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Scored on pdf_jobs (lowest caps, no count sibling)."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
