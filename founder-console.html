@@ -1334,6 +1334,12 @@
       try {
         // utils.js fetchWithTimeout handles abort/timeout uniformly (resilience L3)
         const res = await fetchWithTimeout('platform_health.json?ts=' + Date.now(), { signal }, 10000);
+        // fetchWithTimeout resolves to NULL on timeout (utils.js:2128) rather
+        // than throwing, so `res.ok` would TypeError and the catch below would
+        // report "Cannot read properties of null" as the health status. Name
+        // the actual condition instead. (Same omission caused a user-facing
+        // "check your connection" on sign-in - see index.html submitSignIn.)
+        if (res === null) throw new Error('timed out after 10s');
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return await res.json();
       } catch (e) {
@@ -1349,7 +1355,12 @@
       const get = async (f) => {
         try {
           const r = await fetchWithTimeout(f + '?ts=' + Date.now(), {}, 10000);
-          return r.ok ? await r.json() : null;
+          // `r &&` because fetchWithTimeout resolves to NULL on timeout (utils.js documents the contract)
+          // rather than throwing. Without it `r.ok` TypeErrors into the catch below, which returns null —
+          // the RIGHT answer for these best-effort reads, but reached by exception rather than by contract.
+          // The third and mildest of three sites found by sweeping the class; the other two produced a
+          // user-visible wrong diagnosis, this one only degraded correctly by accident.
+          return (r && r.ok) ? await r.json() : null;
         } catch (_) { return null; }
       };
       const [scorecard, baselines, ab, proposals] = await Promise.all([

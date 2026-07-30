@@ -2994,11 +2994,28 @@
     try {
       // fetchWithTimeout (utils.js) bounds the login round-trip so a hung proxy/GoTrue does
       // not strand the user on "Signing in"; the AbortError lands in the catch below.
+      // 30s, not 15s: this is a Supabase Edge Function, and fetchWithTimeout's
+      // own contract names 30s as the edge COLD-START budget. At 15s a cold
+      // `login` container reliably lost the race — the server completed the
+      // login (auth logs show 200 + a Login audit event) while the browser had
+      // already aborted and thrown the session away. Observed live: 4 of 4
+      // sign-ins failed this way in a real (headed) browser.
       const _resp = await fetchWithTimeout(`${_AUTH_URL}/functions/v1/login`, {
         method: 'POST',
         headers: { 'apikey': _AUTH_KEY, 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: _syntheticEmail(username), password })
-      }, 15000);
+      }, 30000);
+      // fetchWithTimeout returns NULL on timeout (utils.js:2128) — it does not
+      // throw. Without this guard `_resp.json()` threw
+      // "Cannot read properties of null" into the catch below, which then told
+      // the user "Check your connection" — on a perfectly good connection, for
+      // what is actually a slow server. Wrong diagnosis on the very first
+      // screen a new user sees.
+      if (_resp === null) {
+        btn.textContent = 'Sign In'; btn.disabled = false;
+        errEl.textContent = 'Signing in is taking longer than usual. Please try again.';
+        errEl.classList.remove('hidden'); return;
+      }
       const _r = await _resp.json().catch(() => ({}));
       btn.textContent = 'Sign In'; btn.disabled = false;
       if (_resp.status === 423) {
