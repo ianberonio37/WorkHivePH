@@ -129,6 +129,10 @@ GUARDS = {
     # with NO new operators. Judge: TB-QUOTA-logbook, which isolates it from check_logbook_rate_limit by dating
     # the fixture rows yesterday (cumulative>today). Clean.
     "check_hive_quota_logbook":           "logbook",
+    # ── ARC 13 / F — the CUMULATIVE per-hive community-posts quota. Same two-branch shape, scored by the four
+    # §12 quota operators, no new ones. Judge: TB-QUOTA-community, three-way isolated (yesterday-rows +
+    # different author per insert + the 200/100 daily cap headroom). Clean.
+    "check_hive_quota_community":          "community_posts",
 }
 
 
