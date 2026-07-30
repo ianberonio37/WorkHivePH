@@ -6785,6 +6785,42 @@
         "a different uploader is unaffected (per user, not a freeze); hive_id NULL skips the per-hive branch and chunks_json NULL keeps the size cap out, so the daily cap is the sole refuser"
       ],
       "provenance": "check_daily_row_cap, the shared TG_ARGV daily cap on ~20 tables, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Scored on pdf_jobs (lowest caps, no count sibling)."
+    },
+    {
+      "id": "TB-PROJ-removal-supervisor-audit",
+      "source": "authored",
+      "kind": "authority-negative",
+      "journey": "J-project-removal",
+      "authority": "owner",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "projects"
+      ],
+      "probe": {
+        "file": "TB-PROJ-removal-supervisor-audit.sql",
+        "expect": {
+          "worker_removes": "blocked",
+          "sup_removes": "allowed",
+          "audit_written": "1"
+        }
+      },
+      "asserts": [
+        "removing a project (soft-delete) is refused for a non-supervisor worker and allowed for a supervisor of the project's hive - the authority half of the guard",
+        "a supervisor's removal WRITES a hive_audit_log row (action=delete_project, target_id=the project) describing what was lost - the audit half, read back because an un-recorded removal is a silent one",
+        "isolated: a deleted_at-only change does not touch lessons_learned, so guard_lessons_learned_is_supervisor returns immediately and this guard is the sole gate"
+      ],
+      "provenance": "guard_and_audit_project_removal, one of the two hard shared project guards, found unscored 2026-07-31 (ARC 13 / F, roadmap S14)."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

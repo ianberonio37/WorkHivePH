@@ -161,6 +161,10 @@ GUARDS = {
     # (lowest caps, only sibling is the size cap - not a count guard). Judge: TB-DAILY-pdf (hive_id NULL isolates
     # the per-user branch; 10 planted, 11th trips). One operator keyed on the per-user raise's HINT. Clean.
     "check_daily_row_cap":                "pdf_jobs",
+    # ── ARC 13 / F — the first HARD guard: removal is supervisor-only AND writes an audit row. Judge:
+    # TB-PROJ-removal (worker refused, supervisor allowed, hive_audit_log row read back). Two operators: the
+    # supervisor raise, and the audit INSERT (removing it aborts the delete via an orphaned VALUES). Clean.
+    "guard_and_audit_project_removal":    "projects",
 }
 
 
@@ -532,6 +536,16 @@ OPERATORS = [
     # not the identically-messaged per-hive raise (which ends daily_hive_).
     ("daily_row_cap_user_removed", r"RAISE EXCEPTION 'You have reached[^;]*daily_user_[^;]*;", "NULL;",
      "the shared per-user daily row cap stops firing, so one identity can flood any capped table past its limit"),
+
+    # ── ARC 13 / F · guard_and_audit_project_removal's two jobs.
+    ("project_removal_supervisor_gate_removed",
+     r"RAISE EXCEPTION 'Removing or restoring a project is a supervisor action[^;]*;", "NULL;",
+     "any member may delete/restore a project, not just a supervisor - the destructive action loses its gate"),
+    ("project_removal_audit_removed",
+     r"INSERT INTO public\.hive_audit_log \(hive_id, actor, action, target_type, target_id, target_name, meta\)",
+     "PERFORM 1; -- (",
+     "a project removal stops writing its hive_audit_log record, so what was destroyed (and by whom) leaves no "
+     "trace - the audit half of the guard"),
 ]
 
 VOCAB_EXTRA = "'settled'"
