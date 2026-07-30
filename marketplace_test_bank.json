@@ -6501,6 +6501,44 @@
         "non-vacuity: below the cap the write works and nothing is logged"
       ],
       "provenance": "check_hive_quota_community, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Same two-branch shape as the other hive quotas; scored by the four §12 quota operators, no new ones."
+    },
+    {
+      "id": "TB-QUOTA-invtx-cumulative",
+      "source": "authored",
+      "kind": "resource-cap",
+      "journey": "J-inventory-quota",
+      "authority": "any",
+      "state": "populated",
+      "path": "edge",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "inventory_transactions"
+      ],
+      "probe": {
+        "file": "TB-QUOTA-invtx-cumulative.sql",
+        "expect": {
+          "at_cap_blocking": "blocked sqlstate=54000",
+          "at_cap_warnonly_write": "allowed",
+          "at_cap_warnonly_logged": "1",
+          "under_cap_write": "works",
+          "under_cap_logged_nothing": "yes"
+        }
+      },
+      "asserts": [
+        "the cumulative per-hive inventory-transactions quota refuses at/over cap in enforce mode (54000) and in warn-only mode allows the write while recording the overrun to automation_log (read back)",
+        "isolated from check_daily_row_cap by yesterday-rows (cumulative>today); inventory_transactions has no per-author recent-window rate limit, so no author trick is needed",
+        "non-vacuity: below the cap the write works and nothing is logged"
+      ],
+      "provenance": "check_hive_quota_inv_tx, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Direct mirror of TB-QUOTA-logbook; scored by the four §12 quota operators, no new ones."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
