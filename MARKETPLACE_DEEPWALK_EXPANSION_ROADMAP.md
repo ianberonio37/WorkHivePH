@@ -3194,3 +3194,75 @@ method  the four gates that "covered" the helper asserted callers IMPORT it; non
 > it. §12 found guards no gate named; §13 found a helper four gates named and none ran. Both are the same
 > false-confidence shape — coverage that reads as protection — and both were only visible by trying to break
 > the thing, not by reading that it looked right.
+
+## §14 · THE 23 UNSCORED GUARDS — scoring by protection value (ARC 13 / E+F, 2026-07-31)
+
+> Ian picked **E** (thicken the four 1-cell guards) and **F** (score the remaining 23 guards) alongside D.
+
+### §14.0 · E, measured before built — and folded into F
+
+E's premise was "each of the four §12 guards rests on a single authored probe." Measured, that premise does
+not hold as a teeth gap: the mutation baseline is **70/70 with ZERO survivors**, so those guards already kill
+every viable mutant, and probe-file deletion is already caught by the **`killed` forward-only ratchet** (drop
+a cell and `killed` falls, the gate goes red). A second cell that passes *by construction* adds no teeth — the
+"don't add redundant/unverified surfaces" discipline. So E's real intent — *grow teeth* — is identical to F's:
+**new operators asking new questions, and new guards**, building a cell only where a mutant actually **survives**.
+
+### §14.1 · The guard population, ranked
+
+31 raising trigger-guards exist; 8 were scored (§11–§12). The remaining 23 were ranked by what a break would
+cost — trust/contract/records first, resource ceilings last — because a *broken* guard is the finding (as the
+rate-limit guard was in §12), and the yield is highest where the guard protects value, not a queue.
+
+### §14.2 · First guard scored: `guard_marketplace_seller_trust_columns` — and a LIVE self-deal
+
+The seller-side sibling of §12's `guard_service_provider_writes`. It protects the columns a seller must not
+self-assign (`kyb_verified`, `cert_verified`, `tier`, `rating_*`, `total_sales`, `response_*`). Probed live:
+a non-admin seller is correctly refused (42501) on every self-upgrade and at INSERT, and a legitimate
+non-trust edit is allowed. **Clean on the path §12 tests.**
+
+But reading it surfaced a **live self-deal on a path §12 never tested**: the admin bypass is
+`IF is_marketplace_admin() THEN RETURN NEW` with **no party check** — the same
+[[feedback_admin_bypass_before_party_check_is_selfdeal]] class mig 003 fixed for reviews/credits/service, on a
+guard mig 003 didn't touch. Proven rolled back: a marketplace admin who is also a seller self-set their own
+`kyb_verified`/`total_sales`/`tier` (`rows=1` via the bypass). **Live, not latent** — both current admins
+(Pablo, Leandro) are also sellers. `guard_service_provider_writes` shares the identical unguarded bypass, so
+§12's "clean" verdict on it tested the self-verify-as-*non-admin* path and missed this one on both.
+
+**Ian's decision (2026-07-31): leave it as-is.** A marketplace admin is the platform's trust authority and
+self-management is permitted. So the guards are unchanged, and the decision is **banked, not just noted**:
+`TB-SELLER-trust-columns` asserts `admin_self_kyb=ALLOWED` *on purpose*, so a future party-guard on the admin
+bypass flips that cell red and forces the decision to be re-made rather than drifting silently. The non-admin
+refusals remain the security guarantee. See [[feedback_admin_self_manage_trust_is_intentional]].
+
+### §14.3 · Scored, with teeth
+
+`guard_marketplace_seller_trust_columns` added to the harness (`marketplace_sellers`), judged by
+`TB-SELLER-trust-columns`, with four per-column UPDATE operators (tier / total_sales / kyb / cert
+self-upgrade) plus the three generic operators it inherits (refusal-removed, admin-always-true,
+system-write-always-on). One survivor first — `seller_cert_selfverify_allowed` — because the cell set
+`cert_verified` **and** `cert_verified_at`, so the timestamp pin masked the dropped boolean pin. Isolating the
+boolean (its own case) killed it: **7/7, zero survivors.**
+
+```
+platform mutation: 9 guards, 77/77 viable killed (was 70/70 across 8)
+new guard: guard_marketplace_seller_trust_columns 7/7
+3-axis ratchet: killed 70 -> 77 (rose), score 100 -> 100, fixture_kills unchanged
+```
+
+### §14.4 · NEXT (the standing queue — ranked, drive top-down)
+
+The remaining 22 guards, highest protection value first. Each: probe live → if broken, fix; author a judging
+cell → wire with operators → require every viable mutant killed.
+
+1. `guard_service_review` — review integrity. **Already party-guards its admin bypass** (the one guard where
+   this class is closed); pins attribution + `verified_purchase` + direction. Bank a cell, low finding-risk.
+2. `guard_change_order_terms_immutable` — contract-terms immutability (co_number/title/scope/cost/schedule/
+   requester/project/hive) + no-delete. High value (money/contract).
+3. `guard_progress_log_is_a_record` / `bind_progress_log_submitter` — record immutability + identity binding.
+4. `wh_guard_supervisor_approval` (rcm_fmea_modes) · `guard_and_audit_project_removal` · `guard_lessons_learned_is_supervisor`.
+5. `guard_community_announcement` (who may announce) · the forward-only status machines
+   (`anomaly_signals`, `shift_plans`).
+6. The rate/quota/cap ceilings last (resource bounds — failure is a stalled queue, not stolen value):
+   `enforce_ai_reply_feedback_daily_limit`, `check_hive_quota_*` (community/inv_tx/logbook/pm), the
+   `*_rate_limit` family, `check_inline_image_size`, `check_daily_row_cap`, `enforce_marketplace_review_daily_cap`.

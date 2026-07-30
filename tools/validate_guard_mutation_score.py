@@ -80,6 +80,11 @@ GUARDS = {
     "check_platform_feedback_rate_limit": "platform_feedback",
     # The fourth and mildest of the unmonitored four: a resource ceiling. Judge: TB-CAP.
     "cap_pdf_job_size":                 "pdf_jobs",
+    # ── ARC 13 / F — the SELLER-side trust guard, sibling of guard_service_provider_writes. Also unnamed by
+    # any gate. Judge: TB-SELLER, which asserts BOTH the security guarantee (a non-admin cannot self-forge
+    # kyb/cert/tier/sales, by UPDATE or at INSERT) AND the intentional admin self-management Ian decided to
+    # keep 2026-07-31 (admin_self_kyb=ALLOWED) — so a later party-guard on the admin bypass turns the cell red.
+    "guard_marketplace_seller_trust_columns": "marketplace_sellers",
 }
 
 
@@ -325,6 +330,26 @@ OPERATORS = [
      r"and\s+new\.status\s*=\s*'cancelled_by_provider'", "and new.status is not null",
      "the provider-cancel rule stops naming its target state, so it authorises any transition from those "
      "states"),
+
+    # ── ARC 13 / F · the SELLER trust guard's UPDATE self-upgrade pins, one operator per column. The INSERT
+    # branch and the admin/system-write bypasses are already covered by refusal_removed / admin_check_always_true
+    # / guc_bypass_always_on, which fire on this guard the moment it enters GUARDS — so these four target only
+    # the per-column UPDATE pins those generic operators cannot reach. Each pattern names a COLUMN unique to
+    # marketplace_sellers (tier / total_sales / kyb_verified / cert_verified), so it matches this guard and no
+    # other. Neutering one pin lets a non-admin seller self-set that one trust signal, which the matching
+    # TB-SELLER assertion (self_tier / self_sales / self_kyb / self_cert) catches. The kyb/cert patterns key on
+    # the UPDATE-branch `IS DISTINCT FROM COALESCE(OLD...)` form, which is unique to the UPDATE block — the
+    # INSERT branch uses `= true OR`, so the first-match rule cannot confuse the two.
+    ("seller_tier_selfupgrade_allowed", r"NEW\.tier\s+IS DISTINCT FROM OLD\.tier", "false",
+     "a seller may raise their OWN tier - the bronze/silver/gold trust ladder becomes self-declared"),
+    ("seller_sales_selfinflate_allowed", r"NEW\.total_sales\s+IS DISTINCT FROM OLD\.total_sales", "false",
+     "a seller may inflate their OWN total_sales - the track record the matcher and buyers weigh, forged"),
+    ("seller_kyb_selfverify_allowed",
+     r"COALESCE\(NEW\.kyb_verified,false\)\s+IS DISTINCT FROM COALESCE\(OLD\.kyb_verified,false\)", "false",
+     "a seller may turn their OWN kyb_verified on - the platform's KYB badge, self-awarded (UPDATE branch)"),
+    ("seller_cert_selfverify_allowed",
+     r"COALESCE\(NEW\.cert_verified,false\)\s+IS DISTINCT FROM COALESCE\(OLD\.cert_verified,false\)", "false",
+     "a seller may turn their OWN cert_verified on - the certification badge, self-awarded (UPDATE branch)"),
 ]
 
 VOCAB_EXTRA = "'settled'"

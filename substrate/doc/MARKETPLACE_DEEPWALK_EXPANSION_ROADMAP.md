@@ -2,7 +2,7 @@
 name: doc-MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP
 type: doc
 source: file:MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md
-source_sha: 2e0e2fc28d079676
+source_sha: 81b7beb011475f3d
 last_verified: 2026-07-13
 supersedes: null
 ---

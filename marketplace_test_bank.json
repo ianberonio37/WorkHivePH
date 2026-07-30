@@ -6072,6 +6072,51 @@
         "a non-array payload counts as ZERO chunks and passes, which is deliberate - pinned so a future rewrite cannot start rejecting ordinary jobs"
       ],
       "provenance": "Fourth and mildest of the guards no registered gate names (2026-07-30 ranking of all 27 un-scored guards). A resource bound, not money or tenancy: its failure mode is a stalled embedding queue. Included for completeness because a ceiling nobody tests quietly becomes a suggestion."
+    },
+    {
+      "id": "TB-SELLER-trust-columns",
+      "source": "authored",
+      "kind": "authority-negative",
+      "journey": "J16-trust-badges",
+      "authority": "owner",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "marketplace_sellers"
+      ],
+      "probe": {
+        "file": "TB-SELLER-trust-columns.sql",
+        "expect": {
+          "nonadmin_is_not_admin": "t",
+          "self_kyb": "blocked",
+          "self_cert": "blocked",
+          "self_tier": "blocked",
+          "self_sales": "blocked",
+          "born_verified": "blocked",
+          "legit_edit": "works",
+          "admin_is_admin": "t",
+          "admin_self_kyb": "ALLOWED",
+          "admin_verify_stranger": "works",
+          "self_cert_at": "blocked"
+        }
+      },
+      "asserts": [
+        "a non-admin seller cannot self-forge any trust column - kyb_verified, cert_verified, tier, total_sales - by UPDATE, and cannot be BORN verified at INSERT; every refusal is 42501 from the guard, isolated from RLS so the trigger is what refuses",
+        "the legitimate write survives (messenger_username edit), separating 'protects the trust columns' from 'rejects sellers' - a guard that pinned the whole row would pass every negative while breaking the product",
+        "the admin self-manage path is asserted ON PURPOSE (admin_self_kyb=ALLOWED): a marketplace admin who is also a seller MAY set their own trust columns. Ian decided this 2026-07-31 after it was raised as the mig-003 self-deal class; banking it LOCKS the decision, so a later party-guard on the admin bypass turns this cell red and forces a re-decision instead of silent drift",
+        "the admin moderator job survives too (admin_verify_stranger=works): the bypass that permits self-management also permits verifying others, which is the point of an admin"
+      ],
+      "provenance": "Seller-side sibling of guard_service_provider_writes (TB-TRUST). Found unscored 2026-07-31 while extending the mutation harness across the 23 guards no gate names (ARC 13 / F). The non-admin refusals are the security guarantee; the admin_self_kyb=ALLOWED assertion encodes Ian's 2026-07-31 decision to leave admin self-management intentional. See [[feedback_admin_bypass_before_party_check_is_selfdeal]] and roadmap S14."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

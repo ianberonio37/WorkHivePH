@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 49e333a776816bbe
+source_sha: de4fb70bdd8acbb4
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (706) — the 'what's already gated' brain
+## gate · registered validators (708) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -224,7 +224,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (497)
+### Platform (499)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -512,6 +512,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `marketplace-test-bank` [fail] — MARKETPLACE TEST BANK — SQL lane (MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP §10). The bank's denominator is DERIVED from the four guard functions by tools/derive_t
 - `marketplace-trust-integrity` [fail] — Per-page P5/P6 marketplace SELLER-TRUST forge lock (LIVE, rolled-back psql as a real authenticated worker). The marketplace runs on the seller trust signal (rat
 - `maturity-gating` ⚡ [fail] — Maturity Gating Validator (Phase 0.5: gated pages load maturity-gate.js + call checkMaturityGate + render honest empty state)
+- `membership-auth-uid-resolution` ⚡ [fail] — MEMBERSHIP RESOLVES BY AUTH_UID, NOT DISPLAY_NAME — a CROSS-TENANT PRIVILEGE ESCALATION a self-rename could drive, found 2026-07-31 while building behavioural t
 - `memento-catalog-citations` ⚡ [regression] — Memento Pattern-Catalog Citation Rot (reference_pattern_catalog.md citations all resolve on disk or via the index)
 - `memory-cache-coverage` ⚡ [fail] — PKS P3 memory retrieval cache - coverage + budget (PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP L3). The SQLite FTS5+TF-IDF cache (Memento memory.db - project_memento_l
 - `memory-integrity` ⚡ [fail] — Memory Integrity (Phase 2: session memory, turn tracking, dedup)
@@ -681,6 +682,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `team-coordination` ⚡ [fail] — Team Coordination (Phase 9: cross-hive alerts, best practices sharing)
 - `temporal-orchestrator` ⚡ [fail] — Temporal RAG Orchestrator Phase 3 (17-layer: edge fn + decompose + 3 granularities + auto-heuristic + MAX_PERIODS + MAX_PARALLEL + runBounded + reads Phase 2 + 
 - `tenant-boundary` ⚡ [fail] — Tenant Boundary Escape Validator (5-layer, +nullable auth_uid RLS trap)
+- `tenant-context-contract` ⚡ [fail] — TENANT-CONTEXT HELPER CONTRACT — behavioural + mutation teeth on `_shared/tenant-context.ts`, the tenancy boundary 30 edge functions trust. It is imported by 42
 - `test-hive-fixtures` [fail] — Stale test-hive fixture detector (2026-07-21) — a reseed re-mints hive UUIDs, so ANY pinned hive UUID in a harness/gate rots: the signed-in user isn't a member 
 - `test-page-drift` ⚡ [fail] — Test Page Drift (4-layer: smaller + larger + orphans + inventory)
 - `tester-coverage` ⚡ [blocker] — Tester Coverage Validator (every live tool page is in PUBLIC_PAGES + 4 flow PAGES lists)

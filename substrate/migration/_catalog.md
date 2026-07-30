@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:453
-source_sha: 38a0c9fc90615e2b
+source: dir:supabase/migrations:454
+source_sha: 2905d6fe57c39485
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (453 migrations)
+## migration · catalog (454 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260701000000_regate_match_procedural_memories` — fns:match_procedural_memories
 - `20260702000000_realign_display_count_chip_asset_hub` — (misc DDL/DML)
 - `20260702000001_slo_error_budget_rollup` — fns:slo_error_budget
 - `20260705000000_q0_logbook_quota_pilot` — fns:cap_logbook_text_fields,check_logbook_rate_limit · triggers:trg_logbook_rate_limit,trg_logbook_text_caps · tables:hive_quotas
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260730000006_pin_order_and_listing_identity_fields` — fns:guard_marketplace_listing_status,guard_marketplace_order_status
 - `20260730000007_scope_audit_actor_lookup_to_the_rows_hive` — fns:audit_logbook_post_close_amendment,audit_pm_completion_amendment
 - `20260730000008_anonymous_feedback_global_ceiling` — fns:check_platform_feedback_rate_limit
+- `20260731000001_resolve_membership_by_auth_uid_not_display_name` — (misc DDL/DML)
 
 (showing last 200)
 

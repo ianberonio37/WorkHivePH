@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:616-files
-source_sha: 1ba469e417e2fe67
+source: memory-curated:620-files
+source_sha: b487b5a790aba1ee
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (616 durable topic files)
+## memory · curated auto-memory (620 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=238 · project=289 · reference=89
+**By type:** feedback=242 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -32,6 +32,7 @@ Entries (name · type · sha):
 - `feedback_a_walked_cell_is_not_a_banked_cell` · feedback · 5998c3c3aa4126a2
 - `feedback_accessor_before_utils_load_order` · feedback · 33cdfb92667cf8e6
 - `feedback_admin_bypass_before_party_check_is_selfdeal` · feedback · b1c1a3c0a6717515
+- `feedback_admin_self_manage_trust_is_intentional` · feedback · c790c5493770e110
 - `feedback_ai_pp_dl_deeper_dimension_classes` · feedback · f5e83cc5d81e10e5
 - `feedback_ai_provider` · feedback · b197e3dd063d1acc
 - `feedback_ai_write_accountability_ai6` · feedback · 0e9f455eea85a173
@@ -59,6 +60,7 @@ Entries (name · type · sha):
 - `feedback_catalog_tables` · feedback · 4c50b33390fe8e49
 - `feedback_centralized_design_not_per_page` · feedback · 78846f41922c27f5
 - `feedback_centralized_icon_library_emoji_first` · feedback · c09e4df4b4f280a0
+- `feedback_chasing_the_metric_made_the_video_worse` · feedback · 0eed62d85aa7e5d7
 - `feedback_check_the_premise_before_building_the_pattern` · feedback · b27e664eadb19173
 - `feedback_classify_by_evidence_not_heuristic` · feedback · 92f9179e6ac707cd
 - `feedback_cls_late_reserve_and_shared_chrome_dedup` · feedback · 6cbbbdc4be7db3cd
@@ -146,6 +148,7 @@ Entries (name · type · sha):
 - `feedback_marketplace_trust_forge_verified_only` · feedback · ce22a69bb392017c
 - `feedback_measure_the_worked_state_not_the_generator` · feedback · 5242b6458d5c3110
 - `feedback_measured_percent_not_qualitative_done` · feedback · a0140544db758050
+- `feedback_membership_resolved_by_auth_uid` · feedback · ba5e55000349dafd
 - `feedback_memento_visible_confirmation` · feedback · e015e662599822a1
 - `feedback_metric_label_is_a_claim_add_the_missing_half` · feedback · eabf1862f3e18699
 - `feedback_mobile_fit_rubric_gap_and_two_bugs` · feedback · e101498c62dd7da7
@@ -231,6 +234,7 @@ Entries (name · type · sha):
 - `feedback_the_check_and_the_action_read_different_rows` · feedback · 7d1ea2b813e416ad
 - `feedback_the_prose_was_stale_the_registry_was_right` · feedback · c4430f86125103dc
 - `feedback_the_repair_crossed_the_tenant_boundary` · feedback · 9001a87e34f5c5d1
+- `feedback_trace_the_curve_dont_approximate_with_springs` · feedback · 2e395296070f4863
 - `feedback_trust_signal_needs_a_living_producer` · feedback · 9992a30b60bb2887
 - `feedback_two_sided_journeys_need_a_role_pair` · feedback · 22e876fa1f71967e
 - `feedback_ufai_board_100_cls_and_v1_fixes` · feedback · 38eee232d0ee0544
@@ -512,10 +516,6 @@ Entries (name · type · sha):
 - `project_streamline_E3_axe_ratchet_2026_06_14` · project · 76c511fa09c70db2
 - `project_streamline_E4_design_tokens_2026_06_14` · project · 0d64bba2e80f4953
 - `project_streamline_E4_rollout_2026_06_14` · project · 53306ca8fe217aa8
-- `project_streamline_E5_disclosure_2026_06_14` · project · be685babd43a0a7d
-- `project_streamline_E6_formatter_2026_06_14` · project · 3ca8a58cd26ce2b8
-- `project_streamline_E6_rollout_2026_06_14` · project · dbb7236195e595c5
-- `project_streamline_E7_request_budget_2026_06_14` · project · 01d3b3bbc0ecd871
-- … +116 more (all included in the fingerprint)
+- … +120 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]
