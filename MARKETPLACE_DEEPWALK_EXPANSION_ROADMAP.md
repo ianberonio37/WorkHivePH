@@ -2920,3 +2920,43 @@ The `_timeoutFetch` idempotent retry is still open. §11's sweep sharpened the q
 > into "4 guards", and 4 into 3-done-plus-1-mild. The measurement was cheaper than any of the work it scoped, and
 > it also produced the reassuring half — **0 of 27 carry the row-version shape**, so the class that produced
 > three exploits is confined and closed rather than merely patched where it was noticed.
+
+### §12.6 · The rate-limit fork, resolved — a global anonymous ceiling (mig 20260730000008)
+
+Ian chose the global ceiling over bucketing every anonymous submitter together, and the reason is the one that
+mattered: the collective option is spam-proof but throttles legitimate anonymous feedback at 5/hour
+platform-wide, turning away real users in a busy hour to stop a hypothetical one.
+
+**The fix:** keep the per-identity 5/hour bucket, add **20/hour on `auth_uid IS NULL`** — keyed on the null
+check and *not* on the coalesced identity, because **a bound the client can move by changing a string is not a
+bound**. 20 is four distinct anonymous submitters at their full individual allowance. Signed-in users are
+untouched; their bucket is already an id they cannot forge. Same `ERRCODE 23P01` as the existing limit, so the
+client's friendly toast needed no change.
+
+```
+BEFORE   6 submissions, 6 different worker_names  -> all 6 accepted   (limit_evaded_by_renaming=YES)
+AFTER    25 submissions, 25 different names       -> renaming_still_evades=no, refused 23P01
+         6 submissions, 1 name                    -> 5 accepted, 6th refused 23P01  (unchanged)
+```
+
+Ratcheted with two operators — `anon_ceiling_removed` and `anon_ceiling_widened` — because a ceiling raised out
+of reach is the same hole with a number in front of it. Both die to the new cell.
+
+#### The probe was wrong twice first, and both were visibility mistakes
+
+1. **It reported the evasion as still open after the fix.** The probe made 11 anonymous submissions against a
+   ceiling of 20 — it never reached the wall it was testing. A negative aimed short of the bound proves nothing.
+2. **Then it computed its own headroom as 20 when the truth was 15.** The `anon` role cannot SELECT unpublished
+   feedback (the read policies expose only `is_public` rows), so the probe was blind to the very rows it had
+   just written, while the guard — SECURITY DEFINER — counted every one. **A fixture that cannot see the state
+   it reasons about will produce a confident wrong number**
+   ([[feedback_a_test_asserting_a_state_it_does_not_control]]).
+
+Fixed by stating the property in a form that needs no visibility: attempt 25 under 25 names and require that
+renaming does **not** carry all 25 through. That assertion is robust to whatever else is in the hour, which a
+computed-headroom assertion never was.
+
+```
+mutation 100.0% (67/67) across SEVEN guards  ·  SQL lane 160/160  ·  bank 278 cells
+substrate 720 fresh  ·  canonical_status green
+```

@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:452
-source_sha: 8a925f1d9ac53375
+source: dir:supabase/migrations:453
+source_sha: 38a0c9fc90615e2b
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (452 migrations)
+## migration · catalog (453 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260630000000_remove_stripe_free_marketplace` — tables:marketplace_orders,marketplace_sellers
 - `20260701000000_regate_match_procedural_memories` — fns:match_procedural_memories
 - `20260702000000_realign_display_count_chip_asset_hub` — (misc DDL/DML)
 - `20260702000001_slo_error_budget_rollup` — fns:slo_error_budget
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260730000005_pin_topup_intake_facts_against_redirect` — fns:guard_service_topup_status
 - `20260730000006_pin_order_and_listing_identity_fields` — fns:guard_marketplace_listing_status,guard_marketplace_order_status
 - `20260730000007_scope_audit_actor_lookup_to_the_rows_hive` — fns:audit_logbook_post_close_amendment,audit_pm_completion_amendment
+- `20260730000008_anonymous_feedback_global_ceiling` — fns:check_platform_feedback_rate_limit
 
 (showing last 200)
 

@@ -5976,14 +5976,19 @@
         "file": "TB-RATE-platform-feedback-identity-bucket.sql",
         "expect": {
           "stable_identity_accepted": "5",
-          "sixth_refused_sqlstate": "23P01"
+          "sixth_refused_sqlstate": "23P01",
+          "renaming_still_evades": "no",
+          "ceiling_refused_sqlstate": "23P01",
+          "varying_within_ceiling": "yes"
         }
       },
       "asserts": [
-        "the limit holds for a STABLE identity: 5 accepted, the 6th refused with 23P01 - the code this guard chose so the client can show a friendly toast, asserted rather than merely \"something refused\"",
-        "DELIBERATELY does not assert the evasion. Six submissions under six DIFFERENT worker_names were all accepted (probed live), because each free-text name is its own bucket. Encoding that as an expectation would make the eventual FIX look like a regression - a test must not ratify a weakness it observes"
+        "BOTH bounds: the per-identity 5/hour holds under a stable name (6th refused 23P01), AND the global anonymous ceiling of 20/hour holds under 25 DIFFERENT names - so renaming no longer evades it",
+        "the ceiling is keyed on auth_uid IS NULL, not on the coalesced identity, because a bound the client can move by changing a string is not a bound",
+        "bound 2 is asserted BEHAVIOURALLY, without reading the table: the first version measured its own headroom with a COUNT and got 20 when the truth was 15, because the anon role cannot SELECT unpublished feedback while the guard (SECURITY DEFINER) counts every row. A fixture blind to the state it reasons about computes a confident wrong number",
+        "both bounds share ERRCODE 23P01 deliberately, so the client toast needed no change - and the code is asserted rather than merely \"something refused\""
       ],
-      "provenance": "Second of the four guards no registered gate names (2026-07-30 ranking of all 27 un-scored guards). platform_feedback is ANON-WRITABLE, and the rate bucket is COALESCE(auth_uid, worker_name, contact_email, anonymous) - so for an unauthenticated submitter the key is a field the CLIENT supplies. The evasion is an OPEN FINDING with a product fork (spam resistance vs anonymous throughput), not a silent fix. The probe first reported \"not evadable\" because a wrong column name (42703) looked exactly like a working limit - verify WHAT blocked a write, never merely THAT something did."
+      "provenance": "Second of the four guards no registered gate names (2026-07-30 ranking of all 27 un-scored guards). The evasion was PROBED first: six submissions under six worker_names were all accepted. Ian chose the global-ceiling fix over bucketing all anonymous users together, because the latter would throttle legitimate anonymous feedback collectively at 5/hour. mig 20260730000008 adds 20/hour on auth_uid IS NULL; signed-in users are untouched, their bucket already being an id they cannot forge."
     },
     {
       "id": "TB-TRUST-provider-cannot-self-verify",

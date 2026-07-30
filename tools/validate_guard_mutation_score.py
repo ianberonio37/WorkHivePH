@@ -76,6 +76,8 @@ GUARDS = {
     "check_hive_quota_ai_reports":      "ai_reports",
     # The TRUST guard (§12.1, third of the four unmonitored). Its judge is TB-TRUST, an authored cell.
     "guard_service_provider_writes":    "service_providers",
+    # The rate limiter, scored once its global ceiling existed (mig 20260730000008). Judge: TB-RATE.
+    "check_platform_feedback_rate_limit": "platform_feedback",
 }
 
 
@@ -297,6 +299,15 @@ OPERATORS = [
     ("trust_update_on_job_allowed",
      r"if new\.availability = 'on_job' and old\.availability <> 'on_job' then", "if false then",
      "a provider may set themselves on_job, appearing busy to dodge the matcher or free while already working"),
+
+    # ── §12.1 · the anonymous CEILING added by mig 20260730000008, so the fix cannot silently regress. The
+    # per-identity limit was never the problem — it worked exactly as written and protected nothing, because
+    # its bucket key is a field the client supplies.
+    ("anon_ceiling_removed", r"IF NEW\.auth_uid IS NULL THEN", "IF false THEN",
+     "the platform-wide anonymous ceiling disappears, so varying worker_name mints unlimited fresh buckets "
+     "again - the evasion this migration closed"),
+    ("anon_ceiling_widened", r"IF v_anon_count >= 20 THEN", "IF v_anon_count >= 100000 THEN",
+     "the ceiling is raised out of reach, which is the same hole with a number in front of it"),
 
     ("cancel_window_widened",
      r"and\s+new\.status\s*=\s*'cancelled_by_provider'", "and new.status is not null",
