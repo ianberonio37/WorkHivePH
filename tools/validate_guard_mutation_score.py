@@ -144,6 +144,28 @@ OPERATORS = [
      r"\(\(v_is_client\s+or\s+v_is_matched_provider\)\s+and\s+old\.status\s+in\s+\('in_progress','completed'\)",
      "((v_is_client) and old.status in ('in_progress','completed')",
      "only the client may open a dispute - the provider loses the right the guard grants them"),
+    # ── FOURTH WAVE. A 100% is only ever "the operators asked nothing new", and the previous 100% here was
+    # outright fabricated - so the score gets re-challenged rather than banked. These target rules NO operator
+    # touched: the top-up guard's mint-once condition and the two non-payer branches of its party test, plus
+    # the request guard's settle rule. All four are on the money path.
+    ("mint_on_any_prior_status", r"old\.status\s*=\s*'pending_verification'", "true",
+     "the ledger mint stops caring what the top-up came FROM, so re-verifying an already-verified top-up "
+     "mints the credit a SECOND time"),
+    ("party_provider_account_branch_removed",
+     r"or\s*\(coalesce\(old\.account_type, new\.account_type\)\s*=\s*'provider'",
+     "or (false and coalesce(old.account_type, new.account_type) = 'provider'",
+     "verifying SOMEONE ELSE's top-up into an account you own stops counting as self-dealing - the exact "
+     "case the guard's own comment says matters"),
+    ("party_consumer_account_branch_removed",
+     r"or\s*\(coalesce\(old\.account_type, new\.account_type\)\s*=\s*'consumer'",
+     "or (false and coalesce(old.account_type, new.account_type) = 'consumer'",
+     "same hole for a consumer wallet: crediting your own consumer balance from another person's top-up"),
+    ("settle_by_provider_allowed",
+     r"\(v_is_client and old\.status = 'completed'    and new\.status = 'settled'\)",
+     "((v_is_client or v_is_matched_provider) and old.status = 'completed' and new.status = 'settled')",
+     "the PROVIDER may mark the job settled - self-certifying that the client paid, which mints the "
+     "commission"),
+
     ("cancel_window_widened",
      r"and\s+new\.status\s*=\s*'cancelled_by_provider'", "and new.status is not null",
      "the provider-cancel rule stops naming its target state, so it authorises any transition from those "
@@ -535,28 +557,56 @@ def main(argv):
 
     def write_baseline():
         with open(BASELINE, "w", encoding="utf-8") as f:
-            json.dump({"score": overall, "viable": denom, "fixture_kills": fixture_kills,
-                       "_doc": "forward-only; raise `score` by killing survivors. `fixture_kills` may only "
-                               "FALL: a kill via an errored fixture is weaker evidence than a kill via an "
-                               "assertion, and a spike in it is the signature of a broken injection "
-                               "(which once produced a fabricated 100%)."}, f, indent=2)
+            json.dump({"score": overall, "viable": denom, "killed": total_k,
+                       "fixture_kills": fixture_kills,
+                       "_doc": "forward-only, on THREE axes. `killed` may never fall - that is the absolute "
+                               "teeth count. `score` may only fall when `viable` GREW (new operators asked "
+                               "new questions); at an unchanged vocabulary it may never fall. "
+                               "`fixture_kills` may only fall: a kill via an errored fixture is weaker "
+                               "evidence than a kill via an assertion, and a spike in it is the signature "
+                               "of a broken injection (which once produced a fabricated 100% here)."},
+                      f, indent=2)
 
-    base, base_fx = 0.0, None
+    base, base_fx, base_viable, base_killed = 0.0, None, None, None
     if os.path.exists(BASELINE):
         try:
             saved = json.load(open(BASELINE, encoding="utf-8"))
             base = float(saved.get("score", 0.0))
             base_fx = saved.get("fixture_kills")
+            base_viable = saved.get("viable")
+            base_killed = saved.get("killed")
         except Exception:
             base = 0.0
     if "--update-baseline" in argv or not os.path.exists(BASELINE):
         write_baseline()
         print(f"  {DIM}baseline set to {overall}% ({fixture_kills} fixture-kills){RST}")
         return 0
-    if overall < base:
-        print(f"  {RED}FAIL{RST} — mutation score REGRESSED {base}% -> {overall}%: a fault the bank used "
-              f"to catch now slips through.")
+
+    # ADDING AN OPERATOR LEGITIMATELY LOWERS THE SCORE, and a ratchet that cannot tell that from a real
+    # regression punishes the one move that makes the score worth anything. This platform already treats a
+    # GROWN denominator as progress everywhere else (a new guarded transition grows the transition board's
+    # denominator by itself), so the same rule applies here: when `viable` rises, the score is measured
+    # against a harder question set and may dip. What may NEVER fall is the absolute number of faults the
+    # bank catches - so `killed` is the forward-only axis, and `score` is forward-only only at an unchanged
+    # vocabulary. Without this split I would have been pushed to either drop the four new money-path
+    # operators or fake the baseline, which is the ratchet-that-turns-both-ways trap
+    # ([[feedback_a_ratchet_that_turns_both_ways]], [[feedback_short_denominator_is_a_false_100]]).
+    grew = base_viable is not None and denom > base_viable
+    if base_killed is not None and total_k < base_killed:
+        print(f"  {RED}FAIL{RST} — the bank now catches FEWER faults: {base_killed} -> {total_k} killed. "
+              f"That is a real regression regardless of the percentage.")
         return 1
+    if overall < base and not grew:
+        print(f"  {RED}FAIL{RST} — mutation score REGRESSED {base}% -> {overall}% at an unchanged operator "
+              f"vocabulary ({denom} viable): a fault the bank used to catch now slips through.")
+        return 1
+    if overall < base and grew:
+        was_k = base_killed if base_killed is not None else "?"
+        print(f"  {YEL}note{RST}  score dipped {base}% -> {overall}% because the operator vocabulary GREW "
+              f"({base_viable} -> {denom} viable) while kills went {was_k} -> {total_k}. New questions "
+              f"asked, not teeth lost — each survivor above is a punch-list item.")
+        write_baseline()
+        return 0
     if base_fx is not None and fixture_kills > base_fx:
         print(f"  {RED}FAIL{RST} — evidence QUALITY regressed: kills via an errored fixture went "
               f"{base_fx} -> {fixture_kills} while the score held at {overall}%. A mutant that dies because "
@@ -568,17 +618,21 @@ def main(argv):
         moved = f"{base}% -> {overall}%" if overall > base else f"fixture-kills {base_fx} -> {fixture_kills}"
         print(f"  {GREEN}PASS{RST} — baseline ratcheted ({moved})")
         return 0
-    if base_fx is None:
-        # SEED THE NEW FIELD, or the check above never runs. A baseline written before `fixture_kills` existed
-        # leaves it None forever on the steady-state path (score == base), so the ratchet would sit there
-        # looking implemented and checking nothing - a gate that silently stopped checking, which is the
-        # exact defect this same session found in the mutated-guard leak detector.
+    # PERSIST WHENEVER THE BASELINE IS STALE OR INCOMPLETE, not only when the headline score moves. Twice in
+    # one session a newly-added ratchet axis sat unseeded because the steady-state path (score == base) never
+    # wrote the file - so `killed` stayed absent and `viable` stayed at 37 while the real vocabulary was 41,
+    # leaving a gate that looked implemented and checked nothing. Any tracked field being missing or
+    # out-of-date is itself a reason to write.
+    if base_fx is None or base_killed is None or denom != base_viable or total_k != base_killed:
+        seeded = [n for n, v in (("fixture_kills", base_fx), ("killed", base_killed)) if v is None]
         write_baseline()
-        print(f"  {GREEN}PASS{RST} — holds at the {base}% baseline; seeded the evidence-quality floor at "
-              f"{fixture_kills} fixture-kills (it may only fall from here)")
+        detail = f"seeded {', '.join(seeded)}; " if seeded else ""
+        print(f"  {GREEN}PASS{RST} — holds at the {base}% baseline; {detail}recorded "
+              f"{total_k} killed of {denom} viable, {fixture_kills} fixture-kills "
+              f"(was {base_killed} of {base_viable})")
         return 0
-    print(f"  {GREEN}PASS{RST} — holds at the {base}% baseline ({fixture_kills} fixture-kills, floor "
-          f"{base_fx})")
+    print(f"  {GREEN}PASS{RST} — holds at the {base}% baseline ({total_k}/{denom} killed, "
+          f"{fixture_kills} fixture-kills, floor {base_fx})")
     return 0
 
 

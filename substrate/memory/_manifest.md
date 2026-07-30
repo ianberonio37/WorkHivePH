@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:608-files
-source_sha: 35628810a7631711
+source: memory-curated:610-files
+source_sha: b40b132b10ffc3c7
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (608 durable topic files)
+## memory · curated auto-memory (610 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=230 · project=289 · reference=89
+**By type:** feedback=232 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -33,6 +33,7 @@ Entries (name · type · sha):
 - `feedback_ai_pp_dl_deeper_dimension_classes` · feedback · f5e83cc5d81e10e5
 - `feedback_ai_provider` · feedback · b197e3dd063d1acc
 - `feedback_ai_write_accountability_ai6` · feedback · 0e9f455eea85a173
+- `feedback_an_impossibly_good_result_is_the_defect` · feedback · acda77061b9e8527
 - `feedback_analytics_engine_ufai_chart_truths` · feedback · 46b99242f6940bd6
 - `feedback_analytics_orchestrator_local_edge_cpu_and_b3_guard` · feedback · 82a690177f3b49f5
 - `feedback_anti_seesaw_lineage_discipline` · feedback · 8cd491bab51b8c5e
@@ -233,6 +234,7 @@ Entries (name · type · sha):
 - `feedback_ui_only_approval_gate_is_bypassable` · feedback · 3438b398a86d2b1b
 - `feedback_universal_a11y_shared_component` · feedback · a8572a09a2717a70
 - `feedback_use_ai_chain_always` · feedback · 905931942d0ceb65
+- `feedback_using_preempts_a_trigger_withcheck_does_not` · feedback · 9941cb44b5afe392
 - `feedback_validation_workflow` · feedback · 28e1a0281875f868
 - `feedback_validator_design_patterns` · feedback · 7a74b9e86c5278c8
 - `feedback_verify_the_instrument_before_the_page` · feedback · 45285360e9f32009
@@ -514,8 +516,6 @@ Entries (name · type · sha):
 - `project_streamline_s2_s5_2026_06_13` · project · 819390470e91b4de
 - `project_streamline_tile_dedup_ai_unification_charter` · project · 96483b49cdae0c9d
 - `project_stripe_removal_free_marketplace` · project · 0c7523edc07eb4cd
-- `project_supabase_auth_migration` · project · 6ecbdc5f2b172d95
-- `project_tester_coverage_validator` · project · 75287369176d9145
-- … +108 more (all included in the fingerprint)
+- … +110 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

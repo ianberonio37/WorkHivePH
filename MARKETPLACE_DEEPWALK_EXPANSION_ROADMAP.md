@@ -2183,3 +2183,70 @@ That is the next punch list, and it is exactly the kind of thing a fabricated 10
 **Superseded by this section:** the mutation figures in §11.2 (27/27), §11.7 (100% of 27), §11.8 (36/36) and
 §11.9 (100% of 36), plus the same claim in commits `5f134b40`, `59222bff` and `2e5de62a`. The migrations,
 probes and gates those commits ship are unaffected — only the mutation number they quote was wrong.
+
+### §11.12 · Re-challenging the fresh 100% immediately — three more survivors, all on the money guard
+
+A 100% earned an hour after discovering a fabricated one does not get banked. §11.11 closed by saying a score
+is worth exactly what its operators can express, so a **fourth wave** was written against rules no operator
+touched. `guard_service_topup_status` is the only guard on this platform that CREATES money — verifying a
+top-up inserts the `service_credit_ledger` row inline — and it had **four cells**. Three of the four new
+operators survived it:
+
+| survivor | what it means |
+|---|---|
+| `mint_on_any_prior_status` | the mint stops caring what the top-up came FROM, so re-verifying an already-verified top-up mints the credit a **second** time |
+| `party_provider_account_branch_removed` | verifying **someone else's** top-up into a provider account **you own** stops counting as self-dealing |
+| `party_consumer_account_branch_removed` | the same hole for a consumer wallet |
+
+**The shipped guard is correct in all three cases.** These are test gaps, and that distinction is the whole
+value of the metric: a survivor says *"nothing would notice if this rule were deleted"*, which is a statement
+about the bank, so the fix is a cell and not a migration.
+
+Two structural lessons the wave taught:
+
+- **Authority derived through a DISJUNCTION gives every branch its own authorisation path.** `v_is_party` here
+  is three branches — the payer, a provider account you own, a consumer wallet that is you — and the guard's
+  own comment says why the second matters: *"verifying a top-up you filed is self-minting, and so is
+  verifying someone else's top-up into your own provider account."* Only the payer branch had a cell. An
+  untested disjunct is unmonitored code, and an admin who owns the **destination** mints real credit into an
+  account they control just as surely as the one who filed the receipt.
+- **Mint-once is invisible to a status assertion.** Before and after a re-verify the row reads `verified`
+  either way; only a ledger **COUNT** separates "accepted, minted nothing" from "accepted, minted again".
+
+`TB-MINT-topup-party-routes-and-mint-once` (10 assertions) closes all three, with the admin made a party via
+the **account** and never the payer — a payer-route party would be refused by the branch TB-I2 already covers,
+so the cell would pass without exercising anything new. It carries the moderation half too (an unrelated
+top-up still verifies, and mints exactly one entry) and a non-vacuity check that the system path minted once
+to begin with, or the mint-once assertion would be comparing 0 to 0.
+
+#### The ratchet had to learn that a GROWN denominator is not a regression
+
+Adding those four operators dropped the score 100% → 92.7%, and the forward-only ratchet called it a
+**REGRESSION** and failed the gate. It was wrong, and wrong in a way that punishes the only move that makes
+the score worth anything: the bank had not lost a single tooth, it had been asked four new questions and could
+not answer three. Left alone, that ratchet would have pressured me to either drop the new operators or fake
+the baseline — the ratchet-that-turns-both-ways trap.
+
+The board is now forward-only on **three axes**, which is the same "derived denominator grows by itself"
+principle §10 already applies to transition coverage:
+
+| axis | rule |
+|---|---|
+| `killed` | may **never** fall — the absolute count of faults the bank catches |
+| `score` | may fall **only** when `viable` grew; at an unchanged vocabulary it may never fall |
+| `fixture_kills` | may only fall — a kill via an errored fixture is weaker evidence than a kill via an assertion, and a spike is the signature of a broken injection |
+
+Two more instances of the **same** defect class showed up while wiring this, both mine: a newly-added ratchet
+axis sat **unseeded** because the steady-state path (`score == base`) never wrote the baseline file, so
+`killed` stayed absent and `viable` stayed at 37 while the real vocabulary was 41 — a gate that looks
+implemented and checks nothing, exactly like the leak detector in §11.11 that was still grepping for the first
+draft's mutation text. Persistence is now triggered by any tracked field being **missing or out of date**, not
+by the headline number moving.
+
+**State:** mutation **100.0% (41/41)**, 1 excluded with mechanism + evidence + a falsifiable re-run ·
+SQL lane **135/135** · transition 99.6% · substrate 720 fresh · canonical_status all green.
+
+> **The pattern worth keeping from §11.11 + §11.12:** the fabricated 100% was caught by an operator written to
+> FAIL, and the three real money-path gaps were found by writing four more of them. **A metric you have not
+> tried to break is not a measurement.** Every wave of operators so far has either found a real gap or found a
+> defect in the harness — none has ever merely confirmed the previous number.
