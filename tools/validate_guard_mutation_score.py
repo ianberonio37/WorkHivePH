@@ -109,6 +109,10 @@ GUARDS = {
     # ── ARC 13 / F — lessons-learned is on the signed project report, so only a hive supervisor may change it.
     # One rule, one operator (keyed on the guard's own unique raise message). Judge: TB-LESSONS. Clean.
     "guard_lessons_learned_is_supervisor": "projects",
+    # ── ARC 13 / F — two pure forward-only status ratchets (no auth branch). Judge: TB-FWD. Each has one raise,
+    # keyed on its own unique message so nothing bleeds. Clean.
+    "anomaly_signals_forward_only_status": "anomaly_signals",
+    "shift_plans_forward_only_status":     "shift_plans",
 }
 
 
@@ -432,6 +436,18 @@ OPERATORS = [
     ("lessons_supervisor_gate_removed", r"RAISE EXCEPTION 'Lessons-learned appears on the signed[^;]*;", "NULL;",
      "a non-supervisor may rewrite the lessons-learned on a signed project report - the sign-off text, edited "
      "by someone who never signed"),
+
+    # ── ARC 13 / F · the two forward-only status ratchets. Each keyed on its own unique raise message.
+    # The message itself contains a semicolon ('...is terminal; cannot regress...'), so a `[^;]*;` pattern stops
+    # INSIDE the string literal and leaves a dangling clause — a malformed mutant that dies as a broken fixture,
+    # not a real kill. Match the whole statement through its real terminator (USING ERRCODE ... ;) instead.
+    ("anomaly_terminal_regress_allowed",
+     r"RAISE EXCEPTION 'anomaly_signals:[\s\S]*?USING ERRCODE = 'check_violation';", "NULL;",
+     "an anomaly signal may regress OUT of a terminal state (resolved/expired -> active), so a closed anomaly "
+     "can be silently reopened past the state machine"),
+    ("shift_regress_allowed", r"RAISE EXCEPTION 'shift_plans: cannot regress[^;]*;", "NULL;",
+     "a shift plan may regress (published -> draft), so an archived or published schedule can be pulled back to "
+     "a draft, breaking the forward-only ratchet"),
 ]
 
 VOCAB_EXTRA = "'settled'"
@@ -449,6 +465,20 @@ VOCAB_EXTRA = "'settled'"
 # They were never unreachable; the bank simply had no cell that could see them. So an exclusion has to name
 # the MECHANISM that makes observation impossible, not the absence of a cell that observes it.
 EXCLUDED = {
+    # ARC 13 / F: state_list_widened bleeds onto anomaly_signals (both use `OLD.status IN (...)`), but is
+    # EQUIVALENT here because VOCAB_EXTRA ('settled') is not a valid anomaly status — the CHECK constraint on
+    # anomaly_signals.status allows only active/acknowledged/resolved/expired, so no row can ever hold 'settled'
+    # and widening the terminal set to include it cannot change any outcome. This is the operator-scoping bleed
+    # (roadmap S14.4) handled locally with a provable equivalence rather than a false kill. Falsifiable: the
+    # mutant is still run every time, and if a cell ever objects the gate FAILS as a STALE EXCLUSION.
+    ("anomaly_signals_forward_only_status", "state_list_widened"): (
+        "Equivalent: VOCAB_EXTRA 'settled' is not a valid anomaly_signals.status (the CHECK allows only "
+        "active/acknowledged/resolved/expired), so widening the terminal set `('resolved','expired')` to "
+        "include it is unreachable — no row can be 'settled', so the added element never participates in a "
+        "transition. state_list_widened was written for the service_request status machine and bleeds onto this "
+        "guard only because both write `OLD.status IN (...)`; it is retired here by construction, not by a "
+        "missing test."
+    ),
     ("guard_service_request_status", "stranger_field_edit_allowed"): (
         "RLS pre-empts the trigger. `service_requests_party_update` is "
         "USING (client_auth_uid = auth.uid() OR matched_provider_id IN my_service_provider_ids()) with no "

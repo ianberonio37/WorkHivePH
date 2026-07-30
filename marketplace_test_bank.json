@@ -6282,6 +6282,45 @@
         "keyed on meta->>'lessons_learned' so an ordinary project edit that does not touch it passes through untouched"
       ],
       "provenance": "guard_lessons_learned_is_supervisor, found unscored 2026-07-31 (ARC 13 / F, roadmap S14)."
+    },
+    {
+      "id": "TB-FWD-forward-only-status",
+      "source": "authored",
+      "kind": "authority-negative",
+      "journey": "J-projects-status-machines",
+      "authority": "any",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "anomaly_signals",
+        "shift_plans"
+      ],
+      "probe": {
+        "file": "TB-FWD-forward-only-status.sql",
+        "expect": {
+          "anom_regress": "blocked",
+          "anom_terminal_to_terminal": "allowed",
+          "anom_forward": "allowed",
+          "shift_regress": "blocked",
+          "shift_forward": "allowed"
+        }
+      },
+      "asserts": [
+        "anomaly_signals cannot regress out of a terminal state (resolved/expired -> active is refused), but a terminal->terminal move and any forward move are allowed - forward-only, not frozen",
+        "shift_plans rank cannot go backward (published -> draft is refused) while a forward move (published -> archived) is allowed",
+        "neither guard checks auth.uid(), so the ratchet applies to EVERY caller including the backend - no other trigger's verdict is involved"
+      ],
+      "provenance": "Two forward-only status guards, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Pure ratchets, no auth branch."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

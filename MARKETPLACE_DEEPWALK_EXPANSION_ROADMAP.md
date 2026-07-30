@@ -3308,6 +3308,15 @@ The lessons-learned text is on the SIGNED project report, so only a hive supervi
 (keyed on the guard's own unique raise message so it cannot bleed). **1/1.** Platform mutation → **90/90 across
 13 guards.**
 
+### §14.3e · Seventh + eighth guards scored: the two forward-only status ratchets
+
+`anomaly_signals_forward_only_status` (resolved/expired are terminal; no regressing out) and
+`shift_plans_forward_only_status` (draft→published→archived; rank cannot go backward). Banked by
+`TB-FWD-forward-only-status`: each refuses a regress and allows a forward move (forward-only, not frozen).
+Neither guard checks `auth.uid()` — the ratchet applies to every caller including the backend — so no jwt and
+no other trigger's verdict is involved. One operator each, keyed on the guard's own raise message. **2/2.**
+Platform mutation → **92/92 across 15 guards.**
+
 ### §14.4 · NEXT (the standing queue — ranked, drive top-down)
 
 **Scored this arc so far (12 guards, all 100%):** the 8 from §11–§12, plus `guard_marketplace_seller_trust_columns`,
