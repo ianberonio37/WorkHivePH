@@ -1903,3 +1903,50 @@ oracles refusal 194 · db-truth 36 · rubric 9 · continuity 7 · eval 1 · meta
 **NEXT:** the three one-cell layers the board now names out loud — S2-pwa, S7-ai, S9-knowledge — each
 preceded by a live journey establishing the friction, and each admitted only by the standing rule: a new
 cell counts once it kills a mutant or fails when its invariant is inverted.
+
+### §11.7 · P3 third move — the three "thin" layers needed OWNERS NAMED, not three new cells
+
+Naming the thin layers in §11.4 removed one misreading and introduced its opposite. A reader seeing
+`S2-pwa=1` would reasonably conclude the PWA layer is barely tested. It is not:
+
+| Layer | bank cells | owned platform-wide by |
+|---|---|---|
+| S2-pwa | 1 | **8** gates — `pwa`, `sw-offline`, `sw-shell-membership`, `offline-resilience`, `offline-write-guard`, `cache-invalidation`, `push-handler-contract`, `push-runtime-delivery` |
+| S7-ai | 1 | **9** gates — `service-triage-eval`, `ai-alignment`, `ai-attribution`, `ai-chain-mirror`, `ai-context`, `agentic-rag-loop`, … |
+| S9-knowledge | 1 | **5** gates — `knowledge-freshness`, `substrate-freshness`, `substrate-manifest`, `data-governance-kb`, `ai-companion-knowledge-graph` |
+
+Out of **550 registered gates**. So the honest fix was not three new cells — it was to make the board say
+*both* facts, and it now does:
+
+```
+thin (<=2 BANK cells — the rule counts them covered)
+  S2-pwa         1 bank cell · owned platform-wide by 8 gates: pwa, sw-offline, sw-shell-membership, …
+  S7-ai          1 bank cell · owned platform-wide by 9 gates: service-triage-eval, ai-alignment, …
+  S9-knowledge   1 bank cell · owned platform-wide by 5 gates: knowledge-freshness, substrate-freshness, …
+```
+
+A layer with NO declared owner still prints in yellow as *"genuinely uncovered"*, so the mechanism cannot be
+used to paper over a real hole. **A thin layer is a statement about the BANK's shape, never a claim that
+nothing tests it** — the bank's job is the marketplace's transitions and journeys, and a whole-platform
+concern like offline shell caching or an AI cost ceiling is owned by its own instrument.
+
+**Two disciplines kept this honest.** The owner lists are **curated, not regex-counted**: a first crude match
+reported *"S7-ai: 85 gates"*, inflated by substring false positives (`storage-keys` matches `rag` inside
+"sto**rag**e"). And the registration script **asserts every named owner exists in the live registry** —
+a stale owner id would be a claim of coverage that does not exist, which is precisely the failure this whole
+arc has been removing.
+
+> **The pattern across all three P3 moves is the same, and it is the arc's real lesson.** CDC: already owned,
+> killed. Thin layers: already owned, named. Only the state inducers were genuinely missing, and building
+> them turned up a fourth suspected defect that dissolved on inspection. **Three of four "gaps" were the
+> map, not the territory** — which is why the anti-duplication check runs BEFORE the build, not after.
+
+**Final state:** transition **99.6%** (248/249) · SQL lane **132/132** · mutation **100%** (27/27, 0 persist)
+· layer 100% with its rule and owners disclosed · dimension 100% · oracles refusal 194 · db-truth 36 ·
+rubric 9 · continuity 7 · eval 1 · metamorphic 1 · roadmap 99.6% · ratchet PASS · canonical_status all 82
+green · substrate 720 fresh.
+
+**NEXT:** the one owed cell is `TB-A345` (A3 = the D9 knobs, yours to set; A4 hunted and found absent; A5
+demonstrated by the denominator growing itself). Beyond that the honest queue is *more mutation operators* —
+the 100% means the bank objects to every fault nine operators can express, and each new operator is a real
+increase in what that number is worth.

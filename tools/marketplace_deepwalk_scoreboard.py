@@ -295,7 +295,10 @@ def measure_bank() -> dict | None:
     """
     if not BANK.exists():
         return None
-    tests = json.loads(BANK.read_text(encoding="utf-8")).get("tests", [])
+    # Keep the WHOLE document, not just `tests` — the board also reports the bank's own declarations
+    # (`_layer_owners`), and re-reading the file to get them would let the two views drift apart.
+    doc = json.loads(BANK.read_text(encoding="utf-8"))
+    tests = doc.get("tests", [])
     if not tests:
         return None
     done = [t for t in tests if t.get("status") in ("covered", "banked")]
@@ -335,6 +338,7 @@ def measure_bank() -> dict | None:
 
     return {
         "layer_cell_counts": layer_counts,
+        "layer_owners": (doc.get("_layer_owners") or {}),
         "oracle_mix": oracle_mix,
         "mutation": mutation,
         "transition_pct": _pct(len(done), len(tests)),
@@ -411,8 +415,28 @@ def main() -> int:
             print(f"      {DIM}cells/layer: "
                   + " · ".join(f"{l.split('-')[0]} {counts.get(l, 0)}" for l in LAYERS) + f"{RESET}")
         if thin:
-            print(f"      {YELLOW}thin{RESET} {DIM}(<=2 cells, counted as covered by the rule): "
-                  + ", ".join(f"{l}={n}" for n, l in thin) + f"{RESET}")
+            # A THIN LAYER IS A STATEMENT ABOUT THE BANK, NEVER A CLAIM THAT NOTHING TESTS IT.
+            #
+            # Naming the thin layers (the fix above) removed one misreading and introduced its opposite: a
+            # reader seeing "S2-pwa=1" would reasonably conclude the PWA layer is barely tested. It is not —
+            # the platform carries 8 dedicated gates for it, 9 for S7-ai and 5 for S9-knowledge, out of 550
+            # registered. The bank's job is the MARKETPLACE's transitions and journeys; a whole-platform
+            # concern like offline shell caching or AI cost ceilings is owned by its own instrument, and
+            # re-asserting it here would be the second-worse-copy the anti-duplication rule prevents.
+            #
+            # So print the OWNERS beside the count. Same move as the retired viewport/lang axes and
+            # U1/U2/U5/U6/U7: the bank names what another instrument proves rather than implying absence.
+            owners = (bank.get("layer_owners") or {})
+            print(f"      {YELLOW}thin{RESET} {DIM}(<=2 BANK cells — the rule counts them covered){RESET}")
+            for n, l in thin:
+                own = owners.get(l) or []
+                if own:
+                    shown = ", ".join(own[:4]) + (f" +{len(own) - 4} more" if len(own) > 4 else "")
+                    print(f"        {DIM}{l:<14} {n} bank cell · owned platform-wide by {len(own)} gates: "
+                          f"{shown}{RESET}")
+                else:
+                    print(f"        {YELLOW}{l:<14} {n} bank cell · NO owning gate declared — this one is "
+                          f"genuinely uncovered{RESET}")
         for lyr, owed in (bank.get("layer_owed") or {}).items():
             if not owed:
                 print(f"      {YELLOW}{lyr}{RESET} {DIM}— nothing owed yet: sprout a journey for it{RESET}")

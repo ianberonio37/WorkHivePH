@@ -5365,5 +5365,36 @@
       "why_not_here": "Language coverage is a static property of the markup and its dictionary - an unresolved `data-i` marker IS the defect, and the i18n gate reads every marker against every dictionary on every page. A per-cell language partition in the bank would multiply cells without adding an assertion that gate does not already make. See feedback_i18n_unresolved_marker_is_broken_translation: count is not correctness."
     }
   },
-  "_covers_tables_doc": "Which guard TRANSITIONS this authored probe actually fires. Read by tools/validate_guard_mutation_score.py, which selects cells per guard and would otherwise never show the mutants an authored probe - they carry no `transition` field, so the first score reported guard_service_topup_status at 0% on 1 cell while TB-I2 was asserting exactly the self-deal those mutants create. Under-counting the bank is the same class of error as over-claiming it."
+  "_covers_tables_doc": "Which guard TRANSITIONS this authored probe actually fires. Read by tools/validate_guard_mutation_score.py, which selects cells per guard and would otherwise never show the mutants an authored probe - they carry no `transition` field, so the first score reported guard_service_topup_status at 0% on 1 cell while TB-I2 was asserting exactly the self-deal those mutants create. Under-counting the bank is the same class of error as over-claiming it.",
+  "_layer_owners": {
+    "_why": "WHAT A THIN LAYER DOES AND DOES NOT MEAN. The layer board counts a layer covered on >=1 BANK cell, so S2-pwa, S7-ai and S9-knowledge each show 1 - and a reader could conclude those layers are barely tested. They are not: the platform carries dedicated gates for each (550 registered in total). The bank's job is the MARKETPLACE's transitions and journeys; a whole-platform concern like offline shell caching or AI cost ceilings is owned by its own instrument, and re-asserting it here would be the second-worse-copy the anti-duplication rule exists to prevent. So the board now names the owners instead of implying absence - the same move already made for the retired viewport/lang axes and for U1/U2/U5/U6/U7. A thin layer is a statement about the BANK's shape, never a claim that nothing tests it.",
+    "S2-pwa": [
+      "pwa",
+      "sw-offline",
+      "sw-shell-membership",
+      "offline-resilience",
+      "offline-write-guard",
+      "cache-invalidation",
+      "push-handler-contract",
+      "push-runtime-delivery"
+    ],
+    "S7-ai": [
+      "service-triage-eval",
+      "ai-alignment",
+      "ai-attribution",
+      "ai-chain-mirror",
+      "ai-context",
+      "agentic-rag-loop",
+      "ai-companion-intelligence",
+      "ai-daily-ceiling",
+      "ai-cost-observability"
+    ],
+    "S9-knowledge": [
+      "knowledge-freshness",
+      "substrate-freshness",
+      "substrate-manifest",
+      "data-governance-kb",
+      "ai-companion-knowledge-graph"
+    ]
+  }
 }
