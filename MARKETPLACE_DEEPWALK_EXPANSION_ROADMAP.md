@@ -3301,6 +3301,13 @@ Two guards on one table, both banked by `TB-PLOG-progress-log-record` (10 assert
 Neither shares a variable name with the marketplace guards, so no bleed — seven operators keyed on progress-log
 columns or the guards' own raise messages, all killed. **Platform mutation 82/82 → 89/89 across 12 guards.**
 
+### §14.3d · Sixth guard scored: `guard_lessons_learned_is_supervisor`
+
+The lessons-learned text is on the SIGNED project report, so only a hive supervisor may change it. Banked as
+`TB-LESSONS-supervisor-only`: a worker is refused (42501), a supervisor is allowed. One rule, one operator
+(keyed on the guard's own unique raise message so it cannot bleed). **1/1.** Platform mutation → **90/90 across
+13 guards.**
+
 ### §14.4 · NEXT (the standing queue — ranked, drive top-down)
 
 **Scored this arc so far (12 guards, all 100%):** the 8 from §11–§12, plus `guard_marketplace_seller_trust_columns`,

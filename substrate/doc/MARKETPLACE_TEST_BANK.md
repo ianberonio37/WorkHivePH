@@ -2,7 +2,7 @@
 name: doc-MARKETPLACE_TEST_BANK
 type: doc
 source: file:MARKETPLACE_TEST_BANK.md
-source_sha: 88ba080f909977d6
+source_sha: 192af56933fa11e1
 last_verified: 2026-07-13
 supersedes: null
 ---

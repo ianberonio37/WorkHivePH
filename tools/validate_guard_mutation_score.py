@@ -106,6 +106,9 @@ GUARDS = {
     # bleed. Clean — a bank, not a fix.
     "bind_progress_log_submitter":       "project_progress_logs",
     "guard_progress_log_is_a_record":    "project_progress_logs",
+    # ── ARC 13 / F — lessons-learned is on the signed project report, so only a hive supervisor may change it.
+    # One rule, one operator (keyed on the guard's own unique raise message). Judge: TB-LESSONS. Clean.
+    "guard_lessons_learned_is_supervisor": "projects",
 }
 
 
@@ -423,6 +426,12 @@ OPERATORS = [
     ("plog_ack_own_removed", r"RAISE EXCEPTION 'You cannot acknowledge your own[^;]*;", "NULL;",
      "a supervisor may acknowledge their OWN report - reviewing your own work, the self-signature the "
      "segregation rule exists to stop"),
+
+    # ── ARC 13 / F · guard_lessons_learned_is_supervisor (projects). One rule, keyed on the guard's own unique
+    # raise message so it cannot bleed.
+    ("lessons_supervisor_gate_removed", r"RAISE EXCEPTION 'Lessons-learned appears on the signed[^;]*;", "NULL;",
+     "a non-supervisor may rewrite the lessons-learned on a signed project report - the sign-off text, edited "
+     "by someone who never signed"),
 ]
 
 VOCAB_EXTRA = "'settled'"

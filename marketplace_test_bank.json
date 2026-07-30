@@ -6248,6 +6248,40 @@
         "the legitimate act survives: a supervisor acknowledging SOMEONE ELSE's report is allowed (sup_acks_other), separating 'a record with a review gate' from 'nothing can be acknowledged'"
       ],
       "provenance": "Two guards on project_progress_logs, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Six of seven project tables lack an auth_uid, so the not-own-report check is a name comparison (PJK1's open half); this cell locks the guards as they stand."
+    },
+    {
+      "id": "TB-LESSONS-supervisor-only",
+      "source": "authored",
+      "kind": "authority-negative",
+      "journey": "J-projects-signoff",
+      "authority": "owner",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "projects"
+      ],
+      "probe": {
+        "file": "TB-LESSONS-supervisor-only.sql",
+        "expect": {
+          "worker_edits_lessons": "blocked",
+          "sup_edits_lessons": "allowed"
+        }
+      },
+      "asserts": [
+        "lessons-learned appears on the SIGNED project report, so a non-supervisor worker cannot change it (42501), while a supervisor of the hive can - the write that separates 'supervisor-gated' from 'frozen'",
+        "keyed on meta->>'lessons_learned' so an ordinary project edit that does not touch it passes through untouched"
+      ],
+      "provenance": "guard_lessons_learned_is_supervisor, found unscored 2026-07-31 (ARC 13 / F, roadmap S14)."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
