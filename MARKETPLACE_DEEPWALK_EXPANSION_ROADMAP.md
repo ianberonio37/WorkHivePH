@@ -3354,4 +3354,18 @@ claims RLS-bypassed to isolate the guard; check the table's co-triggers (verify 
    (`anomaly_signals`, `shift_plans`).
 4. The rate/quota/cap ceilings last (resource bounds — failure is a stalled queue, not stolen value):
    `enforce_ai_reply_feedback_daily_limit`, `check_hive_quota_*` (community/inv_tx/logbook/pm), the
-   `*_rate_limit` family, `check_inline_image_size`, `check_daily_row_cap`, `enforce_marketplace_review_daily_cap`.
+   `*_rate_limit` family, `check_daily_row_cap`, `enforce_marketplace_review_daily_cap`.
+   (`check_inline_image_size` — a size cap, not count-based — is DONE, §14.3f.)
+
+   **Method for the COUNT-BASED ceilings** (learned probing `check_logbook_rate_limit`, 2026-07-31): two
+   hazards make these fiddlier than the size caps, and both must be handled or the cell flakes —
+   - **Cap conflation.** Most count tables carry BOTH a quota guard and a rate-limit guard (e.g. logbook has
+     `check_hive_quota_logbook` AND `check_logbook_rate_limit`, both reading `max_rows_logbook`). Isolate the
+     target by setting the caps apart: to score the rate limit's PER-USER rule, set `max_rows_logbook` high
+     (the quota's hive cap, so it never trips) and `max_rows_logbook_per_user` low; assert the errcode/HINT so
+     "verify WHAT blocked it" holds ([[feedback_error_on_returning_is_not_a_failed_write]]).
+   - **Determinism.** The count is over TODAY's rows, so existing same-day data contaminates it. Either read
+     the current count first and set the cap = count + 1 (allow one, refuse the next), or plant a fresh
+     throwaway hive with zero same-day rows. A cap set blind will refuse the first insert (or never trip) and
+     the cell will flap — the exact fixture-that-does-not-control-its-state trap
+     ([[feedback_a_test_asserting_a_state_it_does_not_control]]).
