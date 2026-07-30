@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:612-files
-source_sha: 3692181e5f075ed6
+source: memory-curated:614-files
+source_sha: f4e9f2150860866d
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (612 durable topic files)
+## memory · curated auto-memory (614 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=234 · project=289 · reference=89
+**By type:** feedback=236 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -116,6 +116,7 @@ Entries (name · type · sha):
 - `feedback_handoff_trigger_phrases` · feedback · 291e2bd41d9ee4ad
 - `feedback_handover_report` · feedback · 3d092d6bf0d67b00
 - `feedback_hardening_loop` · feedback · 78e245c6fe28fa12
+- `feedback_headed_playwright_finds_what_headless_hides` · feedback · c26591f4a88e80aa
 - `feedback_heavy_deterministic_gate_report_back_not_slow_floor` · feedback · e8e8abf71e537a4d
 - `feedback_hidden_block_cls_reserve_and_mockup_port` · feedback · 47cca02f8e721e7f
 - `feedback_home_dashboard_ufai_and_i18n_build` · feedback · 08ed47890b4c13a3
@@ -225,6 +226,7 @@ Entries (name · type · sha):
 - `feedback_teach_the_gate_not_bend_the_code` · feedback · 0bbd39de3e64db97
 - `feedback_tester_gate_selection` · feedback · 793ae04c3ff4acff
 - `feedback_tester_streamlined_panes` · feedback · 74ca5120ffd7d3c5
+- `feedback_the_check_and_the_action_read_different_rows` · feedback · 7d1ea2b813e416ad
 - `feedback_the_prose_was_stale_the_registry_was_right` · feedback · c4430f86125103dc
 - `feedback_the_repair_crossed_the_tenant_boundary` · feedback · 9001a87e34f5c5d1
 - `feedback_trust_signal_needs_a_living_producer` · feedback · 9992a30b60bb2887
@@ -514,8 +516,6 @@ Entries (name · type · sha):
 - `project_streamline_E7_request_budget_2026_06_14` · project · 01d3b3bbc0ecd871
 - `project_streamline_extension_plan_2026_06_14` · project · 239205fd2b14f242
 - `project_streamline_roadmap_2026_06_12` · project · 018a75633719a3f5
-- `project_streamline_s1_pm_truth_2026_06_13` · project · 863da29cd84dc8d4
-- `project_streamline_s2_s5_2026_06_13` · project · 819390470e91b4de
-- … +112 more (all included in the fingerprint)
+- … +114 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

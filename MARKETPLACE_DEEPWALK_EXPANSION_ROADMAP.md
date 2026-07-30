@@ -2463,3 +2463,92 @@ not pay for two cells behind a new grammar with sharp edges.
 2. `TB-A345` A3 — the D9 knobs, which are Ian's values to set. The only genuinely blocked cell.
 3. The registry's fourth id problem is fixed, but nothing yet asserts that a gate's `script` path resolves or
    that a `report` filename is unique. Same class, not yet closed.
+
+### §11.18 · A LIVE money exploit — an admin could mint platform credit to themselves in one statement
+
+The sixth operator wave started as vocabulary work and found a real vulnerability instead. It came from asking
+a narrow question about a single expression: **what does `coalesce(old.X, new.X)` actually mean on an UPDATE?**
+
+`guard_service_topup_status` computes party-ness from the **stored** row:
+
+```sql
+v_is_party := (coalesce(old.payer_auth_uid, new.payer_auth_uid) = auth.uid())
+           or (coalesce(old.account_type, new.account_type) = 'provider'
+               and coalesce(old.account_id, new.account_id) in (select id from service_providers
+                                                                 where auth_uid = auth.uid()))
+           or ...
+```
+
+and mints the ledger entry, eight lines later, from the **incoming** row:
+
+```sql
+insert into service_credit_ledger (account_type, account_id, ...)
+values (new.account_type, new.account_id, 'topup', new.amount, ...);
+```
+
+Those two do not have to agree. One statement makes them disagree:
+
+```sql
+update service_credit_topups
+   set account_id = '<the admin''s OWN provider>',
+       status     = 'verified'
+ where id = '<a stranger''s pending top-up>';
+```
+
+The gate reads the **OLD** account, correctly concludes this admin is a party to nothing, and takes the
+bypass. The mint then credits the **NEW** account. Probed end to end in a rolled-back transaction *before*
+writing any fix:
+
+```
+RESULT redirect_and_verify=ALLOWED
+RESULT ledger_rows=1
+RESULT credited_account=f2222222-...-a   amount=500.00
+RESULT credited_the_ADMIN=YES-EXPLOIT
+```
+
+**500 credits, into the admin's own account, from someone else's receipt.** Nothing else stood in the way:
+`service_credit_topups_admin_update` is `USING is_marketplace_admin()` with **no WITH CHECK**, so an admin may
+rewrite any column. Two platform admins exist today, so this was reachable, not theoretical.
+
+#### Why mig 003 did not already stop it
+
+`20260730000003` closed "the admin bypass applies only to a NON-party" across all four guards, and this arc has
+spent three sections asserting that fix from every angle. It held. **The bypass asked the right QUESTION about
+the wrong ROW.** A check and the action it guards must agree on which row they describe — and here the check
+was deliberately written on OLD (correct: you should not escape party-ness by editing the row in flight) while
+the mint necessarily reads NEW (also correct: the credit goes where the row now says). Both defensible, and
+together a hole.
+
+#### The fix, and what it says about an admin's power
+
+`20260730000005` makes the money-routing and receipt fields immutable for any real caller —
+`account_type`, `account_id`, `payer_auth_uid`, `amount`, `gcash_ref`. The no-JWT backend path and the
+announced `workhive.service_system_write` bypass are deliberately untouched, so seeders and sweeps still work.
+
+The framing that makes it obviously right: **an admin's power over a top-up is to DECIDE it, not to rewrite
+it.** Verification and rejection are moderation; editing the destination is forgery. Checked against the
+shipped surface before writing it — the only UPDATE path in the product is founder-console `svcTopupDecide`,
+which writes `status` alone — so no working flow changes.
+
+The new definition was **extracted** with `pg_get_functiondef` and one anchored block inserted, with the build
+script asserting the anchor appears exactly once. Retyping a guard from a partial read is how three unrelated
+security rules were once silently dropped from its sibling ([[feedback_i_rebuilt_a_guard_from_a_partial_read]]).
+
+#### Locked in both directions
+
+- `TB-MINT` gained the exploit as a cell: `redirect_then_verify=blocked` **and** `credit_minted_by_redirect=0`,
+  because a refusal that nevertheless minted would be the worst outcome and the status assertion alone would
+  not see it;
+- a new operator, `intake_immutability_removed`, deletes the rule and requires a cell to object — the first
+  operator here written to **lock** a live exploit rather than to hunt for one.
+
+```
+mutation 100.0% (45/45)  ·  SQL lane 157/157  ·  TB-MINT now 14 assertions
+the exploit: ALLOWED + 500 credits BEFORE  ->  blocked + 0 minted AFTER
+```
+
+> **What actually found this.** Not a review, and not a failing test — a question about the semantics of one
+> expression, asked because a mutation operator needed writing. Four of the six waves have now produced
+> something the suite could not: three test gaps, two harness defects, and one live money bug. **The exercise
+> that makes a metric trustworthy is the same exercise that finds real defects**, which is the strongest case
+> for the sixth wave, and the seventh.

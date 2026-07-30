@@ -67,7 +67,10 @@ insert into public.service_credit_topups(id, account_type, account_id, payer_aut
   -- the row used for the mint-once case, verified below through the SYSTEM path so it carries a real ledger
   -- row before the admin ever touches it
   ('e3333333-0000-4000-8000-00000000000d','provider','e2222222-0000-4000-8000-00000000000b',
-   'e1111111-0000-4000-8000-00000000000b',500,'920000000004','pending_verification');
+   'e1111111-0000-4000-8000-00000000000b',500,'920000000004','pending_verification'),
+  -- a separate row for the REDIRECT case, so it cannot interact with the moderation case above
+  ('e3333333-0000-4000-8000-00000000000f','provider','e2222222-0000-4000-8000-00000000000b',
+   'e1111111-0000-4000-8000-00000000000b',500,'920000000005','pending_verification');
 
 -- Verified as postgres (auth.uid() is null -> the vetted backend path), which is the ONLY way to arrive at a
 -- verified row with its ledger entry already minted. Inserting `verified` directly would not mint, because
@@ -123,6 +126,27 @@ begin
     raise notice 'RESULT moderation_verify_unrelated=%', case when n>0 then 'works' else 'BROKEN' end;
   exception when others then raise notice 'RESULT moderation_verify_unrelated=BROKEN'; end;
 
+  -- 5. THE REDIRECT. A LIVE EXPLOIT, found 2026-07-30 and closed by mig 20260730000005.
+  --    The party gate computes from the STORED row (`coalesce(old.account_id, new.account_id)`) and the mint
+  --    a few lines later inserts `new.account_type, new.account_id`. So ONE statement defeated the whole
+  --    party check: change the destination to an account you own AND verify, together. The gate read the OLD
+  --    account, correctly saw this admin as a party to nothing, took the bypass — and the mint credited the
+  --    NEW account. Probed before the fix: ALLOWED, one ledger row, `credited_the_ADMIN=YES-EXPLOIT`, 500
+  --    credits. `service_credit_topups_admin_update` is USING is_marketplace_admin() with no WITH CHECK, so
+  --    an admin may rewrite any column and nothing else stopped it.
+  --
+  --    It slipped past mig 20260730000003 for a subtle reason worth keeping: 003 made the gate ask the right
+  --    QUESTION (is the admin a party?) and this asked it about the wrong ROW. A check and the action it
+  --    guards must agree on which row they describe.
+  begin
+    update public.service_credit_topups
+       set account_id = 'e2222222-0000-4000-8000-00000000000a',   -- the ADMIN's own provider
+           status     = 'verified'
+     where id = 'e3333333-0000-4000-8000-00000000000f';
+    get diagnostics n = row_count;
+    raise notice 'RESULT redirect_then_verify=%', case when n>0 then 'ALLOWED' else 'blocked' end;
+  exception when others then raise notice 'RESULT redirect_then_verify=blocked'; end;
+
   -- 4. MINT ONCE. Re-saving an already-verified top-up. The status is `verified` before and after, so the
   --    row itself proves nothing — the ledger count below is the whole assertion.
   begin
@@ -138,7 +162,7 @@ reset role;
 select set_config('request.jwt.claims', '', true);
 
 do $ledger$
-declare n_own int; n_wallet int; n_unrelated int; n_reverify int;
+declare n_own int; n_wallet int; n_unrelated int; n_reverify int; n_redirect int;
 begin
   select count(*) into n_own       from public.service_credit_ledger
    where ref_kind='topup' and ref_id='e3333333-0000-4000-8000-00000000000a';
@@ -148,12 +172,18 @@ begin
    where ref_kind='topup' and ref_id='e3333333-0000-4000-8000-00000000000c';
   select count(*) into n_reverify  from public.service_credit_ledger
    where ref_kind='topup' and ref_id='e3333333-0000-4000-8000-00000000000d';
+  -- The redirect's money oracle. A blocked redirect that nevertheless minted into the admin's account would
+  -- be the worst outcome here, and the status assertion above would still read `blocked`.
+  select count(*) into n_redirect  from public.service_credit_ledger
+   where ref_kind='topup' and (ref_id='e3333333-0000-4000-8000-00000000000f'
+                               or account_id='e2222222-0000-4000-8000-00000000000a');
   -- The money oracle for all four cases. A blocked self-verify that still minted would be the worst
   -- outcome of the lot, and every status assertion above would still read `blocked`.
   raise notice 'RESULT credit_minted_own_provider=%', n_own;
   raise notice 'RESULT credit_minted_own_wallet=%', n_wallet;
   raise notice 'RESULT credit_minted_unrelated=%', n_unrelated;
   raise notice 'RESULT credit_after_reverify=%', n_reverify;
+  raise notice 'RESULT credit_minted_by_redirect=%', n_redirect;
 end
 $ledger$;
 

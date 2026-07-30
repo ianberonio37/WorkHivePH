@@ -5886,16 +5886,19 @@
           "credit_minted_unrelated": "1",
           "credit_after_reverify": "1",
           "verifier_is_the_admin": "yes",
-          "verified_at_stamped": "yes"
+          "verified_at_stamped": "yes",
+          "redirect_then_verify": "blocked",
+          "credit_minted_by_redirect": "0"
         }
       },
       "asserts": [
         "party-ness on the money guard is a THREE-branch disjunction and each branch is its own authorisation path: the payer route (TB-I2), the provider-account route and the consumer-wallet route are asserted separately, because an admin who owns the DESTINATION mints into an account they control",
         "the mint fires ONCE: re-saving an already-verified top-up is accepted but adds no second ledger row, which only a ledger COUNT can show since the status column is identical either way",
         "the moderation half is asserted in the same run: verifying a top-up the admin is a party to in no way still works, and mints exactly one entry",
-        "WHO verified it is recorded: the guard stamps verified_by/verified_at and nothing asserted the stamp existed, so an operator deleting it left every cell green while the money path kept minting credit and lost the accountability for it"
+        "WHO verified it is recorded: the guard stamps verified_by/verified_at and nothing asserted the stamp existed, so an operator deleting it left every cell green while the money path kept minting credit and lost the accountability for it",
+        "THE REDIRECT, a live exploit closed by mig 20260730000005: the party gate reads coalesce(old.account_id,...) while the mint inserts new.account_id, so ONE statement (change the destination to an account you own AND verify) passed the gate on the old values and credited the new ones - probed ALLOWED with 500 credits into the admin own account before the fix"
       ],
-      "provenance": "Found 2026-07-30 by a FOURTH wave of mutation operators written to re-challenge a 100% rather than bank it - the previous 100% on this tool had been fabricated by a broken injection, so an unchallenged score was not trusted. mint_on_any_prior_status, party_provider_account_branch_removed and party_consumer_account_branch_removed all survived the guard s 4 existing cells. The shipped guard is CORRECT in all three cases: these were test gaps, so the fix is a cell, not a migration."
+      "provenance": "Found 2026-07-30 by a FOURTH wave of mutation operators written to re-challenge a 100% rather than bank it - the previous 100% on this tool had been fabricated by a broken injection, so an unchallenged score was not trusted. mint_on_any_prior_status, party_provider_account_branch_removed and party_consumer_account_branch_removed all survived the guard s 4 existing cells. The shipped guard is CORRECT in all three cases: these were test gaps, so the fix is a cell, not a migration. 2026-07-30 addendum: probing what coalesce(old.X,new.X) MEANS on an UPDATE found a live money exploit - an admin who is a party to NOTHING could redirect a stranger s top-up to their own provider account and verify it in one statement. Closed by mig 20260730000005 (the intake facts are immutable for any real caller; the backend and system-write paths are untouched) and locked here plus by the intake_immutability_removed operator."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

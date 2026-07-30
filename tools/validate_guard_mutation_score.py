@@ -186,6 +186,16 @@ OPERATORS = [
      "ownership is read from the INCOMING row rather than the stored one, so a caller could assert who they "
      "are in the same statement that uses it"),
 
+    # The rule mig 20260730000005 added, so the fix cannot silently regress. This is the first operator here
+    # written to lock a LIVE exploit rather than to probe for one: an admin who was a party to nothing could
+    # redirect a stranger's top-up to their own provider account and verify it in ONE statement, because the
+    # party gate reads `coalesce(old.account_id, ...)` while the mint inserts `new.account_id`. Probed end to
+    # end before the fix - ALLOWED, one ledger row, 500 credits into the admin's own account.
+    ("intake_immutability_removed", r"if TG_OP = 'UPDATE' and auth\.uid\(\) is not null",
+     "if false and auth.uid() is not null",
+     "a top-up's money-routing fields become rewritable again, so an admin can redirect a stranger's top-up "
+     "to an account they own and verify it in one statement (the live exploit mig 20260730000005 closed)"),
+
     ("cancel_window_widened",
      r"and\s+new\.status\s*=\s*'cancelled_by_provider'", "and new.status is not null",
      "the provider-cancel rule stops naming its target state, so it authorises any transition from those "
