@@ -154,6 +154,9 @@ GUARDS = {
     # ── ARC 13 / F — the per-user 200/day AI-reply-feedback cap. Judge: TB-RATE-ai-feedback (200 planted at the
     # cap, 201st trips, auth_uid-null backend bypass allowed). One operator on its own raise message. Clean.
     "enforce_ai_reply_feedback_daily_limit": "ai_reply_feedback",
+    # ── ARC 13 / F — the per-reviewer 10/day review cap. Judge: TB-RATE-review (10 planted today, 11th trips, a
+    # different reviewer unaffected). One operator on its own raise message. Clean.
+    "enforce_marketplace_review_daily_cap": "marketplace_reviews",
 }
 
 
@@ -519,6 +522,8 @@ OPERATORS = [
      "the 24-hour per-hive listing cap stops firing, so a hive can flood the marketplace past its anti-spam limit"),
     ("ai_feedback_rate_removed", r"RAISE EXCEPTION 'Daily AI reply feedback limit reached'[^;]*;", "NULL;",
      "the per-user 200/day AI-reply-feedback cap stops firing, so one account can flood feedback unbounded"),
+    ("review_cap_removed", r"RAISE EXCEPTION 'Daily review limit reached[^;]*;", "NULL;",
+     "the per-reviewer 10/day review cap stops firing, so one reviewer can flood a listing with reviews"),
 ]
 
 VOCAB_EXTRA = "'settled'"
