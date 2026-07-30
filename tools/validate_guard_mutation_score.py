@@ -119,6 +119,11 @@ GUARDS = {
     # ── ARC 13 / F — an announcement (category='announcement') may only be posted by a hive supervisor. One rule,
     # one operator (the guard's own unique raise message). Judge: TB-ANNC. Clean.
     "guard_community_announcement":       "community_posts",
+    # ── ARC 13 / F — the FIRST count-based ceiling: logbook per-user/day rate limit. Judge: TB-RATE, which
+    # isolates it from the sibling quota guard by pinning the hive cap high and the per-user cap to the caller's
+    # live same-day count + 1. One operator, keyed on the user-cap raise's own HINT ('logbook_daily_user') so it
+    # cannot hit the same guard's hive-cap raise. Clean.
+    "check_logbook_rate_limit":           "logbook",
 }
 
 
@@ -467,6 +472,11 @@ OPERATORS = [
      r"RAISE EXCEPTION 'Only supervisors can post announcements'[^;]*;", "NULL;",
      "any member may post a hive-wide ANNOUNCEMENT, not just a supervisor - the broadcast channel stops being "
      "an authority statement"),
+
+    # ── ARC 13 / F · the logbook PER-USER rate limit. Keyed on the user-cap raise's own HINT so it targets the
+    # per-user rule and not this guard's identically-messaged hive-cap raise (which differs only in the HINT).
+    ("logbook_user_rate_removed", r"RAISE EXCEPTION 'You have logged[^;]*logbook_daily_user';", "NULL;",
+     "the per-user/day logbook rate limit stops firing, so one account can flood the logbook past its abuse cap"),
 ]
 
 VOCAB_EXTRA = "'settled'"

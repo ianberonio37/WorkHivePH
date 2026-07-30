@@ -6391,6 +6391,40 @@
         "a single insert never trips this table's rate-limit or daily-quota triggers, so what refuses the worker's announcement is unambiguously this guard"
       ],
       "provenance": "guard_community_announcement, found unscored 2026-07-31 (ARC 13 / F, roadmap S14)."
+    },
+    {
+      "id": "TB-RATE-logbook-per-user",
+      "source": "authored",
+      "kind": "resource-cap",
+      "journey": "J-logbook-rate",
+      "authority": "owner",
+      "state": "populated",
+      "path": "edge",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "logbook"
+      ],
+      "probe": {
+        "file": "TB-RATE-logbook-per-user.sql",
+        "expect": {
+          "rate_first": "allowed",
+          "rate_second": "blocked sqlstate=54000"
+        }
+      },
+      "asserts": [
+        "the per-user/day logbook rate limit refuses the write that exceeds the cap (54000), while the write AT the cap is allowed - the abuse stop tested from both sides",
+        "ISOLATED from the sibling check_hive_quota_logbook (which reads the same max_rows_logbook) by pinning the hive cap to 1,000,000 so only the per-user rule can trip, and the cap is computed from the caller's LIVE same-day count so the cell controls its own state rather than assuming an empty day"
+      ],
+      "provenance": "check_logbook_rate_limit (per-user rule), found unscored 2026-07-31 (ARC 13 / F, roadmap S14). First of the count-based ceilings; establishes the cap-isolation + determinism method for the rest."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
