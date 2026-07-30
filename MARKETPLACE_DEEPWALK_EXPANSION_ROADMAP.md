@@ -2770,3 +2770,27 @@ mutation 100.0% (49/49, 6 exclusions each naming a mechanism + a falsifiable re-
 ratcheted 90.6% -> 100.0%  ·  SQL lane 157/157  ·  TB-MINT 16 assertions
 arc-x 20/20  ·  memory lint 0 ERR  ·  substrate 720 fresh
 ```
+
+#### §11.21a · The 25 unwritten `report` declarations, diagnosed rather than left as an intention
+
+A declared `report` that no gate writes reads as "this gate leaves an artifact you can inspect", and following
+it finds nothing — the same fiction that made the `rls-strict` mislabel convincing. Measured: **25 of the 394**
+gates that declare one have a script containing no report-writing code. Made a forward-only ceiling in
+`main()` (printed every run, only a RISE fails) rather than 25 blocking fixes, and then diagnosed so the
+cleanup is mechanical:
+
+- **21 are unambiguous fiction** — no report-writing code AND no file on disk. All `group: Platform`, and
+  mostly one cluster: `voice-phase1/1-5/2/3`, `voice-canonical-anchor`, `voice-routing-unification`,
+  `voice-alert-formatting`, `voice-data-flow`, `tts-quality`, `avatar-state`, `dialog-flow`,
+  `proactive-alerts`, `multilingual-support`, `persona-contract`, `offline-resilience`, `rag-integrity`,
+  `analytics-integrity`, `team-coordination`, `c-track-self-coverage`, `grounded-sweep`, `modal-a11y`. A
+  convention declared across one arc and never implemented. **Disposition: drop the field** — it points at
+  nothing that exists.
+- **4 need individual judgment** because the file DOES exist while the script never names it:
+  `memory-integrity`, `ai-asset-versioning`, `ai-eval-regression`, `companion-page-coverage`. Either a sibling
+  tool writes it (in which case the pointer belongs on THAT gate, exactly as `rls-strict` did) or the file is
+  a stale artifact from an older implementation. Not guessed at here.
+
+Left as a precise work list rather than done, because the ceiling already stops the count growing and the
+21-entry edit carries no functional change. What is NOT left open is the question — the split above is the
+answer, so the next pass is an edit, not an investigation.
