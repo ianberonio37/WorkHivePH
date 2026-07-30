@@ -92,7 +92,12 @@ GUARDS = {
     # but the residual survivors are harness artifacts, not guard gaps — and forcing a 100% via unexplained
     # exclusions would be the false-green this arc exists to prevent. Scoring it cleanly needs OPERATOR SCOPING
     # (roadmap S14.3a / S14.4), the first harness improvement in the queue. The TB-SREVIEW cell still runs in the
-    # SQL lane, so the guard's behaviour is covered; only the mutation SCORE waits for the scoping.
+    # SQL lane, so the guard's behaviour is covered; only the mutation SCORE waits for the scoping. A genuine
+    # re-attempt 2026-07-31 (after the admin-party case) reproduced 58.3% with 5 survivors — client_check_true,
+    # refusal_removed, backend_branch_removed, admin_check_always_true, review_client_direction_unchecked — of
+    # which admin_check_always_true SHOULD be killed by the stranger case yet is not, for reasons not cleanly
+    # explained. Excluding what cannot be proven equivalent would be the false-green this arc exists to prevent,
+    # so the deferral is confirmed, not lifted. The behaviour is covered by TB-SREVIEW in the SQL lane.
     # "guard_service_review": "marketplace_reviews",
     # ── ARC 13 / F — contract-terms immutability. A change order is a contract amendment; once raised its
     # commercial terms are fixed. Shares NO variable names with the status machines and calls neither
@@ -436,10 +441,9 @@ OPERATORS = [
      r"COALESCE\(NEW\.cert_verified,false\)\s+IS DISTINCT FROM COALESCE\(OLD\.cert_verified,false\)", "false",
      "a seller may turn their OWN cert_verified on - the certification badge, self-awarded (UPDATE branch)"),
 
-    # NOTE: the three guard_service_review operators (review_status_gate_removed / _client_direction_unchecked /
-    # _provider_direction_unchecked) were removed alongside deferring that guard from GUARDS above. They only
-    # match guard_service_review's text, so they are re-added with it once operator scoping lands (roadmap
-    # S14.3a) — keeping them here now would be dead code that matches nothing.
+    # NOTE: the three guard_service_review operators were removed again when the guard's re-attempt confirmed the
+    # deferral (see the commented GUARDS entry above). They only match guard_service_review's text, so they are
+    # re-added with it if/when operator scoping or a per-survivor investigation lands.
 
     # ── ARC 13 / F · guard_change_order_terms_immutable's five rot modes. Each pattern names a column UNIQUE to
     # project_change_orders (cost_impact_php / scope_change / co_number / schedule_impact_days) or the guard's own
