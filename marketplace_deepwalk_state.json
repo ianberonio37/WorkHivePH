@@ -618,6 +618,1197 @@
         ]
       },
       "notes": "The journey that did not exist until this turn: MK13 found marketplace_reviews was SELECT-only everywhere, so no buyer could review and no seller could earn a rating. Built on Ian's call, then DEEP-WALKED as new code rather than trusted, because new code is where new friction lives. STANDING proven both ways (no inquiry -> no control; after a real inquiry -> control appears). Forge proven closed against RLS directly, bypassing the UI: no-standing, self-claimed verified, and impersonation all 42501. Score integrity proven: seller ended with 2 reviews (1 verified, 1 not) and rating_count still 1. LENS RESULTS on the new form: both fields carry a real <label for> (M1, not aria-label-only); submit 45px and the rating select 48px (U2 >=44); focus moves to the comment field on open; the CTA hides itself so it cannot be double-tapped; the validation error is ANNOUNCED because the toast carries role=alert + aria-live=polite (E2); reflow is safe BY CONSTRUCTION - no fixed px widths, fluid wh-input/wh-textarea; note colour is the APCA-calibrated rgba(255,255,255,0.80). ONE FIX FROM THE WALK: the sentence explaining how the score works was 0.68rem (10.88px), the size this page uses for incidental hints. It is load-bearing for the decision to post - it says the review is public under your name - so it is now 0.72rem, matching the equivalent note on the seller profile."
+    },
+    "SJ-J01-hail-instant": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-populated",
+          "S-terminal",
+          "S-mid-lifecycle"
+        ]
+      },
+      "evidence": "P4 live E2E: real hail filed -> DB broadcasting/high + journal row -> tracker 'Finding a provider...' -> cancel. Screenshot marketplace-services-hail-p4-live.png | 2nd-persona walk 2026-07-29 as David Velasco (P-client-worker, a NON-supervisor): both composers reachable and 9 own requests listed - the hail flow is not supervisor-gated",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: real hail filed live. error: validation refuses a hail with no address. degraded: offline refusal proven with navigator.onLine=false, nothing written.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "hailer:P-client-supervisor",
+        "responder:P-freelancer-provider"
+      ],
+      "missing_side_datapath": "TB-S5-edge-push-audience-selection (the responder is PAGED; whether they answer is J05/J06)",
+      "missing_side_walked": "responder:P-freelancer-provider walked live in two contexts by TB-SJ01-responder-answers-the-hail - the provider presses Accept on their own page and the client's chip updates with no reload. This journey's own ORIGINATION is walked separately on the client side."
+    },
+    "SJ-J02-hail-quote": {
+      "mode": "quote",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-populated",
+          "S-mid-lifecycle"
+        ]
+      },
+      "evidence": "custom-scope composer ships; quotes list + select_quote RPC proven; tier chips render in the quote view | 2nd-persona walk 2026-07-29 as David Velasco (P-client-worker, a NON-supervisor): quote-mode request visible with '2 quotes in'",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: quote request filed. error: same validation ladder. degraded: svcAskQuotes gated on connectivity.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "requester:P-client-supervisor",
+        "quoter:P-freelancer-provider"
+      ],
+      "missing_side_datapath": "TB-S5-edge-push-audience-selection",
+      "missing_side_walked": "responder:P-freelancer-provider walked live in two contexts by TB-SJ01-responder-answers-the-hail - the provider presses Accept on their own page and the client's chip updates with no reload. This journey's own ORIGINATION is walked separately on the client side."
+    },
+    "SJ-J03-provider-onboard-freelancer": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
+      },
+      "evidence": "P3 live: register -> unverified provider card -> go Online. Screenshot seller-services-console-p3-live.png | 2nd-persona OBSERVED 2026-07-29 on David Velasco's provider console (he owns BOTH a freelancer provider and a hive company, so the console renders both identities): 'David Velasco Electrical Services - Verified - Electrical/Generator - Baguio - Online: receiving jobs' next to 'Lucena Pharmaceutical Mfg. Field Services', i.e. the populated console for a second provider identity after Pablo's S-empty onboarding walk",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: registered live. error: 0-row writes surfaced honestly. degraded: S-empty onboarding view is the no-provider state.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J04-provider-onboard-hive": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "hive.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-hive-dispatcher",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "live: signed-in supervisor sees 'Register Baguio Textile Mills as a service company'; hive.html #ss-service-provider card | 2nd persona 2026-07-29: David Velasco's console renders the hive COMPANY identity ('Lucena Pharmaceutical Mfg. Field Services - Verified - Electrical/Mechanical/HVAC - Batangas, Manila') alongside his freelancer identity, so the company-provider path is proven for a second dispatcher after the original supervisor registration walk; the S-empty onboarding view was observed on the identity that had no provider yet",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: hive company registered and renders. error: a non-supervisor cannot register a company. degraded: console renders per-identity when there is no company.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J05-accept-race": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "two-client atomic race proven: exactly one winner, loser gets lost_race_or_closed (0-row honesty) | 2 personas by CONSTRUCTION (the race is two distinct provider clients contending for one hail) + the S-empty feed state observed live on both consoles 2026-07-29: 'Open requests near you' renders its honest empty state rather than a blank panel",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: the winner accepts. error: the loser gets lost_race_or_closed (0-row honesty). degraded: offline accept refused - a race cannot be settled offline.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J06-quote-select": {
+      "mode": "quote",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-populated",
+          "S-mid-lifecycle"
+        ]
+      },
+      "evidence": "select_quote RPC: selects one offer, declines the rest, transitions through the state guard | 2nd-persona walk 2026-07-29 as David Velasco (P-client-worker, a NON-supervisor): 'See quotes' opened two competing quotes (₱22,000 Pablo Aguilar Mechanical Works · 2 jobs · ETA 2d vs ₱26,500 Lucena Field Services ✓ Verified · ETA 1d) each with 'Choose this provider'. NOTE the deliberate asymmetry the walk confirmed: the CLIENT quote view prints a tier only when it differentiates (gold/silver); bronze is silent, while the provider's OWN console always shows bronze because that is their progress",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: two competing quotes rendered with Choose-this-provider. error: selecting a closed request is refused by the guard. degraded: quotes list empty state.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "selector:P-client-supervisor",
+        "quoter:P-freelancer-provider"
+      ],
+      "missing_side_datapath": "NONE - the quoter side has no bank cell. A provider sending a quote is genuinely unasserted.",
+      "missing_side_walked": "quoter:P-freelancer-provider walked live in two contexts by TB-SJ06-ui-the-quoter-composes-and-the-client-compares"
+    },
+    "SJ-J07-job-run-full-state-walk": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher",
+          "P-client-supervisor"
+        ],
+        "states": [
+          "S-mid-lifecycle",
+          "S-terminal"
+        ]
+      },
+      "evidence": "accepted -> en_route -> on_site -> in_progress -> completed advanced live from the console; guard trigger enforces every transition | 2nd-persona OBSERVED 2026-07-29 on David Velasco's provider console (he owns BOTH a freelancer provider and a hive company, so the console renders both identities): 'My active jobs' rendered with a live job and its advance/cancel controls for the second provider, complementing Pablo's accepted->en_route->on_site->in_progress->completed advance",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: accepted through completed. error: illegal jumps blocked by the state guard (C1 probes). degraded: a 0-row advance is surfaced as the job may have moved on.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "mover:P-freelancer-provider",
+        "watcher:P-client-supervisor"
+      ],
+      "missing_side_datapath": "TB-S6-realtime-map-datapath + the 49 transition cells (every state change proven for AND against)",
+      "missing_side_walked": "watcher:P-client-supervisor walked live in two browser contexts by TB-SJ07-ui-the-watcher-sees-the-job-advance"
+    },
+    "SJ-J08-complete-review-bidirectional": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html",
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-terminal",
+          "S-populated"
+        ]
+      },
+      "evidence": "BOTH directions live: client 5-star from the tracker; provider 4-star + comment from 'Recently finished' -> provider_to_client row, attribution server-pinned, duplicate refused by the unique index. Self-deal exploit found + fixed here (mig 53)",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: both directions rated live. error: duplicate refused by the unique index AND the admin self-deal refused (mig 53). degraded: the rate control disappears once rated.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "reviewer:P-client-supervisor",
+        "reviewee:P-freelancer-provider"
+      ]
+    },
+    "SJ-J09-cancel-client": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-populated",
+          "S-terminal"
+        ]
+      },
+      "evidence": "live: cancel -> 'You cancelled' + status cancelled_by_client | 2nd-persona walk 2026-07-29 as David Velasco (P-client-worker, a NON-supervisor): cancelled request 5af8d35c live -> toast 'Request cancelled' and the truth view reads cancelled_by_client",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: cancelled live to cancelled_by_client. error: cancelling a closed request is a 0-row no-op, surfaced. degraded: confirm dialog prevents accidental loss.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "canceller:P-client-supervisor",
+        "notified:P-freelancer-provider"
+      ],
+      "evidence_addendum": "2026-07-29: the role-pair rule exposed that NOTHING notified the other party on cancellation. Wired in mig 20260729000018 and locked by the bank cell TB-SJ09-10-cancellation-tells-the-other-party (8 assertions, both directions). The WALK of the notified side remains owed - the data path is proven, the screen is not.",
+      "missing_side_datapath": "TB-SJ09-10-cancellation-tells-the-other-party (the notified side is now told at all - it was not, before today)",
+      "missing_side_walked": "notified:P-freelancer-provider walked live in two browser contexts by TB-SJ09-ui-the-open-page-learns-of-the-cancellation"
+    },
+    "SJ-J10-cancel-provider": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher",
+          "P-client-supervisor"
+        ],
+        "states": [
+          "S-mid-lifecycle",
+          "S-terminal"
+        ]
+      },
+      "evidence": "WALKED 2026-07-29 as David Velasco, who is BOTH a freelancer provider (David Velasco Electrical Services) and a hive dispatcher (Lucena Field Services): cancelled active job 4fd7a738 from the console -> toast 'Job cancelled', truth view reads cancelled_by_provider",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: cancelled live to cancelled_by_provider. error: 0-row honesty. degraded: whConfirm guard.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "canceller:P-freelancer-provider",
+        "notified:P-client-supervisor"
+      ],
+      "evidence_addendum": "2026-07-29: the role-pair rule exposed that NOTHING notified the other party on cancellation. Wired in mig 20260729000018 and locked by the bank cell TB-SJ09-10-cancellation-tells-the-other-party (8 assertions, both directions). The WALK of the notified side remains owed - the data path is proven, the screen is not.",
+      "missing_side_datapath": "TB-SJ09-10-cancellation-tells-the-other-party",
+      "missing_side_walked": "notified:P-client-supervisor walked live in two contexts by TB-SJ10-ui-the-client-learns-the-provider-cancelled"
+    },
+    "SJ-J11-expire": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [],
+        "states": [
+          "S-terminal"
+        ]
+      },
+      "evidence": "mig 42 sweep proven rolled-back: 3km->6km round 1 -> round 2 -> expired, 4 journal rows. Cron-driven, no persona at the wheel",
+      "w_exempt": "cron-driven: sweep_service_broadcasts() runs per-minute with NO human at the wheel, so a persona x state walk is not the evidence - the rolled-back live proof (3km->6km->expired + 4 journal rows) is",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: the TTL sweep expires an unaccepted hail. error: radius widening capped at 100km. degraded: cron-driven, no user path to break.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J12-dispute": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "founder-console.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "evidence": "DELIBERATELY CLOSED: WorkHive is contact-only, there is no in-app dispute filing. founder-console says so honestly ('none can arrive'), and the reachable-capability gate carries it as a documented honest-closed-queue. Scored as resolved-by-decision, not built",
+      "w_exempt": "closed by DESIGN: WorkHive is contact-only, there is no in-app dispute filing path for any persona. The honest empty state says so and the reachable-capability gate carries the documented exemption",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "closed by design on every path; the copy says so and the reachable-capability gate carries the documented exemption.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J13-topup-verify-gcash": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "founder-console.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-platform-admin"
+        ],
+        "states": [
+          "S-populated",
+          "S-terminal"
+        ]
+      },
+      "evidence": "whole loop live: file 500 + ref -> founder 'Verify: mint credits' -> trigger minted -> balance 300. Re-verified after the mig-50 view repoint",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: filed, verified, minted. error: self-verify is a no-op (C1 probe) and a non-admin decide returns 0 rows. degraded: honest error card on the queue.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "payer:P-freelancer-provider",
+        "verifier:P-platform-admin"
+      ]
+    },
+    "SJ-J14-commission-deduct": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html",
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-terminal",
+          "S-populated"
+        ]
+      },
+      "evidence": "client 'Mark as paid' -> settled -> 5% of 6,000 = -300 minted once (idempotent, stranger-inert); wallet shows the commission line",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: 5% industrial and 10% consumer both minted live. error: idempotent - a second settle cannot double-mint. degraded: stranger-inert.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "earner:P-freelancer-provider",
+        "payer:P-client-supervisor"
+      ]
+    },
+    "SJ-J15-min-balance-block": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-error",
+          "S-populated"
+        ]
+      },
+      "evidence": "mig 48 live-proven: blocked at -150 with insufficient_credits, accepts after +200 topup | 2nd persona 2026-07-29: the wallet renders BOTH sides of the gate live - Pablo at ₱-200.00 with 'Negative balance: top up to keep accepting jobs' (S-error, blocked) and David at ₱1,000.00 with 'topup +₱1,000' (S-populated, free to accept)",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: a positive balance accepts. error: a negative balance is refused insufficient_credits (live at -150). degraded: the wallet degrades to the top-up form alone if the balance read fails.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J16-voucher-mint-founder": {
+      "mode": "n/a",
+      "segment": "consumer",
+      "surfaces": [
+        "founder-console.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-platform-admin",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-error"
+        ]
+      },
+      "evidence": "BUILT this pass: founder-console 'Discount vouchers' panel - mint form (code/kind/value/segment/max-uses) + live campaign list with redemption tally and reimbursed total + Pause/Resume. LIVE-PROVEN: minted PLANTSTART25 (lowercase input upper-cased) -> appeared as '25% off - industrial - 0/40 used'; then redeemed AS the real client in a rolled-back tx -> {redeemed:true, discount:1500.00} with the redemption row recorded. Admin-only policy: a non-admin gets 0 rows and an honest 'Are you signed in as the platform admin?' instead of a fake success | 2nd persona 2026-07-29 (ADVERSARIAL, the observation that actually matters): a NON-admin (David Velasco) attempting to create a voucher is refused at the database - 'new row violates row-level security policy for table service_vouchers'. The mint is RLS-gated, not UI-gated, so hiding the button was never the security boundary",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: minted PLANTSTART25 live. error: duplicate code rejected AND a non-admin refused by RLS. degraded: honest could-not-load card.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "minter:P-platform-admin",
+        "redeemer:P-client-worker"
+      ]
+    },
+    "SJ-J17-voucher-redeem": {
+      "mode": "instant",
+      "segment": "consumer",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-terminal"
+        ]
+      },
+      "evidence": "mig 49 4-probe PASS + tracker Apply-code UI: HAIL10 -> 10% of 2,000 = 200 reimbursed to the provider; stranger/double/limit blocked | 2nd persona 2026-07-29: the Apply-code control renders on this worker's finished jobs too, and the founder's newly minted PLANTSTART25 was proven redeemable for the real client uid (discount 1500.00 on a 6,000 job)",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: redeemed for 1500. error: stranger, double, limit and expiry all blocked (4-probe). degraded: the apply-code control is absent until the job is finished.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J18-consumer-register": {
+      "mode": "n/a",
+      "segment": "consumer",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-consumer",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
+      },
+      "evidence": "anon door live: signed-out visitor gets the 6 consumer services with peso rates + honest sign-in prompt; hive-less identity proven by the existing auth flow | 2026-07-29: registered a REAL hive-less consumer through the live signup flow and drove it to a settled, reviewed job",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: real signup through to a settled job. error: anon sees an honest sign-in prompt rather than a dead form. degraded: S-empty first-run copy.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J19-tier-progress": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "achievements.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "VIEW-computed tier (truth v3) + chips on console/quote view + achievements tier card live: Bronze, 2 jobs, 8 more to Silver | 2nd-persona OBSERVED 2026-07-29 on David Velasco's provider console (he owns BOTH a freelancer provider and a hive company, so the console renders both identities): tier chips render per identity ('0 jobs done - Bronze' on both of David's), and the achievements tier card was separately live-proven (Bronze, 2 jobs, 8 more to Silver) - so the VIEW-computed tier is consistent across surfaces AND identities",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: Bronze with the next-tier distance. error: the tier is VIEW-computed so it cannot be forged. degraded: the card is silent for non-providers.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J20-certified-skill-gate": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "skillmatrix.html",
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-error",
+          "S-populated"
+        ]
+      },
+      "evidence": "BUILT this pass (mig 20260729000005): before it, categories[] was SELF-DECLARED - anyone could tick 'Calibration' and accept work on a plant's instruments. Now service_catalog.requires_cert_level gates the two trades a plant would not hand to a stranger (Calibration + Generator, level 2), and provider_is_certified_for() joins skill_badges (EARNED via skill_exam_keys) by discipline - a freelancer on their own badge, a hive company on any active member's. ADVERSARIALLY PROVEN in a rolled-back tx: the self-declared-but-unbadged provider gets {reason:not_certified, category:Calibration, required_level:2}; the badged one gets {accepted:true}. Enforcement was a SURGICAL patch of the live RPC - the (p_request_id, p_eta_minutes) signature is byte-identical, verified 1 overload, because dropping the default would mint a second overload and PostgREST would PGRST203 every dispatch call. Console explains the refusal and points at the exam instead of just walling the provider off",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: a badged provider accepts. error: an unbadged one is refused not_certified with the trade and level named. degraded: open categories skip the gate entirely.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J21-asset-context-hail": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "asset-hub.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-mid-lifecycle"
+        ]
+      },
+      "evidence": "moat #1 live: asset detail 'Hail a specialist' -> composer prefilled from GEN-001 nameplate via the landing pad | 2nd persona 2026-07-29 (David Velasco, worker): opened CP-100 from the asset grid -> '🔧 Hail a specialist' visible at 44px with href prefilled 'asset=CP-100&scope=Service call for Centrifugal Pump CP-100' - moat #1 is not supervisor-gated",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: prefilled from CP-100. error: the link stays hidden when the asset has no tag. degraded: the landing pad still works without the asset param.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J22-alert-to-hail": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "alert-hub.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-worker",
+          "P-client-supervisor",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "WALKED LIVE 2026-07-29 - and the walk EARNED its keep: the first pass rendered 0 hail CTAs. Root cause was the INSTRUMENT (only wh_last_worker was set, so alert-hub showed its 'Join a hive' gate = the S-empty state, correctly). With the full identity recipe (worker + wh_active_hive_id + wh_hive_role) the S-populated state renders 3 CTAs, 44px tap target, prefilled: 'marketplace.html?section=services&asset=Centrifugal Pump CP-201&scope=Specialist needed: ... flagged critical'. The static deep-link ratchet only proved the CODE exists; this proved it RENDERS",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: 3 CTAs prefilled from a critical asset. error: none render without hive context - the S-empty gate, diagnosed as correct. degraded: silence when there are no critical alerts.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "alerted:P-client-worker",
+        "responder:P-freelancer-provider"
+      ],
+      "missing_side_datapath": "TB-S5-edge-push-audience-selection",
+      "missing_side_walked": "responder:P-freelancer-provider walked live in two contexts by TB-SJ01-responder-answers-the-hail - the provider presses Accept on their own page and the client's chip updates with no reload. This journey's own ORIGINATION is walked separately on the client side."
+    },
+    "SJ-J23-job-to-logbook-writeback": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "logbook.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-terminal",
+          "S-populated"
+        ]
+      },
+      "evidence": "moat #2: mig 45 writes a logbook entry on the client's asset when a hailed job completes | PROVEN END-TO-END 2026-07-29 (it had never actually been observed producing a row): completing a hive-scoped hail tagged '[CP-100]' wrote a real logbook entry on the CLIENT's asset - worker David Velasco, machine CP-100, category CM, maintenance_type Corrective, status Closed. The composer's [ASSET-TAG] prefix is what carries the machine across, so moat #2 depends on the asset-context hail (J21) and the two are proven together",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: wrote machine CP-100, Corrective, Closed. error: no hive means no logbook to write - skipped rather than guessed. degraded: the entry omits the machine when there is no ASSET-TAG prefix.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "writer:P-freelancer-provider",
+        "reader:P-client-worker"
+      ]
+    },
+    "SJ-J24-recurring-contract-auto-hail": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "pm-scheduler.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-platform-admin",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-populated",
+          "S-mid-lifecycle"
+        ]
+      },
+      "evidence": "BUILT this pass (mig 20260729000004): the §1c promise was only a MANUAL button - a human still pressed it. Now pm_scope_items carry auto_hail + auto_hail_category, service_requests carry pm_scope_item_id, and sweep_pm_auto_hail() files a hail for every DUE item on a daily cron. Due-ness is READ from v_pm_scope_items_truth so there is no second frequency engine. IDEMPOTENCY IS STRUCTURAL: a partial unique index allows one OPEN auto-hail per item - live-proven RUN 1 filed=2, RUN 2 filed=0, so the cron cannot spam provider feeds. A category with no rate-card match is SKIPPED, never guessed. UI: supervisor-only 'Auto-hail when due' toggle on the pm-scheduler detail - live-proven, 5 PM items on Miura LX-300 flipped ON with the button + aria-pressed reflecting state; walk mutation reset afterwards",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: 2 due items filed. error: a category with no rate-card match is SKIPPED honestly, never guessed. degraded: a re-run files 0 (idempotent).",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "scheduler:P-client-supervisor",
+        "responder:P-freelancer-provider"
+      ],
+      "missing_side_datapath": "TB-S5-edge-push-audience-selection",
+      "missing_side_walked": "responder:P-freelancer-provider walked live in two contexts by TB-SJ01-responder-answers-the-hail - the provider presses Accept on their own page and the client's chip updates with no reload. This journey's own ORIGINATION is walked separately on the client side."
+    },
+    "SJ-J25-community-liquidity": {
+      "mode": "n/a",
+      "segment": "consumer",
+      "surfaces": [
+        "community.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-worker",
+          "P-consumer"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "BUILT (mig 20260729000008): v_service_provider_leaderboard ranks providers over ALREADY-guarded truth (verified completions + VIEW-computed rating from birth-guarded reviews), so it introduces NO new trust signal and there is nothing on it to forge that is not already unforgeable upstream. Only providers with a real completion appear. Live: rank 1 Christine Dizon HVAC (2 jobs, 5.00), rank 2 Pablo Aguilar Mechanical (2 jobs) | S-empty PROVEN 2026-07-29 (the state that matters most on a thin marketplace): with every completion rolled back, the leaderboard returns 0 rows rather than fabricating ranks or showing providers who have never finished a job - 'completed_jobs > 0' is a hard floor, so an empty market reads as empty instead of inventing social proof",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: ranked leaderboard. error: nothing forgeable - it ranks only already-guarded truth. degraded: 0 rows when nothing is completed.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "poster:P-client-worker",
+        "viewer:P-consumer"
+      ]
+    },
+    "SJ-J26-public-feed-showcase": {
+      "mode": "n/a",
+      "segment": "consumer",
+      "surfaces": [
+        "public-feed.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-consumer"
+        ],
+        "states": [
+          "S-populated",
+          "S-error"
+        ]
+      },
+      "evidence": "BUILT (mig 20260729000008): publish_service_showcase() turns a COMPLETED job into a public story - the acquisition surface finally has something to acquire with. CONSENT is the design: opt-in per job, client-only, finished-only, once. Authored by the RPC (never a client INSERT) so it cannot become a free-text broadcast channel. ADVERSARIALLY PROVEN: stranger -> not_your_job; client -> published; client again -> already_published. PRIVACY PROVEN on the real row: text reads 'Aircon job completed in Manila by Christine Dizon HVAC & Refrigeration' with leaks_address=false leaks_client=false - the story names the provider, trade and CITY, never the client or the site. (The DB's own category CHECK caught an invented 'showcase' value mid-build; the closed vocabulary won and the post files under 'marketplace'.)",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: published a story. error: stranger not_your_job, unfinished job_not_finished, twice already_published. degraded: address-free and client-anonymous by construction.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "publisher:P-client-supervisor",
+        "viewer:P-consumer"
+      ]
+    },
+    "SJ-J27-dayplanner-job-lands": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "dayplanner.html",
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher",
+          "P-client-supervisor"
+        ],
+        "states": [
+          "S-mid-lifecycle",
+          "S-populated"
+        ]
+      },
+      "evidence": "BUILT (mig 20260729000006): an AFTER trigger on the accept transition writes the provider's schedule_items row - so it lands no matter WHICH path accepted (RPC, admin, future auto-dispatch), not just when the provider remembers the manual '+ Add to my day'. Idempotent by construction: schedule_items.id is TEXT so the row id is 'svc-'||request_id and a replay can only upsert. PROVEN live: accepting a probe hail produced 'Service job: Dayplan landing probe', date Manila-today, category CM, source_kind service_request, status planned",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: the entry appeared on accept. error: a hive company with no worker is skipped, not invented. degraded: the derived id means a replay upserts.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "accepter:P-freelancer-provider",
+        "client:P-client-supervisor"
+      ],
+      "missing_side_datapath": "the transition cells prove accepted->landed; the CLIENT's view of it is unproven",
+      "missing_side_walked": "client:P-client-supervisor - closed by EVIDENCE, not by argument. schedule_items is owner-only RLS (auth_uid = auth.uid()) and marketplace.html reads it ZERO times, so a provider's calendar is deliberately invisible to the client; what the client is owed is that the job reads accepted, walked by TB-SJ01-responder-answers-the-hail. That cell also asserts the dayplan entry LANDED, so the provider side is proven rather than assumed."
+    },
+    "SJ-J28-push-job-offer": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "sw.js"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher",
+          "P-client-supervisor"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "G3 Web Push: notify-push proven E2E (envelope+trace, anon refused, /health ok, real FCM send, 404/410 pruning), sw.js v230 push+notificationclick, in-context subscribe card. Never walked as a 2nd persona | 2nd persona 2026-07-29: the in-context subscribe card ('Enable job alerts') renders for BOTH provider identities and ONLY while permission is ungranted - never a page-load prompt",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: subscribe card plus a real FCM send. error: dead endpoints pruned on 404/410. degraded: the card shows only while permission is ungranted, and failures are logged not swallowed.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "subscriber:P-freelancer-provider",
+        "trigger:P-client-supervisor"
+      ],
+      "missing_side_datapath": "TB-S5-edge-push-audience-selection (the TRIGGER side: a hail pages exactly the eligible provider, and never the client's own profile)",
+      "missing_side_walked": "trigger:P-client-supervisor walked live in two browser contexts by TB-SJ28-ui-a-waiting-provider-sees-the-hail-arrive"
+    },
+    "SJ-J29-live-map-tracking": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-mid-lifecycle",
+          "S-empty"
+        ]
+      },
+      "evidence": "D5 headline feature: MapLibre vendored + lazy-loaded on Track, marker moves as live_location updates. C10 gate now proves the data rules; walked as ONE persona | 2nd persona 2026-07-29: pressing Track lazy-loaded MapLibre and rendered a REAL map canvas ('OpenFreeMap © OpenMapTiles / Data from OpenStreetMap') with the honest pre-position state: 'Waiting for the provider's live position (it appears once they share it)' - the S-empty half of the map journey, which matters more than the happy path because it is what a client sees most of the time",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: MapLibre canvas with OpenFreeMap tiles. error: a stranger reads 0 rows from the tracking view (geo gate). degraded: the waiting-for-position state, which is what a client sees most of the time.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "publisher:P-freelancer-provider",
+        "watcher:P-client-supervisor"
+      ],
+      "missing_side_datapath": "TB-S6-realtime-map-datapath-publisher-x-watcher (publisher writes, watcher reads the NEW position, stranger 0)",
+      "missing_side_walked": "TB-S6-realtime-map-ui-publisher-x-watcher drives the PROVIDER'S OWN PAGE: watchPosition publishes from their session and the run logs which path fired ('publisher path: page watchPosition'). This is the exact side Ian named as missing, and it is now walked rather than inferred."
+    },
+    "SJ-J30-consumer-hail-instant": {
+      "mode": "instant",
+      "segment": "consumer",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-consumer",
+          "P-client-worker",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
+      },
+      "evidence": "WALKED as a REAL hive-less consumer (registered live via the signup flow - no such identity had EVER existed in this DB, so the consumer path had never once been exercised end to end). Segment isolation holds: 7 options, ALL consumer, zero industrial leak. Filed a real hail -> segment=consumer, hive_id=NULL, broadcasting, '21 Mabini St, Manila'. S-empty state reads honestly ('No requests yet. Hail your first service below')",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: a hive-less consumer filed a hail. error: segment isolation held - zero industrial leak. degraded: S-empty first-run copy.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "hailer:P-consumer",
+        "responder:P-freelancer-provider"
+      ],
+      "missing_side_datapath": "TB-S5-edge-push-audience-selection",
+      "missing_side_walked": "responder:P-freelancer-provider walked live in two contexts by TB-SJ01-responder-answers-the-hail - the provider presses Accept on their own page and the client's chip updates with no reload. This journey's own ORIGINATION is walked separately on the client side."
+    },
+    "SJ-J31-consumer-track-review": {
+      "mode": "instant",
+      "segment": "consumer",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-consumer",
+          "P-client-supervisor",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-mid-lifecycle",
+          "S-terminal"
+        ]
+      },
+      "evidence": "WALKED to completion as the hive-less consumer: 'Mark as paid' -> status settled -> 5-star rating -> 'Thanks! Your rating helps other clients choose well.' The SEGMENTED economics are proven here, not asserted: the ledger minted commission -80.00 = 10% of the 800.00 aircon job (D9's consumer rate) against 5% on industrial jobs, and the review row carries verified_purchase=true. FOUND EN ROUTE: the seeder seeded a 5-category consumer catalog but provider coverage for only 2 - Plumbing/Appliance/Handyman had ZERO possible supply, so those consumer hails could never be served. seeders/services.py now seeds two consumer-side providers (Home Services, Appliance Repair)",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: settle plus a 5-star review. error: the review guard pins attribution. degraded: found the real no-supply case (3 consumer categories with zero providers) and fixed the seeder.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "publisher:P-freelancer-provider",
+        "watcher:P-consumer"
+      ],
+      "missing_side_datapath": "TB-S6-realtime-map-datapath-publisher-x-watcher (same view, same privacy proof)",
+      "missing_side_walked": "the publisher's ACT is identical and on the same view (v_service_job_tracking), walked by TB-S6-realtime-map-ui-publisher-x-watcher. RESIDUAL, stated rather than glossed: that cell's watcher was a client-supervisor, not a consumer, and it does not cover this journey's REVIEW step - so the pair is satisfied while the consumer-specific review half stays owed."
+    },
+    "SJ-J32-ai-triage-assist": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-error"
+        ]
+      },
+      "evidence": "P7 service-triage: LIVE E2E through the ONE gateway front door ('motor tripping, burning smell' -> critical + catalog jump), D13 action rail, 3 golden fixtures. One persona only | RE-WALKED 2026-07-29: 'Genset will not start, smells of burnt insulation, plant is down' -> urgency auto-set CRITICAL and the catalog jumped to 'Generator - Genset PM Service (A-check)'. The S-error state was observed too and is worth recording: with a WRONG hive id in local storage the gateway answers 403 and the composer simply stays untouched - the degrade is silent and safe, never a fabricated suggestion",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: burnt-insulation text produced critical plus a catalog jump. error: server-whitelisted output, off-list degrades to null. degraded: a gateway 403 leaves the composer untouched - never a fabricated suggestion.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json"
+    },
+    "SJ-J33-idle-area-presence": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-consumer",
+          "P-client-worker",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "BUILT (mig 20260729000007): D8 promised 'idle = AREA presence, not a pin' but only the privacy half existed - a client saw NOTHING and could not tell an empty market from a broken one. v_service_area_presence is coordinate-free BY CONSTRUCTION (counts + categories; no id/name/geography column exists on it, verified). A first cut had a real bug the output caught: two unnest()s in one SELECT ZIP rather than cross-join, inventing a blank-area bucket - rewritten with LATERAL + count(DISTINCT). LIVE even for an ANONYMOUS visitor: '6 providers online now - Manila (2) - Angeles (1) - Baguio (1)'",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: 6 providers online now, for an anonymous visitor. error: no id, name or geography column exists on the view. degraded: renders nothing when nobody is online rather than a discouraging zero.",
+      "type": "SJ",
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "publisher:P-freelancer-provider",
+        "viewer:P-consumer"
+      ],
+      "missing_side_datapath": "TB-L4-service-views-party-scope (v_service_area_presence is coordinate-free by construction)",
+      "missing_side_walked": "publisher:P-freelancer-provider walked live in two contexts by TB-SJ33-ui-presence-counts-a-provider-who-just-came-online"
     }
   },
   "dim_classes": {
@@ -794,5 +1985,7 @@
       "seed": "An empty state must not promise what nothing can produce. Both admin consoles said 'No open disputes' for a queue no buyer can EVER file into - the dispute flow left with the payment rail.",
       "notes": "DETECT: tools/validate_reachable_capability.py cross-references what each page LISTS against what the whole app can INSERT; a table read-and-listed but written by no page is unreachable from the UI. SWEEP found 4, of which 3 are legitimately server-fed (agentic_rag_traces via edge fn, equipment_reading_templates as a migration-seeded catalog, parts_staging_recommendations from the scheduled agent) and are allowlisted. THE FOURTH IS THE REAL ONE AND IT IS THE DEEPEST FINDING OF THE ARC: marketplace_reviews is SELECT-only on BOTH pages that touch it. There is no review-submission UI anywhere in the app, so no buyer can write a review - and because the verified-only rating is COMPUTED from reviews, a seller cannot currently earn a rating in-product at all. The MK1 work made the rating honest; this shows the ladder behind it has no first rung. Seeded data has reviews only because the seeder writes them with service-role. FIX is PARTIAL by design: the false promise is removed ('Reviews will appear here after buyers submit them' -> an honest statement that reviews are not open yet and what sellers ARE judged on), verified live on an unrated seller. Building the actual review-submission flow is a PRODUCT decision for Ian, not something to infer - it is the open fork this class surfaced. | 2026-07-24 FIX COMPLETED — Ian chose 'build the review flow', so the missing rung was BUILT rather than papered over. Migration 20260724000011 tightens mkt_reviews_insert to require STANDING (an existing inquiry from you on that listing, the only on-platform trace of a real interaction in a contact-only marketplace) and to forbid reviewing your own listing, while keeping the half that was already right: a buyer may only insert as themselves with verified_purchase=false. UI: a 'Write a review' control on the listing detail, shown only with standing, with pre-write validation and copy explaining that an unconfirmed review is shown but does not move the score. PROVEN LIVE end to end: no inquiry -> no control; after a real inquiry -> control appears; posting stored the review with verified_purchase=false; and Romeo then had 2 reviews (1 verified, 1 not) with rating_count still 1, i.e. the open form does NOT inflate the score. THREE FORGE ATTEMPTS RUN AGAINST RLS DIRECTLY, bypassing the UI gate, all blocked 42501: reviewing a listing never inquired about, self-claiming verified_purchase, and posting under another worker's name. The detector itself confirms the loop closed: marketplace_reviews dropped off its findings because a client insert path now exists. Probe rows removed; DB back to 15 seeded verified reviews and 0 inquiries."
     }
-  }
+  },
+  "_absorbed_note": "The 33 service-hailing journeys are namespaced SJ-* so both arcs read ONE journey denominator. Their W is derived here, not carried: the marketplace scoreboard computes it from walked.personas/states plus the role_pair rule. Declaring the pairs demotes five journeys that were passing on a persona COUNT while one whole side of the handoff was never walked - that demotion is the board telling the truth, not a regression.",
+  "_missing_side_note": "Each journey the role-pair rule flags as one-sided now names the bank cell that already proves the missing side's DATA PATH, or says NONE. A proven data path does not complete the walk - the board measures walks, and a screen is not a row - but it narrows the remaining work to the render. SJ-J06 is the one with NONE: a provider SENDING a quote is unasserted at every altitude."
 }

@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 100.0%** · journeys **100.0%** (21) · MK classes **100.0%** (13)
+**OVERALL 99.6%** · journeys **99.4%** (54) · MK classes **100.0%** (13)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -31,10 +31,43 @@
 | J7-post-listing | T2-capture | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J8-post-from-inventory | T2-capture | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | J9-first-time-seller | T1-onboarding | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J01-hail-instant | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×3 | 100.0% |
+| SJ-J02-hail-quote | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J03-provider-onboard-freelancer | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J04-provider-onboard-hive | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J05-accept-race | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J06-quote-select | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J07-job-run-full-state-walk | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J08-complete-review-bidirectional | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J09-cancel-client | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J10-cancel-provider | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J11-expire | SJ | ✅ | 🟡 | ✅ | ✅ | ✅ | 0×1 | 90.0% |
+| SJ-J12-dispute | SJ | ✅ | ⬜ | ✅ | ✅ | ✅ | 0×0 | 80.0% |
+| SJ-J13-topup-verify-gcash | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J14-commission-deduct | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J15-min-balance-block | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J16-voucher-mint-founder | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J17-voucher-redeem | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J18-consumer-register | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J19-tier-progress | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J20-certified-skill-gate | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J21-asset-context-hail | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J22-alert-to-hail | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J23-job-to-logbook-writeback | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J24-recurring-contract-auto-hail | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J25-community-liquidity | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J26-public-feed-showcase | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J27-dayplanner-job-lands | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J28-push-job-offer | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J29-live-map-tracking | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J30-consumer-hail-instant | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J31-consumer-track-review | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
+| SJ-J32-ai-triage-assist | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
+| SJ-J33-idle-area-presence | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
 
-**Per phase:** G 100.0% · W 100.0% · O 100.0% · H 100.0% · R 100.0%
+**Per phase:** G 100.0% · W 97.2% · O 100.0% · H 100.0% · R 100.0%
 
-**Per type:** T1-onboarding 100.0% · T10-social-gamification 100.0% · T11-admin-console 100.0% · T12-cross-page-handoff 100.0% · T2-capture 100.0% · T3-review-approval 100.0% · T4-analysis-insight 100.0% · T8-commerce 100.0% · T9-configuration 100.0%
+**Per type:** SJ 99.1% · T1-onboarding 100.0% · T10-social-gamification 100.0% · T11-admin-console 100.0% · T12-cross-page-handoff 100.0% · T2-capture 100.0% · T3-review-approval 100.0% · T4-analysis-insight 100.0% · T8-commerce 100.0% · T9-configuration 100.0%
 
 ## Board 2 — New MK dimension classes
 
