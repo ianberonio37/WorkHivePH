@@ -428,6 +428,14 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "fetch-retry-contract",
+        "script":  "tools/validate_fetch_retry_contract.py",
+        "args":    [],
+        "label":   "FETCH RETRY CONTRACT - one retry for idempotent READS, never for writes. fetchWithTimeout (utils.js) retries ONCE on a transport failure, because two gates flaked on that exact shape: push-runtime-delivery went red once against four greens, and the Playwright smoke tier carries an intermittent Supabase blip. Neither was a product defect and neither was a timeout - the wrapper's budget is 45s and both failures landed in milliseconds, so they were the network briefly refusing a connection. Widening each spec's budget would have measured network weather instead of the product, so the fix went to the source. THE RETRY IS SCOPED BY HTTP METHOD, NOT BY AN OPT-IN FLAG, deliberately: the helper cannot know whether its caller is safe to repeat, a flag can be forgotten at any of ~20 call sites, and a retried write is how one payment becomes two. GET is idempotent by contract, so every write method is excluded BY CONSTRUCTION rather than by discipline. This gate asserts four properties, and the two that must NOT retry are the ones that license the feature at all: a GET retries once and resolves on the second attempt; a POST is NEVER retried and its error propagates; an AbortError (the timeout path) still returns null on the FIRST attempt, because silently doubling a budget breaks the contract callers reason about - and three callers were just fixed for mis-handling that very null; and a persistently dead endpoint stops at EXACTLY two attempts rather than looping, the recursion guard being the only thing between 'one retry' and an unbounded budget. The assertions run against the SHIPPED text of utils.js - the helper is lifted out of the real file rather than copied into the test - so the gate cannot drift from the code it guards, which is the failure mode of every hand-mirrored fixture this platform has found. Invoked via node directly, never npx, because this repo's path contains an ampersand that npx's own path resolution splits on. Static/fast, no DB, no browser.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
         "id":      "audit-actor-hive-scoped",
         "script":  "tools/validate_audit_actor_hive_scoped.py",
         "args":    [],

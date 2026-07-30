@@ -2995,3 +2995,34 @@ mutation 100.0% (70/70) across EIGHT guards (was four at the start of §12)
 SQL lane 161/161  ·  bank 279 cells  ·  transition 99.6% (278/279)
 substrate 720 fresh  ·  ratchet holds
 ```
+
+### §12.2a · B resolved — one retry for idempotent reads, never for writes
+
+The standing decision, taken. Two gates had flaked on the same shape — `push-runtime-delivery` (1 red against 4
+greens) and the Playwright smoke tier's Supabase blip — and neither was a product defect or a timeout: the
+wrapper's budget is 45s and both failures landed in **milliseconds**. They were the network briefly refusing a
+connection. Widening each spec's budget would have measured network weather instead of the product, so the fix
+went to the source.
+
+**Scoped by HTTP METHOD, not by an opt-in flag**, and that is the whole design:
+
+| case | behaviour | why |
+|---|---|---|
+| `GET` + transport failure | retried once, 250ms apart | the flake this closes |
+| `POST`/`PUT`/`PATCH`/`DELETE` | **never** retried | a retried write is how one payment becomes two |
+| `AbortError` (timeout) | returns `null` on the FIRST attempt | silently doubling a budget breaks the contract callers reason about — and §11 had just fixed three callers for mis-handling that null |
+| persistent failure | exactly **2** attempts | the recursion guard is all that stands between "one retry" and an unbounded budget |
+
+A flag would have to be remembered at ~20 call sites and the helper cannot know whether its caller is safe to
+repeat. HTTP already answers that: GET is idempotent by contract, so every write method is excluded **by
+construction** rather than by discipline.
+
+Locked by `fetch-retry-contract` (registered, static, no DB or browser), whose four assertions run against the
+**shipped text of utils.js** — the helper is lifted out of the real file rather than copied into the test, so the
+gate cannot drift from the code it guards, which is how every hand-mirrored fixture on this platform has
+eventually lied. Its self-test requires all four named cases to have actually run, because a suite that skips its
+own cases still reports "4 pass".
+
+```
+4/4 assertions · registry 706 gates, ids unique / scripts resolve / reports unclaimed
+```

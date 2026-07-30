@@ -2127,7 +2127,29 @@ function renderAlertPreview(opts) {
 //
 // Returns: a Response on success, or null on timeout/abort. Network errors
 // (DNS failure, offline) still throw — caller wraps in try/catch as today.
-async function fetchWithTimeout(url, options, timeoutMs) {
+// ONE retry, on a TRANSPORT failure, for IDEMPOTENT reads only.
+//
+// Two gates have flaked on the same shape: `push-runtime-delivery` went red once against four greens, and the
+// Playwright smoke tier has an intermittent Supabase blip. Neither is a product defect and neither is a
+// timeout — the wrapper's budget is 45s and the failures land in milliseconds. They are the network briefly
+// refusing a connection, and the honest fix is at the source rather than a widened budget in each spec, which
+// would measure network weather instead of the product.
+//
+// WHY METHOD-INFERRED AND NOT A FLAG. This helper cannot know whether its caller is safe to repeat, and a
+// retry on a POST is how one payment becomes two. HTTP already answers the question: GET is idempotent by
+// contract, so the retry is scoped to GET (and to a missing method, which IS GET). Every write method —
+// POST/PUT/PATCH/DELETE — is excluded by construction, so no opt-in flag can be forgotten and no caller can be
+// surprised into a double write.
+//
+// WHAT COUNTS AS A TRANSPORT FAILURE. Only a thrown TypeError, which is what fetch raises for a refused or
+// dropped connection. An AbortError is the timeout path and still returns null on the FIRST attempt without
+// retrying: the caller asked for a budget and got it, and silently doubling that budget would break the
+// contract the callers reason about (utils.js's own usage note, and the three callers that were fixed for
+// mis-handling the null). An HTTP error response is not an exception at all — a 500 resolves normally and is
+// the caller's to read, never retried here.
+const _FWT_RETRY_DELAY_MS = 250;
+
+async function fetchWithTimeout(url, options, timeoutMs, _isRetry) {
   const ms = (typeof timeoutMs === 'number' && timeoutMs > 0) ? timeoutMs : 30000;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
@@ -2136,6 +2158,15 @@ async function fetchWithTimeout(url, options, timeoutMs) {
     return await fetch(url, opts);
   } catch (e) {
     if (e && (e.name === 'AbortError' || e.code === 20)) return null;
+    const method = String((options && options.method) || 'GET').toUpperCase();
+    const isTransport = e instanceof TypeError;
+    if (!_isRetry && method === 'GET' && isTransport) {
+      // A short pause, because an immediate retry into a connection that was just refused usually earns the
+      // same refusal. One attempt only: `_isRetry` is the recursion guard, so a persistently dead endpoint
+      // still fails fast rather than doubling every caller's latency budget indefinitely.
+      await new Promise(r => setTimeout(r, _FWT_RETRY_DELAY_MS));
+      return await fetchWithTimeout(url, options, ms, true);
+    }
     throw e;
   } finally {
     clearTimeout(timer);

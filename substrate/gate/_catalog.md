@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 45ca433e04473cd6
+source_sha: 49e333a776816bbe
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (705) — the 'what's already gated' brain
+## gate · registered validators (706) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -224,7 +224,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (496)
+### Platform (497)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -420,6 +420,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `fab-consolidation` ⚡ [blocker] — FAB Consolidation Contract (bottom-right corner stays consolidated into the nav-hub; companion/feedback/connectivity launch from inside the hub, no standalone c
 - `faithfulness-rail` ⚡ [fail] — CL10 faithfulness rails (the assistant/chat brain is read-only advisory; two live-caught fabrication classes must stay guarded before an answer ships: (1) ACTIO
 - `fetch-error-handling` ⚡ [fail] — fetch() Error Handling (every fetch() is in try/catch or chained to .catch; forward-only ratchet)
+- `fetch-retry-contract` ⚡ [fail] — FETCH RETRY CONTRACT - one retry for idempotent READS, never for writes. fetchWithTimeout (utils.js) retries ONCE on a transport failure, because two gates flak
 - `file-upload-safety` [warn] — File-upload safety — P12 upload-safety scanner (bug-hunt denominator v2, 2026-07-17). VERIFIED the platform has NO server-side file storage (zero storage.from()
 - `filter-case-consistency` ⚡ [fail] — Filter Case Consistency (same enum-column filter must use consistent case across files; forward-only ratchet)
 - `fixture-hive-exists` [fail] — FIXTURE HIVE EXISTENCE — a pinned test hive that no longer exists is a SILENT instrument, and the worst shape a test failure can take. FOUND 2026-07-30 while tr
