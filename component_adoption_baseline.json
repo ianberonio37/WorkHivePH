@@ -1,6 +1,6 @@
 {
   "_doc": "Component adoption baseline (Layer F). Floors are FORWARD-ONLY: validate_component_adoption.py fails any drop and auto-tightens any rise. Regenerate view: python tools/component_adoption_census.py",
-  "generated": "2026-07-28T09:59:13.358382+00:00",
+  "generated": "2026-07-30T01:19:23.687644+00:00",
   "family_pages": 32,
   "rows": [
     {
@@ -61,9 +61,9 @@
       "satisfies": "R3",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 18,
+      "adopters_n": 19,
       "need_n": 32,
-      "pct": 56,
+      "pct": 59,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
@@ -75,6 +75,7 @@
         "index.html",
         "integrations.html",
         "inventory.html",
+        "marketplace-seller.html",
         "marketplace.html",
         "ph-intelligence.html",
         "plant-connections.html",
@@ -93,7 +94,6 @@
         "logbook.html",
         "marketplace-admin.html",
         "marketplace-seller-profile.html",
-        "marketplace-seller.html",
         "project-report.html",
         "promo-poster.html",
         "public-feed.html",
@@ -390,8 +390,8 @@
       "mode": "measured",
       "need_rule": "renders-number",
       "adopters_n": 5,
-      "need_n": 6,
-      "pct": 83,
+      "need_n": 7,
+      "pct": 71,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
@@ -400,7 +400,8 @@
         "ph-intelligence.html"
       ],
       "gap": [
-        "asset-hub.html"
+        "asset-hub.html",
+        "marketplace-seller.html"
       ],
       "status": "built"
     },
@@ -666,7 +667,7 @@
   ],
   "drift": [],
   "floors": {
-    "FC1": 18,
+    "FC1": 19,
     "FC3": 10,
     "FI1": 31,
     "FI2": 16,

@@ -1130,6 +1130,13 @@
           time: r.generated_at,
           href: 'asset-hub.html?tag=' + encodeURIComponent(r.asset_name || ''),
           actionLabel: 'Open in Asset Hub',
+          // Service-hailing demand trigger (SERVICE_HAILING_ROADMAP.md P4, §1c): a critical/high
+          // risk alert offers "Hail a specialist" - lands on the marketplace Services pane with
+          // the asset + risk context pre-composed.
+          hailHref: (r.risk_level === 'critical' || r.risk_level === 'high')
+            ? 'marketplace.html?section=services&asset=' + encodeURIComponent(r.asset_name || '')
+              + '&scope=' + encodeURIComponent('Specialist needed: ' + (r.asset_name || 'asset') + ' flagged ' + r.risk_level + ' risk')
+            : null,
         });
       }
     }
@@ -1652,6 +1659,9 @@
           <div class="alert-actions">
             ${a.actionLabel && a.href !== '#'
               ? `<a class="alert-action" href="${e(a.href)}">${e(a.actionLabel)} →</a>`
+              : ''}
+            ${a.hailHref
+              ? `<a class="alert-action" href="${e(a.hailHref)}" aria-label="Hail an outside specialist for this asset">🔧 Hail a specialist →</a>`
               : ''}
             ${a.dedupeKey
               ? `<button type="button" class="alert-dismiss" data-seen-key="${e(a.dedupeKey)}" aria-pressed="${isSeen ? 'true' : 'false'}" aria-label="${isSeen ? 'Mark this alert not seen' : 'Mark this alert as seen (keeps it, dims it)'}" data-i="ah_seenbtn">${isSeen ? '&#8634; Unsee' : '&#128065; Seen'}</button>

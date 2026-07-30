@@ -46,6 +46,19 @@
     .gate[hidden] { display: none !important; }
     .gate h2 { font-size:1.25rem; font-weight:700; color:var(--gold); }
     .gate p  { font-size:.85rem; color:var(--muted); max-width:380px; }
+    /* U2 + U5 (deep UFAI probe, 2026-07-29): these two links carry class="btn" but NO rule
+       existed for a bare .btn on this page, so they rendered as default-blue anchors - 1.88:1
+       against the dark panel and only 21px tall. One shared rule restores both the contrast and
+       the 44px target rather than patching each anchor. */
+    a.btn {
+      display: inline-flex; align-items: center; gap: .35rem;
+      min-height: 44px; padding: 0 14px; border-radius: 8px;
+      background: rgba(247,162,27,.12); border: 1px solid rgba(247,162,27,.4);
+      color: var(--wh-orange-text, #f7a21b); font-weight: 700; font-size: .78rem;
+      text-decoration: none;
+    }
+    a.btn:hover { background: rgba(247,162,27,.2); }
+
     .gate a.btn {
       margin-top:.6rem; display:inline-block; padding:.6rem 1.4rem;
       background:rgba(247,162,27,.12); border:1px solid rgba(247,162,27,.4);
@@ -129,6 +142,10 @@
       border-radius:.75rem; padding:.85rem 1rem;
       display:flex; flex-direction:column; gap:.15rem;
     }
+    /* C4 (rubric): KPI digits are TABULAR so a value that ticks 9->10 does not shift the
+       column width. One shared rule for every numeric display on the page, not per-element
+       patches - the same treatment achievements.html uses for its hero stats. */
+    .stat .n, .ring-pct .n, .tech-chip .n, .stat .trend { font-variant-numeric: tabular-nums; }
     .stat .n  { font-size:1.45rem; font-weight:800; line-height:1.1; }
     .stat .n.good { color:var(--green); }
     .stat .n.warn { color:var(--yellow); }
@@ -493,7 +510,9 @@
     /* ── Audit feed ── */
     .audit-feed {
       display:flex; flex-direction:column; gap:.35rem;
-      max-height:340px; overflow-y:auto; padding-right:.3rem;
+      /* T4: contain the scroll. Without this, reaching the end of the feed chains the gesture to the
+         page and the whole console jumps - the worst version of that is on a phone mid-review. */
+      max-height:340px; overflow-y:auto; overscroll-behavior:contain; padding-right:.3rem;
     }
     .audit-item {
       display:flex; align-items:flex-start; gap:.55rem;
@@ -687,12 +706,19 @@
       <a href="http://127.0.0.1:3001/d/workhive-founder-ops" class="btn">📊 Founder Ops dashboard →</a>
       <a href="platform-actions.html" class="btn">⚡ Platform Actions →</a>
     </div>
-    <p style="color:var(--text); opacity:0.38; font-size:0.72rem; margin-top:1.6rem;">Grafana login: admin · password in <code>infra/mcp/.env.mcp</code></p>
+    <p style="color:#9aa3ad; font-size:0.72rem; margin-top:1.6rem;">Grafana login: admin · password in <code>infra/mcp/.env.mcp</code></p>
   </div>
 </div>
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No data yet for this view.</div>
+  <!-- X1: an empty state must offer the NEXT STEP, not just report absence. "No data yet" with no
+       affordance is a dead end - the reader has to guess whether it is broken, still loading, or
+       simply idle. Refresh is the actual next action here. -->
+  <div id="empty-state" class="empty-state" hidden>
+    Nothing to review yet. New top-ups and gate runs appear here automatically.
+    <button type="button" class="btn" style="margin-left:.5rem;min-height:44px;"
+            onclick="if(typeof refreshAll==='function')refreshAll();">Refresh now</button>
+  </div>
   <div id="no-results" class="empty-state" hidden>No rows match those filters.</div>
 
 
@@ -720,7 +746,20 @@
         <div>
           <h1>WorkHive Founder Console</h1>
           <div class="hdr-meta">
-            Last sync: <span id="last-sync">-</span> &middot;
+            <!-- W1: an in-layout way back. The floating nav-hub is an overlay, not part of the page,
+                 so without this the console is a room with no visible door (Nielsen #3). -->
+            <!-- U2: the door has to be openable with a thumb. As inline meta text this rendered 16px
+                 tall - a quarter of the 44px minimum - so the only in-layout way out of the console
+                 was the hardest thing on the page to hit. Padding + inline-flex give it the height
+                 without changing how the meta line reads; the negative margin keeps the baseline
+                 aligned with the "·" separators beside it. -->
+            <a href="index.html" style="color:inherit;text-decoration:underline;display:inline-flex;align-items:center;min-height:44px;padding:0 .35rem;margin:-14px -.35rem;">← WorkHive</a>
+            &middot;
+            <!-- G4: ONE clock, and it lives on the PANEL that owns the data. A page-level "Updated
+                 14:32" next to a panel-level "Last gate run · 38 min ago" is two answers to the same
+                 question, and a reader who spots the mismatch trusts neither. The span is kept
+                 (hidden) because the refresh cycle still writes to it. -->
+            <span id="last-sync" hidden></span>
             Press <span class="kbd">R</span> to refresh
           </div>
         </div>
@@ -729,7 +768,7 @@
         <button id="refresh-btn" class="refresh-btn" title="Refresh all panels (R)">
           <span class="refresh-ico">↻</span> Refresh all
         </button>
-        <select id="auto-select" class="auto-select" title="Auto-refresh interval" data-select-placeholder-allow="auto-refresh defaults to 'Off' (safest)">
+        <select id="auto-select" class="auto-select" aria-label="Auto-refresh interval" title="Auto-refresh interval" data-select-placeholder-allow="auto-refresh defaults to 'Off' (safest)">
           <option value="0">Auto: Off</option>
           <option value="30">Auto: 30s</option>
           <option value="60">Auto: 1m</option>
@@ -956,6 +995,64 @@
               <span class="updated" id="mkt-sellers-updated">-</span>
             </div>
             <div class="panel-body"><div id="mkt-sellers-content"></div></div>
+          </section>
+
+          <!-- SERVICE_HAILING P6b (D6): GCash top-up verification - the founder-income intake.
+               A provider sent GCash P2P and filed the reference; check your GCash app, then
+               Verify (the DB trigger mints the credits) or Reject. -->
+          <section class="panel" id="svc-topups-queue">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-svc-topups"></span>
+              <div style="flex:1">
+                <h2>GCash top-ups awaiting verification</h2>
+                <div class="panel-sub">Match the reference in your GCash app, then verify to mint the credits</div>
+              </div>
+              <span class="updated" id="svc-topups-updated">-</span>
+            </div>
+            <div class="panel-body"><div id="svc-topups-content"></div></div>
+          </section>
+
+          <!-- capture: service_voucher_v1 -->
+          <!-- J16 · voucher MINT (SERVICE_HAILING_ROADMAP.md P6b, §3 D-J). Redemption shipped
+               first and vouchers were seeded, so the founder could not actually START a campaign
+               in-product - the acquisition lever existed only in the seeder. This is that door.
+               Writes go straight to service_vouchers under its admin-only policy. -->
+          <section class="panel" id="svc-voucher-mint">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-svc-vouchers"></span>
+              <div style="flex:1">
+                <h2>Discount vouchers</h2>
+                <div class="panel-sub">Platform-funded acquisition: the client pays less, the provider is still reimbursed in full</div>
+              </div>
+              <span class="updated" id="svc-vouchers-updated">-</span>
+            </div>
+            <div class="panel-body">
+              <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:flex-end;margin-bottom:.7rem;">
+                <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Code
+                  <input id="vm-code" type="text" maxlength="24" placeholder="HAIL10" aria-label="Voucher code"
+                         style="width:9rem;min-height:44px;padding:.45rem .6rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;text-transform:uppercase;"></label>
+                <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Kind
+                  <select id="vm-kind" aria-label="Discount kind" style="min-height:44px;padding:.45rem .6rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;">
+                    <option value="">Choose…</option>
+                    <option value="percent">% off</option>
+                    <option value="fixed">₱ off</option>
+                  </select></label>
+                <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Value
+                  <input id="vm-value" type="number" min="1" step="1" placeholder="10" aria-label="Discount value"
+                         style="width:6rem;min-height:44px;padding:.45rem .6rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;font-variant-numeric:tabular-nums;"></label>
+                <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Segment
+                  <select id="vm-segment" aria-label="Segment" style="min-height:44px;padding:.45rem .6rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;">
+                    <option value="">Both</option>
+                    <option value="consumer">Consumer</option>
+                    <option value="industrial">Industrial</option>
+                  </select></label>
+                <label style="display:flex;flex-direction:column;gap:.2rem;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);">Max uses
+                  <input id="vm-maxuses" type="number" min="1" step="1" placeholder="50" aria-label="Maximum total uses"
+                         style="width:6rem;min-height:44px;padding:.45rem .6rem;border-radius:.5rem;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:inherit;font-variant-numeric:tabular-nums;"></label>
+                <button type="button" onclick="svcMintVoucher()" class="btn-primary" style="min-height:44px;">Create voucher</button>
+              </div>
+              <div id="svc-vouchers-content"></div>
+            </div>
           </section>
 
           <section class="panel" id="mkt-disputes-queue">
@@ -1202,6 +1299,8 @@
         renderPareto(pareto);
         renderMarketplace(mkt);
         renderMktModeration(mktmod);
+        loadSvcTopups();  // SERVICE_HAILING P6b: GCash top-up verification queue (self-contained fetch+render)
+        loadSvcVouchers(); // SERVICE_HAILING J16: voucher campaigns - mint + tally (admin-only writes)
         renderAiCostDetail(aiprov);
         renderAudit(audit);
         renderFeedbackInbox();
@@ -1547,7 +1646,9 @@
         : (Math.round(ageMin/1440) + ' day(s) ago');
       const ageTh = HEALTH_THRESHOLDS.sync_age_minutes;
       const stale = ageMin != null && ageMin > ageTh.amber;
-      upd.textContent = 'platform_health.json · ' + ageStr + (stale ? ' (STALE)' : '');
+      // G2 (rubric): name the SOURCE in human terms, not by its filename. "platform_health.json"
+      // is an internal artifact name leaking into a user-facing provenance chip.
+      upd.textContent = 'Last gate run · ' + ageStr + (stale ? ' (out of date)' : '');
 
       // Group breakdown
       const groups = {};
@@ -1567,6 +1668,13 @@
           + '</div>';
       }).join('');
 
+      // G2 (jargon): a gate's `label` is written for the ENGINEER reading run_platform_checks.py -
+      // it carries file paths, roadmap names and internal vocabulary ("Platform Knowledge Substrate
+      // freshness (PKS Layer-2 anti-regression - PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP.md)"). Dumping
+      // it into the console leaked all of that into user-facing chrome. The `id` is the short,
+      // scannable name ("substrate-freshness"); the full label stays as the tooltip so nothing is lost.
+      const gateName = v => String(v.id || v.label || 'check').replace(/[-_]+/g, ' ');
+
       // Failing validators list
       const fails = (tech.validators || []).filter(v => v.status === 'FAIL');
       const failHtml = fails.length === 0
@@ -1575,7 +1683,7 @@
           + fails.slice(0, 12).map(v =>
               '<div class="fail-item">'
               + '<span class="fail-dot"></span>'
-              + '<div class="fail-label">' + escHtml(v.label || v.id)
+              + '<div class="fail-label" title="' + escHtml(v.label || '') + '">' + escHtml(gateName(v))
               +   '<div class="fail-group">' + escHtml(v.group || '') + (v.elapsed ? ' · ' + v.elapsed + 's' : '') + '</div>'
               + '</div></div>').join('')
           + (fails.length > 12 ? '<div style="font-size:.7rem;color:var(--muted);padding:.2rem .5rem;">+ ' + (fails.length - 12) + ' more</div>' : '')
@@ -1587,7 +1695,14 @@
         ? '<div class="honest-empty" style="margin-top:.85rem;background:rgba(248,113,113,.06);border-color:rgba(248,113,113,.3);">'
           + '<div class="hetitle" style="color:var(--red);">' + regs.length + ' regression(s) detected</div>'
           + '<ul style="margin:.3rem 0 0 1.1rem;font-size:.74rem;">'
-          + regs.slice(0, 6).map(r => '<li>' + escHtml(r.label || r.id || String(r)) + '</li>').join('')
+          + regs.slice(0, 6).map(r => '<li title="' + escHtml(r.label || '') + '">'
+              + escHtml(gateName(r)) + '</li>').join('')   // same jargon fix as the fail list above
+          // A truncated list with no overflow line reads as "that is all of them". The failing-gate
+          // list above already discloses its "+N more"; regressions - the highest-severity signal on
+          // this page, a gate that was PASSING and now is not - silently dropped everything past the
+          // sixth. Locked by the gate `gate-panel-honesty`.
+          + (regs.length > 6 ? '<li style="opacity:.75;">+ ' + (regs.length - 6)
+              + ' more regression(s) not shown</li>' : '')
           + '</ul></div>'
         : '';
 
@@ -1758,6 +1873,143 @@
     }
 
     // ── Marketplace moderation (fused from marketplace-admin.html) ───────────
+    /* ── SERVICE_HAILING P6b: GCash top-up verification queue (D6) ──────────────
+       A provider sent P2P GCash to the founder's number and filed the 13-digit
+       reference. The founder matches it in his GCash app, then Verify — the DB
+       trigger (guard_service_topup_status, admin branch) mints the ledger credits;
+       Reject leaves the money question to a direct conversation. Self-contained
+       fetch+render, mirrors the moderation-queue idiom. */
+    async function loadSvcTopups() {
+      const box = document.getElementById('svc-topups-content');
+      if (!box) return;
+      try {
+        // Engine view, not the Fuel table (arc §1: the Dashboard never reads Fuel raw). It folds
+        // in provider_display_name, so the queue no longer N+1s the provider directory.
+        const { data: rows, error } = await db.from('v_service_credit_topups_truth')
+          .select('id, account_type, account_id, amount, gcash_ref, created_at, provider_display_name')
+          .eq('status', 'pending_verification').order('created_at', { ascending: true }).limit(50);
+        if (error) throw error;
+        setRagDot('rag-svc-topups', (rows || []).length ? 'amber' : 'green');
+        const upd = document.getElementById('svc-topups-updated');
+        if (upd) upd.textContent = 'Awaiting your GCash check';   // G2: no table names in user-facing chrome
+        if (!rows || !rows.length) {
+          box.innerHTML = '<div class="honest-empty">No top-ups waiting. Filed references appear here for your GCash-app check.</div>';
+          return;
+        }
+        const e = escHtml;
+        box.innerHTML = rows.map(r =>
+          '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);padding:0.5rem 0;">' +
+          '<div style="font-size:0.8rem;"><strong>₱' + Number(r.amount).toLocaleString() + '</strong> · ref <code>' + e(r.gcash_ref) + '</code>' +
+          '<div style="font-size:0.72rem;opacity:0.8;">' + e(r.provider_display_name || r.account_type) + ' · filed ' + e(new Date(r.created_at).toLocaleString()) + '</div></div>' +
+          '<span style="display:inline-flex;gap:0.4rem;">' +
+          '<button type="button" onclick="svcTopupDecide(\'' + e(r.id) + '\', true)" style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;">Verify: mint credits</button>' +
+          '<button type="button" onclick="svcTopupDecide(\'' + e(r.id) + '\', false)" style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;">Reject</button></span></div>'
+        ).join('');
+      } catch (err) {
+        setRagDot('rag-svc-topups', 'red');
+        box.innerHTML = '<div class="honest-empty">Couldn\'t load the queue: ' + escHtml((err && err.message) || 'unknown') + '</div>';
+      }
+    }
+
+    async function svcTopupDecide(id, verify) {
+      const { data, error } = await db.from('service_credit_topups')
+        .update({ status: verify ? 'verified' : 'rejected' }).eq('id', id).select('id');
+      if (error) { showToast(error.message); return; }
+      if (!data || !data.length) { showToast('No change saved. Are you signed in as the platform admin?'); return; }
+      showToast(verify ? 'Verified. Credits minted to the provider\'s wallet.' : 'Rejected. No credits were minted.');
+      loadSvcTopups();
+    }
+    window.svcTopupDecide = svcTopupDecide;
+
+    /* J16 · voucher campaigns. Reads live vouchers with their redemption tally so the founder can
+       see whether a campaign is actually being used, and mints new ones. Writes land under the
+       admin-only policy; a non-admin gets 0 rows back and is told so honestly rather than seeing
+       a fake success. */
+    async function loadSvcVouchers() {
+      const box = document.getElementById('svc-vouchers-content');
+      if (!box) return;
+      try {
+        const [vRes, rRes] = await Promise.all([
+          // canonical-allow: the founder's OWN campaign registry - this console is the single
+          // surface that reads it, writes are admin-only at the DB, and no KPI derives from it.
+          db.from('service_vouchers')
+            .select('id, code, kind, value, segment, max_uses, per_user_limit, expires_at, active, created_at')
+            .order('created_at', { ascending: false }).limit(30),
+          // canonical-allow: one-off admin TALLY (how many times each campaign was used and what it
+          // cost). Single surface, no KPI derives from it, and redemptions are RPC-written only -
+          // a v_*_truth wrapper would add a layer with exactly one consumer.
+          db.from('service_voucher_redemptions').select('voucher_id, amount').limit(500),
+        ]);
+        if (vRes.error) throw vRes.error;
+        const rows = vRes.data || [];
+        const used = {}, spent = {};
+        for (const r of (rRes.data || [])) {
+          used[r.voucher_id] = (used[r.voucher_id] || 0) + 1;
+          spent[r.voucher_id] = (spent[r.voucher_id] || 0) + Number(r.amount || 0);
+        }
+        const upd = document.getElementById('svc-vouchers-updated');
+        if (upd) upd.textContent = rows.length + ' campaign' + (rows.length === 1 ? '' : 's');
+        setRagDot('rag-svc-vouchers', rows.some(v => v.active) ? 'green' : 'amber');
+        if (!rows.length) {
+          box.innerHTML = '<div class="honest-empty">No voucher campaigns yet. Create one above to give new clients a discount - the provider is still paid in full and the platform absorbs it.</div>';
+          return;
+        }
+        const e = escHtml;
+        box.innerHTML = rows.map(v => {
+          const n = used[v.id] || 0;
+          const cost = spent[v.id] || 0;
+          const cap = v.max_uses ? (n + ' / ' + v.max_uses + ' used') : (n + ' used');
+          const off = v.kind === 'percent' ? (Number(v.value) + '% off') : ('₱' + Number(v.value).toLocaleString() + ' off');
+          return '<div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);padding:.5rem 0;">' +
+            '<div style="font-size:.8rem;"><strong><code>' + e(v.code) + '</code></strong> · ' + e(off) +
+            (v.segment ? ' · ' + e(v.segment) : ' · both segments') +
+            '<div style="font-size:.72rem;opacity:.8;font-variant-numeric:tabular-nums;">' + e(cap) +
+            ' · reimbursed ₱' + cost.toLocaleString() +
+            (v.expires_at ? ' · expires ' + e(new Date(v.expires_at).toLocaleDateString()) : '') + '</div></div>' +
+            '<button type="button" onclick="svcToggleVoucher(\'' + e(v.id) + '\', ' + (v.active ? 'false' : 'true') + ')" ' +
+            'style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;">' +
+            (v.active ? 'Pause' : 'Resume') + '</button></div>';
+        }).join('');
+      } catch (err) {
+        setRagDot('rag-svc-vouchers', 'red');
+        box.innerHTML = '<div class="honest-empty">Couldn\'t load vouchers: ' + escHtml((err && err.message) || 'unknown') + '</div>';
+      }
+    }
+
+    async function svcMintVoucher() {
+      const code = (document.getElementById('vm-code').value || '').trim().toUpperCase();
+      const kind = document.getElementById('vm-kind').value;
+      const value = Number(document.getElementById('vm-value').value);
+      const segment = document.getElementById('vm-segment').value || null;
+      const maxUses = Number(document.getElementById('vm-maxuses').value) || null;
+      if (!/^[A-Z0-9]{3,24}$/.test(code)) { showToast('Give the voucher a code: letters and numbers, 3-24 characters.'); return; }
+      if (!kind) { showToast('Pick whether this is a % or a peso discount.'); return; }
+      if (!isFinite(value) || value <= 0) { showToast('Set a discount value above zero.'); return; }
+      if (kind === 'percent' && value > 100) { showToast('A percentage discount cannot exceed 100.'); return; }
+      const { data, error } = await db.from('service_vouchers')
+        .insert({ code: code, kind: kind, value: value, segment: segment, max_uses: maxUses, active: true })
+        .select('id');
+      if (error) {
+        showToast(/duplicate|unique/i.test(error.message) ? 'That code already exists - pick another.' : error.message);
+        return;
+      }
+      if (!data || !data.length) { showToast('Not saved. Are you signed in as the platform admin?'); return; }
+      showToast('Voucher ' + code + ' is live. Clients can apply it on a completed job.');
+      document.getElementById('vm-code').value = '';
+      document.getElementById('vm-value').value = '';
+      loadSvcVouchers();
+    }
+    window.svcMintVoucher = svcMintVoucher;
+
+    async function svcToggleVoucher(id, makeActive) {
+      const { data, error } = await db.from('service_vouchers').update({ active: makeActive }).eq('id', id).select('id');
+      if (error) { showToast(error.message); return; }
+      if (!data || !data.length) { showToast('No change saved. Are you signed in as the platform admin?'); return; }
+      showToast(makeActive ? 'Voucher resumed.' : 'Voucher paused - no new redemptions.');
+      loadSvcVouchers();
+    }
+    window.svcToggleVoucher = svcToggleVoucher;
+
     async function fetchMktModeration() {
       try {
         const [drafts, sellers, disputes] = await Promise.all([
@@ -2037,7 +2289,9 @@
         + '<span style="width:92px;text-align:right;">floor</span><span style="width:58px;text-align:right;">Status</span>'
         + '<span style="width:48px;text-align:right;">Gate</span></div>'
         + rows + abHtml + propHtml;
-      upd.textContent = 'companion_eval_scorecard.json';
+      // G2 (same class as the gate labels and memento panel): the artifact FILENAME is how the data
+      // is stored, not what the reader is looking at. Name the source in human terms.
+      upd.textContent = 'Companion eval harness';
       if (dot) dot.className = 'rag-dot' + (pending ? ' warn' : '');
     }
 
@@ -2074,7 +2328,9 @@
         : ageMin < 1440  ? (Math.round(ageMin / 60) + ' hr ago')
         : (Math.round(ageMin / 1440) + ' day(s) ago');
       const stale = ageMin != null && ageMin > 60;
-      upd.textContent = 'memento_health.json · ' + ageStr + (stale ? ' (STALE)' : '');
+      // G2: the FILENAME is implementation detail. A reader needs to know how fresh this is, not
+      // which artifact it came from - the "why" block below already names the file for debugging.
+      upd.textContent = 'Checked ' + ageStr + (stale ? ' (STALE)' : '');
 
       if (sum.status === 'no_data' || sum.status === 'error') rag.className = 'rag-dot fail';
       else if (warming || stale) rag.className = 'rag-dot warn';
@@ -2588,8 +2844,18 @@
       });
       setTimeout(() => document.getElementById('fb-d-status')?.focus(), 50);
 
+      // X2 interruption resilience: triage notes are typed prose - a refresh, a phone call or a
+      // connectivity blip would lose them. Autosave a per-item draft through the SHARED helper
+      // (whAutoSaveDraft) rather than hand-rolling storage; it restores into the empty field and
+      // is cleared on a successful save. Keyed per feedback id so two triages never collide.
+      _fbDraft = (typeof whAutoSaveDraft === 'function')
+        ? whAutoSaveDraft('fbtriage_' + id, ['fb-d-note'])
+        : { clear: function () {} };
+
       document.getElementById('fb-d-save').onclick = () => saveDrawerChanges(id);
     }
+
+    let _fbDraft = { clear: function () {} };   // X2 draft handle for the triage-note textarea
 
     async function saveDrawerChanges(id) {
       const status    = document.getElementById('fb-d-status').value;
@@ -2635,6 +2901,7 @@
             ? (row.resolved_at || new Date().toISOString()) : row.resolved_at });
         applyFeedbackView();
         closeFeedbackDrawer();
+        _fbDraft.clear();   // X2: the note is committed - the next triage starts fresh
         showToast(isPublic && !wasPublic ? 'Saved, now public on /feedback/' : 'Saved');
       } catch (e) {
         console.error('[feedback-inbox] save failed', e);

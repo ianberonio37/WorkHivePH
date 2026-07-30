@@ -69,7 +69,7 @@
     {
       "page": "marketplace.html",
       "channels": 1,
-      "removes": 2,
+      "removes": 3,
       "has_unmount": true
     },
     {

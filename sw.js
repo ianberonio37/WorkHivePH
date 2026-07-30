@@ -3,7 +3,10 @@
 // surfaces (logbook, inventory, pm-scheduler, hive, asset-hub, shift-brain).
 // Closes PRODUCTION_FIXES #54.
 
-const CACHE_NAME  = 'workhive-shell-v227';  // bump: a severity-9 safety failure mode is no longer ranked below a low-severity nuisance by RPN, and an expired parts recommendation can no longer be staged - without this bump an installed user keeps an FMEA list that buries the electrocution risk under the alignment fault, and a Stage button on a risk assessment the system already considers stale
+const CACHE_NAME  = 'workhive-shell-v230';  // bump 2026-07-29: SERVICE_HAILING close-out — SHELL pages changed: marketplace-seller.html (P6 second-direction "Rate client" on finished jobs + L-layer error capture + ledger read moved to v_service_credit_ledger_truth), marketplace.html (D14 tab relabel Jobs->Hiring), founder-console.html (top-up queue reads v_service_credit_topups_truth, N+1 provider lookup dropped), achievements.html (§1c provider-tier card). Without this bump installed PWAs keep the stale pages and never see the second review direction.
+// const CACHE_NAME  = 'workhive-shell-v229';  // bump 2026-07-29: SERVICE_HAILING P5-P9 — sw.js gains the Web Push handlers (push → showNotification, notificationclick → focus the provider console); SHELL pages pm-scheduler.html (P9 recurring-contract Hail-a-specialist CTA) also changed this commit. Without this bump installed PWAs keep the handler-less worker and stale pages.
+// const CACHE_NAME  = 'workhive-shell-v228';  // bump 2026-07-28: SERVICE_HAILING P3+P4 — SHELL pages hive.html (hive-provider home card + TL dict) and asset-hub.html ("Hail a specialist" asset-context CTA, moat #1). Without this bump PWA users keep the stale board/detail and never see the provider doors.
+// const CACHE_NAME  = 'workhive-shell-v227';  // bump: a severity-9 safety failure mode is no longer ranked below a low-severity nuisance by RPN, and an expired parts recommendation can no longer be staged - without this bump an installed user keeps an FMEA list that buries the electrocution risk under the alignment fault, and a Stage button on a risk assessment the system already considers stale
 // const CACHE_NAME  = 'workhive-shell-v226';  // bump: on a shared tablet one worker's queued PM no longer drains under another worker's name - without this bump an installed user keeps the misattribution
 // const CACHE_NAME  = 'workhive-shell-v225';  // bump: creating a PM asset is supervisor-gated at the database and the RCM push routes through an RPC - without this bump an installed user keeps a direct insert the database now refuses
 // const CACHE_NAME  = 'workhive-shell-v224';  // bump: filtering the PM list to nothing no longer tells a 31-asset hive it has no assets - without this bump an installed user keeps the wrong empty state
@@ -202,4 +205,30 @@ self.addEventListener('fetch', e => {
       return new Response('', { status: 503 });
     }))
   );
+});
+
+// ── Web Push (SERVICE_HAILING P5/G3) ─────────────────────────────────────────
+// notify-push (edge fn, VAPID) sends { title, body, url }. Without these handlers a
+// delivered push silently no-ops; the click handler focuses an existing tab on the
+// target page or opens one — the provider lands on the job-offer console in one tap.
+self.addEventListener('push', e => {
+  let data = { title: 'WorkHive', body: 'You have a new notification.', url: '/workhive/marketplace-seller.html?tab=services' };
+  try { data = Object.assign(data, e.data ? e.data.json() : {}); } catch (_) { /* empty-catch-allow: malformed payload falls back to the generic notification */ }
+  e.waitUntil(self.registration.showNotification(data.title, {
+    body: data.body,
+    icon: '/workhive/brand_assets/workhive-logo-transparent.png',
+    badge: '/workhive/brand_assets/workhive-logo-transparent.png',
+    data: { url: data.url },
+  }));
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const target = (e.notification.data && e.notification.data.url) || '/workhive/marketplace-seller.html?tab=services';
+  e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    for (const c of list) {
+      if (c.url.includes(target.split('?')[0]) && 'focus' in c) return c.focus();
+    }
+    return clients.openWindow(target);
+  }));
 });

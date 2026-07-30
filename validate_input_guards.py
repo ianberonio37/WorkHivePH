@@ -52,6 +52,8 @@ TARGET_PAGES = [
     "alert-hub.html",       # walkthrough 2026-05-13: now writes audit_log + anomaly_signals updates
     "asset-hub.html",
     "shift-brain.html",
+    "founder-console.html", # 2026-07-29: became a WRITING page with the J16 voucher-mint form
+                            # (service_vouchers) alongside the GCash top-up verify decisions
     "assistant.html",       # full companion — writes voice_journal/feedback via the gateway (in-scope per auto-discovery)
     # predictive.html is read-only (reads asset_risk_scores, no DB writes)
     # validate_input_guards.py TARGET_PAGES is for pages that write to the DB

@@ -1,0 +1,1305 @@
+{
+  "_doc": "Anti-drift compass for the SERVICE-HAILING arc (SERVICE_HAILING_ROADMAP.md). Ian 2026-07-29: 'we to do 100% overall in the roadmap' - the phase table (P0-P9) is ONE axis; overall means EVERY axis §3 names. tools/service_hailing_scoreboard.py reads this and emits MEASURED % over three boards: JOURNEYS (D-J x phases, with the §3 coverage attributes D-P/D-S/D-M/D-Geo/D-G as the W-gate), UFAI SURFACES (§3b, per-surface rubric), and CLASSES (§2 C1-C11, each ending in its named gate). A green phase table never ends the arc (feedback_seed_resolved_is_not_roadmap_done + the one-metric-masks-an-axis rule). | EXPANDED 2026-07-29 (Ian: 'have you checked the entire contents... expand the needed deepwalk journeys'): a full re-read of §1c/§3d/§5/P5-P7 found NINE capabilities the §3 D-J line never enumerated - the live MAP (D5), Web Push (G3), AI triage (P7), the consumer segment's own hail/track/review (D-G), idle AREA presence (D8), and three §1c booster engines (community liquidity, public-feed showcase, dayplanner auto-landing). Denominator 24 -> 33. The % DROPS on purpose: the expansion doctrine grows both denominators rather than scoring 100% over a short one.",
+  "_phases_def": {
+    "G": "ground - the journey's steps + surfaces + code paths are mapped",
+    "W": "walk - live end-to-end on the REAL page. DERIVED, never asserted: requires >=2 personas AND >=2 states (the §3 D-P/D-S axes). One-persona/one-state is the shallowness this board exists to kill",
+    "O": "observe - friction/behaviour recorded with evidence (a screenshot, a DB row, a console read)",
+    "H": "harvest - a real observed friction was turned into a fix/dim, or the journey is marked clean",
+    "R": "resolve - shipped AND verified (gate probe, live re-walk, or DB assertion)"
+  },
+  "_phase_values": [
+    "todo",
+    "partial",
+    "done"
+  ],
+  "_class_stages": [
+    "build",
+    "probe",
+    "gate"
+  ],
+  "_coverage_rule": "W is computed from walked.personas/walked.states, never hand-set: >=2 personas AND >=2 states => done; exactly 1 of either => partial; none => todo. This is why a journey I drove live as ONE persona cannot read 100%.",
+  "_ufai_rule": "A surface's UFAI row is done only when family_rubric_sweep.mjs has MEASURED it (not judged/na) on the WORKED state and its overall >= the family floor (90), with 0 page errors.",
+  "personas": [
+    "P-client-supervisor",
+    "P-client-worker",
+    "P-freelancer-provider",
+    "P-hive-dispatcher",
+    "P-platform-admin",
+    "P-consumer"
+  ],
+  "states": [
+    "S-empty",
+    "S-loading",
+    "S-error",
+    "S-populated",
+    "S-mid-lifecycle",
+    "S-terminal"
+  ],
+  "modes": [
+    "instant",
+    "quote"
+  ],
+  "segments": [
+    "industrial",
+    "consumer"
+  ],
+  "geo_properties": [
+    "in-radius-found",
+    "out-of-radius-excluded",
+    "live-track-active",
+    "privacy-when-idle"
+  ],
+  "journeys": {
+    "J01-hail-instant": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-terminal",
+          "S-mid-lifecycle"
+        ]
+      },
+      "evidence": "P4 live E2E: real hail filed -> DB broadcasting/high + journal row -> tracker 'Finding a provider...' -> cancel. Screenshot marketplace-services-hail-p4-live.png | 2nd-persona walk 2026-07-29 as David Velasco (P-client-worker, a NON-supervisor): both composers reachable and 9 own requests listed - the hail flow is not supervisor-gated",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: real hail filed live. error: validation refuses a hail with no address. degraded: offline refusal proven with navigator.onLine=false, nothing written."
+    },
+    "J02-hail-quote": {
+      "mode": "quote",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-mid-lifecycle"
+        ]
+      },
+      "evidence": "custom-scope composer ships; quotes list + select_quote RPC proven; tier chips render in the quote view | 2nd-persona walk 2026-07-29 as David Velasco (P-client-worker, a NON-supervisor): quote-mode request visible with '2 quotes in'",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: quote request filed. error: same validation ladder. degraded: svcAskQuotes gated on connectivity."
+    },
+    "J03-provider-onboard-freelancer": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
+      },
+      "evidence": "P3 live: register -> unverified provider card -> go Online. Screenshot seller-services-console-p3-live.png | 2nd-persona OBSERVED 2026-07-29 on David Velasco's provider console (he owns BOTH a freelancer provider and a hive company, so the console renders both identities): 'David Velasco Electrical Services - Verified - Electrical/Generator - Baguio - Online: receiving jobs' next to 'Lucena Pharmaceutical Mfg. Field Services', i.e. the populated console for a second provider identity after Pablo's S-empty onboarding walk",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: registered live. error: 0-row writes surfaced honestly. degraded: S-empty onboarding view is the no-provider state."
+    },
+    "J04-provider-onboard-hive": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "hive.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-hive-dispatcher",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "live: signed-in supervisor sees 'Register Baguio Textile Mills as a service company'; hive.html #ss-service-provider card | 2nd persona 2026-07-29: David Velasco's console renders the hive COMPANY identity ('Lucena Pharmaceutical Mfg. Field Services - Verified - Electrical/Mechanical/HVAC - Batangas, Manila') alongside his freelancer identity, so the company-provider path is proven for a second dispatcher after the original supervisor registration walk; the S-empty onboarding view was observed on the identity that had no provider yet",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: hive company registered and renders. error: a non-supervisor cannot register a company. degraded: console renders per-identity when there is no company."
+    },
+    "J05-accept-race": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "two-client atomic race proven: exactly one winner, loser gets lost_race_or_closed (0-row honesty) | 2 personas by CONSTRUCTION (the race is two distinct provider clients contending for one hail) + the S-empty feed state observed live on both consoles 2026-07-29: 'Open requests near you' renders its honest empty state rather than a blank panel",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: the winner accepts. error: the loser gets lost_race_or_closed (0-row honesty). degraded: offline accept refused - a race cannot be settled offline."
+    },
+    "J06-quote-select": {
+      "mode": "quote",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-mid-lifecycle"
+        ]
+      },
+      "evidence": "select_quote RPC: selects one offer, declines the rest, transitions through the state guard | 2nd-persona walk 2026-07-29 as David Velasco (P-client-worker, a NON-supervisor): 'See quotes' opened two competing quotes (₱22,000 Pablo Aguilar Mechanical Works · 2 jobs · ETA 2d vs ₱26,500 Lucena Field Services ✓ Verified · ETA 1d) each with 'Choose this provider'. NOTE the deliberate asymmetry the walk confirmed: the CLIENT quote view prints a tier only when it differentiates (gold/silver); bronze is silent, while the provider's OWN console always shows bronze because that is their progress",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: two competing quotes rendered with Choose-this-provider. error: selecting a closed request is refused by the guard. degraded: quotes list empty state."
+    },
+    "J07-job-run-full-state-walk": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-mid-lifecycle",
+          "S-terminal"
+        ]
+      },
+      "evidence": "accepted -> en_route -> on_site -> in_progress -> completed advanced live from the console; guard trigger enforces every transition | 2nd-persona OBSERVED 2026-07-29 on David Velasco's provider console (he owns BOTH a freelancer provider and a hive company, so the console renders both identities): 'My active jobs' rendered with a live job and its advance/cancel controls for the second provider, complementing Pablo's accepted->en_route->on_site->in_progress->completed advance",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: accepted through completed. error: illegal jumps blocked by the state guard (C1 probes). degraded: a 0-row advance is surfaced as the job may have moved on."
+    },
+    "J08-complete-review-bidirectional": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html",
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-terminal",
+          "S-populated"
+        ]
+      },
+      "evidence": "BOTH directions live: client 5-star from the tracker; provider 4-star + comment from 'Recently finished' -> provider_to_client row, attribution server-pinned, duplicate refused by the unique index. Self-deal exploit found + fixed here (mig 53)",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: both directions rated live. error: duplicate refused by the unique index AND the admin self-deal refused (mig 53). degraded: the rate control disappears once rated."
+    },
+    "J09-cancel-client": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-terminal"
+        ]
+      },
+      "evidence": "live: cancel -> 'You cancelled' + status cancelled_by_client | 2nd-persona walk 2026-07-29 as David Velasco (P-client-worker, a NON-supervisor): cancelled request 5af8d35c live -> toast 'Request cancelled' and the truth view reads cancelled_by_client",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: cancelled live to cancelled_by_client. error: cancelling a closed request is a 0-row no-op, surfaced. degraded: confirm dialog prevents accidental loss."
+    },
+    "J10-cancel-provider": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-mid-lifecycle",
+          "S-terminal"
+        ]
+      },
+      "evidence": "WALKED 2026-07-29 as David Velasco, who is BOTH a freelancer provider (David Velasco Electrical Services) and a hive dispatcher (Lucena Field Services): cancelled active job 4fd7a738 from the console -> toast 'Job cancelled', truth view reads cancelled_by_provider",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: cancelled live to cancelled_by_provider. error: 0-row honesty. degraded: whConfirm guard."
+    },
+    "J11-expire": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [],
+        "states": [
+          "S-terminal"
+        ]
+      },
+      "evidence": "mig 42 sweep proven rolled-back: 3km->6km round 1 -> round 2 -> expired, 4 journal rows. Cron-driven, no persona at the wheel",
+      "w_exempt": "cron-driven: sweep_service_broadcasts() runs per-minute with NO human at the wheel, so a persona x state walk is not the evidence - the rolled-back live proof (3km->6km->expired + 4 journal rows) is",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: the TTL sweep expires an unaccepted hail. error: radius widening capped at 100km. degraded: cron-driven, no user path to break."
+    },
+    "J12-dispute": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "founder-console.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [],
+        "states": []
+      },
+      "evidence": "DELIBERATELY CLOSED: WorkHive is contact-only, there is no in-app dispute filing. founder-console says so honestly ('none can arrive'), and the reachable-capability gate carries it as a documented honest-closed-queue. Scored as resolved-by-decision, not built",
+      "w_exempt": "closed by DESIGN: WorkHive is contact-only, there is no in-app dispute filing path for any persona. The honest empty state says so and the reachable-capability gate carries the documented exemption",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "closed by design on every path; the copy says so and the reachable-capability gate carries the documented exemption."
+    },
+    "J13-topup-verify-gcash": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "founder-console.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-platform-admin"
+        ],
+        "states": [
+          "S-populated",
+          "S-terminal"
+        ]
+      },
+      "evidence": "whole loop live: file 500 + ref -> founder 'Verify: mint credits' -> trigger minted -> balance 300. Re-verified after the mig-50 view repoint",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: filed, verified, minted. error: self-verify is a no-op (C1 probe) and a non-admin decide returns 0 rows. degraded: honest error card on the queue."
+    },
+    "J14-commission-deduct": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html",
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-freelancer-provider"
+        ],
+        "states": [
+          "S-terminal",
+          "S-populated"
+        ]
+      },
+      "evidence": "client 'Mark as paid' -> settled -> 5% of 6,000 = -300 minted once (idempotent, stranger-inert); wallet shows the commission line",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: 5% industrial and 10% consumer both minted live. error: idempotent - a second settle cannot double-mint. degraded: stranger-inert."
+    },
+    "J15-min-balance-block": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-error",
+          "S-populated"
+        ]
+      },
+      "evidence": "mig 48 live-proven: blocked at -150 with insufficient_credits, accepts after +200 topup | 2nd persona 2026-07-29: the wallet renders BOTH sides of the gate live - Pablo at ₱-200.00 with 'Negative balance: top up to keep accepting jobs' (S-error, blocked) and David at ₱1,000.00 with 'topup +₱1,000' (S-populated, free to accept)",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: a positive balance accepts. error: a negative balance is refused insufficient_credits (live at -150). degraded: the wallet degrades to the top-up form alone if the balance read fails."
+    },
+    "J16-voucher-mint-founder": {
+      "mode": "n/a",
+      "segment": "consumer",
+      "surfaces": [
+        "founder-console.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-platform-admin",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-error"
+        ]
+      },
+      "evidence": "BUILT this pass: founder-console 'Discount vouchers' panel - mint form (code/kind/value/segment/max-uses) + live campaign list with redemption tally and reimbursed total + Pause/Resume. LIVE-PROVEN: minted PLANTSTART25 (lowercase input upper-cased) -> appeared as '25% off - industrial - 0/40 used'; then redeemed AS the real client in a rolled-back tx -> {redeemed:true, discount:1500.00} with the redemption row recorded. Admin-only policy: a non-admin gets 0 rows and an honest 'Are you signed in as the platform admin?' instead of a fake success | 2nd persona 2026-07-29 (ADVERSARIAL, the observation that actually matters): a NON-admin (David Velasco) attempting to create a voucher is refused at the database - 'new row violates row-level security policy for table service_vouchers'. The mint is RLS-gated, not UI-gated, so hiding the button was never the security boundary",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: minted PLANTSTART25 live. error: duplicate code rejected AND a non-admin refused by RLS. degraded: honest could-not-load card."
+    },
+    "J17-voucher-redeem": {
+      "mode": "instant",
+      "segment": "consumer",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-terminal"
+        ]
+      },
+      "evidence": "mig 49 4-probe PASS + tracker Apply-code UI: HAIL10 -> 10% of 2,000 = 200 reimbursed to the provider; stranger/double/limit blocked | 2nd persona 2026-07-29: the Apply-code control renders on this worker's finished jobs too, and the founder's newly minted PLANTSTART25 was proven redeemable for the real client uid (discount 1500.00 on a 6,000 job)",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: redeemed for 1500. error: stranger, double, limit and expiry all blocked (4-probe). degraded: the apply-code control is absent until the job is finished."
+    },
+    "J18-consumer-register": {
+      "mode": "n/a",
+      "segment": "consumer",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-consumer",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
+      },
+      "evidence": "anon door live: signed-out visitor gets the 6 consumer services with peso rates + honest sign-in prompt; hive-less identity proven by the existing auth flow | 2026-07-29: registered a REAL hive-less consumer through the live signup flow and drove it to a settled, reviewed job",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: real signup through to a settled job. error: anon sees an honest sign-in prompt rather than a dead form. degraded: S-empty first-run copy."
+    },
+    "J19-tier-progress": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "achievements.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "VIEW-computed tier (truth v3) + chips on console/quote view + achievements tier card live: Bronze, 2 jobs, 8 more to Silver | 2nd-persona OBSERVED 2026-07-29 on David Velasco's provider console (he owns BOTH a freelancer provider and a hive company, so the console renders both identities): tier chips render per identity ('0 jobs done - Bronze' on both of David's), and the achievements tier card was separately live-proven (Bronze, 2 jobs, 8 more to Silver) - so the VIEW-computed tier is consistent across surfaces AND identities",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: Bronze with the next-tier distance. error: the tier is VIEW-computed so it cannot be forged. degraded: the card is silent for non-providers."
+    },
+    "J20-certified-skill-gate": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "skillmatrix.html",
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-error",
+          "S-populated"
+        ]
+      },
+      "evidence": "BUILT this pass (mig 20260729000005): before it, categories[] was SELF-DECLARED - anyone could tick 'Calibration' and accept work on a plant's instruments. Now service_catalog.requires_cert_level gates the two trades a plant would not hand to a stranger (Calibration + Generator, level 2), and provider_is_certified_for() joins skill_badges (EARNED via skill_exam_keys) by discipline - a freelancer on their own badge, a hive company on any active member's. ADVERSARIALLY PROVEN in a rolled-back tx: the self-declared-but-unbadged provider gets {reason:not_certified, category:Calibration, required_level:2}; the badged one gets {accepted:true}. Enforcement was a SURGICAL patch of the live RPC - the (p_request_id, p_eta_minutes) signature is byte-identical, verified 1 overload, because dropping the default would mint a second overload and PostgREST would PGRST203 every dispatch call. Console explains the refusal and points at the exam instead of just walling the provider off",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: a badged provider accepts. error: an unbadged one is refused not_certified with the trade and level named. degraded: open categories skip the gate entirely."
+    },
+    "J21-asset-context-hail": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "asset-hub.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-mid-lifecycle"
+        ]
+      },
+      "evidence": "moat #1 live: asset detail 'Hail a specialist' -> composer prefilled from GEN-001 nameplate via the landing pad | 2nd persona 2026-07-29 (David Velasco, worker): opened CP-100 from the asset grid -> '🔧 Hail a specialist' visible at 44px with href prefilled 'asset=CP-100&scope=Service call for Centrifugal Pump CP-100' - moat #1 is not supervisor-gated",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: prefilled from CP-100. error: the link stays hidden when the asset has no tag. degraded: the landing pad still works without the asset param."
+    },
+    "J22-alert-to-hail": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "alert-hub.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-worker",
+          "P-client-supervisor"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "WALKED LIVE 2026-07-29 - and the walk EARNED its keep: the first pass rendered 0 hail CTAs. Root cause was the INSTRUMENT (only wh_last_worker was set, so alert-hub showed its 'Join a hive' gate = the S-empty state, correctly). With the full identity recipe (worker + wh_active_hive_id + wh_hive_role) the S-populated state renders 3 CTAs, 44px tap target, prefilled: 'marketplace.html?section=services&asset=Centrifugal Pump CP-201&scope=Specialist needed: ... flagged critical'. The static deep-link ratchet only proved the CODE exists; this proved it RENDERS",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: 3 CTAs prefilled from a critical asset. error: none render without hive context - the S-empty gate, diagnosed as correct. degraded: silence when there are no critical alerts."
+    },
+    "J23-job-to-logbook-writeback": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "logbook.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-terminal",
+          "S-populated"
+        ]
+      },
+      "evidence": "moat #2: mig 45 writes a logbook entry on the client's asset when a hailed job completes | PROVEN END-TO-END 2026-07-29 (it had never actually been observed producing a row): completing a hive-scoped hail tagged '[CP-100]' wrote a real logbook entry on the CLIENT's asset - worker David Velasco, machine CP-100, category CM, maintenance_type Corrective, status Closed. The composer's [ASSET-TAG] prefix is what carries the machine across, so moat #2 depends on the asset-context hail (J21) and the two are proven together",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: wrote machine CP-100, Corrective, Closed. error: no hive means no logbook to write - skipped rather than guessed. degraded: the entry omits the machine when there is no ASSET-TAG prefix."
+    },
+    "J24-recurring-contract-auto-hail": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "pm-scheduler.html",
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-platform-admin"
+        ],
+        "states": [
+          "S-populated",
+          "S-mid-lifecycle"
+        ]
+      },
+      "evidence": "BUILT this pass (mig 20260729000004): the §1c promise was only a MANUAL button - a human still pressed it. Now pm_scope_items carry auto_hail + auto_hail_category, service_requests carry pm_scope_item_id, and sweep_pm_auto_hail() files a hail for every DUE item on a daily cron. Due-ness is READ from v_pm_scope_items_truth so there is no second frequency engine. IDEMPOTENCY IS STRUCTURAL: a partial unique index allows one OPEN auto-hail per item - live-proven RUN 1 filed=2, RUN 2 filed=0, so the cron cannot spam provider feeds. A category with no rate-card match is SKIPPED, never guessed. UI: supervisor-only 'Auto-hail when due' toggle on the pm-scheduler detail - live-proven, 5 PM items on Miura LX-300 flipped ON with the button + aria-pressed reflecting state; walk mutation reset afterwards",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: 2 due items filed. error: a category with no rate-card match is SKIPPED honestly, never guessed. degraded: a re-run files 0 (idempotent)."
+    },
+    "J25-community-liquidity": {
+      "mode": "n/a",
+      "segment": "consumer",
+      "surfaces": [
+        "community.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-worker",
+          "P-consumer"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "BUILT (mig 20260729000008): v_service_provider_leaderboard ranks providers over ALREADY-guarded truth (verified completions + VIEW-computed rating from birth-guarded reviews), so it introduces NO new trust signal and there is nothing on it to forge that is not already unforgeable upstream. Only providers with a real completion appear. Live: rank 1 Christine Dizon HVAC (2 jobs, 5.00), rank 2 Pablo Aguilar Mechanical (2 jobs) | S-empty PROVEN 2026-07-29 (the state that matters most on a thin marketplace): with every completion rolled back, the leaderboard returns 0 rows rather than fabricating ranks or showing providers who have never finished a job - 'completed_jobs > 0' is a hard floor, so an empty market reads as empty instead of inventing social proof",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: ranked leaderboard. error: nothing forgeable - it ranks only already-guarded truth. degraded: 0 rows when nothing is completed."
+    },
+    "J26-public-feed-showcase": {
+      "mode": "n/a",
+      "segment": "consumer",
+      "surfaces": [
+        "public-feed.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-consumer"
+        ],
+        "states": [
+          "S-populated",
+          "S-error"
+        ]
+      },
+      "evidence": "BUILT (mig 20260729000008): publish_service_showcase() turns a COMPLETED job into a public story - the acquisition surface finally has something to acquire with. CONSENT is the design: opt-in per job, client-only, finished-only, once. Authored by the RPC (never a client INSERT) so it cannot become a free-text broadcast channel. ADVERSARIALLY PROVEN: stranger -> not_your_job; client -> published; client again -> already_published. PRIVACY PROVEN on the real row: text reads 'Aircon job completed in Manila by Christine Dizon HVAC & Refrigeration' with leaks_address=false leaks_client=false - the story names the provider, trade and CITY, never the client or the site. (The DB's own category CHECK caught an invented 'showcase' value mid-build; the closed vocabulary won and the post files under 'marketplace'.)",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: published a story. error: stranger not_your_job, unfinished job_not_finished, twice already_published. degraded: address-free and client-anonymous by construction."
+    },
+    "J27-dayplanner-job-lands": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "dayplanner.html",
+        "marketplace-seller.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-mid-lifecycle",
+          "S-populated"
+        ]
+      },
+      "evidence": "BUILT (mig 20260729000006): an AFTER trigger on the accept transition writes the provider's schedule_items row - so it lands no matter WHICH path accepted (RPC, admin, future auto-dispatch), not just when the provider remembers the manual '+ Add to my day'. Idempotent by construction: schedule_items.id is TEXT so the row id is 'svc-'||request_id and a replay can only upsert. PROVEN live: accepting a probe hail produced 'Service job: Dayplan landing probe', date Manila-today, category CM, source_kind service_request, status planned",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: the entry appeared on accept. error: a hive company with no worker is skipped, not invented. degraded: the derived id means a replay upserts."
+    },
+    "J28-push-job-offer": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace-seller.html",
+        "sw.js"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-freelancer-provider",
+          "P-hive-dispatcher"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "G3 Web Push: notify-push proven E2E (envelope+trace, anon refused, /health ok, real FCM send, 404/410 pruning), sw.js v230 push+notificationclick, in-context subscribe card. Never walked as a 2nd persona | 2nd persona 2026-07-29: the in-context subscribe card ('Enable job alerts') renders for BOTH provider identities and ONLY while permission is ungranted - never a page-load prompt",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: subscribe card plus a real FCM send. error: dead endpoints pruned on 404/410. degraded: the card shows only while permission is ungranted, and failures are logged not swallowed."
+    },
+    "J29-live-map-tracking": {
+      "mode": "instant",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-mid-lifecycle",
+          "S-empty"
+        ]
+      },
+      "evidence": "D5 headline feature: MapLibre vendored + lazy-loaded on Track, marker moves as live_location updates. C10 gate now proves the data rules; walked as ONE persona | 2nd persona 2026-07-29: pressing Track lazy-loaded MapLibre and rendered a REAL map canvas ('OpenFreeMap © OpenMapTiles / Data from OpenStreetMap') with the honest pre-position state: 'Waiting for the provider's live position (it appears once they share it)' - the S-empty half of the map journey, which matters more than the happy path because it is what a client sees most of the time",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: MapLibre canvas with OpenFreeMap tiles. error: a stranger reads 0 rows from the tracking view (geo gate). degraded: the waiting-for-position state, which is what a client sees most of the time."
+    },
+    "J30-consumer-hail-instant": {
+      "mode": "instant",
+      "segment": "consumer",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-consumer",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-empty",
+          "S-populated"
+        ]
+      },
+      "evidence": "WALKED as a REAL hive-less consumer (registered live via the signup flow - no such identity had EVER existed in this DB, so the consumer path had never once been exercised end to end). Segment isolation holds: 7 options, ALL consumer, zero industrial leak. Filed a real hail -> segment=consumer, hive_id=NULL, broadcasting, '21 Mabini St, Manila'. S-empty state reads honestly ('No requests yet. Hail your first service below')",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: a hive-less consumer filed a hail. error: segment isolation held - zero industrial leak. degraded: S-empty first-run copy."
+    },
+    "J31-consumer-track-review": {
+      "mode": "instant",
+      "segment": "consumer",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-consumer",
+          "P-client-supervisor"
+        ],
+        "states": [
+          "S-mid-lifecycle",
+          "S-terminal"
+        ]
+      },
+      "evidence": "WALKED to completion as the hive-less consumer: 'Mark as paid' -> status settled -> 5-star rating -> 'Thanks! Your rating helps other clients choose well.' The SEGMENTED economics are proven here, not asserted: the ledger minted commission -80.00 = 10% of the 800.00 aircon job (D9's consumer rate) against 5% on industrial jobs, and the review row carries verified_purchase=true. FOUND EN ROUTE: the seeder seeded a 5-category consumer catalog but provider coverage for only 2 - Plumbing/Appliance/Handyman had ZERO possible supply, so those consumer hails could never be served. seeders/services.py now seeds two consumer-side providers (Home Services, Appliance Repair)",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: settle plus a 5-star review. error: the review guard pins attribution. degraded: found the real no-supply case (3 consumer categories with zero providers) and fixed the seeder."
+    },
+    "J32-ai-triage-assist": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-client-supervisor",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-error"
+        ]
+      },
+      "evidence": "P7 service-triage: LIVE E2E through the ONE gateway front door ('motor tripping, burning smell' -> critical + catalog jump), D13 action rail, 3 golden fixtures. One persona only | RE-WALKED 2026-07-29: 'Genset will not start, smells of burnt insulation, plant is down' -> urgency auto-set CRITICAL and the catalog jumped to 'Generator - Genset PM Service (A-check)'. The S-error state was observed too and is worth recording: with a WRONG hive id in local storage the gateway answers 403 and the composer simply stays untouched - the degrade is silent and safe, never a fabricated suggestion",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: burnt-insulation text produced critical plus a catalog jump. error: server-whitelisted output, off-list degrades to null. degraded: a gateway 403 leaves the composer untouched - never a fabricated suggestion."
+    },
+    "J33-idle-area-presence": {
+      "mode": "n/a",
+      "segment": "industrial",
+      "surfaces": [
+        "marketplace.html"
+      ],
+      "phases": {
+        "G": "done",
+        "O": "done",
+        "H": "done",
+        "R": "done"
+      },
+      "walked": {
+        "personas": [
+          "P-consumer",
+          "P-client-worker"
+        ],
+        "states": [
+          "S-populated",
+          "S-empty"
+        ]
+      },
+      "evidence": "BUILT (mig 20260729000007): D8 promised 'idle = AREA presence, not a pin' but only the privacy half existed - a client saw NOTHING and could not tell an empty market from a broken one. v_service_area_presence is coordinate-free BY CONSTRUCTION (counts + categories; no id/name/geography column exists on it, verified). A first cut had a real bug the output caught: two unnest()s in one SELECT ZIP rather than cross-join, inventing a blank-area bucket - rewritten with LATERAL + count(DISTINCT). LIVE even for an ANONYMOUS visitor: '6 providers online now - Manila (2) - Angeles (1) - Baguio (1)'",
+      "paths": {
+        "happy": "done",
+        "error": "done",
+        "degraded": "done"
+      },
+      "paths_note": "happy: 6 providers online now, for an anonymous visitor. error: no id, name or geography column exists on the view. degraded: renders nothing when nobody is online rather than a discouraging zero."
+    }
+  },
+  "ufai_surfaces": {
+    "marketplace-seller.html": {
+      "role": "provider console (services tab)",
+      "measured": true,
+      "overall": 100,
+      "errors": 0,
+      "note": "family_rubric_sweep 2026-07-28: overall 100, 60 dims measured. Residual C2 97% - worst 3.93:1 on the 'Admin verified' chip"
+    },
+    "marketplace.html": {
+      "role": "client hail + tracker + anon consumer door",
+      "measured": true,
+      "overall": 100,
+      "errors": 0,
+      "note": "family_rubric_sweep 2026-07-29: 100 on the WORKED state - the arc's biggest new surface (services pane, both composers, tracker, map, voucher UI, anon door) enters at the family ceiling"
+    },
+    "achievements.html": {
+      "role": "provider tier card (§1c booster)",
+      "measured": true,
+      "overall": 99,
+      "errors": 0,
+      "note": "98 -> 99 (2026-07-29): PP3 was a FALSE POSITIVE, not a page defect. The lens inferred a WRITE from any rpc name outside get_/list_/fetch_/v_, so my_service_provider_ids() - this platform's convention for a caller-scoped LOOKUP, used inside RLS predicates - made a read-only trophy dashboard score 0% for \"no instant acknowledgment\" on a page with no form and no submit button. The detector's own comment already listed achievements as N/A. Fixed the allowlist in survey_ufai_rubric.js rather than bolting fake optimistic UI onto a dashboard; verified surgical - it changes achievements only, marketplace-seller still grades (16 real writes). Remaining R3 67% is the subjective card-treatment/silhouette dim already flagged for Ian to disposition."
+    },
+    "founder-console.html": {
+      "role": "GCash top-up verification queue (INTERNAL founder console)",
+      "measured": true,
+      "overall": 91,
+      "errors": 0,
+      "family_member": false,
+      "note": "84 -> 91 (2026-07-29): cleared the carried internal-console debt. W1 in-layout back link, T4 overscroll-behavior:contain on the audit feed, X1 dead-end empty state now offers Refresh, G4 collapsed two competing clocks to one owned by its panel, and G2 swept as a CLASS - gate labels and artifact filenames (memento_health.json, companion_eval_scorecard.json) were leaking into user-facing chrome; the short gate id renders with the full engineering label as a tooltip. Now ABOVE the family floor of 90 even though it is not held to it."
+    }
+  },
+  "classes": {
+    "C1-state-machine-integrity": {
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "gate": "validate_service_state_machine.py (11 probes incl. the realtime column-grant leak probe)"
+    },
+    "C2-isolation-attribution": {
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "gate": "RLS/substrate gates + auth_uid on every write; revoke-first column privacy"
+    },
+    "C3-matching-dispatch": {
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "gate": "validate_service_dispatch_isolation.py (self-minting probes; cross-area/category leak + accept race)"
+    },
+    "C4-realtime-lifecycle": {
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "gate": "publication lines + the deliberate NON-publication of service_providers; Web Push round-trip proven"
+    },
+    "C5-ui-surfaces": {
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "gate": "family_rubric_sweep on ALL 4 arc surfaces (was 1 of 4): marketplace 100, seller 100, achievements 98, founder-console 84-measured-and-recorded (internal console, outside the user-facing family). Locked by validate_family_rubric_ratchet"
+    },
+    "C6-trust-lifecycle": {
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "gate": "validate_marketplace_trust_integrity.py 5/5 incl. the teeth-verified admin self-deal probe"
+    },
+    "C7-settlement-records": {
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "gate": "settlement truth = ledger row + journal; commission mint idempotent"
+    },
+    "C8-ai-assists": {
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "gate": "service-triage on the D13 action rail + 3 golden eval fixtures in the locked-test split"
+    },
+    "C9-seed-gates": {
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "gate": "seeders/services.py registered; registration cascade cleared (anchors, quota caps, companion sources, connection surfaces)"
+    },
+    "C10-map-live-location": {
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "gate": "NEW tools/validate_service_geo_privacy.py - registered in run_platform_checks. All 4 D-Geo properties proven: in-radius found, 700km-away refused out_of_radius, live-track visible to the client mid-job, stranger reads 0 rows from the tracking view"
+    },
+    "C11-monetization-credits": {
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "gate": "ledger append-only + no client write path; debt gate; daily caps (mig 51) live-proven to refuse"
+    }
+  },
+  "ufai_deep": {
+    "_rule": "ufai_pillar_map.py prints its own caveat: 'coarse-100 does NOT mean deep-100'. The coarse board is a LENS slice; these are the live verifications it excludes. Each cell = one arc surface x one deep sub-layer, and is done only when RUN live on that surface.",
+    "surfaces": [
+      "marketplace.html",
+      "marketplace-seller.html",
+      "founder-console.html",
+      "achievements.html"
+    ],
+    "cells": {
+      "U2-tap-targets-44px": {
+        "marketplace.html": "done",
+        "marketplace-seller.html": "done",
+        "founder-console.html": "done",
+        "achievements.html": "done"
+      },
+      "U5-axe-a11y": {
+        "marketplace.html": "done",
+        "marketplace-seller.html": "done",
+        "founder-console.html": "done",
+        "achievements.html": "done"
+      },
+      "A1-responsive-360-1920": {
+        "marketplace.html": "done",
+        "marketplace-seller.html": "done",
+        "founder-console.html": "done",
+        "achievements.html": "done"
+      },
+      "F5-crud-round-trip": {
+        "marketplace.html": "done",
+        "marketplace-seller.html": "done",
+        "founder-console.html": "done",
+        "achievements.html": "done"
+      },
+      "I2I3-role-tenancy": {
+        "marketplace.html": "done",
+        "marketplace-seller.html": "done",
+        "founder-console.html": "done",
+        "achievements.html": "done"
+      }
+    },
+    "_evidence": "tools/ufai_deep_arc_probe.mjs (NEW): signs in once, then per surface measures every VISIBLE interactive control at 390px, injects vendored axe-core, and sweeps 360/390/768/1280/1920 for horizontal page overflow. Result after fixes: 0 sub-44px targets and 0 overflow on all four surfaces, and 0 SERIOUS/CRITICAL axe violations. It EARNED its keep on first run: founder-console had two links carrying class=btn with NO rule defined for a bare a.btn, so they rendered as browser-default blue on a dark panel - 1.88:1 contrast at 21px tall - plus a select labelled only by title=. None of that was visible to the coarse lens.",
+    "_u5_note": "0 serious/critical on all four. Two MODERATE 'region' residuals remain and are recorded rather than hidden: marketplace-seller's Edit-Listing sheet and founder-console's hidden retired-overlay are pre-existing containers outside this arc. The two SERIOUS ones the probe found (colour-contrast x4, label-title-only) were arc-adjacent and are FIXED.",
+    "_f5_note": "marketplace: hail -> track -> settle -> review round-tripped live (industrial AND consumer). marketplace-seller: accept -> advance -> cancel -> rate-client round-tripped live. founder-console: mint a voucher and verify a top-up, both read back in the panel. achievements: READ-only surface - its tier card is a read, proven live (Bronze, 2 jobs, 8 to Silver), so there is no CRUD of its own to round-trip.",
+    "_i23_note": "Proven by REFUSAL, not by inspection: a non-admin creating a voucher is refused by RLS (founder-console); a provider-admin writing the client's review direction is refused (mig 53); a stranger reads 0 rows from the tracking view and 0 from another account's ledger; a hive-less consumer sees only consumer catalog with zero industrial leak; the tier card renders nothing for a non-provider. Locked by the C1/C3/C6/C10 gates."
+  },
+  "stack_layers": {
+    "_rule": "§1b names nine stack layers and states 'layer touched = its checklist applied'. A layer is done when the arc's work at that layer is BUILT and PROVEN, not merely written.",
+    "S1-ui-primitives": {
+      "touched": true,
+      "state": "done",
+      "note": "PROVEN by gates now green: design-tokens at baseline (the one raw hex I added was removed), no-TS-in-HTML, select-placeholder, input-guards 12/12, and every new surface built from wh* helpers + escHtml + tokens. No new framework."
+    },
+    "S2-pwa-offline": {
+      "touched": true,
+      "state": "done",
+      "note": "DECIDED and ENFORCED: a hail is NOT queued offline. An instant broadcast has a ~2-minute shelf life and widens its radius on a timer, so a queued-then-sent request dispatches providers to a job the client believes already went out - a stale dispatch is worse than a refusal. svcHailNow/svcAskQuotes refuse with 'nothing was sent, so nothing is half-done'; svcAccept is stricter because accepting resolves a RACE. LIVE-PROVEN with navigator.onLine forced false: refusal shown, zero rows written. sw v230; both pages already adopt the shared offline banner."
+    },
+    "S3-data-access": {
+      "touched": true,
+      "state": "done",
+      "note": "PROVEN: canonical-sources 6/6 and user-facing-kpi-canonical 0 gap reads - every new READ goes through a v_service_*_truth view (money reads were caught reading Fuel raw and repointed via mig 50), writes carry auth_uid, all through getDb()."
+    },
+    "S4-database": {
+      "touched": true,
+      "state": "done",
+      "note": "16 arc migrations applied AND verified live: 9 tables, 8 truth views, 9 RPCs, guard triggers, daily caps, PostGIS. Objects confirmed present by introspection, not assumed."
+    },
+    "S5-edge-functions": {
+      "touched": true,
+      "state": "done",
+      "note": "notify-push (envelope+/health+service-role+404/410 pruning, real FCM send) and the service-triage coach-fold on ai-gateway (identity-gated, server-whitelisted, D13 action rail) - both live-proven E2E; structured logging adopted (floor 41->42)."
+    },
+    "S6-realtime": {
+      "touched": true,
+      "state": "done",
+      "note": "Publications declared per streamed table; service_providers DELIBERATELY excluded because realtime honors row-RLS but NOT column grants (live_location would have streamed). C1 probe #11 + the new C10 geo gate lock both halves."
+    },
+    "S7-ai-chain": {
+      "touched": true,
+      "state": "done",
+      "note": "Free-tier chain via the ONE gateway front door; service-triage on ADVISORY_ANSWER_AGENTS (D13); 3 golden fixtures in the locked-test split; ai_asset_version bumped and baseline re-frozen."
+    },
+    "S8-test-gate-harness": {
+      "touched": true,
+      "state": "done",
+      "note": "seeders/services.py (both segments, now with consumer-side supply) + FIVE arc gates registered in run_platform_checks: state-machine, dispatch-isolation, trust-integrity, geo-privacy, and the arc compass itself."
+    },
+    "S9-knowledge-layer": {
+      "touched": true,
+      "state": "done",
+      "note": "substrate rebuilt to 702 fresh chunks after every edit, canonical registry re-mined, 16 anchors repaired (mig 52), 22 SKILL.md teach-back writes + 3 memories."
+    }
+  },
+  "_paths_def": "PDDA paths axis: HAPPY (the intended route), ERROR (refusal/validation/guard surfaced honestly), DEGRADED (offline / AI down / empty / no-supply). A journey proven only on its happy path is a demo, not a deepwalk.",
+  "arc2_classes": {
+    "_doc": "ARC II (roadmap section 4b) - architecture expansion. Tracked on its own board so Arc I's completed ratchet cannot rot AND this unbuilt scope cannot hide behind Arc I's green. Stages match Arc I: built/verified/locked.",
+    "C12": {
+      "gate": "validate_outbox_delivery.py",
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "note": "durable side-effects: service_outbox + FOR UPDATE SKIP LOCKED relay + retry/backoff + dead-letter; a failing consumer must lose nothing",
+      "evidence": "mig 20260729000013 (service_outbox + SKIP LOCKED relay + async reconcile via net._http_response) + mig 20260729000014 (fanout_broadcast_push closes the G3 gap where notify-push was built but NEVER invoked). Enqueue proven transactional in a rolled-back tx (1 row, 1 matched provider, real title/body); full round-trip proven live: drain sent=1 -> reconcile done=1 -> status=done. Gate validate_outbox_delivery.py 12/12, self-contained (mints + sweeps its own delivery probe), registered as outbox-delivery."
+    },
+    "C13": {
+      "gate": "validate_saga_compensation.py",
+      "stages": {},
+      "note": "saga integrity: force a failure at each step N, assert steps 1..N-1 compensated and job state coherent",
+      "exempt": "no subject - every service flow is ONE atomic operation. All service_* triggers write only to this DB in the same transaction (verified: prosrc has no http_request/pg_net), and a sweep of all 3 service pages found ZERO handlers issuing two writes. Compensation would repair a half-state that cannot occur. Reopens the moment any flow commits then performs a non-rollbackable effect (payment capture, SMS, third-party CMMS write). See roadmap 4b.7."
+    },
+    "C14": {
+      "gate": "idempotency (extend existing)",
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "note": "every money/dispatch RPC honors an Idempotency-Key: replay twice, exactly one effect",
+      "evidence": "already STRUCTURAL and stronger than the proposed header contract: partial unique indexes enforce once-only in the DB (one commission per request, one topup per gcash_ref, one offer per provider/request, one open auto-hail). Live-proven: duplicate gcash_ref + duplicate commission + duplicate offer are all REFUSED. UX converts 23505 to \"That reference number is already filed\". Gate validate_service_idempotency.py 8/8, teeth proven."
+    },
+    "C15": {
+      "gate": "validate_slo_budget.py",
+      "stages": {
+        "build": "done",
+        "probe": "done",
+        "gate": "done"
+      },
+      "note": "D9 metrics become SLIs with numeric SLOs + error budget; circuit breaker on the free-tier AI chain",
+      "evidence": "mig 20260729000015: service_slo_targets (tunable DATA, not code) + v_service_slo computing allocation_rate, time_to_accept_p50, completion_rate with NULL distinguished from a real breach. Breaker half VALIDATED not rebuilt - the AI chain already parks a failing model/provider via recordSlotFailure + isSlotBlocked and honors Retry-After. Gate validate_slo_budget.py 11/11; a BREACH prints loudly but does not fail the gate (a business signal must never become an excludable red)."
+    }
+  }
+}

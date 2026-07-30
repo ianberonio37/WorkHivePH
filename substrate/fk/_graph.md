@@ -2,13 +2,13 @@
 name: fk-graph
 type: fk
 source: db:pg_constraint:foreign-keys
-source_sha: 68a1c281bc2a500d
+source_sha: 9de3cc86a8239627
 last_verified: 2026-07-13
 supersedes: null
 ---
-## fk · relational-integrity graph (147 foreign keys)
+## fk · relational-integrity graph (163 foreign keys)
 
-**UNINDEXED FK columns (21)** — slow joins + table-locking cascade deletes; add an index on the child column:
+**UNINDEXED FK columns (26)** — slow joins + table-locking cascade deletes; add an index on the child column:
 - `agent_episodic_memory`.`auth_uid` -> `auth.users`
 - `agent_episodic_memory`.`source_trace_id` -> `agentic_rag_traces`
 - `anomaly_signals`.`asset_node_id` -> `asset_nodes`
@@ -28,10 +28,15 @@ supersedes: null
 - `pm_knowledge`.`asset_id` -> `asset_nodes`
 - `rcm_strategies`.`written_to_pm_scope_item_id` -> `pm_scope_items`
 - `resume_documents`.`hive_id` -> `hives`
+- `service_credit_topups`.`payer_auth_uid` -> `auth.users`
+- `service_providers`.`auth_uid` -> `auth.users`
+- `service_requests`.`catalog_item_id` -> `service_catalog`
+- `service_voucher_redemptions`.`consumer_auth_uid` -> `auth.users`
+- `service_voucher_redemptions`.`request_id` -> `service_requests`
 - `voice_journal_entries`.`hive_id` -> `hives`
 - `weibull_fits`.`fmea_mode_id` -> `rcm_fmea_modes`
 
-**ON DELETE CASCADE FKs (97)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
+**ON DELETE CASCADE FKs (107)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
 - `agent_episodic_memory`.`hive_id` -> `hives`
 - `agent_followups`.`hive_id` -> `hives`
 - `agent_memory`.`hive_id` -> `hives`

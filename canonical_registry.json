@@ -555,6 +555,7 @@
         "hive.html",
         "inventory.html",
         "logbook.html",
+        "marketplace-seller.html",
         "pm-scheduler.html",
         "project-manager.html"
       ],
@@ -562,7 +563,8 @@
         "hive.html"
       ],
       "read_by_edge_fns": [
-        "ai-gateway"
+        "ai-gateway",
+        "notify-push"
       ],
       "written_by_edge_fns": []
     },
@@ -1007,7 +1009,10 @@
         "rating",
         "comment",
         "verified_purchase",
-        "created_at"
+        "created_at",
+        "request_id",
+        "direction",
+        "reviewer_auth_uid"
       ],
       "rls_enabled": true,
       "grants": {
@@ -1026,9 +1031,11 @@
       "comment": "Buyer reviews. INSERT requires the reviewer to be the signed-in worker, to have an existing inquiry on that listing (the only on-platform trace of a real interaction in a contact-only marketplace), and not to own the listing. verified_purchase stays admin/system-set, and the seller rating is computed over verified reviews ONLY (20260719000003), so an open review form never inflates a score.",
       "read_by_surfaces": [
         "marketplace-seller-profile.html",
+        "marketplace-seller.html",
         "marketplace.html"
       ],
       "written_by_surfaces": [
+        "marketplace-seller.html",
         "marketplace.html"
       ],
       "read_by_edge_fns": [],
@@ -1322,7 +1329,9 @@
         "frequency",
         "anchor_date",
         "is_custom",
-        "created_at"
+        "created_at",
+        "auto_hail",
+        "auto_hail_category"
       ],
       "rls_enabled": true,
       "grants": {
@@ -1652,7 +1661,9 @@
       "written_by_surfaces": [
         "project-manager.html"
       ],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "written_by_edge_fns": []
     },
     "project_items": {
@@ -1740,7 +1751,8 @@
         "blockers",
         "acknowledged_by",
         "acknowledged_at",
-        "created_at"
+        "created_at",
+        "auth_uid"
       ],
       "rls_enabled": false,
       "grants": {},
@@ -3149,7 +3161,8 @@
         "ingested_at",
         "source",
         "meta",
-        "external_key"
+        "external_key",
+        "is_anomaly"
       ],
       "rls_enabled": true,
       "grants": {
@@ -3571,7 +3584,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track A — per-hive retention windows for soft-deleted rows, audit trail rows, and AI telemetry. PDPA evidence. Defaults applied when row missing.",
+      "comment": "Phase 5 Track A \u2014 per-hive retention windows for soft-deleted rows, audit trail rows, and AI telemetry. PDPA evidence. Defaults applied when row missing.",
       "read_by_surfaces": [
         "plant-connections.html"
       ],
@@ -3602,7 +3615,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track B — auth-side telemetry. Every login/logout/mfa event captured for session audit + anomalous-login triage. Written by auth-event-recorder edge fn (service role). Supervisor reads via hive-scope; workers read their own.",
+      "comment": "Phase 5 Track B \u2014 auth-side telemetry. Every login/logout/mfa event captured for session audit + anomalous-login triage. Written by auth-event-recorder edge fn (service role). Supervisor reads via hive-scope; workers read their own.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3633,7 +3646,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track B — MFA enrollment ledger. Recovery codes stored as SHA-256 hashes (server can verify; nobody can read them back). factor_id references Supabase Auth's factor; the TOTP secret itself never lives in this table. required_for_role tracks the Phase 5.B policy that supervisors must MFA.",
+      "comment": "Phase 5 Track B \u2014 MFA enrollment ledger. Recovery codes stored as SHA-256 hashes (server can verify; nobody can read them back). factor_id references Supabase Auth's factor; the TOTP secret itself never lives in this table. required_for_role tracks the Phase 5.B policy that supervisors must MFA.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3666,7 +3679,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track B — per-hive SSO/SAML readiness config. One row per hive. Service-role writes only (operator workflow during onboarding). enforced=true means SSO is the only login path for the hive.",
+      "comment": "Phase 5 Track B \u2014 per-hive SSO/SAML readiness config. One row per hive. Service-role writes only (operator workflow during onboarding). enforced=true means SSO is the only login path for the hive.",
       "read_by_surfaces": [
         "plant-connections.html"
       ],
@@ -3706,7 +3719,7 @@
         ]
       },
       "realtime_published": true,
-      "comment": "Phase 6A — typed semantic-claim store with confidence + source + embedding. Triples (subject -> predicate -> object) so GraphRAG can traverse the hive's domain knowledge. Distinct from asset_nodes (runtime hierarchy) and fault_knowledge (RAG corpus); this is the semantic ontology layer.",
+      "comment": "Phase 6A \u2014 typed semantic-claim store with confidence + source + embedding. Triples (subject -> predicate -> object) so GraphRAG can traverse the hive's domain knowledge. Distinct from asset_nodes (runtime hierarchy) and fault_knowledge (RAG corpus); this is the semantic ontology layer.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [
@@ -3748,7 +3761,7 @@
         ]
       },
       "realtime_published": true,
-      "comment": "Phase 6E — drone inspection job record. Photo paths point to Supabase Storage; AI inference happens through the existing visual-defect-capture pipeline (one defect per photo). This table holds the job-level metadata: who flew, when, what they inspected, lifecycle state.",
+      "comment": "Phase 6E \u2014 drone inspection job record. Photo paths point to Supabase Storage; AI inference happens through the existing visual-defect-capture pipeline (one defect per photo). This table holds the job-level metadata: who flew, when, what they inspected, lifecycle state.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3781,7 +3794,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 6F — registry of standards the platform aligns to. The Standards Auto-Update Agent reads planned_review_at and surfaces drift. Hive-agnostic (standards are global / regulatory, not per-hive).",
+      "comment": "Phase 6F \u2014 registry of standards the platform aligns to. The Standards Auto-Update Agent reads planned_review_at and surfaces drift. Hive-agnostic (standards are global / regulatory, not per-hive).",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3816,7 +3829,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Maturity-as-a-Service tracker (Phase 6 reframe addition). Records the consulting engagements we run on hives to lift them up the stack. Productisation surface that turns the methodology behind WorkHive's readiness layer into a paid offering — \"we will get you to Stair 3 in 90 days.\"",
+      "comment": "Maturity-as-a-Service tracker (Phase 6 reframe addition). Records the consulting engagements we run on hives to lift them up the stack. Productisation surface that turns the methodology behind WorkHive's readiness layer into a paid offering \u2014 \"we will get you to Stair 3 in 90 days.\"",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -4159,9 +4172,10 @@
         "current_state",
         "emotion",
         "last_gesture",
-        "updated_at"
+        "updated_at",
+        "auth_uid"
       ],
-      "rls_enabled": false,
+      "rls_enabled": true,
       "grants": {},
       "realtime_published": false,
       "comment": "",
@@ -4216,7 +4230,7 @@
         "code_switch_allowed",
         "updated_at"
       ],
-      "rls_enabled": false,
+      "rls_enabled": true,
       "grants": {},
       "realtime_published": false,
       "comment": "",
@@ -4266,7 +4280,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Day 4 — full-text chunks of industry standards, embedded for semantic search. Platform-scoped (hive-agnostic). Populated by tools/day4_chunk_standards_pdfs.py.",
+      "comment": "Day 4 \u2014 full-text chunks of industry standards, embedded for semantic search. Platform-scoped (hive-agnostic). Populated by tools/day4_chunk_standards_pdfs.py.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -4303,7 +4317,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Day 8 — PLATFORM-scoped subject/predicate/object triples derived from regulatory canon + best-practice standards. Sibling to knowledge_graph_facts (HIVE-scoped). Replaces the broadcast-to-all-hives pattern. Single source of truth for cross-hive facts.",
+      "comment": "Day 8 \u2014 PLATFORM-scoped subject/predicate/object triples derived from regulatory canon + best-practice standards. Sibling to knowledge_graph_facts (HIVE-scoped). Replaces the broadcast-to-all-hives pattern. Single source of truth for cross-hive facts.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -4350,7 +4364,7 @@
         ]
       },
       "realtime_published": true,
-      "comment": "Universal feedback inbox: reviews, bugs, ideas, questions, praise, other.\n   Polymorphic table — `kind` discriminator + optional `rating` for reviews.\n   Accepts anon submissions; admin triage in Founder Console (sec-feel section).",
+      "comment": "Universal feedback inbox: reviews, bugs, ideas, questions, praise, other.\n   Polymorphic table \u2014 `kind` discriminator + optional `rating` for reviews.\n   Accepts anon submissions; admin triage in Founder Console (sec-feel section).",
       "read_by_surfaces": [
         "founder-console.html"
       ],
@@ -4381,7 +4395,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Tracks who voted on which public roadmap item. PK enforces one vote\n   per (feedback_id, voter_token) — voter_token is auth.uid()::text for\n   signed-in or a localStorage-generated random token for anon. Cascade\n   deletes when the parent feedback row is deleted.",
+      "comment": "Tracks who voted on which public roadmap item. PK enforces one vote\n   per (feedback_id, voter_token) \u2014 voter_token is auth.uid()::text for\n   signed-in or a localStorage-generated random token for anon. Cascade\n   deletes when the parent feedback row is deleted.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -5336,7 +5350,7 @@
       "rls_enabled": false,
       "grants": {},
       "realtime_published": false,
-      "comment": "Q6 2026-07-05: singleton platform-wide LLM budget counter (org-shared pool). The layer above per-hive/per-user/per-solo gates — those key on a tenant and cannot protect the ONE shared provider budget. minute_count=burst wall, day_count=daily circuit-breaker, shed/deny_today=ceiling-hit telemetry, depth_*_today=chain-depth (quality-decay) telemetry.",
+      "comment": "Q6 2026-07-05: singleton platform-wide LLM budget counter (org-shared pool). The layer above per-hive/per-user/per-solo gates \u2014 those key on a tenant and cannot protect the ONE shared provider budget. minute_count=burst wall, day_count=daily circuit-breaker, shed/deny_today=ceiling-hit telemetry, depth_*_today=chain-depth (quality-decay) telemetry.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -5422,6 +5436,396 @@
       },
       "realtime_published": false,
       "comment": "D21 frontend observability: client-side JS errors captured by utils.js whLogError. Diagnostics only - never form values, payloads or tokens. Hive-scoped insert; supervisor-scoped read.",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "service_catalog": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "columns": [
+        "id",
+        "segment",
+        "category",
+        "name",
+        "description",
+        "unit",
+        "base_rate",
+        "active",
+        "created_at",
+        "updated_at",
+        "requires_cert_level"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "anon": [
+          "SELECT"
+        ],
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "Service-hailing rate card. Both segments seeded from day one; consumer rows sit behind the segment flag until P8.",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "service_providers": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "columns": [
+        "id",
+        "provider_type",
+        "auth_uid",
+        "worker_name",
+        "hive_id",
+        "display_name",
+        "contact",
+        "categories",
+        "service_areas",
+        "base_location",
+        "live_location",
+        "base_lat",
+        "base_lng",
+        "availability",
+        "verified",
+        "verified_at",
+        "created_at",
+        "updated_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "INSERT",
+          "UPDATE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "Provider registry (freelance technicians + hive service companies). live_location is privacy-guarded: no broad column grant; readable only via the active-job tracking view (P2).",
+      "read_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "written_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "read_by_edge_fns": [
+        "notify-push"
+      ],
+      "written_by_edge_fns": []
+    },
+    "service_requests": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "columns": [
+        "id",
+        "client_auth_uid",
+        "client_worker_name",
+        "hive_id",
+        "segment",
+        "mode",
+        "catalog_item_id",
+        "custom_scope",
+        "address",
+        "location",
+        "urgency",
+        "budget",
+        "status",
+        "matched_provider_id",
+        "broadcast_radius_m",
+        "offer_ttl_expires_at",
+        "accepted_at",
+        "en_route_at",
+        "on_site_at",
+        "in_progress_at",
+        "completed_at",
+        "settled_at",
+        "cancelled_at",
+        "created_at",
+        "updated_at",
+        "broadcast_round",
+        "pm_scope_item_id",
+        "showcase_consent",
+        "showcase_post_id"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE"
+        ]
+      },
+      "realtime_published": true,
+      "comment": "A hail. State machine: requested\u2192broadcasting\u2192accepted\u2192en_route\u2192on_site\u2192in_progress\u2192completed\u2192settled (+cancelled_by_client/cancelled_by_provider/expired/disputed). Transitions DB-enforced by guard_service_request_status.",
+      "read_by_surfaces": [
+        "marketplace-seller.html",
+        "marketplace.html"
+      ],
+      "written_by_surfaces": [
+        "marketplace-seller.html",
+        "marketplace.html"
+      ],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "service_offers": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "columns": [
+        "id",
+        "request_id",
+        "provider_id",
+        "kind",
+        "price",
+        "eta_minutes",
+        "message",
+        "status",
+        "created_at",
+        "updated_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE"
+        ]
+      },
+      "realtime_published": true,
+      "comment": "Provider responses to a hail: instant-mode accepts and quote-mode quotes. One per provider per request.",
+      "read_by_surfaces": [
+        "marketplace.html"
+      ],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "service_job_events": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "columns": [
+        "id",
+        "request_id",
+        "actor_uid",
+        "actor_role",
+        "from_state",
+        "to_state",
+        "note",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT"
+        ]
+      },
+      "realtime_published": true,
+      "comment": "Append-only job timeline, written by the transition guard itself \u2014 the record outlives the action.",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "service_credit_ledger": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "columns": [
+        "id",
+        "account_type",
+        "account_id",
+        "entry_type",
+        "amount",
+        "ref_kind",
+        "ref_id",
+        "note",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "Append-only credit ledger. Balance == SUM(amount) per account. NO client-writable path \u2014 entries are minted only by verified backend events (topup verification, completion commission, voucher flows). Credits are non-withdrawable prepaid platform fees.",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "service_credit_topups": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "columns": [
+        "id",
+        "account_type",
+        "account_id",
+        "payer_auth_uid",
+        "amount",
+        "gcash_ref",
+        "status",
+        "verified_by",
+        "verified_at",
+        "note",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "GCash P2P top-up intake: user sends to the founder's GCash number and files the reference no; the founder verifies against the GCash app. Verification (admin/GUC-only) mints the ledger entry.",
+      "read_by_surfaces": [
+        "founder-console.html",
+        "marketplace-seller.html"
+      ],
+      "written_by_surfaces": [
+        "founder-console.html",
+        "marketplace-seller.html"
+      ],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "service_vouchers": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "columns": [
+        "id",
+        "code",
+        "kind",
+        "value",
+        "segment",
+        "max_uses",
+        "per_user_limit",
+        "expires_at",
+        "active",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "Founder-minted discount vouchers \u2014 platform-funded acquisition (signup/referral). Admin-only writes.",
+      "read_by_surfaces": [
+        "founder-console.html"
+      ],
+      "written_by_surfaces": [
+        "founder-console.html"
+      ],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "service_voucher_redemptions": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "columns": [
+        "id",
+        "voucher_id",
+        "request_id",
+        "consumer_auth_uid",
+        "amount",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "Voucher redemption records \u2014 created only by the completion-gated redemption path (RPC/GUC), never by a raw client.",
+      "read_by_surfaces": [
+        "founder-console.html"
+      ],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "push_subscriptions": {
+      "defined_in": "20260728000044_push_subscriptions.sql",
+      "columns": [
+        "id",
+        "auth_uid",
+        "endpoint",
+        "p256dh",
+        "auth",
+        "user_agent",
+        "created_at",
+        "last_ok_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "Web Push endpoints (VAPID). Owner-scoped; the notify-push edge fn (service-role) sends and prunes dead endpoints.",
+      "read_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "written_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "read_by_edge_fns": [
+        "notify-push"
+      ],
+      "written_by_edge_fns": [
+        "notify-push"
+      ]
+    },
+    "service_outbox": {
+      "defined_in": "20260729000013_service_outbox.sql",
+      "columns": [
+        "id",
+        "consumer",
+        "payload",
+        "status",
+        "attempts",
+        "max_attempts",
+        "next_attempt_at",
+        "request_id",
+        "last_error",
+        "created_at",
+        "updated_at"
+      ],
+      "rls_enabled": true,
+      "grants": {},
+      "realtime_published": false,
+      "comment": "C12 durable side-effects. Rows are enqueued IN the transition transaction (commit iff the state change commits) and delivered by drain_service_outbox() with FOR UPDATE SKIP LOCKED + retry/backoff + dead-letter. First consumer: notify-push job-offer delivery, which before this migration was built but never called.",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "service_slo_targets": {
+      "defined_in": "20260729000015_service_slo.sql",
+      "columns": [
+        "sli",
+        "target",
+        "comparator",
+        "unit",
+        "window_days",
+        "note",
+        "updated_at"
+      ],
+      "rls_enabled": false,
+      "grants": {
+        "authenticated": [
+          "SELECT"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "C15 SLO targets for the service-hailing SLIs. Editable data, not code: tuning a target is a business decision (Ian), never a migration.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -5818,7 +6222,30 @@
         "project-progress",
         "scheduled-agents"
       ],
-      "columns": []
+      "columns": [
+        "project_id",
+        "hive_id",
+        "project_code",
+        "name",
+        "project_type",
+        "status",
+        "priority",
+        "owner_name",
+        "start_date",
+        "target_end_date",
+        "actual_end_at",
+        "created_at",
+        "updated_at",
+        "item_count",
+        "items_done",
+        "estimated_total_hours",
+        "actual_total_hours",
+        "last_progress_at",
+        "approved_change_orders",
+        "approved_co_cost_php",
+        "link_count",
+        "maintenance_nature"
+      ]
     },
     "v_knowledge_truth": {
       "defined_in": "20260512000013_tier_bcde_foundation.sql",
@@ -6301,6 +6728,97 @@
         "bytes",
         "newest_at"
       ]
+    },
+    "v_service_provider_truth": {
+      "defined_in": "20260728000040_service_hailing_engine.sql",
+      "read_by_surfaces": [
+        "achievements.html",
+        "marketplace-seller.html",
+        "marketplace.html"
+      ],
+      "read_by_edge_fns": [],
+      "columns": []
+    },
+    "v_service_request_truth": {
+      "defined_in": "20260728000040_service_hailing_engine.sql",
+      "read_by_surfaces": [
+        "marketplace-seller.html",
+        "marketplace.html"
+      ],
+      "read_by_edge_fns": [],
+      "columns": []
+    },
+    "v_service_open_broadcasts": {
+      "defined_in": "20260728000040_service_hailing_engine.sql",
+      "read_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "read_by_edge_fns": [],
+      "columns": []
+    },
+    "v_service_job_tracking": {
+      "defined_in": "20260728000040_service_hailing_engine.sql",
+      "read_by_surfaces": [
+        "marketplace.html"
+      ],
+      "read_by_edge_fns": [],
+      "columns": []
+    },
+    "v_service_catalog_truth": {
+      "defined_in": "20260728000043_v_service_catalog_truth.sql",
+      "read_by_surfaces": [
+        "marketplace-seller.html",
+        "marketplace.html"
+      ],
+      "read_by_edge_fns": [
+        "marketplace-listing-assist"
+      ],
+      "columns": []
+    },
+    "v_service_credit_topups_truth": {
+      "defined_in": "20260729000000_service_money_truth_views.sql",
+      "read_by_surfaces": [
+        "founder-console.html"
+      ],
+      "read_by_edge_fns": [],
+      "columns": []
+    },
+    "v_service_credit_ledger_truth": {
+      "defined_in": "20260729000000_service_money_truth_views.sql",
+      "read_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "read_by_edge_fns": [],
+      "columns": []
+    },
+    "v_service_area_presence": {
+      "defined_in": "20260729000007_idle_provider_area_presence.sql",
+      "read_by_surfaces": [
+        "marketplace.html"
+      ],
+      "read_by_edge_fns": [],
+      "columns": []
+    },
+    "v_service_provider_leaderboard": {
+      "defined_in": "20260729000008_showcase_and_liquidity.sql",
+      "read_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "columns": []
+    },
+    "v_service_slo": {
+      "defined_in": "20260729000015_service_slo.sql",
+      "read_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "columns": [
+        "completion_rate",
+        "end",
+        "target",
+        "comparator",
+        "unit",
+        "window_days",
+        "accepted_n",
+        "note"
+      ]
     }
   },
   "rpcs": {
@@ -6429,7 +6947,7 @@
       "defined_in": "20260420000000_baseline.sql",
       "args": "\"query_embedding\" \"public\".\"vector\", \"match_hive_id\" \"uuid\", \"match_count\" integer DEFAULT 3",
       "security_definer": false,
-      "comment": "",
+      "comment": "Unified hive-scoped semantic search across fault / skill / pm / project knowledge for the AI ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -6512,10 +7030,10 @@
       "called_by_edge_fns": []
     },
     "generate_project_code": {
-      "defined_in": "20260728000032_one_generate_project_code_not_two.sql",
+      "defined_in": "20260505000000_project_manager.sql",
       "args": "p_hive_id uuid, p_type text, p_year integer",
       "security_definer": true,
-      "comment": "Next project code for a hive/type/year. Scans ALL projects including soft-deleted ones so a code is never reissued. Gated on active hive membership (DEFINER + a hive id in the args). Migration 029 retyped p_year to text, which created a SECOND overload instead of replacing - PostgREST then refused both call shapes with PGRST203 and project creation was dead in production; 032 dropped the stray overload and relanded the fix on the integer signature the client actually sends. PJ18/PJ2.",
+      "comment": "Next project code for a hive/type/year. Scans ALL projects including soft-deleted ones so a code ",
       "called_by_surfaces": [
         "project-manager.html"
       ],
@@ -6742,7 +7260,7 @@
       "defined_in": "20260513000004_phase3_adoption_observability.sql",
       "args": "p_hive_id uuid",
       "security_definer": true,
-      "comment": "Phase 3.1 — Adoption Risk Score compute. Pure PL/pgSQL math: 5 components averaged, ranged 0..100 (higher = more risk), tiered healthy/at_risk/critical. Idempotent per (hive_id, snapshot_date). Drives Supervisor Engagement Card.",
+      "comment": "Phase 3.1 \u2014 Adoption Risk Score compute. Pure PL/pgSQL math: 5 components averaged, ranged 0..100 (higher = more risk), tiered healthy/at_risk/critical. Idempotent per (hive_id, snapshot_date). Drives Supervisor Engagement Card.",
       "called_by_surfaces": [
         "hive.html"
       ],
@@ -6762,7 +7280,7 @@
       "defined_in": "20260513000005_phase4_revenue_surfaces.sql",
       "args": "p_hive_id uuid",
       "security_definer": true,
-      "comment": "Phase 4.2 — Anomaly Engine 2.0 fusion ranker. Reads 5 sources, writes fused rows per (hive, machine, snapshot_date). Idempotent. Designed to run daily via pg_cron at 06:00 PHT alongside compute_hive_readiness and compute_adoption_risk.",
+      "comment": "Phase 4.2 \u2014 Anomaly Engine 2.0 fusion ranker. Reads 5 sources, writes fused rows per (hive, machine, snapshot_date). Idempotent. Designed to run daily via pg_cron at 06:00 PHT alongside compute_hive_readiness and compute_adoption_risk.",
       "called_by_surfaces": [
         "alert-hub.html"
       ],
@@ -6772,7 +7290,7 @@
       "defined_in": "20260513000006_phase5_enterprise_unlock.sql",
       "args": "",
       "security_definer": true,
-      "comment": "Phase 5 Track A — daily cron purge of soft-deleted rows past retention window. Hive-scoped via hive_retention_config; defaults to 30 days when row missing. PDPA Article 16.",
+      "comment": "Phase 5 Track A \u2014 daily cron purge of soft-deleted rows past retention window. Hive-scoped via hive_retention_config; defaults to 30 days when row missing. PDPA Article 16.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -6780,7 +7298,7 @@
       "defined_in": "20260513000006_phase5_enterprise_unlock.sql",
       "args": "p_hive_id uuid",
       "security_definer": true,
-      "comment": "Phase 5 Track A — PDPA right-to-access bulk export. Returns one JSONB blob with every hive-scoped row across canonical surfaces. Wrapped by export-hive-data edge fn for supervisor-only access.",
+      "comment": "Phase 5 Track A \u2014 PDPA right-to-access bulk export. Returns one JSONB blob with every hive-scoped row across canonical surfaces. Wrapped by export-hive-data edge fn for supervisor-only access.",
       "called_by_surfaces": [],
       "called_by_edge_fns": [
         "export-hive-data"
@@ -6862,7 +7380,7 @@
       "defined_in": "20260518000001_industry_standards_chunks.sql",
       "args": "p_query_embedding       vector,\n  p_similarity_threshold  real    DEFAULT 0.6,\n  p_limit                 int     DEFAULT 5,\n  p_family                text    DEFAULT NULL",
       "security_definer": false,
-      "comment": "Day 4 — platform-wide semantic retrieval over industry standards corpus. Mirrors semantic_search_kb but with NO hive filter (standards are global). Optional p_family narrows to specific bodies (iso/iec/philippine/etc).",
+      "comment": "Day 4 \u2014 platform-wide semantic retrieval over industry standards corpus. Mirrors semantic_search_kb but with NO hive filter (standards are global). Optional p_family narrows to specific bodies (iso/iec/philippine/etc).",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -6870,7 +7388,7 @@
       "defined_in": "20260518000003_semantic_search_kg_facts.sql",
       "args": "p_hive_id               uuid,\n  p_query_embedding       vector,\n  p_similarity_threshold  real DEFAULT 0.5,\n  p_limit                 int  DEFAULT 5,\n  p_min_confidence        real DEFAULT 0.5",
       "security_definer": true,
-      "comment": "Day 5 — hive-scoped semantic retrieval over knowledge_graph_facts triples. Returns top-N triples by cosine distance, filtered by min confidence. Voice handler calls this in parallel with semantic_search_kb (hive docs) and semantic_search_industry_standards (platform canon).",
+      "comment": "Day 5 \u2014 hive-scoped semantic retrieval over knowledge_graph_facts triples. Returns top-N triples by cosine distance, filtered by min confidence. Voice handler calls this in parallel with semantic_search_kb (hive docs) and semantic_search_industry_standards (platform canon).",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -6878,7 +7396,7 @@
       "defined_in": "20260519000001_platform_knowledge_graph_facts.sql",
       "args": "p_query_embedding       vector,\n  p_similarity_threshold  real DEFAULT 0.5,\n  p_limit                 int  DEFAULT 5,\n  p_min_confidence        real DEFAULT 0.5",
       "security_definer": false,
-      "comment": "Day 8 — platform-wide semantic retrieval over standards-derived KG triples. Mirrors semantic_search_kg_facts (hive-scoped) shape but takes no hive_id. Voice handler calls both and merges.",
+      "comment": "Day 8 \u2014 platform-wide semantic retrieval over standards-derived KG triples. Mirrors semantic_search_kg_facts (hive-scoped) shape but takes no hive_id. Voice handler calls both and merges.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -6910,7 +7428,7 @@
       "defined_in": "20260520000002_get_oee_by_machine.sql",
       "args": "p_hive_id     uuid,\n  p_period_days int DEFAULT 90",
       "security_definer": true,
-      "comment": "Tier E canonical OEE per machine. Reads asset_nodes.ideal_cycle_time_seconds to compute the Performance factor. Returns full OEE = A × P × Q when ideal cycle time and units_produced are both present; otherwise returns partial (A × Q) with is_partial=true.",
+      "comment": "Tier E canonical OEE per machine. Reads asset_nodes.ideal_cycle_time_seconds to compute the Performance factor. Returns full OEE = A \u00d7 P \u00d7 Q when ideal cycle time and units_produced are both present; otherwise returns partial (A \u00d7 Q) with is_partial=true.",
       "called_by_surfaces": [],
       "called_by_edge_fns": [
         "analytics-orchestrator"
@@ -7436,7 +7954,7 @@
       "defined_in": "20260705000009_q5a_inline_image_guard.sql",
       "args": "",
       "security_definer": true,
-      "comment": "Q5-a 2026-07-05: server-side size backstop for inline base64 photo columns (logbook/inventory_items). Blocks >1.5MB base64 — a client-bypass guard, not the honest-photo path. Full Storage-offload stays deferred until photo_attach_stats() shows attach-rate climbing.",
+      "comment": "Q5-a 2026-07-05: server-side size backstop for inline base64 photo columns (logbook/inventory_items). Blocks >1.5MB base64 \u2014 a client-bypass guard, not the honest-photo path. Full Storage-offload stays deferred until photo_attach_stats() shows attach-rate climbing.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -7909,7 +8427,7 @@
       "defined_in": "20260724000008_marketplace_sales_and_tier_earnable.sql",
       "args": "p_seller_name text",
       "security_definer": true,
-      "comment": "Recomputes marketplace_sellers.total_sales from listings marked sold and derives tier with the documented 51/gold, 11/silver thresholds. Idempotent by design so a reopened or deleted listing self-corrects. MK1 trust-signal integrity; replaces a producer that could never fire (orders are vestigial since Stripe removal).",
+      "comment": "Recomputes a seller's sales count + tier from source truth. Invoked ONLY by the marketplace order trigger (PERFORM, runs with the trigger function's rights). EXECUTE revoked from public/anon/authenticated because the seller name is a caller-supplied argument - exposed, it lets any user aim a trust-signal mutator at any seller.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -7976,10 +8494,8 @@
       "defined_in": "20260728000008_pm_asset_identity_sync_rpc.sql",
       "args": "p_old_tag  text,\n  p_new_tag  text DEFAULT NULL,\n  p_new_name text DEFAULT NULL",
       "security_definer": true,
-      "comment": "DEPRECATED SHAPE, kept for compatibility: delegates to sync_asset_identity and returns only the pm_assets count. Propagating a rename to pm_assets ALONE orphaned 116 rows elsewhere (AH11).",
-      "called_by_surfaces": [
-        "logbook.html"
-      ],
+      "comment": "",
+      "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
     "ensure_pm_asset_for_node": {
@@ -8018,19 +8534,27 @@
     },
     "sync_asset_identity": {
       "defined_in": "20260728000019_rename_carries_the_whole_identity.sql",
-      "args": "p_old_tag  text,\n  p_new_tag  text DEFAULT NULL,\n  p_new_name text DEFAULT NULL,\n  p_node_id  uuid DEFAULT NULL",
+      "args": "p_old_tag  text,\n  p_new_tag  text DEFAULT NULL,\n  p_new_name text DEFAULT NULL,\n  \n  \n  \n  \n  \n  \n  p_node_id  uuid DEFAULT NULL",
       "security_definer": true,
-      "comment": "Carries an asset TAG rename across every table storing the identity as free text (pm_assets, logbook.machine, fault_knowledge.machine, asset_risk_scores.asset_name, parts_staging_recommendations.asset_name). Hive-scoped to the ONE hive the asset lives in AND to the caller's membership. Refuses a rename onto a tag another asset in that hive holds. Returns per-table counts. AH11.",
+      "comment": "Carries an asset TAG rename across every table that stores the identity as free text: pm_assets, ",
       "called_by_surfaces": [
         "logbook.html"
       ],
       "called_by_edge_fns": []
     },
+    "expire_stale_parts_recommendations": {
+      "defined_in": "20260728000020_expire_stale_parts_recommendations.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Cron-only TTL sweep over parts_staging_recommendations. EXECUTE revoked from public/anon/authenticated: it mutates every hive's rows and no caller-owned row exists for RLS to scope.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
     "guard_change_order_terms_immutable": {
       "defined_in": "20260728000022_a_change_order_is_a_contract_not_a_draft.sql",
-      "args": "(trigger)",
+      "args": "",
       "security_definer": true,
-      "comment": "BEFORE UPDATE OR DELETE on project_change_orders. A raised change order's commercial terms (cost, schedule, scope, title, requester, project, hive) are immutable and it cannot be deleted - cancel instead. Status and approver fields stay mutable; wh_guard_supervisor_approval decides who may move them. Added after PJ4 showed a worker rewriting another worker's pending order from PHP 500,000 to PHP 9,999,999 with the original requester's name still on it.",
+      "comment": "A change order is a contract amendment: once raised, its cost, schedule, scope, title and ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -8038,39 +8562,34 @@
       "defined_in": "20260728000023_budget_is_supervisor_only_at_the_database.sql",
       "args": "p_project_id uuid",
       "security_definer": true,
-      "comment": "Supervisor-only read of projects.budget_php + the EVM dates. Exists because RLS is ROW-level and cannot withhold one column of a row a member may otherwise read, while project-manager.html claimed in its renderer that budget visibility was supervisor-only. PJ9.",
-      "called_by_surfaces": [],
-      "called_by_edge_fns": []
-    },
-    "expire_stale_parts_recommendations": {
-      "defined_in": "20260728000020_expire_stale_parts_recommendations.sql",
-      "args": "(none)",
-      "security_definer": true,
-      "comment": "Cron (parts-recs-expire-0550pht): moves pending parts_staging_recommendations past expires_at to status='expired'. The state was in the table CHECK from creation with no producer. Leaves accepted/dismissed (human decisions) and NULL expires_at alone. Mirrors amc_expire_stale.",
-      "called_by_surfaces": [],
+      "comment": "Supervisor-only read of a project's budget_php (plus the dates Earned Value needs). Exists ",
+      "called_by_surfaces": [
+        "project-manager.html",
+        "project-report.html"
+      ],
       "called_by_edge_fns": []
     },
     "guard_and_audit_project_removal": {
       "defined_in": "20260728000026_deleting_a_project_is_a_supervisor_act_and_is_recorded.sql",
-      "args": "(trigger)",
+      "args": "",
       "security_definer": true,
-      "comment": "BEFORE UPDATE OR DELETE on projects. Removing or restoring a project is a supervisor act and is recorded either way. Before this any active member could set deleted_at on any project in their hive, and hive_audit_log held ZERO rows for projects. Counts children BEFORE the statement because a hard delete cascades to all six child tables. PJ12.",
+      "comment": "Removing or restoring a project is a supervisor act, and is recorded either way. Before this, any ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
     "guard_progress_log_is_a_record": {
       "defined_in": "20260728000027_a_progress_report_is_a_record_not_a_draft.sql",
-      "args": "(trigger)",
+      "args": "",
       "security_definer": true,
-      "comment": "BEFORE UPDATE on project_progress_logs. A filed report's content is immutable, acknowledging it is a supervisor act, and nobody may acknowledge their OWN report. Before this a worker could rewrite another worker's log to claim 100% while the row still named the original reporter, and could self-acknowledge. PJ6.",
+      "comment": "A filed progress report is a RECORD: its content is immutable, acknowledging it is a supervisor ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
     "set_project_budget": {
       "defined_in": "20260728000030_budget_write_is_supervisor_only_too.sql",
-      "args": "p_project_id uuid, p_budget_php numeric",
+      "args": "p_project_id uuid,\n  p_budget_php numeric",
       "security_definer": true,
-      "comment": "Supervisor-only WRITE of projects.budget_php. PJ9 closed the READ path and left INSERT/UPDATE on the column granted, so a worker could SET a budget they could not SEE - proven live at PHP 5,000,000. Same supervisor predicate as get_project_budget. PJ2/PJK3.",
+      "comment": "Supervisor-only write of projects.budget_php. Paired with get_project_budget: PJ9 closed the READ ",
       "called_by_surfaces": [
         "project-manager.html"
       ],
@@ -8078,30 +8597,247 @@
     },
     "guard_lessons_learned_is_supervisor": {
       "defined_in": "20260728000031_lessons_learned_is_signed_content.sql",
-      "args": "(trigger)",
+      "args": "",
       "security_definer": true,
-      "comment": "BEFORE UPDATE on projects. Only a supervisor may change meta.lessons_learned - it is rendered on the printable project report that parties SIGN. Before this any active member could set it, and forge the AI-drafted badge alongside it, on every project in the hive in one statement. Other meta keys stay freely writable. PJ14.",
+      "comment": "Only a supervisor may change meta.lessons_learned \u2014 it is rendered on the printable project ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_progress_log_is_mine": {
+      "defined_in": "20260728000033_a_progress_report_carries_who_filed_it.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "BEFORE INSERT on project_progress_logs: stamps auth_uid and forces reported_by to the caller's ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
     "bind_progress_log_submitter": {
       "defined_in": "20260728000035_the_progress_log_pin_joins_the_bind_convention.sql",
-      "args": "(trigger)",
+      "args": "",
       "security_definer": true,
-      "comment": "BEFORE INSERT on project_progress_logs. Stamps auth_uid and forces reported_by to the caller's own hive_members.worker_name. Renamed from guard_progress_log_is_mine to join the platform's bind_* convention, which the DB-adoption census uses to recognise a server-side attribution pin. PJ17.",
-      "called_by_surfaces": [
-        "project-manager.html"
-      ],
+      "comment": "BEFORE INSERT on project_progress_logs: stamps auth_uid and forces reported_by to the caller's ",
+      "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
     "cleanup_project_links_on_target_delete": {
       "defined_in": "20260728000036_a_link_does_not_outlive_what_it_links_to.sql",
-      "args": "(trigger, link_type text)",
+      "args": "",
       "security_definer": true,
-      "comment": "AFTER DELETE on each project_links target table (logbook, pm_completions, inventory_items, engineering_calcs, asset_nodes): removes links that pointed at the deleted row. link_id is a polymorphic TEXT reference so no FK can express this. Before it, deleting one linked logbook entry orphaned 2 links which kept rendering the deleted entry's title. PJ11.",
+      "comment": "AFTER DELETE on a project_links target table: removes links that pointed at the deleted row. ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_service_request_status": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "journal_service_request": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "sync_provider_availability": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_service_provider_writes": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_service_topup_status": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "my_service_provider_ids": {
+      "defined_in": "20260728000039_service_hailing_foundation.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
       "called_by_surfaces": [
-        "project-manager.html"
+        "achievements.html",
+        "marketplace-seller.html"
       ],
+      "called_by_edge_fns": []
+    },
+    "accept_service_request": {
+      "defined_in": "20260728000040_service_hailing_engine.sql",
+      "args": "p_request_id uuid, p_eta_minutes integer default null",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "submit_service_quote": {
+      "defined_in": "20260728000040_service_hailing_engine.sql",
+      "args": "p_request_id uuid, p_price numeric, p_eta_minutes integer default null, p_message text default null",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "select_quote": {
+      "defined_in": "20260728000040_service_hailing_engine.sql",
+      "args": "p_offer_id uuid",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "marketplace.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "sweep_service_broadcasts": {
+      "defined_in": "20260728000042_service_broadcast_ttl_sweep.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Per-minute TTL/radius sweep over service_requests. CRON ONLY - EXECUTE is revoked from public/anon/authenticated because it mutates every tenant's hails and no caller-owned row exists for RLS to scope. Proven exploitable before this revoke: a random authenticated user could run it and age other people's broadcasts out of their TTL window.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "writeback_service_job_to_logbook": {
+      "defined_in": "20260728000045_service_job_logbook_writeback.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_service_review": {
+      "defined_in": "20260728000046_service_reviews_bidirectional.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Birth-time legitimacy guard for bidirectional service reviews: completed job, correct party per direction, once per direction, attribution pinned. The admin bypass covers moderation of OTHER parties jobs ONLY - an admin who is a party to the request is held to the same party rules (self-deal fix 2026-07-29).",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "mint_settlement_commission": {
+      "defined_in": "20260728000047_client_settle_and_commission_mint.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "provider_credit_balance": {
+      "defined_in": "20260728000048_accept_min_balance_gate.sql",
+      "args": "p_provider_id uuid",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "redeem_service_voucher": {
+      "defined_in": "20260728000049_voucher_redeem_and_tiers.sql",
+      "args": "p_code text, p_request_id uuid",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "marketplace.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "sweep_pm_auto_hail": {
+      "defined_in": "20260729000004_pm_auto_hail_recurring_contracts.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "J24: files a service request for every DUE PM scope item flagged auto_hail, at most one open hail per item. Due-ness is read from v_pm_scope_items_truth so there is no second frequency implementation.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "provider_is_certified_for": {
+      "defined_in": "20260729000005_certified_skill_gate.sql",
+      "args": "p_provider_id uuid, p_category text, p_min_level integer",
+      "security_definer": true,
+      "comment": "J20: does this provider hold (freelancer) or employ (hive company) a skill badge at >= the required level in the given discipline? Badges are earned via skill_exam_keys, so this cannot be self-asserted.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "land_accepted_job_on_dayplan": {
+      "defined_in": "20260729000006_accepted_job_lands_on_dayplan.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "J27: when a hail is ACCEPTED, the provider gets a schedule_items entry (id svc-<request_id>, source_kind service_request) so the day plan reflects committed work automatically instead of relying on the provider to add it.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "publish_service_showcase": {
+      "defined_in": "20260729000008_showcase_and_liquidity.sql",
+      "args": "p_request_id uuid",
+      "security_definer": true,
+      "comment": "J26: publishes a CONSENTED completion story. Client-only, finished-jobs-only, once. The text is composed server-side (provider + trade + city) so the showcase can never become a free-text broadcast channel, and it never carries the client name or the site address.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "enqueue_service_push": {
+      "defined_in": "20260729000013_service_outbox.sql",
+      "args": "p_provider_ids uuid[],\n  p_title        text,\n  p_body         text,\n  p_url          text DEFAULT NULL",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "drain_service_outbox": {
+      "defined_in": "20260729000013_service_outbox.sql",
+      "args": "p_limit int DEFAULT 20",
+      "security_definer": true,
+      "comment": "Cron-only outbox relay. EXECUTE revoked from public/anon/authenticated: it delivers on behalf of every tenant and no caller-owned row exists for RLS to scope.",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "reconcile_service_outbox": {
+      "defined_in": "20260729000013_service_outbox.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "fanout_broadcast_push": {
+      "defined_in": "20260729000014_service_push_fanout.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Enqueues a Web Push job-offer to every online, category-matched provider inside broadcast_radius_m when a request enters broadcasting. Closes the G3 gap where notify-push existed but nothing ever called it. Enqueue is transactional (outbox); delivery is retried by drain_service_outbox().",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "enqueue_service_push_uids": {
+      "defined_in": "20260729000018_notify_service_cancellation.sql",
+      "args": "p_auth_uids uuid[], p_title text, p_body text, p_url text DEFAULT NULL",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "notify_service_cancellation": {
+      "defined_in": "20260729000018_notify_service_cancellation.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
       "called_by_edge_fns": []
     }
   },
@@ -8109,13 +8845,16 @@
     "achievements.html": {
       "tables_read": [
         "achievement_xp_log",
+        "v_service_provider_truth",
         "v_worker_achievements_truth",
         "v_worker_truth"
       ],
       "tables_written": [],
-      "rpcs_called": [],
+      "rpcs_called": [
+        "my_service_provider_ids"
+      ],
       "edge_fns_invoked": [],
-      "size_kb": 52.4
+      "size_kb": 55.6
     },
     "agentic-rag-observability.html": {
       "tables_read": [
@@ -8162,7 +8901,7 @@
       "edge_fns_invoked": [
         "analytics-orchestrator"
       ],
-      "size_kb": 94.4
+      "size_kb": 96.0
     },
     "analytics-report.html": {
       "tables_read": [
@@ -8184,7 +8923,7 @@
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 181.6
+      "size_kb": 183.2
     },
     "architecture.html": {
       "tables_read": [],
@@ -8236,7 +8975,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 210.3
+      "size_kb": 233.8
     },
     "assistant.html": {
       "tables_read": [
@@ -8290,7 +9029,7 @@
         "set_community_best_answer"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 149.0
+      "size_kb": 150.4
     },
     "dayplanner.html": {
       "tables_read": [
@@ -8312,7 +9051,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 23.0
+      "size_kb": 23.4
     },
     "engineering-design.html": {
       "tables_read": [],
@@ -8330,20 +9069,26 @@
         "marketplace_listings",
         "marketplace_sellers",
         "platform_feedback",
+        "service_credit_topups",
+        "service_voucher_redemptions",
+        "service_vouchers",
         "v_hive_readiness_truth",
         "v_marketplace_listings_truth",
         "v_marketplace_orders_truth",
-        "v_marketplace_sellers_truth"
+        "v_marketplace_sellers_truth",
+        "v_service_credit_topups_truth"
       ],
       "tables_written": [
         "marketplace_disputes",
         "marketplace_listings",
         "marketplace_sellers",
-        "platform_feedback"
+        "platform_feedback",
+        "service_credit_topups",
+        "service_vouchers"
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 135.2
+      "size_kb": 154.9
     },
     "hive.html": {
       "tables_read": [
@@ -8388,7 +9133,7 @@
         "benchmark-compute",
         "supervisor-reset-password"
       ],
-      "size_kb": 331.8
+      "size_kb": 334.8
     },
     "index.html": {
       "tables_read": [],
@@ -8492,7 +9237,7 @@
       ],
       "rpcs_called": [
         "inventory_deduct",
-        "sync_pm_asset_identity"
+        "sync_asset_identity"
       ],
       "edge_fns_invoked": [
         "cmms-push-completion",
@@ -8500,7 +9245,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 310.1
+      "size_kb": 311.6
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -8542,22 +9287,43 @@
     "marketplace-seller.html": {
       "tables_read": [
         "hive_audit_log",
+        "hive_members",
         "marketplace_inquiries",
         "marketplace_listings",
+        "marketplace_reviews",
         "marketplace_sellers",
+        "push_subscriptions",
+        "service_credit_topups",
+        "service_providers",
+        "service_requests",
         "v_marketplace_inquiries_truth",
         "v_marketplace_listings_truth",
-        "v_marketplace_sellers_truth"
+        "v_marketplace_sellers_truth",
+        "v_service_catalog_truth",
+        "v_service_credit_ledger_truth",
+        "v_service_open_broadcasts",
+        "v_service_provider_truth",
+        "v_service_request_truth"
       ],
       "tables_written": [
         "hive_audit_log",
         "marketplace_inquiries",
         "marketplace_listings",
-        "marketplace_sellers"
+        "marketplace_reviews",
+        "marketplace_sellers",
+        "push_subscriptions",
+        "service_credit_topups",
+        "service_providers",
+        "service_requests"
       ],
-      "rpcs_called": [],
+      "rpcs_called": [
+        "accept_service_request",
+        "my_service_provider_ids",
+        "provider_credit_balance",
+        "submit_service_quote"
+      ],
       "edge_fns_invoked": [],
-      "size_kb": 77.1
+      "size_kb": 115.5
     },
     "marketplace.html": {
       "tables_read": [
@@ -8568,10 +9334,17 @@
         "marketplace_reviews",
         "marketplace_saved_searches",
         "marketplace_watchlist",
+        "service_offers",
+        "service_requests",
         "v_inventory_items_truth",
         "v_marketplace_inquiries_truth",
         "v_marketplace_listings_truth",
-        "v_marketplace_sellers_truth"
+        "v_marketplace_sellers_truth",
+        "v_service_area_presence",
+        "v_service_catalog_truth",
+        "v_service_job_tracking",
+        "v_service_provider_truth",
+        "v_service_request_truth"
       ],
       "tables_written": [
         "hive_audit_log",
@@ -8579,7 +9352,8 @@
         "marketplace_listings",
         "marketplace_reviews",
         "marketplace_saved_searches",
-        "marketplace_watchlist"
+        "marketplace_watchlist",
+        "service_requests"
       ],
       "rpcs_called": [
         "get_community_reputation",
@@ -8587,12 +9361,15 @@
         "get_marketplace_price_comps",
         "get_marketplace_trust_badges",
         "get_saved_search_matches",
-        "increment_listing_view"
+        "increment_listing_view",
+        "redeem_service_voucher",
+        "select_quote"
       ],
       "edge_fns_invoked": [
+        "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 191.2
+      "size_kb": 223.0
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -8673,7 +9450,7 @@
         "get_pm_ontime_delivery"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 151.1
+      "size_kb": 156.2
     },
     "project-manager.html": {
       "tables_read": [
@@ -8704,14 +9481,16 @@
       ],
       "rpcs_called": [
         "generate_change_order_number",
-        "generate_project_code"
+        "generate_project_code",
+        "get_project_budget",
+        "set_project_budget"
       ],
       "edge_fns_invoked": [
         "embed-entry",
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 168.5
+      "size_kb": 178.2
     },
     "project-report.html": {
       "tables_read": [
@@ -8721,11 +9500,13 @@
         "v_project_truth"
       ],
       "tables_written": [],
-      "rpcs_called": [],
+      "rpcs_called": [
+        "get_project_budget"
+      ],
       "edge_fns_invoked": [
         "project-orchestrator"
       ],
-      "size_kb": 33.8
+      "size_kb": 40.0
     },
     "promo-poster.html": {
       "tables_read": [],
@@ -8741,7 +9522,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 15.4
+      "size_kb": 15.8
     },
     "report-sender.html": {
       "tables_read": [
@@ -8801,7 +9582,7 @@
         "grade_skill_exam"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 71.8
+      "size_kb": 72.8
     },
     "status.html": {
       "tables_read": [],
@@ -9372,7 +10153,7 @@
         "record_ai_chain_depth"
       ],
       "edge_fns_invoked": [],
-      "loc": 1662
+      "loc": 1683
     },
     "ai-orchestrator": {
       "tables_read": [
@@ -9454,7 +10235,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 553
+      "loc": 657
     },
     "batch-risk-scoring": {
       "tables_read": [
@@ -9703,11 +10484,26 @@
       "loc": 98
     },
     "marketplace-listing-assist": {
-      "tables_read": [],
+      "tables_read": [
+        "v_service_catalog_truth"
+      ],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 191
+      "loc": 235
+    },
+    "notify-push": {
+      "tables_read": [
+        "hive_members",
+        "push_subscriptions",
+        "service_providers"
+      ],
+      "tables_written": [
+        "push_subscriptions"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 118
     },
     "parts-staging-recommender": {
       "tables_read": [
@@ -9790,6 +10586,7 @@
         "project_change_orders",
         "project_links",
         "project_roles",
+        "projects",
         "v_project_items_truth",
         "v_project_progress_truth",
         "v_project_truth"
@@ -9797,7 +10594,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 178
+      "loc": 205
     },
     "resume-extract": {
       "tables_read": [],
@@ -9882,7 +10679,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 239
+      "loc": 307
     },
     "shift-planner-orchestrator": {
       "tables_read": [
@@ -10050,20 +10847,6 @@
   "duplicate_signals": [
     {
       "kind": "surface_overlap",
-      "surface_a": "founder-console.html",
-      "surface_b": "platform-actions.html",
-      "shared_tables": [
-        "hive_audit_log",
-        "marketplace_disputes",
-        "marketplace_listings",
-        "marketplace_sellers",
-        "v_marketplace_listings_truth",
-        "v_marketplace_sellers_truth"
-      ],
-      "jaccard": 0.55
-    },
-    {
-      "kind": "surface_overlap",
       "surface_a": "logbook.html",
       "surface_b": "pm-scheduler.html",
       "shared_tables": [
@@ -10082,19 +10865,6 @@
     {
       "kind": "surface_overlap",
       "surface_a": "marketplace-admin.html",
-      "surface_b": "marketplace-seller.html",
-      "shared_tables": [
-        "hive_audit_log",
-        "marketplace_listings",
-        "marketplace_sellers",
-        "v_marketplace_listings_truth",
-        "v_marketplace_sellers_truth"
-      ],
-      "jaccard": 0.5
-    },
-    {
-      "kind": "surface_overlap",
-      "surface_a": "marketplace-admin.html",
       "surface_b": "platform-actions.html",
       "shared_tables": [
         "hive_audit_log",
@@ -10105,33 +10875,6 @@
         "v_marketplace_sellers_truth"
       ],
       "jaccard": 0.75
-    },
-    {
-      "kind": "surface_overlap",
-      "surface_a": "marketplace-seller.html",
-      "surface_b": "marketplace.html",
-      "shared_tables": [
-        "hive_audit_log",
-        "marketplace_inquiries",
-        "marketplace_listings",
-        "v_marketplace_inquiries_truth",
-        "v_marketplace_listings_truth",
-        "v_marketplace_sellers_truth"
-      ],
-      "jaccard": 0.5
-    },
-    {
-      "kind": "surface_overlap",
-      "surface_a": "marketplace-seller.html",
-      "surface_b": "platform-actions.html",
-      "shared_tables": [
-        "hive_audit_log",
-        "marketplace_listings",
-        "marketplace_sellers",
-        "v_marketplace_listings_truth",
-        "v_marketplace_sellers_truth"
-      ],
-      "jaccard": 0.62
     },
     {
       "kind": "near_duplicate_column",
@@ -10155,6 +10898,14 @@
       "columns": [
         "source",
         "source_id"
+      ]
+    },
+    {
+      "kind": "near_duplicate_column",
+      "table": "service_providers",
+      "columns": [
+        "verified",
+        "verified_at"
       ]
     },
     {
@@ -10480,6 +11231,31 @@
     {
       "kind": "dead_table",
       "table": "client_errors",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "service_catalog",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "service_job_events",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "service_credit_ledger",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "service_outbox",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "service_slo_targets",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     }
   ]

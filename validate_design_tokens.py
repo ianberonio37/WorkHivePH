@@ -70,6 +70,7 @@ HEX_RE          = re.compile(r"#[0-9A-Fa-f]{6}\b")
 # them would make the family metric answer a question nobody asked. Ian's call 2026-07-15,
 # extending the same basis on which platform-health + founder-console were already excluded.
 EXCLUDE = {
+    "maplibre-gl.css",          # vendored third-party lib (SERVICE_HAILING P5/G2, D12) — the vendor's own control styling, reviewed at bump time; 13 rogue radii are upstream's, not page drift
     "platform-health.html", "founder-console.html",
     "architecture.html",        # internal architecture diagram viewer
     "validator-catalog.html",   # internal gate catalogue (3570 system-font nodes)

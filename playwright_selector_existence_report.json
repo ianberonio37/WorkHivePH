@@ -1,7 +1,7 @@
 {
   "summary": {
-    "specs_scanned": 34,
-    "total_lookups": 156,
+    "specs_scanned": 35,
+    "total_lookups": 160,
     "total_drift": 2,
     "baseline": 2
   },
@@ -330,6 +330,29 @@
         "logbook.html",
         "logbook.html",
         "logbook.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-bank-two-context.spec.ts",
+      "targets": [
+        "index.html",
+        "marketplace.html",
+        "marketplace-seller.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "marketplace.html",
+        "marketplace-seller.html",
+        "marketplace-seller.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "marketplace.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "marketplace-seller.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "marketplace.html"
       ],
       "misses": []
     },

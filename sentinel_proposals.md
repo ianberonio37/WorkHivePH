@@ -3,7 +3,7 @@
 Generated for 54 uncovered CHECK(s) across 11 per-page validators. Each check is one rule
 the platform should obey - and currently no Playwright spec exercises it.
 
-**Check coverage:** 82.7% (273 of 330 per-page checks - HONEST behavioral coverage)
+**Check coverage:** 82.8% (274 of 331 per-page checks - HONEST behavioral coverage)
 **Topic coverage:** 93.8% (45 of 48 per-page validators - loose, validator-level)
 **Raw coverage:** 77.4% (318 of 411 validators)
 

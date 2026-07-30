@@ -1,51 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:413
-source_sha: 2db61b5956b84ae1
+source: dir:supabase/migrations:449
+source_sha: c9d1e98cdbaf18d8
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (413 migrations)
+## migration · catalog (449 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260610000004_analytics_snapshots` — policies:analytics_snapshots_member_read · tables:analytics_snapshots
-- `20260610000005_retire_shift_handover_cron` — (misc DDL/DML)
-- `20260612000000_persona_knowledge` — fns:match_persona_knowledge · tables:persona_knowledge
-- `20260612000001_persona_knowledge_source_types` — tables:persona_knowledge
-- `20260613000000_embedding_cache` — tables:embedding_cache
-- `20260613000001_persona_knowledge_exact_search` — (misc DDL/DML)
-- `20260616000000_fix_marketplace_active_listings` — (misc DDL/DML)
-- `20260617000000_add_marketplace_disputes_description` — tables:marketplace_disputes
-- `20260618000000_fix_network_benchmarks_upsert` — tables:network_benchmarks
-- `20260619000000_revoke_compute_hive_readiness_authenticated` — (misc DDL/DML)
-- `20260620000000_fix_alert_rpc_definer_tenant_gate` — fns:acknowledge_alert,suppress_alert
-- `20260620000001_fix_definer_tenant_gate_class` — fns:compute_adoption_risk,compute_anomaly_signals,store_memory_turn
-- `20260620000002_rls_drop_legacy_open_group_a` — policies:allow_anon_all,anon,open
-- `20260620000003_rls_harden_hive_members` — policies:allow_anon_all,anon_delete_members,anon_select_members,anon_upsert_members,hive_members_read,hive_members_read_scoped · fns:user_hive_ids
-- `20260620000004_rls_harden_edge_only_tables` — policies:ai_user_rate_limits_own,ai_user_rl_service_all,allow_anon_all,parts_records_hive_rw,wh_traces_service_all
-- `20260620000005_rls_harden_hive_members_insert` — policies:anon_insert_members
-- `20260620000006_rls_enable_api_keys` — policies:api_keys_hive_rw · tables:api_keys
-- `20260620000007_rls_enable_project_family` — policies:if · tables:public
-- `20260620000008_rls_enable_remaining_hive_tables` — policies:if · tables:IF,public
-- `20260620000009_rls_harden_personal_tables` — policies:allow_anon_all
-- `20260620000010_rls_personal_skill_matrix` — policies:allow_anon_all,skill_badges_read,skill_profiles_read
-- `20260620000011_rls_personal_worker_profiles` — policies:profiles,profiles_read_own · fns:check_username_available
-- `20260620000012_truth_views_security_invoker` — (misc DDL/DML)
-- `20260620000013_rls_harden_hive_members_insert_full` — policies:hive_members_insert · fns:hive_has_other_members
-- `20260620000014_rls_harden_hives` — policies:allow_anon_all,anon_select_hives,hives_open_read,hives_read,hives_read_member · fns:find_hive_by_code
-- `20260620000015_rls_personal_worker_achievements` — policies:ach_worker_read,allow_anon_all,worker_achievements_read · fns:user_hive_worker_names · tables:worker_achievements
-- `20260620000016_ai_retrieval_isolation` — fns:compute_hive_readiness,fetch_active_alerts,get_adoption_risk_current,get_hive_readiness_current,semantic_search_kb,semantic_search_kg_facts
-- `20260621000000_account_deactivation` — fns:deactivate_my_account · tables:hive_members,worker_profiles
-- `20260621000001_views_security_invoker_generalize` — (misc DDL/DML)
-- `20260621000002_login_attempt_lockout` — fns:check_login_lockout,clear_login_attempts,record_login_failure · tables:login_attempts
-- `20260621000003_platform_feedback_rls_harden` — policies:anon,feedback · fns:is_platform_admin
-- `20260621000004_realtime_publish_subscribed_tables` — tables:public
-- `20260622000000_fix_hive_members_update_recursion` — policies:hive_members_update · fns:user_supervisor_hive_ids
-- `20260622000001_fix_community_reply_xp_search_path` — fns:handle_community_reply_xp
-- `20260624000000_resilience_dedup_constraints` — (misc DDL/DML)
-- `20260624000001_resilience_inventory_deduct_atomic` — fns:inventory_deduct
 - `20260624000002_episodic_supersedes` — fns:match_procedural_memories · tables:agent_episodic_memory
 - `20260627000000_alert_dismissals` — policies:alert_dismissals_member_delete,alert_dismissals_member_read,alert_dismissals_member_update,alert_dismissals_member_write · tables:alert_dismissals
 - `20260629000000_realtime_publish_risk_schedule` — tables:public
@@ -210,6 +174,42 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260728000034_project_knowledge_is_a_write_only_index` — fns:search_all_knowledge
 - `20260728000035_the_progress_log_pin_joins_the_bind_convention` — fns:bind_progress_log_submitter · triggers:trg_bind_progress_log_submitter
 - `20260728000036_a_link_does_not_outlive_what_it_links_to` — fns:cleanup_project_links_on_target_delete · triggers:trg_cleanup_project_links
+- `20260728000039_service_hailing_foundation` — policies:service_catalog_admin_write,service_catalog_read,service_credit_ledger_own_read,service_credit_topups_admin_update,service_credit_topups_intake,service_credit_topups_own · fns:guard_service_provider_writes,guard_service_request_status,guard_service_topup_status,journal_service_request,my_service_provider_ids,sync_provider_availability · triggers:trg_guard_service_provider_writes,trg_guard_service_request_status,trg_guard_service_topup_status,trg_journal_service_request,trg_sync_provider_availability · tables:service_catalog,service_credit_ledger,service_credit_topups,service_job_events,service_offers,service_providers
+- `20260728000040_service_hailing_engine` — fns:accept_service_request,select_quote,submit_service_quote
+- `20260728000041_anchor_service_hailing_canonicals` — (misc DDL/DML)
+- `20260728000042_service_broadcast_ttl_sweep` — fns:sweep_service_broadcasts · tables:service_requests
+- `20260728000043_v_service_catalog_truth` — (misc DDL/DML)
+- `20260728000044_push_subscriptions` — policies:push_subscriptions_own · tables:push_subscriptions
+- `20260728000045_service_job_logbook_writeback` — fns:writeback_service_job_to_logbook · triggers:trg_service_job_logbook_writeback
+- `20260728000046_service_reviews_bidirectional` — policies:service_review_intake · fns:guard_service_review · triggers:trg_guard_service_review · tables:marketplace_reviews
+- `20260728000047_client_settle_and_commission_mint` — fns:mint_settlement_commission · triggers:trg_mint_settlement_commission
+- `20260728000048_accept_min_balance_gate` — fns:provider_credit_balance
+- `20260728000049_voucher_redeem_and_tiers` — fns:redeem_service_voucher
+- `20260729000000_service_money_truth_views` — (misc DDL/DML)
+- `20260729000001_service_hailing_daily_caps` — fns:check_daily_row_cap · triggers:trg_daily_cap_service_providers,trg_daily_cap_service_requests,trg_daily_cap_service_topups
+- `20260729000002_repair_service_canonical_anchors` — (misc DDL/DML)
+- `20260729000003_review_guard_admin_selfdeal` — fns:guard_service_review
+- `20260729000004_pm_auto_hail_recurring_contracts` — fns:sweep_pm_auto_hail · tables:pm_scope_items,service_requests
+- `20260729000005_certified_skill_gate` — fns:accept_service_request,provider_is_certified_for · tables:service_catalog
+- `20260729000006_accepted_job_lands_on_dayplan` — fns:land_accepted_job_on_dayplan · triggers:trg_land_accepted_job_on_dayplan
+- `20260729000007_idle_provider_area_presence` — (misc DDL/DML)
+- `20260729000008_showcase_and_liquidity` — fns:publish_service_showcase · tables:service_requests
+- `20260729000009_voucher_capture_contract` — (misc DDL/DML)
+- `20260729000010_harden_service_views_security_invoker` — (misc DDL/DML)
+- `20260729000011_revoke_cron_sweep_from_users` — (misc DDL/DML)
+- `20260729000012_sibling_sweep_revoke_definer_mutators` — (misc DDL/DML)
+- `20260729000013_service_outbox` — fns:drain_service_outbox,enqueue_service_push,reconcile_service_outbox · tables:service_outbox
+- `20260729000014_service_push_fanout` — fns:fanout_broadcast_push · triggers:trg_fanout_broadcast_push
+- `20260729000015_service_slo` — tables:service_slo_targets
+- `20260729000016_arc2_canonical_anchors` — (misc DDL/DML)
+- `20260729000017_fanout_urgency_vocabulary` — fns:fanout_broadcast_push
+- `20260729000018_notify_service_cancellation` — fns:enqueue_service_push_uids,notify_service_cancellation · triggers:trg_notify_service_cancellation
+- `20260729000019_service_views_security_invoker` — (misc DDL/DML)
+- `20260729000020_revoke_infra_health_views` — (misc DDL/DML)
+- `20260730000001_repair_double_encoded_jsonb` — (misc DDL/DML)
+- `20260730000002_close_anon_write_on_unprotected_tables` — tables:avatar_state,language_preferences
+- `20260730000003_admin_bypass_only_for_non_parties` — fns:guard_marketplace_listing_status,guard_marketplace_order_status,guard_service_request_status,guard_service_topup_status
+- `20260730000004_scope_avatar_and_language_policies_to_owner` — policies:avatar_state_authenticated_rw,avatar_state_owner_read,avatar_state_owner_rw,avatar_state_read,language_prefs_owner_read,language_prefs_read · tables:avatar_state
 
 (showing last 200)
 

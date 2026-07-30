@@ -59,12 +59,22 @@ async function resolveTestIdentity(): Promise<{ username: string; workerName: st
   }
   if (!username) throw new Error('No worker_profiles row — run the test-data-seeder first.');
 
-  // Find an active hive for this worker (env override wins)
+  // Find an active hive for this worker (env override wins).
+  // PREFER THE HIVE WHERE THEY ARE A SUPERVISOR, and order deterministically. The fixture
+  // force-seeds wh_hive_role='supervisor' below, but this lookup used to take limit(1) with no
+  // role filter and no ORDER BY — and the seeded Pablo Aguilar holds TWO active memberships
+  // (supervisor @ Lucena Pharmaceutical, worker @ Manila Electronics). Whenever the arbitrary row
+  // came back as the WORKER one, the page correctly resolved the real role for that hive and hid
+  // the supervisor-only UI, so `#supervisor-summary` / `#adoption-card` stayed hidden and the specs
+  // failed against a page that was behaving exactly as it should.
   let hiveId = TEST_HIVE_ID;
   if (!hiveId) {
-    const { data: hm } = await db.from('hive_members')
-      .select('hive_id').eq('worker_name', workerName).eq('status', 'active').limit(1).maybeSingle();
-    hiveId = hm?.hive_id || '';
+    const { data: rows } = await db.from('hive_members')
+      .select('hive_id, role').eq('worker_name', workerName).eq('status', 'active')
+      .order('role', { ascending: true })      // 'supervisor' > 'worker' handled explicitly below
+      .order('hive_id', { ascending: true });  // stable tie-break: never arbitrary
+    const sup = (rows || []).find(r => r.role === 'supervisor');
+    hiveId = (sup?.hive_id || rows?.[0]?.hive_id || '') as string;
   }
 
   _resolvedUsername = username;

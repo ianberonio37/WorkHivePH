@@ -23,6 +23,7 @@ from seeders.logbook import seed_logbook
 from seeders.inventory import seed_inventory
 from seeders.skill_matrix import seed_skill_matrix
 from seeders.marketplace import seed_marketplace
+from seeders.services import seed_services
 from seeders.community import seed_community
 from seeders.projects import seed_projects
 from seeders.reset import reset_all
@@ -236,7 +237,10 @@ def get_db_counts():
     client = get_client()
     # NOTE: legacy `assets` table dropped in Phase 5c (2026-05-12) — replaced
     # by `asset_nodes` (already listed below). Do not re-add `assets` here.
-    for t in ["hives", "hive_members", "logbook", "pm_assets",
+    for t in ["service_voucher_redemptions", "service_vouchers", "service_offers",
+              "service_job_events", "service_requests", "service_credit_topups",
+              "service_credit_ledger", "service_providers", "service_catalog",
+              "hives", "hive_members", "logbook", "pm_assets",
               "pm_completions", "inventory_items", "inventory_transactions",
               "skill_profiles", "skill_badges", "marketplace_listings",
               "community_posts",
@@ -464,6 +468,7 @@ def api_seed_module(module):
         "inventory": seed_inventory,
         "skill_matrix": seed_skill_matrix,
         "marketplace": seed_marketplace,
+        "services": seed_services,
         "community": seed_community,
         "projects": seed_projects,
         "dayplanner": seed_dayplanner,

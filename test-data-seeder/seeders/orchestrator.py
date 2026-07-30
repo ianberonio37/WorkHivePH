@@ -9,6 +9,7 @@ from .logbook import seed_logbook, link_logbook_to_asset_nodes
 from .inventory import seed_inventory
 from .skill_matrix import seed_skill_matrix
 from .marketplace import seed_marketplace, seed_marketplace_sellers
+from .services import seed_services
 from .community import seed_community
 from .projects import seed_projects
 from .dayplanner import seed_dayplanner
@@ -88,6 +89,9 @@ def seed_everything(client, log) -> dict:
     # (grants each hive's top voice-of-hive badge + gold seller). Runs AFTER community
     # + achievements so a seller's community standing already exists.
     step_ms = seed_marketplace_sellers(client, log, ctx)
+    # Service-hailing substrate (SERVICE_HAILING_ROADMAP.md P1) — after marketplace
+    # sellers + workers/hives exist (providers are built from both).
+    step_sv = seed_services(client, log, ctx)
     # Wave A+B features (AMC orchestrator + Physical AI). Run after assets +
     # PMs + inventory + workers exist (these seeders read them for context).
     step12g = seed_sensor_readings(client, log, ctx)

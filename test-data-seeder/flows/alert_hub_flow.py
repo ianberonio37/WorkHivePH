@@ -125,12 +125,13 @@ def run(page, errors, warnings, log) -> dict:
             "asset_name":   "Centrifugal Pump CP-201 (alert-test)",
             "risk_score":   0.91,
             "failure_mode": "Bearing failure",
-            "parts":        _json.dumps([
+            # jsonb takes the LIST, not a dumped string (see mig 20260730000001).
+            "parts":        [
                 {"item_id": "demo-1", "part_name": "Mechanical Seal MS-32",
                  "qty_avg": 1, "confidence": 0.78, "in_stock": 4},
                 {"item_id": "demo-2", "part_name": "Bearing Kit 6205",
                  "qty_avg": 2, "confidence": 0.65, "in_stock": 6},
-            ]),
+            ],
             "rationale":    "Risk score 0.91 -- 2 parts appear in 65%+ of past corrective fixes.",
             "confidence":   0.72,
             "status":       "pending",

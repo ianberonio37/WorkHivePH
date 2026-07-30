@@ -1,4 +1,4 @@
-﻿"""
+"""
 Performance Anti-Pattern Validator — WorkHive Platform
 =======================================================
 Performance issues are invisible during development when the database is
@@ -347,7 +347,7 @@ def check_set_interval_leak():
             if line.startswith("//") or line.startswith("*"):
                 continue
             # Assigned to a variable? (const x = setInterval / let x = setInterval / x = setInterval)
-            is_assigned = bool(re.search(r'(?:const|let|var)\s+\w+\s*=\s*setInterval|^\s*\w+\s*=\s*setInterval', line))
+            is_assigned = bool(re.search(r'(?:const|let|var)\s+\w+\s*=\s*setInterval|^\s*\w+\s*=\s*setInterval|[\w$]+\s*\[[^\]]+\]\s*=\s*setInterval', line))  # 2026-07-29: property/keyed storage (_timers[id] = setInterval) IS clearable storage - the marketplace tracker stores per-request timers in a map and clearIntervals them (live-verified); the variable-only regex false-failed it
             if not is_assigned:
                 line_no = content[:m.start()].count('\n') + 1
                 issues.append({"check": "set_interval_leak", "page": page, "line": line_no,

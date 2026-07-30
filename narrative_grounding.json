@@ -2,7 +2,7 @@
   "tool": "tools/validate_narrative_grounding.py",
   "subject": "page AI-prose cites only true platform numbers (no fabricated metric) \u2014 live",
   "surfaces_total": 1,
-  "surfaces_grounded": 0,
+  "surfaces_grounded": 1,
   "surfaces_skipped": 8,
   "baseline_caps": {
     "analytics": 0,
@@ -48,13 +48,11 @@
       "page": "ph-intelligence",
       "edge_fn": "__DB__",
       "http": 200,
-      "grounding_numbers": 28,
+      "grounding_numbers": 38,
       "prose_strings": 1,
-      "substantive_nums_checked": 6,
-      "cited_grounded": 5,
-      "fabricated": [
-        "65%"
-      ],
+      "substantive_nums_checked": 2,
+      "cited_grounded": 2,
+      "fabricated": [],
       "baseline_cap": 1,
       "new_drift": false
     },

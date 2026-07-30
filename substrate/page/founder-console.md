@@ -2,19 +2,19 @@
 name: page-founder-console
 type: page
 source: file:founder-console.html
-source_sha: e36fbd0752423b5c
+source_sha: 823ab38187f8e518
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `founder-console.html` — WorkHive Founder Console
 
-Size: 135KB · 47 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 154KB · 52 top-level fns. (Retrieve THIS instead of reading the file.)
 
-**DB writes** (4): `marketplace_disputes.update`, `marketplace_listings.update`, `marketplace_sellers.update`, `platform_feedback.update`
+**DB writes** (7): `marketplace_disputes.update`, `marketplace_listings.update`, `marketplace_sellers.update`, `platform_feedback.update`, `service_credit_topups.update`, `service_vouchers.insert`, `service_vouchers.update`
 **RPC calls**: (none)
 **Edge invokes**: (none)
-**Truth views read**: `v_hive_readiness_truth`, `v_marketplace_listings_truth`, `v_marketplace_orders_truth`, `v_marketplace_sellers_truth`
+**Truth views read**: `v_hive_readiness_truth`, `v_marketplace_listings_truth`, `v_marketplace_orders_truth`, `v_marketplace_sellers_truth`, `v_service_credit_topups_truth`
 
-**Functions**: applyFeedbackView, closeFeedbackDrawer, dim, fetchActiveHivesCount, fetchAiCostByProvider, fetchAiCostToday, fetchAuditFeed, fetchCompanionEval, fetchDau14d, fetchHeatmap7d, fetchMarketplacePulse, fetchMaturityDistribution, fetchMau30d, fetchMementoHealth, fetchMktModeration, fetchPareto30d, fetchTechHealth, get, hideZeroStat, honestEmpty, openFeedbackDrawer, refreshAll, renderAiCostDetail, renderAudit, renderCompanionEval, renderFeedbackInbox, renderGrowthPulse, renderHeatmap, renderHero, renderMarketplace, renderMaturity, renderMementoHealth, renderMktModeration, renderPareto, renderTLDR, renderTechHealth, saveDrawerChanges, setRagDot, setRagDots, setStat, setUpd, showToast, stat, subscribeFeedbackRealtime, timeAgo, wireMktModeration, wireRefreshControls
+**Functions**: applyFeedbackView, closeFeedbackDrawer, dim, fetchActiveHivesCount, fetchAiCostByProvider, fetchAiCostToday, fetchAuditFeed, fetchCompanionEval, fetchDau14d, fetchHeatmap7d, fetchMarketplacePulse, fetchMaturityDistribution, fetchMau30d, fetchMementoHealth, fetchMktModeration, fetchPareto30d, fetchTechHealth, get, hideZeroStat, honestEmpty, loadSvcTopups, loadSvcVouchers, openFeedbackDrawer, refreshAll, renderAiCostDetail, renderAudit, renderCompanionEval, renderFeedbackInbox, renderGrowthPulse, renderHeatmap, renderHero, renderMarketplace, renderMaturity, renderMementoHealth, renderMktModeration, renderPareto, renderTLDR, renderTechHealth, saveDrawerChanges, setRagDot, setRagDots, setStat, setUpd, showToast, stat, subscribeFeedbackRealtime, svcMintVoucher, svcToggleVoucher, svcTopupDecide, timeAgo, wireMktModeration, wireRefreshControls
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

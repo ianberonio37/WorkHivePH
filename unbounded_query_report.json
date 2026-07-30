@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 127,
-    "total_calls": 727,
+    "files_scanned": 128,
+    "total_calls": 763,
     "total_unbounded": 1,
     "baseline": 1
   },
@@ -397,6 +397,10 @@
     },
     {
       "file": "supabase/functions/marketplace-listing-assist/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/notify-push/index.ts",
       "issues": []
     },
     {

@@ -658,6 +658,14 @@
         <span id="det-cat" class="cat-pill"></span>
         <span id="det-crit" class="status-badge text-[0.6rem]"></span>
         <span id="det-anchor" class="text-xs text-white/80"></span>
+        <!-- SERVICE_HAILING P9 (§1c recurring-contract hook): a PM that keeps coming due is a
+             standing outside-service candidate - hail it with the asset + PM context pre-composed
+             (the same landing pad as asset-hub's CTA). href set in renderDetail. -->
+        <button type="button" id="det-autohail-btn" onclick="toggleAutoHail()" aria-pressed="false"
+          aria-label="Turn this asset's due PM work into a recurring service contract that hails a provider automatically"
+          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:rgba(255,255,255,0.06);color:inherit;border:1px solid rgba(255,255,255,0.15);">🔁 Auto-hail when due</button>
+        <a id="det-hail-link" href="#" aria-label="Hail an outside specialist for this asset's PM work"
+          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.72rem;font-weight:700;background:rgba(247,162,27,0.13);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.4);">🔧 Hail a specialist</a>
       </div>
     </div>
 
@@ -1764,6 +1772,46 @@ function renderDetail(asset) {
   document.getElementById('det-anchor').textContent =
     asset.last_anchor_date ? `Last anchor: ${formatDate(asset.last_anchor_date)}` : 'No anchor date';
 
+  // SERVICE_HAILING P9: recurring-contract hook - hail this asset's PM work with context
+  // (reuses the marketplace ?section=services&asset=&scope= landing pad, the asset-hub pattern)
+  const hailLink = document.getElementById('det-hail-link');
+  if (hailLink) {
+    const tagCode = asset.tag_id || asset.asset_name || '';
+    if (tagCode) {
+      hailLink.href = 'marketplace.html?section=services&asset=' + encodeURIComponent(tagCode)
+        + '&scope=' + encodeURIComponent('Recurring PM service for ' + (asset.asset_name || tagCode) + ' (outside specialist)');
+      hailLink.style.display = 'inline-flex';
+    } else {
+      hailLink.style.display = 'none';
+    }
+  }
+
+  // J24 recurring CONTRACT: the manual CTA above hails once. This flips the asset's PM scope
+  // items to auto_hail, so sweep_pm_auto_hail() files the request itself the day the work falls
+  // due (at most one open hail per item - the sweep is idempotent by a partial unique index).
+  // Supervisor-only, because it commits the hive to spending.
+  _autoHailAssetId = asset.id;
+  const ahBtn = document.getElementById('det-autohail-btn');
+  if (ahBtn) {
+    const mayContract = !HIVE_ID || HIVE_ROLE === 'supervisor';
+    ahBtn.style.display = mayContract ? 'inline-flex' : 'none';
+    if (mayContract) {
+      // canonical-allow: auto_hail is a WRITE-PATH config column on the base table; the truth
+      // view models PM due-ness, not contract settings, so there is nothing canonical to read here.
+      db.from('pm_scope_items').select('id, auto_hail').eq('asset_id', asset.id).limit(200)
+        .then(({ data }) => {
+          const items = data || [];
+          const on = items.length > 0 && items.every(i => i.auto_hail);
+          _autoHailOn = on;
+          ahBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+          ahBtn.textContent = on ? '🔁 Auto-hail ON - tap to stop' : '🔁 Auto-hail when due';
+          ahBtn.style.background = on ? 'rgba(74,222,128,0.13)' : 'rgba(255,255,255,0.06)';
+          ahBtn.style.borderColor = on ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.15)';
+        })
+        .catch(() => { /* empty-catch-allow: the toggle is additive; the manual CTA still works */ });
+    }
+  }
+
   // Supervisor-only edit/delete in hive mode: solo workers can manage their own
   const canEdit   = !HIVE_ID || HIVE_ROLE === 'supervisor';
   const canDelete = !HIVE_ID || HIVE_ROLE === 'supervisor' || asset.worker_name === WORKER_NAME;
@@ -1865,6 +1913,39 @@ function renderDetail(asset) {
 // ─────────────────────────────────────
 let _sheetScopeItemId = null;
 let _sheetScopeItem   = null;
+// J24 recurring contracts (SERVICE_HAILING_ROADMAP.md): which asset the detail sheet is showing
+// and whether all of its PM scope items are already flagged auto_hail.
+let _autoHailAssetId  = null;
+let _autoHailOn       = false;
+
+/* J24: flip every scope item on this asset to auto_hail (or off again). The DAILY sweep
+   (sweep_pm_auto_hail) does the filing; this only records the intent. A 0-row update means RLS
+   refused - surfaced honestly rather than shown as saved. */
+async function toggleAutoHail() {
+  if (!_autoHailAssetId) return;
+  const turningOn = !_autoHailOn;
+  if (turningOn && !(await window.whConfirm(
+        'Auto-hail this asset’s PM work? When an item falls due, WorkHive files a service request for you and providers nearby can accept it.',
+        { okLabel: 'Turn on auto-hail', cancelLabel: 'Not now' }))) return;
+  const { data, error } = await db.from('pm_scope_items')
+    .update({ auto_hail: turningOn })
+    .eq('asset_id', _autoHailAssetId)
+    .select('id');
+  if (error) { showToast(error.message, 'error'); return; }
+  if (!data || !data.length) { showToast('Couldn’t save that - supervisors set recurring contracts.', 'error'); return; }
+  _autoHailOn = turningOn;
+  const btn = document.getElementById('det-autohail-btn');
+  if (btn) {
+    btn.setAttribute('aria-pressed', turningOn ? 'true' : 'false');
+    btn.textContent = turningOn ? '🔁 Auto-hail ON - tap to stop' : '🔁 Auto-hail when due';
+    btn.style.background = turningOn ? 'rgba(74,222,128,0.13)' : 'rgba(255,255,255,0.06)';
+    btn.style.borderColor = turningOn ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.15)';
+  }
+  showToast(turningOn
+    ? 'Auto-hail on for ' + data.length + ' PM item' + (data.length === 1 ? '' : 's') + '. Due work will be hailed for you.'
+    : 'Auto-hail off. You can still hail a specialist manually.');
+}
+window.toggleAutoHail = toggleAutoHail;
 
 // PM category → logbook category mapping
 const PM_CAT_TO_LOG_CAT = {

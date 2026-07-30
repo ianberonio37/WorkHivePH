@@ -3,8 +3,8 @@
     "asset_count": 5,
     "description": "C5: versioned baseline of AI assets. Validator FAILs if file hash moves without version bump.",
     "format_version": "1.0",
-    "last_evaluated": "2026-07-18T02:03:02Z",
-    "test_seal": "d869b227e8199368"
+    "last_evaluated": "2026-07-28T21:10:16Z",
+    "test_seal": "52c05c358dcefde1"
   },
   "assets": {
     "ai-eval-runner.judge": {
@@ -36,18 +36,23 @@
       "sha256": "4f714b8afea4c4ddff91795cffa3c1a225092d039f28161518d72ba27091240d"
     },
     "evals.canonical_questions": {
-      "current_version": 1,
+      "current_version": 2,
       "file": "evals/canonical_questions.json",
       "history": [
         {
           "recorded_at": "2026-06-02T11:55:30Z",
           "sha256": "5d4a6efd9aa0e137271986dd133a2d3e96c3650684a804f24a0f2a1a3afa9e74",
           "version": 1
+        },
+        {
+          "recorded_at": "2026-07-28T21:10:16Z",
+          "sha256": "55d90111071068dca4a9c7b69b68f1ffc4d34f4c5b1b902192a40a8b21b82a10",
+          "version": 2
         }
       ],
       "kind": "json",
       "owner": "ai-engineer",
-      "sha256": "5d4a6efd9aa0e137271986dd133a2d3e96c3650684a804f24a0f2a1a3afa9e74"
+      "sha256": "55d90111071068dca4a9c7b69b68f1ffc4d34f4c5b1b902192a40a8b21b82a10"
     },
     "shared.ai-chain": {
       "current_version": 4,

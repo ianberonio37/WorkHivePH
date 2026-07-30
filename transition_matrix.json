@@ -1,0 +1,894 @@
+{
+  "_doc": "Derived denominator for the marketplace test bank. DO NOT hand-edit - re-run tools/derive_transition_matrix.py.",
+  "machines": [
+    {
+      "table": "service_requests",
+      "guard": "guard_service_request_status",
+      "shape": "allow",
+      "vocabulary": [
+        "requested",
+        "broadcasting",
+        "accepted",
+        "en_route",
+        "on_site",
+        "in_progress",
+        "completed",
+        "settled",
+        "cancelled_by_client",
+        "cancelled_by_provider",
+        "expired",
+        "disputed"
+      ],
+      "state_space": 132,
+      "cells": [
+        {
+          "id": "TB-service_requests-requested__broadcasting-owner",
+          "table": "service_requests",
+          "from": "requested",
+          "to": "broadcasting",
+          "authority": "owner",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "counterparty",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "d) â€” never a raw client write. v_legal := (v_is_client and old.status = 'requested' and  new.status='broadcasting'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-completed__settled-owner",
+          "table": "service_requests",
+          "from": "completed",
+          "to": "settled",
+          "authority": "owner",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "counterparty",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": ") or (v_is_client and old.status = 'completed' and  new.status='settled'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-requested__cancelled_by_client-owner",
+          "table": "service_requests",
+          "from": "requested",
+          "to": "cancelled_by_client",
+          "authority": "owner",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "counterparty",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "client and old.status in ('requested','broadcasting','accepted','en_route','on_site') and  new.status='cancelled_by_client'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-broadcasting__cancelled_by_client-owner",
+          "table": "service_requests",
+          "from": "broadcasting",
+          "to": "cancelled_by_client",
+          "authority": "owner",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "counterparty",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "client and old.status in ('requested','broadcasting','accepted','en_route','on_site') and  new.status='cancelled_by_client'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-accepted__cancelled_by_client-owner",
+          "table": "service_requests",
+          "from": "accepted",
+          "to": "cancelled_by_client",
+          "authority": "owner",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "counterparty",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "client and old.status in ('requested','broadcasting','accepted','en_route','on_site') and  new.status='cancelled_by_client'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-en_route__cancelled_by_client-owner",
+          "table": "service_requests",
+          "from": "en_route",
+          "to": "cancelled_by_client",
+          "authority": "owner",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "counterparty",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "client and old.status in ('requested','broadcasting','accepted','en_route','on_site') and  new.status='cancelled_by_client'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-on_site__cancelled_by_client-owner",
+          "table": "service_requests",
+          "from": "on_site",
+          "to": "cancelled_by_client",
+          "authority": "owner",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "counterparty",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "client and old.status in ('requested','broadcasting','accepted','en_route','on_site') and  new.status='cancelled_by_client'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-accepted__en_route-counterparty",
+          "table": "service_requests",
+          "from": "accepted",
+          "to": "en_route",
+          "authority": "counterparty",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "owner",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": ") or (v_is_matched_provider and old.status = 'accepted' and  new.status='en_route'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-en_route__on_site-counterparty",
+          "table": "service_requests",
+          "from": "en_route",
+          "to": "on_site",
+          "authority": "counterparty",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "owner",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": ") or (v_is_matched_provider and old.status = 'en_route' and  new.status='on_site'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-on_site__in_progress-counterparty",
+          "table": "service_requests",
+          "from": "on_site",
+          "to": "in_progress",
+          "authority": "counterparty",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "owner",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": ") or (v_is_matched_provider and old.status = 'on_site' and  new.status='in_progress'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-in_progress__completed-counterparty",
+          "table": "service_requests",
+          "from": "in_progress",
+          "to": "completed",
+          "authority": "counterparty",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "owner",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": ") or (v_is_matched_provider and old.status = 'in_progress' and  new.status='completed'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-accepted__cancelled_by_provider-counterparty",
+          "table": "service_requests",
+          "from": "accepted",
+          "to": "cancelled_by_provider",
+          "authority": "counterparty",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "owner",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": ") or (v_is_matched_provider and old.status in ('accepted','en_route','on_site') and  new.status='cancelled_by_provider'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-en_route__cancelled_by_provider-counterparty",
+          "table": "service_requests",
+          "from": "en_route",
+          "to": "cancelled_by_provider",
+          "authority": "counterparty",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "owner",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": ") or (v_is_matched_provider and old.status in ('accepted','en_route','on_site') and  new.status='cancelled_by_provider'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-on_site__cancelled_by_provider-counterparty",
+          "table": "service_requests",
+          "from": "on_site",
+          "to": "cancelled_by_provider",
+          "authority": "counterparty",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "owner",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": ") or (v_is_matched_provider and old.status in ('accepted','en_route','on_site') and  new.status='cancelled_by_provider'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-in_progress__disputed-owner",
+          "table": "service_requests",
+          "from": "in_progress",
+          "to": "disputed",
+          "authority": "owner",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "((v_is_client or v_is_matched_provider) and old.status in ('in_progress','completed') and  new.status='disputed'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-completed__disputed-owner",
+          "table": "service_requests",
+          "from": "completed",
+          "to": "disputed",
+          "authority": "owner",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "((v_is_client or v_is_matched_provider) and old.status in ('in_progress','completed') and  new.status='disputed'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-in_progress__disputed-counterparty",
+          "table": "service_requests",
+          "from": "in_progress",
+          "to": "disputed",
+          "authority": "counterparty",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "((v_is_client or v_is_matched_provider) and old.status in ('in_progress','completed') and  new.status='disputed'",
+          "shape": "allow"
+        },
+        {
+          "id": "TB-service_requests-completed__disputed-counterparty",
+          "table": "service_requests",
+          "from": "completed",
+          "to": "disputed",
+          "authority": "counterparty",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "anon",
+              "expect": "refused"
+            },
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "admin",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "((v_is_client or v_is_matched_provider) and old.status in ('in_progress','completed') and  new.status='disputed'",
+          "shape": "allow"
+        }
+      ],
+      "ungoverned_targets": [
+        "accepted",
+        "expired",
+        "requested"
+      ]
+    },
+    {
+      "table": "marketplace_listings",
+      "guard": "guard_marketplace_listing_status",
+      "shape": "deny",
+      "vocabulary": [
+        "draft",
+        "published",
+        "sold",
+        "removed"
+      ],
+      "state_space": 12,
+      "cells": [
+        {
+          "id": "TB-marketplace_listings-any__published-admin-or-system",
+          "table": "marketplace_listings",
+          "from": "*",
+          "to": "published",
+          "authority": "admin-or-system",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "owner",
+              "expect": "refused"
+            },
+            {
+              "authority": "counterparty",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "IF NEW.status = 'published'",
+          "shape": "deny"
+        }
+      ],
+      "ungoverned_targets": [
+        "draft",
+        "removed",
+        "sold"
+      ]
+    },
+    {
+      "table": "marketplace_orders",
+      "guard": "guard_marketplace_order_status",
+      "shape": "deny",
+      "vocabulary": [
+        "pending_payment",
+        "escrow_hold",
+        "buyer_confirmed",
+        "released",
+        "refunded",
+        "disputed"
+      ],
+      "state_space": 30,
+      "cells": [
+        {
+          "id": "TB-marketplace_orders-any__released-admin-or-system",
+          "table": "marketplace_orders",
+          "from": "*",
+          "to": "released",
+          "authority": "admin-or-system",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "owner",
+              "expect": "refused"
+            },
+            {
+              "authority": "counterparty",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "IF TG_OP = 'UPDATE' AND NEW.status IN ('released', 'refunded') AND NEW.status IS DISTINCT FROM OLD.status THEN",
+          "shape": "deny"
+        },
+        {
+          "id": "TB-marketplace_orders-any__refunded-admin-or-system",
+          "table": "marketplace_orders",
+          "from": "*",
+          "to": "refunded",
+          "authority": "admin-or-system",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "owner",
+              "expect": "refused"
+            },
+            {
+              "authority": "counterparty",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "IF TG_OP = 'UPDATE' AND NEW.status IN ('released', 'refunded') AND NEW.status IS DISTINCT FROM OLD.status THEN",
+          "shape": "deny"
+        }
+      ],
+      "ungoverned_targets": [
+        "buyer_confirmed",
+        "disputed",
+        "escrow_hold",
+        "pending_payment"
+      ]
+    },
+    {
+      "table": "service_credit_topups",
+      "guard": "guard_service_topup_status",
+      "shape": "deny",
+      "vocabulary": [
+        "pending_verification",
+        "verified",
+        "rejected"
+      ],
+      "state_space": 6,
+      "cells": [
+        {
+          "id": "TB-service_credit_topups-any__verified-admin-or-system",
+          "table": "service_credit_topups",
+          "from": "*",
+          "to": "verified",
+          "authority": "admin-or-system",
+          "expect": "allowed",
+          "negatives": [
+            {
+              "authority": "member",
+              "expect": "refused"
+            },
+            {
+              "authority": "owner",
+              "expect": "refused"
+            },
+            {
+              "authority": "counterparty",
+              "expect": "refused"
+            },
+            {
+              "authority": "cross-tenant",
+              "expect": "refused"
+            }
+          ],
+          "sneak_paths": [
+            "replay",
+            "concurrency",
+            "out-of-order",
+            "session-switch"
+          ],
+          "evidence": "if TG_OP = 'UPDATE' and new.status = 'verified' and old.status = 'pending_verification' then",
+          "shape": "deny"
+        }
+      ],
+      "ungoverned_targets": [
+        "pending_verification",
+        "rejected"
+      ]
+    }
+  ]
+}

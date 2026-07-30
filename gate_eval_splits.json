@@ -6,14 +6,14 @@
     "val": 20,
     "test": 20
   },
-  "built_ts": "2026-06-24T04:24:18+00:00",
+  "built_ts": "2026-07-28T21:10:16+00:00",
   "counts": {
-    "train": 227,
-    "val": 89,
-    "test": 73
+    "train": 232,
+    "val": 90,
+    "test": 74
   },
-  "total": 389,
-  "test_seal": "69c7e5818c43a2ac442e1b4bf38894cf155f017b0f8d5b2019bcbee688e86a63",
+  "total": 396,
+  "test_seal": "54abc8c558c298b2c04e3abd2d5741a70f97950af780966a7de2dc6b3c17632e",
   "items": {
     "agent_golden:AG-01-log-hydraulic-p203": {
       "id": "AG-01-log-hydraulic-p203",
@@ -325,6 +325,30 @@
       "domain": "ai",
       "dimension": "functionality",
       "split": "train",
+      "eval_dimension": "agent"
+    },
+    "canonical_question:service-triage-aircon-cleaning": {
+      "id": "service-triage-aircon-cleaning",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "test",
+      "eval_dimension": "agent"
+    },
+    "canonical_question:service-triage-custom-scope-quote": {
+      "id": "service-triage-custom-scope-quote",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "train",
+      "eval_dimension": "agent"
+    },
+    "canonical_question:service-triage-motor-overheating": {
+      "id": "service-triage-motor-overheating",
+      "kind": "canonical_question",
+      "domain": "ai",
+      "dimension": "functionality",
+      "split": "val",
       "eval_dimension": "agent"
     },
     "canonical_question:shift-critical-alerts": {
@@ -2091,6 +2115,13 @@
       "dimension": "functionality",
       "split": "train"
     },
+    "spec:tests/alert-hub-triage.spec.ts": {
+      "id": "tests/alert-hub-triage.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
     "spec:tests/alert-hub.spec.ts": {
       "id": "tests/alert-hub.spec.ts",
       "kind": "spec",
@@ -2247,6 +2278,13 @@
     },
     "spec:tests/integrations.spec.ts": {
       "id": "tests/integrations.spec.ts",
+      "kind": "spec",
+      "domain": "general",
+      "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/intelligence-reuse-connectivity.spec.ts": {
+      "id": "tests/intelligence-reuse-connectivity.spec.ts",
       "kind": "spec",
       "domain": "general",
       "dimension": "functionality",
@@ -2475,6 +2513,13 @@
       "domain": "saas",
       "dimension": "functionality",
       "split": "test"
+    },
+    "spec:tests/journey-hive-revocation.spec.ts": {
+      "id": "tests/journey-hive-revocation.spec.ts",
+      "kind": "spec",
+      "domain": "saas",
+      "dimension": "functionality",
+      "split": "train"
     },
     "spec:tests/journey-hive.spec.ts": {
       "id": "tests/journey-hive.spec.ts",
@@ -2950,6 +2995,13 @@
       "kind": "spec",
       "domain": "general",
       "dimension": "functionality",
+      "split": "train"
+    },
+    "spec:tests/shift-brain-freshness.spec.ts": {
+      "id": "tests/shift-brain-freshness.spec.ts",
+      "kind": "spec",
+      "domain": "ai",
+      "dimension": "adaptability",
       "split": "train"
     },
     "spec:tests/shift-brain.spec.ts": {

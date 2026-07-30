@@ -6,10 +6,10 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **319**
+- View/column pairs scanned: **334**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
-- Files scanned: **254**
+- Files scanned: **257**
 
 ## Smell legend
 
@@ -328,6 +328,21 @@ re-deriving what the canonical view should expose:
 | `v_sensor_truth` | `quality_flag` | ✅ OK | 2 | direct |
 | `v_sensor_truth` | `recorded_at` | ✅ OK | 2 | direct |
 | `v_sensor_truth` | `value` | ✅ OK | 1 | direct |
+| `v_service_catalog_truth` | `category` | ✅ OK | 2 | direct |
+| `v_service_credit_ledger_truth` | `amount` | ✅ OK | 1 | direct |
+| `v_service_credit_ledger_truth` | `entry_type` | ✅ OK | 1 | direct |
+| `v_service_credit_ledger_truth` | `note` | ✅ OK | 1 | direct |
+| `v_service_credit_topups_truth` | `account_id` | ✅ OK | 1 | direct |
+| `v_service_credit_topups_truth` | `account_type` | ✅ OK | 1 | direct |
+| `v_service_credit_topups_truth` | `amount` | ✅ OK | 1 | direct |
+| `v_service_credit_topups_truth` | `gcash_ref` | ✅ OK | 1 | direct |
+| `v_service_credit_topups_truth` | `provider_display_name` | ✅ OK | 1 | direct |
+| `v_service_provider_truth` | `completed_jobs` | ✅ OK | 2 | direct |
+| `v_service_provider_truth` | `display_name` | ✅ OK | 2 | direct |
+| `v_service_provider_truth` | `rating_avg` | ✅ OK | 2 | direct |
+| `v_service_provider_truth` | `rating_count` | ✅ OK | 2 | direct |
+| `v_service_provider_truth` | `tier` | ✅ OK | 2 | direct |
+| `v_service_provider_truth` | `verified` | ✅ OK | 1 | mapped_enum |
 | `v_skill_badges_truth` | `discipline` | ✅ OK | 4 | direct |
 | `v_skill_badges_truth` | `level` | ✅ OK | 4 | direct |
 | `v_weibull_truth` | `asset_id` | ✅ OK | 1 | direct |

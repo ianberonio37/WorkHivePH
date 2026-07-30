@@ -1940,7 +1940,13 @@
       // a genuine WRITE submit — NOT a read rpc (get_*/list_* rpcs are reads, e.g. seller-profile's
       // get_seller_community_reputation is a lookup, not a submit to acknowledge).
       const _writeOp = /\.insert\(|\.upsert\(|\.update\(|\.delete\(\s*\)|functions\.invoke\(/i.test(_srcPP)
-        || /\.rpc\(\s*['"](?!get_|list_|fetch_|v_)/i.test(_srcPP);
+        || /\.rpc\(\s*['"](?!get_|list_|fetch_|v_|my_)/i.test(_srcPP);
+      // `my_*` is this platform's convention for a CALLER-SCOPED LOOKUP (my_service_provider_ids(),
+      // used inside RLS predicates), not a submit. Without it, achievements.html - a read-only trophy
+      // dashboard this very comment lists as N/A - was graded 0% for "no instant acknowledgment" on a
+      // page with no form and no submit button. Verified 2026-07-29 by reading the page: one read rpc,
+      // one back button, zero writes. The fix is the allowlist, never bolting fake optimistic UI onto
+      // a dashboard to satisfy a detector.
       // (a supabase delete is `.delete()` then `.eq()`; `searchParams.delete(k)` / `Map.delete(k)`
       //  take an ARG and are NOT DB writes — audit-log is a read-only viewer, PP3 N/A there.)
       const _btns = Array.from(document.querySelectorAll('button[type=submit],button[class*=primary],button[class*=submit],#btn-submit-post,[class*=save-btn]'));

@@ -1,0 +1,25 @@
+-- 20260729000020_revoke_infra_health_views.sql
+--
+-- FOUND 2026-07-29, live-probed as the `anon` role: an UNAUTHENTICATED visitor reads
+-- **2182 rows** of `v_cron_health` — every scheduled job by name, with its run history and
+-- success/failure status:
+--
+--     achievement-xp-log-purge succeeded | achievement-xp-log-purge succeeded | ...
+--
+-- That is an operational map of the platform's entire background automation, handed to anyone holding
+-- the publishable key — which ships inside the page. It tells a stranger what runs, how often, and
+-- crucially WHICH JOBS ARE FAILING. `v_storage_health` is the same shape, smaller.
+--
+-- Surfaced by Arc G's view-security_invoker gate. Neither view is security_invoker, so both execute as
+-- the owner and never consult base-table RLS on `cron.job` / `job_run_details` / `storage.objects`.
+--
+-- WHY REVOKE RATHER THAN security_invoker: there is no per-user slice of "is the cron scheduler
+-- healthy" that would be correct to show, so a predicate would be pretending. A repo-wide search found
+-- NO consumer at all — no page, no edge function, no tool. `validate_cron_health.py` reads `cron.job`
+-- directly as the service role, which is unaffected. This is pure over-grant from view creation
+-- (Postgres grants nothing by default; something granted it, and nothing needed it).
+--
+-- Same class as v_service_slo in mig 20260729000019 — ops/business telemetry with a client grant it
+-- never required.
+REVOKE ALL ON public.v_cron_health    FROM anon, authenticated;
+REVOKE ALL ON public.v_storage_health FROM anon, authenticated;

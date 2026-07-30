@@ -1,5 +1,5 @@
 {
-  "ran": "2026-07-24T07:08:30.202Z",
+  "ran": "2026-07-29T22:24:06.164Z",
   "role": "supervisor",
   "seeder": "http://127.0.0.1:5000",
   "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
@@ -10,7 +10,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1082 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=0"
+          "bodyLen=1117 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=0"
         ]
       },
       "P2": {
@@ -50,7 +50,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2419 title=\"Hive Live Board: WorkHive\" loadErrors=0"
+          "bodyLen=3301 title=\"Hive Live Board: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -170,7 +170,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2362 title=\"PM Scheduler: WorkHive\" loadErrors=0"
+          "bodyLen=2418 title=\"PM Scheduler: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -210,7 +210,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3069 title=\"Asset Hub | WorkHive\" loadErrors=0"
+          "bodyLen=3148 title=\"Asset Hub | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -250,7 +250,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=4644 title=\"Alert Hub | WorkHive\" loadErrors=0"
+          "bodyLen=4823 title=\"Alert Hub | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -290,7 +290,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1319 title=\"Analytics Engine | WorkHive\" loadErrors=0"
+          "bodyLen=4158 title=\"Analytics Engine | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -300,10 +300,10 @@
         "badNet": []
       },
       "P4": {
-        "score": 10,
+        "score": 60,
         "xssReflected": false,
         "xssExecuted": false,
-        "inputsFuzzed": 0,
+        "inputsFuzzed": 2,
         "handlerErrors": []
       },
       "P8": {
@@ -370,7 +370,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2348 title=\"Achievements: WorkHive\" loadErrors=0"
+          "bodyLen=2352 title=\"Achievements: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -450,7 +450,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1232 title=\"Skill Matrix | WorkHive\" loadErrors=0"
+          "bodyLen=1396 title=\"Skill Matrix | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -530,7 +530,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1864 title=\"Community: WorkHive\" loadErrors=0"
+          "bodyLen=1882 title=\"Community: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -570,7 +570,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2095 title=\"Public Feed: WorkHive\" loadErrors=0"
+          "bodyLen=2131 title=\"Public Feed: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -610,7 +610,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3718 title=\"Marketplace: WorkHive\" loadErrors=0"
+          "bodyLen=3949 title=\"Marketplace: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -690,7 +690,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3961 title=\"Maintenance Day Planner: WorkHive\" loadErrors=0"
+          "bodyLen=3969 title=\"Maintenance Day Planner: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -730,7 +730,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1855 title=\"Engineering Design Calculator: WorkHive\" loadErrors=0"
+          "bodyLen=1848 title=\"Engineering Design Calculator: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -810,7 +810,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1177 title=\"Report Sender | WorkHive\" loadErrors=0"
+          "bodyLen=1748 title=\"Report Sender | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -850,7 +850,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1447 title=\"Project Manager | WorkHive\" loadErrors=0"
+          "bodyLen=1529 title=\"Project Manager | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -890,7 +890,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=958 title=\"Project Report | WorkHive\" loadErrors=0"
+          "bodyLen=1172 title=\"Project Report | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1050,7 +1050,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2396 title=\"Shift Brain | WorkHive\" loadErrors=0"
+          "bodyLen=3355 title=\"Shift Brain | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1090,7 +1090,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2949 title=\"Audit Log | WorkHive\" loadErrors=0"
+          "bodyLen=2957 title=\"Audit Log | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1130,7 +1130,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1055 title=\"Voice Journal: WorkHive\" loadErrors=0"
+          "bodyLen=2510 title=\"Voice Journal: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1170,7 +1170,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=13681 title=\"WorkHive Founder Console\" loadErrors=0"
+          "bodyLen=13286 title=\"WorkHive Founder Console\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1183,7 +1183,7 @@
         "score": 60,
         "xssReflected": false,
         "xssExecuted": false,
-        "inputsFuzzed": 1,
+        "inputsFuzzed": 4,
         "handlerErrors": []
       },
       "P8": {
@@ -1250,7 +1250,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1254 title=\"Marketplace Admin | WorkHive\" loadErrors=0"
+          "bodyLen=1244 title=\"Marketplace Admin | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1290,7 +1290,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=883 title=\"Platform Actions · WorkHive\" loadErrors=0"
+          "bodyLen=1236 title=\"Platform Actions · WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1370,7 +1370,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1236 title=\"WorkHive Gateway — Status\" loadErrors=0"
+          "bodyLen=570 title=\"WorkHive Gateway — Status\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1409,7 +1409,7 @@
     "pages": 35,
     "P1": 100,
     "P2": 100,
-    "P4": 33,
+    "P4": 34,
     "P8": 75,
     "P9": 90,
     "P12": 100,

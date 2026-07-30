@@ -43,12 +43,13 @@
         "hive",
         "inventory",
         "logbook",
+        "marketplace-seller",
         "pm-scheduler",
         "project-manager",
         "shift-brain",
         "voice-journal"
       ],
-      "page_count": 10,
+      "page_count": 11,
       "via_canonical_views": [
         "v_worker_truth"
       ],

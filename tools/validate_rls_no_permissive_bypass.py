@@ -49,6 +49,7 @@ GREEN, RED, YEL = "\033[92m", "\033[91m", "\033[93m"; RST = "\033[0m"
 # cross-hive BY DESIGN — an always-true policy is acceptable (evidence required).
 BY_DESIGN = {
     "platform_feedback": "global public product-feedback board — cross-hive by design",
+    "service_providers": "service-hailing PROVIDER DIRECTORY (SERVICE_HAILING_ROADMAP.md §1; marketplace_sellers sibling) — discovery across hives is the product. EVIDENCE (2026-07-28, P1 adversarial suite, mig 20260728000024): the always-true SELECT is defanged by a revoke-first COLUMN grant — authenticated can read only directory-public columns; live_location, base_location (geography) and auth_uid are NOT granted (T9 live-proved 42501 on live_location); guarded writes (verified/on_job system-only) live-proved T7a/T7c.",
 }
 
 

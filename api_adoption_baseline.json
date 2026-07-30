@@ -1,7 +1,7 @@
 {
   "_doc": "Layer A adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-07-28T09:59:13.506502+00:00",
-  "functions": 57,
+  "generated": "2026-07-30T01:19:23.899506+00:00",
+  "functions": 58,
   "rows": [
     {
       "id": "A1",
@@ -10,8 +10,8 @@
       "satisfies": "every response's CORS preamble",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 57,
-      "need_n": 57,
+      "adopters_n": 58,
+      "need_n": 58,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -41,6 +41,7 @@
         "intelligence-report",
         "login",
         "marketplace-listing-assist",
+        "notify-push",
         "parts-staging-recommender",
         "pdf-ingest",
         "pf-calculator",
@@ -81,8 +82,8 @@
       "satisfies": "canonical success/error JSON envelope",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 54,
-      "need_n": 54,
+      "adopters_n": 55,
+      "need_n": 55,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -110,6 +111,7 @@
         "intelligence-api",
         "intelligence-report",
         "marketplace-listing-assist",
+        "notify-push",
         "parts-staging-recommender",
         "pdf-ingest",
         "pf-calculator",
@@ -149,8 +151,8 @@
       "satisfies": "hive/tenant scoping preamble",
       "mode": "measured",
       "need_rule": "tenant-data",
-      "adopters_n": 41,
-      "need_n": 41,
+      "adopters_n": 42,
+      "need_n": 42,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -172,6 +174,7 @@
         "hierarchical-summarizer",
         "intelligence-report",
         "marketplace-listing-assist",
+        "notify-push",
         "pf-calculator",
         "platform-gateway",
         "platform-scraper",
@@ -246,8 +249,8 @@
       "mode": "measured",
       "need_rule": "family",
       "adopters_n": 41,
-      "need_n": 41,
-      "pct": 100,
+      "need_n": 42,
+      "pct": 98,
       "adopters": [
         "ai-eval-runner",
         "ai-gateway",
@@ -291,7 +294,9 @@
         "walkthrough-analyzer",
         "weibull-fitter"
       ],
-      "gap": []
+      "gap": [
+        "notify-push"
+      ]
     },
     {
       "id": "A6",
@@ -333,8 +338,8 @@
       "satisfies": "L layer logging envelope",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 57,
-      "need_n": 57,
+      "adopters_n": 58,
+      "need_n": 58,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -364,6 +369,7 @@
         "intelligence-report",
         "login",
         "marketplace-listing-assist",
+        "notify-push",
         "parts-staging-recommender",
         "pdf-ingest",
         "pf-calculator",
@@ -404,8 +410,8 @@
       "satisfies": "AV G-1 /health endpoint",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 57,
-      "need_n": 57,
+      "adopters_n": 58,
+      "need_n": 58,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -435,6 +441,7 @@
         "intelligence-report",
         "login",
         "marketplace-listing-assist",
+        "notify-push",
         "parts-staging-recommender",
         "pdf-ingest",
         "pf-calculator",
@@ -483,13 +490,13 @@
     }
   ],
   "floors": {
-    "A1": 57,
-    "A2": 54,
-    "A3": 41,
+    "A1": 58,
+    "A2": 55,
+    "A3": 42,
     "A4": 27,
     "A5": 41,
     "A6": 3,
-    "A8": 57,
-    "A9": 57
+    "A8": 58,
+    "A9": 58
   }
 }

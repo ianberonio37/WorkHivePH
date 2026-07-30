@@ -1,18 +1,18 @@
 {
   "_doc": "Display ladder classification (Phase E). Each display anchor tagged on Gartner's Descriptive->Diagnostic->Predictive->Prescriptive ladder. grounded = anchor resolves to a canonical source (Phase B RESOLVED*). Ungrounded predictive/prescriptive tiles claim a higher rung than their data backs = residual to fix.",
   "totals": {
-    "displays": 66,
+    "displays": 67,
     "by_rung": {
       "predictive": 6,
-      "descriptive": 41,
+      "descriptive": 42,
       "diagnostic": 17,
       "prescriptive": 2
     },
-    "grounded": 62,
-    "grounded_pct": 93.9,
+    "grounded": 63,
+    "grounded_pct": 94.0,
     "grounded_by_rung": {
       "predictive": 6,
-      "descriptive": 37,
+      "descriptive": 38,
       "diagnostic": 17,
       "prescriptive": 2
     },
@@ -362,6 +362,14 @@
       "rung": "descriptive",
       "grounded": true,
       "source_via": "verified_bind"
+    },
+    {
+      "page": "achievements.html",
+      "id": "ac-provider-tier",
+      "token": "tier",
+      "rung": "descriptive",
+      "grounded": true,
+      "source_via": "js_parse_heuristic"
     },
     {
       "page": "achievements.html",

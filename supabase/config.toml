@@ -280,3 +280,11 @@ entrypoint = "./functions/voice-model-call/index.ts"
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/walkthrough-analyzer/index.ts"
+
+# notify-push (SERVICE_HAILING P5/G3) — Web Push job-offer delivery. Service-role-gated inside
+# (requireServiceRole); callers are backend (broadcast fan-out webhook/cron, test harnesses),
+# so JWT verification is OFF and the gate is the service key.
+[functions.notify-push]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/notify-push/index.ts"

@@ -4,8 +4,8 @@ Documented rules from `C:/Users/ILBeronio/.claude/skills/<skill>/SKILL.md` files
 mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 
 - Rules evaluated: **57**
-- Critical / high-severity violations: **7**
-- Promotion candidates (drift band): **16**
+- Critical / high-severity violations: **8**
+- Promotion candidates (drift band): **18**
 - Rules by source: skill_md:designer=2, skill_md:mobile-maestro=2, skill_md:security=3, manifest=50
 
 ## Per-skill roll-up
@@ -15,10 +15,10 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | architect | 2 | 100% | 0 |
 | data-engineer | 1 | 100% | 0 |
 | designer | 7 | 78% | 35 |
-| frontend | 20 | 91% | 53 |
+| frontend | 20 | 91% | 54 |
 | mobile-maestro | 7 | 83% | 6 |
 | qa-tester | 6 | 96% | 9 |
-| security | 14 | 95% | 7 |
+| security | 14 | 95% | 9 |
 
 ## Critical / high-severity violations -- act immediately
 
@@ -60,9 +60,15 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 
 ### `edge_fn_handles_options_preflight` (high)  -- security :: Edge Function CORS
 - **Rule:** Every edge fn responds to OPTIONS preflight
-- **Conformance:** 98%  (56 / 57)
+- **Conformance:** 98%  (57 / 58)
 - **Violators (1):** visual-defect-capture
 - **Why it matters:** Without OPTIONS handling, browsers block the actual request on CORS preflight failure.
+
+### `frontend_filter_tabs_have_aria_roles` (high)  -- frontend :: List View Contract -- Filter Tabs A11y Roles
+- **Rule:** Filter tabs and chip rows must declare role="tablist" on the container and role="tab" + aria-selected on each button
+- **Conformance:** 83%  (5 / 6)
+- **Violators (1):** alert-hub.html
+- **Why it matters:** Canonical from marketplace.html:589 (section-tabs) and audit-log.html:188 (filter-row + chip + aria-selected). Screen readers cannot navigate tab UIs without tablist/tab role + aria-selected. A visual tab without these roles is a keyboard-trap regression. Identified 2026-05-19 during list-display uniformity audit.
 
 ## Promotion candidates (documented rules with measurable drift)
 
@@ -79,11 +85,13 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `frontend_eschtml_imported_not_inline` | frontend | high | 94% | platform-actions.html, status.html |
 | `frontend_calm_dashboard_declares_source_chip` | frontend | medium | 92% | ph-intelligence.html |
 | `frontend_list_view_has_loading_state` | frontend | medium | 92% | platform-actions.html, status.html |
-| `migration_grant_when_rls_enabled` | security | medium | 92% | 20260620000007_rls_enable_project_family.sql, 20260620000008_rls_enable_remaining_hive_tables.sql, 20260707000001_marketplace_watchlist_savedsearch_rls.sql, 20260707000004_achievement_xp_log_rls.sql, 20260718000001_ops_artifact_metrics.sql |
 | `qa_utils_js_loads_before_inline_script` | qa-tester | high | 91% | architecture.html, symbol-gallery.html, validator-catalog.html |
 | `a11y_main_landmark_present` | qa-tester | medium | 90% | design-system.html, platform-actions.html, promo-poster.html, status.html |
+| `migration_grant_when_rls_enabled` | security | medium | 89% | 20260620000007_rls_enable_project_family.sql, 20260620000008_rls_enable_remaining_hive_tables.sql, 20260707000001_marketplace_watchlist_savedsearch_rls.sql, 20260707000004_achievement_xp_log_rls.sql, 20260718000001_ops_artifact_metrics.sql ... |
 | `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | high | 88% | voice-journal.html |
+| `frontend_filter_tabs_have_aria_roles` | frontend | high | 83% | alert-hub.html |
 | `frontend_list_view_has_empty_state` | frontend | medium | 83% | design-system.html, platform-actions.html, resume.html, status.html, validator-catalog.html |
+| `frontend_currency_uses_shared_formatter` | frontend | medium | 71% | founder-console.html, platform-actions.html |
 
 ## All rules (full conformance ranking)
 
@@ -95,51 +103,51 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `frontend_classlist_over_classname` | frontend | 52% (22/42) | html_pages | anti_pattern |
 | `designer_uses_canonical_orange` | designer | 52% (21/40) | html_pages | convention |
 | `frontend_no_innerhtml_in_foreach` | frontend | 59% (25/42) | html_pages | anti_pattern |
-| `frontend_currency_uses_shared_formatter` | frontend | 66% (4/6) | html_pages | convention |
+| `frontend_currency_uses_shared_formatter` | frontend | 71% (5/7) | html_pages | convention |
 | `frontend_list_view_has_empty_state` | frontend | 83% (25/30) | html_pages | convention |
+| `frontend_filter_tabs_have_aria_roles` | frontend | 83% (5/6) | html_pages | convention |
 | `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | 88% (8/9) | html_pages | convention |
+| `migration_grant_when_rls_enabled` | security | 89% (62/69) | migrations | convention |
 | `a11y_main_landmark_present` | qa-tester | 90% (38/42) | html_pages | convention |
 | `qa_utils_js_loads_before_inline_script` | qa-tester | 91% (34/37) | html_pages | convention |
-| `migration_grant_when_rls_enabled` | security | 92% (60/65) | migrations | convention |
 | `frontend_list_view_has_loading_state` | frontend | 92% (24/26) | html_pages | convention |
 | `frontend_calm_dashboard_declares_source_chip` | frontend | 92% (12/13) | html_pages | convention |
 | `frontend_eschtml_imported_not_inline` | frontend | 94% (35/37) | html_pages | convention |
-| `frontend_no_em_dash_in_prompt_template` | frontend | 94% (54/57) | edge_fns | anti_pattern |
+| `frontend_no_em_dash_in_prompt_template` | frontend | 94% (55/58) | edge_fns | anti_pattern |
 | `mobile_viewport_fit_cover` | mobile-maestro | 95% (40/42) | html_pages | convention |
 | `frontend_list_view_has_error_state` | frontend | 96% (27/28) | html_pages | convention |
 | `mobile_toast_has_aria_live` | mobile-maestro | 96% (29/30) | html_pages | convention |
 | `designer_poppins_font` | designer | 97% (39/40) | html_pages | convention |
 | `qa_no_innerhtml_plus_equals` | qa-tester | 97% (41/42) | html_pages | anti_pattern |
-| `edge_fn_handles_options_preflight` | security | 98% (56/57) | edge_fns | convention |
-| `qa_no_alert_call` | qa-tester | 98% (80/81) | html_and_js | anti_pattern |
+| `edge_fn_handles_options_preflight` | security | 98% (57/58) | edge_fns | convention |
+| `qa_no_alert_call` | qa-tester | 98% (82/83) | html_and_js | anti_pattern |
 | `designer_dialog_has_aria_modal_true` | designer | 100% (8/8) | html_pages | convention |
 | `security_inventory_status_approved_scope` | security | 100% (1/1) | html_pages | convention |
 | `security_inline_onclick_role_check_inside_fn` | security | 100% (3/3) | html_pages | convention |
 | `security_no_inline_eschtml` | security | 100% (42/42) | html_pages | anti_pattern |
-| `security_no_service_role_key_frontend` | security | 100% (81/81) | html_and_js | anti_pattern |
-| `security_no_eval_user_input` | security | 100% (81/81) | html_and_js | anti_pattern |
-| `security_no_stripe_secret_in_frontend` | security | 100% (81/81) | html_and_js | anti_pattern |
-| `security_no_static_cors_origin_edge_fn` | security | 100% (57/57) | edge_fns | anti_pattern |
+| `security_no_service_role_key_frontend` | security | 100% (83/83) | html_and_js | anti_pattern |
+| `security_no_eval_user_input` | security | 100% (83/83) | html_and_js | anti_pattern |
+| `security_no_stripe_secret_in_frontend` | security | 100% (83/83) | html_and_js | anti_pattern |
+| `security_no_static_cors_origin_edge_fn` | security | 100% (58/58) | edge_fns | anti_pattern |
 | `mobile_no_text_sm_on_wh_input` | mobile-maestro | 100% (42/42) | html_pages | anti_pattern |
 | `mobile_no_avoid_all_in_pdf_pagebreak` | mobile-maestro | 100% (42/42) | html_pages | anti_pattern |
 | `mobile_sw_cache_name_present` | mobile-maestro | 100% (0/0) | js_modules | convention |
-| `designer_no_off_brand_orange_e8920a` | designer | 100% (81/81) | html_and_js | anti_pattern |
+| `designer_no_off_brand_orange_e8920a` | designer | 100% (83/83) | html_and_js | anti_pattern |
 | `designer_no_wrong_input_bg_rgba_black` | designer | 100% (42/42) | html_pages | anti_pattern |
 | `qa_supabase_cdn_when_createclient_used` | qa-tester | 100% (0/0) | html_pages | convention |
 | `frontend_writeAuditLog_called` | frontend | 100% (2/2) | html_pages | convention |
-| `edge_fn_uses_get_cors_headers` | security | 100% (57/57) | edge_fns | convention |
+| `edge_fn_uses_get_cors_headers` | security | 100% (58/58) | edge_fns | convention |
 | `data_engineer_restore_identity_from_session` | data-engineer | 100% (1/1) | html_pages | convention |
-| `migration_function_sets_search_path` | security | 100% (107/107) | migrations | convention |
-| `security_no_function_constructor` | security | 100% (81/81) | html_and_js | anti_pattern |
-| `security_no_token_in_localstorage` | security | 100% (81/81) | html_and_js | anti_pattern |
+| `migration_function_sets_search_path` | security | 100% (155/155) | migrations | convention |
+| `security_no_function_constructor` | security | 100% (83/83) | html_and_js | anti_pattern |
+| `security_no_token_in_localstorage` | security | 100% (83/83) | html_and_js | anti_pattern |
 | `designer_card_radius_not_125rem` | designer | 100% (42/42) | html_pages | anti_pattern |
 | `a11y_img_has_alt` | qa-tester | 100% (42/42) | html_pages | anti_pattern |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
-| `kg_migrations_no_broadcast_across_hives` | architect | 100% (366/366) | migrations | anti_pattern |
+| `kg_migrations_no_broadcast_across_hives` | architect | 100% (449/449) | migrations | anti_pattern |
 | `frontend_detail_toggle_uses_shared_helper` | frontend | 100% (17/17) | html_pages | convention |
 | `frontend_list_view_has_no_results_state` | frontend | 100% (11/11) | html_pages | convention |
 | `frontend_list_view_has_load_more` | frontend | 100% (12/12) | html_pages | convention |
-| `frontend_filter_tabs_have_aria_roles` | frontend | 100% (6/6) | html_pages | convention |
 | `frontend_calm_dashboard_has_verdict` | frontend | 100% (13/13) | html_pages | convention |
 | `frontend_calm_dashboard_uses_details_disclosure` | frontend | 100% (13/13) | html_pages | convention |
 | `frontend_phantom_capture_allow_has_reason` | frontend | 100% (42/42) | html_pages | anti_pattern |

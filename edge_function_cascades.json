@@ -1,9 +1,9 @@
 {
   "_doc": "Deterministic edge-function cross-table WRITE map (Phase A residual-closer of INTERACTIVE_LINEAGE_ROADMAP). Parsed from each function's index.ts `.from(T).insert/upsert/update/delete`. disposition: data_mapped/data_unmapped (displayed table -> must be in causal_cascades.json) | operational (job/audit log) | self_config | infra (no display page).",
   "totals": {
-    "edge_fns_with_writes": 30,
+    "edge_fns_with_writes": 31,
     "data_cascades_mapped": 21,
-    "data_cascades_UNMAPPED": 1,
+    "data_cascades_UNMAPPED": 2,
     "operational_log_writes": 14,
     "self_config_writes": 2,
     "infra_writes": 8
@@ -23,6 +23,16 @@
         "logbook",
         "marketplace",
         "project-manager"
+      ],
+      "disposition": "data_unmapped"
+    },
+    {
+      "fn": "notify-push",
+      "to_table": "push_subscriptions",
+      "line": 114,
+      "evidence": "functions/notify-push/index.ts:114",
+      "downstream_pages": [
+        "marketplace-seller"
       ],
       "disposition": "data_unmapped"
     }
@@ -557,6 +567,26 @@
       "invoked_by_pages": [
         "ph-intelligence"
       ]
+    },
+    "notify-push": {
+      "writes": [
+        {
+          "fn": "notify-push",
+          "to_table": "push_subscriptions",
+          "line": 114,
+          "evidence": "functions/notify-push/index.ts:114",
+          "downstream_pages": [
+            "marketplace-seller"
+          ],
+          "disposition": "data_unmapped"
+        }
+      ],
+      "reads": [
+        "hive_members",
+        "push_subscriptions",
+        "service_providers"
+      ],
+      "invoked_by_pages": []
     },
     "parts-staging-recommender": {
       "writes": [

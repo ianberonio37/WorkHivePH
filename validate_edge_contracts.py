@@ -34,6 +34,7 @@ from validator_utils import read_file, format_result
 FUNCTIONS_DIR = os.path.join("supabase", "functions")
 
 ALL_FUNCTIONS = [
+    "notify-push",                 # SERVICE_HAILING P5/G3 - service-role Web Push fan-out
     "login",                       # Arc I I7/A — pre-auth brute-force login proxy
     "supervisor-reset-password",   # Arc I I3/I — supervisor-assisted password reset
     "resume-extract",
@@ -94,6 +95,8 @@ ALL_FUNCTIONS = [
 ]
 
 REQUIRED_FIELDS = {
+    "notify-push":  ["title", "body"],   # SERVICE_HAILING P5/G3 push fan-out
+
     "ai-orchestrator":          ["question"],
     "analytics-orchestrator":   ["phase"],
     "walkthrough-analyzer":     ["page_slug"],
@@ -188,8 +191,15 @@ def check_error_contract(func_names):
         # `json(code, { error: "..." })` (a `const json = (c,b)=>new Response(JSON.stringify(b)…)`
         # wrapper — used by e.g. login/index.ts). Both ship a `{ error: <string> }` body; the
         # earlier literal-only regex false-failed helper-based fns.
+        # 2026-07-29 (service-hailing notify-push): the _shared/envelope.ts `fail(ctx, code,
+        # message)` helper IS the platform error contract (its Envelope carries
+        # `error: {code, message}` — strictly richer than `{ error: string }`). A fn that
+        # imports the envelope and calls fail() satisfies the contract without a per-file
+        # literal; the literal-only scan false-failed exactly like the pre-helper era did.
         if not (re.search(r'JSON\.stringify\s*\(\s*\{\s*error\s*:', content)
-                or re.search(r'\{\s*error\s*:\s*["\']', content)):
+                or re.search(r'\{\s*error\s*:\s*["\']', content)
+                or (re.search(r'from\s+["\']\.\./_shared/envelope\.ts["\']', content)
+                    and re.search(r'\bfail\s*\(', content))):
             issues.append({"check": "error_contract", "func": name,
                            "reason": (f"{name}/index.ts has no {{ error: ... }} JSON "
                                       f"error response — callers cannot detect failures")})

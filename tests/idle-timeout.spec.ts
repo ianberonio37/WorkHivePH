@@ -36,6 +36,11 @@ test.beforeEach(async ({ page }) => {
   // A real http origin (seeder root) so localStorage works; the page itself does
   // NOT bundle session-timeout.js, so our injected copy is the only mount.
   await page.goto('/');
+  // utils.js FIRST, exactly as all 29 real pages load it. session-timeout.js reads the
+  // active worker through the whWorker() accessor (the storage-SSOT sweep replaced its
+  // direct localStorage reads), so injected alone it sees no identity and never prompts —
+  // the test was asserting against a configuration production never runs.
+  await page.addScriptTag({ path: 'utils.js' });
 });
 
 test('idle → soft prompt appears with the worker name, after the soft limit', async ({ page }) => {

@@ -106,6 +106,8 @@ def main() -> int:
         scanned += 1
         issues.extend(_check_file(path))
     for path in sorted(ROOT.glob("*.js")):
+        if path.name in ("maplibre-gl.js",):  # vendored third-party lib (SERVICE_HAILING P5/G2 D12) - vendor idioms, reviewed at bump time
+            continue
         if path.name in {"sw.js"}: continue
         scanned += 1
         issues.extend(_check_file(path))

@@ -2,13 +2,13 @@
 name: page-skillmatrix
 type: page
 source: file:skillmatrix.html
-source_sha: 794e3a10fb5620d1
+source_sha: 634a6927e1921fc5
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `skillmatrix.html` — Skill Matrix | WorkHive
 
-Size: 71KB · 25 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 72KB · 25 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (1): `skill_profiles.upsert`
 **RPC calls**: `grade_skill_exam`

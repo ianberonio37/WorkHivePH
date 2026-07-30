@@ -92,7 +92,11 @@
   const adoption = {};
   (base.rows || []).forEach(r => { adoption[r.id] = r; });
   const prov = document.getElementById('ds-provenance');
-  prov.textContent = 'source: design_component_registry.json v' + reg.version + ' · census: ' + (base.generated || '').slice(0, 10) + ' · ' + (base.family_pages || 0) + ' family pages';
+  // G2 (jargon, swept as a class 2026-07-29): the artifact FILENAME is how this is stored, not what
+  // the reader is looking at. Provenance still has to be legible — version, census date and coverage
+  // are the facts that matter; the file path belongs in the tooltip for whoever is debugging it.
+  prov.textContent = 'Component registry v' + reg.version + ' · census ' + (base.generated || '').slice(0, 10) + ' · ' + (base.family_pages || 0) + ' family pages';
+  prov.title = 'source: design_component_registry.json';
 
   // ── C-P5: the 3 centralization axes, measured live from the real baselines ──
   (async function renderAxes() {

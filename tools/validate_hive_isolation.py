@@ -96,6 +96,13 @@ def main() -> int:
     if w is None:
         return _skip("need an active worker fixture for the kick-restore probe")
     uid_w, hive_w = w
+    # An active SUPERVISOR + their hive. Needed since mig 20260728000011 made CREATING a pm_asset a
+    # supervisor action: the attribution-pin probe below must run as someone allowed to create at all,
+    # otherwise it measures the refusal and reports a missing row as a lost pin.
+    s = _one(_psql("SELECT auth_uid, hive_id FROM hive_members WHERE status='active' AND role='supervisor' AND auth_uid IS NOT NULL LIMIT 1;"))
+    if s is None:
+        return _skip("need an active supervisor fixture for the pm_assets attribution probe")
+    uid_s, hive_s = s
 
     results = {}
     claims = lambda uid: f"'{{\"sub\":\"{uid}\",\"role\":\"authenticated\"}}'"
@@ -207,14 +214,31 @@ def main() -> int:
         results["comm_reply_attr_pin"] = "PINNED"
         results["comm_reply_hijack_block"] = "BLOCKED"
 
-    # ── pm_assets attribution (mig 010): a member's INSERT with a spoofed registrant is server-pinned ──
+    # ── pm_assets attribution (mig 010): a SUPERVISOR's INSERT with a spoofed registrant is pinned ──
+    # Runs as a supervisor because creating a pm_asset became a supervisor action in mig 20260728000011
+    # (below). The pin trigger is unchanged and still the thing under test — only who may reach it moved.
+    _collect(
+        f"BEGIN;\nSET LOCAL ROLE authenticated;\nSET LOCAL request.jwt.claims TO {claims(uid_s)};\n"
+        f"INSERT INTO pm_assets(id,hive_id,worker_name,asset_name,category,auth_uid) "
+        f"VALUES('88888888-8888-4888-8888-888888888888','{hive_s}','SPOOFED','GATE-ASSET','Mechanical','{spoof_uid}');\n"
+        "RESET ROLE;\n"
+        f"SELECT 'RESULT pm_asset_attr_pin='||(CASE WHEN auth_uid='{uid_s}' AND worker_name<>'SPOOFED' THEN 'PINNED' ELSE 'SPOOFED' END) FROM pm_assets WHERE id='88888888-8888-4888-8888-888888888888';\n"
+        "ROLLBACK;\n", results)
+
+    # ── pm_assets CREATE is supervisor-only server-side (mig 20260728000011) ──
+    # pm-scheduler's goAddAsset() already refused a non-supervisor in the page while the table accepted
+    # any active member — so a worker could add assets the UI says they cannot, and every added asset
+    # enters the scheduled count get_pm_compliance_smrp divides by, moving their hive's PM-compliance
+    # DENOMINATOR. Completes the set with the DELETE (…006) and UPDATE (…009) guards.
     _collect(
         f"BEGIN;\nSET LOCAL ROLE authenticated;\nSET LOCAL request.jwt.claims TO {claims(uid_w)};\n"
-        f"INSERT INTO pm_assets(id,hive_id,worker_name,asset_name,category,auth_uid) "
-        f"VALUES('88888888-8888-4888-8888-888888888888','{hive_w}','SPOOFED','GATE-ASSET','Mechanical','{spoof_uid}');\n"
-        "RESET ROLE;\n"
-        f"SELECT 'RESULT pm_asset_attr_pin='||(CASE WHEN auth_uid='{uid_w}' AND worker_name<>'SPOOFED' THEN 'PINNED' ELSE 'SPOOFED' END) FROM pm_assets WHERE id='88888888-8888-4888-8888-888888888888';\n"
-        "ROLLBACK;\n", results)
+        "DO $$\nBEGIN\n"
+        f"  INSERT INTO pm_assets(id,hive_id,worker_name,asset_name,category,auth_uid) VALUES('88888888-8888-4888-8888-888888888889','{hive_w}','gate','GATE-ASSET-W','Mechanical','{uid_w}');\n"
+        "  RAISE NOTICE 'RESULT pm_asset_worker_create_gate=OPEN_VULN';\n"
+        "EXCEPTION WHEN insufficient_privilege THEN\n"
+        "  RAISE NOTICE 'RESULT pm_asset_worker_create_gate=BLOCKED';\n"
+        "WHEN OTHERS THEN\n"
+        "  RAISE NOTICE 'RESULT pm_asset_worker_create_gate=OTHER:%', SQLERRM;\nEND $$;\nROLLBACK;\n", results)
 
     # ── pm_completions attribution (mig 010): the DISPLAYED completer (worker_name) is server-pinned ──
     pm_a = _one(_psql(f"SELECT id FROM pm_assets WHERE hive_id='{hive_w}' LIMIT 1;"))
@@ -345,7 +369,8 @@ def main() -> int:
         ("comm_announce_gate", "BLOCKED", "community BOLA: a WORKER cannot post a category='announcement' (server-enforced supervisor-only, mig 006)"),
         ("comm_reply_attr_pin", "PINNED", "community.html P5: a member's community_replies INSERT with a spoofed auth_uid/author_name is server-pinned to the caller (mig 007)"),
         ("comm_reply_hijack_block", "BLOCKED", "community.html P5: a member cannot UPDATE another member's reply (author-or-supervisor only, mig 007)"),
-        ("pm_asset_attr_pin", "PINNED", "pm-scheduler P3/P5: a member's pm_assets INSERT with a spoofed registrant (worker_name/auth_uid) is server-pinned to the caller (mig 010)"),
+        ("pm_asset_attr_pin", "PINNED", "pm-scheduler P3/P5: a supervisor's pm_assets INSERT with a spoofed registrant (worker_name/auth_uid) is server-pinned to the caller (mig 010)"),
+        ("pm_asset_worker_create_gate", "BLOCKED", "pm-scheduler P5: a WORKER cannot CREATE a pm_asset (server-enforced supervisor-only, mig 20260728000011) — an added asset moves the hive's PM-compliance denominator"),
         ("pm_completion_attr_pin", "PINNED", "pm-scheduler P3/P5: a member's pm_completions INSERT with a spoofed completer (worker_name) is server-pinned to the caller (mig 010)"),
         ("comm_post_attr_pin", "PINNED", "community.html P5: a member's community_posts INSERT with a spoofed author_name/auth_uid is server-pinned to the caller (mig 011 — the parent post, sibling of the mig-007 replies fix)"),
         ("inv_item_attr_pin", "PINNED", "inventory.html P3/P5: a member's inventory_items INSERT with a spoofed registrant (worker_name/submitted_by) is server-pinned to the caller (mig 011)"),

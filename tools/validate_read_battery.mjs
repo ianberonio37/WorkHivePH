@@ -21,7 +21,32 @@ import { execSync } from 'child_process';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SUPABASE_URL = process.env.WH_SUPABASE_URL || 'http://127.0.0.1:54321';
-const HIVE = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6';
+// RESOLVED, NOT PINNED. The old fallback `636cf7e8-…` had been reseeded out of existence, and every
+// assertion here silently started measuring an EMPTY WORLD: six pages reported "DB empty -> empty-state
+// (no error)" with db=0, which reads as six specific page defects and is really one dead UUID.
+// A literal cannot survive a reseed, so resolve the signed-in supervisor's own most-populated hive and
+// tie-break by id — deterministic, so two runs never disagree ([[feedback_resolving_live_is_not_enough_be_deterministic]]).
+function resolveHive() {
+  if (process.env.WH_TEST_HIVE) return process.env.WH_TEST_HIVE;
+  try {
+    const sql = "select hm.hive_id::text from hive_members hm "
+      + "join worker_profiles wp on wp.auth_uid = hm.auth_uid "
+      + "left join logbook l on l.hive_id = hm.hive_id "
+      + "where wp.username = 'leandromarquez' and hm.status = 'active' "
+      + "group by hm.hive_id order by count(l.id) desc, hm.hive_id asc limit 1";
+    const out = execSync(
+      `docker exec ${process.env.WH_DB_CONTAINER || 'supabase_db_workhive'} psql -U postgres -d postgres -t -A -c "${sql}"`,
+      { encoding: 'utf8' }).trim();
+    if (out) return out;
+  } catch (_) { /* fall through: the guard below reports it rather than measuring nothing */ }
+  return '';
+}
+const HIVE = resolveHive();
+if (!HIVE) {
+  console.error('FAIL: could not resolve a test hive. Refusing to run — a battery with no hive '
+    + 'measures an empty world and reports every page as broken.');
+  process.exit(1);
+}
 const SUP = { email: 'leandromarquez@auth.workhiveph.com', pw: 'test1234', worker: 'Leandro Marquez' };
 const DB = process.env.WH_DB_CONTAINER || 'supabase_db_workhive';
 const HEADED = process.argv.includes('--headed');
@@ -29,9 +54,14 @@ const HEADED = process.argv.includes('--headed');
 // Per-page read-correctness spec. src = primary hive-scoped source; container = primary DATA region
 // (nav chrome excluded). cap = the page's own .limit() (for exact-count).
 const SPECS = [
-  { page: 'audit-log.html',         src: 'hive_audit_log',          type: 'exact-count',       container: '#feed',        cap: 500 },
-  { page: 'integrations.html',      src: 'integration_configs',     type: 'empty-consistency', heroes: ['#it-active-hero', '#it-stale-hero', '#it-disabled-hero'] },
-  { page: 'plant-connections.html', src: 'v_external_sync_truth',   type: 'empty-consistency', heroes: ['#wh-conn-queue'] },
+  // cap is the PAGE SIZE, not the query limit. audit-log fetches .limit(500) but renders
+  // _auditDisplayCount = 30 behind a "Load more" button, so comparing the rendered count to the full
+  // row count asserted that pagination is a bug. 30-of-187 is the page working.
+  { page: 'audit-log.html',         src: 'hive_audit_log',          type: 'exact-count',       container: '#feed',        cap: 30 },
+  { page: 'integrations.html',      src: 'integration_configs',     type: 'empty-consistency', heroes: ['#it-active-hero', '#it-stale-hero', '#it-disabled-hero'], emptyIn: '#sync-configs-list' },
+  // #wh-conn-queue never existed on this page. Its real regions are #content (the connections) and
+  // #empty-state (the emptiness signal), so the claim is render-state, not a hero count.
+  { page: 'plant-connections.html', src: 'v_external_sync_truth',   type: 'render-state',      container: '#content', emptyIn: '#empty-state', allowGate: true },
   { page: 'public-feed.html',       src: 'v_community_posts_truth', type: 'render-state',      container: '#feed-list' },
   { page: 'project-report.html',    src: 'v_project_truth',         type: 'render-state',      container: '#ar-print-wrapper' },
   { page: 'shift-brain.html',       src: 'shift_plans',             type: 'render-state',      container: '#carry-list' },
@@ -98,10 +128,15 @@ const check = (name, ok, detail) => results.push({ ok: !!ok, name, detail: detai
         }, spec.container, { timeout: 6000 }).catch(() => {});
       }
       await page.waitForTimeout(2600);
-      const dom = await page.evaluate(({ container, heroes }) => {
+      const dom = await page.evaluate(({ container, heroes, emptyIn }) => {
         const txt = document.body.innerText || '';
         const errBanner = /failed to load|unexpected error|something went wrong|could not load|couldn.t load/i.test(txt);
-        const emptyState = /no .* (yet|found)|nothing here|no results|is empty|no data|no activity/i.test(txt);
+        const EMPTY_RE = /no .* (yet|found)|nothing here|no results|is empty|no data|no activity/i;
+        // Scoped: a page may legitimately carry several secondary empty panels while its PRIMARY data
+        // renders. `emptyIn` names the region whose emptiness is the claim; without it we fall back to
+        // the whole document, which is what produced a false failure on a page that was working.
+        const emptyScope = emptyIn ? document.querySelector(emptyIn) : null;
+        const emptyState = EMPTY_RE.test(emptyScope ? (emptyScope.innerText || '') : txt);
         // an intentional maturity/honest-empty gate is a VALID render (not a bug) — feedback_platform_intentional_blank_states
         const gateShown = /reach stair|stair 2|maturity|activates with real|needs real signal|this page fills|log 30 days/i.test(txt);
         const visSkel = Array.from(document.querySelectorAll('.skeleton,.shimmer,[class*="skeleton"]')).filter(s => s.offsetParent !== null).length;
@@ -111,11 +146,18 @@ const check = (name, ok, detail) => results.push({ ok: !!ok, name, detail: detai
           if (el) { containerFound = true; childCount = Array.from(el.children).filter(k => (k.textContent || '').trim().length).length; }
         }
         const heroVals = (heroes || []).map(h => { const el = document.querySelector(h); const m = el ? (el.textContent || '').replace(/[, ]/g, '').match(/-?\d+/) : null; return m ? parseInt(m[0], 10) : null; });
-        return { errBanner, emptyState, gateShown, visSkel, childCount, containerFound, heroVals };
-      }, { container: spec.container, heroes: spec.heroes });
+        // A hero selector that does not exist yields 0 and accuses the page of rendering nothing —
+        // `#wh-conn-queue` was named for a page whose ids are content/details-pane/empty-state. An
+        // instrument must know when its own selector is gone rather than report a phantom zero.
+        const missingSel = (heroes || []).filter(sel => !document.querySelector(sel));
+        return { errBanner, emptyState, gateShown, visSkel, childCount, containerFound, heroVals, missingSel };
+      }, { container: spec.container, heroes: spec.heroes, emptyIn: spec.emptyIn });
 
       const tag = `${spec.page} [db=${dbCount}]`;
       // universal: no swallowed error, no stuck skeleton, no console error on load
+      check(`${tag} · every declared selector exists on the page`,
+            (dom.missingSel || []).length === 0,
+            `missing=${(dom.missingSel || []).join(',')} — the SPEC is stale, not the page`);
       check(`${tag} · no error banner`, !dom.errBanner);
       check(`${tag} · no stuck skeleton after settle`, dom.visSkel === 0, `visibleSkeletons=${dom.visSkel}`);
       check(`${tag} · zero console errors on load`, consoleErrors.length === 0, consoleErrors.slice(0, 2).join(' | '));

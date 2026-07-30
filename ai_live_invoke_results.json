@@ -1,17 +1,17 @@
 {
   "validator": "ai_live_invoke",
   "base": "http://127.0.0.1:54321",
-  "hive": "636cf7e8-431a-4907-8a9f-43dd4cc216d6",
-  "live_cells": 27,
+  "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
+  "live_cells": 26,
   "breaches": [],
   "cells": {
     "H15/F": {
-      "live": false,
-      "evidence": "intelligence-report AI rate-limit \u2014 re-run after reset"
+      "live": true,
+      "evidence": "intelligence-report narrative grounding LIVE: exec-summary cites the deterministic wo_count=3372 verbatim \u2014 headline grounded in real data, not a hallucinated figure (supporting cited: equipment_count=32, hive_count=3)"
     },
     "H1/U": {
       "live": true,
-      "evidence": "ai-gateway voice-journal 200 \u00b7 persona envelope {ok,data.answer,trace_id} answer=119ch model_chain=['voice-journal-agent']"
+      "evidence": "ai-gateway voice-journal 200 \u00b7 persona envelope {ok,data.answer,trace_id} answer=231ch model_chain=['voice-journal-agent']"
     },
     "H2/U": {
       "live": true,
@@ -23,11 +23,11 @@
     },
     "H3/U": {
       "live": true,
-      "evidence": "RAG envelope LIVE: semantic-search 200 \u00b7 {results,context} keys buckets=['faults', 'pm', 'skills'] context=916ch"
+      "evidence": "RAG envelope LIVE: semantic-search 200 \u00b7 {results,context} keys buckets=['faults', 'pm', 'skills'] context=1262ch"
     },
     "H3/F": {
       "live": true,
-      "evidence": "retrieval relevance LIVE: 5 faults, similarity\u2208[0.711,0.721] ranked desc, hive-scoped (top=0.721)"
+      "evidence": "retrieval relevance LIVE: 5 faults, similarity\u2208[0.709,0.720] ranked desc, hive-scoped (top=0.720)"
     },
     "H4/U": {
       "live": true,
@@ -82,20 +82,20 @@
       "evidence": "PII-egress LIVE: gateway redacted email+phone BEFORE model egress \u2192 forwarded='Reach me at <email_1> or on <phone_1> about the pump.' (no raw value survives, placeholders substituted)"
     },
     "H1/F": {
-      "live": true,
-      "evidence": "companion faithfulness LIVE (anti-fabrication rail): 3 unknowable-specific probes \u2192 0 fabricated currency/date values (hard no-invent invariant held), 3/3 explicitly abstained \u2014 deterministic control fires end-to-end (probabilistic slip = the named \u00a75 residual)"
+      "live": false,
+      "evidence": "probabilistic fabrication residual (named \u00a75 ceiling): 0/3 probes emitted a specific value (no_fab=3, abstained=0) \u2014 re-runnable, not a deterministic breach"
     },
     "H1/M": {
-      "live": false,
-      "evidence": "ai-gateway recall probe unavailable (t1=546 t2=skip) \u2014 env/transport"
+      "live": true,
+      "evidence": "multi-turn recall LIVE: turn-2 recalled the turn-1 fact ('impeller'/'north line') from (worker,agent) memory \u00b7 ans=61ch"
     },
     "H9/F": {
-      "live": true,
-      "evidence": "asset-brain-query RAG faithfulness LIVE: nonexistent-asset query \u2192 abstained + 0 fabricated currency/date values (never-invent invariant held) \u00b7 ans=391ch"
+      "live": false,
+      "evidence": "asset-brain-query answered w/o explicit abstention but 0 fabricated specifics (soft residual) \u00b7 ans=130ch"
     },
     "H10/F": {
-      "live": true,
-      "evidence": "temporal-rag faithfulness LIVE: unknowable time-window query \u2192 abstained + 0 fabricated currency/date values \u00b7 ans=288ch"
+      "live": false,
+      "evidence": "temporal-rag answered w/o explicit abstention, 0 fabricated specifics (soft) \u00b7 ans=49ch"
     },
     "H8/F": {
       "live": false,
@@ -127,7 +127,7 @@
     },
     "H2/F": {
       "live": false,
-      "evidence": "ai-orchestrator answered w/o explicit abstention, 0 fabricated (soft) \u00b7 ans=79ch"
+      "evidence": "ai-orchestrator answered w/o explicit abstention, 0 fabricated (soft) \u00b7 ans=149ch"
     }
   },
   "partial": false

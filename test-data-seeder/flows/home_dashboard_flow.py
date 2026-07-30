@@ -140,7 +140,8 @@ def run(page, errors, warnings, log) -> dict:
             "risk_level":    "critical",
             "health_score":  13.0,
             "mtbf_days":     28.0,
-            "top_factors":   json.dumps(["pm_overdue", "repeat_fault", "mtbf_approaching"]),
+            # jsonb takes the LIST, not a dumped string (see mig 20260730000001).
+            "top_factors":   ["pm_overdue", "repeat_fault", "mtbf_approaching"],
             "model_version": "rules-v1",
         },
         {
@@ -150,7 +151,7 @@ def run(page, errors, warnings, log) -> dict:
             "risk_level":    "high",
             "health_score":  28.0,
             "mtbf_days":     45.0,
-            "top_factors":   json.dumps(["high_fault_freq"]),
+            "top_factors":   ["high_fault_freq"],
             "model_version": "rules-v1",
         },
     ]

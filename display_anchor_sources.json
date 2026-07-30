@@ -1,14 +1,14 @@
 {
   "_doc": "Display anchor -> upstream source resolution (Phase B). RESOLVED* = anchor traces to a formula contract / kpi_source metric / Read-VERIFIED element-id->source bind (verified_anchor_binds.json). EXCLUDED_CHROME = a UI control/label/counter with no data provenance (excluded from the data denominator). NEEDS_JS_PARSE = data anchor not yet bound. resolved_pct is over DATA anchors (total - chrome) so it is honest, never chrome-inflated.",
   "totals": {
-    "anchors": 103,
+    "anchors": 104,
     "chrome_excluded": 37,
-    "data_anchors": 66,
-    "resolved": 62,
-    "resolved_pct": 93.9,
-    "resolved_pct_of_all": 60.2,
+    "data_anchors": 67,
+    "resolved": 63,
+    "resolved_pct": 94.0,
+    "resolved_pct_of_all": 60.6,
     "resolved_by_formula_or_kpi": 0,
-    "resolved_by_js_heuristic": 4,
+    "resolved_by_js_heuristic": 5,
     "resolved_by_verified_bind": 58,
     "needs_js_parse": 4
   },
@@ -1215,6 +1215,19 @@
             "unit": null
           }
         ]
+      }
+    },
+    {
+      "page": "achievements.html",
+      "id": "ac-provider-tier",
+      "token": "tier",
+      "bucket": "contracted",
+      "status": "RESOLVED_JS",
+      "source": {
+        "via": "js_parse_heuristic",
+        "source": "v_service_provider_truth",
+        "source_kind": "table/view",
+        "confidence": "high"
       }
     },
     {

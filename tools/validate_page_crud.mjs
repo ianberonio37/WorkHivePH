@@ -12,13 +12,37 @@ import { signIn, ACCOUNTS, SEEDER } from './live_page_journeys.mjs';
 
 const HIVE = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6';
 
+// Per-run token for columns under a UNIQUE constraint (projects.project_code). A fixed literal made the
+// gate non-re-runnable: any run whose cleanup did not complete left the row behind, and every later run
+// then reported 23505 instead of the invariant it was actually measuring. Learned the hard way — a
+// PostgREST 42501 on the RETURNING clause does NOT roll back the INSERT, so the "failed" runs were in
+// fact leaking a row each time (see the projects.budget_php star-select bug, fixed 2026-07-29).
+const RUN = 'CRUDGATE-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+
 // attribution-pinned entities: create with a forged name -> the bind_ trigger must pin it to the caller.
 const ENTITIES = [
   { name: 'voice_journal_entries', row: { transcript: 'CRUDGATE' }, nameCol: 'worker_name' },
   { name: 'engineering_calcs',     row: { discipline: 'Mech', calc_type: 'CRUDGATE' }, nameCol: 'worker_name' },
   { name: 'community_posts',       row: { content: 'CRUDGATE', category: 'general' }, nameCol: 'author_name' },
-  { name: 'pm_assets',             row: { asset_name: 'CRUDGATE', category: 'Mechanical' }, nameCol: 'worker_name' },
-  { name: 'projects',              row: { project_code: 'CRUDGATE', name: 'CRUDGATE', project_type: 'workorder' }, nameCol: 'worker_name' },
+  // projects: a worker MAY create (and the name pins), but removal — hard delete AND the soft
+  // deleted_at stamp AND restore — is supervisor-only, enforced in guard_and_audit_project_removal()
+  // so it holds wherever the write lands rather than in a page anyone can bypass.
+  { name: 'projects',              row: { project_code: RUN, name: 'CRUDGATE', project_type: 'workorder' }, nameCol: 'worker_name',
+    deleteRefused: 'supervisor-only removal (guard_and_audit_project_removal)' },
+];
+
+// REFUSED-BY-DESIGN (2026-07-29): entities a WORKER must NOT be able to create at all, so the
+// create-then-pin invariant above does not apply — the correct assertion is the refusal itself.
+//   pm_assets — mig 20260728000011 (`pm_assets_insert_guard`) made CREATE supervisor-only, completing
+//   the DELETE/UPDATE/INSERT set. It was a real fix: pm-scheduler's goAddAsset() already refused a
+//   non-supervisor in the page while the table accepted any active member, letting someone the UI says
+//   cannot add assets move their hive's PM-compliance DENOMINATOR (every added asset enters the
+//   scheduled count get_pm_compliance_smrp divides by). This gate predates that guard by two weeks and
+//   still expected the old accept-then-pin behaviour, so it read the hardening as a regression.
+//   Asserting the refusal turns a stale red into a permanent lock on the guard.
+const REFUSED = [
+  { name: 'pm_assets', row: { asset_name: 'CRUDGATE', category: 'Mechanical' }, nameCol: 'worker_name',
+    why: 'supervisor-only INSERT (mig 20260728000011)' },
 ];
 
 // APPEND-ONLY attribution entities (hive.html P3, 2026-07-19): the hive board writes hive_audit_log on
@@ -43,7 +67,7 @@ const IMMUTABLE = [
       () => typeof window.getDb === 'function' || !!window._whSupabaseClient || !!window.supabase,
       { timeout: 15000 }).catch(() => {});
 
-    const res = await page.evaluate(async ({ hive, entities }) => {
+    const res = await page.evaluate(async ({ hive, entities, refused }) => {
       const db = window._whSupabaseClient
         || (window.getDb && window.getDb(window.SUPABASE_URL || 'http://127.0.0.1:54321', window.SUPABASE_KEY))
         || window.supabase;
@@ -54,17 +78,42 @@ const IMMUTABLE = [
       for (const e of entities) {
         try {
           const row = { hive_id: hive, auth_uid: uid, ...e.row, [e.nameCol]: 'CRUDGATE-FORGED' };
-          const ins = await db.from(e.name).insert(row).select();
+          // Explicit RETURNING, never a bare .select() (= `select *`). A star pulls EVERY column,
+          // including ones whose SELECT is deliberately revoked (projects.budget_php, migs 024/030),
+          // and the read then 42501s an INSERT that was itself perfectly legal — the probe would blame
+          // "create broken" for a returning-clause problem. id + nameCol is all this assertion needs.
+          const ins = await db.from(e.name).insert(row).select('id, ' + e.nameCol);
           if (!ins.data || !ins.data.length) { out[e.name] = 'CREATE-FAIL:' + (ins.error?.code || '?'); continue; }
           const r = ins.data[0];
           const pinned = r[e.nameCol] !== 'CRUDGATE-FORGED';
-          const del = await db.from(e.name).delete().eq('id', r.id).select();
+          const del = await db.from(e.name).delete().eq('id', r.id).select('id');   // explicit, same reason
           const deleted = !!(del.data && del.data.length);
+          if (e.deleteRefused) {
+            // Removal is privileged on this entity, so the invariant inverts: the worker's own row is
+            // still theirs to create, but taking it away is not theirs to do. Probe row is swept by the
+            // Python wrapper via service-role psql, which the guard lets through (auth.uid() IS NULL).
+            out[e.name] = (pinned && !deleted)
+              ? 'OK' : `FAIL(pinned=${pinned},worker DELETE landed — ${e.deleteRefused} lost)`;
+            continue;
+          }
           out[e.name] = (pinned && deleted) ? 'OK' : `FAIL(pinned=${pinned},deleted=${deleted})`;
         } catch (err) { out[e.name] = 'THROW:' + String(err).slice(0, 30); }
       }
+      // Refused-by-design: the assertion is that the write does NOT land. A row coming back means a
+      // supervisor-only guard has been lost — so clean it up and FAIL loudly rather than leak a probe.
+      for (const e of refused) {
+        try {
+          const row = { hive_id: hive, auth_uid: uid, ...e.row, [e.nameCol]: 'CRUDGATE-FORGED' };
+          const ins = await db.from(e.name).insert(row).select('id');
+          if (ins.error) { out[e.name] = 'REFUSED-OK:' + (ins.error.code || '?'); continue; }
+          if (ins.data && ins.data.length) {
+            await db.from(e.name).delete().eq('id', ins.data[0].id).select('id');
+            out[e.name] = 'FAIL(worker CREATE allowed — ' + e.why + ' lost)';
+          } else { out[e.name] = 'REFUSED-OK:0rows'; }
+        } catch (err) { out[e.name] = 'THROW:' + String(err).slice(0, 30); }
+      }
       return { uid, out };
-    }, { hive: HIVE, entities: ENTITIES });
+    }, { hive: HIVE, entities: ENTITIES, refused: REFUSED });
 
     await ctx.close();
     if (res.fatal) { console.log('SKIP: ' + res.fatal); process.exit(0); }
@@ -136,17 +185,19 @@ const IMMUTABLE = [
       await sctx.close();
     } catch (e) { supRes.out['(supervisor)'] = 'SKIP:' + String(e).slice(0, 40); }
 
+    // REFUSED-OK is a pass: for a refused-by-design entity the denial IS the invariant.
+    const passing = v => v === 'OK' || String(v).startsWith('REFUSED-OK');
     console.log(`PAGE-CRUD GATE (worker ${String(res.uid).slice(0, 8)}…, migs 010/011/012):`);
-    for (const [k, v] of Object.entries(res.out)) console.log(`  ${v === 'OK' ? 'PASS' : 'FAIL'}  ${k}: ${v}`);
+    for (const [k, v] of Object.entries(res.out)) console.log(`  ${passing(v) ? 'PASS' : 'FAIL'}  ${k}: ${v}`);
     console.log(`HIVE-BOARD P3 (supervisor ${String(supRes.uid || '?').slice(0, 8)}…, hive.html own writes):`);
     for (const [k, v] of Object.entries(supRes.out)) {
       const skip = String(v).startsWith('SKIP');
       console.log(`  ${v === 'OK' ? 'PASS' : (skip ? 'SKIP' : 'FAIL')}  ${k}: ${v}`);
     }
     const fails = [...Object.entries(res.out), ...Object.entries(supRes.out)]
-      .filter(([, v]) => v !== 'OK' && !String(v).startsWith('SKIP'));
+      .filter(([, v]) => !passing(v) && !String(v).startsWith('SKIP'));
     if (fails.length) { console.log(`\nFAIL — ${fails.length} P3 CRUD/attribution regression(s)`); process.exit(1); }
-    const total = Object.keys(res.out).length + Object.values(supRes.out).filter(v => v === 'OK').length;
+    const total = Object.keys(res.out).length + Object.values(supRes.out).filter(passing).length;
     console.log(`\nPASS — ${total} invariants: create persists + attribution PINNED to caller + owner-delete/immutable + hive-board focus-goal round-trip`);
     process.exit(0);
   } catch (e) {

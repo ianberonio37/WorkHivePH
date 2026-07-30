@@ -6,12 +6,12 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 
 | Tier | Registry file | Registered | Discovered | Pending |
 |---|---|---:|---:|---:|
-| F (Fuel) | `canonical/capture_contracts.json` | 494 | 235 | 16 |
+| F (Fuel) | `canonical/capture_contracts.json` | 494 | 255 | 36 |
 | E (Engine) | `canonical/formula_contracts.json` | 24 | 22 | 19 |
-| B (Brain) | `canonical/agent_contracts.json` | 7 | 98 | 14 |
+| B (Brain) | `canonical/agent_contracts.json` | 7 | 99 | 14 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
-## Tier F (Fuel) — pending registrations (16)
+## Tier F (Fuel) — pending registrations (36)
 
 - `cl-text`
 - `f-loto`
@@ -28,6 +28,26 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `promote-dedupe`
 - `rm-current-title`
 - `status-filter`
+- `svc-hail-address`
+- `svc-hail-item`
+- `svc-hail-urgency`
+- `svc-prate-comment-`
+- `svc-q-`
+- `svc-quote-address`
+- `svc-quote-budget`
+- `svc-quote-scope`
+- `svc-rate-comment-`
+- `svc-reg-area`
+- `svc-reg-contact`
+- `svc-reg-name`
+- `svc-topup-amt-`
+- `svc-topup-ref-`
+- `svc-vcode-`
+- `vm-code`
+- `vm-kind`
+- `vm-maxuses`
+- `vm-segment`
+- `vm-value`
 - `window`
 
 ## Tier E (Engine) — pending registrations (19)

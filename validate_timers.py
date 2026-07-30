@@ -38,6 +38,11 @@ FUNCTIONS_DIR    = os.path.join("supabase", "functions")
 SCHEDULED_AGENTS = os.path.join(FUNCTIONS_DIR, "scheduled-agents", "index.ts")
 
 LIVE_PAGES = [
+    # 2026-07-30: gained a job-list poll so a provider's OPEN page learns that a client cancelled the
+    # job they are driving to. The page had no interval and no realtime subscription, so the list was
+    # frozen after load and contradicted the push telling them to stand down. This gate caught the
+    # registration cascade the same run - a new timer must join the list that is checked.
+    "marketplace-seller.html",
     "logbook.html",
     "inventory.html",
     "pm-scheduler.html",

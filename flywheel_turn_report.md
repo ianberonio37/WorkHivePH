@@ -1,6 +1,6 @@
-# Flywheel Turn #300
+# Flywheel Turn #323
 
-_2026-07-28T21:59:35_
+_2026-07-30T13:19:59_
 
 ## Layer deltas
 
@@ -8,8 +8,8 @@ _2026-07-28T21:59:35_
 |---|---|---:|---:|---:|
 | L-1   | cluster proposals       | 0 | 0 | · |
 | L-1.5 | rules in manifest       | 50 | 50 | · |
-| L0    | baselines tracked       | 186 | 186 | · |
-| L0    | total locked count      | 2994 | 3016 | ↑22 ❌ |
+| L0    | baselines tracked       | 189 | 189 | · |
+| L0    | total locked count      | 3164 | 3165 | ↑1 ❌ |
 | L2    | sentinel parity cases   | 29 | 29 | · |
 | L13   | stale walkthroughs      | 0 | 0 | · |
 
@@ -17,12 +17,12 @@ _2026-07-28T21:59:35_
 
 | Validator | Was | Now | Class | Note |
 |---|---:|---:|---|---|
-| `project_manager_deepwalk` | 68 | 90 | **adoption-ratchet** |  |
+| `db_adoption` | 174 | 175 | **adoption-ratchet** |  |
 
 ## ⏫ Promotions — queued for one-pass approval
 
-- **7** rule candidate(s) (L-1→L0) · **1** sentinel candidate(s) (L0→L2)
-- 8 tracked · 0 still below the recurrence gate
+- **9** rule candidate(s) (L-1→L0) · **1** sentinel candidate(s) (L0→L2)
+- 10 tracked · 0 still below the recurrence gate
 - top rule: `rule:python_tool:has_print_calls`
 - top sentinel: `sentinel:user_facing_jargon`
 - See **[promotion_queue.md](promotion_queue.md)** for the full ranked queue + draft stubs.

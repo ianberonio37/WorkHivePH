@@ -1,0 +1,82 @@
+{
+  "_doc": "ANTI-DUPLICATION MAP for the marketplace test bank. Declares which DERIVED obligations (see transition_matrix.json) are ALREADY locked by a registered gate, so the bank never rebuilds a slower copy of a passing test. Hand-authored from READING each gate's live output - every claim carries the gate's own check text as evidence, so a wrong claim is visible and challengeable rather than silently inflating coverage. This is the MK kill-list discipline applied to tests: expansion means net-new measurable ground, never renaming.",
+  "_rule": "A cell may be marked covered_by ONLY when the named gate asserts that exact (table, from, to, authority) obligation. 'Related' is not 'covered'. When in doubt the cell stays UNCOVERED - an over-claim here is the false-100 this whole platform keeps having to dig out.",
+  "_verified": "2026-07-29, by running each gate and reading its printed checks (not by grepping its source).",
+  "gates": {
+    "service-state-machine": {
+      "script": "tools/validate_service_state_machine.py",
+      "checks_seen": 11,
+      "covers": [
+        {
+          "cell": "TB-service_requests-requested__broadcasting-owner",
+          "kind": "positive",
+          "evidence": "legal path works + journal writes (requested -> broadcasting, 2 events)"
+        },
+        {
+          "cell": "TB-service_requests-ILLEGAL-CATCHALL",
+          "kind": "illegal-catch-all",
+          "evidence": "illegal jump blocked (requested -> completed refused for the client)",
+          "note": "All non-allow-listed transitions are ONE equivalence partition - the guard's catch-all raise. One representative suffices; enumerating 116 illegal pairs would be padding."
+        },
+        {
+          "cell": "TB-service_credit_topups-any__verified-admin-or-system--neg-",
+          "kind": "authority-negative",
+          "evidence": "top-up self-verify is a no-op (row stays pending_verification) + provider self-verification blocked",
+          "note": "prefix claim: covers every authority-negative on the topup verify transition"
+        }
+      ]
+    },
+    "service-dispatch-isolation": {
+      "script": "tools/validate_service_dispatch_isolation.py",
+      "checks_seen": 6,
+      "covers": [
+        {
+          "cell": "TB-service_requests-accepted__en_route-counterparty--sneak-concurrency",
+          "kind": "sneak-path:concurrency",
+          "evidence": "first-accept-wins proven with 2 concurrent psql clients; loser gets lost_race_or_closed",
+          "note": "The accept itself is RPC-mediated so it is not a guard-derived transition; the concurrency proof is recorded against the first provider-chain step it protects."
+        }
+      ]
+    },
+    "service-idempotency": {
+      "script": "tools/validate_service_idempotency.py",
+      "checks_seen": 8,
+      "covers": [
+        {
+          "cell": "TB-service_credit_topups-any__verified-admin-or-system--sneak-replay",
+          "kind": "sneak-path:replay",
+          "evidence": "a duplicate GCash reference is refused (partial unique index bites)"
+        },
+        {
+          "cell": "TB-marketplace_orders-any__released-admin-or-system--sneak-replay",
+          "kind": "sneak-path:replay",
+          "evidence": "a second commission for one request is refused (one_commission_per_request)"
+        }
+      ]
+    },
+    "hive-isolation": {
+      "script": "tools/validate_hive_isolation.py",
+      "checks_seen": 26,
+      "covers": [
+        {
+          "cell": "--neg-cross-tenant",
+          "kind": "authority-negative:cross-tenant",
+          "evidence": "26 live rolled-back invariants incl. cross-hive read/write refusal + attribution pinning",
+          "note": "SUFFIX claim: covers the cross-tenant authority partition across every transition. Deliberately broad and stated as such - if a transition ever needs a bespoke cross-tenant proof, it gets its own cell."
+        }
+      ]
+    }
+  },
+  "uncovered_summary": {
+    "_measured": "20 derived positives; 4 have a gate. 16 positives are UNPROVEN in the authorised direction.",
+    "the_gap": [
+      "The entire provider execution chain: accepted->en_route->on_site->in_progress->completed (4 positives). No gate proves the matched provider CAN advance a job; C1 only proves illegal jumps are refused.",
+      "All 8 cancel transitions (5 client-side, 3 provider-side). A cancel that silently fails, or one that works for the WRONG party, would pass every gate today.",
+      "Both dispute transitions (in_progress->disputed, completed->disputed).",
+      "completed->settled (the client confirms payment - the transition that mints commission).",
+      "marketplace_listings *->published positive (admin CAN publish); only the non-admin refusal is locked.",
+      "marketplace_orders *->released / *->refunded positives."
+    ],
+    "honest_reading": "The platform is well covered on REFUSAL and thinly covered on PERMISSION. That asymmetry is expected - every one of those gates was written after a security finding, so they encode 'this must not happen'. Nothing yet asserts 'this must still work', which is exactly how a guard tightened one notch too far ships silently. The bank's first real value is the positive direction."
+  }
+}

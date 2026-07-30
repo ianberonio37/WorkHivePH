@@ -1,16 +1,16 @@
 {
   "_meta": {
     "format_version": "1.0",
-    "ai_asset_version": 1,
+    "ai_asset_version": 2,
     "ai_asset_version_note": "C5 — bump on every content edit (not schema edit). The ai-asset-versioning validator FAILs if content hash changed without this bumping. Owner: AI Engineer.",
     "description": "AI agent eval fixtures. Each agent_id maps to a list of {question, expected_keywords, expected_shape} fixtures. The LLM-as-judge cron (ai-eval-daily, 03:30 UTC) compares live agent responses against these fixtures and writes scores to ai_quality_log.",
     "min_fixtures_per_agent": 3,
     "schema": {
-      "id":                "string (unique fixture id; eval logs reference this)",
-      "question":          "string (the user prompt sent to the agent)",
+      "id": "string (unique fixture id; eval logs reference this)",
+      "question": "string (the user prompt sent to the agent)",
       "expected_keywords": "string[] (keywords that MUST appear in the answer)",
-      "expected_shape":    "object | null (JSON shape the answer must satisfy if jsonMode)",
-      "context":           "object | null (additional context passed in the gateway call)"
+      "expected_shape": "object | null (JSON shape the answer must satisfy if jsonMode)",
+      "context": "object | null (additional context passed in the gateway call)"
     },
     "scoring": "LLM-as-judge gives 0-100 score per fixture; passed = score >= 70 AND all expected_keywords present"
   },
@@ -18,22 +18,42 @@
     {
       "id": "asset-brain-failure-history",
       "question": "What is the failure history of this asset?",
-      "context": { "asset_type": "centrifugal pump", "tag_id": "PMP-001" },
-      "expected_keywords": ["failure", "history", "MTBF"],
+      "context": {
+        "asset_type": "centrifugal pump",
+        "tag_id": "PMP-001"
+      },
+      "expected_keywords": [
+        "failure",
+        "history",
+        "MTBF"
+      ],
       "expected_shape": null
     },
     {
       "id": "asset-brain-next-pm",
       "question": "When is the next PM due?",
-      "context": { "tag_id": "PMP-001" },
-      "expected_keywords": ["PM", "due", "schedule"],
+      "context": {
+        "tag_id": "PMP-001"
+      },
+      "expected_keywords": [
+        "PM",
+        "due",
+        "schedule"
+      ],
       "expected_shape": null
     },
     {
       "id": "asset-brain-similar-failures",
       "question": "Have similar pumps failed recently? What was the root cause?",
-      "context": { "asset_type": "centrifugal pump", "tag_id": "PMP-001" },
-      "expected_keywords": ["similar", "pump", "root cause"],
+      "context": {
+        "asset_type": "centrifugal pump",
+        "tag_id": "PMP-001"
+      },
+      "expected_keywords": [
+        "similar",
+        "pump",
+        "root cause"
+      ],
       "expected_shape": null
     }
   ],
@@ -41,22 +61,41 @@
     {
       "id": "analytics-oee-last-week",
       "question": "What was OEE last week and what drove it?",
-      "context": { "phase": "descriptive" },
-      "expected_keywords": ["OEE", "availability", "performance", "quality"],
+      "context": {
+        "phase": "descriptive"
+      },
+      "expected_keywords": [
+        "OEE",
+        "availability",
+        "performance",
+        "quality"
+      ],
       "expected_shape": null
     },
     {
       "id": "analytics-mtbf-trend",
       "question": "Show MTBF trend by asset for the last 30 days.",
-      "context": { "phase": "diagnostic" },
-      "expected_keywords": ["MTBF", "asset", "trend"],
+      "context": {
+        "phase": "diagnostic"
+      },
+      "expected_keywords": [
+        "MTBF",
+        "asset",
+        "trend"
+      ],
       "expected_shape": null
     },
     {
       "id": "analytics-pm-failure-correlation",
       "question": "Is there a correlation between PM gaps and failures?",
-      "context": { "phase": "diagnostic" },
-      "expected_keywords": ["correlation", "PM", "failure"],
+      "context": {
+        "phase": "diagnostic"
+      },
+      "expected_keywords": [
+        "correlation",
+        "PM",
+        "failure"
+      ],
       "expected_shape": null
     }
   ],
@@ -65,21 +104,32 @@
       "id": "project-status-summary",
       "question": "Summarise the current project's status.",
       "context": {},
-      "expected_keywords": ["status", "progress", "items"],
+      "expected_keywords": [
+        "status",
+        "progress",
+        "items"
+      ],
       "expected_shape": null
     },
     {
       "id": "project-blockers",
       "question": "What's blocking us on this project?",
       "context": {},
-      "expected_keywords": ["block", "pending", "depend"],
+      "expected_keywords": [
+        "block",
+        "pending",
+        "depend"
+      ],
       "expected_shape": null
     },
     {
       "id": "project-change-order-risk",
       "question": "Are there pending change orders that affect the critical path?",
       "context": {},
-      "expected_keywords": ["change order", "critical path"],
+      "expected_keywords": [
+        "change order",
+        "critical path"
+      ],
       "expected_shape": null
     }
   ],
@@ -87,22 +137,40 @@
     {
       "id": "shift-handover-summary",
       "question": "Generate the handover for the next shift.",
-      "context": { "shift_window": "8h" },
-      "expected_keywords": ["handover", "open", "completed"],
+      "context": {
+        "shift_window": "8h"
+      },
+      "expected_keywords": [
+        "handover",
+        "open",
+        "completed"
+      ],
       "expected_shape": null
     },
     {
       "id": "shift-critical-alerts",
       "question": "What critical alerts should the next shift watch for?",
-      "context": { "shift_window": "8h" },
-      "expected_keywords": ["critical", "alert", "shift"],
+      "context": {
+        "shift_window": "8h"
+      },
+      "expected_keywords": [
+        "critical",
+        "alert",
+        "shift"
+      ],
       "expected_shape": null
     },
     {
       "id": "shift-worker-coverage",
       "question": "Which workers are on the next shift?",
-      "context": { "shift_window": "8h" },
-      "expected_keywords": ["worker", "shift", "schedule"],
+      "context": {
+        "shift_window": "8h"
+      },
+      "expected_keywords": [
+        "worker",
+        "shift",
+        "schedule"
+      ],
       "expected_shape": null
     }
   ],
@@ -110,22 +178,41 @@
     {
       "id": "logbook-voice-pump-bearing",
       "question": "Pump 5 bearing replacement, took 3 hours, used 2 SKF 6205 bearings.",
-      "context": { "voice_transcription": true },
-      "expected_keywords": ["pump", "bearing", "replacement", "SKF"],
+      "context": {
+        "voice_transcription": true
+      },
+      "expected_keywords": [
+        "pump",
+        "bearing",
+        "replacement",
+        "SKF"
+      ],
       "expected_shape": null
     },
     {
       "id": "logbook-voice-motor-vibration",
       "question": "Motor M-12 vibration high, found loose coupling, tightened bolts.",
-      "context": { "voice_transcription": true },
-      "expected_keywords": ["motor", "vibration", "coupling"],
+      "context": {
+        "voice_transcription": true
+      },
+      "expected_keywords": [
+        "motor",
+        "vibration",
+        "coupling"
+      ],
       "expected_shape": null
     },
     {
       "id": "logbook-voice-electrical-fault",
       "question": "Panel ELEC-3 tripped twice today, replaced fuse 32A on circuit 7.",
-      "context": { "voice_transcription": true },
-      "expected_keywords": ["panel", "fuse", "circuit"],
+      "context": {
+        "voice_transcription": true
+      },
+      "expected_keywords": [
+        "panel",
+        "fuse",
+        "circuit"
+      ],
       "expected_shape": null
     }
   ],
@@ -133,23 +220,90 @@
     {
       "id": "report-voice-daily-summary",
       "question": "Send the daily report to the supervisor.",
-      "context": { "voice_transcription": true },
-      "expected_keywords": ["daily", "report", "supervisor"],
+      "context": {
+        "voice_transcription": true
+      },
+      "expected_keywords": [
+        "daily",
+        "report",
+        "supervisor"
+      ],
       "expected_shape": null
     },
     {
       "id": "report-voice-incident",
       "question": "Send an incident report about the pump 5 failure to maintenance lead.",
-      "context": { "voice_transcription": true },
-      "expected_keywords": ["incident", "pump", "maintenance lead"],
+      "context": {
+        "voice_transcription": true
+      },
+      "expected_keywords": [
+        "incident",
+        "pump",
+        "maintenance lead"
+      ],
       "expected_shape": null
     },
     {
       "id": "report-voice-shift-handover",
       "question": "Send the shift handover summary to the night-shift supervisor.",
-      "context": { "voice_transcription": true },
-      "expected_keywords": ["shift", "handover", "supervisor"],
+      "context": {
+        "voice_transcription": true
+      },
+      "expected_keywords": [
+        "shift",
+        "handover",
+        "supervisor"
+      ],
       "expected_shape": null
+    }
+  ],
+  "service-triage": [
+    {
+      "id": "service-triage-motor-overheating",
+      "question": "Our 15kW conveyor motor is overheating and tripping the breaker every hour. Production is stopped.",
+      "context": {
+        "segment": "industrial"
+      },
+      "expected_keywords": [
+        "electrical",
+        "critical"
+      ],
+      "expected_shape": {
+        "category": "string|null",
+        "urgency": "low|normal|high|critical|null",
+        "mode": "instant|quote|null"
+      }
+    },
+    {
+      "id": "service-triage-aircon-cleaning",
+      "question": "I want my two split-type aircons cleaned sometime next week, nothing is broken.",
+      "context": {
+        "segment": "consumer"
+      },
+      "expected_keywords": [
+        "aircon",
+        "low"
+      ],
+      "expected_shape": {
+        "category": "string|null",
+        "urgency": "low|normal|high|critical|null",
+        "mode": "instant|quote|null"
+      }
+    },
+    {
+      "id": "service-triage-custom-scope-quote",
+      "question": "We need a full retrofit of the boiler room piping with new insulation and a re-commissioning report.",
+      "context": {
+        "segment": "industrial"
+      },
+      "expected_keywords": [
+        "quote"
+      ],
+      "expected_shape": {
+        "category": "string|null",
+        "urgency": "low|normal|high|critical|null",
+        "mode": "instant|quote|null"
+      }
     }
   ]
 }

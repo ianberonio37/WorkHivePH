@@ -108,6 +108,52 @@ serveObserved("marketplace-listing-assist", async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
+
+    // ── SERVICE_HAILING P7: triage mode (the coach-fold pattern — reuse THIS AI fn
+    // rather than minting another). Given a free-text problem description + the LIVE
+    // catalog categories, suggest { category, urgency, mode } for the hail composer.
+    // Server-owned whitelists: the model picks FROM lists it cannot widen; anything
+    // off-list falls back to nulls (the composer simply leaves the field untouched).
+    if (String(body.mode || "") === "service_triage") {
+      const desc = String(body.message || body.description || "").trim().slice(0, 500);
+      if (!desc) return json({ error: "Missing required field: message (describe the problem)" }, 400);
+      const _db = createClient(
+        Deno.env.get("SUPABASE_URL") || "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+      );
+      // L6 posture (the fn's catalogued open frontier must not WIDEN): triage requires a
+      // resolvable identity (user JWT via the gateway, or service-role) and rate-limits on
+      // the AUTH UID (Pillar P: never an unverified hive_id; consumers are hive-less).
+      const ident = await resolveIdentity(_db, req);
+      if (!ident.authUid && !ident.isServiceRole) {
+        return json({ error: "Sign in to use AI triage." }, 401);
+      }
+      if (ident.authUid) {
+        const trl = await checkAIRateLimit(_db, ident.authUid, 20, 100);
+        if (!trl.allowed) return json({ error: "AI triage limit reached. Try again in an hour." }, 429);
+      }
+      const { data: catRows } = await _db.from("v_service_catalog_truth")
+        .select("category").limit(200);
+      const cats = [...new Set((catRows || []).map((r: { category: string }) => r.category))];
+      const URGENCIES = ["low", "normal", "high", "critical"];
+      const sys = "You triage industrial/home service requests for a PH maintenance platform. "
+        + "Reply ONLY a JSON object {\"category\":string,\"urgency\":string,\"mode\":string}. "
+        + "category MUST be one of: " + cats.join(", ") + ". "
+        + "urgency MUST be one of: low, normal, high, critical (critical = production down / safety). "
+        + "mode is \"instant\" for a standard single-visit job, \"quote\" for large/complex/multi-day work.";
+      let aiRaw = "{}";
+      try {
+        aiRaw = await callAI(desc, { systemPrompt: sys, temperature: 0.1, maxTokens: 120, jsonMode: true });
+      } catch { /* chain down: fall through to nulls, the composer stays untouched */ }
+      let out: { category?: string; urgency?: string; mode?: string } = {};
+      try { out = JSON.parse(String(aiRaw || "{}").replace(/```json|```/g, "").trim()); } catch { /* fall through to nulls */ }
+      const category = cats.includes(String(out.category)) ? String(out.category) : null;
+      const urgency = URGENCIES.includes(String(out.urgency)) ? String(out.urgency) : null;
+      const mode = ["instant", "quote"].includes(String(out.mode)) ? String(out.mode) : null;
+      return json({ answer: "Suggested: " + (category || "no clear category") + (urgency ? ", " + urgency + " urgency" : "") + (mode ? ", " + mode + " flow" : ""),
+                    triage: { category, urgency, mode } });
+    }
+
     const hive_id     = String(body.hive_id || "").trim();
     const section     = String(body.section || "parts").trim().toLowerCase();
     const title       = String(body.title || "").trim().slice(0, 200);

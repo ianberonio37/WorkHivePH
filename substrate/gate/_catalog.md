@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 4e2ea8f051afbf70
+source_sha: 426db76da0493c45
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (682) — the 'what's already gated' brain
+## gate · registered validators (704) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (109)
+### AI Validation (110)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -108,6 +108,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `sast_owasp_complete` ⚡ [fail] — Arc R: SAST OWASP-map completeness (full Top-10 mapped; meta)
 - `security_adversarial_sweep` [fail] — Arc R: security/adversarial sweep (4 lenses, OWASP Top-10, ratcheted)
 - `seo-technical` [fail] — SEO Technical Gate (P1: one-H1 + img-alt + JSON-LD validity + no-new-retired-schema; catalog-derived surfaces; forward-only ratchet)
+- `service-triage-eval` [fail] — SERVICE TRIAGE EVAL (§10 S7-ai) — the AI's suggestion must be something the PRODUCT CAN USE. The one layer of the marketplace test bank that cannot have an exac
 - `setcontext_pii_safe` ⚡ [fail] — Arc H: piiSafe companion context carries no person-name (K4, page_context egress)
 - `signup_bot_protection` ⚡ [fail] — Arc I: signup bot-protection wiring (Turnstile configure-to-enable; ASVS V2.1)
 - `signup_enumeration_safety` ⚡ [fail] — Arc I: account-enumeration resistance (login uniform-response + signup RPC carve-out; ASVS V2.2)
@@ -223,7 +224,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (475)
+### Platform (495)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -422,6 +423,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `fetch-error-handling` ⚡ [fail] — fetch() Error Handling (every fetch() is in try/catch or chained to .catch; forward-only ratchet)
 - `file-upload-safety` [warn] — File-upload safety — P12 upload-safety scanner (bug-hunt denominator v2, 2026-07-17). VERIFIED the platform has NO server-side file storage (zero storage.from()
 - `filter-case-consistency` ⚡ [fail] — Filter Case Consistency (same enum-column filter must use consistent case across files; forward-only ratchet)
+- `fixture-hive-exists` [fail] — FIXTURE HIVE EXISTENCE — a pinned test hive that no longer exists is a SILENT instrument, and the worst shape a test failure can take. FOUND 2026-07-30 while tr
 - `fixture_capability_coverage` [fail] — A shipped capability must be EXERCISABLE by the data that actually exists, not merely by seeder code that could create it. Found 2026-07-27 (hive deepwalk): the
 - `fk-on-delete` ⚡ [fail] — FK ON DELETE (every REFERENCES declares explicit ON DELETE behavior; covers ALTER ADD CONSTRAINT supersede; forward-only ratchet)
 - `flywheel-turn` ⚡ [fail] — Flywheel Turn (walks every Mega Gate layer; ratchet/regression diff vs prior turn)
@@ -433,6 +435,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `frontend-floor-cells` [fail] — Frontend floor cells (fix-to-ZERO ratchet over the live-mined F-lens in frontend_ufai_results.json: F1 consoleErrors==0 [D17 SMOKE — page loads clean] + F6 load
 - `function-security` ⚡ [fail] — SQL Function Security Posture (4-layer: DEFINER+search_path + trigger explicit + matrix + aggregate)
 - `gate-observability` ⚡ [blocker] — Gate Observability (Mega Gate persists a durable log + verdict on every terminal path)
+- `gate-panel-honesty` ⚡ [fail] — GATE PANEL HONESTY — the surface that REPORTS the gates was itself watched by nothing, and it had already failed twice. (a) G2: the failing-gate list printed ea
 - `gateway-anon-voice-journal` ⚡ [fail] — ai-gateway Anon Voice-Journal Contract (4-layer: ANON_OK_AGENTS set + auth-gate skip + authUid persistence guard + AGENT_ROUTES entry)
 - `gateway-audit` ⚡ [fail] — Platform Gateway Audit Completeness (4-layer: schema + writes + RLS + retention)
 - `gateway-coverage` ⚡ [fail] — Platform Gateway Coverage (4-layer: gateway present + routes exist + coverage + inventory)
@@ -484,6 +487,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `json-parse-safety` ⚡ [fail] — JSON.parse Safety (every JSON.parse() is inside try/catch; forward-only ratchet)
 - `jsonb-drift` ⚡ [fail] — JSONB Schema Drift (4-layer: unread JSONB + reader-without-writer + key inventory + column census)
 - `jsonb-index` ⚡ [fail] — JSONB Index Drift (4-layer: missing GIN + arrow freq + inventory + op distribution)
+- `jsonld-truth` ⚡ [fail] — JSON-LD TRUTH (§10 MK7) — RUNTIME structured data may not claim more than the canonical row. The registered `seo-technical` gate reads JSON-LD WRITTEN INTO the 
 - `kg-scope-split` ⚡ [fail] — KG Facts Scope Split (4-layer: platform table + RPC + voice-handler fan-out + no broadcast pattern)
 - `knowledge-freshness` ⚡ [fail] — Knowledge Base Freshness Validator
 - `kpi-chip-coverage` ⚡ [blocker] — KPI Chip Coverage Validator (pages reading v_*_truth must render renderSourceChip)
@@ -491,6 +495,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `kpi-source-registry` ⚡ [blocker] — KPI Source Registry (one metric = one official derivation; consumers must read it and never re-derive a documented wrong way — catches the F4 26-vs-4 class)
 - `leave-audit-ordering` ⚡ [fail] — Leave-audit ordering (hive.html writeAuditLog is awaitable + performLeave AWAITS the member_left audit BEFORE the hive_members self-delete — locks the race foun
 - `legacy-worker-decommission` ⚡ [fail] — Legacy Worker Decommission Validator (no production JS calls workhive-assistant.workers.dev)
+- `lifecycle-state-reachability` [fail] — LIFECYCLE STATE REACHABILITY (§10 MK4) — every state in a `status` CHECK must be both SURFACED and REACHABLE. A CHECK vocabulary is a promise about what the pro
 - `like-escape` ⚡ [fail] — SQL LIKE Escape (.ilike/.like templates escape % and _; tracks file-wide escape-helper vars; forward-only ratchet)
 - `link-target-existence` ⚡ [fail] — Link Target Existence (every <a href>/location.href to a .html target must exist on disk; forward-only ratchet)
 - `loading-state` ⚡ [fail] — Loading State Coverage (4-layer: async-no-loading + submit-no-preventDefault + mechanism distribution + async density)
@@ -500,6 +505,8 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `logbook-asset-linkage` [fail] — Logbook->asset linkage (LIVE: 0 logbook entries whose `machine` EXACTLY matches a registered asset tag may be asset_node_id NULL — locks the asset-history fragm
 - `logbook-quota` ⚡ [fail] — Q0 Logbook Quota Pilot (per-day rate-limit trigger + server text caps + friendly UX + photo size assert; the Q2-replication template)
 - `marketplace` ⚡ [fail] — Marketplace Validator (4-layer: schema + edge functions + UI gates + money flow)
+- `marketplace-bank-journey` [fail] — MARKETPLACE TEST BANK — journey lane, TWO BROWSER CONTEXTS (§10). Runs tests/marketplace-bank-two-context.spec.ts: two independent Playwright contexts holding t
+- `marketplace-test-bank` [fail] — MARKETPLACE TEST BANK — SQL lane (MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP §10). The bank's denominator is DERIVED from the four guard functions by tools/derive_t
 - `marketplace-trust-integrity` [fail] — Per-page P5/P6 marketplace SELLER-TRUST forge lock (LIVE, rolled-back psql as a real authenticated worker). The marketplace runs on the seller trust signal (rat
 - `maturity-gating` ⚡ [fail] — Maturity Gating Validator (Phase 0.5: gated pages load maturity-gate.js + call checkMaturityGate + render honest empty state)
 - `memento-catalog-citations` ⚡ [regression] — Memento Pattern-Catalog Citation Rot (reference_pattern_catalog.md citations all resolve on disk or via the index)
@@ -528,6 +535,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `observability` ⚡ [fail] — Observability Validator
 - `oc-updated-at-backed` [fail] — Optimistic-concurrency backing (LIVE) — every client `updated_at` write must be backed by a real column (bug-hunt roadmap P6, 2026-07-17). Scans client pages fo
 - `offline-resilience` ⚡ [fail] — Offline Resilience (Phase 6: snapshot caching, response queue)
+- `offline-write-guard` ⚡ [fail] — OFFLINE WRITE GUARD — a user-triggered write must REFUSE before it fires, not after. Found 2026-07-29 while building the test bank's S2-pwa cell: marketplace.ht
 - `offline_queue_confirm` ⚡ [fail] — LG3 · offline-queue drain confirmation — a queued write that changed 0 ROWS must never be reported as synced. A PostgREST update/delete matching nothing is not 
 - `onconflict-index` [fail] — Per-page P3/P4 gate: every supabase-js `.upsert(rows,{onConflict:'a,b'})` in the page HTML must have a MATCHING unique index in the live DB (Postgres ON CONFLIC
 - `ops-snapshot-agents` [fail] — Ops-Snapshot Agent Coverage (every factual-answer agent is grounded, not just the companion)
@@ -535,12 +543,14 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `optimistic-input-restore` ⚡ [fail] — DEEPWALK D4 gate (static teeth) — a chat/message send that clears its input OPTIMISTICALLY (`input.value=''` BEFORE the async turn, to show the user bubble imme
 - `optimistic-reconciliation` ⚡ [fail] — Optimistic Update Reconciliation (4-layer: no error path + catch w/o rollback + pattern density + handler distribution)
 - `orphan-kpi-tiles` ⚡ [fail] — Orphan KPI Tiles (every default-value tile must have a JS setter; forward-only ratchet)
+- `outbox-delivery` [fail] — C12 (SERVICE_HAILING_ROADMAP §4b) durable side-effects: a boundary-crossing effect must survive a consumer that is down. 12 live invariants over `service_outbox
 - `p6-concurrency-class` [fail] — P6 concurrent-edit disposition gate (LIVE + static teeth) — locks the concurrency-safety CLASS of the 9 remaining P6-partial pages so each reaches gated-100, co
 - `page-battery` [fail] — Platform-wide page battery (LIVE headless Playwright, real Baguio supervisor sign-in) - PER_PAGE_BUGHUNT_ROADMAP section 5 mechanical floor across ALL ~30 inter
-- `page-crud` [fail] — Per-page P3 CRUD-at-DB gate (LIVE headless Playwright, real WORKER sign-in via live_page_journeys). For each attribution-pinned entity (voice_journal_entries/en
+- `page-crud` [fail] — Per-page P3 CRUD-at-DB gate (LIVE headless Playwright, real WORKER sign-in via live_page_journeys). Three invariant shapes, because not every entity is a worker
 - `pareto-content` ⚡ [blocker] — Pareto Content Gate (Arc P: displayed defensive-copy ratchet -> 0; per-page P1/P3 metrics)
 - `partial-label-honesty` ⚡ [fail] — Partial-Label Honesty Audit (Tier S rendering — every page displaying a partial-variant metric must render the honesty marker near the value)
 - `password-input-form` ⚡ [fail] — <input type=password> Form Wrapper (password inputs wrapped in <form> for autofill+save; forward-only ratchet)
+- `payment-disclosure` ⚡ [fail] — PAYMENT DISCLOSURE (§10 MK8) — while the platform holds no money, it must SAY so, AT the money step. WorkHive's marketplace is contact-only: PAYMENTS_ENABLED=fa
 - `pdf-pipeline` ⚡ [fail] — PDF Pipeline / Knowledge Ingestion (4-layer: jobs table + runner fn + coverage + inventory)
 - `performance` ⚡ [fail] — Performance Anti-Pattern Validator
 - `persona-contract` ⚡ [fail] — Persona Contract Validator (8-layer: modules + server + client + gateway + hive + migrations + key parity + Step D differentiation)
@@ -569,6 +579,8 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `project_authority` ⚡ [fail] — PJK3 - authority is enforced where the DATA is, not in the renderer. project-manager.html carried three claims only its renderer believed, each probed live as a
 - `project_tenancy` ⚡ [fail] — PJK4 - a project child row's PARENT must live in its own hive. EARNED BY PROBING, not assumed from the AHK4 analogy: reads were measured clean first (as a membe
 - `provider-bypass` ⚡ [fail] — Direct Provider Bypass (4-layer: client provider + edge bypass + SDK drift + distribution)
+- `push-handler-contract` ⚡ [fail] — PUSH HANDLER CONTRACT — a delivered push must actually reach the person. FOUND 2026-07-30 while dispositioning the test bank's TB-S5-edge-push-delivery-roundtri
+- `push-runtime-delivery` [fail] — PUSH RUNTIME DELIVERY (TB-S5 runtime tier) — the rung above push-handler-contract (which asserts sw.js STATICALLY) and below the OS notification tray (which no 
 - `pwa` ⚡ [fail] — PWA Integrity Validator
 - `python-tool-pattern-mining` [fail] — Python Tool Pattern Miner (L-1 Convention Mining -- informational)
 - `qty-input-contract` ⚡ [fail] — DEEPWALK D5 gate (static teeth) — the 'number input's declared min/step/bounds are NOT enforced on the write path' class, across TWO central parsers. (a) QTY: a
@@ -629,7 +641,14 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `semantic-fact-extractor-wiring` ⚡ [fail] — Semantic Fact Extractor Wiring (Semantic layer: logbook -> KG triples -> embed -> idempotent upsert into knowledge_graph_facts; _shared/semantic-facts.ts helper
 - `sensor-pipeline` ⚡ [fail] — Sensor Pipeline Validator (Phase 1.9: sensor_readings schema + realtime + asset-hub subscription + anomaly module)
 - `seo` ⚡ [fail] — SEO and Page Metadata Validator
+- `service-dispatch-isolation` [fail] — SERVICE_HAILING C3 lock (LIVE, rolled-back psql; every check SELF-CONTAINED — it mints its own probe auth.users + temp providers/requests inside the transaction
+- `service-geo-privacy` [fail] — SERVICE_HAILING C10 lock (LIVE, rolled-back psql; self-minting hex-uuid actors at literal Manila/Davao coordinates). The arc's §3 D-Geo axis had column privacy 
+- `service-hailing-scoreboard` ⚡ [regression] — SERVICE_HAILING arc compass (forward-only ratchet over service_hailing_state.json). The P0-P9 phase table went green while three axes the roadmap ALSO names wer
+- `service-idempotency` [fail] — C14 (SERVICE_HAILING_ROADMAP §4b) once-only on the money/dispatch paths. The roadmap originally asked for an `Idempotency-Key` header contract; reading the code
+- `service-roadmap-executed` [regression] — SERVICE_HAILING itemized execution audit (Ian 2026-07-29: 'itemize everything written in the roadmap, then check one by one if we have executed it'). 85 concret
 - `service-role-exposure` ⚡ [fail] — Service-Role Key Exposure (4-layer: service_role identifier + JWT in client + secret env + anon-key inventory)
+- `service-state-machine` [fail] — SERVICE_HAILING C1 lock (LIVE, rolled-back psql as a runtime-resolved NON-admin worker — an admin identity legitimately bypasses every guard, so an admin-run su
+- `service-ufai-deep` [regression] — SERVICE_HAILING UFAI DEEP (LIVE browser): the verification ufai_pillar_map.py explicitly excludes from its coarse lens slice - measured 44px tap targets at 390,
 - `service-worker-shell` ⚡ [fail] — Service Worker SHELL_FILES (every precache path must exist; forward-only ratchet)
 - `session_resilience` ⚡ [fail] — Deepwalk D19: idle-session robustness (autoRefreshToken + wake-refresh, no stale 401)
 - `settimeout-string` ⚡ [fail] — setTimeout/setInterval String Arg (string-form is eval-equivalent; forward-only ratchet)
@@ -638,11 +657,13 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `skill-library-wiring` ⚡ [fail] — Skill Library Wiring (Procedural layer: embed procedural memories + match_procedural_memories cosine RPC + _shared/skill-library.ts matcher + ai-gateway injecti
 - `skill-rule-mining` [fail] — Skill-Rule Miner [L-1.5] (documented rules from SKILL.md -- informational)
 - `skillmatrix` ⚡ [fail] — Skill Matrix Validator
+- `slo-budget` [fail] — C15 (SERVICE_HAILING_ROADMAP §4b) the arc's north-star metrics are MEASURED, not adjectives. D9 named allocation rate / time-to-accept / completion rate and nev
 - `soft-delete` ⚡ [fail] — Soft-Delete Read-Path Validator (.is(deleted_at, null) on every SELECT)
 - `source-chip-truth` ⚡ [fail] — Source-Chip Truth (every renderSourceChip view is actually .from()-read on the page; forward-only ratchet)
 - `source_chip_freshness` ⚡ [fail] — PM5 · a saved copy must not claim to be live — the source chip is the platform's provenance UI, so reporting freshness is its only job and overstating it is wor
 - `sso-readiness` ⚡ [fail] — SSO Readiness Validator
 - `standards-alignment` ⚡ [fail] — Standards Alignment Auditor (Tier S — formula required_inputs supersets cited standard OR honestly declared partial_variant)
+- `star-returning` [fail] — A bare .select() after a write is `select *`, and a star RETURNING on a table with a column-level SELECT revoke fails 42501 *after the row has already committed
 - `state-machine-integrity` ⚡ [fail] — State Machine Integrity (4-layer: invalid writes + unreachable states + unconstrained columns + writer matrix)
 - `status-enum-drift` ⚡ [fail] — Status-Enum Drift Guard (WH_STATUS_ENUMS == canonical DB enum; critique W3)
 - `storage-keys` ⚡ [blocker] — Storage-Key Registry (PLATFORM_CENTRALIZATION C-P4: every localStorage/sessionStorage key is CANONICAL or a registered ALIAS in storage_key_registry.json; a new
@@ -730,6 +751,9 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `llms-sync` ⚡ [fail] — llms.txt Sync Validator (4-layer: every article in llms.txt + no stale slugs + sections + contact)
 - `sitemap-sync` ⚡ [fail] — Sitemap Sync Validator (3-layer: sitemap URLs <-> filesystem in sync + metadata complete)
 - `tool-aligned-cta` ⚡ [fail] — Tool-Aligned CTA Validator (3-layer: every /learn/ article anchors to a /<tool>.html + names the tool)
+
+### Security (1)
+- `unprotected-write-grant` ⚡ [fail] — UNPROTECTED WRITE GRANT — no end-user write privilege may stand on the GRANT alone. FOUND 2026-07-30 by teaching the marketplace test bank's SQL runner the `ano
 
 ### Sentinel (2)
 - `sentinel-baseline` ⚡ [fail] — Sentinel Baseline Ratchet (forward-only behavioral coverage; locks at first run)

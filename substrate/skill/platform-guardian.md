@@ -2,7 +2,7 @@
 name: skill-platform-guardian
 type: skill
 source: skill:platform-guardian
-source_sha: 2a97db4424361a9d
+source_sha: 73a15d0c93d8626a
 last_verified: 2026-07-13
 supersedes: null
 ---

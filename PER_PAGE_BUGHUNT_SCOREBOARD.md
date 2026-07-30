@@ -13,7 +13,7 @@ Layer→gate: **L1/2**=page-battery · **L3/5**=hive/write-isolation · **L4**=r
 | index | 56 | ✓ | ✓ | ✓ | ✓1 | COVERED |
 | integrations | 56 | ✓ | ✓ | ✓ | ✓3 | COVERED |
 | logbook | 56 | ✓ | ✓ | ✓ | ✓5 | COVERED |
-| marketplace | 56 | ✓ | ✓ | ✓ | ✓1 | COVERED |
+| marketplace | 56 | ✓ | ✓ | ✓ | ✓2 | COVERED |
 | pm-scheduler | 56 | ✓ | ✓ | ✓ | ✓1 | COVERED |
 | project-manager | 56 | ✓ | ✓ | ✓ | ✓3 | COVERED |
 | report-sender | 56 | ✓ | ✓ | ✓ | ✓4 | COVERED |
@@ -21,9 +21,9 @@ Layer→gate: **L1/2**=page-battery · **L3/5**=hive/write-isolation · **L4**=r
 | shift-brain | 56 | ✓ | ✓ | ✓ | ✓2 | COVERED |
 | skillmatrix | 56 | ✓ | ✓ | ✓ | ✓1 | COVERED |
 | voice-journal | 56 | ✓ | ✓ | ✓ | ✓3 | COVERED |
+| analytics | 53 | ✓ | · | ✓ | ✓2 | COVERED |
 | analytics-report | 53 | ✓ | · | ✓ | ✓1 | COVERED |
 | project-report | 53 | ✓ | · | ✓ | ✓1 | COVERED |
-| analytics | 50 | ✓ | · | · | ✓2 | COVERED |
 | ph-intelligence | 50 | ✓ | · | · | ✓2 | COVERED |
 | community | 46 | ✓ | ✓ | ✓ | · | COVERED |
 | dayplanner | 46 | ✓ | ✓ | ✓ | · | COVERED |
@@ -43,9 +43,9 @@ Layer→gate: **L1/2**=page-battery · **L3/5**=hive/write-isolation · **L4**=r
 | design-system | 40 | —reg | · | · | · | DEV |
 | engineering-design | 40 | ✓ | · | · | · | COVERED |
 | llm-observability | 40 | —reg | · | · | · | DEV |
-| offline-fallback | 40 | —reg | · | · | · | COVERED |
+| offline-fallback | 40 | ✓ | · | · | · | COVERED |
 | promo-poster | 40 | —reg | · | · | · | DEV |
-| status | 40 | —reg | · | · | · | COVERED |
+| status | 40 | ✓ | · | · | · | COVERED |
 | symbol-gallery | 40 | —reg | · | · | · | DEV |
 | validator-catalog | 40 | —reg | · | · | · | DEV |
 

@@ -1687,7 +1687,10 @@ async function wizardSubmit() {
     // PJ2: budget_php out of the INSERT; set after creation via set_project_budget(). Mig 030.
     description: $('wiz-desc').value.trim() || null,
   };
-  const { data: ins, error: insErr } = await db.from('projects').insert(projPayload).select().single();
+  // PJ2: the RETURNING list must be explicit. A bare .select() is `select *`, which includes
+  // budget_php — SELECT on that column is revoked (mig 024/030), so the star 42501s and the
+  // create fails even though the INSERT itself is legal. Only id is consumed below.
+  const { data: ins, error: insErr } = await db.from('projects').insert(projPayload).select('id').single();
   if (insErr) { showToast('Create failed: ' + insErr.message, 'error'); resetCreateBtn(); return; }
 
   // 2. Batch insert scope items with sequential predecessors + auto-distributed dates
@@ -1874,7 +1877,9 @@ async function saveProject() {
   if (codeErr) { showToast('Code gen failed: ' + codeErr.message, 'error'); return; }
   payload.project_code = codeData;
   payload.status = 'planning';
-  const { data: ins, error: insErr } = await db.from('projects').insert(payload).select().single();
+  // PJ2: explicit RETURNING — a bare .select() is `select *` and pulls the SELECT-revoked
+  // budget_php, which 42501s the whole create. Only id is consumed below.
+  const { data: ins, error: insErr } = await db.from('projects').insert(payload).select('id').single();
   if (insErr) { showToast('Create failed: ' + insErr.message, 'error'); return; }
   // PJ2: budget set AFTER creation via the supervisor-only RPC (INSERT on the column is revoked).
   // A refusal is not a failed create — the project exists; only the figure did not apply.

@@ -2,7 +2,7 @@
 name: doc-field_blast_radius
 type: doc
 source: file:field_blast_radius.md
-source_sha: 06ec39774fd467f3
+source_sha: 0c822ba8c1dc7bd8
 last_verified: 2026-07-13
 supersedes: null
 ---

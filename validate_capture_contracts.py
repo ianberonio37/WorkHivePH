@@ -54,6 +54,16 @@ from validator_utils import format_result, read_file
 # The bad fixture must violate the schema in a way that mirrors a real
 # regression class (missing required, wrong type, invalid enum, oversize).
 FIXTURES = {
+    # J16 founder voucher campaign (service_voucher_v1). The BAD fixture uses a lowercase code:
+    # the form upper-cases input before sending, so the stored contract is upper-only - a lowercase
+    # code reaching the DB would mean the client bypassed the form.
+    "service_voucher_v1": (
+        {"code": "PLANTSTART25", "kind": "percent", "value": 25,
+         "segment": "industrial", "max_uses": 40},
+        {"code": "plantstart25", "kind": "percent", "value": 25,
+         "segment": "industrial", "max_uses": 40},   # invalid: pattern is ^[A-Z0-9]{3,24}$
+        "lowercase code - the form upper-cases before sending, so a lowercase code reaching the DB means the client bypassed the form",
+    ),
     "logbook_add_entry_v1": (
         {"worker_name": "Pablo Aguilar",
          "date": "2026-05-12T14:30:00Z",

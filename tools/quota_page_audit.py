@@ -38,6 +38,16 @@ EXCLUDED = {
     "hive_members": "membership (invite flow, controlled)",
     "anomaly_signals": "system-generated analytics signal (update, not user insert)",
     "ai_reply_feedback": "already daily-capped (baseline trigger)",
+    # Reviewed 2026-07-29 (service-hailing P5/G3). push_subscriptions is an UPSERT keyed on the
+    # device endpoint: re-enabling alerts REPLACES the row rather than adding one, so rows track
+    # devices (a handful per user), not user content. The other three service-hailing write
+    # tables ARE row-capped -- see 20260729000001_service_hailing_daily_caps.sql.
+    "push_subscriptions": "own-device push endpoint (upsert-keyed on endpoint, one row per device)",
+    # Reviewed 2026-07-29 (J16). service_vouchers is a FOUNDER campaign registry: writes are
+    # admin-only at the database (service_vouchers_admin_write; a non-admin insert is refused by
+    # RLS, proven live), so the population that can write it is one person. A per-day row cap
+    # protects against user flooding - there is no user here to flood.
+    "service_vouchers": "founder-only campaign registry (admin-gated at the DB, not user-writable)",
 }
 
 

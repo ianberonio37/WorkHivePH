@@ -3193,3 +3193,81 @@ if (typeof window !== 'undefined') {
     window.WH_FREQ_DAYS   = FREQ_DAYS;
   }
 })();
+
+// whRequireOnline — refuse a write that cannot reach the server, in the user's own words.
+// ─────────────────────────────────────────────
+// The shared offline BANNER warns; it does not stop a button. Found 2026-07-29: 14 of 17
+// user-triggered writes across the two marketplace surfaces fired into a dead network — including
+// "I paid" and a GCash top-up filing the provider may already have sent.
+//
+// THE WORDING IS CENTRAL; THE SINK IS NOT. `showToast` is defined INSIDE each page's IIFE and is not
+// on `window`, so a helper that tries to call it from here reaches nothing and the guard refuses the
+// write in total silence — worse than no guard, and exactly what the bank's offline cell caught the
+// moment this was centralized. The caller passes its own notifier.
+//   action : the thing being attempted, phrased as a gerund ("Confirming payment")
+//   notify : the page's toast function, (msg, kind) => void
+//   returns true when the write may proceed; false AFTER telling the person why not.
+function whOfflineMessage(action) {
+  return 'You are offline. ' + action + ' needs a connection - nothing was sent, so nothing is half-done.';
+}
+function whRequireOnline(action, notify) {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    if (typeof notify === 'function') notify(whOfflineMessage(action), 'error');
+    return false;
+  }
+  return true;
+}
+if (typeof window !== 'undefined') {
+  window.whOfflineMessage = whOfflineMessage;
+  window.whRequireOnline = whRequireOnline;
+}
+
+// whLivePoll — refresh a list only while it has something live in it.
+// ─────────────────────────────────────────────
+// The shape both marketplace surfaces need and neither had: a screen showing work IN PROGRESS has to
+// learn when that work ends, or it keeps displaying a job that no longer exists. Found 2026-07-30 by
+// a two-context walk — a client cancelled, the provider's push said "stand down - do not travel", and
+// the seller page they were holding still listed the job as live because it had no interval and no
+// realtime subscription at all.
+//
+// Polled rather than subscribed on purpose: the tracker already polls, so this reuses a cadence the
+// platform pays for instead of adding a realtime channel with its own cleanup contract. The three
+// disciplines that keep a timer honest are built in here so no caller can forget one —
+//   * it runs ONLY while `isLive()` is true, and stops itself the moment it is not
+//   * it skips a hidden tab (a backgrounded page is not being read)
+//   * it clears on beforeunload
+// because a timer that outlives its reason is exactly the leak this discipline exists to prevent.
+//   key    : a stable name, so re-arming does not stack a second interval
+//   isLive : () => boolean, re-evaluated by the caller's own reload
+//   tick   : the refresh to run (usually the page's own loader, which re-arms or clears this)
+//   ms     : interval, default 15000
+var _whPolls = {};
+function whLivePoll(key, isLive, tick, ms) {
+  if (!isLive || !isLive()) {
+    if (_whPolls[key]) { clearInterval(_whPolls[key]); delete _whPolls[key]; }
+    return;
+  }
+  if (_whPolls[key]) return;                       // already polling this key
+  _whPolls[key] = setInterval(function () {
+    // RE-CHECK EVERY TICK, not only when the poll was armed. The first cut evaluated isLive() once at
+    // arm time, so a condition that became false afterwards never stopped it — the client's list poll
+    // kept firing after a tracker opened and repainted the pane out from under the live map
+    // ("a provider marker was never placed on the watcher's map"). A poll that cannot notice its own
+    // reason has ended is the same defect as a timer with no clearInterval, one step subtler.
+    if (!isLive()) { clearInterval(_whPolls[key]); delete _whPolls[key]; return; }
+    if (typeof document !== 'undefined' && document.hidden) return;
+    // OFFLINE IS A SKIP, NOT A RETRY. Caught 2026-07-30 by the bank's own offline cell the moment
+    // this helper reached the client page: while offline the poll kept firing into a dead network and
+    // the loader's catch repainted the pane as "Couldn't load services" every 15s - a page flapping
+    // into an error state on its own, on top of a person who already knows they are offline. The
+    // banner says it once; the poll should simply wait.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+    try { tick(); } catch (_e) { /* empty-catch-allow: a missed refresh self-heals on the next tick */ }
+  }, ms || 15000);
+}
+if (typeof window !== 'undefined') {
+  window.whLivePoll = whLivePoll;
+  window.addEventListener('beforeunload', function () {
+    Object.keys(_whPolls).forEach(function (k) { clearInterval(_whPolls[k]); delete _whPolls[k]; });
+  });
+}

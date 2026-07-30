@@ -318,6 +318,11 @@ def check_all_html_pages_in_scope():
         if any(s in fname for s in ["-test", ".backup", "platform-health", "guardian",
                                      "parts-tracker", "symbol-gallery", "architecture"]):
             continue
+        # Vendored third-party libs (minified upstream code we do not author): their internal
+        # innerHTML/console/catch idioms are the vendor's, reviewed at vendor-bump time - the
+        # axe-core precedent (tools/vendor), now MapLibre GL (SERVICE_HAILING P5/G2, D12).
+        if fname in ("maplibre-gl.js",):
+            continue
         content = read_file(fname)
         if not content:
             continue

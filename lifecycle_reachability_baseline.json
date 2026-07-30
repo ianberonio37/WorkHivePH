@@ -1,0 +1,10 @@
+{
+  "_doc": "Forward-only baseline for tools/validate_lifecycle_state_reachability.py (MK4). A gap listed here is KNOWN and NAMED, not excluded: it still prints on every run. A NEW unreachable or invisible lifecycle state FAILs immediately. Closing a gap means deleting its line, never adding one.",
+  "recorded": "2026-07-29",
+  "known_gaps": [
+    "marketplace_listings|sold"
+  ],
+  "notes": {
+    "marketplace_listings|sold": "AWAITING IAN'S CALL, not a bug to be quietly wired. The state is fully dressed - a blue 'Sold' chip, a .listing-item.sold border rule, a schema.org/SoldOut mapping in the JSON-LD, and recompute_seller_sales_and_tier counts listings WHERE status='sold' to drive the seller's tier - and NOTHING writes it. A seller who sells something cannot say so, and the tier that counts sales counts a number that is always zero. Two honest resolutions: (a) add a 'Mark as sold' affordance on the seller's own listing row, which is the smaller change and matches a contact-only marketplace where the sale happens off-platform; or (b) drop 'sold' from the CHECK and delete its chrome, if sales are meant to be tracked only through marketplace_orders. Wiring it silently would be the wrong call while PAYMENTS_ENABLED=false, because the sale it claims to record is one the platform never witnessed."
+  }
+}

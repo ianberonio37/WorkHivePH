@@ -1,7 +1,7 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-07-28T09:59:13.656408+00:00",
-  "surfaces": 161,
+  "generated": "2026-07-30T01:19:59.507061+00:00",
+  "surfaces": 175,
   "rows": [
     {
       "id": "D1",
@@ -9,8 +9,8 @@
       "name": "RLS enabled on tenant tables",
       "satisfies": "tenant isolation floor",
       "mode": "measured",
-      "adopters_n": 102,
-      "need_n": 102,
+      "adopters_n": 104,
+      "need_n": 104,
       "pct": 100,
       "adopters": [
         "agent_episodic_memory",
@@ -104,6 +104,8 @@
         "resume_documents",
         "sensor_readings",
         "sensor_topic_map",
+        "service_providers",
+        "service_requests",
         "shared_voice_notes",
         "shift_plans",
         "skill_knowledge",
@@ -124,9 +126,9 @@
       "name": "hive-membership scoping policy",
       "satisfies": "multitenant isolation",
       "mode": "measured",
-      "adopters_n": 98,
-      "need_n": 98,
-      "pct": 100,
+      "adopters_n": 99,
+      "need_n": 100,
+      "pct": 99,
       "adopters": [
         "agent_episodic_memory",
         "agent_followups",
@@ -215,6 +217,7 @@
         "resume_documents",
         "sensor_readings",
         "sensor_topic_map",
+        "service_requests",
         "shared_voice_notes",
         "shift_plans",
         "skill_knowledge",
@@ -227,7 +230,9 @@
         "wh_traces",
         "wh_voice_presence"
       ],
-      "gap": []
+      "gap": [
+        "service_providers"
+      ]
     },
     {
       "id": "D3",
@@ -235,8 +240,8 @@
       "name": "auth_uid ownership policy",
       "satisfies": "write attribution",
       "mode": "measured",
-      "adopters_n": 28,
-      "need_n": 28,
+      "adopters_n": 31,
+      "need_n": 31,
       "pct": 100,
       "adopters": [
         "agent_memory",
@@ -244,6 +249,7 @@
         "analytics_events",
         "asset_edges",
         "asset_nodes",
+        "avatar_state",
         "client_errors",
         "community_posts",
         "community_replies",
@@ -258,9 +264,11 @@
         "pm_completions",
         "project_progress_logs",
         "projects",
+        "push_subscriptions",
         "resume_documents",
         "resume_versions",
         "schedule_items",
+        "service_providers",
         "skill_badges",
         "skill_exam_attempts",
         "skill_profiles",
@@ -276,9 +284,9 @@
       "name": "security_invoker on views",
       "satisfies": "no owner-rights RLS bypass",
       "mode": "measured",
-      "adopters_n": 49,
-      "need_n": 51,
-      "pct": 96,
+      "adopters_n": 56,
+      "need_n": 61,
+      "pct": 92,
       "adopters": [
         "v_achievement_xp_log",
         "v_active_anomaly_alerts",
@@ -320,6 +328,13 @@
         "v_risk_truth",
         "v_sensor_recent",
         "v_sensor_truth",
+        "v_service_area_presence",
+        "v_service_catalog_truth",
+        "v_service_credit_ledger_truth",
+        "v_service_credit_topups_truth",
+        "v_service_provider_truth",
+        "v_service_request_truth",
+        "v_service_slo",
         "v_session_memory_recent",
         "v_skill_badges_truth",
         "v_weibull_truth",
@@ -332,6 +347,9 @@
       ],
       "gap": [
         "v_cron_health",
+        "v_service_job_tracking",
+        "v_service_open_broadcasts",
+        "v_service_provider_leaderboard",
         "v_storage_health"
       ]
     },
@@ -362,9 +380,9 @@
     }
   ],
   "floors": {
-    "D1": 102,
-    "D2": 98,
-    "D3": 28,
-    "D4": 49
+    "D1": 104,
+    "D2": 99,
+    "D3": 31,
+    "D4": 56
   }
 }

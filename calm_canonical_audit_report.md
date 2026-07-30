@@ -7,24 +7,24 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 - Calm-opted-in pages: **13**
 - Fully compliant pages (0 drift + 0 gap): **10** (76%)
-- Canonical reads (✅): **44**
+- Canonical reads (✅): **46**
 - Drift reads (⚠️ wrapper exists, page reads raw): **0**
-- Gap reads (❌ no wrapper exists yet): **3**
-- Allowed reads (legitimate raw): **49**
-- Truth views in registry: **40**
+- Gap reads (❌ no wrapper exists yet): **4**
+- Allowed reads (legitimate raw): **51**
+- Truth views in registry: **45**
 
 ## Per-page conformance
 
 | Page | Canonical | Drift | Gap | Allowed | Chip? | Compliant |
 |---|---:|---:|---:|---:|:---:|:---:|
-| `achievements.html` | 2 | 0 | 0 | 1 | ✓ | ✅ |
+| `achievements.html` | 3 | 0 | 0 | 1 | ✓ | ✅ |
 | `agentic-rag-observability.html` | 0 | 0 | 0 | 1 | ✓ | ✅ |
 | `ai-quality.html` | 0 | 0 | 1 | 1 | ✓ | ❌ |
 | `alert-hub.html` | 5 | 0 | 0 | 6 | ✓ | ✅ |
 | `analytics.html` | 0 | 0 | 1 | 0 | ✓ | ❌ |
 | `asset-hub.html` | 10 | 0 | 0 | 11 | ✓ | ✅ |
 | `dayplanner.html` | 2 | 0 | 0 | 2 | ✓ | ✅ |
-| `founder-console.html` | 4 | 0 | 1 | 6 | ✓ | ❌ |
+| `founder-console.html` | 5 | 0 | 2 | 8 | ✓ | ❌ |
 | `hive.html` | 10 | 0 | 0 | 9 | ✓ | ✅ |
 | `index.html` | 9 | 0 | 0 | 4 | ✓ | ✅ |
 | `ph-intelligence.html` | 0 | 0 | 0 | 2 | — | ✅ |
@@ -38,6 +38,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 | `ai_reply_feedback` | 1 | `v_ai_reply_feedback_truth` (suggested) |
 | `analytics_snapshots` | 1 | `v_analytics_snapshot_truth` (suggested) |
 | `marketplace_listings` | 1 | `v_marketplace_listing_truth` (suggested) |
+| `service_credit_topups` | 1 | `v_service_credit_topup_truth` (suggested) |
 
 ## Top DRIFT tables (wrapper exists, pages still reading raw)
 
@@ -48,7 +49,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 ### `achievements.html` — ✅ compliant
 
-**Canonical** (2): `v_worker_achievements_truth`, `v_worker_truth`
+**Canonical** (3): `v_service_provider_truth`, `v_worker_achievements_truth`, `v_worker_truth`
 **Allowed raw** (1): `achievement_xp_log`
 
 ### `agentic-rag-observability.html` — ✅ compliant
@@ -81,9 +82,9 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 ### `founder-console.html` — ❌ not compliant
 
-**Canonical** (4): `v_hive_readiness_truth`, `v_marketplace_listings_truth`, `v_marketplace_orders_truth`, `v_marketplace_sellers_truth`
-**Gap** (1): `marketplace_listings`
-**Allowed raw** (6): `ai_cost_log`, `analytics_events`, `hive_audit_log`, `marketplace_disputes`, `marketplace_sellers`, `platform_feedback`
+**Canonical** (5): `v_hive_readiness_truth`, `v_marketplace_listings_truth`, `v_marketplace_orders_truth`, `v_marketplace_sellers_truth`, `v_service_credit_topups_truth`
+**Gap** (2): `marketplace_listings`, `service_credit_topups`
+**Allowed raw** (8): `ai_cost_log`, `analytics_events`, `hive_audit_log`, `marketplace_disputes`, `marketplace_sellers`, `platform_feedback`, `service_voucher_redemptions`, `service_vouchers`
 
 ### `hive.html` — ✅ compliant
 

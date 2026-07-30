@@ -1,9 +1,9 @@
 {
   "summary": {
-    "view_column_pairs": 319,
+    "view_column_pairs": 334,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 254
+    "files_scanned": 257
   },
   "pairs": [
     {
@@ -6765,6 +6765,231 @@
         {
           "file": "asset-hub.html",
           "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_catalog_truth",
+      "column": "category",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "supabase/functions/marketplace-listing-assist/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_credit_ledger_truth",
+      "column": "amount",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_credit_ledger_truth",
+      "column": "entry_type",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_credit_ledger_truth",
+      "column": "note",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_credit_topups_truth",
+      "column": "account_id",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_credit_topups_truth",
+      "column": "account_type",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_credit_topups_truth",
+      "column": "amount",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_credit_topups_truth",
+      "column": "gcash_ref",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_credit_topups_truth",
+      "column": "provider_display_name",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_provider_truth",
+      "column": "completed_jobs",
+      "consumers": [
+        {
+          "file": "achievements.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_provider_truth",
+      "column": "display_name",
+      "consumers": [
+        {
+          "file": "achievements.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_provider_truth",
+      "column": "rating_avg",
+      "consumers": [
+        {
+          "file": "achievements.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_provider_truth",
+      "column": "rating_count",
+      "consumers": [
+        {
+          "file": "achievements.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_provider_truth",
+      "column": "tier",
+      "consumers": [
+        {
+          "file": "achievements.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_provider_truth",
+      "column": "verified",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "mapped_enum",
           "smells": []
         }
       ],

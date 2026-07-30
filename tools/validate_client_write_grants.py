@@ -88,7 +88,17 @@ def db_grants() -> dict[str, set] | None:
     try:
         r = subprocess.run(
             ["docker", "exec", DB, "psql", "-U", "postgres", "-d", "postgres", "-t", "-A", "-F", "\t", "-c",
+             # A privilege can be held at TABLE level OR at COLUMN level. The platform's
+             # revoke-first privacy pattern (mig 030 on projects, mig 039 on service_providers)
+             # DROPS the table-wide grant and re-grants every allowed column individually - so a
+             # table-only lens reports a correctly-configured table as "missing INSERT" and cries
+             # wolf. projects is exactly that: 18 of 19 columns carry INSERT/UPDATE/SELECT, and
+             # only budget_php is withheld so budgets must go through set_project_budget().
+             # UNION the column grants so the gate sees what the database actually allows.
              "SELECT table_name, privilege_type FROM information_schema.role_table_grants "
+             "WHERE table_schema='public' AND grantee IN ('authenticated','PUBLIC') "
+             "UNION "
+             "SELECT table_name, privilege_type FROM information_schema.role_column_grants "
              "WHERE table_schema='public' AND grantee IN ('authenticated','PUBLIC');"],
             capture_output=True, text=True, timeout=25)
         if r.returncode != 0:

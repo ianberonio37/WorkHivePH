@@ -687,6 +687,15 @@ const AGENT_ROUTES: Record<string, { fn: string; description: string }> = {
     fn: "temporal-rag-orchestrator",
     description: "Temporal / cold-archive retrieval over canonical period summaries (historical >18mo questions)",
   },
+  // SERVICE_HAILING P7 (2026-07-29, the coach-fold pattern): free-text problem
+  // description -> { category, urgency, mode } suggestions for the hail composer.
+  // Folded onto marketplace-listing-assist (the marketplace's existing AI fn) with
+  // mode:'service_triage' pinned below; returns STRUCTURED `triage` so it is ALSO
+  // in STRUCTURED_PASSTHROUGH_AGENTS.
+  "service-triage": {
+    fn: "marketplace-listing-assist",
+    description: "Hail triage - problem description to suggested service category/urgency/flow (server-whitelisted)",
+  },
 };
 
 // Agents whose UI consumes STRUCTURED output (intents, cards, citations) in
@@ -705,7 +714,7 @@ const AGENT_ROUTES: Record<string, { fn: string; description: string }> = {
 // STRUCTURED `actions[]` (priority/urgency/machine/why), NOT a conversational
 // `answer` — so it must pass through under `route_result` to survive the
 // gateway's {answer}-only contract, exactly like asset-brain/voice-action.
-const STRUCTURED_PASSTHROUGH_AGENTS: Set<string> = new Set(["voice-action", "asset-brain", "coach"]);
+const STRUCTURED_PASSTHROUGH_AGENTS: Set<string> = new Set(["voice-action", "asset-brain", "coach", "service-triage"]);
 
 // CL10 D13: the ADVISORY (read-only brain) agents whose `answer` is a conversational response
 // that CANNOT correspond to a real system write from a chat turn. The gateway applies the
@@ -720,6 +729,14 @@ const STRUCTURED_PASSTHROUGH_AGENTS: Set<string> = new Set(["voice-action", "ass
 // here — validate_ai_fabrication_contract.py FAILs if an advisory AGENT_ROUTES entry is uncovered.
 const ADVISORY_ANSWER_AGENTS: Set<string> = new Set([
   "analytics", "project", "shift", "temporal-rag", "asset-brain", "assistant", "coach",
+  // service-triage (SERVICE_HAILING_ROADMAP.md P7): purely advisory - it SUGGESTS a
+  // category/urgency/mode for a hail the user has not filed yet, and persists nothing.
+  // It carries the action rail so a model claiming it already filed the request gets
+  // that false claim stripped: the request exists only once the user submits the
+  // composer themselves. (Comment kept quote-free - the D13 validator parses this Set
+  // body with a quote-pairing regex, so an apostrophe here desynchronizes it and the
+  // real member below stops registering.)
+  "service-triage",
 ]);
 
 interface GatewayRequest {
@@ -1361,6 +1378,10 @@ serveObserved("ai-gateway", async (req) => {
   // (question is already read by the orchestrator as body.message — no alias needed).
   if (agent === "coach") {
     forwardExtras.mode = "coach";
+  }
+  // SERVICE_HAILING P7: listing-assist branches into triage ONLY on this pinned mode.
+  if (agent === "service-triage") {
+    forwardExtras.mode = "service_triage";
   }
 
   // W3 structural-echo short-circuit (LOCAL-ONLY, triple-gated). Return EXACTLY the

@@ -52,6 +52,8 @@ AI_GATEWAY        = os.path.join(FUNCTIONS_DIR, "ai-gateway", "index.ts")
 # Fns legitimately not routed through platform-gateway. Each entry needs
 # a one-line justification.
 GATEWAY_BYPASS_OK = {
+    "notify-push":                "SERVICE_HAILING P5/G3: backend-only Web Push fan-out (requireServiceRole inside); no user-facing route by design",
+
     # Gateways themselves.
     "platform-gateway":           "The gateway itself; routes other fns",
     "ai-gateway":                 "AI router (heavier per-call work); routes specialist agents",

@@ -6,7 +6,7 @@ explanations drift from the deterministic calc's contract.
 
 ## Summary
 
-- Files scanned:      **59**
+- Files scanned:      **60**
 - Metric mentions:    **7**
 - Cite the standard:  **7** ✅
 - Mention without cite: **0** ⚠️

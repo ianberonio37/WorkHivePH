@@ -36,6 +36,7 @@ npx supabase functions deploy shift-planner-orchestrator --no-verify-jwt
 npx supabase functions deploy voice-action-router --no-verify-jwt
 npx supabase functions deploy fmea-populator --no-verify-jwt
 npx supabase functions deploy weibull-fitter --no-verify-jwt
+npx supabase functions deploy notify-push --no-verify-jwt
 npx supabase functions deploy pf-calculator --no-verify-jwt
 npx supabase functions deploy ai-eval-runner --no-verify-jwt
 npx supabase functions deploy platform-gateway --no-verify-jwt

@@ -73,7 +73,12 @@ def main() -> int:
     try:
         subprocess.run(
             ["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres",
-             "-c", "delete from hive_audit_log where action='crudgate_probe' and target_type='probe';"],
+             "-c", "delete from hive_audit_log where action='crudgate_probe' and target_type='probe';"
+                   # projects: a PostgREST 42501 on the RETURNING clause does NOT roll back the INSERT,
+                   # so every run of the old star-select probe committed a row and then skipped its
+                   # delete. project_code is UNIQUE, so one leaked row turned all later runs into 23505.
+                   # The probe is per-run-unique now; this sweeps anything older.
+                   " delete from projects where name='CRUDGATE' or project_code like 'CRUDGATE-%';"],
             capture_output=True, text=True, timeout=30)
     except Exception:
         pass

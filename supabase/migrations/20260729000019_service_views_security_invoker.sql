@@ -1,0 +1,31 @@
+-- 20260729000019_service_views_security_invoker.sql
+--
+-- Arc G (`view security_invoker`) went red on five views, three of them this arc's. The first cut of
+-- this migration set `security_invoker = on` for all three. THE TEST BANK REJECTED IT IN SECONDS:
+--
+--     TB-S6-realtime-map-datapath  watcher_sees_1: want '16.4100' got None
+--
+-- With security_invoker the view executes as the CALLER, and a client has no SELECT on
+-- `service_providers` — that grant is deliberately absent, because the provider directory is exposed
+-- only through v_service_provider_truth. So the "hardening" made the live tracking map return NOTHING
+-- for every legitimate client. v_service_open_broadcasts fails identically ("permission denied for
+-- table service_providers"), for the same reason.
+--
+-- THE CORRECT READING: those two views are deliberately owner-executed. Their base tables are
+-- intentionally not client-readable, and the view IS the sanctioned read path, carrying its own
+-- auth.uid() predicate — v_service_job_tracking restricts to the request's client, their hive, or the
+-- matched provider. Isolation is real and standing tests hold it: TB-L4-service-views-party-scope and
+-- TB-I1-anon-gating both assert a stranger reads 0. The generic rule "every view must be
+-- security_invoker" is right for a view over client-readable tables and WRONG here, so the gate learns
+-- a NAMED exemption backed by those probes rather than the product being bent to satisfy it.
+--
+-- WHAT REMAINS, and it is a genuine finding: v_service_slo. A live probe found a signed-in stranger
+-- reading THREE rows — allocation rate, time-to-accept, completion rate, aggregated platform-wide. No
+-- per-tenant rows leak, but these are the numbers the business is run on and every account that signs
+-- up could read them. The only consumer in the repo is tools/validate_slo_budget.py, which connects as
+-- the service role: no page, no edge function, nothing needing a client grant at all.
+ALTER VIEW public.v_service_slo SET (security_invoker = on);
+
+-- Revoked rather than filtered: there is no per-user slice of "platform allocation rate" that would be
+-- correct to show, so a predicate would be pretending. The service role still reads it.
+REVOKE ALL ON public.v_service_slo FROM anon, authenticated;

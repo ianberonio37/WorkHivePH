@@ -92,19 +92,59 @@ def main() -> int:
 
     REPORT.write_text(json.dumps({"rows": rows, "breaches": breaches}, indent=2), encoding="utf-8")
 
-    # Baseline ratchet — first run captures the current breach count so the
-    # validator can land green even on a fat codebase. New breaches above
-    # baseline FAIL.
+    # Baseline ratchet — first run captures the current breach count so the validator can land green
+    # even on a fat codebase. New breaches above baseline FAIL.
     baseline = len(breaches)
+    base_doc = {}
     if BASELINE.exists():
-        try: baseline = int(json.loads(BASELINE.read_text(encoding="utf-8")).get("breaches", baseline))
+        try:
+            base_doc = json.loads(BASELINE.read_text(encoding="utf-8"))
+            baseline = int(base_doc.get("breaches", baseline))
         except Exception: pass
     else:
         BASELINE.write_text(json.dumps({"breaches": len(breaches)}), encoding="utf-8")
 
+    # SCOPE GROWTH MUST PROVE ITSELF (2026-07-30). Every previous raise of this number was justified in
+    # PROSE inside `_note` — accurate prose, written in good faith, and unverifiable by anything. A
+    # page that gains a whole product surface really is a bigger page, but "we added a feature" is also
+    # the easiest sentence in the world to write when a gate is inconvenient, which is exactly how a
+    # forward-only ratchet quietly becomes a number that follows the code.
+    #
+    # So a page may join the over-budget list only when the baseline NAMES it and the gate can still
+    # SEE the surface that justified it: a function-name prefix with a minimum count, re-counted every
+    # run. Delete the service console later and leave the allowance behind, and this reds — the
+    # allowance cannot outlive its reason.
+    grown = base_doc.get("scope_growth") or {}
+    proven, unproven = [], []
+    for b in breaches:
+        g = grown.get(b["page"])
+        if not g:
+            continue
+        try:
+            src = (ROOT / b["page"]).read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            src = ""
+        n = len(re.findall(r"function\s+%s\w*\s*\(" % re.escape(g.get("surface") or "__none__"), src))
+        if n >= int(g.get("min_functions", 1)):
+            proven.append((b["page"], g.get("surface"), n, g.get("reason", "")))
+        else:
+            unproven.append((b["page"], g.get("surface"), n, int(g.get("min_functions", 1))))
+    for page, surf, n, why in proven:
+        print(f"  [93mSCOPE GREW[0m {page}: carries the '{surf}*' surface "
+              f"({n} functions) — {why[:100]}")
+    for page, surf, n, need in unproven:
+        print(f"  [91mALLOWANCE WITHOUT ITS REASON[0m {page}: baseline claims a '{surf}*' "
+              f"surface needing >={need} functions, found {n}. Remove the allowance or restore the "
+              f"surface — a scope-growth exemption may not outlive the scope.")
+
     n_pages = len(rows)
     n_breach = len(breaches)
     print(f"Render budget: {n_pages} pages scanned, {n_breach} over budget (baseline {baseline}).")
+    # An allowance whose surface has vanished is a raised ceiling with nothing holding it up, and it
+    # must red on its own — NOT only when the breach count also happens to rise. The first cut printed
+    # this warning and still exited 0, which is a gate that says the right thing and does nothing.
+    if unproven:
+        return 1
     if n_breach > baseline:
         print(f"\033[91mFAIL: regressed +{n_breach - baseline} above baseline\033[0m")
         for b in breaches[:10]:

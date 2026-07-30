@@ -46,6 +46,13 @@ SKIP_DIRS = {"node_modules", "tools", "tests", ".tmp", ".git", "test-data-seeder
 
 CHANNEL_RE     = re.compile(r"\.channel\s*\(")
 SUBSCRIBE_RE   = re.compile(r"\.subscribe\s*\(")
+# A Web Push subscription is NOT a held realtime connection: pushManager.subscribe() returns a
+# PushSubscription owned by the service worker + push service, costs zero DB/socket capacity,
+# and deliberately OUTLIVES the page (persisting past close is the whole feature) so it has no
+# teardown. Counting it as a channel subscribe made marketplace-seller.html read as both a new
+# realtime surface AND a connection leak (subscribes=1, teardowns=0) when it opens no channel at
+# all. Discounted here so the capacity shape stays honest as more pages adopt push.
+PUSH_SUBSCRIBE_RE = re.compile(r"pushManager\s*\.\s*subscribe\s*\(")
 TEARDOWN_RE    = re.compile(r"\.removeChannel\s*\(|\.unsubscribe\s*\(")
 UNBOUNDED_RE   = re.compile(r"\.select\s*\(\s*['\"]\*['\"]\s*\)")
 # strip line comments so a commented example doesn't inflate the shape
@@ -70,7 +77,7 @@ def _scan(text: str) -> dict:
         if LINE_COMMENT_RE.match(raw):
             continue
         channels  += len(CHANNEL_RE.findall(raw))
-        subscribes += len(SUBSCRIBE_RE.findall(raw))
+        subscribes += max(0, len(SUBSCRIBE_RE.findall(raw)) - len(PUSH_SUBSCRIBE_RE.findall(raw)))
         teardowns += len(TEARDOWN_RE.findall(raw))
         unbounded += len(UNBOUNDED_RE.findall(raw))
     return {"channels": channels, "subscribes": subscribes,

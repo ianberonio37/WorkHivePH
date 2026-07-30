@@ -8,12 +8,21 @@ the soft-delete retention cron) had 28 consecutive `column "deleted_at" does not
 so expired soft-deleted rows were never purged — while nothing surfaced.
 
 This gate reads the LATEST run of each active cron job and FAILS if it ended in a REAL CODE error.
-It EXCLUDES two non-code failure modes so it doesn't cry wolf:
+It EXCLUDES ONE non-code failure mode so it doesn't cry wolf:
   - transient scheduler hiccups: "job startup timeout"
-  - LOCAL-ENV config: `unrecognized configuration parameter "app.supabase_functions_url"` — the
-    net.http_post edge-trigger jobs need that GUC, which is set in PROD but not on the local DB.
-    (NOTE: if that GUC is ALSO unset in prod, those jobs fail there too — a deploy-config item for
-    Ian, not a code bug this gate can fix. It is deliberately not flagged locally.)
+
+★ THE `app.supabase_functions_url` EXCLUSION WAS REMOVED (2026-07-29) — and it had been hiding a
+  total outage. Nine jobs (ai-eval-daily, amc-brief-0600pht, batch-risk-scoring-daily,
+  failure-digest-weekly, failure-signature-scan-daily, ml-retrain-weekly, pm-overdue-daily,
+  predictive-weekly, project-risk-weekly) were failing 100% of runs — 27 of 29 failures in a 7-day
+  window shared that single message — so the ENTIRE background-automation layer was dead while this
+  gate reported green. The exclusion was reasonable-looking ("prod sets that GUC, local doesn't") and
+  that is exactly what made it dangerous: a failure class excluded forever is a feature never
+  verified. The GUC is now SET on the local DB (`ALTER DATABASE postgres SET
+  app.supabase_functions_url` / `app.service_role_key`, as supabase_admin — the postgres role is not
+  superuser), proven by firing a dead job's exact command and getting HTTP 200 back. So the correct
+  posture flipped: make it runnable locally, then let a real failure RED. If this fires with that
+  message again, the GUC is genuinely missing — set it, don't re-exclude it.
 Real code errors that ARE flagged: relation/column/function does not exist, syntax error, etc.
 
 Live-tier (skip_if_fast); SKIPS cleanly (exit 0) if the DB is down or pg_cron isn't installed.
@@ -29,7 +38,8 @@ DOCKER_DB = ["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres",
 # Failure messages that are NOT code bugs (env/transient) -> excluded.
 EXCLUDE_RES = [
     re.compile(r"job startup timeout", re.I),
-    re.compile(r'unrecognized configuration parameter "app\.supabase_functions_url"', re.I),
+    # The app.supabase_functions_url exclusion lived here and hid 9 jobs failing 100% of runs.
+    # The GUC is set locally now; a recurrence is a REAL outage and must red. See the module docstring.
 ]
 
 
@@ -80,14 +90,16 @@ def selftest():
     rows = [
         ("11", "succeeded", "DELETE 0"),
         ("24", "failed", 'ERROR:  column "deleted_at" does not exist'),   # real bug -> FLAG
-        ("20", "failed", 'ERROR:  unrecognized configuration parameter "app.supabase_functions_url"'),  # env -> skip
+        # Was excluded as "local env" until 2026-07-29, while 9 jobs failed 100% of runs behind it.
+        # Now a REAL outage and MUST be flagged - this case is the regression test for that.
+        ("20", "failed", 'ERROR:  unrecognized configuration parameter "app.supabase_functions_url"'),
         ("19", "failed", "job startup timeout"),                          # transient -> skip
         ("30", "failed", 'ERROR:  relation "public.gone" does not exist'), # real bug -> FLAG
         ("31", "(no runs)", ""),                                          # never ran -> skip
     ]
     v = analyze(rows)
     got = {x["jobid"] for x in v}
-    expect = {"24", "30"}
+    expect = {"20", "24", "30"}
     ok = got == expect
     print("  selftest", "PASS" if ok else "FAIL", "-> flagged jobids:", sorted(got), "expected:", sorted(expect))
     return 0 if ok else 1

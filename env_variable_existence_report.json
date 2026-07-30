@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 186,
-    "total_refs": 345,
+    "files_scanned": 187,
+    "total_refs": 353,
     "total_missing": 0,
     "baseline": 0,
-    "env_names_known": 44
+    "env_names_known": 47
   },
   "per_file": [
     {
@@ -277,6 +277,10 @@
     },
     {
       "file": "supabase/functions/marketplace-listing-assist/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/notify-push/index.ts",
       "missing": []
     },
     {

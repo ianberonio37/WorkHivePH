@@ -23,7 +23,18 @@ if sys.platform == "win32":
 BASE          = os.path.dirname(os.path.abspath(__file__))
 HTML_FILE     = os.path.join(BASE, "analytics.html")
 
-ANALYTICS_URL = "https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/analytics-orchestrator"
+# LOCAL edge, not prod. This gate used to POST at the production project on every full run - which both
+# sends real traffic to prod (against the local-only rule) and cannot work, since the key it reads is
+# rewritten to the LOCAL publishable key by the Flask seeder. Runtime-verify edge fns locally.
+SUPABASE_URL  = os.environ.get("WH_SUPABASE_URL", "http://127.0.0.1:54321")
+ANALYTICS_URL = os.environ.get("WH_ANALYTICS_URL", f"{SUPABASE_URL}/functions/v1/analytics-orchestrator")
+SEEDER_URL    = os.environ.get("WH_TEST_BASE_URL", "http://127.0.0.1:5000")
+# A REAL user, because analytics-orchestrator refuses an anon/publishable key by design: it is
+# verify_jwt=false at the gateway but reads tenant data with the SERVICE ROLE, so its own code resolves
+# the caller and 401s when there is no user behind the request. Authenticating with the publishable key
+# measured that refusal and reported it as a broken endpoint.
+TEST_USER     = os.environ.get("WH_TEST_EMAIL", "pabloaguilar@auth.workhiveph.com")
+TEST_PW       = os.environ.get("WH_TEST_PASSWORD", "test1234")
 PHASES        = ["descriptive", "diagnostic", "predictive", "prescriptive"]
 
 # Minimum keys each phase response must contain
@@ -44,7 +55,20 @@ def bold(s):  return f"\033[1m{s}\033[0m"
 
 
 def extract_supabase_key():
-    """Read SUPABASE_KEY from analytics.html so we don't hardcode it here."""
+    """Read SUPABASE_KEY as the SEEDER SERVES it, so we get the LOCAL publishable key.
+
+    The copy on disk carries the production key; the Flask seeder rewrites *.supabase.co and the key to
+    the local stack when it serves the page. Reading the file directly gave us a prod key aimed at a
+    local endpoint. Fall back to the file only if the seeder is not up.
+    """
+    try:
+        with urllib.request.urlopen(f"{SEEDER_URL}/workhive/analytics.html", timeout=15) as r:
+            html = r.read().decode("utf-8", "replace")
+        m = re.search(r"const SUPABASE_KEY\s*=\s*['\"]([^'\"]+)['\"]", html)
+        if m:
+            return m.group(1)
+    except Exception:
+        pass
     try:
         with open(HTML_FILE, encoding="utf-8") as f:
             html = f.read()
@@ -54,7 +78,23 @@ def extract_supabase_key():
         return None
 
 
-def call_phase(phase, supabase_key):
+def user_jwt(supabase_key):
+    """Sign in as the seeded test user and return their access token (None if sign-in fails)."""
+    body = json.dumps({"email": TEST_USER, "password": TEST_PW}).encode()
+    req = urllib.request.Request(
+        f"{SUPABASE_URL}/auth/v1/token?grant_type=password",
+        data=body,
+        headers={"Content-Type": "application/json", "apikey": supabase_key},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.loads(r.read().decode()).get("access_token")
+    except Exception:
+        return None
+
+
+def call_phase(phase, supabase_key, jwt=None):
     payload = json.dumps({
         "phase":       phase,
         "hive_id":     None,
@@ -67,7 +107,8 @@ def call_phase(phase, supabase_key):
         headers={
             "Content-Type":  "application/json",
             "apikey":        supabase_key,
-            "Authorization": f"Bearer {supabase_key}",
+            # The user's JWT, not the publishable key — the orchestrator resolves the caller itself.
+            "Authorization": f"Bearer {jwt or supabase_key}",
         },
         method="POST",
     )
@@ -87,10 +128,21 @@ def run_checks():
         })
         return issues
 
+    jwt = user_jwt(supabase_key)
+    if not jwt:
+        # No signed-in caller = an infra/seed condition, not an analytics regression. SKIP honestly
+        # instead of reporting four 401s as broken phases.
+        issues.append({
+            "check":  "user_signin",
+            "reason": f"could not sign in as {TEST_USER} on {SUPABASE_URL} — is the local stack seeded?",
+            "skip":   True,
+        })
+        return issues
+
     for phase in PHASES:
         # ── HTTP 200 + no error key ──────────────────────────────────────────
         try:
-            status, data = call_phase(phase, supabase_key)
+            status, data = call_phase(phase, supabase_key, jwt)
 
             if status != 200:
                 issues.append({

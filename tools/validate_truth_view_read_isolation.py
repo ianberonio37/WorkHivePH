@@ -29,7 +29,41 @@ REPORT = ROOT / "truth_view_read_isolation_report.json"
 PUBLIC = {
     "v_marketplace_listings_truth", "v_marketplace_sellers_truth",
     "v_community_posts_truth", "v_community_reputation_truth",
+    # Reviewed 2026-07-29 (service-hailing). The provider DIRECTORY is the exact analog of
+    # v_marketplace_sellers_truth already above: a marketplace only works if a client in one hive
+    # can see - and hail - a provider from another. It carries curated public columns only, and the
+    # sensitive one is deliberately ABSENT: `live_location` is not on this view at all (verified: 0
+    # matching columns), so a position is readable ONLY through v_service_job_tracking, and only by
+    # that job's parties while it is active. That split is locked by the C1 and C10 gates.
+    "v_service_provider_truth",
+    # Coordinate-free liquidity counts by declared service AREA - no id, name or geography column
+    # exists on it, so it can never be resolved to a person or a point (D8).
+    "v_service_area_presence",
+    # Ranks the same already-public directory over guarded completion counts; introduces no column
+    # that v_service_provider_truth does not already publish.
+    "v_service_provider_leaderboard",
+    # A marketplace with a hidden price list is not a marketplace. Carries no person, hive or
+    # geography column — it is the rate card. Asserted POSITIVELY by the party-scope probe below, so
+    # "public" stays a decision on the record: if it ever stops being readable that is a product
+    # break, not a security win.
+    "v_service_catalog_truth",
 }
+
+# PARTY-scoped, not hive-scoped: these carry NO hive_id column at all, so the cross-hive probe above
+# cannot reach them and they fell through as an uncovered GAP on the per-page bughunt scoreboard
+# (2026-07-29). "No hive column" is exactly the shape that slips past a hive-shaped gate — and one of
+# these views carries a GCash reference, which ties a real phone number to a real payment.
+#
+# Their probe is different: a freshly-minted STRANGER — a fully legitimate signed-in user who simply
+# is not a party — must read ZERO. The stranger is minted here rather than borrowed from the seeded
+# set, because a seeded identity may turn out to be a party to something.
+PARTY_SCOPED = {
+    "v_service_credit_topups_truth": "a GCash top-up filing: payer, reference, amount",
+    "v_service_credit_ledger_truth": "the credit movements behind it",
+    "v_service_job_tracking":        "a provider's live position while a job is active",
+    "v_service_open_broadcasts":     "the open-hail feed, keyed to the caller's own provider id",
+}
+STRANGER = "d5aaaaaa-0000-4000-8000-000000000009"
 
 
 def _psql(sql):
@@ -103,7 +137,50 @@ def main():
             print(f"  {RED}FAIL{RESET}  {v}: foreign-hive read = {got} rows — CROSS-HIVE READ LEAK (missing security_invoker or base-RLS hole)")
     print(f"\n  Summary: {len([v for v in views if results.get(v)=='0'])}/{len(views)} private truth views isolate cross-hive reads · {fails} leak(s)  "
           f"(A hive={hive_a[:8]}… foreign={hive_b[:8]}…; {len(PUBLIC)} public views excluded)")
-    REPORT.write_text(json.dumps({"validator": "truth_view_read_isolation", "skipped": False, "results": results, "fail": fails, "public_excluded": sorted(PUBLIC)}, indent=2), encoding="utf-8")
+
+    # ── PARTY-scoped family: a signed-in STRANGER must read 0 ──────────────────────────────────
+    party = [f"BEGIN;",
+             f"INSERT INTO auth.users(id, email) VALUES ('{STRANGER}','tv-stranger@gate.local');",
+             "SET LOCAL ROLE authenticated;",
+             "SET LOCAL request.jwt.claims TO '{\"sub\":\"%s\",\"role\":\"authenticated\"}';" % STRANGER,
+             "DO $$", "DECLARE n int;", "BEGIN"]
+    for v in PARTY_SCOPED:
+        party.append(f"  SELECT count(*) INTO n FROM public.{v}; RAISE NOTICE 'RESULT {v}=%', n;")
+    # The catalog is asserted the other way round: it MUST be readable, or the marketplace has no
+    # price list. A gate that only ever asserts zeroes would call a dead product perfectly secure.
+    party.append("  SELECT count(*) INTO n FROM public.v_service_catalog_truth WHERE active; "
+                 "RAISE NOTICE 'RESULT v_service_catalog_truth=%', n;")
+    party += ["END $$;", "ROLLBACK;"]
+    pres = _psql_stdin("\n".join(party))
+    if pres is not None:
+        pr = {}
+        for ln in pres[1].splitlines():
+            if "RESULT " in ln:
+                k, _, val = ln.split("RESULT ", 1)[1].strip().partition("=")
+                pr[k.strip()] = val.strip()
+        print(f"\n  {BOLD}Party-scoped (no hive_id column — the shape a hive-shaped probe cannot see){RESET}")
+        for v, why in PARTY_SCOPED.items():
+            got = pr.get(v)
+            if got == "0":
+                print(f"  {GREEN}PASS{RESET}  {v}: a signed-in stranger reads 0  ({why})")
+                results[v] = "0"
+            elif got is None:
+                print(f"  {YELLOW}SKIP{RESET}  {v}: no result")
+            else:
+                fails += 1
+                print(f"  {RED}FAIL{RESET}  {v}: a stranger read {got} row(s) — {why} is visible to a "
+                      f"non-party")
+        cat = pr.get("v_service_catalog_truth")
+        if cat is not None and cat != "0":
+            print(f"  {GREEN}PASS{RESET}  v_service_catalog_truth: public by design and READABLE "
+                  f"({cat} active items)")
+            results["v_service_catalog_truth"] = cat
+        elif cat == "0":
+            fails += 1
+            print(f"  {RED}FAIL{RESET}  v_service_catalog_truth: the public price list returned "
+                  f"NOTHING — a marketplace with no rate card is broken, not secured")
+
+    REPORT.write_text(json.dumps({"validator": "truth_view_read_isolation", "skipped": False, "results": results, "fail": fails, "public_excluded": sorted(PUBLIC), "party_scoped": sorted(PARTY_SCOPED)}, indent=2), encoding="utf-8")
     return 1 if fails else 0
 
 

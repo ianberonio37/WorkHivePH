@@ -7,8 +7,8 @@ each as contracted / uncontracted / raw / unknown.
 ## Summary
 
 - Pages scanned:           **29**
-- Display anchors found:   **103**
-- Contracted ✅:           **19** (anchor maps to a registered formula)
+- Display anchors found:   **104**
+- Contracted ✅:           **20** (anchor maps to a registered formula)
 - **Uncontracted ⚠️:**     **0** (domain-meaningful metric, no formula registered)
 - Raw (counts/dates):      **84** (no contract needed)
 - Unknown:                 **0** (couldn't classify from id alone)
@@ -39,7 +39,7 @@ each as contracted / uncontracted / raw / unknown.
 | `project-report.html` | 0 | 0 | 0 | 0 | 0 |
 | `ai-quality.html` | 0 | 0 | 0 | 0 | 0 |
 | `plant-connections.html` | 0 | 0 | 0 | 0 | 0 |
-| `achievements.html` | 3 | 2 | 0 | 1 | 0 |
+| `achievements.html` | 4 | 3 | 0 | 1 | 0 |
 | `asset-hub.html` | 7 | 5 | 0 | 2 | 0 |
 | `shift-brain.html` | 5 | 0 | 0 | 5 | 0 |
 | `alert-hub.html` | 6 | 1 | 0 | 5 | 0 |

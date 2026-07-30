@@ -18,7 +18,6 @@ import { execSync } from 'child_process';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SUPABASE_URL = process.env.WH_SUPABASE_URL || 'http://127.0.0.1:54321';
-const HIVE = process.env.WH_TEST_HIVE || '636cf7e8-431a-4907-8a9f-43dd4cc216d6'; // Baguio Textile Mills (real)
 const SUP = { email: 'leandromarquez@auth.workhiveph.com', pw: 'test1234', worker: 'Leandro Marquez' };
 const DB_CONTAINER = process.env.WH_DB_CONTAINER || 'supabase_db_workhive';
 const HEADED = process.argv.includes('--headed');
@@ -28,10 +27,34 @@ function adminQuery(sql) {
   catch (e) { return null; }
 }
 
+// The hive is DERIVED from the supervisor's own active membership, never pinned. A hardcoded UUID has
+// now gone stale TWICE (9b4eaeac, then 636cf7e8 "Baguio Textile Mills", which no longer exists at all),
+// and the failure mode is deceptive: hive.html falls back to the user's real hive and renders CORRECTLY,
+// while the admin truth query still counts the dead one — so a perfectly healthy board reports
+// `ui=9 db=0` and reads as a render regression. Deriving it means a reseed can never fake that again.
+const HIVE = (() => {
+  if (process.env.WH_TEST_HIVE) return process.env.WH_TEST_HIVE;
+  const q = adminQuery(
+    `select hm.hive_id from hive_members hm join auth.users u on u.id = hm.auth_uid ` +
+    `where u.email = '${SUP.email}' and hm.status = 'active' and hm.role = 'supervisor' limit 1`);
+  return (q || '').split('\n')[0].trim() || null;
+})();
+const HIVE_NAME = HIVE
+  ? ((adminQuery(`select name from hives where id = '${HIVE}'`) || '').split('\n')[0].trim() || 'Hive')
+  : 'Hive';
+
 const results = [];
 function check(name, ok, detail) { results.push({ ok: !!ok, name, detail: detail || '' }); }
 
 (async () => {
+  // No derivable hive = no fixture, which is an infra/seed condition, not a hive.html regression.
+  // SKIP rather than FAIL, so a missing seed never masquerades as a render bug (the exact confusion
+  // the pinned UUID produced).
+  if (!HIVE) {
+    console.log('SKIP: no active supervisor membership for ' + SUP.email +
+                ' — reseed (test-data-seeder) or set WH_TEST_HIVE');
+    process.exit(0);
+  }
   const browser = await chromium.launch({ headless: !HEADED });
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
@@ -48,18 +71,18 @@ function check(name, ok, detail) { results.push({ ok: !!ok, name, detail: detail
     // ── sign in as supervisor (reuse live_page_journeys recipe) ──
     await page.goto(`${SEEDER}/workhive/shift-brain.html`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => typeof window.getDb === 'function' && !!window.supabase, { timeout: 15000 }).catch(() => {});
-    const si = await page.evaluate(async ({ email, password, hive, worker, url }) => {
+    const si = await page.evaluate(async ({ email, password, hive, worker, url, hiveName }) => {
       try {
         const db = window._whSupabaseClient || window.getDb(url, window.SUPABASE_KEY);
         const { data, error } = await db.auth.signInWithPassword({ email, password });
         localStorage.setItem('wh_active_hive_id', hive);
-        localStorage.setItem('wh_hive_name', 'Baguio Textile Mills');
+        localStorage.setItem('wh_hive_name', hiveName);
         localStorage.setItem('wh_hive_role', 'supervisor');
         localStorage.setItem('wh_nav_mode', 'supervisor');
         localStorage.setItem('wh_last_worker', worker);
         return { ok: !error && !!data?.session, err: error ? String(error.message || error) : null };
       } catch (e) { return { ok: false, err: String(e) }; }
-    }, { email: SUP.email, password: SUP.pw, hive: HIVE, worker: SUP.worker, url: SUPABASE_URL });
+    }, { email: SUP.email, password: SUP.pw, hive: HIVE, worker: SUP.worker, url: SUPABASE_URL, hiveName: HIVE_NAME });
     check('P1 sign-in supervisor', si.ok, si.err || '');
     if (!si.ok) throw new Error('sign-in failed — cannot run battery');
 

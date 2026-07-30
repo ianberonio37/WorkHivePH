@@ -472,6 +472,10 @@
     <div class="section-heading">Hive Standings</div>
     <div id="standings-list"></div>
   </div>
+
+  <!-- §1c: service-provider tier, filled by loadProviderTier() only when this worker is a
+       provider. Left empty (no heading, no placeholder) for everyone else. -->
+  <div id="ac-provider-tier"></div>
 </div>
 
 <script>
@@ -814,6 +818,45 @@
   }
 
   // ── Hive standings ───────────────────────────────────────────
+  /* §1c Provider Tiers (Uber-Pro model, SERVICE_HAILING_ROADMAP.md P6b). A worker who is also a
+     service provider earns a SECOND standing: their hail tier. It is VIEW-COMPUTED in
+     v_service_provider_truth from verified completions + rating - never a stored counter here
+     (trust-forge). Renders NOTHING for a non-provider: silence-is-golden, no empty tease. */
+  async function loadProviderTier() {
+    const slot = document.getElementById('ac-provider-tier');
+    if (!slot) return;
+    try {
+      // v_service_provider_truth is the PUBLIC provider directory - it deliberately does NOT
+      // expose auth_uid (identity stays out of a world-readable view). Resolve which providers
+      // are mine through the DEFINER helper, exactly as the seller console does, then filter by id.
+      const { data: ids, error: idErr } = await db.rpc('my_service_provider_ids');
+      if (idErr) return;
+      const mine = (ids || []).map(r => (typeof r === 'string' ? r : (r && (r.my_service_provider_ids || r.id)))).filter(Boolean);
+      if (!mine.length) return;                       // not a provider: render nothing
+      const { data, error } = await db.from('v_service_provider_truth')
+        .select('display_name, tier, completed_jobs, rating_avg, rating_count')
+        .in('id', mine).limit(3);
+      if (error || !data || !data.length) return;
+      const p = data[0];
+      const jobs = Number(p.completed_jobs || 0);
+      const badge = p.tier === 'gold' ? '🥇 Gold' : p.tier === 'silver' ? '🥈 Silver' : '🥉 Bronze';
+      const next = p.tier === 'gold'
+        ? 'Top tier - you get first look at new hails.'
+        : p.tier === 'silver'
+          ? `${Math.max(0, 25 - jobs)} more jobs and a 4.5★ average reach Gold.`
+          : `${Math.max(0, 10 - jobs)} more completed jobs reach Silver.`;
+      slot.innerHTML =
+        '<div class="simple-card" style="margin-top:0.6rem;padding:0.9rem 1rem;">' +
+        '<div style="font-size:0.78rem;opacity:0.85;">Service provider tier</div>' +
+        '<div style="font-size:1.1rem;font-weight:800;margin:0.15rem 0;">' + badge + '</div>' +
+        '<div style="font-size:0.78rem;opacity:0.85;">' + jobs + ' job' + (jobs === 1 ? '' : 's') + ' done' +
+        (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + '</div>' +
+        '<div style="font-size:0.75rem;opacity:0.8;margin-top:0.25rem;">' + escHtml(next) + '</div>' +
+        '<a href="marketplace-seller.html" style="display:inline-flex;align-items:center;min-height:44px;margin-top:0.5rem;padding:0.5rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;font-size:0.8rem;" aria-label="Open my service provider console">Open my provider console →</a>' +
+        '</div>';
+    } catch (_) { /* empty-catch-allow: the tier card is additive; a failure leaves it silent */ }
+  }
+
   async function loadHiveStandings() {
     if (!HIVE_ID) return;
     const standingsEl = document.getElementById('standings-list');
@@ -1021,6 +1064,7 @@
     renderRecentActivity();
     subscribeAchievements();
     loadHiveStandings();
+    loadProviderTier();
 
     // Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
     if (typeof wireDetailToggle === 'function') wireDetailToggle();

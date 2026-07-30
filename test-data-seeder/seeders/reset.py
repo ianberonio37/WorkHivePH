@@ -10,6 +10,24 @@ The reset-coverage validator skips these via CATALOG_TABLES_IGNORED."""
 # Order matters -- children before parents. Tables with PK other than 'id'
 # go in RESET_TABLES_NON_ID below (uses a different sentinel filter).
 RESET_TABLES = [
+    # 2026-07-28 service-hailing (SERVICE_HAILING_ROADMAP.md P1, mig 20260728000039) —
+    # children before parents (redemptions/offers/events reference requests; requests
+    # reference providers/catalog).
+    "push_subscriptions",             # 20260728000044 - transient browser endpoints; re-created on next enable
+    # 2026-07-29 Arc II (roadmap §4b): the outbox is delivery state, not seed data - a stale row would
+    # make the relay re-POST an old job offer on the next reseed. service_slo_targets holds the SLO
+    # numbers Ian tunes, so a reset must restore the seeded defaults rather than leave edited ones.
+    "service_outbox",                 # 20260729000013 - C12 durable delivery queue
+    "service_slo_targets",            # 20260729000015 - C15 SLO targets (re-seeded by the migration)
+    "service_voucher_redemptions",
+    "service_vouchers",
+    "service_offers",
+    "service_job_events",
+    "service_requests",
+    "service_credit_topups",
+    "service_credit_ledger",
+    "service_providers",
+    "service_catalog",
     # 2026-05-21 paydown: new platform tables added in migrations, register
     # in reset.py so reset-coverage validator passes.
     "client_errors",               # 20260723000001 — D21 frontend error capture (transient diagnostics, no seeder; safe to wipe)

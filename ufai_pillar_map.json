@@ -1053,6 +1053,7 @@
      "S1",
      "D3",
      "G4",
+     "R1",
      "R3",
      "C1",
      "V1"
@@ -1114,9 +1115,10 @@
     ]
    },
    "A2_component_ds": {
-    "pct": null,
-    "dims": [],
-    "owner": "na-on-page"
+    "pct": 100,
+    "dims": [
+     "R1"
+    ]
    },
    "A3_configurability": {
     "pct": null,
@@ -1209,7 +1211,7 @@
     ]
    },
    "U6_consistency": {
-    "pct": 95,
+    "pct": 100,
     "dims": [
      "S1",
      "D3",
@@ -1279,7 +1281,7 @@
     ]
    },
    "A2_component_ds": {
-    "pct": 67,
+    "pct": 100,
     "dims": [
      "R1"
     ]
@@ -1413,7 +1415,7 @@
     "owner": "gate"
    },
    "F3_appropriateness": {
-    "pct": 100,
+    "pct": 84,
     "dims": [
      "X1",
      "E4"

@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 68,
-    "total_calls": 36,
+    "files_scanned": 70,
+    "total_calls": 37,
     "total_drift": 0,
     "baseline": 0,
-    "edge_fns_known": 57
+    "edge_fns_known": 58
   },
   "per_page": [
     {
@@ -180,6 +180,10 @@
       "broken": []
     },
     {
+      "page": "maplibre-gl.js",
+      "broken": []
+    },
+    {
       "page": "maturity-gate.js",
       "broken": []
     },
@@ -257,6 +261,10 @@
     },
     {
       "page": "wh-help.js",
+      "broken": []
+    },
+    {
+      "page": "wh-map.js",
       "broken": []
     },
     {

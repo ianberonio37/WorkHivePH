@@ -143,6 +143,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- A1: this read-only feed's primary action is conversion — a clear filled CTA to sign in
          and post, so a signed-out reader sees the one thing to do (the header link is chrome). -->
     <a href="index.html" class="header-btn" style="margin-top:0.85rem;" data-i="pf_join_cta">Sign in to post →</a>
+    <!-- SERVICE_HAILING P8 (§1c acquisition): the public feed is the SEO/anon front porch —
+         offer the hail door to visitors who came looking for help, not conversation. -->
+    <a href="marketplace.html?section=services" class="header-btn" style="margin-top:0.5rem;margin-left:0.5rem;" data-i="pf_hail_cta">Need a technician? Hail a service →</a>
   </div>
 <details class="wh-help">
   <summary data-i="pf_how_summary">How this page works</summary>
@@ -301,6 +304,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   pf_signin: 'Mag-sign In →',
   pf_subtitle: 'Mga pampublikong post mula sa mga maintenance team ng WorkHive. Mag-sign in para sumali sa usapan.',
   pf_join_cta: 'Mag-sign in para mag-post →',    // was marked but had NO dict entry -> stayed EN in FIL
+  pf_hail_cta: 'Kailangan ng technician? Tumawag ng serbisyo →',   // SERVICE_HAILING P8 acquisition CTA
   pf_feed_heading: 'Pinakabagong mga post',      // was marked but had NO dict entry -> stayed EN in FIL
   pf_how_summary: 'Paano gumagana ang page na ito',
   pf_how_body: 'Read-only ang feed na ito at nagpapakita ng mga pampublikong post ng hive. Walang personal na lumalabas dito. Mag-sign in at sumali sa isang hive para mag-post o sumagot.',

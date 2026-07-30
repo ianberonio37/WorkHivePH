@@ -4,7 +4,7 @@
     "persisted_fields_analyzed": 101,
     "dead_end_fields": 5,
     "fields_with_causal_cascade": 38,
-    "avg_display_fanout": 3.22,
+    "avg_display_fanout": 3.24,
     "max_display_fanout": 8
   },
   "per_page": {
@@ -54,7 +54,7 @@
       "fields": 29,
       "persisted": 19,
       "dead_end": 0,
-      "fanout_sum": 89,
+      "fanout_sum": 91,
       "max_depth": 3
     },
     "pm-scheduler": {
@@ -3400,9 +3400,10 @@
       "surface": "marketplace",
       "field": "review-comment",
       "terminus": "marketplace_reviews",
-      "display_fanout": 1,
+      "display_fanout": 2,
       "display_depth": 2,
       "displayed_on_pages": [
+        "marketplace-seller",
         "marketplace-seller-profile"
       ],
       "displayed_via_views": [],
@@ -3431,9 +3432,10 @@
       "surface": "marketplace",
       "field": "review-rating",
       "terminus": "marketplace_reviews",
-      "display_fanout": 1,
+      "display_fanout": 2,
       "display_depth": 2,
       "displayed_on_pages": [
+        "marketplace-seller",
         "marketplace-seller-profile"
       ],
       "displayed_via_views": [],
@@ -3911,7 +3913,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -3927,7 +3931,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -3943,7 +3949,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -3959,7 +3967,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -3975,7 +3985,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -3991,7 +4003,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -4007,7 +4021,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -4023,7 +4039,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -4334,7 +4352,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -4350,7 +4370,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -4366,7 +4388,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -4382,7 +4406,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -4398,7 +4424,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     },
@@ -4414,7 +4442,9 @@
         "pm-scheduler"
       ],
       "displayed_via_views": [],
-      "read_by_edge_fns": [],
+      "read_by_edge_fns": [
+        "project-progress"
+      ],
       "causal_cascades": [],
       "cascade_pages": []
     }
