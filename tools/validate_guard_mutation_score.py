@@ -91,6 +91,25 @@ OPERATORS = [
      "same fail-open, on the guards written in upper case"),
     ("state_list_widened", r"old\.status\s+in\s+\(([^)]*)\)", None,
      "an authorised from-state list gains one more state than the product allows"),
+
+    # ── SECOND WAVE. The first nine gave 27/27, and a 100% is only worth what its operators can express -
+    # so these six add faults the first wave could not reach. Each is a rot mode these guards specifically
+    # could suffer, not a generic character edit.
+    ("birth_status_unchecked", r"new\.status\s+not\s+in\s+\('requested','broadcasting'\)", "false",
+     "a new request may be BORN in any state, including a privileged/terminal one"),
+    ("attribution_pin_removed", r"new\.client_auth_uid\s+is\s+distinct\s+from\s+auth\.uid\(\)", "false",
+     "a caller may file a request AS SOMEONE ELSE - the attribution pin stops holding"),
+    ("born_matched_allowed", r"new\.matched_provider_id\s+is\s+not\s+null", "false",
+     "a request may be born already MATCHED, bypassing the accept RPC entirely"),
+    ("reassignment_allowed", r"new\.matched_provider_id\s+is\s+distinct\s+from\s+old\.matched_provider_id",
+     "false",
+     "matching may be reassigned by a direct write instead of the accept/select RPC"),
+    ("ownership_transfer_allowed", r"new\.client_auth_uid\s+is\s+distinct\s+from\s+old\.client_auth_uid",
+     "false",
+     "a request's OWNERSHIP may be reassigned to another account"),
+    ("guc_bypass_always_on",
+     r"current_setting\('workhive\.[a-z_]+',\s*true\)\s*=\s*'on'", "true",
+     "the announced system-write bypass is permanently ON, so every caller gets the backend path"),
 ]
 
 VOCAB_EXTRA = "'settled'"

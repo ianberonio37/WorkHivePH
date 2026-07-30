@@ -1950,3 +1950,27 @@ green · substrate 720 fresh.
 demonstrated by the denominator growing itself). Beyond that the honest queue is *more mutation operators* —
 the 100% means the bank objects to every fault nine operators can express, and each new operator is a real
 increase in what that number is worth.
+
+### §11.8 · The operators went 9 → 15, and the score held: 36/36
+
+A mutation score is worth exactly what its operators can express, and §11.7 closed by saying so. So six more
+were added — each a rot mode these guards specifically could suffer, not a generic character edit:
+
+| Operator | The fault it expresses |
+|---|---|
+| `birth_status_unchecked` | a new request may be BORN in any state, including a privileged/terminal one |
+| `attribution_pin_removed` | a caller may file a request AS SOMEONE ELSE |
+| `born_matched_allowed` | a request may be born already MATCHED, bypassing the accept RPC |
+| `reassignment_allowed` | matching may be reassigned by a direct write instead of the RPC |
+| `ownership_transfer_allowed` | a request's OWNERSHIP may be moved to another account |
+| `guc_bypass_always_on` | the announced system-write bypass is permanently ON, so every caller gets the backend path |
+
+**27 → 36 viable mutants, and all 36 still killed.** `guard_service_request_status` alone went 9 → 15.
+
+That is a different claim from the one at 27, and a stronger one: the bank now demonstrably objects to
+losing the attribution pin, to a request born matched, to ownership transfer, and to the GUC bypass being
+stuck open — none of which the first nine operators could reach. The number did not move; **what it means
+did.**
+
+**Remaining honest queue:** more operators still. 36 is not a ceiling, it is the current vocabulary — and a
+survivor, when one eventually appears, is a named punch-list item rather than a worry.
