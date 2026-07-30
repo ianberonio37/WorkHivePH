@@ -145,6 +145,9 @@ GUARDS = {
     # (three posts fit, the fourth by the same author trips, a different author is unaffected). One operator on
     # the guard's own raise message. Clean.
     "community_post_rate_limit":          "community_posts",
+    # ── ARC 13 / F — the reply-side recent-window anti-flood (15s, >=5). Judge: TB-RATE-community-reply. One
+    # operator on its own 'Replying too fast' message. Clean.
+    "community_reply_rate_limit":         "community_replies",
 }
 
 
@@ -504,6 +507,8 @@ OPERATORS = [
     # guard is under score.)
     ("community_rate_removed", r"RAISE EXCEPTION 'Posting too fast\. Wait a few seconds\.'[^;]*;", "NULL;",
      "the 30-second anti-flood stops firing, so one author can post an unbounded burst"),
+    ("community_reply_rate_removed", r"RAISE EXCEPTION 'Replying too fast\. Wait a few seconds\.'[^;]*;", "NULL;",
+     "the 15-second reply anti-flood stops firing, so one author can reply in an unbounded burst"),
 ]
 
 VOCAB_EXTRA = "'settled'"

@@ -6613,6 +6613,42 @@
         "isolated from the cumulative community quota (cap pinned to 1000) and check_daily_row_cap (200/hive, well under), so the rate limit is the sole refuser at the 4th"
       ],
       "provenance": "community_post_rate_limit, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Recent-window rate-limit exemplar; same shape as community_reply_rate_limit."
+    },
+    {
+      "id": "TB-RATE-community-reply",
+      "source": "authored",
+      "kind": "resource-cap",
+      "journey": "J-community-reply-rate",
+      "authority": "any",
+      "state": "populated",
+      "path": "edge",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "community_replies"
+      ],
+      "probe": {
+        "file": "TB-RATE-community-reply.sql",
+        "expect": {
+          "first_five": "allowed",
+          "sixth_same_author": "blocked",
+          "other_author": "allowed"
+        }
+      },
+      "asserts": [
+        "the reply anti-flood refuses a 6th reply by the same author in the same hive within 15s while the first five succeed",
+        "per author, not a freeze: a different author is unaffected",
+        "isolated from check_daily_row_cap (well under its cap); no cumulative quota on replies"
+      ],
+      "provenance": "community_reply_rate_limit, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Reply-side mirror of community_post_rate_limit (15s window, threshold 5)."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
