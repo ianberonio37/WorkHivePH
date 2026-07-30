@@ -5326,6 +5326,38 @@
       ],
       "provenance": "`state` was None on 212 of 247 cells because the inducers the original plan required (§7b) were never built - and that plan named the cost itself: 'a state axis with no induction mechanism is decoration'. Two axes (viewport, lang) were retired today for exactly that reason; this is the other half of the answer, inducing the states that CAN be induced at SQL altitude instead of removing them.",
       "note": "`error` and `degraded` are deliberately NOT here: a route abort / 401 / 5xx and an offline write queue are browser facts belonging to the journey lane, and claiming them at SQL altitude would break the cheapest-honest-altitude rule in the expensive direction. THE EDGE ASSERTION WAS CORRECTED MID-BUILD: it first demanded a 200-char title survive, which returned 120 and looked like silent truncation of user content (the edge fn slices at 200, the DB trigger caps at 120). Unreachable - #post-title carries maxlength=120 matching the DB, and the AI writes only category and description, never the title. So both ENDS agree and only the middle layer is slack. The assertion now locks the AGREEMENT at 120, which reddens if either end drifts; demanding 200 would have asked the product to abandon a deliberate cap."
+    },
+    {
+      "id": "TB-STATE-journey-error-and-degraded",
+      "source": "authored",
+      "kind": "state-inducer",
+      "journey": "J1-buyer-browse-search",
+      "authority": "member",
+      "state": "error",
+      "path": "error",
+      "lane": "journey",
+      "oracle": "rubric",
+      "status": "covered",
+      "covered_by": "marketplace-state-inducers",
+      "covered_evidence": "A failed listings read renders 'Couldn't load listings' INSIDE #listing-grid and does NOT render the first-run 'be the first to sell' CTA (the P7 misread); offline REFUSES a write via whRequireOnline and announces it, naming that nothing was sent.",
+      "layers": [
+        "S1-ui",
+        "S2-pwa"
+      ],
+      "dims": [
+        "MK6",
+        "MK7"
+      ],
+      "ufai_earned": {
+        "F6": "the error and degraded states are induced in a real browser, so an error can never be rendered as an empty state"
+      },
+      "asserts": [
+        "error: a failed read shows an error affordance, not a fake empty state or a stuck skeleton",
+        "error: the first-run CTA is ABSENT, because 'be the first to sell' on a failed query reads as 'your listings are gone'",
+        "degraded: offline refuses the write AND says so, including that nothing was sent"
+      ],
+      "provenance": "The state axis was induced at SQL altitude for empty/filtered0/edge; `error` and `degraded` are browser facts and were deliberately excluded there rather than claimed. This closes the axis across both altitudes - the cheapest honest altitude for each state, not one altitude for all.",
+      "note": "The product was RIGHT and my test was wrong twice before it passed: a 2.5s sleep measured the page's RETRY budget (aborts climb 12->20->32, the error lands at ~8s) so it must POLL; and body.innerText matched the error copy and the CTA from other sections, so it must assert inside #listing-grid. Fifth suspected finding this session that dissolved on inspection."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

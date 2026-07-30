@@ -410,6 +410,15 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "marketplace-state-inducers",
+        "script":  "tools/validate_marketplace_state_inducers.py",
+        "args":    [],
+        "label":   "MARKETPLACE STATE INDUCERS — the two bank states SQL altitude cannot reach. TB-STATE-inducers induces `empty`, `filtered0` and `edge` in rolled-back SQL and deliberately stops there; `error` (the listings read FAILS, induced by aborting that request at the network layer) and `degraded` (the device is offline, induced at the browser-context level rather than by stubbing navigator.onLine, which would test the stub instead of the guard) are BROWSER facts and live here. WHY THE `error` ONE IS THE POINT: a failed read and an empty result are the same thing to a row count, and this platform has already been bitten by that — read-battery once reported SIX named page failures, all 'DB empty -> empty-state (no error)', and none were real. From the USER's side the ambiguity is worse: a seller whose query merely failed must not be told 'be the first to sell', because that reads as *your listings are gone*. marketplace.html already gets this right — `_loadError` is documented at line 1064 as 'P7: a FAILED listings fetch must render an error state, not the first-run be-the-first-to-sell CTA' — but that behaviour had NO browser test, because a static grep cannot prove which branch renders when the network actually fails. This gate LOCKS the fix rather than re-implementing it, and asserts the CTA is absent as well as the error being present. TWO THINGS THE SPEC HAD TO GET RIGHT, both learned by getting them wrong first: (1) POLL, never sleep-then-assert — the page RETRIES the read (abort count climbs 12 -> 20 -> 32) and declares failure only once retries are exhausted at ~8s, so a 2.5s sleep measured the retry budget and failed while the product was correct; (2) assert INSIDE #listing-grid, never over body.innerText — both the error copy AND the CTA exist elsewhere in the document as other sections' markup, so a whole-page match goes green for the wrong reason, and innerText silently omits anything in an inactive tab. The offline half requires the guard to BOTH refuse and announce, including the sentence that nothing was sent: a guard that refuses in silence is the failure mode this platform found live when a centralised offline guard produced no toast because showToast is page-local. Both assertions are non-vacuous by construction — the error test fails if the request was never intercepted, the offline test fails if whRequireOnline is absent rather than merely permissive. skip_if_fast: browser minutes.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
         "id":      "guard-mutation-score",
         "script":  "tools/validate_guard_mutation_score.py",
         "args":    [],

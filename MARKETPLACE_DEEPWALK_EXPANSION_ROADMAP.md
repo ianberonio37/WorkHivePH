@@ -1974,3 +1974,40 @@ did.**
 
 **Remaining honest queue:** more operators still. 36 is not a ceiling, it is the current vocabulary — and a
 survivor, when one eventually appears, is a named punch-list item rather than a worry.
+
+### §11.9 · The state axis closed across BOTH altitudes — and a fifth finding that dissolved
+
+`error` and `degraded` were deliberately excluded from the SQL tier as browser facts. They are now induced
+in a real browser by `marketplace-state-inducers` (new gate, `TB-STATE-journey-error-and-degraded`), which
+closes the state axis at the cheapest honest altitude for each state rather than one altitude for all.
+
+**`error` is the one that matters.** A failed read and an empty result are identical to a row count, and from
+the user's side the ambiguity is worse than from ours: a seller whose query merely failed must not be told
+*"be the first to sell"*, because that reads as **your listings are gone**. `marketplace.html` already gets
+this right — `_loadError` is documented at line 1064 as *"P7: a FAILED listings fetch must render an error
+state, not the first-run 'be the first to sell' CTA"* — but it had **no browser test**, because a static grep
+cannot prove which branch renders when the network actually fails. The gate locks the fix and asserts the CTA
+is **absent** as well as the error being present.
+
+**The product was right and my test was wrong, twice, before it passed:**
+
+| What I did | What it actually measured |
+|---|---|
+| slept 2.5s then asserted | the page's **retry budget** — aborts climb 12 → 20 → 32 and the error lands at **~8s**, so a fixed sleep failed on correct behaviour. Fixed by POLLING (the same lesson as judging a toast on one snapshot) |
+| matched `body.innerText` | other sections' markup — both the error copy **and** the CTA exist elsewhere in the document, so a whole-page match goes green for the wrong reason, and `innerText` silently omits inactive tabs. Fixed by asserting inside `#listing-grid` |
+
+`degraded` requires the offline guard to **refuse AND announce**, including the sentence that nothing was
+sent — a guard that refuses in silence is the exact failure this platform found live when a centralised
+offline guard produced no toast because `showToast` is page-local. Both halves are non-vacuous by
+construction: the error test fails if the request was never intercepted, the offline test fails if
+`whRequireOnline` is absent rather than merely permissive.
+
+> **Five suspected findings this session; five dissolved on inspection** — the `service_triage` "dead branch"
+> (reached server-to-server), the top-up guard "at 0%" (my cell selection), the "80-char silent truncation"
+> (capped identically at both ends), and now two impatient assertions. Not one was a product defect. The
+> single habit behind all five: **before reporting, check whether another layer, another retry, or another
+> assertion in the same run already contradicts it.**
+
+**Final state:** transition **99.6%** (249/250) · SQL lane 132/132 · journey lane 14 cells · mutation
+**100% of 36** · layer 100% with rule + owners disclosed (S2-pwa now 2 cells) · dimension 100% · oracles
+refusal 194 · db-truth 36 · rubric 10 · continuity 7 · eval 1 · metamorphic 1 · ratchet PASS.
