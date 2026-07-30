@@ -1846,3 +1846,60 @@ Reported as measured, not as reasoned: a client-side grep is not evidence about 
   a live journey establishing the friction;
 - the admission rule stands: a new cell counts once it kills a mutant, or fails when its invariant is
   inverted.
+
+### §11.6 · P3 second move — the state axis is INDUCED, and my "silent truncation" finding did not survive contact
+
+`TB-STATE-inducers-empty-filtered0-edge`, 9 assertions, all green. The original plan named the cost of not
+doing this in its own words — *"a state axis with no induction mechanism is decoration"* — and `state` was
+`None` on 212 of 247 cells because §7b's inducers were never built. Two axes were retired today for exactly
+that reason; this is the other half of the answer: induce the states that CAN be induced rather than remove
+them.
+
+**Three states induced at SQL altitude**, and `error`/`degraded` deliberately left to the journey lane — a
+route abort and an offline write queue are browser facts, and claiming them here would break the
+cheapest-honest-altitude rule in the expensive direction.
+
+**The assertion worth having** is one our own history earned. `read-battery` once reported SIX named page
+failures, all *"DB empty → empty-state (no error)"*, and not one was real: the hive it pinned had been
+reseeded away ([[feedback_a_dead_fixture_invents_page_defects]]). So the probe proves both halves of why
+that happened:
+
+```
+state_empty_rows=0            a real tenant that owns nothing
+state_filtered0_rows=0        real rows, and a filter none of them match
+state_ghost_tenant_rows=0     a hive id that does not exist at all
+three_states_indistinguishable_by_count=yes      <- a count is never a diagnosis
+tenant_exists_separates_empty_from_ghost=yes     <- and this is the check that DOES separate them
+```
+
+Those are three completely different truths — *"nothing yet"*, *"nothing matches"*, *"you are asking about
+nobody"* — and a surface rendering the same thing for all three will one day tell a real user their data is
+gone.
+
+#### The finding I did not report, for the third time today
+
+The edge assertion first demanded a 200-character title survive. It came back **120**, which looked like
+silent truncation of user content: `title` is unbounded `text`, `marketplace-listing-assist` slices titles at
+200 (`.slice(0, 200)`), and `cap_marketplace_listings_text` does `left(NEW.title, 120)` — an 80-character
+loss with no error, no toast, no log. `condition` shows the same shape (sliced at 60, capped at 40).
+
+**Unreachable.** `#post-title` in marketplace.html carries `maxlength="120"`, matching the DB cap exactly,
+and the AI assist writes only `category` and `description` — never the title. Both ENDS of the chain agree
+at 120; only the middle layer is slack. That is defence-in-depth that happens to be loose, not a defect.
+
+So the assertion was corrected rather than the product: it now locks the **agreement** at 120, which reddens
+if `maxlength` is raised without the trigger or the trigger is lowered without the form. Demanding "200
+survives" would have asked the product to abandon a deliberate cap
+([[feedback_gates_lock_refusal_not_permission]] — lock the behaviour that EXISTS).
+
+> Three suspected findings this session, three that dissolved on inspection: the `service_triage` "dead
+> branch" (reached server-to-server), the top-up guard "at 0%" (my cell selection), and this truncation
+> (capped at both ends). **The habit that caught all three is the same one: before reporting, check whether
+> another layer already contradicts it.**
+
+**State:** transition 99.6% (248/249) · SQL lane **132/132** · mutation **100%** (27/27, 0 persist) ·
+oracles refusal 194 · db-truth 36 · rubric 9 · continuity 7 · eval 1 · metamorphic 1 · ratchet PASS.
+
+**NEXT:** the three one-cell layers the board now names out loud — S2-pwa, S7-ai, S9-knowledge — each
+preceded by a live journey establishing the friction, and each admitted only by the standing rule: a new
+cell counts once it kills a mutant or fails when its invariant is inverted.

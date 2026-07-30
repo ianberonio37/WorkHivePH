@@ -5278,6 +5278,54 @@
       ],
       "provenance": "The oracle mix was 194 `refusal` of 247 cells and exactly ONE `eval`. That was not an accident of effort: wherever no exact expected value could be written down - ranking, filtering, permission-visibility - the surface was skipped or graded by rubric. A metamorphic relation is a necessary property that MUST involve MULTIPLE EXECUTIONS, so it needs no right answer, only a relation the right answers obey. The published canonical example is our exact shape: a filtered search 'should return a subset of the previous results'.",
       "note": "EVERY MR CARRIES ITS OWN NON-VACUITY CHECK, because these relations are the easiest in the bank to satisfy trivially: an empty filter result is a subset of anything, a system that shows nobody anything is monotonic, and 0 = 0 is order-independent. So MR1 asserts the filter kept AND removed rows, MR2 asserts the supervisor sees something AND that the subset is STRICT, MR3 asserts both orderings minted. My first MR2 fixture gave both requests a hive_id, which made the two visible sets IDENTICAL - subset held by equality while proving no permission boundary existed. Rebuilt so one request is visible to the supervisor only."
+    },
+    {
+      "id": "TB-STATE-inducers-empty-filtered0-edge",
+      "source": "authored",
+      "kind": "state-inducer",
+      "journey": "J1-buyer-browse-search",
+      "authority": "member",
+      "state": "empty",
+      "path": "happy",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "status": "banked",
+      "layers": [
+        "S3-data",
+        "S4-db"
+      ],
+      "dims": [
+        "MK1",
+        "MK6"
+      ],
+      "covers_tables": [
+        "marketplace_listings"
+      ],
+      "ufai_earned": {
+        "F6": "the three ZERO-ROW states are proven indistinguishable by count, and the tenant-existence check that separates them is asserted to work"
+      },
+      "probe": {
+        "file": "TB-STATE-inducers-empty-filtered0-edge.sql",
+        "expect": {
+          "state_empty_rows": "0",
+          "state_populated_rows": "3",
+          "state_filtered0_rows": "0",
+          "state_filtered0_had_rows_to_filter": "yes",
+          "state_ghost_tenant_rows": "0",
+          "three_states_indistinguishable_by_count": "yes",
+          "tenant_exists_separates_empty_from_ghost": "yes",
+          "state_edge_zero_price_persisted": "yes",
+          "state_edge_title_capped_at_form_maxlength_120": "yes"
+        }
+      },
+      "asserts": [
+        "empty (a real tenant owning nothing), filtered0 (real rows, no match) and a GHOST tenant all return the same 0 rows - so a count is never a diagnosis",
+        "the tenant-existence check DOES separate empty from ghost, which is the check the read-battery lacked when it invented six page defects",
+        "filtered0 is non-vacuous: the unfiltered set had rows to filter",
+        "edge boundaries hold: price=0 (the CHECK's own minimum) persists, and title is capped at 120 - exactly the number #post-title's maxlength uses"
+      ],
+      "provenance": "`state` was None on 212 of 247 cells because the inducers the original plan required (§7b) were never built - and that plan named the cost itself: 'a state axis with no induction mechanism is decoration'. Two axes (viewport, lang) were retired today for exactly that reason; this is the other half of the answer, inducing the states that CAN be induced at SQL altitude instead of removing them.",
+      "note": "`error` and `degraded` are deliberately NOT here: a route abort / 401 / 5xx and an offline write queue are browser facts belonging to the journey lane, and claiming them at SQL altitude would break the cheapest-honest-altitude rule in the expensive direction. THE EDGE ASSERTION WAS CORRECTED MID-BUILD: it first demanded a 200-char title survive, which returned 120 and looked like silent truncation of user content (the edge fn slices at 200, the DB trigger caps at 120). Unreachable - #post-title carries maxlength=120 matching the DB, and the AI writes only category and description, never the title. So both ENDS agree and only the middle layer is slack. The assertion now locks the AGREEMENT at 120, which reddens if either end drifts; demanding 200 would have asked the product to abandon a deliberate cap."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
