@@ -3368,4 +3368,15 @@ claims RLS-bypassed to isolate the guard; check the table's co-triggers (verify 
      the current count first and set the cap = count + 1 (allow one, refuse the next), or plant a fresh
      throwaway hive with zero same-day rows. A cap set blind will refuse the first insert (or never trip) and
      the cell will flap — the exact fixture-that-does-not-control-its-state trap
-     ([[feedback_a_test_asserting_a_state_it_does_not_control]]).
+     ([[feedback_a_test_asserting_a_state_it_does_not_control]]). **`check_logbook_rate_limit` DONE this way
+     (§14 / TB-RATE): hive cap pinned to 1,000,000, per-user cap = live count + 1.**
+   - **Cumulative-vs-daily conflation** (the `check_hive_quota_*` guards specifically). These count CUMULATIVE
+     rows (all-time) while the sibling rate-limit's hive cap counts TODAY's — and both read the same
+     `max_rows_*`. For a fresh hive whose rows are all today, cumulative == daily, so setting the cap to trip
+     the quota ALSO trips the rate limit and the warn-only mode (which must ALLOW the write) is refused by the
+     rate limit instead — a red baseline. Isolate by planting the fixture rows **dated yesterday** (created_at
+     = now() − 1 day): cumulative > daily, so the quota trips while the daily rate-limit cap stays clear. Then
+     the four EXISTING §12 quota operators (`quota_enforcement_disabled`, `quota_warn_log_removed`,
+     `quota_boundary_narrowed`, `quota_null_escape_widened`) score it with no new operators — the guards share
+     `check_hive_quota_ai_reports`'s exact two-branch shape (enforce → 54000 · warn-only → automation_log row
+     read back). Mirror `TB-QUOTA-ai-reports-both-modes`.

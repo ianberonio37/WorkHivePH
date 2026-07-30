@@ -124,6 +124,11 @@ GUARDS = {
     # live same-day count + 1. One operator, keyed on the user-cap raise's own HINT ('logbook_daily_user') so it
     # cannot hit the same guard's hive-cap raise. Clean.
     "check_logbook_rate_limit":           "logbook",
+    # ── ARC 13 / F — the CUMULATIVE per-hive logbook quota. Same two-branch shape as check_hive_quota_ai_reports
+    # (enforce -> 54000 / warn-only -> automation_log), so it is scored by the FOUR EXISTING §12 quota operators
+    # with NO new operators. Judge: TB-QUOTA-logbook, which isolates it from check_logbook_rate_limit by dating
+    # the fixture rows yesterday (cumulative>today). Clean.
+    "check_hive_quota_logbook":           "logbook",
 }
 
 
