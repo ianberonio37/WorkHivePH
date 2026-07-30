@@ -2687,3 +2687,86 @@ gate PASS + self-test discriminates · registry 705 gates, still clean
 > **The generalisable point:** when a fix removes NON-DETERMINISM, an outcome test may pass against the bug by
 > luck — so the honest lock is a static assertion about the code, not a green cell about the behaviour. Knowing
 > which of the two you have is the difference between evidence and decoration.
+
+### §11.21 · Seventh wave, and a gate that reddened because the code got BETTER
+
+Three operators, aimed at questions the previous 30 could not ask. One found a real gap **in my own migration**,
+and two are masked for reasons worth writing down.
+
+| operator | verdict |
+|---|---|
+| `intake_pin_amount_removed` | **SURVIVED — a real gap.** Dropping `amount` from the pinned intake facts lets an admin inflate a stranger's 500-credit top-up to 50000 and verify it in one statement: **value** forgery, which the redirect fix does not cover |
+| `admin_check_always_true` | **EXCLUDED** on the three deny-shape guards; **KILLED** on `guard_service_request_status` |
+| `party_reads_incoming_row` | **EXCLUDED** — masked by the fix it was written to test, which is the intended outcome |
+
+**The amount gap was aimed at my own work, and that is the point.** Mig `20260730000005` was written eight
+sections ago in this same arc; a new rule with no cell behind it is the same gap as any other and does not get a
+pass because I wrote it. `TB-MINT` now asserts `inflate_then_verify=blocked` **and**
+`credit_value_by_inflation=0` — on a row that is still PENDING when the case runs, because reusing the
+already-verified row would have tested a state where the mint cannot fire at all and the assertion would have
+held for the wrong reason.
+
+**The masking mechanism on `admin_check_always_true` is the sharpest in the file.** The mutation widens who
+counts as an admin *inside the guard*, while the RLS policy on the same table evaluates the **real**
+`is_marketplace_admin()`:
+
+```
+mkt_listings_update   USING (seller_name IN auth_worker_names() OR is_marketplace_admin())
+mkt_orders_update     USING (buyer_name IN ... OR seller_name IN ... OR is_marketplace_admin())
+topups_admin_update   USING is_marketplace_admin()
+```
+
+So every actor whose refusal could reveal the mutant is filtered before the trigger fires — and a 0-row UPDATE
+*is* a refusal — while the only actor the policy admits is the owner, a party, for whom the bypass never
+applies. Generalised: **mutating a guard cannot be observed through a path the policy closes using the same
+predicate.** It died on `guard_service_request_status` precisely because `TB-FIELD` gives that guard a
+*reachable* admin (party via hive membership).
+
+#### The suite came back 555 PASS / 3 FAIL, and not one was a product regression
+
+| failure | cause |
+|---|---|
+| substrate freshness | I edited tracked files **while the suite ran**. Self-inflicted; rebuilt to 720/720 |
+| **Arc X sign-in resolver** | **the gate reddened because the code improved** — see below |
+| Memory M3.1 lint | two `MEMORY.md` index lines over the 200-char cap, re-expanded by the index compaction run earlier in this session. Trimmed at a word boundary; 0 ERR |
+
+**Arc X is the one worth keeping.** `validate_arc_x_cognitive.py` asserted that `submitSignIn` calls
+`resolveActiveHiveContext(` by taking exactly **3600 characters** from the function anchor and grepping inside.
+Earlier in this same session `submitSignIn` gained an 18-line **real bug fix** — a 15s → 30s edge cold-start
+budget plus a null-guard, because `fetchWithTimeout` returns `null` rather than throwing and the user was told
+"check your connection" on a perfectly good connection — which pushed the resolver call out to offset **4134**.
+
+The wiring was intact. The window was arbitrary. **A gate that reddens when the code it guards improves is
+worse than no gate: it teaches you to dismiss its output, and the next red gets waved through too.** This is the
+second time the class has bitten this repo ([[feedback_fixed_char_window_validator_is_brittle]] — "comments grew
+the body past +3000; brace-matching was the fix"), so it is fixed at the **helper**, not at the one call site
+that happened to break: all five call sites shared the flaw and only one had failed yet.
+
+`_window` now brace-matches the real body, skipping braces inside strings and comments (template-literal `${}`
+needs no special case — those are balanced), with the char budget demoted to a runaway cap. Teeth verified
+rather than assumed: the extracted body is **4907** chars, contains the resolver, ends on its own closing brace,
+and does **not** bleed into `submitSignUp` — a bleeding window would pass on a call belonging to another
+function. 20/20 checks green.
+
+> **The triage habit that resolved all three quickly:** for each red, ask *which artifact changed since the last
+> green* and check `git log` / `git status` on that artifact **before** reading the gate's explanation. Arc X
+> pointed at `index.html`; `git log` showed no new commit and `git status` showed it **dirty**, which localised
+> the cause to an uncommitted fix from earlier in the session rather than to a regression. And the standing
+> corollary: **editing tracked files while a suite runs guarantees a freshness red** — expect it, re-verify
+> standalone, and never let a self-inflicted red sit in a report as though it were a finding.
+
+#### Two more instrument defects, both caught by RUNNING rather than parsing
+
+- The four new exclusions landed in the **`GUARDS`** dict instead of `EXCLUDED`, because my insertion anchor
+  matched the wrong closing brace. `ast.parse` **accepted** it — a dict may have tuple keys — but
+  `for guard, table in GUARDS.items()` would then unpack a 2-tuple *key* and hand a tuple to `functiondef()`.
+  Valid syntax, broken program: the same trap as the registry check in §11.15, in the same session. Repaired and
+  verified by **importing** the module and asserting `GUARDS` holds exactly four string keys.
+- Backticks in a `bash -c` string command-substituted a word out of an assert as I wrote it ("dropping  from the
+  pinned intake facts"). Also already a documented lesson here. Repaired.
+
+```
+mutation 100.0% (49/49, 6 exclusions each naming a mechanism + a falsifiable re-run)
+ratcheted 90.6% -> 100.0%  ·  SQL lane 157/157  ·  TB-MINT 16 assertions
+arc-x 20/20  ·  memory lint 0 ERR  ·  substrate 720 fresh
+```

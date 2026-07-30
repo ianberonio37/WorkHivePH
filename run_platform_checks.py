@@ -6668,7 +6668,34 @@ def main():
         print("  file, it should not declare it as its report — that field is what the gate EMITS.")
         return 1
 
-    print(f"  {len(VALIDATORS)} gates registered · ids unique · scripts resolve · reports unclaimed twice")
+    # A declared `report` that the gate never writes is a FICTIONAL pointer. It reads as "this gate leaves an
+    # artifact you can inspect", and following it finds nothing — which is how the `rls-strict` entry misled me
+    # into thinking it produced the RLS mining report when it only READS it. Measured rather than assumed: 25
+    # of the 394 gates that declare a report have a script containing no report-writing code at all, and most
+    # of those files do not exist on disk. That is pre-existing metadata debt, not a regression, so it is a
+    # FORWARD-ONLY ceiling: the count is printed every run and only a RISE fails. Cleaning it up lowers the
+    # ceiling; nothing forces 25 fixes today to land one new gate.
+    _FICTIONAL_REPORT_CEILING = 25
+    _fiction = []
+    for _v in VALIDATORS:
+        _rep, _scr = _v.get("report"), _v.get("script")
+        if not _rep or not _scr or not os.path.exists(_scr):
+            continue
+        try:
+            _src = open(_scr, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        if os.path.basename(_rep) not in _src:
+            _fiction.append(f"{_v.get('id')}->{os.path.basename(_rep)}")
+    if len(_fiction) > _FICTIONAL_REPORT_CEILING:
+        print(red(f"\n  REGISTRY ERROR — {len(_fiction)} gates declare a `report` their script never writes "
+                  f"(ceiling {_FICTIONAL_REPORT_CEILING}). New offenders:"))
+        for _f in _fiction[_FICTIONAL_REPORT_CEILING:]:
+            print(f"    {_f}")
+        print("  A report nobody writes is a pointer to nothing. Either write the artifact or drop the field.")
+        return 1
+    print(f"  {len(VALIDATORS)} gates registered · ids unique · scripts resolve · reports unclaimed twice · "
+          f"{len(_fiction)}/{_FICTIONAL_REPORT_CEILING} unwritten report declarations (forward-only)")
 
     baseline = load_baseline()
     if baseline:

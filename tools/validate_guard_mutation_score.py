@@ -209,6 +209,50 @@ OPERATORS = [
      "a listing's owner becomes rewritable again, so an admin can take over a stranger's listing and publish "
      "it as their own (probed live: final_seller = the admin, final_status = published)"),
 
+    # ── SEVENTH WAVE. Three questions none of the 28 above ask. The third is aimed at the fix I just shipped:
+    # a new rule with no cell behind it is the same gap as any other, and my own migration should not get a
+    # pass because I wrote it.
+    ("admin_check_always_true", r"public\.is_marketplace_admin\(\)", "true",
+     "EVERY caller is treated as a platform admin - the authority boundary tested from the other side, since "
+     "every existing operator weakens the party gate rather than widening who counts as staff"),
+    ("party_reads_incoming_row",
+     r"coalesce\(old\.payer_auth_uid, new\.payer_auth_uid\)", "coalesce(new.payer_auth_uid, old.payer_auth_uid)",
+     "party-ness on the money guard reads the INCOMING row first - the exact row-version divergence that "
+     "produced three live exploits, reintroduced on the payer branch to check the new pin backstops it"),
+    ("intake_pin_amount_removed", r"or new\.amount      is distinct from old\.amount\n", "",
+     "the AMOUNT drops out of the pinned intake facts, so an admin can inflate a stranger's 500-credit top-up "
+     "before verifying it - value forgery rather than destination forgery"),
+
+    # ── EIGHTH WAVE. A PIN OVER N COLUMNS IS ONLY ASSERTED FOR THE COLUMNS SOMEONE THOUGHT TO TEST. Migs
+    # 005/006 pin several fields each, and after wave 7 exactly two of them had cells: `amount` (top-ups) and
+    # `seller_name` (orders/listings). The rest are unmonitored code inside a rule I wrote eight sections ago —
+    # the same "every disjunct needs its own negative" lesson, applied to a CONJUNCTION of pinned columns.
+    # The patterns are written against the LIVE `pg_get_functiondef` text, not against my migration source:
+    # the first draft of all three matched NOTHING, because the migration builder joined the disjuncts with its
+    # own indentation and the catalog returns them normalised. A pattern that matches nothing produces no
+    # mutant, so the operator would have asked no question while looking like a clean 100% — caught only
+    # because every new pattern here is checked against the live guard before being trusted.
+    #
+    # `price` is a MIDDLE disjunct, so deleting the line leaves a valid chain. `gcash_ref` and `hive_id` are the
+    # LAST disjunct in their blocks and are followed by the `then` / `) THEN` terminator, so removing the line
+    # outright would leave a dangling `or` and produce a MALFORMED mutant — an operator bug reported as such,
+    # not a gap. They keep their terminator instead.
+    ("order_pin_price_removed", r"\s*OR NEW\.price IS DISTINCT FROM OLD\.price", "",
+     "an order's PRICE drops out of the pin, so an admin can restate what a settled trade was worth before "
+     "releasing it - the money field, on the guard that pays the seller"),
+    ("topup_pin_gcash_ref_removed",
+     r"or new\.gcash_ref\s+is distinct from old\.gcash_ref then", "then",
+     "the GCash reference drops out of the pin, so the receipt a verification is justified by can be rewritten "
+     "after the fact - the audit trail for real money"),
+    # Named for the COLUMN, not one table: this pattern is the last disjunct of the pin on BOTH the order and
+    # listing guards, so it fires twice and the first draft's name ("listing_pin_...") described only half of
+    # what it does. An operator's name is read in a survivor report, where a wrong one sends the reader to the
+    # wrong guard.
+    ("pin_hive_id_removed",
+     r"\s*OR NEW\.hive_id IS DISTINCT FROM OLD\.hive_id\) THEN", ") THEN",
+     "hive_id drops out of the pin (orders AND listings), so a moderator can move a stranger's row into "
+     "ANOTHER TENANT and settle or publish it there - a cross-hive transfer wearing a moderation action"),
+
     ("cancel_window_widened",
      r"and\s+new\.status\s*=\s*'cancelled_by_provider'", "and new.status is not null",
      "the provider-cancel rule stops naming its target state, so it authorises any transition from those "
@@ -251,6 +295,38 @@ EXCLUDED = {
         "require asserting an error MESSAGE rather than an outcome, which is a brittle oracle this bank "
         "deliberately avoids. Falsifiable by construction: the mutant is still executed every run, and if any "
         "cell ever does object the gate FAILS as a STALE EXCLUSION rather than pocketing the kill."
+    ),
+    # `admin_check_always_true` on all three deny-shape guards. The mechanism is worth stating precisely,
+    # because it is the sharpest instance of masking in this file: the mutation widens who counts as an admin
+    # INSIDE THE GUARD, while the RLS policy on the same table evaluates the REAL `is_marketplace_admin()`.
+    #   mkt_listings_update      USING (seller_name IN auth_worker_names() OR is_marketplace_admin())
+    #   mkt_orders_update        USING (buyer_name IN ... OR seller_name IN ... OR is_marketplace_admin())
+    #   topups_admin_update      USING is_marketplace_admin()
+    # So a member / counterparty / cross-tenant actor - the only ones whose refusal could reveal the mutant -
+    # is filtered by the policy before the trigger fires, and a 0-row UPDATE satisfies "refused". The one
+    # actor RLS does admit is the OWNER, for whom v_is_party is TRUE, so `true AND NOT v_is_party` is false
+    # and the bypass does not apply either way. No caller can observe it.
+    #
+    # The general form, which is not obvious: MUTATING A GUARD CANNOT BE OBSERVED THROUGH A PATH THE POLICY
+    # CLOSES USING THE SAME PREDICATE, because the policy still calls the real function. Widening a trigger's
+    # notion of "staff" is invisible wherever RLS independently gates on staff-ness.
+    ("guard_marketplace_listing_status", "admin_check_always_true"): (
+        "Masked by RLS, which evaluates the REAL is_marketplace_admin() while the mutant only widens the guard's copy. Every actor whose refusal could reveal it (member / counterparty / cross-tenant) is filtered by the UPDATE policy before the trigger fires, so the write affects 0 rows and that IS a refusal; the only actor the policy admits is the owner, who is a party, so the bypass does not apply either way. Falsifiable by construction: still executed every run, and a cell that ever objects fails the gate as a STALE EXCLUSION."
+    ),
+    ("guard_marketplace_order_status", "admin_check_always_true"): (
+        "Masked by RLS, which evaluates the REAL is_marketplace_admin() while the mutant only widens the guard's copy. Every actor whose refusal could reveal it (member / counterparty / cross-tenant) is filtered by the UPDATE policy before the trigger fires, so the write affects 0 rows and that IS a refusal; the only actor the policy admits is the owner, who is a party, so the bypass does not apply either way. Falsifiable by construction: still executed every run, and a cell that ever objects fails the gate as a STALE EXCLUSION."
+    ),
+    ("guard_service_topup_status", "admin_check_always_true"): (
+        "Masked by RLS, which evaluates the REAL is_marketplace_admin() while the mutant only widens the guard's copy. Every actor whose refusal could reveal it (member / counterparty / cross-tenant) is filtered by the UPDATE policy before the trigger fires, so the write affects 0 rows and that IS a refusal; the only actor the policy admits is the owner, who is a party, so the bypass does not apply either way. Falsifiable by construction: still executed every run, and a cell that ever objects fails the gate as a STALE EXCLUSION."
+    ),
+    ("guard_service_topup_status", "party_reads_incoming_row"): (
+        "Masked by the fix it was written to test, which is the intended outcome. Reading "
+        "coalesce(NEW.payer_auth_uid, OLD.payer_auth_uid) instead of OLD-first can only differ when "
+        "payer_auth_uid CHANGES in the same statement - and mig 20260730000005 pinned payer_auth_uid as an "
+        "immutable intake fact, so any write that changes it is refused before the party computation matters. "
+        "The row-version divergence that produced three live exploits is now unreachable on this branch by "
+        "construction. Recorded rather than deleted: if the pin is ever loosened, this mutant becomes "
+        "killable and the STALE EXCLUSION failure is the alarm."
     ),
 }
 

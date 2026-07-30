@@ -65,12 +65,56 @@ CHECK_NAMES = list(CHECKS.keys())
 
 
 def _window(content, anchor_regex, chars):
-    """Return the substring starting at the first match of anchor_regex spanning
-    `chars` characters, or None if the anchor is absent."""
+    """The function's ACTUAL body, brace-matched from the anchor. `chars` is now only a safety cap.
+
+    This used to return exactly `chars` characters from the anchor, and that arbitrary budget made the gate
+    report a defect that did not exist. `submitSignIn` gained an 18-line fix on 2026-07-30 — a 15s -> 30s edge
+    cold-start budget plus a null-guard, because `fetchWithTimeout` returns NULL rather than throwing and the
+    user was told "check your connection" on a perfectly good connection — which pushed
+    `resolveActiveHiveContext(` from inside the 3600-char window out to offset 4134. The product got MORE
+    correct and the gate went red: a validator that fails when the code it guards is improved teaches people
+    to distrust it. Exactly the class this platform already recorded
+    ([[feedback_fixed_char_window_validator_is_brittle]] — "comments grew the body past +3000; brace-matching
+    was the fix"), and the second time that lesson has had to be learned here.
+
+    Braces inside STRINGS and COMMENTS are skipped, because a lone `'{'` in a message would otherwise unbalance
+    the count. Template-literal `${...}` needs no special case: those braces are balanced. `chars` survives as
+    a cap so a malformed file cannot make this scan the rest of the document.
+    """
     m = re.search(anchor_regex, content)
     if not m:
         return None
-    return content[m.start(): m.start() + chars]
+    start = m.start()
+    open_brace = content.find("{", start)
+    if open_brace < 0 or open_brace - start > 400:
+        return content[start: start + chars]          # no body found - fall back to the old behaviour
+    i, depth, cap = open_brace, 0, min(len(content), start + chars * 6)
+    while i < cap:
+        ch = content[i]
+        if ch in "\"'`":                              # skip a string literal
+            quote, i = ch, i + 1
+            while i < cap:
+                if content[i] == "\\":
+                    i += 2
+                    continue
+                if content[i] == quote:
+                    break
+                i += 1
+        elif ch == "/" and i + 1 < cap and content[i + 1] == "/":
+            i = content.find("\n", i)
+            if i < 0:
+                break
+        elif ch == "/" and i + 1 < cap and content[i + 1] == "*":
+            j = content.find("*/", i + 2)
+            i = (j + 1) if j > 0 else cap
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return content[start: i + 1]
+        i += 1
+    return content[start: start + chars]              # unbalanced - cap rather than claim the whole file
 
 
 def check_l1_login_resolution(content):

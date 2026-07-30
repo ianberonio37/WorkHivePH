@@ -5567,14 +5567,18 @@
           "moderation_credit_minted": "1",
           "selfdeal_claim_strangers_sale": "blocked",
           "selfdeal_takeover_strangers_listing": "blocked",
-          "admin_forged_sales": "0"
+          "admin_forged_sales": "0",
+          "selfdeal_restate_order_price": "blocked",
+          "selfdeal_move_order_across_hives": "blocked",
+          "selfdeal_move_listing_across_hives": "blocked"
         }
       },
       "asserts": [
         "a platform admin who is a PARTY to the row falls through to the ordinary party rules",
         "a platform admin who is NOT a party keeps every moderation power",
         "the ledger is read back: a blocked self-verify must mint NO credit, a legitimate one exactly one",
-        "THE ROW-VERSION HOLE (2 live exploits, mig 20260730000006): the party gate reads coalesce(OLD.seller_name, NEW.seller_name) while the consequence lands on NEW, so ONE statement passed the gate on the old values and collected on the new ones - an admin claimed a stranger SALE (admin_total_sales=1, real seller 0) and took over a stranger LISTING (published as their own). The trust counter is read back, because a blocked claim that still bumped it would be the worst outcome and the status assertion could not see it"
+        "THE ROW-VERSION HOLE (2 live exploits, mig 20260730000006): the party gate reads coalesce(OLD.seller_name, NEW.seller_name) while the consequence lands on NEW, so ONE statement passed the gate on the old values and collected on the new ones - an admin claimed a stranger SALE (admin_total_sales=1, real seller 0) and took over a stranger LISTING (published as their own). The trust counter is read back, because a blocked claim that still bumped it would be the worst outcome and the status assertion could not see it",
+        "THE PIN, COLUMN BY COLUMN: migs 005/006 pin several fields per guard and only seller_name had a cell. An 8th mutation wave deleted the remaining columns one at a time and nothing objected, so price, hive_id (orders AND listings) and gcash_ref each get one. A pin over N columns is only asserted for the columns someone thought to test - the every-disjunct-needs-a-negative rule applied to a CONJUNCTION."
       ],
       "provenance": "mig 20260730000003. Found 2026-07-30: teaching the SQL runner the `anon` partition made `admin` the next unexecuted partition, and minting an admin identity to run it surfaced the bypass. A probe proved a provider-admin firing completed->settled on its OWN job (rows=1) - the client's 'I paid' confirmation, which fires trg_mint_settlement_commission. The same unqualified is_marketplace_admin() early-return stood in all FOUR status guards, five weeks after mig 20260729000003 fixed exactly this in guard_service_review.",
       "note": "TEETH VERIFIED by restoring the vulnerable guard inside a rolled-back transaction: the self-deal came back as ALLOWED, so the `blocked` assertions bite. The same technique showed that service_requests moderation returned 0 rows BEFORE and AFTER the fix - its RLS policy has no admin clause, so a non-party admin's row is filtered away and that bypass's only reachable effect was the self-deal. The other three tables DO have an admin RLS clause, which is why moderation is asserted as `works` there and deliberately not asserted at all on service_requests.",
@@ -5892,7 +5896,10 @@
           "verifier_is_the_admin": "yes",
           "verified_at_stamped": "yes",
           "redirect_then_verify": "blocked",
-          "credit_minted_by_redirect": "0"
+          "credit_minted_by_redirect": "0",
+          "inflate_then_verify": "blocked",
+          "credit_value_by_inflation": "0",
+          "rewrite_receipt_then_verify": "blocked"
         }
       },
       "asserts": [
@@ -5900,7 +5907,9 @@
         "the mint fires ONCE: re-saving an already-verified top-up is accepted but adds no second ledger row, which only a ledger COUNT can show since the status column is identical either way",
         "the moderation half is asserted in the same run: verifying a top-up the admin is a party to in no way still works, and mints exactly one entry",
         "WHO verified it is recorded: the guard stamps verified_by/verified_at and nothing asserted the stamp existed, so an operator deleting it left every cell green while the money path kept minting credit and lost the accountability for it",
-        "THE REDIRECT, a live exploit closed by mig 20260730000005: the party gate reads coalesce(old.account_id,...) while the mint inserts new.account_id, so ONE statement (change the destination to an account you own AND verify) passed the gate on the old values and credited the new ones - probed ALLOWED with 500 credits into the admin own account before the fix"
+        "THE REDIRECT, a live exploit closed by mig 20260730000005: the party gate reads coalesce(old.account_id,...) while the mint inserts new.account_id, so ONE statement (change the destination to an account you own AND verify) passed the gate on the old values and credited the new ones - probed ALLOWED with 500 credits into the admin own account before the fix",
+        "VALUE forgery as distinct from DESTINATION forgery: an admin may not inflate a pending top-up (500 -> 50000) and verify it in one statement. Found by an operator written against my OWN migration - dropping the amount column from the pinned intake facts left nothing objecting, and a new rule with no cell behind it is the same gap as any other",
+        "the RECEIPT is pinned too: gcash_ref is the evidence a verification is justified by, and nothing asserted it until an 8th wave deleted it from the pin"
       ],
       "provenance": "Found 2026-07-30 by a FOURTH wave of mutation operators written to re-challenge a 100% rather than bank it - the previous 100% on this tool had been fabricated by a broken injection, so an unchallenged score was not trusted. mint_on_any_prior_status, party_provider_account_branch_removed and party_consumer_account_branch_removed all survived the guard s 4 existing cells. The shipped guard is CORRECT in all three cases: these were test gaps, so the fix is a cell, not a migration. 2026-07-30 addendum: probing what coalesce(old.X,new.X) MEANS on an UPDATE found a live money exploit - an admin who is a party to NOTHING could redirect a stranger s top-up to their own provider account and verify it in one statement. Closed by mig 20260730000005 (the intake facts are immutable for any real caller; the backend and system-write paths are untouched) and locked here plus by the intake_immutability_removed operator."
     }

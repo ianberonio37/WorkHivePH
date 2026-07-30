@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:614-files
-source_sha: f4e9f2150860866d
+source: memory-curated:615-files
+source_sha: 05e1c5c5eacf9250
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (614 durable topic files)
+## memory · curated auto-memory (615 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=236 · project=289 · reference=89
+**By type:** feedback=237 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -18,6 +18,7 @@ First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed 
 Entries (name · type · sha):
 - `drawing_standards_skill` · reference · 16ac90968a9af898
 - `feedback_a_dead_fixture_invents_page_defects` · feedback · 4132e64aeb98e099
+- `feedback_a_gate_reddened_because_the_code_improved` · feedback · 7e92f10d3882b6f5
 - `feedback_a_gate_that_exhausts_its_own_rate_budget` · feedback · 225cf26e51228b75
 - `feedback_a_metamorphic_relation_needs_a_non_vacuity_check` · feedback · 3ef9b3ad98824df5
 - `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 2a14bd543da8cc63
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_streamline_E6_rollout_2026_06_14` · project · dbb7236195e595c5
 - `project_streamline_E7_request_budget_2026_06_14` · project · 01d3b3bbc0ecd871
 - `project_streamline_extension_plan_2026_06_14` · project · 239205fd2b14f242
-- `project_streamline_roadmap_2026_06_12` · project · 018a75633719a3f5
-- … +114 more (all included in the fingerprint)
+- … +115 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

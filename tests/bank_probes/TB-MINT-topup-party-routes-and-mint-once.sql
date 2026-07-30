@@ -70,7 +70,12 @@ insert into public.service_credit_topups(id, account_type, account_id, payer_aut
    'e1111111-0000-4000-8000-00000000000b',500,'920000000004','pending_verification'),
   -- a separate row for the REDIRECT case, so it cannot interact with the moderation case above
   ('e3333333-0000-4000-8000-00000000000f','provider','e2222222-0000-4000-8000-00000000000b',
-   'e1111111-0000-4000-8000-00000000000b',500,'920000000005','pending_verification');
+   'e1111111-0000-4000-8000-00000000000b',500,'920000000005','pending_verification'),
+  -- and one for the INFLATE case. It must still be PENDING when that case runs: reusing the row the
+  -- moderation case verifies would test inflating an already-verified top-up, where the mint cannot fire at
+  -- all, so the assertion would hold for the wrong reason.
+  ('e3333333-0000-4000-8000-00000000000e','provider','e2222222-0000-4000-8000-00000000000b',
+   'e1111111-0000-4000-8000-00000000000b',500,'920000000006','pending_verification');
 
 -- Verified as postgres (auth.uid() is null -> the vetted backend path), which is the ONLY way to arrive at a
 -- verified row with its ledger entry already minted. Inserting `verified` directly would not mint, because
@@ -147,6 +152,35 @@ begin
     raise notice 'RESULT redirect_then_verify=%', case when n>0 then 'ALLOWED' else 'blocked' end;
   exception when others then raise notice 'RESULT redirect_then_verify=blocked'; end;
 
+  -- 5b. VALUE forgery, as distinct from DESTINATION forgery. Case 5 proved an admin cannot redirect a
+  --     stranger's top-up to an account they own. This asks the other half: can they change what it is WORTH
+  --     before verifying it? The mint inserts `new.amount`, so inflating 500 to 50000 and verifying in one
+  --     statement would create 50000 credits from a 500-peso receipt — for the legitimate destination, which
+  --     is why the redirect fix alone does not cover it.
+  --
+  --     Found by an operator written against my OWN migration: dropping `amount` from the pinned intake facts
+  --     left nothing objecting. A new rule with no cell behind it is the same gap as any other, and it does
+  --     not get a pass because I wrote it.
+  begin
+    update public.service_credit_topups
+       set amount = 50000, status = 'verified'
+     where id = 'e3333333-0000-4000-8000-00000000000e';
+    get diagnostics n = row_count;
+    raise notice 'RESULT inflate_then_verify=%', case when n>0 then 'ALLOWED' else 'blocked' end;
+  exception when others then raise notice 'RESULT inflate_then_verify=blocked'; end;
+
+  -- 5c. THE RECEIPT. `gcash_ref` is the evidence a verification is justified BY — the reference the founder
+  --     matched against a real GCash payment. It is pinned alongside the money fields, and an 8th mutation
+  --     wave found that nothing asserted it: delete it from the pin and the reference on a verified top-up
+  --     becomes rewritable after the fact, which is the audit trail for real money quietly losing its anchor.
+  begin
+    update public.service_credit_topups
+       set gcash_ref = '999999999999', status = 'verified'
+     where id = 'e3333333-0000-4000-8000-00000000000f';
+    get diagnostics n = row_count;
+    raise notice 'RESULT rewrite_receipt_then_verify=%', case when n>0 then 'ALLOWED' else 'blocked' end;
+  exception when others then raise notice 'RESULT rewrite_receipt_then_verify=blocked'; end;
+
   -- 4. MINT ONCE. Re-saving an already-verified top-up. The status is `verified` before and after, so the
   --    row itself proves nothing — the ledger count below is the whole assertion.
   begin
@@ -162,7 +196,7 @@ reset role;
 select set_config('request.jwt.claims', '', true);
 
 do $ledger$
-declare n_own int; n_wallet int; n_unrelated int; n_reverify int; n_redirect int;
+declare n_own int; n_wallet int; n_unrelated int; n_reverify int; n_redirect int; n_inflate numeric;
 begin
   select count(*) into n_own       from public.service_credit_ledger
    where ref_kind='topup' and ref_id='e3333333-0000-4000-8000-00000000000a';
@@ -174,6 +208,8 @@ begin
    where ref_kind='topup' and ref_id='e3333333-0000-4000-8000-00000000000d';
   -- The redirect's money oracle. A blocked redirect that nevertheless minted into the admin's account would
   -- be the worst outcome here, and the status assertion above would still read `blocked`.
+  select coalesce(sum(amount), 0) into n_inflate from public.service_credit_ledger
+   where ref_kind='topup' and ref_id='e3333333-0000-4000-8000-00000000000e';
   select count(*) into n_redirect  from public.service_credit_ledger
    where ref_kind='topup' and (ref_id='e3333333-0000-4000-8000-00000000000f'
                                or account_id='e2222222-0000-4000-8000-00000000000a');
@@ -184,6 +220,8 @@ begin
   raise notice 'RESULT credit_minted_unrelated=%', n_unrelated;
   raise notice 'RESULT credit_after_reverify=%', n_reverify;
   raise notice 'RESULT credit_minted_by_redirect=%', n_redirect;
+  -- The VALUE oracle: not just 'was it refused' but 'was anything worth 50000 created'.
+  raise notice 'RESULT credit_value_by_inflation=%', n_inflate;
 end
 $ledger$;
 

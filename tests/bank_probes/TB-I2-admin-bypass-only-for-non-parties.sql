@@ -43,6 +43,12 @@ insert into public.hive_members(hive_id, worker_name, role, status, auth_uid) va
    'd1dddddd-0000-4000-8000-00000000000a'),
   ((select id from public.hives order by id limit 1),'TB I2 Other','worker','active',
    'd1dddddd-0000-4000-8000-00000000000b');
+
+-- A SECOND hive, minted here rather than picked from the table, for the cross-tenant pin cases below. Picking
+-- `order by id limit 1 offset 1` would silently degrade to the same hive (or none) on a differently-seeded
+-- database, and a cross-tenant assertion whose two tenants are the same tenant proves nothing.
+insert into public.hives(id, name, invite_code, created_by)
+values ('d1000000-0000-4000-8000-0000000000f2','TB I2 Other Hive','TBI2H2','tb-probe');
 insert into public.marketplace_platform_admins(worker_name, granted_by)
   values ('TB I2 Admin','tb-probe');
 
@@ -139,6 +145,33 @@ begin
     raise notice 'RESULT selfdeal_takeover_strangers_listing=%',
       case when n>0 then 'ALLOWED' else 'blocked' end;
   exception when others then raise notice 'RESULT selfdeal_takeover_strangers_listing=blocked'; end;
+
+  -- 2d/2e/2f. THE PIN, COLUMN BY COLUMN. Migs 20260730000005/6 pin several fields per guard, and after the
+  --           first pass exactly ONE of them had a cell (`seller_name`, via the claimed-sale case above). A
+  --           pin over N columns is only asserted for the columns someone thought to test — the same
+  --           "every disjunct needs its own negative" rule applied to a CONJUNCTION. An 8th mutation wave
+  --           deleted the remaining columns one at a time and nothing objected, so each gets a case here.
+  begin
+    update public.marketplace_orders set price = 999999, status='released'
+     where id='d1eeeeee-0000-4000-8000-00000000000b';
+    get diagnostics n = row_count;
+    raise notice 'RESULT selfdeal_restate_order_price=%', case when n>0 then 'ALLOWED' else 'blocked' end;
+  exception when others then raise notice 'RESULT selfdeal_restate_order_price=blocked'; end;
+  -- Cross-TENANT: settling a stranger's order into another hive. The pin is what stops a moderation action
+  -- from doubling as a tenant transfer.
+  begin
+    update public.marketplace_orders set hive_id='d1000000-0000-4000-8000-0000000000f2', status='released'
+     where id='d1eeeeee-0000-4000-8000-00000000000b';
+    get diagnostics n = row_count;
+    raise notice 'RESULT selfdeal_move_order_across_hives=%', case when n>0 then 'ALLOWED' else 'blocked' end;
+  exception when others then raise notice 'RESULT selfdeal_move_order_across_hives=blocked'; end;
+  begin
+    update public.marketplace_listings set hive_id='d1000000-0000-4000-8000-0000000000f2', status='published'
+     where id='d1ffffff-0000-4000-8000-00000000000b';
+    get diagnostics n = row_count;
+    raise notice 'RESULT selfdeal_move_listing_across_hives=%',
+      case when n>0 then 'ALLOWED' else 'blocked' end;
+  exception when others then raise notice 'RESULT selfdeal_move_listing_across_hives=blocked'; end;
 
   -- 3. TOP-UPS · the admin branch MINTS the credit inline, so a self-verify is money creation
   begin
