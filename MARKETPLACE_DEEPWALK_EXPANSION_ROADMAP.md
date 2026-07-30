@@ -3026,3 +3026,34 @@ own cases still reports "4 pass".
 ```
 4/4 assertions · registry 706 gates, ids unique / scripts resolve / reports unclaimed
 ```
+
+### §12.3a · C narrowed the same way A did — 32 candidates to THREE, by measuring instead of reading
+
+The population for "validate one field, act on another" was **32 of 59** edge functions (3+ id-ish fields AND
+an identity gate). Reading 32 functions was never the plan; measuring how they obtain tenancy was:
+
+| how the function establishes tenancy | count | why it is not a candidate |
+|---|---|---|
+| imports the shared `_shared/tenant-context.ts` | **26** | one central helper, so the class is centrally handled — reviewing the helper beats reviewing 26 callers |
+| **derives** `hive_id` from a query result | 6 | the strongest form: the tenancy comes from the DATA, so the payload cannot forge it |
+| neither — worth reading by hand | **5** | `analytics-orchestrator`, `asset-brain-query`, `batch-risk-scoring`, `export-hive-data`, `supervisor-reset-password` |
+
+**Three of the five are already verified clean**, and each is a reference shape worth naming:
+
+- `export-hive-data` — `checkSupervisor(jwt, hive_id)` then `export_hive_data(p_hive_id: hive_id)`. The check and
+  the action read the SAME id. (The `target_id` the proxy flagged is an audit-log column, not an input.)
+- `embed-entry` — two paths, both sound. The webhook path **derives** `hive_id` from the record itself
+  (`v_pm_compliance_truth` keyed by `pm_asset_id`), so it cannot be forged; the direct path takes `body.hive_id`
+  and verifies it against the caller's membership with `resolveTenancy`.
+- `supervisor-reset-password` — the strongest of the three: the actor must be an ACTIVE SUPERVISOR of that
+  `hive_id`, the target is re-checked as an active WORKER of the SAME hive (never another supervisor — no lateral
+  peer-admin takeover, never cross-hive), and it is rate-limited per actor (5/hour, 20/day) to contain a
+  compromised supervisor account.
+
+**So C's real remainder is THREE functions**: `analytics-orchestrator`, `asset-brain-query`,
+`batch-risk-scoring` — plus one review of the shared helper, which is worth more than the 26 callers it serves.
+
+That is the same move as §12.0, and it is becoming the arc's signature: **measuring how a population is
+structured collapses it far faster than auditing its members.** 27 guards became 4; 32 edge functions became 3.
+Both times the measurement also produced the reassuring half — the class is centrally handled here, just as it
+was structurally absent from the trigger layer.
