@@ -6649,6 +6649,40 @@
         "isolated from check_daily_row_cap (well under its cap); no cumulative quota on replies"
       ],
       "provenance": "community_reply_rate_limit, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Reply-side mirror of community_post_rate_limit (15s window, threshold 5)."
+    },
+    {
+      "id": "TB-RATE-listing-daily",
+      "source": "authored",
+      "kind": "resource-cap",
+      "journey": "J-listing-rate",
+      "authority": "any",
+      "state": "populated",
+      "path": "edge",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "marketplace_listings"
+      ],
+      "probe": {
+        "file": "TB-RATE-listing-daily.sql",
+        "expect": {
+          "twenty_first": "blocked",
+          "other_hive": "allowed"
+        }
+      },
+      "asserts": [
+        "the per-hive 24h listing anti-spam refuses the 21st listing (20 planted at the cap) while a listing in a different hive is unaffected - per hive, not a freeze",
+        "a fresh hive isolates it from prior listings; born-'draft' satisfies the birth-status guard so this rate limit is the sole refuser at the 21st"
+      ],
+      "provenance": "check_listing_rate, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Recent-window rate limit, threshold 20."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

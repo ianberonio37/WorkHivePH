@@ -148,6 +148,9 @@ GUARDS = {
     # ── ARC 13 / F — the reply-side recent-window anti-flood (15s, >=5). Judge: TB-RATE-community-reply. One
     # operator on its own 'Replying too fast' message. Clean.
     "community_reply_rate_limit":         "community_replies",
+    # ── ARC 13 / F — the per-hive 24h listing anti-spam (>=20). Judge: TB-RATE-listing (20 planted at the cap,
+    # 21st trips, a different hive is unaffected). One operator on its own raise message. Clean.
+    "check_listing_rate":                 "marketplace_listings",
 }
 
 
@@ -509,6 +512,8 @@ OPERATORS = [
      "the 30-second anti-flood stops firing, so one author can post an unbounded burst"),
     ("community_reply_rate_removed", r"RAISE EXCEPTION 'Replying too fast\. Wait a few seconds\.'[^;]*;", "NULL;",
      "the 15-second reply anti-flood stops firing, so one author can reply in an unbounded burst"),
+    ("listing_rate_removed", r"RAISE EXCEPTION 'Daily listing limit of 20 reached'[^;]*;", "NULL;",
+     "the 24-hour per-hive listing cap stops firing, so a hive can flood the marketplace past its anti-spam limit"),
 ]
 
 VOCAB_EXTRA = "'settled'"
