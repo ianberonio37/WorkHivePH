@@ -329,6 +329,134 @@ def run_deny_cell(cell, verbose=False):
     return (refused or rows == 0 or final == plant), detail
 
 
+# ── BIRTH lane: what state may a row be BORN in? ─────────────────────────────────────────────────────────
+# Every other cell in this runner is an UPDATE, which is exactly why each guard's `TG_OP = 'INSERT'` branch
+# went untested across 247 obligations - a transition-shaped runner cannot express "this row must not exist
+# in this state to begin with". The guard mutation score found it mechanically (delete a birth rule, watch no
+# cell object), and the consequences are one statement each: a top-up born `verified` MINTS CREDIT without
+# entering the verification path, an order born `released` skips escrow.
+#
+# The caller is always an ORDINARY authenticated client filing their OWN row, so the only thing under test is
+# the status. Identity is set to the caller deliberately: the attribution rules (`client_auth_uid must be the
+# caller`, `payer_auth_uid must be the caller`, `buyer_name IN auth_worker_names()`) are ALSO enforced by RLS
+# WITH CHECK, so a cell that violated them could not tell which layer refused
+# ([[feedback_using_preempts_a_trigger_withcheck_does_not]] - and TB-BIRTH asserts that ordering separately).
+BIRTH_FIXTURES = {
+    "service_requests": {
+        "pre": "",
+        "id": "d1cccccc-0000-4000-8000-0000000000b1",
+        "sql": lambda st, uid: (
+            "insert into public.service_requests"
+            "(id, client_auth_uid, mode, status, custom_scope) values "
+            f"('d1cccccc-0000-4000-8000-0000000000b1','{uid}','instant','{st}','TB birth probe');\n"),
+    },
+    "service_credit_topups": {
+        # The destination account is planted as postgres (the vetted backend path), so the INSERT under test
+        # is the only client write in the transaction.
+        "pre": ("insert into public.service_providers(id, provider_type, auth_uid, display_name, categories,"
+                " base_location, availability) values "
+                "('d1bbbbbb-0000-4000-8000-0000000000b1','freelancer',"
+                f"'{P}','TB birth prov','{{Plumbing}}',{LOC},'online');\n"),
+        "id": "d1aaaaab-0000-4000-8000-0000000000b1",
+        "sql": lambda st, uid: (
+            "insert into public.service_credit_topups"
+            "(id, account_type, account_id, payer_auth_uid, amount, gcash_ref, status) values "
+            "('d1aaaaab-0000-4000-8000-0000000000b1','provider','d1bbbbbb-0000-4000-8000-0000000000b1',"
+            f"'{uid}',500,'900000000021','{st}');\n"),
+    },
+    "marketplace_orders": {
+        "pre": "",
+        "id": "d1eeeeee-0000-4000-8000-0000000000b1",
+        "sql": lambda st, uid: (
+            "insert into public.marketplace_orders"
+            "(id, hive_id, buyer_name, seller_name, price, status) values "
+            "('d1eeeeee-0000-4000-8000-0000000000b1',"
+            "(select id from public.hives order by id limit 1),"
+            f"'{WORKER_NAME[C]}','{WORKER_NAME[P]}',100,'{st}');\n"),
+    },
+    "marketplace_listings": {
+        "pre": "",
+        "id": "d1ffffff-0000-4000-8000-0000000000b1",
+        "sql": lambda st, uid: (
+            "insert into public.marketplace_listings"
+            "(id, hive_id, seller_name, section, title, category, price, status) values "
+            "('d1ffffff-0000-4000-8000-0000000000b1',"
+            "(select id from public.hives order by id limit 1),"
+            f"'{WORKER_NAME[C]}','parts','TB birth probe','Tools',100,'{st}');\n"),
+    },
+}
+
+
+def build_sql_birth(table: str, to_state: str, as_uid: str):
+    """Attempt to CREATE a row already in `to_state`, as an ordinary client, then read it BACK.
+
+    `BORN=` is the oracle rather than the INSERT's own row count, for the same reason `FINAL=` is used on the
+    deny lane: an INSERT that is refused mid-statement and one that never ran look different in psql output
+    but identical in intent, and reading the table back answers the only question that matters — does the row
+    exist in that state now?
+    """
+    f = BIRTH_FIXTURES[table]
+    # THE INSERT IS WRAPPED IN A plpgsql EXCEPTION BLOCK, and the first version was not — which made every
+    # REFUSAL unscoreable. A guard that raises aborts the transaction, so the `BORN=` read-back could not run
+    # and returned "current transaction is aborted": 6 of 10 cases came back SKIP rather than PASS. Catching
+    # the exception keeps the transaction alive so the read-back ALWAYS executes, which turns the oracle from
+    # "did psql print an error" into "does the row exist in that state now" — the stronger question, and the
+    # only one that separates a refusal from a silent RLS filter ([[feedback_zero_row_write_is_not_an_error]]).
+    #
+    # Caught by the executor's own "no BORN= read-back" SKIP branch rather than by a green run: a cell that
+    # could not execute must never be scored as a refusal, which is precisely how a broken injection once
+    # fabricated a 100% mutation score out of syntax failures.
+    return (
+        "begin;\n" + mint() + name_the_actors() + f["pre"] +
+        jwt(as_uid) +
+        "do $birth$\nbegin\n  " + f["sql"](to_state, as_uid).strip() +
+        "\nexception when others then\n  raise notice 'REFUSED=%', sqlstate;\nend\n$birth$;\n"
+        "reset role;\n"
+        f"select 'BORN='||count(*) from public.{table} where id='{f['id']}' and status='{to_state}';\n"
+        "rollback;\n")
+
+
+def run_birth_cell(cell, verbose=False):
+    """-> (ok, detail) for a `from: '(insert)'` cell."""
+    t = cell["transition"]
+    table, to = t["table"], t["to"]
+    if table not in BIRTH_FIXTURES:
+        return None, f"no birth fixture for {table}"
+    uid = actor_uid(cell["authority"])
+    if uid is None:
+        return None, f"authority '{cell['authority']}' has no probe identity"
+
+    out, err = psql_script(build_sql_birth(table, to, uid))
+    if out is None:
+        return None, "docker/psql unavailable"
+    blob = out + err
+    # `REFUSED=<sqlstate>` comes from the probe's own exception handler. It is CORROBORATION, never the
+    # oracle — the row read-back below is, because a refusal and a silent RLS filter are indistinguishable
+    # from an error string alone.
+    #
+    # And the sqlstate must not be over-read as a layer identifier, which is a trap this lane walked into
+    # immediately: `marketplace_listings` born-as-`published` returns **42501**, which looks like RLS refusing
+    # (the mapping used elsewhere in this file), yet `mkt_listings_insert` only checks `seller_name` and
+    # `draft`/`sold` inserts by the same identity succeed. The guard itself raises
+    # `USING ERRCODE = '42501'` by choice. An errcode is a message the AUTHOR selected, not evidence of which
+    # layer produced it — it only distinguishes layers where the guards happen to use a different code, as the
+    # service_requests guard does (`check_violation` throughout, which is what makes TB-BIRTH's attribution
+    # assertion sound).
+    refused = ("REFUSED=" in blob) or ("Not allowed" in blob) or ("ERROR" in blob)
+    sm = re.search(r"REFUSED=(\w+)", blob)
+    bm = re.search(r"BORN=(\d+)", out)
+    if bm is None:
+        # The read-back never ran, so the cell proved nothing. Reported as a SKIP with its cause rather
+        # than scored - a cell that could not execute must never be counted as a refusal, which is the
+        # error that once fabricated a 100% mutation score out of syntax failures.
+        return None, f"no BORN= read-back ({blob.strip().splitlines()[-1][:80] if blob.strip() else 'empty'})"
+    born = int(bm.group(1))
+    detail = f"born={born} refused={refused}{' sqlstate=' + sm.group(1) if sm else ''} status={to}"
+    if cell["expect"] == "allowed":
+        return (born == 1 and not refused), detail
+    return (born == 0), detail        # refused: the row must NOT exist in that state
+
+
 def run_cell(cell, verbose=False, legal=None):
     """-> (ok, detail). A refusal is an exception OR 0 rows; a permission is exactly 1 row."""
     t = cell["transition"]
@@ -430,6 +558,33 @@ def selftest():
     else:
         print(f"  {GREEN}PASS{RST} refusal proven: an unrelated member cannot advance it ({d2})")
 
+    # ── BIRTH lane teeth, in BOTH directions ────────────────────────────────────────────────────────────
+    # A one-directional check would pass on a lane that always reports "refused" — and this lane very nearly
+    # was exactly that: its first cut could not score a refusal at all, because a raising guard aborts the
+    # transaction and the `BORN=` read-back never ran (6 of 10 cases came back SKIP). So both directions are
+    # asserted, and a legal birth must come back BORN.
+    b_legal = {"transition": {"table": "service_credit_topups", "from": "(insert)",
+                              "to": "pending_verification"}, "authority": "owner", "expect": "allowed"}
+    b_illegal = {"transition": {"table": "service_credit_topups", "from": "(insert)", "to": "verified"},
+                 "authority": "owner", "expect": "refused"}
+    # The INVERTED pair: the same two writes with the expectations swapped must both FAIL, which is what
+    # proves the oracle reads the row rather than echoing the expectation back.
+    b_legal_inv = dict(b_legal, expect="refused")
+    b_illegal_inv = dict(b_illegal, expect="allowed")
+    r4, d4 = run_birth_cell(b_legal)
+    r5, d5 = run_birth_cell(b_illegal)
+    r6, _ = run_birth_cell(b_legal_inv)
+    r7, _ = run_birth_cell(b_illegal_inv)
+    if r4 is None or r5 is None:
+        print(f"  {YEL}note{RST} birth-lane teeth skipped ({d4 or d5})")
+    elif r4 and r5 and r6 is False and r7 is False:
+        print(f"  {GREEN}PASS{RST} birth lane proven BOTH ways: a top-up may be born pending_verification "
+              f"({d4}) and may NOT be born verified ({d5}); inverting either expectation FAILS")
+    else:
+        print(f"  {RED}FAIL{RST} birth lane does not discriminate — legal={r4} illegal={r5} "
+              f"inverted(legal)={r6} inverted(illegal)={r7}. A lane that cannot fail proves nothing "
+              f"about the guard's INSERT branch."); ok = False
+
     # The AUTHORED lane needs its own teeth, or a probe whose SQL silently stopped emitting RESULT
     # lines would read as "every assertion held" over an empty expectation set.
     real = os.path.join(PROBES, "TB-S5-edge-push-audience-selection.sql")
@@ -508,7 +663,9 @@ def main():
     fails = []
     skipped = []
     for c in runnable:
-        if c["transition"].get("from") == "*":
+        if c["transition"].get("from") == "(insert)":
+            ok, detail = run_birth_cell(c, verbose)
+        elif c["transition"].get("from") == "*":
             ok, detail = run_deny_cell(c, verbose)
         else:
             ok, detail = run_cell(c, verbose, legal)

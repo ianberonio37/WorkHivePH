@@ -694,7 +694,131 @@
         "accepted",
         "expired",
         "requested"
-      ]
+      ],
+      "birth_shape": "allow",
+      "births": [
+        {
+          "id": "TB-service_requests-BIRTH-broadcasting",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "broadcasting",
+          "authority": "owner",
+          "expect": "allowed",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_requests-BIRTH-requested",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "requested",
+          "authority": "owner",
+          "expect": "allowed",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_requests-BIRTH-accepted",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "accepted",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_requests-BIRTH-cancelled_by_client",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "cancelled_by_client",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_requests-BIRTH-cancelled_by_provider",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "cancelled_by_provider",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_requests-BIRTH-completed",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "completed",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_requests-BIRTH-disputed",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "disputed",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_requests-BIRTH-en_route",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "en_route",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_requests-BIRTH-expired",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "expired",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_requests-BIRTH-in_progress",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "in_progress",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_requests-BIRTH-on_site",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "on_site",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_requests-BIRTH-settled",
+          "table": "service_requests",
+          "from": "(insert)",
+          "to": "settled",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status not in ('requested','broadcasting')",
+          "shape": "birth"
+        }
+      ],
+      "ungoverned_births": []
     },
     {
       "table": "marketplace_listings",
@@ -744,6 +868,24 @@
         }
       ],
       "ungoverned_targets": [
+        "draft",
+        "removed",
+        "sold"
+      ],
+      "birth_shape": "deny",
+      "births": [
+        {
+          "id": "TB-marketplace_listings-BIRTH-published",
+          "table": "marketplace_listings",
+          "from": "(insert)",
+          "to": "published",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "NEW.status = 'published'      AND (TG_OP = 'INSERT'",
+          "shape": "birth"
+        }
+      ],
+      "ungoverned_births": [
         "draft",
         "removed",
         "sold"
@@ -837,7 +979,71 @@
         "disputed",
         "escrow_hold",
         "pending_payment"
-      ]
+      ],
+      "birth_shape": "allow",
+      "births": [
+        {
+          "id": "TB-marketplace_orders-BIRTH-pending_payment",
+          "table": "marketplace_orders",
+          "from": "(insert)",
+          "to": "pending_payment",
+          "authority": "owner",
+          "expect": "allowed",
+          "evidence": "NEW.status <> 'pending_payment'",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-marketplace_orders-BIRTH-buyer_confirmed",
+          "table": "marketplace_orders",
+          "from": "(insert)",
+          "to": "buyer_confirmed",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "NEW.status <> 'pending_payment'",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-marketplace_orders-BIRTH-disputed",
+          "table": "marketplace_orders",
+          "from": "(insert)",
+          "to": "disputed",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "NEW.status <> 'pending_payment'",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-marketplace_orders-BIRTH-escrow_hold",
+          "table": "marketplace_orders",
+          "from": "(insert)",
+          "to": "escrow_hold",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "NEW.status <> 'pending_payment'",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-marketplace_orders-BIRTH-refunded",
+          "table": "marketplace_orders",
+          "from": "(insert)",
+          "to": "refunded",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "NEW.status <> 'pending_payment'",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-marketplace_orders-BIRTH-released",
+          "table": "marketplace_orders",
+          "from": "(insert)",
+          "to": "released",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "NEW.status <> 'pending_payment'",
+          "shape": "birth"
+        }
+      ],
+      "ungoverned_births": []
     },
     {
       "table": "service_credit_topups",
@@ -888,7 +1094,41 @@
       "ungoverned_targets": [
         "pending_verification",
         "rejected"
-      ]
+      ],
+      "birth_shape": "allow",
+      "births": [
+        {
+          "id": "TB-service_credit_topups-BIRTH-pending_verification",
+          "table": "service_credit_topups",
+          "from": "(insert)",
+          "to": "pending_verification",
+          "authority": "owner",
+          "expect": "allowed",
+          "evidence": "new.status <> 'pending_verification'",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_credit_topups-BIRTH-rejected",
+          "table": "service_credit_topups",
+          "from": "(insert)",
+          "to": "rejected",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status <> 'pending_verification'",
+          "shape": "birth"
+        },
+        {
+          "id": "TB-service_credit_topups-BIRTH-verified",
+          "table": "service_credit_topups",
+          "from": "(insert)",
+          "to": "verified",
+          "authority": "owner",
+          "expect": "refused",
+          "evidence": "new.status <> 'pending_verification'",
+          "shape": "birth"
+        }
+      ],
+      "ungoverned_births": []
     }
   ]
 }

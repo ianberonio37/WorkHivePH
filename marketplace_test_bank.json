@@ -3214,6 +3214,222 @@
       "covered_evidence": "The DB half is EXECUTED by the authored probe (the JWT changes between two statements of one transaction and the second is refused). The client half - a page holding a stale identity - is the idle-401 class locked by client-singleton / idle-refresh, found live 2026-07-06."
     },
     {
+      "id": "TB-service_requests-BIRTH-broadcasting",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "broadcasting"
+      },
+      "authority": "owner",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_requests-BIRTH-requested",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "requested"
+      },
+      "authority": "owner",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_requests-BIRTH-accepted",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "accepted"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_requests-BIRTH-cancelled_by_client",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "cancelled_by_client"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_requests-BIRTH-cancelled_by_provider",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "cancelled_by_provider"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_requests-BIRTH-completed",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "completed"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_requests-BIRTH-disputed",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "disputed"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_requests-BIRTH-en_route",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "en_route"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_requests-BIRTH-expired",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "expired"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_requests-BIRTH-in_progress",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "in_progress"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_requests-BIRTH-on_site",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "on_site"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_requests-BIRTH-settled",
+      "kind": "birth",
+      "transition": {
+        "table": "service_requests",
+        "from": "(insert)",
+        "to": "settled"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status not in ('requested','broadcasting')",
+      "status": "banked"
+    },
+    {
       "id": "TB-marketplace_listings-any__published-admin-or-system",
       "kind": "positive",
       "transition": {
@@ -3374,6 +3590,24 @@
       "status": "covered",
       "covered_by": "TB-SNEAK-replay-and-session-switch + client-singleton",
       "covered_evidence": "The DB half is EXECUTED by the authored probe (the JWT changes between two statements of one transaction and the second is refused). The client half - a page holding a stale identity - is the idle-401 class locked by client-singleton / idle-refresh, found live 2026-07-06."
+    },
+    {
+      "id": "TB-marketplace_listings-BIRTH-published",
+      "kind": "birth",
+      "transition": {
+        "table": "marketplace_listings",
+        "from": "(insert)",
+        "to": "published"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "NEW.status = 'published'      AND (TG_OP = 'INSERT'",
+      "status": "banked"
     },
     {
       "id": "TB-marketplace_orders-any__released-admin-or-system",
@@ -3700,6 +3934,114 @@
       "covered_evidence": "The DB half is EXECUTED by the authored probe (the JWT changes between two statements of one transaction and the second is refused). The client half - a page holding a stale identity - is the idle-401 class locked by client-singleton / idle-refresh, found live 2026-07-06."
     },
     {
+      "id": "TB-marketplace_orders-BIRTH-pending_payment",
+      "kind": "birth",
+      "transition": {
+        "table": "marketplace_orders",
+        "from": "(insert)",
+        "to": "pending_payment"
+      },
+      "authority": "owner",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "NEW.status <> 'pending_payment'",
+      "status": "banked"
+    },
+    {
+      "id": "TB-marketplace_orders-BIRTH-buyer_confirmed",
+      "kind": "birth",
+      "transition": {
+        "table": "marketplace_orders",
+        "from": "(insert)",
+        "to": "buyer_confirmed"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "NEW.status <> 'pending_payment'",
+      "status": "banked"
+    },
+    {
+      "id": "TB-marketplace_orders-BIRTH-disputed",
+      "kind": "birth",
+      "transition": {
+        "table": "marketplace_orders",
+        "from": "(insert)",
+        "to": "disputed"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "NEW.status <> 'pending_payment'",
+      "status": "banked"
+    },
+    {
+      "id": "TB-marketplace_orders-BIRTH-escrow_hold",
+      "kind": "birth",
+      "transition": {
+        "table": "marketplace_orders",
+        "from": "(insert)",
+        "to": "escrow_hold"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "NEW.status <> 'pending_payment'",
+      "status": "banked"
+    },
+    {
+      "id": "TB-marketplace_orders-BIRTH-refunded",
+      "kind": "birth",
+      "transition": {
+        "table": "marketplace_orders",
+        "from": "(insert)",
+        "to": "refunded"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "NEW.status <> 'pending_payment'",
+      "status": "banked"
+    },
+    {
+      "id": "TB-marketplace_orders-BIRTH-released",
+      "kind": "birth",
+      "transition": {
+        "table": "marketplace_orders",
+        "from": "(insert)",
+        "to": "released"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "NEW.status <> 'pending_payment'",
+      "status": "banked"
+    },
+    {
       "id": "TB-service_credit_topups-any__verified-admin-or-system",
       "kind": "positive",
       "transition": {
@@ -3868,6 +4210,60 @@
       "status": "covered",
       "covered_by": "TB-SNEAK-replay-and-session-switch + client-singleton",
       "covered_evidence": "The DB half is EXECUTED by the authored probe (the JWT changes between two statements of one transaction and the second is refused). The client half - a page holding a stale identity - is the idle-401 class locked by client-singleton / idle-refresh, found live 2026-07-06."
+    },
+    {
+      "id": "TB-service_credit_topups-BIRTH-pending_verification",
+      "kind": "birth",
+      "transition": {
+        "table": "service_credit_topups",
+        "from": "(insert)",
+        "to": "pending_verification"
+      },
+      "authority": "owner",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status <> 'pending_verification'",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_credit_topups-BIRTH-rejected",
+      "kind": "birth",
+      "transition": {
+        "table": "service_credit_topups",
+        "from": "(insert)",
+        "to": "rejected"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status <> 'pending_verification'",
+      "status": "banked"
+    },
+    {
+      "id": "TB-service_credit_topups-BIRTH-verified",
+      "kind": "birth",
+      "transition": {
+        "table": "service_credit_topups",
+        "from": "(insert)",
+        "to": "verified"
+      },
+      "authority": "owner",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "new.status <> 'pending_verification'",
+      "status": "banked"
     },
     {
       "id": "TB-J2-inquiry-roundtrip",
@@ -4604,8 +5000,8 @@
       ],
       "dims": [],
       "status": "owed",
-      "blocked_reason": "NOT covered-by-nature by default - a real attempt was made and is recorded here. A4 was hunted as a STALE-HIVE defect: marketplace.html captures `const HIVE_ID = whHiveId()` at load and stamps it on every hail, which would file work into the wrong hive if a switch could happen while the page is open. It cannot: every wh_active_hive_id write lives on hive.html, and reaching the marketplace from there is a full page load, so the const is read fresh. No defect - and that is a finding, not a shrug. A3 (configurability) reduces to the D9 knobs, which are Ian's to set. A5 (extensibility) is DEMONSTRATED rather than assertable: this arc's own denominator grows by itself when a guard changes, which is the claim A5 makes.",
-      "unblock": "A4 becomes assertable the moment a hive switch is possible without a reload (an in-page switcher, or a realtime hive-change event) - then the claim is 'a write reads the hive at WRITE time'. A3 becomes assertable once the D9 knobs have values.",
+      "blocked_reason": "NOT covered-by-nature by default - a real attempt was made, and re-checking it CORRECTED IT TWICE. A4 was hunted as a STALE-HIVE defect: marketplace.html captures const HIVE_ID = whHiveId() at load and stamps it on every hail, which would file work into the wrong hive if a switch could happen while the page is open. (1) The earlier note here claimed every wh_active_hive_id write lives on hive.html. FALSE - index.html:2953 writes it too, during the sign-in hive bootstrap. The CONCLUSION survived (index -> marketplace is a full page load, so the const is read fresh) but the premise was wrong, and a gate built on it would have enforced something untrue. (2) index.html ALSO reads whHiveId() into a const HIVE_ID (~3802), which looks like the same stale-capture shape and is not: that capture is FUNCTION-scoped inside the ops-home renderer so it is re-read per call, and the write is deliberately followed by _initDashboard(...) to re-render against the new hive - verified by reading both sites, not by trusting the comment. So the distinction is SCOPE, not filename. A4 IS NO LONGER MERELY OBSERVED: tools/validate_hive_capture_invariant.py (registered as hive-capture-invariant) now asserts the writer allowlist AND that no capturing marketplace page writes the key, with a self-test that injects a writer and requires a red. Still OWED because A3 (configurability) reduces to the D9 knobs, which are Ian to set, and A5 (extensibility) is DEMONSTRATED rather than assertable - this arc s own denominator grows by itself when a guard changes, which is the claim A5 makes. Deliberately NOT banked: the remaining two thirds would be a weak cell inflating the UFAI board, and the A4 third is owned by a platform gate rather than a bank cell, which is the same disposition the thin layers use.",
+      "unblock": "A3 becomes assertable once the D9 knobs have values (Ian). A4 is now LOCKED by hive-capture-invariant; it would become a BANK cell only if an in-page hive switcher ever ships, at which point the claim changes to the stronger one - a write reads the hive at WRITE time.",
       "asserts": [
         "(none yet - deliberately not banked; a weak cell would inflate the UFAI board with an assertion that proves nothing)"
       ],

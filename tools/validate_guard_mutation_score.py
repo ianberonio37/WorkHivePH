@@ -310,8 +310,22 @@ def run_cells(runner, cells, legal, injected_ddl=None, stop_on_fail=True):
     try:
         ran = 0
         for c in cells:
+            # THIS DISPATCH IS THE RUNNER'S, DUPLICATED — and the duplication bit immediately. When the birth
+            # lane landed, its `from: "(insert)"` branch was added to the runner's own dispatch in main() and
+            # NOT here, so 22 birth cells were executed by the UPDATE path: `update ... where` against a row
+            # that does not exist yet returned rows=0, which the transition oracle reads as REFUSED. A
+            # legitimate `born as broadcasting` cell therefore failed on the UNMUTATED guard, the baseline
+            # went red, and the whole request guard was skipped — dropping absolute kills 41 -> 22 while the
+            # percentage still read 100%. Exactly the "fix EVERY path, not just the walked one" class
+            # ([[feedback_fix_every_path_that_mutates_not_just_the_walked_one]]).
+            #
+            # Worth noting what caught it: not this run's green percentage, but the `killed` ratchet added an
+            # hour earlier, which FAILED on 41 -> 22 precisely because a score-only ratchet cannot see teeth
+            # lost behind an unchanged 100%.
             if isinstance(c.get("probe"), dict):
                 ok, detail = runner.run_probe(c)
+            elif c["transition"].get("from") == "(insert)":
+                ok, detail = runner.run_birth_cell(c)
             elif c["transition"].get("from") == "*":
                 ok, detail = runner.run_deny_cell(c)
             else:

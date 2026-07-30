@@ -2250,3 +2250,216 @@ SQL lane **135/135** · transition 99.6% · substrate 720 fresh · canonical_sta
 > FAIL, and the three real money-path gaps were found by writing four more of them. **A metric you have not
 > tried to break is not a measurement.** Every wave of operators so far has either found a real gap or found a
 > defect in the harness — none has ever merely confirmed the previous number.
+
+### §11.13 · The last `owed` cell — checking its own reasoning corrected it twice, and its finding is now ENFORCED
+
+`TB-A345-architecture-quality` was the single owed obligation behind the transition board's 99.6%. Its A4 third
+carried a documented finding: marketplace.html does `const HIVE_ID = whHiveId()` once at load and stamps it on
+every hail, which would file work into the **wrong tenant** if the active hive could change while the page is
+open — and it cannot, because reaching the marketplace is always a full page load. **No defect.**
+
+That is a real finding and also a conclusion resting on an invariant nobody enforced. Re-checking it corrected
+the reasoning **twice, both errors mine**:
+
+| the claim | what execution showed |
+|---|---|
+| "every `wh_active_hive_id` write lives on hive.html" | **false** — `index.html:2953` writes it too, during the sign-in hive bootstrap. The *conclusion* survived (index → marketplace is a full page load) but a gate built on the stated premise would have enforced something untrue |
+| index.html also does `const HIVE_ID = whHiveId()` — the same stale-capture shape? | **no** — that capture is **function-scoped** inside the ops-home renderer, so it is re-read per call, and the write is deliberately followed by `_initDashboard(...)` to re-render against the new hive. Verified by reading both sites rather than trusting the comment |
+
+So the distinction that matters is **SCOPE, not filename**: a module-scope capture is read once per page load; a
+function-scope capture cannot go stale. Of the 16 pages that capture the hive this way, that difference is the
+whole safety argument.
+
+**`tools/validate_hive_capture_invariant.py`** (registered `hive-capture-invariant`, static, always runs) turns
+the observation into an enforced contract, per the rule that a covered-by-nature cell still gets a gate
+asserting what it rests on ([[feedback_build_structure_to_make_it_liveable]]):
+
+- **the writer allowlist** — exactly hive.html and index.html may write the key. A third page is not
+  automatically a bug, but it *is* always a decision that requires re-checking capture scope on every reader,
+  so it goes red saying exactly that;
+- **the capturing pages must not write it** — marketplace / seller / admin must contain zero writers, which is
+  the live-bug condition, since a writer in the same document can run after the capture.
+
+It deliberately does **not** compute JS scope from a regex: brace and regex-literal counting over inline script
+is the brittle-validator trap this platform has already been bitten by twice
+([[feedback_fixed_char_window_validator_is_brittle]], [[feedback_python_heredoc_eats_js_regex_boundaries]]). It
+asserts the two cheap, unarguable properties instead, and its self-test injects a writer into marketplace.html
+**through the reader** — no file on disk is touched, the same discipline as injecting a mutant inside a
+transaction — and requires the gate to go red naming that page.
+
+**The cell stays `owed`, deliberately.** A3 (configurability) reduces to the D9 knobs, which are Ian's to set;
+A5 (extensibility) is *demonstrated* rather than assertable — this arc's denominator grows by itself when a
+guard changes, which is the claim A5 makes. Banking the remaining two thirds would be a weak cell inflating the
+UFAI board, and the A4 third is now owned by a **platform gate** rather than a bank cell, which is the same
+disposition the thin layers already use. The board therefore does **not** move, and that is the honest outcome:
+the work closed a risk, not a percentage.
+
+### §11.14 · Flake ledger — `platform-page-battery` false-red inside a full-suite run
+
+Recorded rather than left to hide, per the arc's flake policy.
+
+`platform-page-battery` went **FAIL (178.6s)** during a full (non-`--fast`) suite run, then **PASSED all 35
+pages** when re-driven standalone immediately afterwards (`P1/P2/P4/P8/P9/P12`, findings=0). Nothing in the
+commit it ran against touches a page: the changes were the bank JSON, the mutation harness, three SQL probes,
+docs, skills and one new static gate.
+
+The likeliest cause is **contention, not the product**: that suite run drove two live headless-Playwright
+batteries back to back (`hive-battery` 35.0s PASS, then the 35-page sweep) while a heavy local DB workload was
+still settling, and this platform has already recorded the shape where a heavy gate running *inside* the runner
+false-fails on timing and the fix was to judge on a robust statistic rather than a single observation
+([[feedback_gate_inside_gate_false_fails_use_median]]).
+
+**Not widened, and not "fixed".** One red against a standalone 35/35 green, cause named, left visible. The
+standing question it belongs to is the same one the `push-runtime-delivery` flake raised: whether the shared
+fetch wrapper should retry once on a transport failure for idempotent reads — which is on Ian's list, because it
+closes both flakes at the source rather than per-spec.
+
+> **Observed while registering the new gate:** the gate registry has **three duplicate `id`s** —
+> `memory-integrity`, `companion-page-coverage`, `companion-source-coverage`. Pre-existing and untouched by
+> this arc. Flagged because a duplicated id is how two gates can share one baseline entry and quietly
+> overwrite each other's floor; worth a look before it matters. **Chased in §11.15 — it already mattered, and
+> there was a fourth.** (An earlier draft of this note said "out of 555"; the real registry holds **704**
+> entries. 555 came from a regex of mine that silently dropped every id containing an underscore — which is
+> also why it missed the fourth problem entirely. A count taken with the wrong instrument is not a count.)
+
+### §11.15 · The registry was never checking itself — 3 duplicate gates, and one collision that was DISCARDING a verdict
+
+Flagged in §11.14 as "observed, not chased". Chasing it found something worse than duplication.
+
+**Four id problems in a 704-gate registry, none of which anything was looking for:**
+
+| id | what was wrong |
+|---|---|
+| `memory-integrity` | registered **twice**, same script, same args — and the duplicate's label claimed "4-layer: schema + **RLS + index + retention**", none of which that script checks (it checks the `agent_memory` schema, per-tab `session_id` tracking, >90%-similarity dedup, and the memory window passed to the LLM) |
+| `companion-page-coverage` | registered **twice**, same script |
+| `companion-source-coverage` | registered **twice**, same script |
+| `marketplace_deepwalk_ratchet` | **two DIFFERENT gates sharing one id** — `tools/marketplace_deepwalk_scoreboard.py --check` and `validate_marketplace_deepwalk.py` |
+
+The first three cost duplicated runtime and an overstated gate count. **The fourth was live damage.** An id is the
+key results, baselines and ratchets are stored under, so two different scripts under one id collide in the
+results dict and whichever runs second overwrites the first. `gate_efficacy_ledger.json` shows which way it
+went: its lone `marketplace_deepwalk_ratchet` entry carries the *other* gate's label, so the scoreboard gate —
+the one that prints the transition, layer, oracle and mutation boards — **was having its verdict discarded, and
+could have gone red without registering.** A gate whose result is silently overwritten is worse than a gate that
+does not exist, because the registry still lists it and the summary still counts it.
+
+The duplicate label is the more expensive half of the first three, for the same reason: a reader trusting it
+would believe memory **retention** was gated when nothing asserts retention anywhere.
+
+**The fix is the assertion that was missing, not just the edits.** `main()` now checks id uniqueness before
+running anything and exits non-zero naming the offenders, because a registry that cannot be trusted makes every
+number under it unreliable. The three exact duplicates are deleted (keeping, in each case, the copy that emits
+a `report` artifact — deleting the wrong twin would have silently dropped a report), and the scoreboard gate is
+renamed `marketplace_deepwalk_scoreboard` while the other keeps the original id so its ledger history stays
+attached.
+
+> **And the uniqueness check itself shipped broken for about two minutes.** I wrote it against `CHECKS`; the
+> registry variable is `VALIDATORS`. `ast.parse` passed — a `NameError` is a runtime error — so a syntax check
+> said fine while the suite would have crashed on its first line of real work. It was caught by *running* the
+> thing against the real registry instead of trusting that it parsed, which is the same move that caught the
+> fabricated mutation score: **execute the instrument, do not merely compile it.** Verified after the fix by
+> importing the module and counting ids — 704 entries, 0 duplicates, both deepwalk gates present and distinct.
+
+### §11.16 · The BIRTH lane — deriving the obligations that a transition-shaped bank structurally cannot see
+
+§11.11 found the blind spot and TB-BIRTH closed four of its cells **by hand**. This derives the rest, which is
+the difference between fixing an instance and fixing the class: a status added to a CHECK constraint tomorrow
+now arrives as an obligation instead of silently not existing.
+
+`derive_transition_matrix.py` already computes the bank's denominator from the guards themselves. It gained a
+`parse_births()` that reads each guard's `TG_OP = 'INSERT'` rules, in the **same two shapes** the file already
+models for transitions — conflating them would fabricate coverage here exactly as it would there:
+
+| shape | source form | obligations |
+|---|---|---|
+| ALLOW-LIST | `new.status not in ('requested','broadcasting')` · `new.status <> 'pending_verification'` | the legal set is spelled out, so **every other status in the vocabulary is a refusal obligation** |
+| DENY-RULE | `NEW.status = 'published' AND (TG_OP = 'INSERT' OR …)` | only the dangerous target is named; the rest are permitted **by omission** and are reported as ungoverned, never claimed |
+
+**22 birth obligations**, derived from the live guards:
+
+```
+service_requests        allow  born: requested, broadcasting          + 10 refusal obligations
+marketplace_orders      allow  born: pending_payment                  +  5
+service_credit_topups   allow  born: pending_verification             +  2
+marketplace_listings    deny   refuses: published    ungoverned-by-omission: draft, removed, sold
+```
+
+The runner gained a birth executor (`from: "(insert)"` dispatch). `(insert)` is deliberately not a status: a
+birth has no origin state, and giving it a fake one would let a transition-shaped cell claim to cover it —
+the exact conflation that hid these 22 obligations in the first place.
+
+#### Three things the build got wrong first, each caught by running it
+
+1. **Six of ten cases came back SKIP, not PASS.** A guard that raises aborts the transaction, so the `BORN=`
+   read-back could not run (`current transaction is aborted`) and every REFUSAL was unscoreable. Wrapping the
+   INSERT in a plpgsql `BEGIN … EXCEPTION` block keeps the transaction alive so the read-back **always**
+   executes — which upgrades the oracle from "did psql print an error" to "does the row exist in that state
+   now", the only question that separates a refusal from a silent RLS filter. It was caught by the executor's
+   own *"no `BORN=` read-back"* SKIP branch rather than by a green run: **a cell that could not execute must
+   never be scored as a refusal**, which is precisely how a broken injection fabricated a 100% in §11.11.
+2. **An errcode is the author's CHOICE, not a layer identifier.** `marketplace_listings` born-as-`published`
+   returns **42501**, which reads as "RLS refused" under the mapping used elsewhere in this file — yet
+   `mkt_listings_insert` only checks `seller_name`, and `draft`/`sold` inserts by the same identity succeed
+   (`born=1`). The guard raises `USING ERRCODE = '42501'` deliberately. The sqlstate only distinguishes layers
+   where the guards happen to use different codes, as `guard_service_request_status` does (`check_violation`
+   throughout — which is what makes TB-BIRTH's attribution assertion sound). Corroboration, never the oracle.
+3. **A one-directional teeth check would have passed a lane that always says "refused"** — which this lane
+   literally was before fix #1. The selftest therefore asserts both directions **and their inversions**: a
+   top-up may be born `pending_verification`, may not be born `verified`, and swapping either expectation must
+   FAIL. That is what proves the oracle reads the row rather than echoing the expectation back.
+
+The deriver's own selftest gained four birth cases, including the **ordering trap**: a real guard carries both
+a `not in (...)` INSERT rule *and* later `<> 'x'` comparisons, so checking the single form first would return a
+one-element legal set and mark two legitimate birth states as refusals — the bank accusing the product, the
+same failure this file was already burned by on the wrapped-clause case. Plus a teeth case: a guard with **no**
+INSERT rule must yield **no** birth obligations, or every table would be handed phantom cells.
+
+**Why this matters beyond the 22 cells.** The mutation score reported that 12 of 18 kills on the request guard
+came only from authored probes — the 103-cell derived grid killed 6. Birth cells are derived, and they flow
+into the mutation harness's selection automatically, so the *grid* starts killing the birth mutants that only
+`TB-BIRTH` could kill before. Coverage that rests on three hand-written probes is coverage one deletion away
+from vanishing.
+
+### §11.17 · Deriving the FIELD lane too — investigated and KILLED, with the numbers
+
+Births were worth deriving: 22 obligations, only 4 of which a hand-written probe covered. The obvious next
+move was to do the same for the *field* rules — the `status unchanged` branch that `TB-FIELD` asserts by hand
+— so that lane would stop depending on one authored file. Checking first says don't.
+
+Grepping all four guards for the immutable-field shape (`new.X is distinct from old.X`) returns:
+
+```
+guard_service_request_status    new.status is distinct from old.status              <- NOT a field rule
+                                new.matched_provider_id is distinct from old....    <- a real one
+                                new.client_auth_uid is distinct from old....        <- a real one
+guard_service_topup_status      (none)
+guard_marketplace_order_status  NEW.status IN ('released','refunded') AND NEW.status IS DISTINCT FROM OLD...
+                                                                                    <- part of a status
+                                                                                       condition, not a rule
+guard_marketplace_listing_status (none)
+```
+
+**Two real obligations across the whole platform, and both are already asserted** by `TB-FIELD`
+(`client_reassigns_matching`, `client_transfers_ownership_layer`). Against that, the parser would have to
+exclude `status` — the one field the entire transition lane exists to change — and not be fooled by
+`NEW.status IS DISTINCT FROM OLD.status` appearing inside a larger boolean. A derivation that emitted "status
+is immutable" would have the bank demanding a refusal for the product's core behaviour: the bank accusing the
+product, which this arc has already produced twice from over-eager parsing.
+
+So: **killed, for the same reason CDC was killed in §11.6** — the cost is a parser with two known traps, and
+the yield is zero new coverage. Recorded here rather than left as an open "we could also…", because the next
+session's version of me will otherwise re-derive the idea from scratch and re-run the same investigation.
+
+The distinction worth keeping is **why births were different**: 22 obligations of which 18 were untested, and
+the shape (`new.status not in (...)` / `<> 'x'` / a named forbidden target) is the same one the file already
+parsed for transitions. Derivation pays when the yield is large and the grammar is already understood; it does
+not pay for two cells behind a new grammar with sharp edges.
+
+**Standing punch list after this arc** — the honest remainder, in priority order:
+
+1. **More operators.** Every wave so far (9 → 15 → 20 → 24) has found either a real gap or a defect in the
+   harness itself; not one has merely confirmed the previous number. That is the strongest evidence available
+   that the current 100% is a statement about the operator vocabulary and not about the bank.
+2. `TB-A345` A3 — the D9 knobs, which are Ian's values to set. The only genuinely blocked cell.
+3. The registry's fourth id problem is fixed, but nothing yet asserts that a gate's `script` path resolves or
+   that a `report` filename is unique. Same class, not yet closed.

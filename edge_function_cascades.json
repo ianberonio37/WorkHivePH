@@ -29,8 +29,8 @@
     {
       "fn": "notify-push",
       "to_table": "push_subscriptions",
-      "line": 114,
-      "evidence": "functions/notify-push/index.ts:114",
+      "line": 120,
+      "evidence": "functions/notify-push/index.ts:120",
       "downstream_pages": [
         "marketplace-seller"
       ],
@@ -573,8 +573,8 @@
         {
           "fn": "notify-push",
           "to_table": "push_subscriptions",
-          "line": 114,
-          "evidence": "functions/notify-push/index.ts:114",
+          "line": 120,
+          "evidence": "functions/notify-push/index.ts:120",
           "downstream_pages": [
             "marketplace-seller"
           ],

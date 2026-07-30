@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-30T01:29:16.828630+00:00",
+  "timestamp": "2026-07-30T07:23:46.168981+00:00",
   "validators": {
     "calc-suite": "PASS",
     "auto-discovery": "PASS",
@@ -37,6 +37,10 @@
     "page-battery": "SKIP",
     "page-crud": "SKIP",
     "fixture-hive-exists": "SKIP",
+    "marketplace-state-inducers": "SKIP",
+    "guard-mutation-score": "SKIP",
+    "hive-capture-invariant": "PASS",
+    "push-runtime-delivery": "SKIP",
     "push-handler-contract": "PASS",
     "unprotected-write-grant": "PASS",
     "marketplace-test-bank": "SKIP",

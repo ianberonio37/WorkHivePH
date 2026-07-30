@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MATRIX = os.path.join(ROOT, "transition_matrix.json")
@@ -29,17 +30,24 @@ COVERAGE = os.path.join(ROOT, "gate_coverage_map.json")
 BANK = os.path.join(ROOT, "marketplace_test_bank.json")
 GREEN, RED, YEL, DIM, BOLD, RST = "\033[92m", "\033[91m", "\033[93m", "\033[2m", "\033[1m", "\033[0m"
 
+# The DEFAULT axes, used only when there is no prior bank to carry forward. `viewport` and `lang` were
+# RETIRED from this list after the board proved they were decoration — declared on the axes but used by 0 of
+# 247 cells, with the real measurement owned by tools/validate_service_ufai_deep.py (390/1280 tap targets and
+# overflow) and validate_i18n. `metamorphic` was added when the MR lane landed. Both edits are here as well
+# as in the bank because a rebuild from scratch must not resurrect a retired axis.
 AXES = {
     "authority": ["anon", "member", "owner", "counterparty", "admin", "cross-tenant"],
     "state": ["empty", "populated", "filtered0", "error", "edge"],
     "path": ["happy", "error", "degraded"],
-    "viewport": [390, 1280],
-    "lang": ["en", "fil"],
     "layer": ["S1-ui", "S2-pwa", "S3-data", "S4-db", "S5-edge",
               "S6-realtime", "S7-ai", "S8-gates", "S9-knowledge"],
-    "oracle": ["db-truth", "continuity", "rubric", "refusal", "eval"],
+    "oracle": ["db-truth", "continuity", "rubric", "refusal", "eval", "metamorphic"],
     "lane": ["sql", "journey"],
 }
+
+# Top-level keys this builder OWNS and regenerates. Everything else in the prior bank is curated by hand and
+# is carried forward untouched — see the reconstruction at the end of build().
+OWNED_KEYS = {"_doc", "_states", "axes", "derived_from", "tests"}
 
 
 def load(path, what):
@@ -89,11 +97,12 @@ def build():
         return None
     idx = covered_index(cov)
 
-    prior = {}
+    prior, prior_bank = {}, {}
     if os.path.exists(BANK):
         with open(BANK, encoding="utf-8") as f:
-            for t in (json.load(f).get("tests") or []):
-                prior[t["id"]] = t
+            prior_bank = json.load(f)
+        for t in (prior_bank.get("tests") or []):
+            prior[t["id"]] = t
 
     tests = []
     for mc in matrix.get("machines", []):
@@ -156,6 +165,35 @@ def build():
                     scell["covered_by"], scell["covered_evidence"] = shit[0], shit[1]
                 tests.append(scell)
 
+        # ── BIRTH obligations: what state may a row be BORN in? ─────────────────────────────
+        # These are INSERTs, not UPDATEs, and they are the reason this section exists at all: every
+        # derived cell above is an `UPDATE ... SET status`, so each guard's TG_OP='INSERT' branch had
+        # ZERO cells across 247 obligations. The guard mutation score found it mechanically — deleting
+        # the birth rules one at a time and watching no cell object. Deriving them means a status added
+        # to a CHECK constraint tomorrow arrives as an obligation instead of silently not existing.
+        for b in mc.get("births", []):
+            bid = b["id"]
+            bhit = match_cover(bid, "birth", idx)
+            bcell = prior.get(bid) or {}
+            bcell.update({
+                "id": bid,
+                "kind": "birth",
+                # `from: "(insert)"` is what the runner dispatches on. It is deliberately NOT a status:
+                # a birth has no origin state, and giving it a fake one would let a transition-shaped
+                # cell claim to cover it — the exact conflation that hid these obligations.
+                "transition": {"table": b["table"], "from": "(insert)", "to": b["to"]},
+                "authority": b["authority"],
+                "expect": b["expect"],
+                "lane": bcell.get("lane", "sql"),
+                "oracle": bcell.get("oracle", "db-truth" if b["expect"] == "allowed" else "refusal"),
+                "layers": bcell.get("layers", ["S4-db"]),
+                "evidence_src": b.get("evidence", ""),
+            })
+            bcell["status"] = ("covered" if bhit else bcell.get("status", "owed"))
+            if bhit:
+                bcell["covered_by"], bcell["covered_evidence"] = bhit[0], bhit[1]
+            tests.append(bcell)
+
     # AUTHORED cells survive a rebuild. Not every obligation is derivable from a guard: a journey
     # cell like "the buyer contacts the seller and the inquiry lands with attribution intact" spans
     # pages and asserts PII staging, which no state machine describes. Dropping them on refresh would
@@ -173,10 +211,23 @@ def build():
         "_states": {"covered": "a registered gate already locks it - do not rebuild",
                     "owed": "nothing asserts it yet - the bank must author it",
                     "banked": "the bank asserts it; a runner executes it"},
-        "axes": AXES,
+        # The CURATED axes win over the default. This block is edited by hand when an axis is retired with
+        # its owning instrument named, and regenerating from the constant would have silently RESURRECTED
+        # `viewport` and `lang` and dropped the `metamorphic` oracle.
+        "axes": prior_bank.get("axes") or AXES,
         "derived_from": matrix.get("machines") and [m["guard"] for m in matrix["machines"]],
         "tests": tests,
     }
+
+    # CARRY FORWARD every hand-curated top-level block this builder does not own. Reconstructing the bank
+    # from a fixed key set silently DELETED five of them — `_ufai_note`, `_ufai_ownership`, `_retired_axes`,
+    # `_covers_tables_doc`, `_layer_owners` — which are read by the scoreboard to name axis owners and
+    # disclose retirements. A rebuild is supposed to refresh the derived skeleton, not quietly revert the
+    # curation layered on top of it; the whole file already says so in its own `_doc`, and the code did not
+    # honour it. Caught by diffing the prior bank's keys against the rebuilt ones BEFORE overwriting.
+    for k, v in prior_bank.items():
+        if k not in OWNED_KEYS:
+            bank[k] = v
     return bank
 
 
@@ -282,10 +333,20 @@ def main():
     bank = build()
     if bank is None:
         return 1
-    with open(BANK, "w", encoding="utf-8") as f:
+    # ATOMIC. `open(..., "w")` truncates before it writes, so an interrupted run leaves a 275-cell bank as an
+    # empty file - and this platform has already lost a 55KB document to exactly that
+    # ([[feedback_open_w_truncates_before_write_use_atomic]]). Write beside it, then replace.
+    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(BANK) or ".", suffix=".tmp")
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
         json.dump(bank, f, indent=2, ensure_ascii=False)
+    os.replace(tmp, BANK)
     summarise(bank)
     print(f"  wrote {os.path.basename(BANK)}")
+    # The human-facing doc used to regenerate ONLY behind `--doc`, so every ordinary rebuild left it drifting
+    # from the JSON it describes: it still showed 253 cells and no BIRTH lane after the bank had 275. A
+    # generated artifact that regenerates on a flag nobody passes is a stale artifact by default - the same
+    # doc-drift the substrate freshness gate exists to catch, one level up.
+    write_doc(bank)
     return 0
 
 

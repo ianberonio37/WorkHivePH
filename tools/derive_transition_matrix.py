@@ -161,6 +161,47 @@ def parse_deny(src: str):
     return found
 
 
+def parse_births(src: str):
+    """-> (shape, legal_at_birth, forbidden_at_birth) for the guard's TG_OP='INSERT' rules.
+
+    WHY THIS EXISTS. Every obligation above is a TRANSITION, so every cell the bank derived was an
+    `UPDATE ... SET status` — and each guard's INSERT branch, which decides what state a row may be BORN in,
+    had **zero cells across 247 of them**. That was not found by reading: the guard mutation score deleted the
+    birth rules one at a time and no cell objected. The reachable consequences are one statement each — a
+    top-up born `verified` MINTS CREDIT without ever entering the verification path, an order born `released`
+    skips escrow, a request born `accepted` skips the accept RPC.
+
+    `TB-BIRTH-privileged-birth-refused` now asserts four of these by hand. Deriving them instead is the point:
+    a status added to a CHECK constraint tomorrow creates its own obligation, rather than silently not
+    existing ([[feedback_short_denominator_is_a_false_100]]).
+
+    The same two shapes as the transition rules, and conflating them would fabricate coverage exactly as it
+    would there:
+
+      ALLOW-LIST  `new.status not in ('requested','broadcasting')`   the legal set is spelled out, so every
+                  `new.status <> 'pending_verification'`             other status in the vocabulary is a
+                                                                    refusal obligation
+      DENY-RULE   `NEW.status = 'published' AND (TG_OP = 'INSERT' OR ...)`
+                  only the dangerous target is named; every other status is permitted BY OMISSION and is
+                  reported as ungoverned, never claimed as covered.
+    """
+    # Order matters: the list form is checked first because `not in ('a','b')` also contains no `<>`, while a
+    # guard can carry BOTH forms and the INSERT branch is the one that spells out a legal set.
+    m = re.search(r"new\.status\s+not\s+in\s*\(([^)]*)\)", src, re.I)
+    if m:
+        return "allow", set(re.findall(r"'([a-z_]+)'", m.group(1))), set(), m.group(0)[:110]
+    m = re.search(r"new\.status\s*(?:<>|!=)\s*'([a-z_]+)'", src, re.I)
+    if m:
+        return "allow", {m.group(1)}, set(), m.group(0)[:110]
+    forb, ev = set(), ""
+    for mm in re.finditer(r"new\.status\s*=\s*'([a-z_]+)'([\s\S]{0,120}?)tg_op\s*=\s*'INSERT'", src, re.I):
+        forb.add(mm.group(1))
+        ev = ev or mm.group(0).replace("\n", " ")[:110]
+    if forb:
+        return "deny", set(), forb, ev
+    return "none", set(), set(), ""
+
+
 def build():
     machines = []
     for table, fn, shape in MACHINES:
@@ -214,12 +255,43 @@ def build():
         governed_targets = {t for _, t in governed_pairs}
         ungoverned = sorted(s for s in vocab if s not in governed_targets)
 
+        # ── BIRTH obligations: what state may a row be BORN in? ──────────────────────────────────────────
+        # Kept in their own list rather than folded into `cells`, because a birth is an INSERT and a
+        # transition is an UPDATE: the runner has to execute them differently, and merging them would let a
+        # birth obligation be counted by a transition-shaped cell that cannot test it — which is precisely
+        # the blind spot that made these 22 obligations invisible in the first place.
+        b_shape, legal_birth, forbidden_birth, b_ev = parse_births(src)
+        births = []
+        if b_shape == "allow":
+            for st in sorted(legal_birth):
+                births.append({"id": f"TB-{table}-BIRTH-{st}", "table": table,
+                               "from": "(insert)", "to": st, "authority": "owner",
+                               "expect": "allowed", "evidence": b_ev, "shape": "birth"})
+            for st in sorted(set(vocab) - legal_birth):
+                births.append({"id": f"TB-{table}-BIRTH-{st}", "table": table,
+                               "from": "(insert)", "to": st, "authority": "owner",
+                               "expect": "refused", "evidence": b_ev, "shape": "birth"})
+            ungoverned_births = []
+        elif b_shape == "deny":
+            for st in sorted(forbidden_birth):
+                births.append({"id": f"TB-{table}-BIRTH-{st}", "table": table,
+                               "from": "(insert)", "to": st, "authority": "owner",
+                               "expect": "refused", "evidence": b_ev, "shape": "birth"})
+            # Permitted by omission. Reported, never claimed - the same honesty rule the deny-shape
+            # transitions above already follow.
+            ungoverned_births = sorted(set(vocab) - forbidden_birth)
+        else:
+            births, ungoverned_births = [], sorted(vocab)
+
         machines.append({
             "table": table, "guard": fn, "shape": shape,
             "vocabulary": vocab,
             "state_space": len(vocab) * (len(vocab) - 1) if vocab else 0,
             "cells": cells,
             "ungoverned_targets": ungoverned,
+            "birth_shape": b_shape,
+            "births": births,
+            "ungoverned_births": ungoverned_births,
         })
     return {"_doc": "Derived denominator for the marketplace test bank. DO NOT hand-edit - "
                     "re-run tools/derive_transition_matrix.py.",
@@ -227,7 +299,7 @@ def build():
 
 
 def report(m):
-    total_pos = total_neg = total_sneak = 0
+    total_pos = total_neg = total_sneak = total_birth = 0
     print("=" * 84)
     print(f"  {BOLD}Marketplace test bank - DERIVED transition matrix{RST}")
     print("=" * 84)
@@ -251,9 +323,22 @@ def report(m):
         if mc["ungoverned_targets"]:
             print(f"    {YEL}ungoverned target states (no guard clause names them): "
                   f"{', '.join(mc['ungoverned_targets'])}{RST}")
+        # BIRTHS printed per machine, because "what may this row be born as" is a different question from
+        # "where may it move" and a reader who sees only transitions will assume the INSERT branch is covered.
+        births = mc.get("births") or []
+        total_birth += len(births)
+        if births:
+            allowed = [c["to"] for c in births if c["expect"] == "allowed"]
+            refused = [c["to"] for c in births if c["expect"] == "refused"]
+            print(f"    births      : {len(births)} obligation(s), {mc.get('birth_shape')}-shape "
+                  f"— may be born {allowed or '(nothing named)'}, must REFUSE {len(refused)} other state(s)")
+        if mc.get("ungoverned_births"):
+            print(f"    {YEL}birth states permitted BY OMISSION (reported, not claimed as covered): "
+                  f"{', '.join(mc['ungoverned_births'])}{RST}")
     print("\n" + "-" * 84)
     print(f"  {BOLD}BANK DENOMINATOR{RST}: {total_pos} positive + {total_neg} authority-negative "
-          f"+ {total_sneak} sneak-path = {BOLD}{total_pos + total_neg + total_sneak}{RST} obligations")
+          f"+ {total_sneak} sneak-path + {total_birth} birth = "
+          f"{BOLD}{total_pos + total_neg + total_sneak + total_birth}{RST} obligations")
     print(f"  {DIM}Each is matched against the registered gates next; anything already locked becomes"
           f" covered_by:<gate-id> and is NOT rebuilt.{RST}")
     return 0
@@ -290,6 +375,48 @@ def selftest():
         print(f"  {RED}FAIL{RST} deny-parse missed a target: {d}"); ok = False
     else:
         print(f"  {GREEN}PASS{RST} deny-shape: finds both `= 'x'` and `IN (...)` targets")
+    # ── BIRTH parsing, in all three shapes plus the ORDERING trap ────────────────────────────────────────
+    # The ordering matters and is easy to get backwards: a real guard carries BOTH a `not in (...)` INSERT
+    # rule AND later `<> 'x'` comparisons, so checking the single form first would return a one-element legal
+    # set and silently mark two legitimate birth states as refusals. The bank would then demand a refusal the
+    # product correctly permits — the bank accusing the product, which this file has already been burned by
+    # once on the wrapped-clause case above.
+    b_shape, legal, forb, _ev = parse_births(
+        "if TG_OP = 'INSERT' then\n"
+        "  if new.status not in ('requested','broadcasting') then raise exception '...';\n"
+        "  if new.client_auth_uid is distinct from auth.uid() then raise exception '...';\n"
+        "end if;\n"
+        "if new.status <> 'settled' then return new; end if;\n")
+    if b_shape != "allow" or legal != {"requested", "broadcasting"} or forb:
+        print(f"  {RED}FAIL{RST} birth allow-parse (list form) — got shape={b_shape} legal={sorted(legal)}; "
+              f"a later `<> 'x'` must NOT win over the INSERT branch's `not in (...)`"); ok = False
+    else:
+        print(f"  {GREEN}PASS{RST} birth allow-shape: `not in (...)` wins over a later `<> 'x'`")
+
+    b_shape, legal, forb, _ev = parse_births(
+        "if TG_OP = 'INSERT' then\n  if new.status <> 'pending_verification' then raise exception '...';\n")
+    if b_shape != "allow" or legal != {"pending_verification"}:
+        print(f"  {RED}FAIL{RST} birth allow-parse (single form): {b_shape} {sorted(legal)}"); ok = False
+    else:
+        print(f"  {GREEN}PASS{RST} birth allow-shape: single `<> 'x'` form yields a one-state legal set")
+
+    b_shape, legal, forb, _ev = parse_births(
+        "IF NEW.status = 'published'\n   AND (TG_OP = 'INSERT' OR OLD.status IS DISTINCT FROM 'published') THEN")
+    if b_shape != "deny" or forb != {"published"}:
+        print(f"  {RED}FAIL{RST} birth deny-parse missed the WRAPPED `TG_OP='INSERT'` clause: "
+              f"{b_shape} {sorted(forb)}"); ok = False
+    else:
+        print(f"  {GREEN}PASS{RST} birth deny-shape: finds a target whose TG_OP='INSERT' wraps to the next line")
+
+    # TEETH: a guard with NO insert rule must yield NOTHING, or every table would be handed phantom birth
+    # obligations and the denominator would grow with cells no guard actually governs.
+    b_shape, legal, forb, _ev = parse_births("if old.status = 'a' and new.status = 'b' then return new; end if;")
+    if b_shape != "none" or legal or forb:
+        print(f"  {RED}FAIL{RST} birth-parse invented obligations for a guard with no INSERT rule: "
+              f"{b_shape} {sorted(legal)} {sorted(forb)}"); ok = False
+    else:
+        print(f"  {GREEN}PASS{RST} birth-parse teeth: a guard with no INSERT rule yields no birth obligations")
+
     print(f"\n  SELFTEST: {GREEN + 'PASS' + RST if ok else RED + 'FAIL' + RST}")
     return 0 if ok else 1
 

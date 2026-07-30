@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 2d42f47c8c3f33f2
+source_sha: 15b5ed819f7575ee
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (706) — the 'what's already gated' brain
+## gate · registered validators (704) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -72,8 +72,8 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `logbook_deepwalk_ratchet` ⚡ [fail] — Logbook deepwalk ANTI-DRIFT ratchet (LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md §4) — the measured %-board (20 journeys x 5 phases G/W/O/H/R, LG classes x 6 stages) 
 - `login_proxy_lockout` [fail] — Arc I: login brute-force lockout (server-side proxy; correct pw can't bypass a lock)
 - `marketplace_deepwalk_classes` ⚡ [fail] — Marketplace deepwalk class locks (MK1 attributable trust signals / MK2 moderation reason across all 3 surfaces / MK3 public-RPC PII / MK4 watchlist sold-surface
-- `marketplace_deepwalk_ratchet` ⚡ [fail] — Marketplace deepwalk expansion %-board (forward-only ratchet: journeys x phases + MK dimension classes may only rise)
 - `marketplace_deepwalk_ratchet` ⚡ [fail] — Marketplace deepwalk ANTI-DRIFT ratchet — the measured %-board (20 journeys x 5 phases, 10 MK classes x 6 stages) held as a forward-only FLOOR: a cell that was 
+- `marketplace_deepwalk_scoreboard` ⚡ [fail] — Marketplace deepwalk expansion %-board (forward-only ratchet: journeys x phases + MK dimension classes may only rise)
 - `marketplace_fraud_signals` [fail] — Marketplace fraud signals (MK8: duplicate/spam listings, price anomalies, off-platform payment pressure)
 - `marketplace_partsflow_continuity` ⚡ [fail] — Marketplace parts-flow continuity (MK6) — locks the inventory <-> marketplace ROUND TRIP that the 2026-07-24 deepwalk walked clean in both directions: (1) inven
 - `memory_index_budget` [fail] — Memory hygiene: MEMORY.md index under the session load cap (auto-memory)
@@ -224,7 +224,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (497)
+### Platform (495)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -337,9 +337,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `community` ⚡ [fail] — Community Validator (24 checks: XSS + isolation + access + realtime + standards + feature schema completeness)
 - `companion-dim-gate` ⚡ [fail] — Companion Per-Dimension Regression Gate (Phase 8 §8.3: agent/rag/memory/persona locked-test; degrade-to-SKIP without data)
 - `companion-diverse-gate` ⚡ [fail] — Companion Held-Out Diverse Gate (§0.7: novel-phrasing fabrication floor; threshold-not-zero; degrade-to-SKIP without a fresh board)
-- `companion-page-coverage` ⚡ [fail] — Companion Page Coverage (L0: every nav-hub page must load companion-launcher.js)
 - `companion-page-coverage` ⚡ [fail] — Companion Launcher Page Coverage (L0 — every nav-hub page has companion-launcher.js)
-- `companion-source-coverage` ⚡ [fail] — Companion Source Coverage (L0: the Sources Gateway — every v_*_truth view triaged in companion_source_registry.json)
 - `companion-source-coverage` ⚡ [fail] — Companion Source Coverage (L0 — the Sources Gateway: every v_*_truth view triaged in companion_source_registry.json)
 - `companion-stack` ⚡ [fail] — Companion Stack capstone self-coverage (Agent/Memory/RAG/Safety; forward-only on Major grounded defects)
 - `compliance` ⚡ [fail] — Enterprise Compliance Baseline Validator
@@ -454,6 +452,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `hierarchical-summaries` ⚡ [fail] — Hierarchical Period Summaries Phase 2 (16-layer: migration + 5 levels + RLS + aggregator + Breakdown/Corrective filter + FREE-TIER-ONLY + callAI + hive scoping 
 - `hive` ⚡ [fail] — Hive Validator
 - `hive-battery` [fail] — hive.html LIVE per-page battery — PER_PAGE_BUGHUNT_ROADMAP Tier-1 (P1 Smoke / P2 Console+Network / P8 Visual). Headless Playwright signs in as the REAL Baguio s
+- `hive-capture-invariant` ⚡ [fail] — HIVE-CAPTURE INVARIANT — a load-time hive capture is only safe while nothing can change the active hive mid-page. marketplace.html does `const HIVE_ID = whHiveI
 - `hive-isolation` [fail] — Hive cross-tenant READ + MEMBERSHIP + ATTRIBUTION + ROLE isolation (LIVE two-tenant, rolled-back — bug-hunt 2026-07-13/14, migs 20260713000001-012). 25 invarian
 - `hive-quota` ⚡ [fail] — Per-Hive Resource Quota (4-layer: quota table + trigger coverage + inventory + adoption)
 - `hive-state-consistency` ⚡ [fail] — Hive-State LocalStorage Consistency Validator (branch-symmetry on hive.html)
@@ -514,7 +513,6 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `memento-catalog-citations` ⚡ [regression] — Memento Pattern-Catalog Citation Rot (reference_pattern_catalog.md citations all resolve on disk or via the index)
 - `memory-cache-coverage` ⚡ [fail] — PKS P3 memory retrieval cache - coverage + budget (PLATFORM_KNOWLEDGE_SUBSTRATE_ROADMAP L3). The SQLite FTS5+TF-IDF cache (Memento memory.db - project_memento_l
 - `memory-integrity` ⚡ [fail] — Memory Integrity (Phase 2: session memory, turn tracking, dedup)
-- `memory-integrity` ⚡ [fail] — Agent Memory Integrity (4-layer: schema + RLS + index + retention)
 - `meta-description` ⚡ [fail] — Meta Description Coverage (every page has description + og:title + og:image + canonical; forward-only ratchet)
 - `meta-gate` ⚡ [fail] — Meta-Gate Recorder (C4 Phase 2c: observation-mode promotion; writes per-domain decision to meta_gate_decisions.jsonl per gate run)
 - `meta-refresh` ⚡ [fail] — <meta http-equiv=refresh> (no auto-redirect anti-pattern; use JS or 30x; forward-only ratchet)

@@ -422,9 +422,17 @@ VALIDATORS = [
         "id":      "guard-mutation-score",
         "script":  "tools/validate_guard_mutation_score.py",
         "args":    [],
-        "label":   "GUARD MUTATION SCORE — would the marketplace test bank NOTICE if a guard behaved differently? The bank's SQL lane is 130/130 green and the transition board reads 99.6%; both say the cells RAN and agreed with the guards, and neither says anyone would have noticed had a guard changed. The 2026-07-30 triage is why that distinction is not academic: of seven suite failures, FOUR were defects I had just introduced, two were instruments, one was contamination, and ZERO were product defects the suite had found — every genuine defect came from BUILDING a new instrument, not from a gate going red. Mutation testing is the discipline for exactly this, and the research is blunt: a suite with 100% line coverage can score BELOW 50% when assertions are weak. HOW: for each of the four status-machine guards (service_requests / service_credit_topups / marketplace_orders / marketplace_listings) it applies semantically meaningful operators — negate the party gate, drop it entirely, force v_is_party false, force v_is_client/v_is_matched_provider true, make the admin bypass unconditional again, turn a `raise exception` into `return new` (fail OPEN), widen an authorised from-state list — then re-runs ONLY that table's bank cells and requires at least one to go RED. Each mutant carries exactly ONE fault, because two can mask each other. SAFETY: the mutated CREATE OR REPLACE is injected INSIDE each cell's own begin/rollback, so the mutation and the cell that judges it live and die together; DDL is transactional, so a crash cannot leave a weakened guard installed, and no migration is ever written. The run asserts 0 mutated guards persist afterwards. HONESTY: a SURVIVOR is a punch-list item naming a behaviour change no cell objected to; a MALFORMED mutant (will not compile) is an operator bug, discarded and reported rather than inflating the score; an UNREACHABLE mutant is excluded WITH a printed reason, because a silently-excluded mutant is how a mutation score gets flattered — the same no-silent-skip rule this arc applied to the anon/admin partitions. THE FIRST RUN CAUGHT MY OWN INSTRUMENT: it reported guard_service_topup_status at 0% on 1 cell, because authored probes carry no `transition` field and my selection could not see them — while TB-I2 was asserting precisely the top-up self-deal those mutants create and reading the credit ledger back. Probes now declare `covers_tables` explicitly (auditable, cannot drift silently) and that guard scores 100%. Self-test proves the harness measures CELLS and not scaffolding: one derived cell kills 0 mutants, the full lane kills 9 — and it reports how many mutants die only to authored probes, which is the punch list for thin derived grids. Forward-only ratchet on the score; skip_if_fast because it re-runs cells per mutant.",
+        "label":   "GUARD MUTATION SCORE — would the marketplace test bank NOTICE if a guard behaved differently? The bank's SQL lane is 130/130 green and the transition board reads 99.6%; both say the cells RAN and agreed with the guards, and neither says anyone would have noticed had a guard changed. The 2026-07-30 triage is why that distinction is not academic: of seven suite failures, FOUR were defects I had just introduced, two were instruments, one was contamination, and ZERO were product defects the suite had found — every genuine defect came from BUILDING a new instrument, not from a gate going red. Mutation testing is the discipline for exactly this, and the research is blunt: a suite with 100% line coverage can score BELOW 50% when assertions are weak. HOW: for each of the four status-machine guards (service_requests / service_credit_topups / marketplace_orders / marketplace_listings) it applies semantically meaningful operators — negate the party gate, drop it entirely, force v_is_party false, force v_is_client/v_is_matched_provider true, make the admin bypass unconditional again, turn a `raise exception` into `return new` (fail OPEN), widen an authorised from-state list — then re-runs ONLY that table's bank cells and requires at least one to go RED. Each mutant carries exactly ONE fault, because two can mask each other. SAFETY: the mutated CREATE OR REPLACE is injected INSIDE each cell's own begin/rollback, so the mutation and the cell that judges it live and die together; DDL is transactional, so a crash cannot leave a weakened guard installed, and no migration is ever written. The run asserts 0 mutated guards persist afterwards. HONESTY: a SURVIVOR is a punch-list item naming a behaviour change no cell objected to; a MALFORMED mutant (will not compile) is an operator bug, discarded and reported rather than inflating the score; an UNREACHABLE mutant is excluded WITH a printed reason, because a silently-excluded mutant is how a mutation score gets flattered — the same no-silent-skip rule this arc applied to the anon/admin partitions. THE FIRST RUN CAUGHT MY OWN INSTRUMENT: it reported guard_service_topup_status at 0% on 1 cell, because authored probes carry no `transition` field and my selection could not see them — while TB-I2 was asserting precisely the top-up self-deal those mutants create and reading the credit ledger back. Probes now declare `covers_tables` explicitly (auditable, cannot drift silently). ★AND THEN IT REPORTED A FABRICATED 100% THREE TIMES RUNNING (27/27, 36/36, 42/42), all of which were recorded as verified before being caught: `pg_get_functiondef()` returns CREATE OR REPLACE with NO trailing semicolon, so the injected definition swallowed each cell's next statement and every mutated run died on a syntax error before one assertion executed — and because the oracle reads an ERROR as a REFUSAL, negative cells passed silently while positive cells failed, so every mutant looked killed by a fixture that had never run. The honest score was 50.0%. It was caught by an operator written EXPECTING a survivor coming back killed on a branch no fixture could reach: a kill that is impossible on the evidence is a report about the instrument, not the code. Three sibling defects had also flattered the number — an `is_party_false` operator injecting a `false or` PREFIX (false OR X is X: an unkillable no-op counted as a SURVIVOR), then `false and` on guards whose party test is a DISJUNCTION ((false and A) or B is B, so it silently collapsed), a duplicate operator under re.IGNORECASE inflating the denominator, and a mutated-guard leak check still grepping for the first draft's mutation text, i.e. a safety check that had silently stopped checking (it now compares each guard's definition byte-for-byte against its pre-mutation capture). THE HONEST MEASUREMENT THEN FOUND THE REAL GAP: guard_service_request_status scored 31.6% — 13 of 19 faults surviving across 107 cells — because every cell in the bank derives from the authorised-TRANSITION set, so every cell is an UPDATE ... SET status, and two whole regions of each guard had never been entered: the TG_OP='INSERT' branch (what state a row may be BORN in — a top-up born `verified` mints credit without ever entering the verification path) and the `status unchanged` branch (field reassignment, ownership transfer, a stranger's edit). TB-BIRTH, TB-FIELD and TB-MINT close those. THE RATCHET IS NOW FORWARD-ONLY ON THREE AXES, because adding operators legitimately lowers the score and a score-only ratchet called that a REGRESSION and failed the gate — which would have pressured me to drop the new operators or fake the baseline: `killed` may never fall (the absolute count of faults the bank catches), `score` may fall only when `viable` GREW (new questions asked), and `fixture_kills` may only fall — a mutant that dies because a cell could not RUN is not a mutant the bank noticed, and a spike in it is the exact signature of the broken injection above, which the score alone could never have seen since the fabricated 100% and the honest 100% are numerically identical. Self-test proves the harness measures CELLS and not scaffolding (one derived cell kills 1, the 103-cell derived grid kills 6, the full 109 kills 18) and discloses that 12 of 18 kills come ONLY from authored probes — the derived grid is broad and shallow, which is the standing punch list. skip_if_fast because it re-runs cells per mutant.",
         "group":   "Platform",
         "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "hive-capture-invariant",
+        "script":  "tools/validate_hive_capture_invariant.py",
+        "args":    [],
+        "label":   "HIVE-CAPTURE INVARIANT — a load-time hive capture is only safe while nothing can change the active hive mid-page. marketplace.html does `const HIVE_ID = whHiveId()` once at load and stamps it on every hail and listing, so if the active hive could change while the page is open, work would be filed into the WRONG TENANT. It cannot today: the only pages that write `wh_active_hive_id` are hive.html (the switcher) and index.html (the sign-in bootstrap), and reaching the marketplace from either is a full page load, so the const is always read fresh. That was recorded as the A4 finding on `TB-A345-architecture-quality` — no defect — and it is a conclusion resting on an invariant nobody enforced: add an in-page hive switcher to the marketplace and every subsequent hail carries a stale tenant id with no test going red. Per this platform's disposition rule, a covered-by-nature cell still gets a gate asserting the contract it rests on. TWO ASSERTIONS: (A) the WRITER ALLOWLIST — exactly hive.html and index.html may write the key, and a third page appearing goes red with the instruction to re-check capture scope on every page that reads it, because adding a writer is a decision rather than automatically a bug; (B) THE CAPTURING PAGES MUST NOT WRITE IT — marketplace.html / marketplace-seller.html / marketplace-admin.html must contain zero writers, which is the live-bug condition, since a writer in the same document can run after the capture. CHECKING THE PREMISE CORRECTED THE FINDING TWICE, both errors mine: the cell claimed every write lives on hive.html (index.html:2953 writes it too — the conclusion survived, the stated premise was false), and index.html ALSO reads whHiveId() into a `const HIVE_ID`, which looks like the same stale-capture shape but is not, because that capture is FUNCTION-scoped inside the ops-home renderer (re-read per call) and the write is deliberately followed by `_initDashboard(...)` to re-render against the new hive — verified by reading both sites rather than trusting the comment. So the distinction that matters is SCOPE, not filename. The gate deliberately does NOT try to compute JS scope from a regex: brace and regex-literal counting over inline script is the brittle-validator trap this platform has already been bitten by, so it asserts the two cheap, unarguable properties instead. Self-test injects a writer into marketplace.html THROUGH THE READER (no file on disk is touched, the same discipline as injecting a mutant inside a transaction) and requires the gate to go red naming that page — without it, a green result would mean nothing. Static file scan, fast, always runs.",
+        "group":   "Platform",
         "severity": "fail",
     },
     {
@@ -2220,24 +2228,13 @@ VALIDATORS = [
         "report":  "voice_phase3_report.json",
         "skip_if_fast": False,
     },
-    {
-        "id":      "companion-page-coverage",
-        "script":  "validate_companion_page_coverage.py",
-        "args":    [],
-        "label":   "Companion Page Coverage (L0: every nav-hub page must load companion-launcher.js)",
-        "group":   "Platform",
-        "report":  None,
-        "skip_if_fast": False,
-    },
-    {
-        "id":      "companion-source-coverage",
-        "script":  "validate_companion_source_coverage.py",
-        "args":    [],
-        "label":   "Companion Source Coverage (L0: the Sources Gateway — every v_*_truth view triaged in companion_source_registry.json)",
-        "group":   "Platform",
-        "report":  None,
-        "skip_if_fast": False,
-    },
+    # `companion-page-coverage` and `companion-source-coverage` were registered TWICE here, with a second
+    # identical pair further down (same id, same script, same args). Both copies of each ran every suite, so
+    # three scripts were executing twice for no added assertion and the registry's own gate count was
+    # overstated by three. The duplicates removed are these two, not the later pair, because the later
+    # `companion-page-coverage` carries a `report` path this one set to None — deleting the copy that emits
+    # the report would have quietly dropped an artifact. See the id-uniqueness assertion in main(), added so
+    # this cannot recur silently: nothing was checking that a gate id appears once.
     {
         "id":      "memory-integrity",
         "script":  "validate_memory_integrity.py",
@@ -3526,15 +3523,13 @@ VALIDATORS = [
         "report":  "optimistic_reconciliation_report.json",
         "skip_if_fast": False,
     },
-    {
-        "id":      "memory-integrity",
-        "script":  "validate_memory_integrity.py",
-        "args":    [],
-        "label":   "Agent Memory Integrity (4-layer: schema + RLS + index + retention)",
-        "group":   "Platform",
-        "report":  "memory_integrity_report.json",
-        "skip_if_fast": False,
-    },
+    # REMOVED: a second `memory-integrity` registration pointing at the same script, labelled "4-layer:
+    # schema + RLS + index + retention". That label was also WRONG — validate_memory_integrity.py checks the
+    # agent_memory schema, per-tab session_id tracking, >90%-similarity dedup and the memory window passed to
+    # the LLM. Neither RLS, nor indexes, nor retention. So the duplicate was both redundant work and a false
+    # description of what the gate proves, which is the more expensive half: a reader trusting that label
+    # would believe retention was covered when nothing asserts it
+    # ([[feedback_the_prose_was_stale_the_registry_was_right]], inverted — here the prose was the registry).
     {
         "id":      "gateway-routing",
         "script":  "validate_gateway_routing.py",
@@ -5165,7 +5160,15 @@ VALIDATORS = [
         # doc (feedback_roadmap_percent_is_the_anti_drift_compass + measured_percent_not_qualitative).
         # Offline + deterministic (pure JSON maths, no DB/network) -> runs in --fast. Self-test:
         # `python tools/marketplace_deepwalk_scoreboard.py --selftest`. Ratchet up with --accept.
-        "id":      "marketplace_deepwalk_ratchet",
+        # RENAMED from `marketplace_deepwalk_ratchet`, which this entry SHARED with a different gate
+        # (`validate_marketplace_deepwalk.py`, ~230 lines below). Two different scripts under one id collide
+        # in the results dict, so whichever ran second overwrote the first — and `gate_efficacy_ledger.json`
+        # proves which way it went: its lone `marketplace_deepwalk_ratchet` entry carries the OTHER gate's
+        # label, meaning THIS gate's verdict was being discarded from the ledger and could have gone red
+        # without registering. Found by the id-uniqueness assertion added to main() in the same pass that
+        # removed three exact-duplicate registrations. The other entry keeps the original id so its ledger
+        # history stays correctly attached; this one takes a name that says what it is.
+        "id":      "marketplace_deepwalk_scoreboard",
         "script":  "tools/marketplace_deepwalk_scoreboard.py",
         "args":    ["--check"],
         "label":   "Marketplace deepwalk expansion %-board (forward-only ratchet: journeys x phases + MK dimension classes may only rise)",
@@ -6602,6 +6605,24 @@ def main():
     print(bold("  WorkHive Platform Guardian"))
     print(f"  {now_str}  |  {'FAST mode (skip live API)' if FAST else 'Full mode'}  |  Python {sys.version.split()[0]}")
     divider()
+
+    # THE REGISTRY CHECKS ITSELF FIRST. Nothing asserted that a gate `id` appears once, and three had been
+    # registered TWICE (`memory-integrity`, `companion-page-coverage`, `companion-source-coverage`): each ran
+    # its script twice every suite for no extra assertion, the gate count was overstated by three, and the
+    # duplicate `memory-integrity` label falsely claimed RLS/index/retention coverage that no check performs.
+    # An id is the key that results, baselines and ratchets are stored under, so two gates sharing one can
+    # overwrite each other's floor — the failure would show up as a ratchet that mysteriously stopped holding.
+    # Printed and fatal, because a registry that cannot be trusted makes every number below it unreliable.
+    _seen, _dupes = set(), []
+    for _v in VALIDATORS:
+        _id = _v.get("id")
+        (_dupes.append(_id) if _id in _seen else _seen.add(_id))
+    if _dupes:
+        print(red(f"\n  REGISTRY ERROR — duplicate gate id(s): {', '.join(sorted(set(_dupes)))}"))
+        print("  An id is the key results/baselines/ratchets are stored under; two entries sharing one can")
+        print("  silently overwrite each other. Give each gate a unique id, or delete the redundant entry.")
+        return 1
+    print(f"  {len(VALIDATORS)} gates registered, ids unique")
 
     baseline = load_baseline()
     if baseline:
