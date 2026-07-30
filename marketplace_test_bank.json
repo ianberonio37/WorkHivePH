@@ -6117,6 +6117,52 @@
         "the admin moderator job survives too (admin_verify_stranger=works): the bypass that permits self-management also permits verifying others, which is the point of an admin"
       ],
       "provenance": "Seller-side sibling of guard_service_provider_writes (TB-TRUST). Found unscored 2026-07-31 while extending the mutation harness across the 23 guards no gate names (ARC 13 / F). The non-admin refusals are the security guarantee; the admin_self_kyb=ALLOWED assertion encodes Ian's 2026-07-31 decision to leave admin self-management intentional. See [[feedback_admin_bypass_before_party_check_is_selfdeal]] and roadmap S14."
+    },
+    {
+      "id": "TB-SREVIEW-service-review-integrity",
+      "source": "authored",
+      "kind": "authority-negative",
+      "journey": "J16-trust-badges",
+      "authority": "owner",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "marketplace_reviews"
+      ],
+      "probe": {
+        "file": "TB-SREVIEW-service-review-integrity.sql",
+        "expect": {
+          "client_reviews_provider": "allowed",
+          "verified_pinned": "true",
+          "reviewer_pinned": "self",
+          "client_wrong_direction": "blocked",
+          "review_open_job": "blocked",
+          "unknown_request": "blocked",
+          "provider_reviews_client": "allowed",
+          "stranger_reviews": "blocked",
+          "admin_party_is_admin": "t",
+          "admin_party_wrong_direction": "blocked",
+          "admin_party_right_direction": "allowed"
+        }
+      },
+      "asserts": [
+        "a SERVICE review is refused until the job is completed/settled, and refused if it points at a request that does not exist - a review of a job that never happened is the rot the verified_purchase badge exists to prevent",
+        "the DIRECTION must match the reviewer's side: only the client posts client_to_provider, only the matched provider posts provider_to_client, and a stranger (no party) is refused outright",
+        "verified_purchase and reviewer_auth_uid are pinned server-side (verified_pinned=true, reviewer_pinned=self) no matter what the client sends - forged provenance is impossible",
+        "the legitimate reviews on BOTH sides survive (client->provider and provider->client), separating 'protects review integrity' from 'rejects reviews'",
+        "this is the ONE trust guard that already party-guards its admin bypass (is_marketplace_admin AND NOT v_is_party), so an admin reviewing their OWN job does not get the moderator pass - the mig-003 rule, already applied here"
+      ],
+      "provenance": "guard_service_review, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Correct but unwatched. Unlike the seller/provider trust guards it already applies the admin-not-a-party self-deal rule."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

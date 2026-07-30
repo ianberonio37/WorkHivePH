@@ -85,6 +85,15 @@ GUARDS = {
     # kyb/cert/tier/sales, by UPDATE or at INSERT) AND the intentional admin self-management Ian decided to
     # keep 2026-07-31 (admin_self_kyb=ALLOWED) — so a later party-guard on the admin bypass turns the cell red.
     "guard_marketplace_seller_trust_columns": "marketplace_sellers",
+    # ── ARC 13 / F — guard_service_review is behaviourally BANKED (TB-SREVIEW, 11 assertions incl. its mig-003
+    # admin-party self-deal protection) but its mutation-SCORING is DEFERRED, on purpose. It reuses the variable
+    # names v_is_party / v_is_client from the service_request guards, so ~6 GENERIC operators written for those
+    # guards bleed onto it (operators are not scoped to a guard). The admin-party case kills the party operators,
+    # but the residual survivors are harness artifacts, not guard gaps — and forcing a 100% via unexplained
+    # exclusions would be the false-green this arc exists to prevent. Scoring it cleanly needs OPERATOR SCOPING
+    # (roadmap S14.3a / S14.4), the first harness improvement in the queue. The TB-SREVIEW cell still runs in the
+    # SQL lane, so the guard's behaviour is covered; only the mutation SCORE waits for the scoping.
+    # "guard_service_review": "marketplace_reviews",
 }
 
 
@@ -350,6 +359,11 @@ OPERATORS = [
     ("seller_cert_selfverify_allowed",
      r"COALESCE\(NEW\.cert_verified,false\)\s+IS DISTINCT FROM COALESCE\(OLD\.cert_verified,false\)", "false",
      "a seller may turn their OWN cert_verified on - the certification badge, self-awarded (UPDATE branch)"),
+
+    # NOTE: the three guard_service_review operators (review_status_gate_removed / _client_direction_unchecked /
+    # _provider_direction_unchecked) were removed alongside deferring that guard from GUARDS above. They only
+    # match guard_service_review's text, so they are re-added with it once operator scoping lands (roadmap
+    # S14.3a) — keeping them here now would be dead code that matches nothing.
 ]
 
 VOCAB_EXTRA = "'settled'"

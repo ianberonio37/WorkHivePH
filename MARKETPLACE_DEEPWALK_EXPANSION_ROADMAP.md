@@ -3250,13 +3250,31 @@ new guard: guard_marketplace_seller_trust_columns 7/7
 3-axis ratchet: killed 70 -> 77 (rose), score 100 -> 100, fixture_kills unchanged
 ```
 
+### §14.3a · Second guard: `guard_service_review` — behaviourally BANKED, scoring DEFERRED (a harness lesson)
+
+Review integrity. Verified clean live (**11 assertions**, banked as `TB-SREVIEW-service-review-integrity`): the
+status gate, both direction rules, the unknown-request gate, and the `verified_purchase`/`reviewer_auth_uid`
+server-side pins all hold, and — unlike the seller/provider trust guards — it **already party-guards its admin
+bypass**, so an admin reviewing their OWN job is refused (the mig-003 rule, asserted on purpose as the guard's
+headline feature: `admin_party_wrong_direction=blocked`).
+
+**Why its mutation SCORE is deferred, not forced.** The first score was **25% (9 survivors)**, then **58% after
+the admin-party case** — but not because the guard is weak. It reuses the variable names `v_is_party` /
+`v_is_client` from the service_request guards, so ~6 GENERIC operators written for those guards **bleed** onto
+it (operators are not scoped to a guard). The admin-party case kills the party operators; the residual
+survivors are harness artifacts on a behaviourally-correct guard. **Forcing a 100% via unexplained exclusions
+would be exactly the false-green this arc exists to prevent** ([[feedback_a_skipped_partition_reads_as_a_covered_one]]),
+so the guard is **deferred from the mutation `GUARDS` list** while its `TB-SREVIEW` cell keeps running in the SQL
+lane (behaviour covered). The durable fix — the first item in the harness NEXT — is **operator scoping**: bind
+each operator to its intended guard so a shared variable name cannot bleed a service_request mutant onto every
+guard that reuses it. Platform mutation stays a clean **77/77** across the 9 fully-scored guards.
+
 ### §14.4 · NEXT (the standing queue — ranked, drive top-down)
 
-The remaining 22 guards, highest protection value first. Each: probe live → if broken, fix; author a judging
-cell → wire with operators → require every viable mutant killed.
-
-1. `guard_service_review` — review integrity. **Already party-guards its admin bypass** (the one guard where
-   this class is closed); pins attribution + `verified_purchase` + direction. Bank a cell, low finding-risk.
+The remaining 21 guards, highest protection value first. Each: probe live → if broken, fix; author a judging
+cell → wire with operators → require every viable mutant killed. **First harness improvement: scope operators
+to their intended guards** so a shared variable name (`v_is_party`) does not bleed a service_request operator
+onto every guard that reuses it.
 2. `guard_change_order_terms_immutable` — contract-terms immutability (co_number/title/scope/cost/schedule/
    requester/project/hive) + no-delete. High value (money/contract).
 3. `guard_progress_log_is_a_record` / `bind_progress_log_submitter` — record immutability + identity binding.
