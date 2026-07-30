@@ -3326,6 +3326,14 @@ branch, so the row is planted as postgres (which also bypasses logbook's quota/r
 this cap as the sole refuser. Two operators (cap removed / cap widened), both keyed on the guard's own text.
 **2/2.** Platform mutation → **94/94 across 16 guards.**
 
+### §14.3g · Tenth guard scored: `guard_community_announcement`
+
+A community post with `category='announcement'` may only be created by a supervisor of its hive; an ordinary
+post is anyone's. Banked by `TB-ANNC-announcement-supervisor`: a worker's announcement is refused (42501), an
+ordinary post is allowed, and a supervisor's announcement is allowed. A single insert never trips the table's
+rate-limit/quota triggers, so the announcement guard is the sole refuser. One rule, one operator (unique raise
+message). **1/1.** Platform mutation → **95/95 across 17 guards.**
+
 ### §14.4 · NEXT (the standing queue — ranked, drive top-down)
 
 **Scored this arc so far (12 guards, all 100%):** the 8 from §11–§12, plus `guard_marketplace_seller_trust_columns`,

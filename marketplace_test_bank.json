@@ -6355,6 +6355,42 @@
         "the guard has no auth branch, so the row is planted as postgres (which also bypasses logbook's quota/rate-limit triggers), isolating this cap as the sole refuser"
       ],
       "provenance": "check_inline_image_size (logbook + inventory_items), found unscored 2026-07-31 (ARC 13 / F, roadmap S14). A resource bound - failure is a heavy row, not a stolen one."
+    },
+    {
+      "id": "TB-ANNC-announcement-supervisor",
+      "source": "authored",
+      "kind": "authority-negative",
+      "journey": "J-community-post",
+      "authority": "owner",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "community_posts"
+      ],
+      "probe": {
+        "file": "TB-ANNC-announcement-supervisor.sql",
+        "expect": {
+          "worker_announces": "blocked",
+          "worker_ordinary_post": "allowed",
+          "sup_announces": "allowed"
+        }
+      },
+      "asserts": [
+        "a community post with category='announcement' may only be created by a SUPERVISOR of its hive: a worker is refused (42501), a supervisor is allowed - the write that separates 'supervisor-gated announcements' from 'no announcements'",
+        "an ordinary post (general/safety/technical/marketplace) is anyone's to write, so the guard only fires on the announcement category",
+        "a single insert never trips this table's rate-limit or daily-quota triggers, so what refuses the worker's announcement is unambiguously this guard"
+      ],
+      "provenance": "guard_community_announcement, found unscored 2026-07-31 (ARC 13 / F, roadmap S14)."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

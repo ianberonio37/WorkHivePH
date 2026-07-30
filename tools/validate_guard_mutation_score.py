@@ -116,6 +116,9 @@ GUARDS = {
     # ── ARC 13 / F — a 1.5 MB inline-photo size cap on logbook/inventory_items. Resource bound. Judge: TB-IMG.
     # Two operators (cap removed / cap widened), keyed on this guard's own `v_len > v_cap` and cap literal. Clean.
     "check_inline_image_size":            "logbook",
+    # ── ARC 13 / F — an announcement (category='announcement') may only be posted by a hive supervisor. One rule,
+    # one operator (the guard's own unique raise message). Judge: TB-ANNC. Clean.
+    "guard_community_announcement":       "community_posts",
 }
 
 
@@ -458,6 +461,12 @@ OPERATORS = [
      "query that reads it"),
     ("image_cap_widened", r"v_cap  integer := 1500000", "v_cap  integer := 900000000",
      "the cap is raised to ~900 MB, out of any real reach - the same hole with a number in front of it"),
+
+    # ── ARC 13 / F · announcements are supervisor-only. Keyed on the guard's own unique raise message.
+    ("announcement_supervisor_gate_removed",
+     r"RAISE EXCEPTION 'Only supervisors can post announcements'[^;]*;", "NULL;",
+     "any member may post a hive-wide ANNOUNCEMENT, not just a supervisor - the broadcast channel stops being "
+     "an authority statement"),
 ]
 
 VOCAB_EXTRA = "'settled'"
