@@ -6383,7 +6383,11 @@ VALIDATORS = [
     {"id": "fb4-grounding-eval",           "script": os.path.join("tools", "fb4_grounding_eval.py"), "args": ["--accept"], "label": "FB4 Live-LLM Grounding/Fabrication Eval (invokes the served LLM edge fns with DIVERSE ASKER PERSONAS - earnest/edge-case/adversarial-injection/Tagalog - and grades answer-named asset-tags subset-of the hive DB truth = no fabrication; adversarial must not leak a secret; Tagalog must still get a grounded answer; free-tier $0 single invokes; forward-only pass ratchet vs fb4_grounding_baseline.json)", "group": "Forward-Build", "report": "fb4_grounding_results.json", "skip_if_fast": True, "severity": "regression", "parallel_safe": False},
     {"id": "mine-rls-policies",            "script": os.path.join("tools", "mine_rls_policies.py"), "args": [], "label": "RLS Policy Substrate Miner (L-1.5: USING(true) / WITH CHECK(true) / missing TO clause)",                     "group": "P1 Roadmap", "report": "rls_policy_mining_report.json",            "skip_if_fast": False, "severity": "info",       "parallel_safe": True},
     {"id": "mine-cache-name-drift",        "script": os.path.join("tools", "mine_cache_name_drift.py"), "args": [], "label": "Cache-Name Drift Miner (L-1: SHELL_FILEs committed after sw.js — bump CACHE_NAME warning)",            "group": "P1 Roadmap", "report": "cache_name_drift_report.json",             "skip_if_fast": False, "severity": "info",       "parallel_safe": True},
-    {"id": "rls-strict",                   "script": "validate_rls_strict.py",                   "args": [], "label": "RLS Strict Baseline (L0 ratchet over mine_rls_policies: USING(true) + WITH CHECK(true) frozen at baseline)",         "group": "P1 Roadmap", "report": "rls_policy_mining_report.json",            "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
+    # `report` corrected from `rls_policy_mining_report.json` to this gate's OWN artifact. It only READS the
+    # mining report (validate_rls_strict.py:39 FAILs if that file is absent and tells you to run the miner
+    # first) and writes `rls_strict_baseline.json` itself. Declaring the producer's file made two gates claim
+    # one artifact and described the data flow backwards — caught by the registry check added below in main().
+    {"id": "rls-strict",                   "script": "validate_rls_strict.py",                   "args": [], "label": "RLS Strict Baseline (L0 ratchet over mine_rls_policies: USING(true) + WITH CHECK(true) frozen at baseline)",         "group": "P1 Roadmap", "report": "rls_strict_baseline.json",                 "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
     {"id": "envelope-return-shape",        "script": "validate_envelope_return_shape.py",        "args": [], "label": "Envelope Return-Shape Adoption (true adoption: fns that actually call ok(ctx, ...); floor ratchet)",                 "group": "P1 Roadmap", "report": "envelope_return_shape_report.json",        "skip_if_fast": False, "severity": "warn",       "parallel_safe": True},
     {"id": "mine-capacity-signals",        "script": os.path.join("tools", "mine_capacity_signals.py"), "args": [], "label": "Capacity-Signals Miner (LB G-1.5: realtime channel/subscribe/teardown + unbounded select shape)",          "group": "Maturity P1", "report": "capacity_signals_report.json",            "skip_if_fast": False, "severity": "info",       "parallel_safe": True},
     {"id": "connection-surface-discovery", "script": "validate_connection_surface_discovery.py", "args": [], "label": "Connection-Surface Discovery (LB G-1: every subscribing surface registered + budgeted)",                    "group": "Maturity P1", "report": "connection_surface_discovery_report.json", "skip_if_fast": False, "severity": "regression", "parallel_safe": True},
@@ -6622,7 +6626,41 @@ def main():
         print("  An id is the key results/baselines/ratchets are stored under; two entries sharing one can")
         print("  silently overwrite each other. Give each gate a unique id, or delete the redundant entry.")
         return 1
-    print(f"  {len(VALIDATORS)} gates registered, ids unique")
+
+    # Two more properties in the SAME class as the duplicate id, both cheap and both previously unchecked.
+    #
+    # A script that does not resolve currently fails only WHEN THE GATE RUNS, which in --fast mode a
+    # skip_if_fast gate never does: a typo'd path could sit green for weeks. Checked up front instead.
+    #
+    # A `report` filename shared by two gates means the second overwrites the first's artifact. The one
+    # instance found was a MISLABEL rather than a clash — `rls-strict` declared the report that
+    # `mine-rls-policies` produces, because it READS that file and writes its own baseline. Same lesson as
+    # the id collision: the field means "the artifact this gate emits", and a consumer claiming a producer's
+    # output makes the registry describe a data flow that does not exist.
+    _bad_script = [(v.get("id"), v.get("script")) for v in VALIDATORS
+                   if v.get("script") and not os.path.exists(v["script"])]
+    if _bad_script:
+        print(red(f"\n  REGISTRY ERROR — {len(_bad_script)} gate(s) point at a script that does not exist:"))
+        for _i, _s in _bad_script[:6]:
+            print(f"    {_i} -> {_s}")
+        print("  A missing script only fails when the gate RUNS, and a skip_if_fast gate never runs in")
+        print("  --fast mode — so this would sit green until a full run happened to reach it.")
+        return 1
+
+    _rep = {}
+    for _v in VALIDATORS:
+        if _v.get("report"):
+            _rep.setdefault(_v["report"], []).append(_v.get("id"))
+    _rep_dupes = {k: ids for k, ids in _rep.items() if len(ids) > 1}
+    if _rep_dupes:
+        print(red("\n  REGISTRY ERROR — a report artifact is claimed by more than one gate:"))
+        for _k, _ids in sorted(_rep_dupes.items()):
+            print(f"    {_k} <- {', '.join(_ids)}")
+        print("  Whichever gate runs second overwrites the first's artifact. If one gate only READS the")
+        print("  file, it should not declare it as its report — that field is what the gate EMITS.")
+        return 1
+
+    print(f"  {len(VALIDATORS)} gates registered · ids unique · scripts resolve · reports unclaimed twice")
 
     baseline = load_baseline()
     if baseline:
