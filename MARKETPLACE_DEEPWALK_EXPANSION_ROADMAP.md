@@ -1799,3 +1799,50 @@ edge functions** (5 covered; the bug class is already proven, `urgency='emergenc
 that forbade it), then the **state inducers** §7b never got, then the three **one-cell layers** now named on
 the board. Each user-facing addition preceded by a live journey establishing the friction, per the method
 constraint above.
+
+### §11.5 · P3 first move — the CDC candidate is a KILL, and the premise was wrong before the code was
+
+The plan's breadth phase led with *"consumer-driven contracts on the client-called edge functions — 26
+candidates, 5 covered."* Checking the premise before building found **both halves of that sentence wrong**,
+which is the anti-duplication rule earning its place rather than a wasted detour.
+
+**Wrong scope.** 26 is the PLATFORM's client-called set. This is the MARKETPLACE bank, and the marketplace
+pages call exactly **two** edge functions: `ai-gateway` and `marketplace-listing-assist`.
+`marketplace-seller.html`, `marketplace-admin.html` and the seller profile call **none**.
+
+**Wrong gap.** All three questions CDC would ask are already gated, by three different instruments:
+
+| CDC question | Already owned by |
+|---|---|
+| does the provider honour its response shape? (CORS/OPTIONS, `{error:string}`, required fields 400-not-500, registration) | `validate_edge_contracts.py` — provider-side, static |
+| do the client's values agree with the provider's VOCABULARY? | `service-triage-eval` — reads the catalog + urgency/mode vocabularies from the DATABASE every run, so a new category is graded against without touching the gate |
+| does the route the client calls exist and reach the right agent? | `gateway-coverage` + `edge-fn-invoke-targets` |
+
+A fourth gate, `validate_marketplace.py`, also references the function. Building a CDC harness here would
+have produced a slower fourth copy of coverage that already bites — the outcome the method constraint
+predicts, and the reason two of three cold harvests in a prior session were KILLS.
+
+**And a suspected finding that did NOT survive contact.** `grep -rn service_triage --include=*.html` returns
+NOTHING, so `marketplace-listing-assist`'s `mode: 'service_triage'` branch looked like dead provider code
+reachable from no surface. It is not: `ai-gateway/index.ts:1384` sets `forwardExtras.mode = "service_triage"`
+and forwards to it. The page calls the gateway (`agent: 'service-triage'`) and the gateway calls the
+function — the "ONE front door / coach-fold" pattern the page's own comment describes. The chain is:
+
+```
+marketplace.html  --{agent:'service-triage', message, hive_id}-->  ai-gateway
+ai-gateway        --{mode:'service_triage', message, ...}------->  marketplace-listing-assist
+                  <--{category, urgency, mode}-------------------
+client reads      data.data.route_result.triage.{urgency, category}
+```
+
+Reported as measured, not as reasoned: a client-side grep is not evidence about a server-to-server hop, and
+"no HTML calls it" would have been a confident wrong answer about dead code
+([[feedback_check_the_premise_before_building_the_pattern]]).
+
+**What P3 therefore still genuinely owes**, unchanged by this kill:
+- the **state inducers** §7b required and never got (`filtered0` / `error` / `degraded` / `empty` / `edge`),
+  which is why `state` is `None` on 212 cells — and only for cells whose surface truly renders per-state;
+- the **three one-cell layers** the board now names out loud (S2-pwa, S7-ai, S9-knowledge), each preceded by
+  a live journey establishing the friction;
+- the admission rule stands: a new cell counts once it kills a mutant, or fails when its invariant is
+  inverted.
