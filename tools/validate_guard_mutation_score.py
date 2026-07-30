@@ -165,6 +165,11 @@ GUARDS = {
     # TB-PROJ-removal (worker refused, supervisor allowed, hive_audit_log row read back). Two operators: the
     # supervisor raise, and the audit INSERT (removing it aborts the delete via an orphaned VALUES). Clean.
     "guard_and_audit_project_removal":    "projects",
+    # ── ARC 13 / F — the second HARD guard: a privileged change (approve/assign/verify/reject) requires
+    # supervisor of the row's hive, shared across rcm_fmea_modes/project_change_orders/project_progress_logs.
+    # Judge: TB-APPROVAL (worker refused the approve, supervisor allowed, worker's non-privileged cancel allowed).
+    # Two operators: the gate raise, and forcing `privileged` true so it OVER-gates a non-privileged change. Clean.
+    "wh_guard_supervisor_approval":       "project_change_orders",
 }
 
 
@@ -546,6 +551,14 @@ OPERATORS = [
      "PERFORM 1; -- (",
      "a project removal stops writing its hive_audit_log record, so what was destroyed (and by whom) leaves no "
      "trace - the audit half of the guard"),
+
+    # ── ARC 13 / F · wh_guard_supervisor_approval. Two operators keyed on text unique to this guard.
+    ("supervisor_approval_gate_removed",
+     r"RAISE EXCEPTION 'Supervisor role required to approve/assign/verify[^;]*;", "NULL;",
+     "any member may approve/assign/verify/reject signed-off work - the supervisor authority gate is gone"),
+    ("approval_gates_everything", r"IF privileged AND h IS NOT NULL", "IF true AND h IS NOT NULL",
+     "EVERY change (not just the privileged ones) now demands a supervisor, so an ordinary non-reviewer edit by "
+     "a member is wrongly refused - the guard stops distinguishing what it is supposed to gate"),
 ]
 
 VOCAB_EXTRA = "'settled'"

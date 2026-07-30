@@ -6821,6 +6821,42 @@
         "isolated: a deleted_at-only change does not touch lessons_learned, so guard_lessons_learned_is_supervisor returns immediately and this guard is the sole gate"
       ],
       "provenance": "guard_and_audit_project_removal, one of the two hard shared project guards, found unscored 2026-07-31 (ARC 13 / F, roadmap S14)."
+    },
+    {
+      "id": "TB-APPROVAL-supervisor-only",
+      "source": "authored",
+      "kind": "authority-negative",
+      "journey": "J-approval",
+      "authority": "owner",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "project_change_orders"
+      ],
+      "probe": {
+        "file": "TB-APPROVAL-supervisor-only.sql",
+        "expect": {
+          "worker_approves": "blocked",
+          "worker_nonpriv": "allowed",
+          "sup_approves": "allowed"
+        }
+      },
+      "asserts": [
+        "a PRIVILEGED change (status -> approved) is refused for a non-supervisor worker and allowed for a supervisor of the row's hive - the reviewer-only fields are gated",
+        "a NON-privileged change (status -> cancelled from pending, neither state a reviewer state) is allowed for the worker - the guard gates only approve/assign/verify, not every write",
+        "this guard is SHARED across rcm_fmea_modes / project_change_orders / project_progress_logs; scored on project_change_orders where the privileged status transition is easy to exercise"
+      ],
+      "provenance": "wh_guard_supervisor_approval, the second and last hard shared project guard, found unscored 2026-07-31 (ARC 13 / F, roadmap S14)."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
