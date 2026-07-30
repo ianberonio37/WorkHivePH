@@ -447,5 +447,8 @@
   "20260730000001_repair_double_encoded_jsonb.sql": "ea9df31423b0d25c2b70ae6510e4491718a4d09a758b88d7caa9de94f89dca1d",
   "20260730000002_close_anon_write_on_unprotected_tables.sql": "14898a35aea3d28a6bf653e284a527360441f4e159932523c7f0cc99381ce1f1",
   "20260730000003_admin_bypass_only_for_non_parties.sql": "6c3200f36ac8469d7a4bf1ad570d06d569dbbc0c5af027e44759a5e72ccfe76b",
-  "20260730000004_scope_avatar_and_language_policies_to_owner.sql": "fbcb192e644108520ca7fe91b1aa19e0cf8192a9e810be7bd6e10add85dc68a9"
+  "20260730000004_scope_avatar_and_language_policies_to_owner.sql": "fbcb192e644108520ca7fe91b1aa19e0cf8192a9e810be7bd6e10add85dc68a9",
+  "20260730000005_pin_topup_intake_facts_against_redirect.sql": "adc0429b2f3c81150e67cbfefddccfaa00f25876219739c7240f5613cac9d271",
+  "20260730000006_pin_order_and_listing_identity_fields.sql": "702c45d2a8d853096def1477f4961c15aab1bb5f6a6156e5707a28fb531ba75a",
+  "20260730000007_scope_audit_actor_lookup_to_the_rows_hive.sql": "674056623b47692e92199b3bf156559faa6161932a76acbdc771e9a3338f819f"
 }
