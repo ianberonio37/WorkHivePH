@@ -1649,3 +1649,153 @@ not. All three skips are explicit in-spec `test.skip()` guards with stated data-
 > confident wrong answer.** A skipped partition, a stale report, a `getNotifications()` that could never
 > populate, and now a partial source — every one of them reported a product defect that did not exist.
 > `catch (_) { /* ignore */ }` is where that begins.
+
+---
+
+## §11 · TEST BANK II — proving the bank has TEETH, and letting the score admit new breadth (2026-07-30)
+
+> Ian: *"do what's appropriate and needed for my platform. then let us check internally and external
+> sources if we could improve and add more in our marketplace testbank."*
+
+### §11.0 · Why a successor arc, from the bank's own data
+
+The bank finished at transition 99.6%, SQL lane 130/130, layer 100%, dimension 100%. Those numbers say the
+cells RAN and AGREED with the guards. Neither says anyone would have NOTICED had a guard behaved
+differently — and this session's own triage is the evidence that the difference is real: of seven suite
+failures, **four were defects I had just introduced, two were instruments, one was contamination, and ZERO
+were product defects the suite had found.** Every genuine defect came from *building a new instrument*.
+
+So the first move was to measure the bank against itself, which found six gaps:
+
+| Measured gap | Evidence |
+|---|---|
+| two axes were decoration | `viewport [390,1280]` and `lang [en,fil]` declared, used on **0 of 247** cells |
+| state partitions unset | `state` `None` on **212/247** — the inducers §7b required were **never built** |
+| oracle mix lopsided | **194 refusal**, 35 db-truth, 10 rubric, 7 continuity, **eval = 1** |
+| layer 100% was short-denominator | `layer_pct` counts any layer with **≥1** cell. S4-db 235 · **S2-pwa 1, S7-ai 1, S9-knowledge 1** · S5-edge 5 against **26 client-called** edge functions |
+| sneak-paths were a human's list | 4 hand-named kinds, not generated sequences |
+| nothing measured teeth | no mutation/metamorphic/property infrastructure existed |
+
+**Method held (Engine A drives Engine B).** These are frictions measured in our own data, not standards
+harvested cold — the correction that killed two of three cold harvests in a prior session
+([[feedback_engine_a_drives_engine_b_journey_seeds_harvest]]). Four external sources were then read against
+those specific gaps and **written to `substrate/external/`** (166 → 170 chunks), closing a gap the original
+plan opened and never closed: it said to harvest its six sources, and the bag still held **zero** chunks on
+test-bank design.
+
+| Technique | Gap it answers | The finding that mattered |
+|---|---|---|
+| mutation testing | nothing measured teeth | *100% line coverage can score **below 50%*** |
+| metamorphic testing | `eval` = 1 | an MR is *"a necessary property … that MUST involve MULTIPLE EXECUTIONS"* — and the canonical published example is our exact shape: a filtered search *"should return a subset of the previous results"* |
+| stateful property-based testing | sneak-paths hand-named | preconditions reject illegal sequences BEFORE they reach the system — precisely the bug my out-of-order probe had |
+| consumer-driven contracts | S5-edge 5 of 26 | the contract is generated from **running consumer code**, so it cannot drift from what is implemented |
+
+**Locked with Ian:** mutation scoped to the four SQL guards · retire the dead axes naming their owners ·
+**both directions, with depth GATING breadth.**
+
+### §11.1 · P0 — the two decoration axes, retired and PROVEN irrelevant
+
+`viewport` and `lang` are gone from the axes, each recorded with the instrument that actually measures it:
+the live UFAI deep walk (390/1280, real tap-target and overflow numbers, worse-per-dimension) and
+`validate_i18n`. Same disposition already applied to U1/U2/U5/U6/U7 — the bank NAMES what another instrument
+proves rather than re-measuring it worse.
+
+Two disciplines, because retiring an axis is the kind of change that can quietly flatter a board:
+- the script **asserts 0 usages** before removing either axis, so this is not done on assumption;
+- the full board was captured before and after and **`diff` was EMPTY**. Had any % moved, the axis was
+  load-bearing and the retirement would have been wrong.
+
+### §11.2 · P1 — a mutation SCORE on the four guards
+
+`tools/validate_guard_mutation_score.py`, registered `guard-mutation-score`. Nine operators, each a way one
+of THESE guards has actually rotted: negate the party gate, drop it, force `v_is_party` false, force
+`v_is_client`/`v_is_matched_provider` true, restore the unconditional admin bypass, turn a `raise exception`
+into `return new` (**fail OPEN**), widen an authorised from-state list. One fault per mutant — two can mask
+each other and make a mutant unkillable for the wrong reason.
+
+**A mutant can never outlive its test.** The mutated `CREATE OR REPLACE` is injected INSIDE each cell's own
+`begin … rollback`, so the mutation and the cell judging it die together. DDL is transactional, so a crash
+cannot leave a weakened guard installed, and no migration is ever written. The run asserts **0 mutated
+guards persist**. Committing a mutant and restoring afterwards would leave a window where the platform's own
+security guard is deliberately broken — not a risk worth a metric.
+
+**The first run caught MY OWN instrument, not the bank.** It reported `guard_service_topup_status` at
+**0% on 1 cell** — a headline that would have read as "the money-minting guard is unguarded". It was wrong:
+authored probes carry no `transition` field, so my cell selection could not see them, while
+`TB-I2-admin-bypass-only-for-non-parties` sat in the bank asserting exactly the top-up self-deal those
+mutants create and reading the credit ledger back. Probes now declare **`covers_tables` explicitly** —
+auditable, and it cannot drift silently when a probe is edited — and that guard scores 100%.
+
+> Under-counting the bank is the same class of error as over-claiming it: both report a number whose
+> evidence is somewhere the reader cannot see.
+
+**The self-test failed first, correctly, and taught me the harness.** Its "weak set" was `full[:1]`, which
+after the ordering change is the *strongest* single cell (an authored probe asserting a whole scenario), so
+it killed 9 of 9 and the test reported no sensitivity. Rebuilt around a single **derived** cell:
+
+```
+full set        (107 cells) killed 9
+derived only    (103 cells) killed 9    <- the derived grid carries its own weight here
+one derived cell(  1 cell ) killed 0    <- so the score measures ASSERTIONS, not scaffolding
+```
+
+It also now reports how many mutants die *only* to authored probes — the punch list for a thin derived grid.
+
+**Result: 27 viable mutants, 27 killed, 100%, forward-only baselined.** Read honestly, that is not "the bank
+is perfect": it is "the bank objects to every fault these nine operators can express." More operators is how
+that number earns more meaning, and a survivor would be a named punch-list item rather than a worry.
+
+### §11.3 · P2 — metamorphic relations, so the oracle mix stops being 78% refusal
+
+`TB-MR-metamorphic-relations` (new `metamorphic` oracle type), 10 assertions, all green:
+
+| MR | Relation | Why it needed no expected value |
+|---|---|---|
+| MR1 | a filtered listing set ⊆ the unfiltered one, for category and price independently | the "right" result set depends on live data nobody froze |
+| MR2 | a member's visible requests ⊂ a supervisor's on the same hive | a POSITIVE statement on an authority axis that is otherwise 100% refusal |
+| MR3 | verifying two top-ups in either order reaches the same balance | commutativity on the money path; no balance is written down anywhere in the file |
+
+**Every MR carries its own non-vacuity check**, because these are the easiest assertions in the bank to
+satisfy trivially — an empty filter result is a subset of anything, a system that shows nobody anything is
+monotonic, and 0 = 0 is order-independent. So MR1 asserts the filter kept AND removed rows; MR2 asserts the
+supervisor sees something AND that the subset is **STRICT**; MR3 asserts both orderings actually minted.
+
+That strictness check exists because my first MR2 fixture was weak: both requests carried a `hive_id`, which
+made the two visible sets **identical** — subset held by equality while proving no permission boundary
+existed at all. Rebuilt so one request is visible to the supervisor only.
+
+Two mechanical lessons worth keeping: `ROLLBACK TO SAVEPOINT` is **not legal inside plpgsql**, so MR3 uses a
+nested `BEGIN … EXCEPTION` block (DB effects roll back, plpgsql VARIABLES keep their values) and reports any
+*unexpected* error rather than swallowing it into a NULL that reads as a failed relation. And `set local
+request.jwt.claims` inside a DO block is **transaction-scoped, not block-scoped** — `reset role` alone left
+the member's identity in place and the top-up guard correctly refused MR3's own fixture, a probe accusing the
+product of a bug in the probe's setup.
+
+**Teeth:** inverting MR1's `<@` to `@>` makes it report `NO`.
+
+### §11.4 · P4 — the boards now disclose their own rules
+
+```
+layer      : 100.0%  architecture, on a >=1-CELL rule — untested: none
+    cells/layer: S1 23 · S2 1 · S3 6 · S4 236 · S5 5 · S6 3 · S7 1 · S8 12 · S9 1
+    thin (<=2 cells, counted as covered by the rule): S2-pwa=1, S7-ai=1, S9-knowledge=1
+oracles    : refusal 194 · db-truth 35 · rubric 9 · continuity 7 · eval 1 · metamorphic 1
+mutation   : 100.0%  of 27 seeded guard faults the bank NOTICES
+```
+
+The layer number was always true and the impression it gave was false. A % whose rule is invisible will be
+misread, so the rule is printed beside it and the thin layers are named — two lines that make a
+short-denominator 100% impossible to mistake for architecture coverage
+([[feedback_short_denominator_is_a_false_100]]). The oracle mix is a SHAPE and is deliberately never reduced
+to one figure: a bank that overwhelmingly proves "this must not happen" can be green on a system that does
+nothing at all, which is the asymmetry this whole arc exists to correct.
+
+**State:** transition 99.6% (247/248) · SQL lane **131/131** · mutation **100%** · layer 100% (rule
+disclosed) · dimension 100% · ufai 48% · roadmap 99.6% · ratchet PASS · canonical_status **all 82 green**.
+
+**NEXT (P3, admitted only by the score):** the admission rule is that a new cell counts once it demonstrably
+kills a mutant or fails when its invariant is inverted. Highest value first — **CDC on the 26 client-called
+edge functions** (5 covered; the bug class is already proven, `urgency='emergency'` written against a CHECK
+that forbade it), then the **state inducers** §7b never got, then the three **one-cell layers** now named on
+the board. Each user-facing addition preceded by a live journey establishing the friction, per the method
+constraint above.

@@ -307,7 +307,36 @@ def measure_bank() -> dict | None:
     lanes: dict[str, int] = {}
     for t in tests:
         lanes[t.get("lane", "?")] = lanes.get(t.get("lane", "?"), 0) + 1
+
+    # Per-layer CELL COUNTS, so the >=1-cell rule behind layer_pct can be printed next to it. Computed over
+    # `done` (the same set the % uses), or the two numbers would describe different things.
+    layer_counts: dict[str, int] = {l: 0 for l in LAYERS}
+    for t in done:
+        for l in (t.get("layers") or []):
+            if l in layer_counts:
+                layer_counts[l] += 1
+
+    # Oracle MIX over done cells — a shape, deliberately not reduced to one %.
+    oracle_mix: dict[str, int] = {}
+    for t in done:
+        o = t.get("oracle") or "(unset)"
+        oracle_mix[o] = oracle_mix.get(o, 0) + 1
+
+    # The mutation score is OWNED by its own gate; the board only reports what that gate last measured.
+    # Recomputing it here would mean re-running every cell per mutant on every scoreboard call.
+    mutation = {}
+    mb = ROOT / "guard_mutation_baseline.json"
+    if mb.exists():
+        try:
+            d = json.loads(mb.read_text(encoding="utf-8"))
+            mutation = {"score": d.get("score"), "viable": d.get("viable")}
+        except Exception:
+            mutation = {}
+
     return {
+        "layer_cell_counts": layer_counts,
+        "oracle_mix": oracle_mix,
+        "mutation": mutation,
         "transition_pct": _pct(len(done), len(tests)),
         "layer_pct": _pct(len(layers_hit & set(LAYERS)), len(LAYERS)),
         # DERIVED, not a floor. This read `max(len(dims_hit), 13)` — a hardcoded "MK1-MK13" that
@@ -365,8 +394,25 @@ def main() -> int:
               f"grows it by itself){RESET}")
         print(f"  transition : {bank['transition_pct']}%  ({c['done']}/{c['obligations']} obligations, "
               f"{c['owed']} owed)   baseline {b_t}%")
-        print(f"  layer      : {bank['layer_pct']}%  {DIM}architecture — untested: "
+        # THE RULE IS PRINTED WITH THE NUMBER, and the thin layers are named beside it.
+        #
+        # `layer_pct` counts a layer as covered on **>= 1 passing cell**. That is a legitimate rule for
+        # "does any test touch this layer at all", and a terrible one to read as architecture coverage: on
+        # 2026-07-30 it read 100% while S4-db held 235 cells and S2-pwa, S7-ai and S9-knowledge held ONE
+        # each, and S5-edge held 5 against 26 client-called edge functions. That is a short-denominator
+        # 100% ([[feedback_short_denominator_is_a_false_100]]) — the number was true and the impression it
+        # gave was false. A % whose rule is invisible will be misread; printing the rule and the per-layer
+        # cell counts costs two lines and removes the ambiguity permanently.
+        counts = bank.get("layer_cell_counts") or {}
+        thin = sorted((n, l) for l, n in counts.items() if n <= 2)
+        print(f"  layer      : {bank['layer_pct']}%  {DIM}architecture, on a >=1-CELL rule — untested: "
               f"{', '.join(bank['layers_missing']) or 'none'}{RESET}")
+        if counts:
+            print(f"      {DIM}cells/layer: "
+                  + " · ".join(f"{l.split('-')[0]} {counts.get(l, 0)}" for l in LAYERS) + f"{RESET}")
+        if thin:
+            print(f"      {YELLOW}thin{RESET} {DIM}(<=2 cells, counted as covered by the rule): "
+                  + ", ".join(f"{l}={n}" for n, l in thin) + f"{RESET}")
         for lyr, owed in (bank.get("layer_owed") or {}).items():
             if not owed:
                 print(f"      {YELLOW}{lyr}{RESET} {DIM}— nothing owed yet: sprout a journey for it{RESET}")
@@ -386,6 +432,23 @@ def main() -> int:
             print(f"  ufai       : {bank['ufai_pct']}%  {DIM}of {bank['ufai_total']} UFAI classes "
                   f"asserted by a BANK cell (the UFAI instrument grades these separately){RESET}")
         print(f"  lanes      : " + " · ".join(f"{k} {v}" for k, v in sorted(bank["lanes"].items())))
+        # ORACLE MIX, listed and never averaged. 194 of 247 cells were `refusal` and exactly one was
+        # `eval` — a bank that overwhelmingly proves "this must not happen" can be green on a system that
+        # does nothing at all, which is the asymmetry this whole arc was built to correct. A single
+        # "oracle coverage %" would hide the shape; the shape IS the finding.
+        omix = bank.get("oracle_mix") or {}
+        if omix:
+            print(f"  oracles    : " + " · ".join(f"{k} {v}" for k, v in
+                                                  sorted(omix.items(), key=lambda kv: -kv[1])))
+        # MUTATION SCORE — the only number here that measures whether any of the others has TEETH.
+        mut = bank.get("mutation") or {}
+        if mut.get("score") is not None:
+            col = GREEN if mut["score"] >= 100 else YELLOW
+            print(f"  mutation   : {col}{mut['score']}%{RESET}  {DIM}of {mut.get('viable', 0)} seeded guard "
+                  f"faults the bank NOTICES (coverage says it ran; this says it would object){RESET}")
+        else:
+            print(f"  mutation   : {DIM}not yet measured — run "
+                  f"tools/validate_guard_mutation_score.py{RESET}")
         # Never folded into a %: debt with a name beats debt hidden in a denominator.
         if bank["quarantined"]:
             print(f"  {YELLOW}quarantined{RESET} ({len(bank['quarantined'])}, excluded from the %): "

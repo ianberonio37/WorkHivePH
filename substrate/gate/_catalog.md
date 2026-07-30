@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 426db76da0493c45
+source_sha: d0c29aea6011cb09
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (704) — the 'what's already gated' brain
+## gate · registered validators (705) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -224,7 +224,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (495)
+### Platform (496)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -447,6 +447,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `groq-fallback` ⚡ [fail] — AI Provider Chain Validator
 - `grounded-sweep` ⚡ [fail] — Grounded MCP Sweep Self-Coverage (meta: every done page in the roadmap keeps its crystallized journey lock)
 - `growth-write-isolation` [fail] — Growth-layer write isolation (LIVE, rolled-back: simulates a real authenticated member and asserts a member CANNOT self-mint a skill_badge [competence + 250 XP 
+- `guard-mutation-score` [fail] — GUARD MUTATION SCORE — would the marketplace test bank NOTICE if a guard behaved differently? The bank's SQL lane is 130/130 green and the transition board read
 - `hardcoded-secrets` ⚡ [fail] — Hardcoded Secret Detector (4-layer: provider tokens + generic assignments + provider distribution + allowlist inventory)
 - `heading-hierarchy` ⚡ [fail] — Heading Hierarchy (no skipped levels, no multiple h1; forward-only ratchet)
 - `hidden_class_defined` ⚡ [fail] — `.hidden` is actually DEFINED for every page that uses it — a page hiding an element with class="hidden" must load a stylesheet carrying a GENERAL `.hidden` rul

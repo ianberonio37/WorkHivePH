@@ -26,14 +26,6 @@
       "error",
       "degraded"
     ],
-    "viewport": [
-      390,
-      1280
-    ],
-    "lang": [
-      "en",
-      "fil"
-    ],
     "layer": [
       "S1-ui",
       "S2-pwa",
@@ -50,7 +42,8 @@
       "continuity",
       "rubric",
       "refusal",
-      "eval"
+      "eval",
+      "metamorphic"
     ],
     "lane": [
       "sql",
@@ -4743,7 +4736,10 @@
       ],
       "provenance": "Found by the role-pair rule, and the missing half was missing from the PRODUCT. SJ-J09 and SJ-J10 were both walk-complete having been walked only from the canceller's side; a search of every function touching the cancelled states returned exactly two - the availability sync and the status guard. NOTHING TOLD THE OTHER PARTY. A client could cancel while the provider was en route: their availability flipped back to online, the job vanished from their list, and they kept driving to a site for work that no longer existed. Wired in mig 20260729000018 onto the push rail that already carries 'New job nearby'.",
       "note": "enqueue_service_push_uids is a NEW NAME, not an overload of enqueue_service_push - a second PostgREST signature would 203 the endpoint for every caller ([[feedback_rpc_overload_pgrst203_kills_endpoint]]). Two probe bugs were caught while writing it: `reset role` does NOT clear request.jwt.claims, so the service-role inserts still arrived with a live auth.uid() and the guard refused a system-set birth state; and the last assertion matched ANY push carrying the scope text, catching the broadcast fan-out's own correct 'New job nearby' and calling it a failure.",
-      "still_owed": "the UI half - does the provider's open seller page actually show the cancellation without a reload? The two-context harness can assert it."
+      "still_owed": "the UI half - does the provider's open seller page actually show the cancellation without a reload? The two-context harness can assert it.",
+      "covers_tables": [
+        "service_requests"
+      ]
     },
     {
       "id": "TB-SJ06-the-quoter-side",
@@ -5181,7 +5177,13 @@
         "the ledger is read back: a blocked self-verify must mint NO credit, a legitimate one exactly one"
       ],
       "provenance": "mig 20260730000003. Found 2026-07-30: teaching the SQL runner the `anon` partition made `admin` the next unexecuted partition, and minting an admin identity to run it surfaced the bypass. A probe proved a provider-admin firing completed->settled on its OWN job (rows=1) - the client's 'I paid' confirmation, which fires trg_mint_settlement_commission. The same unqualified is_marketplace_admin() early-return stood in all FOUR status guards, five weeks after mig 20260729000003 fixed exactly this in guard_service_review.",
-      "note": "TEETH VERIFIED by restoring the vulnerable guard inside a rolled-back transaction: the self-deal came back as ALLOWED, so the `blocked` assertions bite. The same technique showed that service_requests moderation returned 0 rows BEFORE and AFTER the fix - its RLS policy has no admin clause, so a non-party admin's row is filtered away and that bypass's only reachable effect was the self-deal. The other three tables DO have an admin RLS clause, which is why moderation is asserted as `works` there and deliberately not asserted at all on service_requests."
+      "note": "TEETH VERIFIED by restoring the vulnerable guard inside a rolled-back transaction: the self-deal came back as ALLOWED, so the `blocked` assertions bite. The same technique showed that service_requests moderation returned 0 rows BEFORE and AFTER the fix - its RLS policy has no admin clause, so a non-party admin's row is filtered away and that bypass's only reachable effect was the self-deal. The other three tables DO have an admin RLS clause, which is why moderation is asserted as `works` there and deliberately not asserted at all on service_requests.",
+      "covers_tables": [
+        "marketplace_listings",
+        "marketplace_orders",
+        "service_credit_topups",
+        "service_requests"
+      ]
     },
     {
       "id": "TB-SNEAK-replay-and-session-switch",
@@ -5222,7 +5224,60 @@
         "the real provider still works afterwards, so the refusal is about identity, not a poisoned row"
       ],
       "provenance": "The two sneak paths that are neither a one-UPDATE cell nor already locked by a gate. Both were about to be written off as covered-by-nature ('a same-status update changes nothing'; 'the guards call auth.uid() inline'). Both statements are true and neither is evidence - they describe code I read, not behaviour I observed.",
-      "note": "The replay assertion is the SIDE EFFECT, not the status: trg_journal_service_request appends to service_job_events, and a replay that journals twice writes a history saying the provider set off for the job twice. Nothing errors; the timeline just becomes fiction."
+      "note": "The replay assertion is the SIDE EFFECT, not the status: trg_journal_service_request appends to service_job_events, and a replay that journals twice writes a history saying the provider set off for the job twice. Nothing errors; the timeline just becomes fiction.",
+      "covers_tables": [
+        "service_requests"
+      ]
+    },
+    {
+      "id": "TB-MR-metamorphic-relations",
+      "source": "authored",
+      "kind": "metamorphic",
+      "journey": "J1-buyer-browse-search",
+      "authority": "member",
+      "state": "populated",
+      "path": "happy",
+      "lane": "sql",
+      "oracle": "metamorphic",
+      "status": "banked",
+      "layers": [
+        "S3-data",
+        "S4-db"
+      ],
+      "dims": [
+        "MK1",
+        "MK7"
+      ],
+      "covers_tables": [
+        "marketplace_listings",
+        "service_requests",
+        "service_credit_topups"
+      ],
+      "ufai_earned": {
+        "F2": "correctness is asserted as a RELATION between runs - subset under filtering, monotonicity across roles, commutativity of credit - on surfaces where no exact expected value exists"
+      },
+      "probe": {
+        "file": "TB-MR-metamorphic-relations.sql",
+        "expect": {
+          "mr1_category_is_subset": "yes",
+          "mr1_price_is_subset": "yes",
+          "mr1_filter_kept_rows": "yes",
+          "mr1_filter_removed_rows": "yes",
+          "mr2_member_subset_of_supervisor": "yes",
+          "mr2_supervisor_sees_something": "yes",
+          "mr2_subset_is_strict": "yes",
+          "mr3_no_unexpected_error": "yes",
+          "mr3_balance_order_independent": "yes",
+          "mr3_both_orders_minted": "yes"
+        }
+      },
+      "asserts": [
+        "MR1 filter subset: a filtered listing set is a SUBSET of the unfiltered one, for category and for price independently - and the filter demonstrably kept some rows and removed others",
+        "MR2 permission monotonicity: a member sees a STRICT subset of what a supervisor sees on the same hive, and the supervisor's set is non-empty",
+        "MR3 order-independent credit: verifying two top-ups in either order reaches the same balance, and both orderings actually minted"
+      ],
+      "provenance": "The oracle mix was 194 `refusal` of 247 cells and exactly ONE `eval`. That was not an accident of effort: wherever no exact expected value could be written down - ranking, filtering, permission-visibility - the surface was skipped or graded by rubric. A metamorphic relation is a necessary property that MUST involve MULTIPLE EXECUTIONS, so it needs no right answer, only a relation the right answers obey. The published canonical example is our exact shape: a filtered search 'should return a subset of the previous results'.",
+      "note": "EVERY MR CARRIES ITS OWN NON-VACUITY CHECK, because these relations are the easiest in the bank to satisfy trivially: an empty filter result is a subset of anything, a system that shows nobody anything is monotonic, and 0 = 0 is order-independent. So MR1 asserts the filter kept AND removed rows, MR2 asserts the supervisor sees something AND that the subset is STRICT, MR3 asserts both orderings minted. My first MR2 fixture gave both requests a hive_id, which made the two visible sets IDENTICAL - subset held by equality while proving no permission boundary existed. Rebuilt so one request is visible to the supervisor only."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
@@ -5242,5 +5297,25 @@
       "A3 A4 A5": "the only genuinely open cells, and dispositioned with evidence rather than excused: A4 was HUNTED as a concrete stale-hive defect and found absent (a full page load makes the cached value fresh); A3 reduces to the D9 knobs, which have no values yet; A5 is DEMONSTRATED by this arc's denominator growing by itself when a guard changes. Owed, never banked as a weak green."
     },
     "ceiling": "48% is the bank's honest share: 12 of 25 classes, every one earned by a named cell or a named existing gate. The other 13 are either owned by the live UFAI walk (which grades them at 100%) or are the three A-series cells recorded owed-with-evidence. A higher number here would mean over-claiming, not more coverage."
-  }
+  },
+  "_retired_axes": {
+    "_why": "An axis declared and used on ZERO cells is not a statement of intent, it is coverage that does not exist - and the original plan said so itself: 'a state axis with no induction mechanism is decoration'. Both were verified at 0 of 247 cells before removal (assertion in tools, not assumption). Retiring them names the instrument that ACTUALLY measures each, which is the same disposition already applied to U1/U2/U5/U6/U7: the bank names what another instrument proves rather than re-measuring it worse.",
+    "viewport": {
+      "was": [
+        390,
+        1280
+      ],
+      "owner": "tools/validate_service_ufai_deep.py (the live UFAI deep walk)",
+      "why_not_here": "The deep walk measures 390 and 1280 in a REAL browser with real numbers - 44px tap targets, vendored axe, 360-1920 overflow - and grades worse-per-dimension. A bank cell asserting a viewport could only re-state that from a worse vantage point: the SQL lane has no viewport at all, and the journey lane would be a second, thinner copy of a live sweep that already runs. Precedent: the same call was made for U1/U2/U5/U6/U7."
+    },
+    "lang": {
+      "was": [
+        "en",
+        "fil"
+      ],
+      "owner": "validate_i18n (data-i marker + dictionary coverage)",
+      "why_not_here": "Language coverage is a static property of the markup and its dictionary - an unresolved `data-i` marker IS the defect, and the i18n gate reads every marker against every dictionary on every page. A per-cell language partition in the bank would multiply cells without adding an assertion that gate does not already make. See feedback_i18n_unresolved_marker_is_broken_translation: count is not correctness."
+    }
+  },
+  "_covers_tables_doc": "Which guard TRANSITIONS this authored probe actually fires. Read by tools/validate_guard_mutation_score.py, which selects cells per guard and would otherwise never show the mutants an authored probe - they carry no `transition` field, so the first score reported guard_service_topup_status at 0% on 1 cell while TB-I2 was asserting exactly the self-deal those mutants create. Under-counting the bank is the same class of error as over-claiming it."
 }
