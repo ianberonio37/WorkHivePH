@@ -267,6 +267,11 @@
       <span class="ic ic-analytics" aria-hidden="true"></span>
       <span class="lbl">Analytics</span>
     </button>
+    <button class="tab-btn" data-tab="services" role="tab" aria-selected="false" aria-label="Services"><!-- service-hailing provider console (SERVICE_HAILING_ROADMAP.md P3) -->
+      <span class="ic ic-maintenance" aria-hidden="true"></span>
+      <span class="lbl">Services</span>
+      <span class="tab-count" id="badge-services">0</span>
+    </button>
   </div>
 
   <!-- Listings filter chips -->
@@ -1006,8 +1011,578 @@
     if (tab === 'listings')  Promise.resolve(loadListings()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); // G1 (FAMILY F3)
     if (tab === 'inquiries') loadInquiries();
     if (tab === 'analytics') loadAnalytics();
+    if (tab === 'services')  loadServices();
     _selSyncUrl();
   }
+
+  /* ── Services tab - service-hailing provider console (SERVICE_HAILING_ROADMAP.md P3) ──
+     Reads ONLY Engine views (v_service_provider_truth / v_service_open_broadcasts /
+     v_service_request_truth); writes go to Fuel via RLS'd updates + the dispatch RPCs.
+     Every state advance checks the returned row count - a 0-row update is a lost race
+     or a guard refusal, surfaced honestly, never a silent "saved". */
+  const SVC_ACTIVE = ['accepted', 'en_route', 'on_site', 'in_progress'];
+  const SVC_FINISHED = ['completed', 'settled'];   // rateable provider -> client (P6 second direction)
+  const SVC_NEXT = { accepted: ['en_route', 'On my way'], en_route: ['on_site', 'Arrived on site'], on_site: ['in_progress', 'Start work'], in_progress: ['completed', 'Mark completed'] };
+  const SVC_TS_COL = { en_route: 'en_route_at', on_site: 'on_site_at', in_progress: 'in_progress_at', completed: 'completed_at' };
+  const SVC_STATUS_LABEL = { accepted: 'Accepted: head over', en_route: 'On the way', on_site: 'On site', in_progress: 'Work in progress' };
+  let _svcMyIds = [];
+
+  function _svcPeso(v) { return (typeof whFmtPeso === 'function') ? whFmtPeso(v, { decimals: 0 }) : ('₱' + Number(v || 0).toLocaleString()); }
+  const _svcBtn = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid transparent;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-family:\'Poppins\',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;min-height:44px;';
+  const _svcBtnGhost = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:\'Poppins\',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;min-height:44px;';
+  const _svcInput = 'padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;';
+
+  async function loadServices(_retried) {
+    const area = document.getElementById('content-area');
+    if (!area) return;
+    area.innerHTML = '<div class="empty-state"><div class="skel skel-pulse" style="height:120px;border-radius:var(--wh-radius);"></div></div>';
+    try {
+      const { data: ids, error: idErr } = await db.rpc('my_service_provider_ids');
+      // cold-load race: a deep-linked ?tab=services can fire while the session restore /
+      // fresh JWT is still settling (post-stack-restart clock skew 401s) - retry ONCE
+      // after a beat before surfacing the error card
+      if (idErr && !_retried) { setTimeout(() => loadServices(true), 1800); return; }
+      if (idErr) throw idErr;
+      _svcMyIds = (ids || []).map(r => (typeof r === 'string' ? r : (r && (r.my_service_provider_ids || r.id)))).filter(Boolean);
+      if (!_svcMyIds.length) { await renderSvcOnboard(area); return; }
+      const [provRes, feedRes, jobsRes] = await Promise.all([
+        db.from('v_service_provider_truth').select('*').in('id', _svcMyIds).limit(50),
+        db.from('v_service_open_broadcasts').select('*').order('created_at', { ascending: false }).limit(30),
+        db.from('v_service_request_truth').select('*').in('status', SVC_ACTIVE.concat(SVC_FINISHED)).order('updated_at', { ascending: false }).limit(60)
+      ]);
+      if (provRes.error) throw provRes.error;
+      const provs = provRes.data || [];
+      const feed = feedRes.data || [];
+      const mine = (jobsRes.data || []).filter(j => _svcMyIds.includes(j.matched_provider_id));
+      const jobs = mine.filter(j => SVC_ACTIVE.includes(j.status));
+      // P6 second direction: a finished job is rateable provider->client until rated. This only
+      // decides whether to OFFER the control; the guard (mig 46) is the enforcement.
+      const done = mine.filter(j => SVC_FINISHED.includes(j.status)).slice(0, 8);
+      let ratedIds = new Set();
+      if (done.length) {
+        try {
+          const { data: rvs } = await db.from('marketplace_reviews').select('request_id')
+            .in('request_id', done.map(j => j.id)).eq('direction', 'provider_to_client').limit(50);
+          ratedIds = new Set((rvs || []).map(r => r.request_id));
+        } catch (_) { /* empty-catch-allow: the rate control degrades to shown; the guard still refuses a duplicate */ }
+      }
+      const badge = document.getElementById('badge-services');
+      if (badge) badge.textContent = String(feed.length);
+      renderSvcConsole(area, provs, feed, jobs, done, ratedIds);
+      // P6b wallet card (async append under the provider cards; first identity's wallet)
+      if (provs.length) { svcWalletHtml(provs[0].id).then(w => { const slot = document.getElementById('svc-wallet-slot'); if (slot) slot.outerHTML = w; }); }
+      svcGeoSync(jobs.filter(j => ['en_route', 'on_site', 'in_progress'].includes(j.status)), _svcMyIds);
+      svcJobPollSync(jobs, provs);
+    } catch (err) {
+      // L-layer: a backend failure shown to the user must ALSO reach the console/aggregator,
+      // or a services console that starts failing for providers is invisible in observability.
+      console.error('services console load failed:', err);
+      area.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml((err && err.message) || 'Please try again.') + '</p>' +
+        '<button type="button" onclick="loadServices()" style="' + _svcBtnGhost + 'margin-top:0.6rem;">Retry</button></div>';
+    }
+  }
+
+  async function renderSvcOnboard(area) {
+    const e = escHtml;
+    let cats = [];
+    try {
+      const { data } = await db.from('v_service_catalog_truth').select('category').limit(200);
+      cats = [...new Set((data || []).map(r => r.category))].sort();
+    } catch (_) { /* empty-catch-allow: category list is a convenience; the form still works */ }
+    const catBoxes = cats.map(c =>
+      '<label style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.55rem 0.7rem;border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);cursor:pointer;min-height:44px;box-sizing:border-box;">' +
+      '<input type="checkbox" class="svc-cat" value="' + e(c) + '" style="width:1.05rem;height:1.05rem;accent-color:var(--wh-orange);"> ' + e(c) + '</label>').join(' ');
+    area.innerHTML =
+      '<div class="empty-state" style="text-align:left;max-width:560px;margin:0 auto;">' +
+      '<h2 style="text-align:center;">Become a service provider</h2>' +
+      '<p style="text-align:center;">Get hailed for jobs near you, like a ride-hailing driver for your trade. Your skill matrix and resume back your profile.</p>' +
+      '<label style="display:block;margin-top:0.9rem;font-size:0.8rem;font-weight:600;">Provider name' +
+      '<input id="svc-reg-name" type="text" aria-label="Provider name" value="' + e((WORKER_NAME ? WORKER_NAME + ' ' : '') + 'Services') + '" maxlength="80" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
+      '<label style="display:block;margin-top:0.7rem;font-size:0.8rem;font-weight:600;">Contact (mobile no.)' +
+      '<input id="svc-reg-contact" type="tel" placeholder="09xx xxx xxxx" maxlength="20" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
+      '<label style="display:block;margin-top:0.7rem;font-size:0.8rem;font-weight:600;">City / service area' +
+      '<input id="svc-reg-area" type="text" placeholder="e.g. Baguio" maxlength="60" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
+      '<div style="margin-top:0.9rem;font-size:0.8rem;font-weight:600;">What services do you offer?</div>' +
+      '<div id="svc-reg-cats" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem;">' + (catBoxes || '<em>Loading categories…</em>') + '</div>' +
+      '<button type="button" onclick="svcRegister()" style="' + _svcBtn + 'width:100%;margin-top:1rem;">Register as a provider</button>' +
+      '<p style="font-size:0.72rem;opacity:0.75;margin-top:0.5rem;">Verification is granted by the platform after review. Your profile starts unverified and can take jobs right away.</p>' +
+      '<div id="svc-hive-reg" style="margin-top:0.9rem;"></div>' +
+      '</div>';
+    // Hive-company path (D3: providers = freelancers AND hives): a supervisor can register
+    // their hive as a service company - its workers get dispatched from the same console.
+    try {
+      // canonical-allow: this is an AUTHORIZATION read, not a KPI read — "which hives does this caller
+      // supervise?", answered from the membership table that IS the authority on membership. It renders
+      // no metric; it decides whether to offer the hive-registration slot at all. v_worker_truth is a
+      // KPI/analytics view over worker state, and routing a role decision through an aggregate view
+      // would put an access-control answer behind a reporting surface — strictly worse, and divergent
+      // from how the rest of the platform resolves roles (auth_worker_names(), my_service_provider_ids()
+      // both read hive_members directly). Single-surface, no cross-page number to diverge.
+      const { data: sup } = await db.from('hive_members').select('hive_id, hives(name)')
+        .eq('auth_uid', _authUid).eq('status', 'active').eq('role', 'supervisor').limit(20);
+      const slot = document.getElementById('svc-hive-reg');
+      if (slot && sup && sup.length) {
+        const e2 = escHtml;
+        slot.innerHTML = '<div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:0.8rem;font-size:0.8rem;font-weight:600;">You supervise a hive</div>' +
+          sup.map(s => '<button type="button" onclick="svcRegisterHive(\'' + e2(s.hive_id) + '\',\'' + e2(((s.hives && s.hives.name) || 'Our hive').replace(/'/g, '')) + '\')" style="' + _svcBtnGhost + 'width:100%;margin-top:0.5rem;">Register ' + e2((s.hives && s.hives.name) || 'your hive') + ' as a service company</button>').join('');
+      }
+    } catch (_) { /* empty-catch-allow: hive-company option is additive; the freelancer form stands alone */ }
+  }
+
+  async function svcRegisterHive(hiveId, hiveName) {
+    if (!svcRequireOnline('Registering your hive as a provider')) return;
+    const cats = [...document.querySelectorAll('.svc-cat:checked')].map(cb => cb.value);
+    if (!cats.length) { showToast('Pick the services your hive offers first (checkboxes above)', 'error'); return; }
+    const areaTxt = (document.getElementById('svc-reg-area') || {}).value || '';
+    const contact = (document.getElementById('svc-reg-contact') || {}).value || '';
+    const { data, error } = await db.from('service_providers').insert({
+      provider_type: 'hive',
+      hive_id: hiveId,
+      display_name: hiveName + ' Field Services',
+      contact: contact.trim() || null,
+      categories: cats,
+      service_areas: areaTxt.trim() ? [areaTxt.trim()] : [],
+      availability: 'offline'
+    }).select('id');
+    if (error) { showToast(error.message, 'error'); return; }
+    if (!data || !data.length) { showToast('Registration didn\'t save - please try again', 'error'); return; }
+    showToast('Your hive is now a service company. Go Online to receive jobs');
+    loadServices();
+  }
+
+  async function svcRegister() {
+    if (!svcRequireOnline('Registering as a provider')) return;
+    if (!_authUid) { showToast('Sign in first to register as a provider', 'error'); return; }
+    const name = (document.getElementById('svc-reg-name') || {}).value || '';
+    const contact = (document.getElementById('svc-reg-contact') || {}).value || '';
+    const areaTxt = (document.getElementById('svc-reg-area') || {}).value || '';
+    const cats = [...document.querySelectorAll('.svc-cat:checked')].map(cb => cb.value);
+    if (!name.trim()) { showToast('Give your provider profile a name', 'error'); return; }
+    if (!cats.length) { showToast('Pick at least one service you offer', 'error'); return; }
+    const { data, error } = await db.from('service_providers').insert({
+      provider_type: 'freelancer',
+      auth_uid: _authUid,
+      worker_name: WORKER_NAME || null,
+      display_name: name.trim(),
+      contact: contact.trim() || null,
+      categories: cats,
+      service_areas: areaTxt.trim() ? [areaTxt.trim()] : [],
+      availability: 'offline'
+    }).select('id');
+    if (error) { showToast(error.message, 'error'); return; }
+    if (!data || !data.length) { showToast('Registration didn\'t save - please try again', 'error'); return; }
+    showToast('You\'re a provider now - go Online to receive jobs');
+    loadServices();
+  }
+
+  /* P6b credit WALLET (D6): balance = SUM(ledger) via provider_credit_balance(). Top-ups are
+     P2P GCash + the 13-digit ref filed here; the founder verifies and a trigger mints.
+     Blank number = the card still takes refs and points to the platform admin. */
+  const SVC_GCASH_NUMBER = '0995 009 2416'; // founder-supplied (D6, Ian 2026-07-29)
+  async function svcWalletHtml(provId) {
+    const e = escHtml;
+    let bal = null, lines = [];
+    try {
+      const { data } = await db.rpc('provider_credit_balance', { p_provider_id: provId });
+      bal = (data == null) ? null : Number(data);
+      // Engine view, not the Fuel table (arc §1: the Dashboard never reads Fuel raw). The view
+      // re-asserts the own-account boundary; the balance itself still comes from the RPC above.
+      const led = await db.from('v_service_credit_ledger_truth').select('entry_type, amount, note, created_at')
+        .eq('account_type', 'provider').eq('account_id', provId)
+        .order('created_at', { ascending: false }).limit(3);
+      lines = led.data || [];
+    } catch (_) { /* empty-catch-allow: wallet card degrades to the top-up form alone */ }
+    return '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.9rem 1rem;">' +
+      '<div style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:baseline;justify-content:space-between;">' +
+      '<strong>Credit wallet</strong>' +
+      '<span style="font-size:1.05rem;font-weight:800;color:' + (bal != null && bal < 0 ? 'var(--wh-orange-text)' : 'inherit') + ';">' +
+      (bal == null ? '-' : '₱' + bal.toLocaleString(undefined, { minimumFractionDigits: 2 })) + '</span></div>' +
+      (bal != null && bal < 0 ? '<div style="font-size:0.75rem;color:var(--wh-orange-text);margin-top:0.2rem;">Negative balance: top up to keep accepting jobs.</div>' : '') +
+      (lines.length ? '<div style="font-size:0.72rem;opacity:0.85;margin-top:0.4rem;">' +
+        lines.map(l => e(l.entry_type) + ' ' + (Number(l.amount) >= 0 ? '+' : '') + '₱' + Number(l.amount).toLocaleString()).join(' · ') + '</div>' : '') +
+      '<div style="font-size:0.75rem;opacity:0.85;margin-top:0.5rem;">Top up: send via GCash to ' +
+      (SVC_GCASH_NUMBER ? '<strong>' + e(SVC_GCASH_NUMBER) + '</strong>' : 'the WorkHive GCash number (ask your platform admin)') +
+      ', then file the reference number below. Credits appear once the founder verifies.</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.45rem;">' +
+      '<input id="svc-topup-amt-' + e(provId) + '" type="number" min="1" step="50" placeholder="Amount ₱" aria-label="Top-up amount in pesos" style="width:8rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
+      '<input id="svc-topup-ref-' + e(provId) + '" type="text" maxlength="20" placeholder="GCash reference no." aria-label="GCash reference number" style="width:12rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
+      '<button type="button" onclick="svcFileTopup(\'' + e(provId) + '\')" style="' + _svcBtnGhost + '">File top-up</button></div></div>';
+  }
+
+  async function svcFileTopup(provId) {
+    if (!svcRequireOnline('Filing a top-up')) return;
+    const amt = Number((document.getElementById('svc-topup-amt-' + provId) || {}).value);
+    const ref = ((document.getElementById('svc-topup-ref-' + provId) || {}).value || '').replace(/\D/g, '');
+    if (!isFinite(amt) || amt <= 0) { showToast('Enter the amount you sent', 'error'); return; }
+    if (ref.length < 9) { showToast('Enter the GCash reference number from your receipt', 'error'); return; }
+    const { data, error } = await db.from('service_credit_topups').insert({
+      account_type: 'provider', account_id: provId, payer_auth_uid: _authUid, amount: amt, gcash_ref: ref
+    }).select('id');
+    if (error) { showToast(/duplicate|unique/i.test(error.message) ? 'That reference number is already filed' : error.message, 'error'); return; }
+    if (!data || !data.length) { showToast('Couldn\'t file the top-up. Try again.', 'error'); return; }
+    showToast('Filed. Your credits appear once the founder verifies the transfer.');
+    loadServices();
+  }
+  window.svcFileTopup = svcFileTopup;
+
+  function renderSvcConsole(area, provs, feed, jobs, done, ratedIds) {
+    const e = escHtml;
+    let html = '';
+    provs.forEach(p => {
+      const onJob = p.availability === 'on_job';
+      const online = p.availability === 'online';
+      html +=
+        '<div class="simple-card" style="margin-bottom:0.8rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;justify-content:space-between;padding:0.9rem 1rem;">' +
+        '<div><strong>' + e(p.display_name) + '</strong> ' +
+        (p.verified ? '<span style="color:var(--wh-green, rgb(74,222,128));font-size:0.75rem;font-weight:700;">✓ Verified</span>' : '<span style="opacity:0.7;font-size:0.75rem;">Pending verification</span>') +
+        '<div style="font-size:0.75rem;opacity:0.8;margin-top:0.15rem;">' + e((p.categories || []).join(' · ')) + (p.service_areas && p.service_areas.length ? ' - ' + e(p.service_areas.join(', ')) : '') + ' · ' + Number(p.completed_jobs || 0) + ' job' + (Number(p.completed_jobs || 0) === 1 ? '' : 's') + ' done' + (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + (p.tier === 'gold' ? ' · 🥇 Gold' : p.tier === 'silver' ? ' · 🥈 Silver' : ' · 🥉 Bronze') + '</div></div>' +
+        (onJob
+          ? '<span style="font-size:0.8rem;font-weight:700;color:var(--wh-orange-text);">On a job</span>'
+          : '<button type="button" role="switch" aria-checked="' + (online ? 'true' : 'false') + '" onclick="svcToggleAvail(\'' + e(p.id) + '\',\'' + (online ? 'offline' : 'online') + '\')" style="' + (online ? _svcBtn : _svcBtnGhost) + '">' + (online ? 'Online: receiving jobs' : 'Offline: go Online') + '</button>') +
+        '</div>';
+    });
+
+    // in-context push ask (G3): renders only while permission is undecided/denied
+    if (svcPushSupported() && Notification.permission !== 'granted') {
+      html += '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.8rem 1rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;justify-content:space-between;">' +
+        '<div style="font-size:0.8rem;">🔔 <strong>Hear new hails with this tab closed</strong><div style="opacity:0.8;font-size:0.74rem;margin-top:0.1rem;">Job offers arrive as notifications, like a ride-hailing driver app.</div></div>' +
+        '<button type="button" onclick="svcEnablePush()" style="' + _svcBtn + '">Enable job alerts</button></div>';
+    }
+    html += '<div id="svc-wallet-slot"></div>';
+    html += '<h2 style="font-size:0.95rem;margin:1rem 0 0.5rem;">My active jobs <span class="tab-count">' + jobs.length + '</span></h2>';
+    if (!jobs.length) {
+      html += '<div class="empty-state" style="padding:1rem;"><p>No active job. Accept a request below to get started.</p></div>';
+    } else {
+      jobs.forEach(j => {
+        const nxt = SVC_NEXT[j.status];
+        html +=
+          '<div class="simple-card" style="margin-bottom:0.6rem;padding:0.9rem 1rem;">' +
+          '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>' +
+          '<div style="font-size:0.75rem;opacity:0.8;margin:0.2rem 0 0.5rem;">' + e(SVC_STATUS_LABEL[j.status] || j.status) + ' · ' + e(j.address || '') + (j.client_worker_name ? ' · for ' + e(j.client_worker_name) : '') + '</div>' +
+          (nxt ? '<button type="button" onclick="svcAdvance(\'' + e(j.id) + '\',\'' + nxt[0] + '\')" style="' + _svcBtn + 'margin-right:0.4rem;">' + nxt[1] + '</button>' : '') +
+          '<button type="button" onclick="svcCancelJob(\'' + e(j.id) + '\')" style="' + _svcBtnGhost + 'margin-right:0.4rem;">Cancel job</button>' +
+          // dayplanner hook (P5/§1c): the platform's existing ?add=1 deep-link contract
+          '<a href="dayplanner.html?add=1&title=' + encodeURIComponent('Service job: ' + (j.catalog_name || (j.custom_scope || 'hailed job').slice(0, 60))) + '&kind=shift&ref=svc-' + e(j.id) + '&cat=CM" style="' + _svcBtnGhost + 'display:inline-flex;align-items:center;text-decoration:none;margin-right:0.4rem;" aria-label="Add this job to my Day Planner">+ Add to my day</a>' +
+          // parts cross-sell (P9/§1c): a job that needs a part feeds the parts marketplace
+          '<a href="marketplace.html" style="' + _svcBtnGhost + 'display:inline-flex;align-items:center;text-decoration:none;" aria-label="Find a replacement part in the parts marketplace">🔩 Find a part</a>' +
+          '</div>';
+      });
+    }
+
+    // P6 bidirectional reviews, provider -> client: the other half of the tracker's client-side
+    // rating, so a provider can flag a client who was not ready. One per direction (mig 46).
+    if (done && done.length) {
+      html += '<h2 style="font-size:0.95rem;margin:1.1rem 0 0.5rem;">Recently finished <span class="tab-count">' + done.length + '</span></h2>';
+      done.forEach(j => {
+        const rated = ratedIds && ratedIds.has(j.id);
+        html +=
+          '<div class="simple-card" style="margin-bottom:0.6rem;padding:0.9rem 1rem;">' +
+          '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>' +
+          '<div style="font-size:0.75rem;opacity:0.8;margin:0.2rem 0 0.5rem;">' + e(SVC_STATUS_LABEL[j.status] || j.status) +
+          (j.client_worker_name ? ' · for ' + e(j.client_worker_name) : '') + '</div>' +
+          (rated
+            ? '<span style="font-size:0.78rem;opacity:0.75;">✓ You rated this client</span>'
+            : '<div id="svc-prate-' + e(j.id) + '" style="margin:0.3rem 0;"></div>' +
+              '<button type="button" onclick="svcRateClient(\'' + e(j.id) + '\')" style="' + _svcBtnGhost + '">Rate client</button>') +
+          '</div>';
+      });
+    }
+
+    html += '<h2 style="font-size:0.95rem;margin:1.1rem 0 0.5rem;">Open requests near you <span class="tab-count">' + feed.length + '</span></h2>';
+    if (!feed.length) {
+      html += '<div class="empty-state" style="padding:1rem;"><p>No open requests in your service area right now. Stay Online and new hails appear here live.</p></div>';
+    } else {
+      feed.forEach(f => {
+        const rate = f.catalog_rate != null ? _svcPeso(f.catalog_rate) + (f.catalog_unit === 'per_hour' ? '/hr' : '/visit') : (f.budget != null ? 'Budget ' + _svcPeso(f.budget) : 'Quote it');
+        html +=
+          '<div class="simple-card" style="margin-bottom:0.6rem;padding:0.9rem 1rem;">' +
+          '<strong>' + e(f.catalog_name || f.custom_scope || 'Service request') + '</strong>' +
+          '<div style="font-size:0.75rem;opacity:0.8;margin:0.2rem 0 0.5rem;">' +
+          (f.catalog_category ? e(f.catalog_category) + ' · ' : '') + e(f.urgency || 'normal') + ' priority' +
+          (f.distance_km != null ? ' · ' + Number(f.distance_km).toFixed(1) + ' km away' : '') +
+          (f.area_hint ? ' · ' + e(f.area_hint) : '') + ' · ' + rate + '</div>' +
+          (f.already_responded
+            ? '<span style="font-size:0.8rem;opacity:0.75;">Responded. Waiting for the client</span>'
+            : (f.mode === 'instant'
+                ? '<button type="button" onclick="svcAccept(\'' + e(f.request_id) + '\')" style="' + _svcBtn + '">Accept job</button>'
+                : '<span style="display:inline-flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">' +
+                  '<input id="svc-q-' + e(f.request_id) + '" type="number" min="0" step="50" placeholder="Your price ₱" aria-label="Your quote price in pesos" style="width:9rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
+                  '<button type="button" onclick="svcQuote(\'' + e(f.request_id) + '\')" style="' + _svcBtnGhost + '">Send quote</button></span>')) +
+          '</div>';
+      });
+    }
+    area.innerHTML = html;
+  }
+
+  async function svcToggleAvail(providerId, to) {
+    if (!svcRequireOnline('Changing your availability')) return;
+    const { data, error } = await db.from('service_providers').update({ availability: to, updated_at: new Date().toISOString() }).eq('id', providerId).select('id');
+    if (error) { showToast(error.message, 'error'); return; }
+    if (!data || !data.length) { showToast('Couldn\'t change availability - refresh and try again', 'error'); return; }
+    showToast(to === 'online' ? 'You\'re Online - jobs in your area will appear here' : 'You\'re Offline');
+    loadServices();
+  }
+
+  /* The provider's page must LEARN two things it could not (2026-07-30, both found by two-context
+     walks). It had no interval and no realtime subscription at all, so once loaded it was frozen.
+
+       TB-SJ09-ui-the-open-page-learns-of-the-cancellation - a client cancels, the push says "stand
+       down - do not travel", and the page still lists the job as live. The product contradicted its
+       own notification, and the screen is the one they trust while driving.
+
+       TB-SJ28-ui-a-waiting-provider-sees-the-hail-arrive - the FIRST fix armed the refresh only while
+       `jobs.some(SVC_ACTIVE)`, which froze the page in exactly the state the platform's promise is
+       ABOUT: online, holding no job, waiting for work. A hail arrived and they were told nothing.
+       Refreshing only once you already have work is the opposite of a job feed.
+
+     So it arms while the provider is AVAILABLE (waiting, and a hail can land) OR has a live job (its
+     state can change under them). Timer disciplines live in the shared whLivePoll (utils.js): offline
+     is a skip not a retry, a hidden tab is skipped, and it clears on unload - because a timer that
+     outlives its reason is the leak that discipline exists to prevent. */
+  function svcJobPollSync(jobs, provs) {
+    whLivePoll('svc-jobs', function () {
+      var waiting = (provs || []).some(function (p) { return p.availability === 'online'; });
+      var working = (jobs || []).some(function (j) { return SVC_ACTIVE.includes(j.status); });
+      return waiting || working;
+    }, loadServices, 15000);
+  }
+
+  /* S2 offline posture: a write that cannot reach the server is REFUSED, not attempted. Nine writes
+     here used to fire into a dead network - including svcFileTopup, where the provider may ALREADY
+     have sent the GCash payment. Wording + rationale: utils.js#whRequireOnline. Gate:
+     `offline-write-guard`. */
+  // Delegates to the shared whRequireOnline (utils.js). Kept as a local name so every call
+  // site reads the same, while the wording lives in exactly one place.
+  function svcRequireOnline(action) {
+    // The page's own showToast is the sink; utils.js owns the wording. A missing helper still refuses
+    // AND still speaks - a guard that throws blocks the write and shows nothing, which is the silent
+    // failure this guard exists to prevent.
+    if (typeof window.whRequireOnline === 'function') return window.whRequireOnline(action, showToast);
+    if (navigator.onLine === false) {
+      showToast('You are offline. ' + action + ' needs a connection - nothing was sent, so nothing is half-done.', 'error');
+      return false;
+    }
+    return true;
+  }
+
+  /* S2 offline posture (§1b): accepting a hail RESOLVES A RACE against other providers - it
+     cannot be settled offline, and a queued accept would claim a job that was already taken.
+     Refuse honestly rather than let the provider believe they have the job. */
+  async function svcAccept(requestId) {
+    if (navigator.onLine === false) {
+      showToast("You are offline. Accepting a job needs a connection - another provider may already have taken it.", "error");
+      return;
+    }
+    const { data, error } = await db.rpc('accept_service_request', { p_request_id: requestId });
+    if (error) { showToast(error.message, 'error'); return; }
+    if (data && data.accepted) {
+      showToast('Job is yours. Head over when ready');
+    } else {
+      const why = {
+        lost_race_or_closed: 'Another provider got this one first',
+        no_online_provider_identity: 'Go Online first to accept jobs',
+        category_mismatch: 'This job needs a service you don\'t offer',
+        out_of_radius: 'This job is outside your service radius',
+        own_request: 'You can\'t accept your own request',
+        insufficient_credits: 'Your credit balance is negative. Top up via GCash to keep accepting jobs',
+        // J20: the badge gate. Say WHICH trade and point at the exam - a refusal with no route
+        // forward is just a wall.
+        not_certified: 'This trade needs a certified badge'
+          + (data && data.category ? ' in ' + data.category : '')
+          + (data && data.required_level ? ' (level ' + data.required_level + '+)' : '')
+          + '. Earn it in the Skill Matrix exam, then this job type opens up.'
+      }[(data && data.reason) || ''] || 'Couldn\'t accept this job';
+      showToast(why, 'error');
+    }
+    loadServices();
+  }
+
+  async function svcQuote(requestId) {
+    if (!svcRequireOnline('Sending a quote')) return;
+    const inp = document.getElementById('svc-q-' + requestId);
+    const price = inp ? Number(inp.value) : NaN;
+    if (!isFinite(price) || price <= 0) { showToast('Enter your price first', 'error'); return; }
+    const { data, error } = await db.rpc('submit_service_quote', { p_request_id: requestId, p_price: price });
+    if (error) { showToast(error.message, 'error'); return; }
+    if (data && data.quoted) { showToast('Quote sent - you\'ll see it here if the client picks you'); }
+    else { showToast('Couldn\'t send the quote - the request may have closed', 'error'); }
+    loadServices();
+  }
+
+  async function svcAdvance(requestId, next) {
+    if (!svcRequireOnline('Updating the job status')) return;
+    const patch = { status: next, updated_at: new Date().toISOString() };
+    if (SVC_TS_COL[next]) patch[SVC_TS_COL[next]] = new Date().toISOString();
+    const { data, error } = await db.from('service_requests').update(patch).eq('id', requestId).select('id');
+    if (error) { showToast(error.message, 'error'); return; }
+    if (!data || !data.length) { showToast('Couldn\'t update - the job may have moved on. Refreshing.', 'error'); }
+    else { showToast(next === 'completed' ? 'Job completed. Nice work!' : 'Status updated'); }
+    loadServices();
+  }
+
+  /* P6 second direction: provider rates the CLIENT. trg_guard_service_review pins attribution
+     and enforces party + completed + once-per-direction, so this UI is never trusted. */
+  function svcRateClient(requestId) {
+    const slot = document.getElementById('svc-prate-' + requestId);
+    if (!slot) return;
+    if (slot.innerHTML) { slot.innerHTML = ''; return; }   // toggle
+    const e = escHtml;
+    slot.innerHTML = '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);padding:0.6rem 0.7rem;">' +
+      '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.3rem;">How was this client?</div>' +
+      '<div role="radiogroup" aria-label="Rating from 1 to 5 stars" style="display:flex;gap:0.3rem;margin-bottom:0.4rem;flex-wrap:wrap;">' +
+      [1, 2, 3, 4, 5].map(n => '<button type="button" aria-label="' + n + ' star' + (n > 1 ? 's' : '') + '" onclick="svcProvPickStar(\'' + e(requestId) + '\',' + n + ')" style="' + _svcBtnGhost + 'min-width:44px;">' + n + '★</button>').join('') + '</div>' +
+      '<input id="svc-prate-comment-' + e(requestId) + '" type="text" maxlength="200" placeholder="A sentence for other providers (optional)" aria-label="Review comment (optional)" style="width:100%;' + _svcInput + '">' +
+      '</div>';
+  }
+
+  async function svcProvPickStar(requestId, stars) {
+    if (!svcRequireOnline('Leaving a review')) return;
+    const comment = ((document.getElementById('svc-prate-comment-' + requestId) || {}).value || '').trim();
+    // reviewer_name is a placeholder: the guard OVERWRITES it with the server-pinned identity.
+    const { error } = await db.from('marketplace_reviews').insert({
+      reviewer_name: WORKER_NAME || 'Provider', rating: stars, comment: comment || null,
+      request_id: requestId, direction: 'provider_to_client'
+    });
+    if (error) { showToast(error.message, 'error'); return; }
+    showToast('Thanks - your rating helps other providers');
+    loadServices();
+  }
+
+  async function svcCancelJob(requestId) {
+    if (!svcRequireOnline('Cancelling this job')) return;
+    if (!(await window.whConfirm('Cancel this job? The client will be notified.', { okLabel: 'Cancel job', cancelLabel: 'Keep it' }))) return;
+    const { data, error } = await db.from('service_requests').update({ status: 'cancelled_by_provider', cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', requestId).select('id');
+    if (error) { showToast(error.message, 'error'); return; }
+    if (!data || !data.length) { showToast('Couldn\'t cancel - refresh and try again', 'error'); }
+    else { showToast('Job cancelled'); }
+    loadServices();
+  }
+
+  /* Web Push (P5/G3): in-context ask - shown only while permission is ungranted, never on
+     page load. Subscribe -> push_subscriptions; notify-push delivers offers tab-closed and
+     prunes dead endpoints. Public VAPID key is public by design; private stays in secrets. */
+  const SVC_VAPID_PUBLIC = 'BI-AfzNcI8jVcP3fWiyiP5J5qrkgLe2j4RKvk56ngI0aodqjNRIcDG1gKsxw5Ii0dWzjNbmzxZ15cGUpOpjZukw';
+  function _svcB64ToU8(b64) {
+    const pad = '='.repeat((4 - b64.length % 4) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    const arr = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    return arr;
+  }
+  function svcPushSupported() {
+    return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  }
+  async function svcEnablePush() {
+    if (!svcRequireOnline('Turning on job alerts')) return;
+    if (!svcPushSupported()) { showToast('This browser doesn\'t support push alerts', 'error'); return; }
+    if (!_authUid) { showToast('Sign in first', 'error'); return; }
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { showToast('Alerts stay off until you allow notifications', 'error'); return; }
+    try {
+      // REGISTER the worker before awaiting it, and never await it unbounded.
+      //
+      // This used to be a bare `await navigator.serviceWorker.ready`, and it hung FOREVER. Proven live
+      // 2026-07-30 (tests/push-runtime-delivery.spec.ts): on this page
+      // `getRegistrations()` returns 0, `controller` is false, and `ready` never settles — because
+      // NOTHING here ever called `register()`. A repo-wide grep finds exactly one `serviceWorker.register`
+      // in the whole app, on report-sender.html.
+      //
+      // So the flow was: the provider taps "Enable job alerts", grants the notification permission, and
+      // then nothing happens — no subscription, no toast, no error, no log. The catch below is thorough
+      // about permission / VAPID / unsupported-browser failures, but `ready` does not REJECT, it simply
+      // never resolves, so the one failure that actually fires in practice is the only one the catch
+      // cannot see.
+      //
+      // Scope is `/workhive/` because that is where the app lives and where sw.js's own notificationclick
+      // navigates ([[feedback_workhive_url_prefix]]). The race gives the hang a voice: a worker that will
+      // not activate now says so instead of leaving a dead button.
+      let reg = await navigator.serviceWorker.getRegistration('/workhive/');
+      if (!reg) {
+        reg = await navigator.serviceWorker.register('/workhive/sw.js', { scope: '/workhive/' });
+      }
+      const activated = await Promise.race([
+        navigator.serviceWorker.ready.then(function (r) { return r; }),
+        new Promise(function (r) { setTimeout(function () { r(null); }, 8000); }),
+      ]);
+      if (!activated) {
+        showToast('Alerts need the background worker, which did not start. Reload and try again.', 'error');
+        return;
+      }
+      reg = activated;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: _svcB64ToU8(SVC_VAPID_PUBLIC) });
+      }
+      const j = sub.toJSON();
+      const { data, error } = await db.from('push_subscriptions').upsert({
+        auth_uid: _authUid, endpoint: sub.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth,
+        user_agent: navigator.userAgent.slice(0, 200)
+      }, { onConflict: 'endpoint' }).select('id');
+      if (error) { showToast(error.message, 'error'); return; }
+      if (!data || !data.length) { showToast('Couldn\'t save the alert subscription. Try again.', 'error'); return; }
+      showToast('Job alerts ON. You\'ll hear new hails even with this tab closed');
+      loadServices();
+    } catch (err) {
+      // L-layer: push subscription failures are the classic silent class (permission,
+      // VAPID mismatch, unsupported browser) - surface AND log so they are greppable.
+      console.error('push subscribe failed:', err);
+      showToast('Couldn\'t enable alerts: ' + ((err && err.message) || 'unknown error'), 'error');
+    }
+  }
+  window.svcEnablePush = svcEnablePush;
+
+  /* Live-location publisher (P5/C10/G4, privacy D8): watchPosition ONLY during an ACTIVE
+     job, one write/15s, visible indicator, stops when the job set empties. Readable only via
+     v_service_job_tracking (parties + active states); the column has no broad grant. */
+  let _svcGeoWatch = null, _svcGeoLastWrite = 0, _svcGeoProviderId = null;
+  function _svcGeoIndicator(on) {
+    let el = document.getElementById('svc-geo-indicator');
+    if (!on) { if (el) el.remove(); return; }
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'svc-geo-indicator';
+      el.setAttribute('role', 'status');
+      el.style.cssText = 'position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:60;background:rgba(22,32,50,0.92);border:1px solid rgba(247,162,27,0.4);color:var(--wh-orange-text);padding:0.4rem 0.9rem;border-radius:999px;font-size:0.72rem;font-weight:600;';
+      el.textContent = '📍 Sharing your live location with this job\'s client';
+      document.body.appendChild(el);
+    }
+  }
+  function svcGeoSync(activeJobs, myProviderIds) {
+    const hasActive = activeJobs && activeJobs.length > 0;
+    if (!hasActive || !('geolocation' in navigator)) {
+      if (_svcGeoWatch != null) { navigator.geolocation.clearWatch(_svcGeoWatch); _svcGeoWatch = null; }
+      _svcGeoIndicator(false);
+      return;
+    }
+    _svcGeoProviderId = activeJobs[0].matched_provider_id || (myProviderIds && myProviderIds[0]) || null;
+    if (_svcGeoWatch != null) return; // already watching
+    _svcGeoWatch = navigator.geolocation.watchPosition(async pos => {
+      const nowMs = Date.now();
+      if (nowMs - _svcGeoLastWrite < 15000 || !_svcGeoProviderId) return; // battery + write throttle
+      _svcGeoLastWrite = nowMs;
+      try {
+        await db.from('service_providers')
+          .update({ live_location: 'POINT(' + pos.coords.longitude + ' ' + pos.coords.latitude + ')', updated_at: new Date().toISOString() })
+          .eq('id', _svcGeoProviderId);
+      } catch (_) { /* empty-catch-allow: a missed ping self-heals on the next one */ }
+    }, _err => { _svcGeoIndicator(false); }, { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 });
+    _svcGeoIndicator(true);
+  }
+  window.svcGeoSync = svcGeoSync;
+
+  // The page script is an IIFE (line ~368): inline onclick handlers only reach
+  // window-attached functions (the window.loadMoreSeller precedent) - caught live
+  // when svcRegister() threw ReferenceError from the onboarding button.
+  window.loadServices = loadServices;
+  window.svcRegister = svcRegister;
+  window.svcRegisterHive = svcRegisterHive;
+  window.svcToggleAvail = svcToggleAvail;
+  window.svcAccept = svcAccept;
+  window.svcQuote = svcQuote;
+  window.svcAdvance = svcAdvance;
+  window.svcRateClient = svcRateClient;
+  window.svcProvPickStar = svcProvPickStar;
+  window.svcCancelJob = svcCancelJob;
 
   /* ── Analytics tab — views, inquiry conversion, response benchmark ───────── */
   async function loadAnalytics() {
@@ -1302,7 +1877,7 @@
         renderListings();
       }
       const _tabParam = urlParams.get('tab');
-      if (_tabParam && ['inquiries', 'analytics'].includes(_tabParam)) switchTab(_tabParam);
+      if (_tabParam && ['inquiries', 'analytics', 'services'].includes(_tabParam)) switchTab(_tabParam);
     } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
   });
 

@@ -76,6 +76,38 @@ def _jwt(key, email, pw):
         return ""
 
 
+def _clear_own_rate_bucket():
+    """Clear THIS GATE's own rate-limit bucket before the live probe.
+
+    `supervisor-reset-password` is deliberately rate-limited — 5/hour and 20/day per actor, plus a
+    CGNAT-aware per-IP ceiling — because a compromised supervisor account mass-resetting members is
+    exactly the abuse it exists to contain. That control is correct and stays.
+
+    But the counters live in `ai_user_rate_limits`, which is PERSISTENT, and inside Docker every
+    edge-function call arrives from the same gateway address. So one shared bucket (`ip:172.18.0.1`)
+    accumulates every test invocation on the machine, and once its DAY count passes 20 this gate reports
+    `code=429` and RED for the rest of the day — about the product, which is behaving perfectly.
+
+    Measured 2026-07-30: `ip:172.18.0.1 hour=2 day=24` against a 20/day cap, while the supervisor's own
+    uid bucket sat at `hour=2 day=6`, nowhere near its limit. The gate was failing on the ceiling designed
+    for a hostile IP, collapsed onto the harness by Docker's single-gateway networking. Restarting the auth
+    container does nothing, because the counter is a table row, not memory — which is how the cause was
+    finally pinned after two wrong guesses (GoTrue's own limits, then "my probe volume").
+
+    BOTH buckets have to go, and finding that out took one more measurement: after clearing only the IP
+    rows the gate was STILL 429, because the limiter is per-identity AND per-IP. The supervisor the gate
+    signs in as stood at `hour=23` against a 5/hour cap — it had spent its own budget on this session's
+    re-runs. The actor uid is resolved from `auth.users` by the same email the gate authenticates with, so
+    this can never drift onto a different account than the one being probed.
+
+    Only docker-internal IP buckets are cleared (`ip:172.`), never a real client's, and every row is a
+    counter with no history value. A gate must not be red because it ran too often.
+    """
+    psql("delete from public.ai_user_rate_limits where user_id like 'ip:172.%';")
+    psql("delete from public.ai_user_rate_limits u using auth.users a "
+         "where u.user_id = a.id::text and a.email = 'leandromarquez@auth.workhiveph.com';")
+
+
 def _invoke(fn, body, key, jwt):
     req = urllib.request.Request(f"{BASE}/functions/v1/{fn}", data=json.dumps(body).encode(),
         headers={"apikey": key, "Authorization": f"Bearer {jwt}", "Content-Type": "application/json"}, method="POST")
@@ -113,6 +145,7 @@ def main() -> int:
     key = _key()
     sjwt = _jwt(key, "leandromarquez@auth.workhiveph.com", "test1234") if key else ""
     if sjwt:
+        _clear_own_rate_bucket()
         # supervisor resets a worker → 200 + temp pw that actually logs in
         c, body = _invoke("supervisor-reset-password", {"hive_id": HIVE, "target_worker_name": "Bryan Garcia"}, key, sjwt)
         tpw = body.get("temp_password", "")

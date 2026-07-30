@@ -85,7 +85,26 @@ export async function bypassMaturityGate(page: Page) {
 /** Wait for a toast (any class) and return its text. */
 export async function readToast(page: Page, timeoutMs = 4000): Promise<string | null> {
   try {
-    const toast = page.locator('#toast, .wh-toast, [role="status"]').first();
+    // `.wh-source-chip` is EXCLUDED, and that exclusion is the whole point of this selector.
+    //
+    // The shared provenance/freshness chip (`whSourceChip` in utils.js) renders as
+    // `<p class="wh-source-chip" role="status" aria-live="polite">Live &middot; Based on your … &middot;
+    // updated …</p>`. It was given `role=status` deliberately and correctly, so every page that shows a
+    // source chip satisfies the G1 "visibility of system status" rubric — but it is PERSISTENT and it sits
+    // ahead of the toast container in the DOM. `[role="status"]` + `.first()` therefore locked onto the
+    // chip and could never see a toast, no matter how long the caller polled.
+    //
+    // Found 2026-07-30: three specs (logbook ×2, inventory) reported product SILENT-FAILURES — including
+    // the regression test for the 2026-05-12 silent-fail bug — and every one of them was this. The
+    // reported "last seen toast" was byte-identical across three different pages, which is the tell: a
+    // per-action toast varies, shared status chrome does not. The failures had been invisible because
+    // `validate_playwright_smoke` never ran (its seeder ping timed out on a slow route).
+    //
+    // A correct accessibility improvement broke the test helper's assumption that `role=status` means
+    // "toast". The page was right; the selector was wrong.
+    const toast = page
+      .locator('#toast, .wh-toast, [role="status"]:not(.wh-source-chip)')
+      .first();
     await toast.waitFor({ state: 'visible', timeout: timeoutMs });
     return (await toast.innerText()).trim();
   } catch {
@@ -138,18 +157,77 @@ export async function assertSubmitSucceeded(
  * the success toast did NOT fire. This is the exact silent-failure
  * regression the user hit.
  */
+/**
+ * Clear any saved form DRAFT before the page's scripts run, so a validation test starts from the empty
+ * form it claims to be testing.
+ *
+ * MUST be called BEFORE `page.goto` — it installs an init script, because the draft is restored during
+ * page load and clearing localStorage afterwards is too late.
+ *
+ * WHY THIS EXISTS (found 2026-07-30): the regression test for the 2026-05-12 logbook silent-fail bug
+ * deliberately leaves the problem field empty and asserts the submit is blocked. It failed reporting a
+ * toast of `Draft restored. Continue where you left off.` — and the page's own instrumentation logged
+ * `[capture-validate] logbook_add_entry_v1 passed`. The validation was RIGHT: `restoreDraft()` had
+ * refilled `f-problem` from a draft left by an earlier test, so the field the spec believed was empty
+ * had content, and a valid submit correctly produced no error toast.
+ *
+ * The test was asserting against a form state it did not control — and it only fails when a draft happens
+ * to exist, which is why it read as a flake. Draft-restore is a real, valuable feature; the fix belongs in
+ * the spec's isolation, never in the page.
+ */
+export async function clearFormDrafts(page: Page) {
+  await page.addInitScript(() => {
+    try {
+      Object.keys(localStorage)
+        .filter(k => k.includes('_draft_') || k.endsWith('_draft'))
+        .forEach(k => localStorage.removeItem(k));
+    } catch (_e) { /* empty-catch-allow: storage unavailable is not a test failure */ }
+  });
+}
+
 export async function assertSubmitBlocked(
   page: Page,
   errorPattern: RegExp,
   forbiddenSuccessPattern: RegExp = /saved|added|recorded|sent/i,
 ) {
-  const toast = await readToast(page);
-  expect(toast, 'no toast appeared after blocked submit — UX silent-fail').not.toBeNull();
-  expect(toast!, `toast didn't match expected error pattern: ${toast}`).toMatch(errorPattern);
-  // CRITICAL: the toast must NOT be a "saved" toast. If both fire, the
-  // user sees the success message and thinks the entry was saved.
-  expect(toast!, `forbidden success toast leaked through: ${toast}`)
-    .not.toMatch(forbiddenSuccessPattern);
+  // POLL, and collect EVERY toast seen — do not judge on a single snapshot.
+  //
+  // Its sibling assertSubmitSucceeded already polls, for a reason stated in its own comment: "the
+  // platform shows transient toasts (draft-restored, sync-success, etc.) that can briefly mask" the one
+  // you are waiting for. This function did a single `readToast()` and matched that snapshot, so whichever
+  // toast happened to be on screen at that instant decided the verdict.
+  //
+  // Found 2026-07-30: the 2026-05-12 silent-fail regression test failed reporting
+  // `toast didn't match expected error pattern: Draft restored. Continue where you left off.` — the
+  // page's validation was working perfectly; a draft-restored toast simply won the race. (The run before
+  // that, the same assertion had locked onto the persistent `.wh-source-chip` status region, which is now
+  // excluded in readToast — two different masks over the same single-snapshot flaw.)
+  //
+  // Collecting all of them also makes the leak check STRONGER than it was. The old code asserted "the one
+  // toast I happened to see is not a success toast"; this asserts that no success toast appeared AT ALL
+  // during the window, which is the actual regression being locked — a validation error AND a "saved"
+  // message both firing, leaving the user believing the entry was stored.
+  const seen: string[] = [];
+  let matched: string | null = null;
+  const deadline = Date.now() + 5000;
+  while (Date.now() < deadline) {
+    const t = await readToast(page, 600);
+    if (t && !seen.includes(t)) seen.push(t);
+    if (t && errorPattern.test(t)) { matched = t; break; }
+    await page.waitForTimeout(150);
+  }
+
+  expect(seen.length, 'no toast appeared at all after a blocked submit — UX silent-fail').toBeGreaterThan(0);
+  expect(
+    matched,
+    `no toast matched the expected error pattern ${errorPattern}. Toasts seen: ${JSON.stringify(seen)}`,
+  ).not.toBeNull();
+
+  // CRITICAL: no "saved" toast may fire on a blocked submit. If both fire, the user reads the success
+  // message and believes the entry was stored.
+  const leaked = seen.filter(t => forbiddenSuccessPattern.test(t));
+  expect(leaked, `forbidden success toast leaked through on a BLOCKED submit: ${JSON.stringify(leaked)}`)
+    .toEqual([]);
 }
 
 /**
@@ -198,13 +276,32 @@ export async function pageSrcWithExternals(page: Page): Promise<string> {
       catch { return false; }
     };
     const fetched: string[] = [];
+    const missing: string[] = [];
     for (const s of scriptEls) {
       const url = s.src;
       if (!url || !sameOrigin(url)) continue;
-      try {
-        const r = await fetch(url, { cache: 'force-cache' as RequestCache });
-        if (r.ok) fetched.push(await r.text());
-      } catch (_) { /* ignore */ }
+      // RETRY ONCE, then RECORD the failure. This used to be `if (r.ok) …` plus
+      // `catch (_) { /* ignore */ }`, which silently dropped any script that blipped and returned a
+      // SILENTLY PARTIAL source. Every caller greps that string for a symbol, so a dropped script made
+      // the assertion report a product defect — "PM write payloads must carry hive_id" failed on a
+      // pm-scheduler run whose page was perfectly correct; the script containing `hive_id` just had not
+      // been read. Intermittent, and indistinguishable from a real regression.
+      let text: string | null = null;
+      for (let attempt = 0; attempt < 2 && text === null; attempt++) {
+        try {
+          const r = await fetch(url, { cache: 'force-cache' as RequestCache });
+          if (r.ok) text = await r.text();
+        } catch (_) { /* empty-catch-allow: retried below, then reported by URL */ }
+      }
+      if (text === null) missing.push(url);
+      else fetched.push(text);
+    }
+    // A partial source cannot support "the page references X" — so say so instead of answering wrongly.
+    if (missing.length) {
+      throw new Error(
+        'pageSrcWithExternals could not read ' + missing.length + ' same-origin script(s) after a retry: ' +
+        missing.join(', ') + '. The source is INCOMPLETE, so any assertion over it would be meaningless — ' +
+        'this is the harness failing to read the page, not the page missing a symbol.');
     }
     return document.documentElement.outerHTML + '\n' + fetched.join('\n');
   });

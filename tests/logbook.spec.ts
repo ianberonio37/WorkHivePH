@@ -18,7 +18,7 @@
 import { test, expect } from './_fixtures';
 import {
   assertSubmitSucceeded, assertSubmitBlocked,
-  assertRowAppears, waitForPageReady, readToast,
+  assertRowAppears, waitForPageReady, readToast, clearFormDrafts,
 } from './_helpers';
 import { adminClient } from './_db-cleanup';
 
@@ -57,6 +57,10 @@ async function flattenSteps(page) {
 }
 
 test.describe('logbook.html add-entry flow', () => {
+  // A leftover draft refills the form during load (restoreDraft -> f-problem), so the "empty field"
+  // test would submit CONTENT and the page would correctly accept it. Must run before goto.
+  test.beforeEach(async ({ whPage }) => { await clearFormDrafts(whPage); });
+
   test('blocks submit when problem field is empty (the 2026-05-12 silent-fail bug)', async ({ whPage, testMarker }) => {
     await whPage.goto('/workhive/logbook.html');
     await waitForPageReady(whPage);

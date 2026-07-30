@@ -19,11 +19,15 @@
 import { test, expect } from './_fixtures';
 import {
   assertSubmitSucceeded, assertSubmitBlocked,
-  waitForPageReady, pageSrcWithExternals, readToast,
+  waitForPageReady, pageSrcWithExternals, readToast, clearFormDrafts,
 } from './_helpers';
 import { adminClient } from './_db-cleanup';
 
 const PAGE = '/workhive/logbook.html';
+
+// Same exposure as logbook.spec.ts: this spec also calls assertSubmitBlocked on a deliberately empty
+// field, and a restored draft would refill it. Cleared before every goto.
+test.beforeEach(async ({ whPage }) => { await clearFormDrafts(whPage); });
 
 async function setMachineHidden(page, value: string) {
   await page.evaluate((v) => {
