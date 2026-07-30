@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:608-files
-source_sha: 86e42d3af008a317
+source_sha: 35628810a7631711
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -17,7 +17,7 @@ First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed 
 
 Entries (name · type · sha):
 - `drawing_standards_skill` · reference · 16ac90968a9af898
-- `feedback_a_dead_fixture_invents_page_defects` · feedback · 089ef1b9dd706f2a
+- `feedback_a_dead_fixture_invents_page_defects` · feedback · 4132e64aeb98e099
 - `feedback_a_gate_that_exhausts_its_own_rate_budget` · feedback · 225cf26e51228b75
 - `feedback_a_metamorphic_relation_needs_a_non_vacuity_check` · feedback · 3ef9b3ad98824df5
 - `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 2a14bd543da8cc63
