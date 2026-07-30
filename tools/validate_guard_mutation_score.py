@@ -113,6 +113,9 @@ GUARDS = {
     # keyed on its own unique message so nothing bleeds. Clean.
     "anomaly_signals_forward_only_status": "anomaly_signals",
     "shift_plans_forward_only_status":     "shift_plans",
+    # ── ARC 13 / F — a 1.5 MB inline-photo size cap on logbook/inventory_items. Resource bound. Judge: TB-IMG.
+    # Two operators (cap removed / cap widened), keyed on this guard's own `v_len > v_cap` and cap literal. Clean.
+    "check_inline_image_size":            "logbook",
 }
 
 
@@ -448,6 +451,13 @@ OPERATORS = [
     ("shift_regress_allowed", r"RAISE EXCEPTION 'shift_plans: cannot regress[^;]*;", "NULL;",
      "a shift plan may regress (published -> draft), so an archived or published schedule can be pulled back to "
      "a draft, breaking the forward-only ratchet"),
+
+    # ── ARC 13 / F · the inline-image size cap. Both patterns are unique to this guard.
+    ("image_cap_removed", r"v_len > v_cap", "false",
+     "the 1.5 MB inline-photo cap stops firing, so one oversized base64 data-URL can bloat a row and every list "
+     "query that reads it"),
+    ("image_cap_widened", r"v_cap  integer := 1500000", "v_cap  integer := 900000000",
+     "the cap is raised to ~900 MB, out of any real reach - the same hole with a number in front of it"),
 ]
 
 VOCAB_EXTRA = "'settled'"

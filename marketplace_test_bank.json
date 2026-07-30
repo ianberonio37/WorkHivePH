@@ -6321,6 +6321,40 @@
         "neither guard checks auth.uid(), so the ratchet applies to EVERY caller including the backend - no other trigger's verdict is involved"
       ],
       "provenance": "Two forward-only status guards, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Pure ratchets, no auth branch."
+    },
+    {
+      "id": "TB-IMG-inline-image-cap",
+      "source": "authored",
+      "kind": "resource-cap",
+      "journey": "J-logbook-photo",
+      "authority": "any",
+      "state": "populated",
+      "path": "edge",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "logbook"
+      ],
+      "probe": {
+        "file": "TB-IMG-inline-image-cap.sql",
+        "expect": {
+          "over_cap": "blocked sqlstate=54000",
+          "under_cap": "allowed"
+        }
+      },
+      "asserts": [
+        "an inline base64 photo over the 1.5 MB cap is refused (54000) on logbook, while an ordinary small photo is allowed - a resource bound tested from both sides so an off-by-one cannot reject real photos",
+        "the guard has no auth branch, so the row is planted as postgres (which also bypasses logbook's quota/rate-limit triggers), isolating this cap as the sole refuser"
+      ],
+      "provenance": "check_inline_image_size (logbook + inventory_items), found unscored 2026-07-31 (ARC 13 / F, roadmap S14). A resource bound - failure is a heavy row, not a stolen one."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

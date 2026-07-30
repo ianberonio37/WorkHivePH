@@ -3317,6 +3317,15 @@ Neither guard checks `auth.uid()` — the ratchet applies to every caller includ
 no other trigger's verdict is involved. One operator each, keyed on the guard's own raise message. **2/2.**
 Platform mutation → **92/92 across 15 guards.**
 
+### §14.3f · Ninth guard scored: `check_inline_image_size` (the first resource ceiling)
+
+A 1.5 MB cap on an inline base64 photo (logbook + inventory_items) — a resource bound, not a tenancy/money
+guard (its failure mode is a heavy row, not a stolen one), but a cap nobody tests becomes a suggestion. Banked
+by `TB-IMG-inline-image-cap`: just over the cap is refused (54000), an ordinary small photo is allowed. No auth
+branch, so the row is planted as postgres (which also bypasses logbook's quota/rate-limit triggers), isolating
+this cap as the sole refuser. Two operators (cap removed / cap widened), both keyed on the guard's own text.
+**2/2.** Platform mutation → **94/94 across 16 guards.**
+
 ### §14.4 · NEXT (the standing queue — ranked, drive top-down)
 
 **Scored this arc so far (12 guards, all 100%):** the 8 from §11–§12, plus `guard_marketplace_seller_trust_columns`,
