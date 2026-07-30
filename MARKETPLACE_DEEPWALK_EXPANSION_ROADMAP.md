@@ -3285,18 +3285,40 @@ downstream accident rather than a clean allow; changing the replacement to `RETU
 the delete) killed it. **5/5, zero survivors.** This is the pattern for the remaining guards: key operators on
 text unique to the guard, and mind that a BEFORE-DELETE trigger only permits a delete by returning a non-null row.
 
+### §14.3c · Fourth + fifth guards scored: the two `project_progress_logs` guards
+
+Two guards on one table, both banked by `TB-PLOG-progress-log-record` (10 assertions):
+
+- **`bind_progress_log_submitter`** (INSERT) binds identity server-side — `auth_uid` and `reported_by` are set
+  to the caller's own (from `hive_members`), and a non-member is refused. Proven: a worker who *claims*
+  `reported_by = 'Leandro Marquez'` (the supervisor) has it overwritten to his own name. The name is the
+  caller's, not the caller's *choice* ([[feedback_free_text_identity_is_a_claim]]). **2/2.**
+- **`guard_progress_log_is_a_record`** (UPDATE) makes a filed report immutable (pct_complete, hours_worked,
+  blockers, notes), and gates acknowledgement to a **supervisor** who is **not the reporter** — segregation of
+  duties, since reviewing your own work is a signature, not a review. A supervisor acking someone else's report
+  is the one legitimate act, and it survives. **5/5.**
+
+Neither shares a variable name with the marketplace guards, so no bleed — seven operators keyed on progress-log
+columns or the guards' own raise messages, all killed. **Platform mutation 82/82 → 89/89 across 12 guards.**
+
 ### §14.4 · NEXT (the standing queue — ranked, drive top-down)
 
-The remaining 21 guards, highest protection value first. Each: probe live → if broken, fix; author a judging
-cell → wire with operators → require every viable mutant killed. **First harness improvement: scope operators
-to their intended guards** so a shared variable name (`v_is_party`) does not bleed a service_request operator
-onto every guard that reuses it.
-2. `guard_change_order_terms_immutable` — contract-terms immutability (co_number/title/scope/cost/schedule/
-   requester/project/hive) + no-delete. High value (money/contract).
-3. `guard_progress_log_is_a_record` / `bind_progress_log_submitter` — record immutability + identity binding.
-4. `wh_guard_supervisor_approval` (rcm_fmea_modes) · `guard_and_audit_project_removal` · `guard_lessons_learned_is_supervisor`.
-5. `guard_community_announcement` (who may announce) · the forward-only status machines
+**Scored this arc so far (12 guards, all 100%):** the 8 from §11–§12, plus `guard_marketplace_seller_trust_columns`,
+`guard_change_order_terms_immutable`, `bind_progress_log_submitter`, `guard_progress_log_is_a_record`.
+`guard_service_review` is behaviourally banked, its score deferred to operator scoping.
+
+**Remaining ~18 guards**, highest protection value first. Each: probe live → if broken, fix; author a judging
+cell → wire with operators → require every viable mutant killed. The pattern is settled (§14.3b/c): key operators
+on text UNIQUE to the guard so nothing bleeds; plant fixtures as postgres (backend bypass) then act with jwt
+claims RLS-bypassed to isolate the guard; check the table's co-triggers (verify WHAT blocked the write).
+
+1. **Harness improvement — OPERATOR SCOPING** (first, unblocks `guard_service_review` + any shared-var guard):
+   bind each operator to its intended guard(s) so a shared variable name (`v_is_party`) cannot bleed a
+   service_request operator onto every guard that reuses it. RISKY — mis-scoping = a real mutant not applied =
+   false 100%, so verify each operator still fires on its intended guard.
+2. `wh_guard_supervisor_approval` (rcm_fmea_modes) · `guard_and_audit_project_removal` · `guard_lessons_learned_is_supervisor`.
+3. `guard_community_announcement` (who may announce) · the forward-only status machines
    (`anomaly_signals`, `shift_plans`).
-6. The rate/quota/cap ceilings last (resource bounds — failure is a stalled queue, not stolen value):
+4. The rate/quota/cap ceilings last (resource bounds — failure is a stalled queue, not stolen value):
    `enforce_ai_reply_feedback_daily_limit`, `check_hive_quota_*` (community/inv_tx/logbook/pm), the
    `*_rate_limit` family, `check_inline_image_size`, `check_daily_row_cap`, `enforce_marketplace_review_daily_cap`.

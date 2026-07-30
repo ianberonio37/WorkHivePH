@@ -6204,6 +6204,50 @@
         "no generic operator bleeds onto this guard - it shares no variable names with the status machines and calls neither is_marketplace_admin() nor a system-write GUC, so it scores against its own five column/DELETE operators alone"
       ],
       "provenance": "guard_change_order_terms_immutable, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). A change order is a contract amendment (fix 8059cc4); the lifecycle fields are owned by wh_guard_supervisor_approval, this guard owns the immutable terms."
+    },
+    {
+      "id": "TB-PLOG-progress-log-record",
+      "source": "authored",
+      "kind": "authority-negative",
+      "journey": "J-projects-progress-log",
+      "authority": "owner",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "project_progress_logs"
+      ],
+      "probe": {
+        "file": "TB-PLOG-progress-log-record.sql",
+        "expect": {
+          "bind_reported_by": "self",
+          "bind_auth": "self",
+          "nonmember_files": "blocked",
+          "edit_pct": "blocked",
+          "edit_hours": "blocked",
+          "edit_blockers": "blocked",
+          "edit_notes": "blocked",
+          "worker_acks_other": "blocked",
+          "sup_acks_other": "allowed",
+          "sup_acks_own": "blocked"
+        }
+      },
+      "asserts": [
+        "bind_progress_log_submitter binds identity server-side: a worker who CLAIMS reported_by = the supervisor's name has it overwritten to his own (bind_reported_by=self), auth_uid is pinned to the caller (bind_auth=self), and a non-member cannot file at all - the name is the caller's, not the caller's choice",
+        "guard_progress_log_is_a_record makes a filed report immutable: pct_complete, hours_worked, blockers and notes are all refused on UPDATE - a report you can quietly rewrite is not a record",
+        "acknowledging is a SUPERVISOR act (a worker acking a report he did not write is refused), and NOT of your OWN report (the supervisor acking his own report is refused) - segregation of duties, reviewing your own work is a signature not a review",
+        "the legitimate act survives: a supervisor acknowledging SOMEONE ELSE's report is allowed (sup_acks_other), separating 'a record with a review gate' from 'nothing can be acknowledged'"
+      ],
+      "provenance": "Two guards on project_progress_logs, found unscored 2026-07-31 (ARC 13 / F, roadmap S14). Six of seven project tables lack an auth_uid, so the not-own-report check is a name comparison (PJK1's open half); this cell locks the guards as they stand."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

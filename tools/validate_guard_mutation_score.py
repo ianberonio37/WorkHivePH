@@ -99,6 +99,13 @@ GUARDS = {
     # is_marketplace_admin() nor a system-write GUC, so no generic operator bleeds — it scores against its own
     # five column/DELETE operators alone. Judge: TB-CO. Clean — a bank, not a fix.
     "guard_change_order_terms_immutable": "project_change_orders",
+    # ── ARC 13 / F — the two project_progress_logs guards. bind_progress_log_submitter binds identity
+    # server-side (auth_uid + reported_by = the caller's own, non-members refused); guard_progress_log_is_a_record
+    # makes a filed report immutable and gates acknowledgement to a supervisor who is NOT the reporter. Both share
+    # the table, so both are judged by TB-PLOG. Neither shares a variable name with the marketplace guards, so no
+    # bleed. Clean — a bank, not a fix.
+    "bind_progress_log_submitter":       "project_progress_logs",
+    "guard_progress_log_is_a_record":    "project_progress_logs",
 }
 
 
@@ -392,6 +399,30 @@ OPERATORS = [
     # actually permits the delete, which TB-CO's user_deletes assertion then catches.
     ("co_delete_allowed", r"RAISE EXCEPTION 'A change order cannot be deleted[^;]*;", "RETURN OLD;",
      "a raised change order can be DELETED outright, erasing it from the amendment trail instead of cancelling"),
+
+    # ── ARC 13 / F · the two project_progress_logs guards. All seven patterns are unique to these guards
+    # (progress-log columns, the bind assignments, or the two guards' own raise messages), so none bleeds.
+    # bind_progress_log_submitter — identity binding:
+    ("plog_bind_reported_by_bypassed", r"NEW\.reported_by := v_me", "NEW.reported_by := NEW.reported_by",
+     "the submitter's name stops being bound server-side, so a worker can file a report UNDER SOMEONE ELSE'S "
+     "name - free-text identity becomes a claim again"),
+    ("plog_bind_auth_bypassed", r"NEW\.auth_uid\s+:= auth\.uid\(\)", "NEW.auth_uid := NEW.auth_uid",
+     "the auth_uid attribution stops being pinned to the caller, so a report can be filed with no or a forged "
+     "actor"),
+    # guard_progress_log_is_a_record — immutability + the two ack rules:
+    ("plog_pct_pin_removed", r"NEW\.pct_complete IS DISTINCT FROM OLD\.pct_complete", "false",
+     "a filed report's pct_complete becomes editable - the progress figure a project rollup and earned value "
+     "are computed from, rewritten after the fact"),
+    ("plog_hours_pin_removed", r"NEW\.hours_worked IS DISTINCT FROM OLD\.hours_worked", "false",
+     "a filed report's hours_worked becomes editable - the labour figure behind cost, restated"),
+    ("plog_blockers_pin_removed", r"NEW\.blockers\s+IS DISTINCT FROM OLD\.blockers", "false",
+     "a filed report's blockers text becomes editable, so the record of what was in the way can be quietly erased"),
+    ("plog_ack_supervisor_removed",
+     r"RAISE EXCEPTION 'Acknowledging a progress report is a supervisor action\.'[^;]*;", "NULL;",
+     "a non-supervisor may acknowledge a progress report - the sign-off that says a supervisor reviewed the work"),
+    ("plog_ack_own_removed", r"RAISE EXCEPTION 'You cannot acknowledge your own[^;]*;", "NULL;",
+     "a supervisor may acknowledge their OWN report - reviewing your own work, the self-signature the "
+     "segregation rule exists to stop"),
 ]
 
 VOCAB_EXTRA = "'settled'"
