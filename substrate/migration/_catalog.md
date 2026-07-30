@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:450
-source_sha: b928868e6783b570
+source: dir:supabase/migrations:451
+source_sha: 59a507b51f311646
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (450 migrations)
+## migration · catalog (451 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260627000000_alert_dismissals` — policies:alert_dismissals_member_delete,alert_dismissals_member_read,alert_dismissals_member_update,alert_dismissals_member_write · tables:alert_dismissals
 - `20260629000000_realtime_publish_risk_schedule` — tables:public
 - `20260630000000_remove_stripe_free_marketplace` — tables:marketplace_orders,marketplace_sellers
 - `20260701000000_regate_match_procedural_memories` — fns:match_procedural_memories
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260730000003_admin_bypass_only_for_non_parties` — fns:guard_marketplace_listing_status,guard_marketplace_order_status,guard_service_request_status,guard_service_topup_status
 - `20260730000004_scope_avatar_and_language_policies_to_owner` — policies:avatar_state_authenticated_rw,avatar_state_owner_read,avatar_state_owner_rw,avatar_state_read,language_prefs_owner_read,language_prefs_read · tables:avatar_state
 - `20260730000005_pin_topup_intake_facts_against_redirect` — fns:guard_service_topup_status
+- `20260730000006_pin_order_and_listing_identity_fields` — fns:guard_marketplace_listing_status,guard_marketplace_order_status
 
 (showing last 200)
 

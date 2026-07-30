@@ -112,6 +112,34 @@ begin
     raise notice 'RESULT moderation_release_other_order=%', case when n>0 then 'works' else 'BROKEN' end;
   exception when others then raise notice 'RESULT moderation_release_other_order=BROKEN'; end;
 
+  -- 2b/2c. THE ROW-VERSION HOLE (mig 20260730000006). Everything above asks whether an admin is a party.
+  --        These ask something the party check cannot see: what if the admin CHANGES who the party is, in the
+  --        same statement? The gate computes from `coalesce(OLD.seller_name, NEW.seller_name)` — the STORED
+  --        row — while the consequence lands on NEW. So one statement passed the gate on the old values and
+  --        collected on the new ones, and BOTH were probed live as ALLOWED before the fix:
+  --
+  --          orders   -> admin_total_sales=1 with the real seller left at 0 (update_seller_tier bumps
+  --                      marketplace_sellers on NEW.seller_name). total_sales and tier ARE the trust signals,
+  --                      so this was sales forgery.
+  --          listings -> final_seller became the admin and final_status 'published': a stranger's listing,
+  --                      taken over and published as the admin's own.
+  --
+  --        Row `...b` is used in both, because that is the one this admin is a party to in NO way — the
+  --        bypass legitimately applies to them, which is exactly what made the hole reachable.
+  begin
+    update public.marketplace_orders set seller_name='TB I2 Admin', status='released'
+     where id='d1eeeeee-0000-4000-8000-00000000000b';
+    get diagnostics n = row_count;
+    raise notice 'RESULT selfdeal_claim_strangers_sale=%', case when n>0 then 'ALLOWED' else 'blocked' end;
+  exception when others then raise notice 'RESULT selfdeal_claim_strangers_sale=blocked'; end;
+  begin
+    update public.marketplace_listings set seller_name='TB I2 Admin', status='published'
+     where id='d1ffffff-0000-4000-8000-00000000000b';
+    get diagnostics n = row_count;
+    raise notice 'RESULT selfdeal_takeover_strangers_listing=%',
+      case when n>0 then 'ALLOWED' else 'blocked' end;
+  exception when others then raise notice 'RESULT selfdeal_takeover_strangers_listing=blocked'; end;
+
   -- 3. TOP-UPS · the admin branch MINTS the credit inline, so a self-verify is money creation
   begin
     update public.service_credit_topups set status='verified'
@@ -143,5 +171,16 @@ begin
   raise notice 'RESULT moderation_credit_minted=%', n_other;
 end
 $ledger$;
+
+-- The TRUST oracle for the claimed-sale case. A blocked claim that nevertheless bumped the counter would be
+-- the worst outcome, and the status assertion above would still read `blocked` — the same reason the top-up
+-- cases read the ledger rather than the row ([[feedback_trust_signal_needs_a_living_producer]]).
+do $trust$
+declare n int;
+begin
+  select coalesce(total_sales, 0) into n from public.marketplace_sellers where worker_name='TB I2 Admin';
+  raise notice 'RESULT admin_forged_sales=%', coalesce(n, 0);
+end
+$trust$;
 
 rollback;

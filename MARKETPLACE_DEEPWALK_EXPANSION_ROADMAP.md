@@ -2552,3 +2552,46 @@ the exploit: ALLOWED + 500 credits BEFORE  ->  blocked + 0 minted AFTER
 > something the suite could not: three test gaps, two harness defects, and one live money bug. **The exercise
 > that makes a metric trustworthy is the same exercise that finds real defects**, which is the strongest case
 > for the sixth wave, and the seventh.
+
+### §11.19 · The class had THREE instances, not one — sweeping it found two more live exploits
+
+§11.18 fixed the top-up redirect. A finding is worth more as a *class* than as an instance, so the same
+question was put to every guard: **does the decision read the same version of the row as the action it
+authorises?** Two more said no, and both were probed live before anything was written.
+
+| guard | one statement | result BEFORE the fix |
+|---|---|---|
+| `guard_marketplace_order_status` | `set seller_name = '<me>', status = 'released'` on a stranger's order | **ALLOWED** — `admin_total_sales=1`, the real seller left at **0** |
+| `guard_marketplace_listing_status` | `set seller_name = '<me>', status = 'published'` on a stranger's listing | **ALLOWED** — `final_seller` became the admin, `final_status` `published` |
+
+The order one is **sales forgery**: `update_seller_tier` bumps `marketplace_sellers` on `NEW.seller_name`
+while the party gate reads `coalesce(OLD.seller_name, …)`, and `total_sales`/`tier` are the marketplace's
+trust signals. The listing one is a **takeover**: a stranger's listing, published as the admin's own.
+
+**`guard_service_request_status` was already immune**, and that is the most useful part of the sweep: it
+already refuses changes to `matched_provider_id` and `client_auth_uid`. The rule existed on exactly one of
+four guards. `20260730000006` generalises it rather than inventing anything — pinning `buyer_name`,
+`seller_name`, `price`, `currency`, `hive_id` on orders and `seller_name`, `hive_id` on listings.
+
+Scope was checked against the shipped surface first, so the fix pins identity and nothing else: orders are
+updated only as `{status, updated_at}` (marketplace-admin:948), listing moderation patches only
+`status`/`moderation_*` (marketplace-admin:714), and a seller editing their own listing changes
+title/price/description and never `seller_name` (marketplace-seller:918). Both definitions were **extracted**
+with `pg_get_functiondef` and one anchored block inserted each, the builder asserting the anchor appears
+exactly once per function.
+
+Locked the same way as the first: `TB-I2` gained both cases plus the **trust counter read back**
+(`admin_forged_sales=0` — a blocked claim that still bumped the counter would be the worst outcome and the
+status assertion could not see it), and two operators, `order_identity_immutability_removed` and
+`listing_identity_immutability_removed`, delete the new rules and require a cell to object.
+
+```
+both exploits: ALLOWED BEFORE  ->  blocked, counters at 0, owners unchanged AFTER
+mutation 100.0% (47/47)  ·  SQL lane 157/157  ·  TB-I2 now 12 assertions
+```
+
+> **The generalisable rule, now stated once:** when a guard's decision and its consequence touch the same
+> column, check they read the same VERSION of it. `OLD` for the decision is usually right (party-ness must not
+> be editable mid-statement) and `NEW` for the effect is usually right (the effect lands where the row now
+> points) — which is exactly why this is easy to ship: **both halves are individually correct.** The defect
+> lives in the gap between them, and the fix is to pin the column so the gap cannot open.

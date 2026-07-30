@@ -196,6 +196,19 @@ OPERATORS = [
      "a top-up's money-routing fields become rewritable again, so an admin can redirect a stranger's top-up "
      "to an account they own and verify it in one statement (the live exploit mig 20260730000005 closed)"),
 
+    # The two rules mig 20260730000006 added, for the other two instances of the row-version class. Each
+    # disables its whole immutability block by falsifying the block's own GUC-exemption term (the coalesce
+    # form is unique to the new block; the original system-write check has no coalesce).
+    ("order_identity_immutability_removed",
+     r"coalesce\(current_setting\('workhive\.order_system_write', true\), ''\) <> 'on'", "false",
+     "an order's parties and price become rewritable again, so an admin can claim a stranger's SALE - "
+     "update_seller_tier bumps on NEW.seller_name while the party gate reads OLD (probed live: "
+     "admin_total_sales=1, the real seller at 0)"),
+    ("listing_identity_immutability_removed",
+     r"coalesce\(current_setting\('workhive\.listing_system_write', true\), ''\) <> 'on'", "false",
+     "a listing's owner becomes rewritable again, so an admin can take over a stranger's listing and publish "
+     "it as their own (probed live: final_seller = the admin, final_status = published)"),
+
     ("cancel_window_widened",
      r"and\s+new\.status\s*=\s*'cancelled_by_provider'", "and new.status is not null",
      "the provider-cancel rule stops naming its target state, so it authorises any transition from those "

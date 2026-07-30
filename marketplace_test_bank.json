@@ -5564,13 +5564,17 @@
           "selfdeal_verify_own_topup": "blocked",
           "moderation_verify_other_topup": "works",
           "selfdeal_credit_minted": "0",
-          "moderation_credit_minted": "1"
+          "moderation_credit_minted": "1",
+          "selfdeal_claim_strangers_sale": "blocked",
+          "selfdeal_takeover_strangers_listing": "blocked",
+          "admin_forged_sales": "0"
         }
       },
       "asserts": [
         "a platform admin who is a PARTY to the row falls through to the ordinary party rules",
         "a platform admin who is NOT a party keeps every moderation power",
-        "the ledger is read back: a blocked self-verify must mint NO credit, a legitimate one exactly one"
+        "the ledger is read back: a blocked self-verify must mint NO credit, a legitimate one exactly one",
+        "THE ROW-VERSION HOLE (2 live exploits, mig 20260730000006): the party gate reads coalesce(OLD.seller_name, NEW.seller_name) while the consequence lands on NEW, so ONE statement passed the gate on the old values and collected on the new ones - an admin claimed a stranger SALE (admin_total_sales=1, real seller 0) and took over a stranger LISTING (published as their own). The trust counter is read back, because a blocked claim that still bumped it would be the worst outcome and the status assertion could not see it"
       ],
       "provenance": "mig 20260730000003. Found 2026-07-30: teaching the SQL runner the `anon` partition made `admin` the next unexecuted partition, and minting an admin identity to run it surfaced the bypass. A probe proved a provider-admin firing completed->settled on its OWN job (rows=1) - the client's 'I paid' confirmation, which fires trg_mint_settlement_commission. The same unqualified is_marketplace_admin() early-return stood in all FOUR status guards, five weeks after mig 20260729000003 fixed exactly this in guard_service_review.",
       "note": "TEETH VERIFIED by restoring the vulnerable guard inside a rolled-back transaction: the self-deal came back as ALLOWED, so the `blocked` assertions bite. The same technique showed that service_requests moderation returned 0 rows BEFORE and AFTER the fix - its RLS policy has no admin clause, so a non-party admin's row is filtered away and that bypass's only reachable effect was the self-deal. The other three tables DO have an admin RLS clause, which is why moderation is asserted as `works` there and deliberately not asserted at all on service_requests.",
