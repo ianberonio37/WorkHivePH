@@ -137,6 +137,10 @@ GUARDS = {
     # quota operators, no new ones. Judge: TB-QUOTA-invtx (2-way isolation: yesterday-rows vs the daily cap; no
     # per-author rate limit on this table). Clean.
     "check_hive_quota_inv_tx":            "inventory_transactions",
+    # ── ARC 13 / F — the FIFTH and last cumulative hive quota (pm_completions). Same shape, four §12 operators,
+    # no new ones. Judge: TB-QUOTA-pm (isolated from check_daily_row_cap by dating seed rows' completed_at
+    # yesterday). Clean. With this, ALL FIVE hive quotas are scored (ai_reports §12 + logbook/community/inv_tx/pm).
+    "check_hive_quota_pm_completions":    "pm_completions",
 }
 
 
