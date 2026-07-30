@@ -1783,6 +1783,10 @@ oracles    : refusal 194 · db-truth 35 · rubric 9 · continuity 7 · eval 1 ·
 mutation   : 100.0%  of 27 seeded guard faults the bank NOTICES
 ```
 
+> ⚠️ **That mutation line is left verbatim because it is a record of what the tool printed, and it was
+> false.** The injection was swallowing each cell's next statement, so no mutant ever ran; the honest first
+> measurement was **50.0%**. See §11.11 — the board machinery below is unaffected, only the number is.
+
 The layer number was always true and the impression it gave was false. A % whose rule is invisible will be
 misread, so the rule is printed beside it and the thin layers are named — two lines that make a
 short-denominator 100% impossible to mistake for architecture coverage
@@ -1790,7 +1794,8 @@ short-denominator 100% impossible to mistake for architecture coverage
 to one figure: a bank that overwhelmingly proves "this must not happen" can be green on a system that does
 nothing at all, which is the asymmetry this whole arc exists to correct.
 
-**State:** transition 99.6% (247/248) · SQL lane **131/131** · mutation **100%** · layer 100% (rule
+**State:** transition 99.6% (247/248) · SQL lane **131/131** · mutation ~~**100%**~~ **⚠️ fabricated by a
+broken injection — the honest figure was 50.0%, see §11.11** · layer 100% (rule
 disclosed) · dimension 100% · ufai 48% · roadmap 99.6% · ratchet PASS · canonical_status **all 82 green**.
 
 **NEXT (P3, admitted only by the score):** the admission rule is that a new cell counts once it demonstrably
@@ -1941,7 +1946,8 @@ arc has been removing.
 > them turned up a fourth suspected defect that dissolved on inspection. **Three of four "gaps" were the
 > map, not the territory** — which is why the anti-duplication check runs BEFORE the build, not after.
 
-**Final state:** transition **99.6%** (248/249) · SQL lane **132/132** · mutation **100%** (27/27, 0 persist)
+**Final state:** transition **99.6%** (248/249) · SQL lane **132/132** · mutation ~~**100%** (27/27)~~
+**⚠️ fabricated, see §11.11** (0 persist
 · layer 100% with its rule and owners disclosed · dimension 100% · oracles refusal 194 · db-truth 36 ·
 rubric 9 · continuity 7 · eval 1 · metamorphic 1 · roadmap 99.6% · ratchet PASS · canonical_status all 82
 green · substrate 720 fresh.
@@ -1951,7 +1957,7 @@ demonstrated by the denominator growing itself). Beyond that the honest queue is
 the 100% means the bank objects to every fault nine operators can express, and each new operator is a real
 increase in what that number is worth.
 
-### §11.8 · The operators went 9 → 15, and the score held: 36/36
+### §11.8 · The operators went 9 → 15, and the score held: 36/36 — ⚠️ SUPERSEDED, see §11.11
 
 A mutation score is worth exactly what its operators can express, and §11.7 closed by saying so. So six more
 were added — each a rot mode these guards specifically could suffer, not a generic character edit:
@@ -2009,7 +2015,8 @@ construction: the error test fails if the request was never intercepted, the off
 > assertion in the same run already contradicts it.**
 
 **Final state:** transition **99.6%** (249/250) · SQL lane 132/132 · journey lane 14 cells · mutation
-**100% of 36** · layer 100% with rule + owners disclosed (S2-pwa now 2 cells) · dimension 100% · oracles
+~~**100% of 36**~~ **⚠️ fabricated by a broken injection — see §11.11 for the defect and the honest 50.0%
+first measurement** · layer 100% with rule + owners disclosed (S2-pwa now 2 cells) · dimension 100% · oracles
 refusal 194 · db-truth 36 · rubric 10 · continuity 7 · eval 1 · metamorphic 1 · ratchet PASS.
 
 ### §11.10 · Flake ledger — `push-runtime-delivery`
@@ -2032,3 +2039,147 @@ widening it would measure network weather instead of the product. It is one inst
 named suspected cause, and the underlying question is already on Ian's list: should the shared Supabase fetch
 wrapper retry once on a transport failure for idempotent reads? That decision closes this flake and the smoke
 one together, which is why it belongs there rather than in a per-spec patch.
+
+### §11.11 · CORRECTION — the 100% in §11.2, §11.7, §11.8 and §11.9 was FABRICATED BY THE HARNESS
+
+Every mutation figure recorded above this section (27/27, 36/36, 42/42) is **wrong, and wrong in the
+flattering direction**. They were not measurements of the bank. They were measurements of a broken injection.
+The honest first score, once the harness was fixed, was **50.0%**.
+
+**The defect.** `pg_get_functiondef()` returns a `CREATE OR REPLACE …` **without a trailing semicolon**. The
+mutated definition was injected straight after each cell's `begin;`, so the statement that followed it — the
+cell's own `insert` — was swallowed into the function body as a continuation of the DDL. Every mutated run
+therefore died with `syntax error at or near "insert"` before a single assertion executed.
+
+**Why that produced a 100% instead of an obvious failure.** The runner's oracle treats an ERROR as a
+REFUSAL, which is correct for a guard test and catastrophic here:
+
+| cell kind | what actually happened | how the harness read it |
+|---|---|---|
+| negative (expects refusal) | the fixture never ran; psql errored | "refused" → the cell **PASSED** |
+| positive (expects the write to work) | the fixture never ran; psql errored | "refused" → the cell **FAILED** → mutant "killed" |
+
+So every mutant was "killed" by a positive cell that had never run, while every negative cell passed
+silently. A 100% built entirely out of a broken fixture. Nothing was ever mutated, and nothing was ever
+asserted.
+
+**What caught it.** Not a review — a prediction that failed. The third operator wave was written *expecting
+a survivor*, and `hive_provider_branch_removed` came back "killed" when every fixture provider is a
+`freelancer` and the hive branch is therefore unreachable. A kill that is impossible on the evidence is a
+report about the instrument, not the code ([[feedback_verify_the_instrument_before_the_page]]).
+
+**Three more instrument defects surfaced in the same audit**, each of which had also moved the number in a
+direction that was not real:
+
+| defect | effect on the score | fix |
+|---|---|---|
+| `is_party_false` injected `false or (…)` — and `false OR X ≡ X` | a perfect no-op, unkillable, counted as a SURVIVOR on 3 guards | replace the WHOLE assignment statement |
+| then `false and (…)`, on guards whose party test is a DISJUNCTION — `(false and A) or B ≡ B` | collapsed to "is the seller a party", still true, so it "survived" again | prefix mutation of any boolean expression is precedence-dependent; statement replacement is not |
+| `refusal_removed_upper` duplicated `refusal_removed` under `re.IGNORECASE` | every guard contributed two IDENTICAL mutants; one real gap printed twice | deleted the operator |
+| the leak check grepped `prosrc` for the FIRST draft's mutation text | after the operator was corrected it hunted a string no mutation emits — a safety check that had silently stopped checking | compare each guard's definition byte-for-byte against the pre-mutation capture |
+
+Diagnosing the precedence one needed the **SQLSTATE**, not the row count: mutated and unmutated both raised
+an identical `23514`, which is the tell that the mutation never took effect at all.
+
+#### What the honest measurement then found — the actual finding of this arc
+
+| guard | score | cells |
+|---|---|---|
+| `guard_service_request_status` | **31.6%** — 13 of 19 faults survived | **107** |
+| `guard_marketplace_order_status` | 83.3% | 11 |
+| `guard_service_topup_status` | 85.7% | 3 |
+| `guard_marketplace_listing_status` | 100% | 8 |
+
+**The largest cell population had the weakest teeth**, and the survivors named one coherent blind spot. Every
+cell in the bank is derived from the authorised-**transition** set, so every cell is an `UPDATE … SET status`.
+Two whole regions of each guard had never been entered:
+
+- **the `TG_OP = 'INSERT'` branch** — what state a row may be BORN in. A top-up born `verified` mints credit
+  without ever entering the verification path; an order born `released` skips escrow; a request born
+  `accepted` or already matched skips the accept RPC.
+- **the `status unchanged` branch** — the rules that hold when a field other than status is edited:
+  reassignment of matching, transfer of ownership, a stranger's edit.
+
+A suite organised around one axis is blind along every other, and *adding more cells on that axis cannot
+find it*. That is the whole argument for measuring teeth rather than counting cells.
+
+#### The two lanes built to close it
+
+`TB-BIRTH-privileged-birth-refused` (11 assertions, 3 tables) and
+`TB-FIELD-nonstatus-edits-and-hive-party` (8 assertions). Both pair every refusal with the legitimate write,
+because a guard that refuses everything satisfies all the negatives while breaking the product.
+
+Reachability was checked against `pg_policies` **before** authoring, so no cell asserts a rule RLS already
+owns — `status` appears in no INSERT policy, so the born-privileged rules are the guard's alone.
+
+**Two things the live run corrected, both about WHICH LAYER SPEAKS FIRST:**
+
+1. I expected the attribution rule (`client_auth_uid` must be the caller) to be RLS-masked, since
+   `WITH CHECK (client_auth_uid = auth.uid())` enforces it too. It came back `guard`. **A BEFORE ROW trigger
+   fires before WITH CHECK is evaluated**, so on INSERT the guard always speaks first and RLS is the backstop.
+2. The stranger case is genuinely masked, and for the opposite reason: `USING` filters row **visibility**, so
+   the UPDATE matches zero rows and the trigger never runs. **`USING` pre-empts a trigger; `WITH CHECK` does
+   not.** Same policy, opposite ordering — and only executing it tells you which one you are in
+   ([[feedback_check_the_premise_before_building_the_pattern]]).
+
+`ownership_transfer_allowed` survived even after its cell existed, and it was right to: strip the guard's rule
+and RLS still rejects the row, so a `blocked` assertion stays green either way. **A refusal is not evidence
+about who refused.** Rewritten to assert the layer (`guard` vs `rls`), it kills the mutant. I had written that
+exact reasoning into TB-BIRTH one file earlier and still reproduced the mistake.
+
+`state_list_widened` demanded the case a transition grid structurally cannot produce: `settled →
+cancelled_by_client`, a client retroactively cancelling a job that is done **and paid**. The derived grid
+enumerates neither that transition nor that illegal origin, so 109 cells missed it. **A boundary is only
+tested from both sides.**
+
+#### The exclusion discipline, now implemented rather than promised
+
+§11.2 said an unreachable mutant must be excluded with a printed reason. Nothing implemented it. One mutant
+qualifies (`stranger_field_edit_allowed`), and the mechanism is the bar: **an exclusion must name why
+observation is impossible, not that no cell observes it.** Three admin-bypass mutants looked unreachable for
+exactly that weaker reason and were nearly excluded on the strength of TB-I2's prose — then TB-FIELD gave the
+guard an admin who is a party *via hive membership* (so `USING` lets the row through) and all three died.
+
+Excluded mutants are **still run every time**. Skipping them would make the list a trapdoor, which is how a
+skipped partition reads as a covered one ([[feedback_a_skipped_partition_reads_as_a_covered_one]]). If a cell
+ever objects to an excluded mutant, the gate **FAILS** with `STALE EXCLUSION` rather than pocketing the kill.
+
+#### The hive-party self-deal, which nothing had ever covered
+
+`v_is_party` is satisfied either by owning the provider profile **or** by active membership of the hive that
+owns it. TB-I2 covers the first. Nothing covered the second — so dropping the hive branch would let an admin
+whose *own hive* is performing the job compute as a non-party moderator, take the admin bypass, and drive
+transitions on both sides of their own deal. The mutation operator rewrites the first occurrence of that
+branch, which is the copy inside `v_is_party` used **only** by the admin bypass, so an admin-party-via-hive is
+the only caller who can observe it. Working out which caller can even see a mutant is the actual work;
+declaring one "untested" is the easy part.
+
+#### Honest final numbers
+
+```
+platform mutation score: 100.0%   (37 killed / 37 viable)   was 50.0% (21/42) when first measured honestly
+  guard_service_request_status      100%   18 killed · 0 survived · 109 cells · 1 excluded, printed
+  guard_service_topup_status        100%    7 killed · 0 survived ·   4 cells
+  guard_marketplace_order_status    100%    6 killed · 0 survived ·  12 cells
+  guard_marketplace_listing_status  100%    6 killed · 0 survived ·   8 cells
+  verified: every guard byte-identical to its pre-mutation capture
+selftest: 1 cell -> 1 kill · 103 derived cells -> 6 · full 109 -> 18
+```
+
+**This 100% is not the same claim as the one it replaces.** The first was 42 mutants that never ran. This is
+37 mutants each killed by a named assertion, one excluded with a mechanism plus on-disk evidence plus a
+falsifiable re-run, and a selftest proving the score tracks cell-set strength.
+
+The selftest also discloses the uncomfortable part, printed on every run: **12 of the 18 kills on the request
+guard come only from authored probes — the 103-cell derived grid kills 6.** The grid is broad and shallow.
+That is the next punch list, and it is exactly the kind of thing a fabricated 100% would have kept hidden.
+
+> **The sixth dissolved finding is a reversal of the previous five.** §11.9 recorded five suspected findings
+> that dissolved on inspection, none a product defect. This one went the other way: a result that looked
+> *perfect* was the defect, and the tell was a kill that was impossible rather than a failure that was
+> suspicious. **Check an implausibly GOOD result with the same suspicion as a bad one** — a green number is
+> a claim, and this one was false four times running while I recorded it as verified in three commits.
+
+**Superseded by this section:** the mutation figures in §11.2 (27/27), §11.7 (100% of 27), §11.8 (36/36) and
+§11.9 (100% of 36), plus the same claim in commits `5f134b40`, `59222bff` and `2e5de62a`. The migrations,
+probes and gates those commits ship are unaffected — only the mutation number they quote was wrong.

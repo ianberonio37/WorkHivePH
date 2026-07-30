@@ -76,7 +76,20 @@ OPERATORS = [
      "the admin bypass applies ONLY to a party — the exact self-deal shape mig 20260730000003 fixed"),
     ("party_gate_dropped", r"\band\s+not\s+v_is_party\b", "and true",
      "the admin bypass stops caring about party-ness at all (the pre-mig-003 state)"),
-    ("is_party_false", r"v_is_party\s*:=\s*", "v_is_party := false or ",
+    # THIS OPERATOR TOOK THREE TRIES, AND BOTH WRONG VERSIONS LIED IN THE SAME DIRECTION — they invented a
+    # gap that did not exist. Draft 1 injected a `false or ` PREFIX: `false OR X ≡ X`, a perfect no-op, so it
+    # was unkillable and reported as a survivor on three guards. Draft 2 injected `false and ` — correct on
+    # `guard_marketplace_listing_status`, whose party expression is a single term, and BROKEN on the other
+    # three, whose expression is a DISJUNCTION: `v_is_party := false and A or B` parses as `(false and A) or B`
+    # ≡ B, so the mutation quietly collapsed to "is the seller a party" — still true for the fixture's admin,
+    # so the guard refused correctly and the mutant "survived". Diagnosing it needed the SQLSTATE, not the row
+    # count: unmutated and mutated both raised the identical 23514, which is the tell that the mutation never
+    # took ([[feedback_verify_the_instrument_before_the_page]]).
+    #
+    # So: replace the WHOLE assignment statement, not a prefix of its right-hand side. `[^;]*` is safe because
+    # a plpgsql assignment carries no semicolon before its terminator. A prefix mutation of any boolean
+    # expression is precedence-dependent and therefore unsafe by construction; a statement replacement is not.
+    ("is_party_false", r"v_is_party\s*:=[^;]*;", "v_is_party := false;",
      "party-ness always computes FALSE, so every admin is treated as a non-party moderator"),
     ("client_check_true", r"v_is_client\s*:=\s*\(", "v_is_client := true or (",
      "every caller is treated as the client — the ownership pin stops meaning anything"),
@@ -85,10 +98,14 @@ OPERATORS = [
     ("admin_bypass_unconditional", r"public\.is_marketplace_admin\(\)\s+AND\s+NOT\s+v_is_party",
      "public.is_marketplace_admin()",
      "the deny-shape guards' admin bypass goes back to unqualified (self-publish / self-release)"),
+    # One operator, not two. There WAS a `refusal_removed_upper` here for "the guards written in upper case",
+    # which was pure denominator inflation: the search runs with `re.IGNORECASE`, so both patterns matched the
+    # SAME first site and the two replacements (`return new;` / `RETURN NEW;`) are the same statement in
+    # different case. Every guard therefore contributed two IDENTICAL mutants — and on the order and top-up
+    # guards both "survived", printing one real gap twice and making it look like two. Duplicate mutants
+    # inflate the denominator exactly as equivalent ones deflate the score; neither may be left standing.
     ("refusal_removed", r"raise\s+exception\s+'Not allowed[^;]*;", "return new;",
      "a refusal becomes a silent allow — the guard fails OPEN"),
-    ("refusal_removed_upper", r"RAISE\s+EXCEPTION\s+'Not allowed[^;]*;", "RETURN NEW;",
-     "same fail-open, on the guards written in upper case"),
     ("state_list_widened", r"old\.status\s+in\s+\(([^)]*)\)", None,
      "an authorised from-state list gains one more state than the product allows"),
 
@@ -110,9 +127,55 @@ OPERATORS = [
     ("guc_bypass_always_on",
      r"current_setting\('workhive\.[a-z_]+',\s*true\)\s*=\s*'on'", "true",
      "the announced system-write bypass is permanently ON, so every caller gets the backend path"),
+
+    # ── THIRD WAVE. Written expecting at least one to SURVIVE - a survivor is the point of the exercise,
+    # because it names a fault no cell can see. Reaching 100% three times running would only mean the
+    # operators had stopped asking new questions.
+    ("backend_branch_removed", r"auth\.uid\(\)\s+is\s+null\s+or", "false or",
+     "the no-JWT backend/seeder path is gone, so system writes are judged as raw client writes"),
+    ("hive_provider_branch_removed",
+     r"or\s+\(sp\.provider_type\s*=\s*'hive'\s+and\s+sp\.hive_id\s+in\s*\(", "or (false and sp.hive_id in (",
+     "a HIVE provider's active member can no longer act for that provider profile - the branch mig "
+     "20260730000003 was careful to preserve"),
+    ("stranger_field_edit_allowed",
+     r"elsif\s+not\s+\(v_is_client\s+or\s+v_is_matched_provider\)\s+then", "elsif false then",
+     "a stranger may edit a request's fields as long as they do not change the status"),
+    ("dispute_narrowed_to_client",
+     r"\(\(v_is_client\s+or\s+v_is_matched_provider\)\s+and\s+old\.status\s+in\s+\('in_progress','completed'\)",
+     "((v_is_client) and old.status in ('in_progress','completed')",
+     "only the client may open a dispute - the provider loses the right the guard grants them"),
+    ("cancel_window_widened",
+     r"and\s+new\.status\s*=\s*'cancelled_by_provider'", "and new.status is not null",
+     "the provider-cancel rule stops naming its target state, so it authorises any transition from those "
+     "states"),
 ]
 
 VOCAB_EXTRA = "'settled'"
+
+
+# ── EXCLUSIONS ───────────────────────────────────────────────────────────────────────────────────────────
+# A mutant NO caller can observe is not a gap in the bank, and counting it as a survivor understates the
+# bank exactly as counting a false kill overstates it. Excluded mutants leave the denominator, but only
+# with (a) a mechanism, (b) the on-disk evidence, and (c) a self-policing re-run below.
+#
+# The bar is deliberately high because "unreachable" is the easiest thing in this whole tool to lie with.
+# Three of the four admin-bypass mutants on `guard_service_request_status` LOOKED unreachable for exactly
+# this reason and were nearly excluded on the strength of TB-I2's prose — then TB-FIELD gave the guard an
+# admin who is a PARTY (via hive membership, so the USING clause lets the row through) and all four died.
+# They were never unreachable; the bank simply had no cell that could see them. So an exclusion has to name
+# the MECHANISM that makes observation impossible, not the absence of a cell that observes it.
+EXCLUDED = {
+    ("guard_service_request_status", "stranger_field_edit_allowed"): (
+        "RLS pre-empts the trigger. `service_requests_party_update` is "
+        "USING (client_auth_uid = auth.uid() OR matched_provider_id IN my_service_provider_ids()) with no "
+        "admin clause, and a USING clause filters row VISIBILITY, so a stranger's UPDATE matches ZERO rows "
+        "and the trigger never fires - the guard cannot refuse what it is never asked about. Unlike the "
+        "admin-bypass case there is no identity that fixes this: any caller who CAN see the row is by "
+        "definition a party, and the mutated branch only governs non-parties. Evidence on disk: "
+        "TB-FIELD-nonstatus-edits-and-hive-party asserts stranger_edits_field_layer=rls-filtered, which "
+        "fails if RLS ever stops pre-empting."
+    ),
+}
 
 
 def psql(sql: str, timeout: int = 60):
@@ -199,12 +262,27 @@ def run_cells(runner, cells, legal, injected_ddl=None, stop_on_fail=True):
     """
     original = runner.psql_script
     if injected_ddl is not None:
+        # THE TRAILING SEMICOLON IS LOAD-BEARING, and its absence silently faked an entire score.
+        #
+        # `pg_get_functiondef()` returns the definition ending at `$function$` with NO terminator. Injected
+        # as-is after the cell's `begin;`, the CREATE statement swallowed the cell's next statement and psql
+        # reported `syntax error at or near "insert"` — the cell never ran at all.
+        #
+        # That failure mode is invisible in the worst way, because the runner's oracle treats an ERROR as a
+        # REFUSAL: a NEGATIVE cell therefore PASSED on broken SQL, while a POSITIVE cell failed and was
+        # scored as "the bank noticed". So the kills were counted for a mutation the bank never saw. The
+        # first 42/42 was measuring my own broken injection, not the bank's assertions
+        # ([[feedback_gate_parsed_text_not_the_db_false_green]] — a green whose evidence is something else).
+        ddl = injected_ddl.rstrip()
+        if not ddl.endswith(";"):
+            ddl += ";"
+
         def patched(sql, timeout=60, args=()):
             # After the cell's own `begin;` — so the mutation is rolled back with the cell, always.
             idx = sql.find("begin;")
             if idx >= 0:
                 cut = idx + len("begin;")
-                sql = sql[:cut] + "\n" + injected_ddl + "\n" + sql[cut:]
+                sql = sql[:cut] + "\n" + ddl + "\n" + sql[cut:]
             return original(sql, timeout=timeout, args=args)
         runner.psql_script = patched
     try:
@@ -220,7 +298,23 @@ def run_cells(runner, cells, legal, injected_ddl=None, stop_on_fail=True):
                 continue
             ran += 1
             if not ok:
-                return ran, (c["id"], detail)
+                # A cell that failed because the HARNESS broke the SQL is not a detection. Injecting a
+                # malformed CREATE once turned every positive cell into a "kill" and produced a fabricated
+                # 42/42, so a genuine syntax fault is refused loudly instead of counted.
+                #
+                # But NOT every "the probe produced nothing" is a harness fault, and the distinction matters:
+                # a mutant can be strong enough to break the probe's own FIXTURE (e.g. removing the no-JWT
+                # backend branch makes a service-role INSERT get judged as a raw client write, so the setup
+                # is refused before any assertion runs). That IS a kill — the suite failed — but it is a
+                # WEAKER kill than an assertion objecting to product behaviour, so it is labelled rather
+                # than blended in.
+                blob = str(detail)
+                if "syntax error" in blob:
+                    raise RuntimeError(
+                        f"harness fault, not a detection: cell {c['id']} failed with {blob[:90]!r}. The "
+                        f"injected mutation did not compile, so this mutant was never shown to the bank.")
+                via = "fixture" if "NO RESULT lines" in blob else "assertion"
+                return ran, (c["id"], detail, via)
             # a passing cell under a mutant means it did NOT notice; keep going
         return ran, None
     finally:
@@ -252,7 +346,7 @@ def score_all(verbose=False):
             continue
 
         mutants = make_mutants(guard, fdef)
-        killed, survived, malformed = [], [], []
+        killed, survived, malformed, excluded, stale = [], [], [], [], []
         for op, why, mutated in mutants:
             # Does the mutant even compile? A malformed mutation is an operator bug, not a bank gap.
             probe = psql("begin;\n" + mutated + "\nrollback;")
@@ -260,8 +354,17 @@ def score_all(verbose=False):
                 malformed.append((op, why))
                 continue
             n, objection = run_cells(runner, cells, legal, injected_ddl=mutated)
-            if objection:
-                killed.append((op, why, objection[0]))
+            reason = EXCLUDED.get((guard, op))
+            if reason:
+                # EXCLUDED MUTANTS ARE STILL RUN. Skipping them would make the exclusion list a trapdoor:
+                # anything inconvenient could be declared unreachable and would then never be tested again,
+                # which is precisely how a skipped partition reads as a covered one
+                # ([[feedback_a_skipped_partition_reads_as_a_covered_one]]). Running it keeps the claim
+                # falsifiable — if a cell ever DOES object, the exclusion was wrong and the tool says so
+                # instead of silently pocketing the kill.
+                (stale if objection else excluded).append((op, why, reason))
+            elif objection:
+                killed.append((op, why, objection[0], objection[2] if len(objection) > 2 else "assertion"))
             else:
                 survived.append((op, why, n))
             if verbose:
@@ -272,6 +375,10 @@ def score_all(verbose=False):
         results[guard] = {
             "cells": len(cells), "baseline_ran": n_base,
             "killed": killed, "survived": survived, "malformed": malformed,
+            "excluded": excluded, "stale": stale,
+            # Kept so the leak check at the end can compare byte-for-byte against the pre-mutation truth
+            # rather than guessing at a mutation's text signature.
+            "fdef": fdef,
             "score": round(100.0 * len(killed) / denom, 1) if denom else None,
         }
     return results
@@ -365,10 +472,22 @@ def main(argv):
         col = GREEN if s == 0 else YEL
         print(f"  {col}{str(r['score']) + '%':>6}{RST}  {guard:<34} "
               f"{DIM}{k} killed · {s} survived · {r['cells']} cells{RST}")
+        via_fixture = [k for k in r["killed"] if len(k) > 3 and k[3] == "fixture"]
+        if via_fixture:
+            print(f"          {DIM}{len(via_fixture)} of {k} killed via a broken FIXTURE rather than an "
+                  f"assertion ({', '.join(x[0] for x in via_fixture[:3])}) - a real kill, weaker "
+                  f"evidence{RST}")
         for op, why, _n in r["survived"]:
             print(f"          {RED}SURVIVED{RST} {op}: {why}")
         for op, why in r["malformed"]:
             print(f"          {DIM}malformed (operator bug, not a bank gap): {op}{RST}")
+        # Printed every run, never folded into the %: an exclusion the reader cannot see is an exclusion
+        # nobody can challenge.
+        for op, _why, reason in r.get("excluded", []):
+            print(f"          {DIM}excluded from the denominator — {op}: {reason[:150]}{RST}")
+        for op, _why, _reason in r.get("stale", []):
+            print(f"          {RED}STALE EXCLUSION{RST} {op}: a cell DID object, so this mutant is "
+                  f"observable after all — delete it from EXCLUDED and let it score.")
 
     denom = total_k + total_s
     overall = round(100.0 * total_k / denom, 1) if denom else 0.0
@@ -377,34 +496,89 @@ def main(argv):
     # No mutated function may survive the run. The injection is inside each cell's transaction, so this
     # should be structurally impossible - assert it anyway, because "should be impossible" is what every
     # silent failure this arc found had in common.
-    leaked = psql("select count(*) from pg_proc where proname in "
-                  "('" + "','".join(GUARDS) + "') and prosrc like '%v_is_party := false or%';")
-    if leaked and leaked.strip() not in ("0", ""):
-        print(f"  {RED}FAIL{RST} — a MUTATED guard is still installed. Restore from migrations now.")
+    #
+    # THIS CHECK WAS ITSELF FALSE-GREEN. It used to grep prosrc for `v_is_party := false or`, the literal text
+    # of the FIRST draft of the is_party_false operator. Correcting that operator left the detector hunting a
+    # string no mutation produces any more, so it would have reported "0 mutated guards persist" while one
+    # was installed - a safety check that silently stopped checking, which is the exact class this arc keeps
+    # finding ([[feedback_teach_the_gate_not_bend_the_code]] in reverse: the gate drifted, not the code).
+    #
+    # Now it compares each guard's CURRENT definition against the one captured before any mutation ran. That
+    # is exact, and it cannot rot when the operator table changes, because it knows nothing about operators.
+    changed = [g for g, r in results.items()
+               if r.get("fdef") and functiondef(g) != r["fdef"]]
+    if changed:
+        print(f"  {RED}FAIL{RST} — a MUTATED guard is still installed ({', '.join(changed)}). Restore from "
+              f"migrations now: `supabase db reset` or re-apply 20260730000003.")
         return 1
-    print(f"  {DIM}verified: 0 mutated guards persist (every mutation died with its cell's rollback){RST}")
+    print(f"  {DIM}verified: 0 mutated guards persist — each guard's definition is byte-identical to the one "
+          f"captured before the first mutation ran{RST}")
 
-    base = 0.0
+    # A stale exclusion is a false claim in the report, so it fails the gate rather than printing a note. It
+    # also cannot be reached by accident: it means a cell now objects to a mutant the tool told the reader
+    # nothing could observe, which is good news that must be banked by deleting the exclusion.
+    if any(r.get("stale") for r in results.values()):
+        print(f"  {RED}FAIL{RST} — the exclusion list makes a claim the run disproved (above). An excluded "
+              f"mutant that a cell kills must be scored, not excluded.")
+        return 1
+
+    # ── EVIDENCE QUALITY, ratcheted separately from the score ───────────────────────────────────────────
+    # The score alone could not have caught this tool's own fabricated 100%: the broken injection scored
+    # exactly 100.0%, byte-identical to the honest 100.0% that replaced it, so a score-only ratchet saw
+    # nothing. What DID differ is HOW the mutants died. When the injection was swallowing each cell's next
+    # statement, every kill came from a cell whose FIXTURE errored rather than from an assertion that
+    # objected - and the tool already labels those. So the count of fixture-kills is ratcheted too: it may
+    # fall, never rise. A broken injection makes it spike to the full mutant count, which now FAILS instead
+    # of printing a triumphant 100%.
+    fixture_kills = sum(1 for r in results.values() if not r.get("error")
+                        for k in r["killed"] if len(k) > 3 and k[3] == "fixture")
+
+    def write_baseline():
+        with open(BASELINE, "w", encoding="utf-8") as f:
+            json.dump({"score": overall, "viable": denom, "fixture_kills": fixture_kills,
+                       "_doc": "forward-only; raise `score` by killing survivors. `fixture_kills` may only "
+                               "FALL: a kill via an errored fixture is weaker evidence than a kill via an "
+                               "assertion, and a spike in it is the signature of a broken injection "
+                               "(which once produced a fabricated 100%)."}, f, indent=2)
+
+    base, base_fx = 0.0, None
     if os.path.exists(BASELINE):
         try:
-            base = float(json.load(open(BASELINE, encoding="utf-8")).get("score", 0.0))
+            saved = json.load(open(BASELINE, encoding="utf-8"))
+            base = float(saved.get("score", 0.0))
+            base_fx = saved.get("fixture_kills")
         except Exception:
             base = 0.0
     if "--update-baseline" in argv or not os.path.exists(BASELINE):
-        with open(BASELINE, "w", encoding="utf-8") as f:
-            json.dump({"score": overall, "viable": denom, "_doc": "forward-only; raise by killing survivors"}, f, indent=2)
-        print(f"  {DIM}baseline set to {overall}%{RST}")
+        write_baseline()
+        print(f"  {DIM}baseline set to {overall}% ({fixture_kills} fixture-kills){RST}")
         return 0
     if overall < base:
         print(f"  {RED}FAIL{RST} — mutation score REGRESSED {base}% -> {overall}%: a fault the bank used "
               f"to catch now slips through.")
         return 1
-    if overall > base:
-        with open(BASELINE, "w", encoding="utf-8") as f:
-            json.dump({"score": overall, "viable": denom, "_doc": "forward-only; raise by killing survivors"}, f, indent=2)
-        print(f"  {GREEN}PASS{RST} — baseline ratcheted {base}% -> {overall}%")
+    if base_fx is not None and fixture_kills > base_fx:
+        print(f"  {RED}FAIL{RST} — evidence QUALITY regressed: kills via an errored fixture went "
+              f"{base_fx} -> {fixture_kills} while the score held at {overall}%. A mutant that dies because "
+              f"a cell could not run is not a mutant the bank NOTICED. Check the injection before trusting "
+              f"this score — that is exactly how the first 100% here was fabricated.")
+        return 1
+    if overall > base or (base_fx is not None and fixture_kills < base_fx):
+        write_baseline()
+        moved = f"{base}% -> {overall}%" if overall > base else f"fixture-kills {base_fx} -> {fixture_kills}"
+        print(f"  {GREEN}PASS{RST} — baseline ratcheted ({moved})")
         return 0
-    print(f"  {GREEN}PASS{RST} — holds at the {base}% baseline")
+    if base_fx is None:
+        # SEED THE NEW FIELD, or the check above never runs. A baseline written before `fixture_kills` existed
+        # leaves it None forever on the steady-state path (score == base), so the ratchet would sit there
+        # looking implemented and checking nothing - a gate that silently stopped checking, which is the
+        # exact defect this same session found in the mutated-guard leak detector.
+        write_baseline()
+        print(f"  {GREEN}PASS{RST} — holds at the {base}% baseline; seeded the evidence-quality floor at "
+              f"{fixture_kills} fixture-kills (it may only fall from here)")
+        return 0
+    print(f"  {GREEN}PASS{RST} — holds at the {base}% baseline ({fixture_kills} fixture-kills, floor "
+          f"{base_fx})")
     return 0
 
 

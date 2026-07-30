@@ -5,7 +5,7 @@ the platform should obey - and currently no Playwright spec exercises it.
 
 **Check coverage:** 82.8% (274 of 331 per-page checks - HONEST behavioral coverage)
 **Topic coverage:** 93.8% (45 of 48 per-page validators - loose, validator-level)
-**Raw coverage:** 77.4% (318 of 411 validators)
+**Raw coverage:** 77.9% (320 of 411 validators)
 
 Each section below groups uncovered checks by validator. Use the per-check
 list as your test backlog - one scenario per check, not one scenario per
@@ -487,7 +487,7 @@ page would just duplicate the validator with 50x the runtime.
 - `validate_optimistic_ui.py` (no named checks) - validate_optimistic_ui
 - `validate_user_facing_jargon.py` (1 checks) - validate_user_facing_jargon
 
-## Infrastructure gaps (88)
+## Infrastructure gaps (86)
 
 These validators have no UI surface - they enforce backend / schema /
 edge function / configuration rules. Layer 0 is the right enforcement
@@ -498,7 +498,6 @@ layer; no Playwright scenario is needed.
 - `validate_au_adoption.py` (no named checks) - validate_au_adoption
 - `validate_auto_discovery.py` (no named checks) - validate_auto_discovery
 - `validate_av_adoption.py` (no named checks) - validate_av_adoption
-- `validate_avatar_state_phase10.py` (no named checks) - validate_avatar_state_phase10
 - `validate_bundle_bloat.py` (4 checks) - validate_bundle_bloat
 - `validate_button_type_in_form.py` (1 checks) - validate_button_type_in_form
 - `validate_c_track_self_coverage.py` (1 checks) - validate_c_track_self_coverage
@@ -580,6 +579,5 @@ layer; no Playwright scenario is needed.
 - `validate_tester_coverage.py` (no named checks) - validate_tester_coverage
 - `validate_trigger_reentrancy.py` (4 checks) - validate_trigger_reentrancy
 - `validate_validator_self_coverage.py` (4 checks) - validate_validator_self_coverage
-- `validate_verified_state_wiring.py` (1 checks) - validate_verified_state_wiring
 
-_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 2 platform-wide and 88 infrastructure._
+_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 2 platform-wide and 86 infrastructure._

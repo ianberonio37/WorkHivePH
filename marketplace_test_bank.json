@@ -5358,6 +5358,99 @@
       ],
       "provenance": "The state axis was induced at SQL altitude for empty/filtered0/edge; `error` and `degraded` are browser facts and were deliberately excluded there rather than claimed. This closes the axis across both altitudes - the cheapest honest altitude for each state, not one altitude for all.",
       "note": "The product was RIGHT and my test was wrong twice before it passed: a 2.5s sleep measured the page's RETRY budget (aborts climb 12->20->32, the error lands at ~8s) so it must POLL; and body.innerText matched the error copy and the CTA from other sections, so it must assert inside #listing-grid. Fifth suspected finding this session that dissolved on inspection."
+    },
+    {
+      "id": "TB-BIRTH-privileged-birth-refused",
+      "source": "authored",
+      "kind": "creation-negative",
+      "journey": "J01-hail-instant",
+      "authority": "owner",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK2",
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "service_requests",
+        "service_credit_topups",
+        "marketplace_orders"
+      ],
+      "probe": {
+        "file": "TB-BIRTH-privileged-birth-refused.sql",
+        "expect": {
+          "is_really_admin": "f",
+          "system_write_off": "t",
+          "req_born_accepted": "blocked",
+          "req_born_matched": "blocked",
+          "req_born_legit": "works",
+          "req_born_as_other_layer": "guard",
+          "topup_born_verified": "blocked",
+          "topup_born_pending": "works",
+          "order_born_released": "blocked",
+          "order_born_pending": "works",
+          "birth_credit_minted": "0"
+        }
+      },
+      "asserts": [
+        "no row may be BORN in a privileged state: a request cannot start `accepted` or already matched, a top-up cannot start `verified`, an order cannot start `released`",
+        "each refusal is paired with the legitimate creation, so a guard that refused everything would fail",
+        "the credit ledger is read back: a refused born-verified top-up must mint NOTHING",
+        "the attribution case asserts WHICH LAYER refuses (`guard`), pinning that a BEFORE trigger runs ahead of RLS WITH CHECK — if the guard's pin were removed the value would become `rls`"
+      ],
+      "provenance": "Found 2026-07-30 by the guard mutation score, not by reading. Every one of the bank's 247 cells is derived from the authorised-TRANSITION set, so all of them are UPDATEs and none had ever INSERTed a row as a raw client; each guard's `TG_OP = 'INSERT'` branch had zero cells. Deleting those birth rules one at a time left `birth_status_unchecked`, `born_matched_allowed` and `refusal_removed` (top-ups AND orders) alive with no cell objecting. The top-up case is the sharp end: `verified` is what mints credit, so a client able to insert an already-verified top-up never needs to defeat the verification path at all. Reachability was checked against pg_policies BEFORE authoring - `status` appears in no INSERT policy, so these rules are the guard's alone."
+    },
+    {
+      "id": "TB-FIELD-nonstatus-edits-and-hive-party",
+      "source": "authored",
+      "kind": "field-rule",
+      "journey": "SJ-J07-job-run-full-state-walk",
+      "authority": "admin",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db",
+        "S8-gates"
+      ],
+      "dims": [
+        "MK2",
+        "MK7"
+      ],
+      "status": "banked",
+      "covers_tables": [
+        "service_requests"
+      ],
+      "probe": {
+        "file": "TB-FIELD-nonstatus-edits-and-hive-party.sql",
+        "expect": {
+          "client_reassigns_matching": "blocked",
+          "client_transfers_ownership_layer": "guard",
+          "client_cancels_settled_job": "blocked",
+          "client_edits_own_field": "works",
+          "stranger_edits_field_layer": "rls-filtered",
+          "hiveadmin_is_admin": "t",
+          "hive_party_admin_illegal_transition": "blocked",
+          "hive_member_acts_for_provider": "works"
+        }
+      },
+      "asserts": [
+        "the rules that hold when status is UNCHANGED - the branch a transition-shaped suite cannot enter: matching may not be reassigned by a direct write, ownership may not be transferred",
+        "an admin who is a party ONLY through hive membership is still a party, so the admin bypass does not apply and an illegal transition on their own hive's job is refused",
+        "the permission that branch exists to grant is asserted too: an active hive member may act for the hive's provider profile (accepted -> en_route)",
+        "the stranger case records the LAYER (`rls-filtered`), because a USING clause hides the row and the guard never speaks - crediting the guard with that refusal would keep reading green if its rule were deleted",
+        "the cancel window is asserted from OUTSIDE its boundary: a SETTLED (done and paid) job cannot be cancelled by the client - the case the state_list_widened mutant demanded, which 109 cells missed because the derived grid enumerates neither that transition nor that illegal origin",
+        "the ownership case asserts the LAYER, not the refusal: strip the guard's rule and RLS still rejects the row, so `blocked` would stay green - only `guard` vs `rls` can tell the difference"
+      ],
+      "provenance": "Found 2026-07-30 by the guard mutation score. `reassignment_allowed`, `ownership_transfer_allowed`, `stranger_field_edit_allowed` and `hive_provider_branch_removed` all survived across 107 cells on guard_service_request_status - the four rules that live in the `status unchanged` branch. The hive one is a self-deal hole rather than a field rule: v_is_party is satisfied EITHER by owning the provider (TB-I2 covers that) OR by active membership of the hive that owns it (nothing covered that), so dropping the hive branch would let an admin whose own hive is doing the work compute as a non-party moderator and take the bypass. The operator rewrites the FIRST occurrence, which is the copy inside v_is_party used only by the admin bypass - so an ADMIN party-via-hive is the only caller who can observe the mutant, which is why no ordinary-caller cell could ever have killed it."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

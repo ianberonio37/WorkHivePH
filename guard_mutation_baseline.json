@@ -1,5 +1,6 @@
 {
   "score": 100.0,
-  "viable": 36,
-  "_doc": "forward-only; raise by killing survivors"
+  "viable": 37,
+  "fixture_kills": 2,
+  "_doc": "forward-only; raise `score` by killing survivors. `fixture_kills` may only FALL: a kill via an errored fixture is weaker evidence than a kill via an assertion, and a spike in it is the signature of a broken injection (which once produced a fabricated 100%)."
 }
