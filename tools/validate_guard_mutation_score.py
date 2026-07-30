@@ -151,6 +151,9 @@ GUARDS = {
     # ── ARC 13 / F — the per-hive 24h listing anti-spam (>=20). Judge: TB-RATE-listing (20 planted at the cap,
     # 21st trips, a different hive is unaffected). One operator on its own raise message. Clean.
     "check_listing_rate":                 "marketplace_listings",
+    # ── ARC 13 / F — the per-user 200/day AI-reply-feedback cap. Judge: TB-RATE-ai-feedback (200 planted at the
+    # cap, 201st trips, auth_uid-null backend bypass allowed). One operator on its own raise message. Clean.
+    "enforce_ai_reply_feedback_daily_limit": "ai_reply_feedback",
 }
 
 
@@ -514,6 +517,8 @@ OPERATORS = [
      "the 15-second reply anti-flood stops firing, so one author can reply in an unbounded burst"),
     ("listing_rate_removed", r"RAISE EXCEPTION 'Daily listing limit of 20 reached'[^;]*;", "NULL;",
      "the 24-hour per-hive listing cap stops firing, so a hive can flood the marketplace past its anti-spam limit"),
+    ("ai_feedback_rate_removed", r"RAISE EXCEPTION 'Daily AI reply feedback limit reached'[^;]*;", "NULL;",
+     "the per-user 200/day AI-reply-feedback cap stops firing, so one account can flood feedback unbounded"),
 ]
 
 VOCAB_EXTRA = "'settled'"
@@ -537,6 +542,14 @@ EXCLUDED = {
     # and widening the terminal set to include it cannot change any outcome. This is the operator-scoping bleed
     # (roadmap S14.4) handled locally with a provable equivalence rather than a false kill. Falsifiable: the
     # mutant is still run every time, and if a cell ever objects the gate FAILS as a STALE EXCLUSION.
+    ("enforce_ai_reply_feedback_daily_limit", "anon_ceiling_removed"): (
+        "Equivalent: anon_ceiling_removed (written for check_platform_feedback_rate_limit) bleeds onto this "
+        "guard's `IF NEW.auth_uid IS NULL THEN RETURN NEW` bypass, but removing that bypass is a no-op. Without "
+        "it a null-auth_uid insert proceeds to the count `WHERE auth_uid = NEW.auth_uid`; with NEW.auth_uid NULL "
+        "that predicate is NULL for every row (SQL `= NULL` is never TRUE), so day_count is 0 and the `>= 200` "
+        "check never fires — the write is allowed either way. Falsifiable: still run every time; a cell that ever "
+        "objects fails the gate as a STALE EXCLUSION."
+    ),
     ("anomaly_signals_forward_only_status", "state_list_widened"): (
         "Equivalent: VOCAB_EXTRA 'settled' is not a valid anomaly_signals.status (the CHECK allows only "
         "active/acknowledged/resolved/expired), so widening the terminal set `('resolved','expired')` to "
