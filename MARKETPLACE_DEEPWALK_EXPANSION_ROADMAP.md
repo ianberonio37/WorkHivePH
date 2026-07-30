@@ -2011,3 +2011,24 @@ construction: the error test fails if the request was never intercepted, the off
 **Final state:** transition **99.6%** (249/250) · SQL lane 132/132 · journey lane 14 cells · mutation
 **100% of 36** · layer 100% with rule + owners disclosed (S2-pwa now 2 cells) · dimension 100% · oracles
 refusal 194 · db-truth 36 · rubric 10 · continuity 7 · eval 1 · metamorphic 1 · ratchet PASS.
+
+### §11.10 · Flake ledger — `push-runtime-delivery`
+
+Recorded rather than left to hide, per the arc's own flake policy (a cell that yields both outcomes on
+unchanged code is listed, never quietly deleted).
+
+`push-runtime-delivery` went RED once inside a back-to-back verification sweep and has passed **four** other
+times, including immediately afterwards and again when deliberately re-run in the sweep's exact order
+(`marketplace-state-inducers` → `push-runtime-delivery`) to test for interference between two browser gates.
+There is none.
+
+The likeliest cause is the transport blip already characterised in §10.27a: an intermittent
+`supabase.auth.getUser()` → `_timeoutFetch` abort that appeared in roughly half of that day's smoke runs,
+rotating across pages, and which the smoke template now tolerates explicitly with a logged warning. The push
+spec signs in and registers a worker, so it touches the same path.
+
+**Not fixed, and deliberately not widened** — a timeout is not the cause (the wrapper's budget is 45s) and
+widening it would measure network weather instead of the product. It is one instance against four, with a
+named suspected cause, and the underlying question is already on Ian's list: should the shared Supabase fetch
+wrapper retry once on a transport failure for idempotent reads? That decision closes this flake and the smoke
+one together, which is why it belongs there rather than in a per-spec patch.
