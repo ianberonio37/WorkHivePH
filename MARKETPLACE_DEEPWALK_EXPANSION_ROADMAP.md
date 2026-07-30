@@ -2863,3 +2863,60 @@ Every claim measured before it is acted on; every fix locked twice (a cell that 
 a mutation operator that deletes the rule); every exclusion names the mechanism that makes observation
 impossible and stays executable so a stale one fails loudly. And the standing lesson that produced this whole
 arc: **check an implausibly good result with the same suspicion as a bad one.**
+
+### §12.5 · Where this arc actually got to, and what is honestly still open
+
+**§12.1 — three of the four unmonitored guards are scored**, each with a cell, its own operators, and a
+verified 100%:
+
+| guard | operators | what it protects | verdict |
+|---|---|---|---|
+| `check_hive_quota_ai_reports` | 4 | a cost ceiling; the only one of the four that WRITES | correct in both modes, now watched |
+| `guard_service_provider_writes` | 4 | `verified` (the trust badge) and `on_job` (dispatch state) | correct on all four rules, now watched |
+| `check_platform_feedback_rate_limit` | — | 5 submissions/hour per identity | holds for a stable identity; **evadable** — see below |
+
+**Still open, deliberately:** `cap_pdf_job_size`, the fourth and mildest (a 200-chunk ceiling on `pdf_jobs`).
+
+#### The one real finding, and why it is a fork rather than a fix
+
+The feedback rate limit **is evadable**. Six submissions under six different `worker_name`s were all accepted,
+because the bucket is `COALESCE(auth_uid, worker_name, contact_email, 'anonymous')` and `platform_feedback` is
+anon-writable — so for an unauthenticated submitter the bucket key is a field the **client supplies**
+([[feedback_free_text_identity_is_a_claim]]).
+
+It is **not** silently fixed, because every fix changes product behaviour:
+
+| option | cost |
+|---|---|
+| bucket all anonymous submissions as `'anonymous'` | spam-proof, but throttles legitimate anonymous users **collectively** at 5/hour platform-wide |
+| keep per-name buckets, add a global anonymous ceiling | preserves individual throughput, needs a second number chosen |
+| accept it | the form is low-value to spam, and the DB has no IP to key on |
+
+That is a policy trade, not a defect with one right answer, so it is Ian's. The cell asserts only what the
+guard genuinely does and **deliberately does not encode the evasion as an expectation** — baking it in would
+make the eventual fix read as a regression.
+
+#### §12.3 — the edge-function lens, scoped and sampled, NOT audited
+
+**32 of 59** edge functions take three or more id-ish fields and gate on an identity: that is the population
+where "validate one field, act on another" can live. The class is already known one layer down — the AHK4 gate
+records that a `WITH CHECK` "validated that hive_id is one the caller belongs to and said NOTHING about whether
+the PARENT lived there", closed by mig ...017 with four RESTRICTIVE policies. The edge analogue is a
+SERVICE_ROLE function that validates `hive_id` and then acts on a child id without checking the child belongs
+to that hive.
+
+**Sampled 1 of 32.** `export-hive-data` is CLEAN and is the reference shape: it calls
+`checkSupervisor(jwt, hive_id)` and then exports `p_hive_id: hive_id` — the check and the action read the SAME
+id, and the `target_id` the proxy flagged is an audit-log column, not a second input. One clean sample is not
+32 audited, and the remaining 31 are the next unit rather than a claim.
+
+#### §12.2 — B is untouched
+
+The `_timeoutFetch` idempotent retry is still open. §11's sweep sharpened the question rather than answering it:
+`fetchWithTimeout` returns **null** on timeout and three callers dereferenced it, so the retry must be scoped to
+**idempotent reads** and must never silently retry a write.
+
+> **What this arc demonstrates about method, more than about guards:** measuring the frontier turned "27 guards"
+> into "4 guards", and 4 into 3-done-plus-1-mild. The measurement was cheaper than any of the work it scoped, and
+> it also produced the reassuring half — **0 of 27 carry the row-version shape**, so the class that produced
+> three exploits is confined and closed rather than merely patched where it was noticed.
