@@ -1319,6 +1319,12 @@
         renderMarketplace(mkt);
         renderMktModeration(mktmod);
         loadSvcTopups();  // SERVICE_HAILING P6b: GCash top-up verification queue (self-contained fetch+render)
+        // BOOT call. This was wired ONLY inside svcTopupDecide(), so the four money numbers appeared
+        // after an admin verified a top-up and were blank on every fresh page load — built, called,
+        // and still invisible when it mattered. I "verified" it originally by invoking the function by
+        // hand, which proves the function works and says nothing about the wiring; the live walk that
+        // just loaded the page cold is what caught it.
+        loadCreditEconomy(); // MARKETPLACE_CREDIT_SUSTAINABILITY §5: earned / liability / cover / cashback
         loadSvcVouchers(); // SERVICE_HAILING J16: voucher campaigns - mint + tally (admin-only writes)
         renderAiCostDetail(aiprov);
         renderAudit(audit);
