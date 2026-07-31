@@ -3549,11 +3549,30 @@ matching the humanly-expected kind.** Registered as `voice-paraphrase-invariance
 (MR1–MR3 in one cell, MR4, MR5), and the two the plan predicted would find things both did: MR4 found a real
 ordering defect, MR5 established a property no refusal test could express.
 
-### §15.4 · NEXT
+### §15.4 · NEXT — checked against what already exists, not against the plan's stale text
 
-- The §11 plan's **P3 breadth** — state inducers (`filtered0` / `error` / `degraded`), and the thin
-  **S2-pwa / S7-ai / S9-knowledge** layers (1 cell each). Note the CDC piece is already owned by
-  `edge-caller-contract` and must **not** be re-implemented.
-- **`state` is still `None` on 234 of 302 cells** — the inducers above are what make that field mean something
-  rather than being back-filled by hand.
-- Ian-gated and outward: the push, and the prod deploy of the five LOCAL-only security migrations.
+**Two P3 items were already done, and writing them down as "next" was the premise error twice over.** The
+§11 plan said the state inducers "were never built" (`grep inducer` → nothing) and I repeated it. They exist:
+`tools/validate_marketplace_state_inducers.py` is registered, `TB-STATE-inducers-empty-filtered0-edge` induces
+`empty`/`filtered0`/`edge` in rolled-back SQL, and `TB-STATE-journey-error-and-degraded` induces `error` and
+`degraded` in a real browser — the latter locking a genuinely subtle rule (*a FAILED listings read must render
+an error state, not the first-run "be the first to sell" CTA*, since to a row count a failed read and an empty
+result are identical). Likewise **CDC is owned by `edge-caller-contract`** and must not be re-implemented.
+Check the ~700 gates before adding, every time.
+
+**What IS still open is the thin-layer imbalance, measured now:**
+
+| layer | cells | | layer | cells |
+|---|---|---|---|---|
+| S4-db | 288 | | S5-edge | 6 |
+| S8-gates | 40 | | S6-realtime | 3 |
+| S1-ui | 27 | | S2-pwa | 2 |
+| S3-data | 9 | | S7-ai | 2 |
+| | | | **S9-knowledge** | **1** |
+
+That is the §11 "layer 100% is short-denominator" finding, unchanged: `layer_pct` counts any layer with ≥1
+done cell, so a 1-cell layer reads as covered. The next unit is the thin end — **S9-knowledge, S2-pwa,
+S7-ai** — each preceded by a live journey establishing the friction is real, per the method constraint, and
+each checked against the existing gates first.
+
+Ian-gated and outward, unchanged: the push, and the prod deploy of the five LOCAL-only security migrations.
