@@ -452,5 +452,22 @@
   "20260730000006_pin_order_and_listing_identity_fields.sql": "702c45d2a8d853096def1477f4961c15aab1bb5f6a6156e5707a28fb531ba75a",
   "20260730000007_scope_audit_actor_lookup_to_the_rows_hive.sql": "674056623b47692e92199b3bf156559faa6161932a76acbdc771e9a3338f819f",
   "20260730000008_anonymous_feedback_global_ceiling.sql": "14f8f8be7b49da7d79daceca41d17dc0ea74fff3715132577e2c45972b18cbb2",
-  "20260731000001_resolve_membership_by_auth_uid_not_display_name.sql": "1d384d8df7e9a29c7f7ec7456a5ae4498fff791f43137abb8fbf18551fbf6370"
+  "20260731000001_resolve_membership_by_auth_uid_not_display_name.sql": "1d384d8df7e9a29c7f7ec7456a5ae4498fff791f43137abb8fbf18551fbf6370",
+  "20260731000002_embedding_outbox_spine.sql": "e1cc1d483c432346e0301ef46d0a44897c546ad9a99fde4e6e872da316a07d38",
+  "20260731000003_embed_outbox_pm_and_skills.sql": "b4856b7794342b8493e115e5e04176cd78c071a145133c744604c5d11346b1e3",
+  "20260731000004_drop_stale_embedding_model_default.sql": "2518b19db67f2bf91c1da72c1234b981b3deffe0157fdaf690a06e56d810ee07",
+  "20260731000005_daily_row_cap_system_write.sql": "9231b4fd0d0a4a05ce889c45224c213533eed4766c731bef63fede50468a5454",
+  "20260731000006_ai_provenance_pairing.sql": "b92b4dad2eaabe97c22caee332eabd7bff7f65fd00c4890fbd39364bf6a952f6",
+  "20260731000007_d9_service_knobs.sql": "45bbdacd4d6884755a1ee901a6a85291ab10e336099853059ddb3682a8aa87b2",
+  "20260731000008_sweep_reads_d9_knobs.sql": "b4ee90c6356df69e651d4381880a291480d0ee6d9c0bd632129fc0d31d2f8560",
+  "20260731000009_tier_reads_d9_knobs.sql": "3f3f3ea037b2bf3e97e1b5216c2e902a9d0d1f0d0c4f3bbc0784c105b81754ee",
+  "20260731000010_hail_starts_at_hive_radius.sql": "08e52c79e7afda089715ab64e06442e75a53d0ea00cbe31b7af29f1720f9d3d3",
+  "20260731000011_credit_policy_knobs.sql": "70e6c908068840b8cab0875bde1db5b663b74ced558754f6f15d3407ca3b93b0",
+  "20260731000012_consumer_cashback.sql": "f1fb2ad6dcfd503f421cc8eb52c298164ac252c164c6325786d8a105bb32661c",
+  "20260731000013_service_knob_pct.sql": "8a3c21dc69eb47c72cc1ba19945d231448c54a95dc5dbf6f2e6a335518e59094",
+  "20260731000014_commission_reads_d9_knob.sql": "6489f077fd87057460e797e72d486a0b87d4bf9f360572a3b2887fd7bebdf946",
+  "20260731000015_money_spine_payment_record_and_cashback.sql": "91b4940186223e74aaee469894ab476496d2f935307edca258401bf33e5200b4",
+  "20260731000016_min_list_balance_becomes_the_accept_floor.sql": "fe6c5bc198e0c3d6afbc1d52cd783cbb4cbe63fdf9f291efbd25171151bec345",
+  "20260731000017_a_sale_needs_a_counterparty.sql": "f0cf9cc0dc30e90041ede12ded07a37ea45dbc932acfb637e3b22b8fa9c02907",
+  "20260731000018_dispute_adjustment_never_deletion.sql": "98643910bbebda4540c0a36f509125d0553f058c83b590665b932759f5e4c8cd"
 }

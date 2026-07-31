@@ -478,6 +478,15 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        "id":      "credit-economy-simulation",
+        "script":  "tools/simulate_credit_economy.py",
+        "args":    ["--runs", "400"],
+        "label":   "CREDIT ECONOMY SIMULATION - generated job lifecycles driven through the REAL guards, triggers and ledger inside ONE transaction that is ROLLED BACK, so no simulated peso survives. THIS IS THE HONEST FORM OF `massive simulation`: tools/run_companion_100turn_flywheel.py advertises 100 turns x 1225 tests and FABRICATES every outcome (simulate_turn_observations draws pass rates from random.gauss against a sigmoid), which for a money economy is worse than no test because it produces a confident number describing transactions that never happened ([[feedback_measure_the_worked_state_not_the_generator]]). A single probe proves a rule on one job; this asks whether it still holds across hundreds, over SIX exit paths so all 12 request states are genuinely reached. Six invariants: net take = commission - cashback over settled GMV (MEASURED, not asserted - it reads ~4.8% blended, not the headline 4%, because consumer jobs carry 10% commission and industrial 5%, so the real rate depends on MIX); solvency sampled DURING the run rather than only at the end, since a balance that went negative and came back would otherwise be missed; exactly-once commission and cashback per settled job under a deliberate double-tapped release; worst liability cover reported rather than the average, because the study's failure modes are TAIL events; order-independence as a metamorphic relation (same two top-ups in either order reach the same balance - no expected value needed, which is why this property had no test); and a reached-state histogram, because a run that never produced an `expired` or `disputed` arc has not tested them and must SAY so ([[feedback_a_skipped_partition_reads_as_a_covered_one]]). TEETH PROVEN by --inject double-mint / ledger-delete / negative-consumer, each of which must turn the run RED. That teeth test caught ITSELF first: the injections originally fired at i=2, and 2 %% 6 = 2 is the provider-cancel path which never settles, so two of the three reported PASS while never executing - and double-mint turned out to be STRUCTURALLY impossible while the partial unique index stands, so it now drops that index first and asks whether the invariant would notice if the guarantee were ever removed. The daily row cap is announced past via the platform's own workhive.row_cap_system_write GUC and that is stated in the code rather than done silently: it is a real anti-abuse control with its own gate, it fired correctly on synthetic volume, and nothing else is bypassed.",
+        "group":   "Platform",
+        "severity": "fail",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "money-economy-board",
         "script":  "tools/money_economy_board.py",
         "args":    ["--check"],

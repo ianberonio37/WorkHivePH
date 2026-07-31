@@ -1,7 +1,7 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-07-31T07:16:17.932536+00:00",
-  "surfaces": 177,
+  "generated": "2026-07-31T07:22:54.196500+00:00",
+  "surfaces": 178,
   "rows": [
     {
       "id": "D1",
@@ -9,8 +9,8 @@
       "name": "RLS enabled on tenant tables",
       "satisfies": "tenant isolation floor",
       "mode": "measured",
-      "adopters_n": 106,
-      "need_n": 106,
+      "adopters_n": 107,
+      "need_n": 107,
       "pct": 100,
       "adopters": [
         "agent_episodic_memory",
@@ -106,6 +106,7 @@
         "resume_documents",
         "sensor_readings",
         "sensor_topic_map",
+        "service_payments",
         "service_providers",
         "service_requests",
         "shared_voice_notes",
@@ -128,8 +129,8 @@
       "name": "hive-membership scoping policy",
       "satisfies": "multitenant isolation",
       "mode": "measured",
-      "adopters_n": 100,
-      "need_n": 102,
+      "adopters_n": 101,
+      "need_n": 103,
       "pct": 98,
       "adopters": [
         "agent_episodic_memory",
@@ -220,6 +221,7 @@
         "resume_documents",
         "sensor_readings",
         "sensor_topic_map",
+        "service_payments",
         "service_requests",
         "shared_voice_notes",
         "shift_plans",
@@ -386,8 +388,8 @@
     }
   ],
   "floors": {
-    "D1": 106,
-    "D2": 100,
+    "D1": 107,
+    "D2": 101,
     "D3": 31,
     "D4": 56
   }
