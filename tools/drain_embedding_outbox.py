@@ -49,6 +49,26 @@ BACKOFF_SECONDS = "30 * power(2, greatest(attempts - 1, 0))"      # 30s, 60s, 12
 # destination nobody can change without a deploy. Defaults to local so nothing changes for development.
 EMBED_FN_URL = os.environ.get("WH_EMBED_FN_URL", "http://127.0.0.1:54321/functions/v1/embed-entry")
 
+# The SELF-HOSTED embedder, called DIRECTLY. This is the path that has put every correct vector in this
+# database (the host ingest tools use it), and going straight to it removes three failure modes the edge
+# function brought with it: a per-person 200/day rate limit that stalls any backfill, a provider chain that
+# fails over into a different vector space on a stumble, and a module cache that hides code fixes until a
+# restart. Config, never baked in — a deployed embedder just changes this URL.
+EMBED_URL = os.environ.get("WH_EMBED_URL", "http://127.0.0.1:8901/embed")
+MODEL_TAG = os.environ.get("WH_EMBED_MODEL_TAG", "bge-small-en-v1.5-local")
+
+# Per-target write map. The registry says WHICH table and WHICH conflict key; this says how a source row
+# becomes a knowledge row. Only surfaces whose map is here can use the direct path — the rest fall back to
+# the edge function, so adding a surface is additive and never silently half-wired.
+DIRECT_WRITE = {
+    "fault_knowledge": {
+        "source": "logbook",
+        "key": "logbook_id",
+        "cols": ["hive_id", "machine", "category", "problem", "root_cause", "action", "knowledge",
+                 "worker_name"],
+    },
+}
+
 
 def psql(sql, want_rows=True):
     try:
@@ -128,6 +148,55 @@ def embed_row(source_table, row_id, key):
         except Exception:
             detail = str(e)[:200]
         return False, detail
+
+
+def embed_direct(source_table, row_id, spec):
+    """Embed via the self-hosted server and write the knowledge row ourselves.
+
+    NO edge function in the path, so no per-person rate limit, no provider chain that can fail over into
+    another vector space, and no cached module hiding a fix. The relay is a host process; the embedder is on
+    the host. Asking a container to broker that was the source of every embedding problem found today.
+
+    The write is an UPSERT on the registry's conflict key, so a re-embed REPLACES — the same rule that keeps
+    the fault corpus free of the duplicates skill_knowledge accumulated.
+    """
+    m = DIRECT_WRITE[spec["target"]]
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            EMBED_URL, data=json.dumps({"texts": [spec["text"]]}).encode(),
+            headers={"Content-Type": "application/json"}, method="POST")
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            vec = (json.loads(resp.read().decode() or "{}").get("embeddings") or [None])[0]
+    except Exception as e:
+        return False, f"embedder unreachable: {str(e)[:140]}"
+    if not isinstance(vec, list) or len(vec) != 384:
+        # A wrong-shaped vector must NEVER be written: it would be a permanent, well-formed-looking row in
+        # no usable space — the exact failure class this session spent hours undoing.
+        return False, f"embedder returned bad shape: {len(vec) if isinstance(vec, list) else type(vec)}"
+
+    cols = ", ".join(m["cols"])
+    vlit = "'[" + ",".join(repr(float(x)) for x in vec) + "]'::vector"
+    # ANNOUNCE the bulk write. check_daily_row_cap is a per-user ABUSE cap (200/day) meant for a human
+    # clicking a button; a backfill is not that. The GUC is set per statement, in the caller's own code,
+    # so the bypass is visible at the site that uses it — and the cap stays fully in force everywhere else.
+    sql = f"""
+    set local workhive.row_cap_system_write = 'on';
+    insert into public.{spec['target']} ({m['key']}, {cols}, embedding, embedding_model)
+    select l.id, {', '.join('l.' + c for c in m['cols'])}, {vlit}, {lit(MODEL_TAG)}
+      from public.{m['source']} l
+     where l.id::text = {lit(row_id)}
+    on conflict ({m['key']}) do update
+       set embedding = excluded.embedding,
+           embedding_model = excluded.embedding_model,
+           {', '.join(f'{c} = excluded.{c}' for c in m['cols'])};
+    """
+    # `set local` only lives inside a transaction, so the announcement and the write travel together —
+    # the GUC cannot outlive the statement it was set for.
+    _, err = psql("begin;\n" + sql + "\ncommit;", want_rows=False)
+    if err:
+        return False, err[:180]
+    return True, ""
 
 
 def lit(s):
@@ -296,7 +365,8 @@ def main(argv):
             print(f"  {DIM}would embed {source_table}/{row_id} -> {spec['target']} "
                   f"({len(spec['text'])} chars, {spec['model']}){RST}")
             continue
-        ok, detail = embed_row(source_table, row_id, key)
+        ok, detail = (embed_direct(source_table, row_id, spec)
+                      if spec["target"] in DIRECT_WRITE else embed_row(source_table, row_id, key))
         finish(jid, ok, detail)
         if ok:
             embedded += 1
