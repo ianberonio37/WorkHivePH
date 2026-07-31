@@ -4416,7 +4416,7 @@
       "source": "authored",
       "kind": "journey",
       "lane": "journey",
-      "status": "banked",
+      "status": "quarantined",
       "authority": "member",
       "state": "populated",
       "path": "happy",
@@ -4433,7 +4433,12 @@
         "TEETH: WH_TB_FREEZE=1 parks the publisher and the watcher assertion goes RED - proven, not assumed"
       ],
       "walked": "2026-07-29, PASSED via the real page watchPosition path (not the db fallback)",
-      "note": "The tracker POLLS v_service_job_tracking every 10s (marketplace.html ~3584); it is not a Realtime channel. The cell asserts the repaint, which is the user-visible claim, whichever mechanism carries it."
+      "note": "The tracker POLLS v_service_job_tracking every 10s (marketplace.html ~3584); it is not a Realtime channel. The cell asserts the repaint, which is the user-visible claim, whichever mechanism carries it.",
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
+      }
     },
     {
       "id": "TB-S5-edge-push-delivery-roundtrip",
@@ -4495,7 +4500,7 @@
       "source": "authored",
       "kind": "journey",
       "lane": "journey",
-      "status": "banked",
+      "status": "quarantined",
       "authority": "member",
       "state": "populated",
       "path": "happy",
@@ -4517,6 +4522,11 @@
         "F6": "the offline degraded path: refused in words, and nothing written",
         "U4": "ERROR PROTECTION - the write is prevented before it fires rather than failing afterwards",
         "I6": "SAFE BY DEFAULT: the write is refused BEFORE it fires (17 user-triggered writes across both service pages, locked by the offline-write-guard gate), rather than being attempted and reported as a raw fetch error afterwards"
+      },
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
       }
     },
     {
@@ -5212,7 +5222,7 @@
         "MK5",
         "U3"
       ],
-      "status": "banked",
+      "status": "quarantined",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5226,6 +5236,11 @@
       "ufai_earned": {
         "U3": "the provider's screen stops asserting a job that no longer exists",
         "F6": "the DEGRADED path: work ends unexpectedly and the page reflects it rather than holding the last good state"
+      },
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
       }
     },
     {
@@ -5250,7 +5265,7 @@
         "MK5",
         "U3"
       ],
-      "status": "banked",
+      "status": "quarantined",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5262,6 +5277,11 @@
       "note": "Fixing this cost three further defects, each caught by a cell in this same file and none of them visible from reading the code: (1) the poll hammered a dead network while offline and repainted the pane as an error every 15s; (2) it repainted the pane out from under an OPEN tracker map, destroying it; (3) whLivePoll evaluated its condition only at arm time, so a condition that became false never stopped the timer. The helper now re-checks every tick and yields to an open tracker, which owns the refresh while it is up.",
       "ufai_earned": {
         "U3": "the status chip keeps pace with the provider - it had shown a stale label beside a MOVING map"
+      },
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
       }
     },
     {
@@ -5287,7 +5307,7 @@
         "MK5",
         "U3"
       ],
-      "status": "banked",
+      "status": "quarantined",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5300,6 +5320,11 @@
       "note": "The poll now arms while the provider is AVAILABLE (a hail can land) OR has a live job (its state can change under them). Worth noting how it was found: not by reading the code I had just written - I read it and thought it was right - but by walking the state I had not considered. A fix verified only in the case that motivated it is a fix with an untested half.",
       "ufai_earned": {
         "U3": "new work appears on a page already open, in the state the product exists for: online, waiting"
+      },
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
       }
     },
     {
@@ -5325,7 +5350,7 @@
         "MK1",
         "MK5"
       ],
-      "status": "banked",
+      "status": "quarantined",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5340,6 +5365,11 @@
       "note": "No poll was added here, deliberately. svcLoadPresence runs once and the design says why: the hint is ADDITIVE and 'silence is golden' - it renders nothing rather than a discouraging '0 providers' the client can do nothing about. Adding a third timer would have been inventing a requirement the design explicitly rejected; the assertable claim is that the number is TRUE when shown, not that it live-updates.",
       "ufai_earned": {
         "F2": "the rendered count EQUALS the view's total - a liquidity number that overstates would tell someone to wait for help that is not there"
+      },
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
       }
     },
     {
@@ -5374,7 +5404,7 @@
         "SJ-J27-dayplanner-job-lands",
         "SJ-J30-consumer-hail-instant"
       ],
-      "status": "banked",
+      "status": "quarantined",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5391,6 +5421,11 @@
       "ufai_earned": {
         "F5": "a full round trip across two parties: the client hails, the provider accepts on their own page, and the client's chip reads it back - plus the dayplan side-effect asserted",
         "U3": "the client's STATUS chip advances without a reload; the handoff is confirmed on the screen, not only in the row"
+      },
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
       }
     },
     {
@@ -5417,7 +5452,7 @@
         "MK5",
         "U3"
       ],
-      "status": "banked",
+      "status": "quarantined",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5430,6 +5465,11 @@
       "ufai_earned": {
         "F6": "the stranded party's degraded path - waiting for someone no longer coming",
         "U3": "the client's own card stops saying the provider accepted"
+      },
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
       }
     },
     {
@@ -5457,7 +5497,7 @@
         "MK5",
         "MK8"
       ],
-      "status": "banked",
+      "status": "quarantined",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5471,6 +5511,11 @@
       "ufai_earned": {
         "F5": "provider composes a price, client compares it - the round trip a quote journey is FOR",
         "I2": "the offer is writable only by the provider it names (proven in the SQL sibling), readable by the job's parties"
+      },
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
       }
     },
     {
@@ -6900,6 +6945,37 @@
         "the row SET is unchanged, so any difference would be a RANK change and not a silently dropped row"
       ],
       "provenance": "FOUND A REAL DEFECT. marketplace.html browsed with .order('created_at',{ascending:false}).limit(PAGE_SIZE); created_at alone is not a TOTAL order because a bulk import inside one transaction shares a fixed now(). Touching an unrelated column on one tied row moved 4 of 12 rows to a different rank with the row set identical, so under LIMIT a listing could be shown twice across a refresh or skipped between pages. Fixed by adding the unique id as a tiebreaker at all six paginated sites in marketplace.html; the experiment then reported rank_changed 4 -> 0. Today's seeded corpus has ZERO ties (21 listings, 21 distinct timestamps), so the probe INDUCES the tie - a naive version of this test would have passed forever while the defect sat there."
+    },
+    {
+      "id": "TB-MR5-paraphrase-invariance",
+      "source": "authored",
+      "kind": "metamorphic",
+      "journey": "J-voice-route",
+      "authority": "member",
+      "state": "populated",
+      "path": "happy",
+      "lane": "journey",
+      "oracle": "metamorphic",
+      "status": "banked",
+      "layers": [
+        "S1-ui",
+        "S5-edge",
+        "S7-ai"
+      ],
+      "dims": [
+        "AI1"
+      ],
+      "walked": "2026-07-31 live via tools/validate_voice_paraphrase_invariance.py (12 free-tier chain calls)",
+      "gate": "voice-paraphrase-invariance",
+      "ufai_earned": {
+        "F2": "an AI route is asserted as an INVARIANT across paraphrases plus a discrimination floor, rather than graded against an expected string"
+      },
+      "asserts": [
+        "MR5 paraphrase invariance: the same maintenance intent said three ways routes to the SAME kind from the closed vocabulary - measured live across 4 intents x 3 wordings",
+        "NON-VACUITY (discrimination): the 4 intents must NOT collapse to one kind - a constant classifier is PERFECTLY invariant and completely useless, so invariance alone would improve as the product got worse",
+        "expected-kind agreement is REPORTED, never enforced: there is no correct wording, and grading a free-tier model on exact output tests its mood rather than the property the product depends on"
+      ],
+      "provenance": "The last of the five MRs the §11 plan named, and the one the oracle mix most needed: the bank held 233 refusal cells and exactly one eval. The deterministic half of the router (kind allowlist, confidence clamp, slot-fill guard, asset disambiguation) was already locked by tests/voice-router-determinism.spec.ts against _shared/voice-router-core.ts - what no test could see is the CHOICE the model makes, which is exactly what a paraphrase perturbs. First live run: 4/4 groups invariant, 4 distinct kinds (discriminates), 4/4 also matching the humanly-expected kind. Skips rather than fails when the stack or model is unavailable, since an infrastructure absence is not a product defect."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

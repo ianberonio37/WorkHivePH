@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 250df3a68ceef1f8
+source_sha: 282d30f793683b62
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (709) — the 'what's already gated' brain
+## gate · registered validators (710) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (110)
+### AI Validation (111)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -117,6 +117,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `truth_view_security_invoker` [fail] — Arc G: truth-view security_invoker (read path respects RLS, no view RLS-bypass)
 - `view_security_invoker` [fail] — Arc G: view security_invoker (no view bypasses base-table RLS = cross-tenant read)
 - `visual_defect_confidence` ⚡ [fail] — AI Self-Improvement: Visual Defect Confidence
+- `voice-paraphrase-invariance` [fail] — VOICE PARAPHRASE INVARIANCE (MR5) — a worker says the same thing three ways; voice-action-router must pick the same `kind` from its closed vocabulary (logbook.c
 - `voice_alert_order` ⚡ [fail] — AI Self-Improvement: Voice Alert Order
 - `voice_kb_context` ⚡ [fail] — AI Self-Improvement: Voice Kb Context
 - `voice_response_latency` ⚡ [fail] — AI Self-Improvement: Voice Response Latency

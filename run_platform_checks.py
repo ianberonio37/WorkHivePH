@@ -460,6 +460,15 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "voice-paraphrase-invariance",
+        "script":  "tools/validate_voice_paraphrase_invariance.py",
+        "args":    [],
+        "label":   "VOICE PARAPHRASE INVARIANCE (MR5) — a worker says the same thing three ways; voice-action-router must pick the same `kind` from its closed vocabulary (logbook.create | inventory.deduct | pm.complete | asset.lookup | query.ask | unknown) all three times. The transform is a PARAPHRASE, the invariant is the route. This is an MR and NOT an eval on purpose: there is no correct wording, and asserting 'this sentence must yield logbook.create' grades a free-tier model's mood ([[feedback_llm_parrots_fewshot_example_codes]]), so expected-kind agreement is REPORTED and only the relation is enforced. THE NON-VACUITY HALF IS THE WHOLE DESIGN, and it is sharper here than in MR1-MR4: a CONSTANT CLASSIFIER IS PERFECTLY INVARIANT — a router answering 'unknown' to everything would score 100% while being useless — so the gate also requires DISCRIMINATION, that the intents do not all collapse to one kind. Invariance alone would have been a metric that improves as the product gets worse ([[feedback_a_metamorphic_relation_needs_a_non_vacuity_check]]). Live and deliberately so: the DETERMINISTIC half of the router (kind allowlist, confidence clamp, slot-fill guard, asset disambiguation) is already locked by tests/voice-router-determinism.spec.ts against _shared/voice-router-core.ts — what no static test can see is the CHOICE the model makes, which is exactly what a paraphrase perturbs. Reuses validate_ai_live_invoke's plumbing (anon-key discovery, persona sign-in, RUNTIME hive derivation so it survives a reseed) instead of restating it. ~12 free-tier chain calls per run against a 50/hour limit. SKIPS rather than fails when the stack is down, the persona cannot sign in, or the model is unavailable — an infrastructure absence is not a product defect. First live run: 4/4 groups invariant, 4 distinct kinds, 4/4 also matching the humanly-expected kind. Banked as TB-MR5-paraphrase-invariance.",
+        "group":   "AI Validation",
+        "severity": "fail",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "paginated-order-totality",
         "script":  "tools/validate_paginated_order_totality.py",
         "args":    [],

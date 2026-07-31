@@ -3519,12 +3519,41 @@ was deleted rather than carried ([[feedback_check_the_premise_before_building_th
 
 Every paged or truncated query on the platform now sorts deterministically, and the ratchet holds it at zero.
 
-### §15.3 · NEXT
+### §15.3 · MR5 · paraphrase invariance — P2 complete, and a non-vacuity check with real bite
 
-- **MR5 · triage paraphrase invariance** — the last of the plan's five MRs: paraphrasing the problem text must
-  not change the chosen **category**. This replaces the single `eval` cell's exact-match temptation, since the
-  vocabulary is the invariant and the wording is not
-  ([[feedback_llm_parrots_fewshot_example_codes]]).
-- **Chip the 162** — highest user-visible pagination first (feeds and lists a user actually pages through).
-- Then the §11 plan's **P3 breadth** (state inducers; the thin S2-pwa / S7-ai / S9-knowledge layers), noting the
-  CDC piece is already owned by `edge-caller-contract` and must not be re-implemented.
+The last of the five. A worker says the same thing three ways; `voice-action-router` must pick the same `kind`
+from its closed vocabulary (`logbook.create | inventory.deduct | pm.complete | asset.lookup | query.ask |
+unknown`). The transform is a **paraphrase**; the invariant is the **route**.
+
+**An MR, not an eval, on purpose.** There is no correct wording, and asserting *"this sentence must yield
+logbook.create"* grades a free-tier model's mood ([[feedback_llm_parrots_fewshot_example_codes]]). So
+expected-kind agreement is **reported** and only the relation is **enforced**.
+
+**The non-vacuity half is the whole design here, and it is sharper than MR1–MR4's: a CONSTANT CLASSIFIER IS
+PERFECTLY INVARIANT.** A router answering `unknown` to everything scores 100% on paraphrase invariance while
+being useless — so the gate also demands **discrimination**: the intents must not all collapse to one kind.
+Without it, this would have been a metric that *improves as the product gets worse*.
+
+**Live and deliberately so.** The deterministic half of the router — kind allowlist, confidence clamp,
+slot-fill guard, asset disambiguation — is already locked by `tests/voice-router-determinism.spec.ts` against
+`_shared/voice-router-core.ts`. What no static test can see is the **choice the model makes**, which is exactly
+what a paraphrase perturbs. The probe reuses `validate_ai_live_invoke`'s plumbing (anon-key discovery, persona
+sign-in, runtime hive derivation so it survives a reseed) rather than restating it, and **skips** rather than
+fails when the stack or model is unavailable — an infrastructure absence is not a product defect.
+
+First live run (12 free-tier calls): **4/4 groups invariant · 4 distinct kinds (discriminates) · 4/4 also
+matching the humanly-expected kind.** Registered as `voice-paraphrase-invariance` (`skip_if_fast`), banked as
+`TB-MR5-paraphrase-invariance`.
+
+**P2 is now complete — all five MRs built.** The oracle mix moved from one `metamorphic` cell to three
+(MR1–MR3 in one cell, MR4, MR5), and the two the plan predicted would find things both did: MR4 found a real
+ordering defect, MR5 established a property no refusal test could express.
+
+### §15.4 · NEXT
+
+- The §11 plan's **P3 breadth** — state inducers (`filtered0` / `error` / `degraded`), and the thin
+  **S2-pwa / S7-ai / S9-knowledge** layers (1 cell each). Note the CDC piece is already owned by
+  `edge-caller-contract` and must **not** be re-implemented.
+- **`state` is still `None` on 234 of 302 cells** — the inducers above are what make that field mean something
+  rather than being back-filled by hand.
+- Ian-gated and outward: the push, and the prod deploy of the five LOCAL-only security migrations.

@@ -1,0 +1,43 @@
+{
+  "validator": "voice_paraphrase_invariance",
+  "groups": [
+    {
+      "expect": "logbook.create",
+      "kinds": [
+        "logbook.create",
+        "logbook.create",
+        "logbook.create"
+      ],
+      "invariant": true
+    },
+    {
+      "expect": "inventory.deduct",
+      "kinds": [
+        "inventory.deduct",
+        "inventory.deduct",
+        "inventory.deduct"
+      ],
+      "invariant": true
+    },
+    {
+      "expect": "pm.complete",
+      "kinds": [
+        "pm.complete",
+        "pm.complete",
+        "pm.complete"
+      ],
+      "invariant": true
+    },
+    {
+      "expect": "asset.lookup",
+      "kinds": [
+        "asset.lookup",
+        "asset.lookup",
+        "asset.lookup"
+      ],
+      "invariant": true
+    }
+  ],
+  "discriminates": true,
+  "expected_agreement": 4
+}
