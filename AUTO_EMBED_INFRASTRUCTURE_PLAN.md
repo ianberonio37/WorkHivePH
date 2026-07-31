@@ -151,3 +151,45 @@ than a new script. It is a **deliberate, costed run**, never something a gate pe
 - **What production's own embed triggers should do** — they are still live there and still fire-and-forget.
 - Whether P1 ships behind the outbox *before* the backfill, or the backfill runs first on the current path.
   Recommendation: **spine first**, so the backfill lands into something that keeps it true.
+
+## §10 · OWN EMBEDDER — Ian's correction, and the split-space it exposed
+
+> **Ian, 2026-07-31:** *"what I mean we should have our own, not relying on external llm embedders."*
+
+**We already own it, and it is already running.** `tools/embed_server.py` serves fastembed
+`BAAI/bge-small-en-v1.5` (384d) on `:8901` — `{"ok": true, "model": "bge-small-en-v1.5", "dim": 384}` — with
+**no rate limit**. So the backfill I framed as "a costed decision needing ~5,400 free-tier calls" is not costed
+at all: it is local CPU time. That framing was wrong and is withdrawn.
+
+**But measuring which space each corpus is in found a live split:**
+
+| corpus | rows | embedding_model |
+|---|---:|---|
+| `fault_knowledge` | 534 | `bge-small-en-v1.5-local` ✅ |
+| `pm_knowledge` | 1 | `nomic-embed-text-v1_5` ❌ |
+
+The 534 fault rows are in **our** space because they were written by a HOST script
+(`reembed_fault_knowledge.py` → `127.0.0.1:8901`). The pm row went through the **edge function**, whose chain
+is configured correctly (`BGE_EMBED_URL=http://host.docker.internal:8901/embed`, `SUPABASE_URL=http://kong:8000`
+→ `_IS_LOCAL_EMBED` true → primary `bge-local`) — and still answered from **nomic**, so the bge-local call
+failed at runtime and the chain failed over. That is precisely the SPLIT-SPACE bug
+([[feedback_bge_local_false_ceiling_own_embedder]] and the ai-engineer chain lesson): a vector in a foreign
+space is not merely useless, it is *silently* useless — cosine returns noise with no error.
+
+The foreign-space row was deleted rather than kept, and `pm_completions`/`skill_badges` were returned to
+`active=false`. **A surface must be in the right space before it is wired**, exactly as it must be upsertable
+before it is wired (§P2).
+
+### §10.1 · The architectural consequence — embed in the RELAY, not the edge function
+
+The relay is a **host process**. It can call `127.0.0.1:8901` directly, the same path that put 534 fault rows
+in the correct space, instead of asking a container to reach back out to the host. That removes the failure
+entirely rather than debugging container→host networking, and it matches Ian's requirement more literally:
+**our own embedder, in our own process, with no external provider chain in the path.**
+
+The edge function keeps its role for browser-initiated embeds; the outbox relay stops depending on it.
+
+**NEXT:** (1) embed in the relay via `127.0.0.1:8901`, writing the knowledge row directly with
+`embedding_model='bge-small-en-v1.5-local'` and the registry's conflict key; (2) a gate asserting every corpus
+holds exactly ONE `embedding_model` — the split above would have been caught the day it happened; (3) then the
+backfill, which is now free.
