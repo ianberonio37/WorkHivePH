@@ -1,0 +1,5 @@
+{
+  "no_geo": 1,
+  "total_at_baseline": 12,
+  "_doc": "Forward-only: the count of hails with no location may never RISE. Ratchets DOWN if geo capture is added; goes red if a new geo-less write path appears."
+}

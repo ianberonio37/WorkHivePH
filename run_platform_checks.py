@@ -511,6 +511,14 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "hail-geo-coverage",
+        "script":  "tools/validate_hail_geo_coverage.py",
+        "args":    [],
+        "label":   "HAIL GEO COVERAGE - is the broadcast radius filtering anything? FOUND ON A LIVE CLIENT WALK 2026-08-01: a hail placed through the real UI lands with location IS NULL, because the form asks for a free-text address and never captures a point (there is no getCurrentPosition anywhere in marketplace.html). That is not cosmetic - the accept gate reads `if v_req.location is not null and v_provider.base_location is not null and not st_dwithin(...)`, so a NULL location makes the whole distance test SKIP while the request still carries broadcast_radius_m=5000 and the UI still speaks of notifying NEARBY providers. The number is displayed and inert, and a provider on the far side of the country is as eligible as one next door. IT STAYED HIDDEN BECAUSE THE SEED DATA IS HEALTHIER THAN THE PRODUCT: every seeded request carries geo, so probes, journeys and scoreboards all see a working radius, and only a hail created through the real form exposes it - the mirror of the dead-fixture class, where seeded state invents a reality the product does not have. This gate deliberately does NOT fail the build for the missing capture: obtaining a client's coordinates needs either a browser geolocation PROMPT or an external geocoder, and both are product/privacy decisions that belong to Ian rather than to a validator. What it does is make the gap MEASURED and FORWARD-ONLY - the count of geo-less hails may never RISE, so it ratchets toward zero if capture is ever added and goes red the day someone adds another geo-less write path. Self-test proves the arithmetic (an inert radius is reported, a fully-geocoded set is not) without touching the database.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
         "id":      "credit-solvency",
         "script":  "tools/validate_credit_solvency.py",
         "args":    [],
