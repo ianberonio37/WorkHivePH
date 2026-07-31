@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:621-files
-source_sha: 3d8eeb57cef50845
+source: memory-curated:622-files
+source_sha: 6030eae89e043047
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (621 durable topic files)
+## memory · curated auto-memory (622 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=243 · project=289 · reference=89
+**By type:** feedback=244 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -172,6 +172,7 @@ Entries (name · type · sha):
 - `feedback_ops_views_over_granted_to_anon` · feedback · 6f422d53c4a320f5
 - `feedback_overloaded_word_draft_nearly_mislabelled_user_work` · feedback · c2bec0a1dc682c83
 - `feedback_p6_disposition_gate_and_double_submit` · feedback · 7dfd86aae044c473
+- `feedback_paginated_order_must_be_total` · feedback · 1635a366ddf63c13
 - `feedback_pandas_iso8601_silent_99pct_data_loss` · feedback · e33cd3b6a8e29c62
 - `feedback_pasted_keys_in_docs_leak_scanner_blindspot` · feedback · f48a9c2ba719f44c
 - `feedback_pdda_page_deep_arc` · feedback · f5ff12390b2bea42
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_streamline_E2_rollout_2026_06_14` · project · 15cf41613cb97ba8
 - `project_streamline_E2_states_2026_06_14` · project · f7a32a49dd3ab0d2
 - `project_streamline_E3_axe_ratchet_2026_06_14` · project · 76c511fa09c70db2
-- `project_streamline_E4_design_tokens_2026_06_14` · project · 0d64bba2e80f4953
-- … +121 more (all included in the fingerprint)
+- … +122 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

@@ -3491,8 +3491,33 @@ Three decisions worth keeping:
    known-bad chain, accepting a known-good one, and treating `.limit(1)` as pagination. `main()` refuses to
    report a count at all if its own self-test fails.
 
-The 162 are a **named backlog, not an averaged-away number**: the fix is always the same single line, and the
-ratchet means no NEW ambiguous pagination can land while it is worked down.
+### §15.2a · The backlog was not left as a backlog — 162 → 0
+
+The 162 were swept the same session, in three passes, each verified rather than assumed:
+
+| pass | what | result |
+|---|---|---|
+| 1 | 143 sites whose relation has an `id` (64 of 74 relations, checked against `information_schema`) | 162 → 19 |
+| 2 | 14 sites on the id-less `v_*_truth` views, each with its **measured** key (`alert_id` 128/128, `fmea_mode_id` 245/245, `pm_asset_id` 91/91, …) | 19 → 5 |
+| 3 | the last 5, on `v_risk_truth` | 5 → **0** |
+
+**The sweep proved itself arithmetically.** `162 − 143 = exactly 19` means every insertion landed INSIDE its
+intended chain — a stray edit would have left that chain still flagged. Backed by `js-syntax-sanity` PASS, zero
+double tiebreakers, and zero insertions not immediately followed by their pager (both scanned for explicitly).
+
+**Measuring, not name-matching, is what made pass 2 safe.** `v_risk_truth.asset_id` looks exactly like a key
+and is not one — 97 rows, 74 distinct, because 23 rows carry a NULL `asset_id`. Had the keys been inferred from
+column names, five queries would have been "fixed" with a column that ties.
+
+**And then the premise-check overturned my own conclusion.** I had already written `v_risk_truth` down as
+UNORDERABLE — *"no unique combination of exposed columns, needs a migration"* — since every id-shaped candidate
+failed. Reading the view instead of guessing dissolved it: it is `SELECT DISTINCT ON (rs.hive_id,
+rs.asset_name) n.id AS asset_id, …`, so **(hive_id, asset_name) is its key by construction** (97/97 verified),
+and `asset_id` is merely a LEFT JOIN column that is NULL where no approved asset node matches. All five callers
+are `.eq('hive_id', …)`-scoped, so `asset_name` alone is total for them. No migration, and the UNORDERABLE list
+was deleted rather than carried ([[feedback_check_the_premise_before_building_the_pattern]]).
+
+Every paged or truncated query on the platform now sorts deterministically, and the ratchet holds it at zero.
 
 ### §15.3 · NEXT
 

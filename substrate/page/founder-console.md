@@ -2,13 +2,13 @@
 name: page-founder-console
 type: page
 source: file:founder-console.html
-source_sha: f0882ce8e6d10ac6
+source_sha: 7970fc9484380bc3
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `founder-console.html` — WorkHive Founder Console
 
-Size: 155KB · 52 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 156KB · 52 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (7): `marketplace_disputes.update`, `marketplace_listings.update`, `marketplace_sellers.update`, `platform_feedback.update`, `service_credit_topups.update`, `service_vouchers.insert`, `service_vouchers.update`
 **RPC calls**: (none)
