@@ -234,8 +234,10 @@ function orderedProviders(primary: string): EmbeddingProvider[] {
  * specific model (e.g. "gemini" for persona_knowledge); omit it for the global
  * default. Throws if no provider has a valid key OR every configured one failed.
  */
-export async function generateEmbedding(text: string, pin?: string): Promise<number[]> {
-  return (await generateEmbeddingTagged(text, pin)).vector;
+export async function generateEmbedding(
+  text: string, pin?: string, opts?: { strict?: boolean },
+): Promise<number[]> {
+  return (await generateEmbeddingTagged(text, pin, opts)).vector;
 }
 
 /** Like generateEmbedding but also returns the provider that answered, so a
@@ -243,14 +245,28 @@ export async function generateEmbedding(text: string, pin?: string): Promise<num
 export async function generateEmbeddingTagged(
   text: string,
   pin?: string,
+  opts?: { strict?: boolean },
 ): Promise<{ vector: number[]; provider: string }> {
   if (!text || !text.trim()) {
     throw new Error("Cannot embed empty text");
   }
   const wanted = (pin || EMBEDDING_PRIMARY).toLowerCase();
 
+  // STRICT = INGEST. Failover is safe for a READ and poison for a WRITE: a degraded answer lasts one
+  // response, but a persisted vector in a foreign space is permanent, well-formed, non-null, and therefore
+  // indistinguishable downstream from a good one. That is how this corpus was poisoned TWICE in one session
+  // by a pipeline reporting success both times — 717 rows, then 241 more after the address was fixed, because
+  // the embedder merely stumbled under load and the chain dutifully walked to the next provider.
+  //
+  // So an ingest caller passes strict:true and gets ONE provider: the pinned one. If it cannot answer, this
+  // THROWS, the outbox marks the job failed, and the backoff retries it later. A queued row is recoverable;
+  // a foreign-space row is not. Query paths keep the full chain — there, an answer beats no answer.
+  const candidates = opts?.strict
+    ? ALL_PROVIDERS.filter((p) => p.name === wanted)
+    : orderedProviders(wanted);
+
   const errors: string[] = [];
-  for (const provider of orderedProviders(wanted)) {
+  for (const provider of candidates) {
     // bge-local's "key" is its URL (env or local default), not a secret in Deno.env.
     const apiKey = provider.name === "bge-local" ? BGE_EMBED_URL : Deno.env.get(provider.envKey);
     if (!apiKey || apiKey.startsWith("PASTE_")) {

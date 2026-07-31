@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:456
-source_sha: 9f1885e250681257
+source: dir:supabase/migrations:457
+source_sha: 62e00b7ca5c5e7cd
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (456 migrations)
+## migration · catalog (457 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260705000000_q0_logbook_quota_pilot` — fns:cap_logbook_text_fields,check_logbook_rate_limit · triggers:trg_logbook_rate_limit,trg_logbook_text_caps · tables:hive_quotas
 - `20260705000001_q2_high_write_daily_caps` — fns:check_daily_row_cap · triggers:trg_daily_cap_asset_nodes,trg_daily_cap_comm_posts,trg_daily_cap_comm_replies,trg_daily_cap_inv_items,trg_daily_cap_inv_tx,trg_daily_cap_pm_comp
 - `20260705000002_q3_server_text_caps` — fns:cap_asset_nodes_text,cap_inventory_items_text,cap_inventory_transactions_text,cap_marketplace_inquiries_text,cap_marketplace_listings_text,cap_marketplace_sellers_text · triggers:trg_text_caps_asset_nodes,trg_text_caps_inv_items,trg_text_caps_inv_tx,trg_text_caps_mkt_inquiries,trg_text_caps_mkt_listings,trg_text_caps_mkt_sellers
 - `20260705000003_q4_daily_ai_ceiling` — fns:cap_pdf_job_size · triggers:trg_cap_pdf_job_size,trg_daily_cap_pdf_jobs · tables:ai_rate_limits,ai_user_rate_limits
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260731000001_resolve_membership_by_auth_uid_not_display_name` — (misc DDL/DML)
 - `20260731000002_embedding_outbox_spine` — fns:enqueue_for_embedding · triggers:trg_embed_outbox_logbook · tables:embedding_outbox,embedding_registry
 - `20260731000003_embed_outbox_pm_and_skills` — (misc DDL/DML)
+- `20260731000004_drop_stale_embedding_model_default` — tables:fault_knowledge,pm_knowledge,skill_knowledge
 
 (showing last 200)
 

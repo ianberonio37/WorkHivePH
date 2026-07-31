@@ -10,7 +10,7 @@ import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
 import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
-import { generateEmbedding } from "../_shared/embedding-chain.ts";
+import { generateEmbeddingTagged } from "../_shared/embedding-chain.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -137,6 +137,10 @@ serveObserved("embed-entry", async (req) => {
       }
     }
 
+    // The provider that ACTUALLY answered, recorded on the row. The column used to carry a DEFAULT of
+    // 'nomic-embed-text-v1_5' while nothing wrote it, so every row claimed a model that is not even in the
+    // chain — a label nobody was making. Migration 20260731000004 dropped that default; this states the truth.
+    let _emb: { vector: number[]; provider: string } = { vector: [], provider: "" };
     let embedding: number[];
     let table: string;
     let row: Record<string, unknown>;
@@ -162,7 +166,7 @@ serveObserved("embed-entry", async (req) => {
         console.warn('embed-entry: skipping near-empty fault entry (' + text.length + ' chars) — insufficient context for semantic retrieval');
         return new Response(JSON.stringify({ skipped: true, reason: 'insufficient_content', text_length: text.length }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
-      embedding = await generateEmbedding(text);
+      embedding = (_emb = await generateEmbeddingTagged(text, undefined, { strict: true })).vector;
       table = "fault_knowledge";
       conflictKey = "logbook_id";   // re-embed on edit REPLACES (uidx 20260708000002), no dup
       row = {
@@ -188,7 +192,7 @@ serveObserved("embed-entry", async (req) => {
         entry.primary_skill && `Primary expertise: ${entry.primary_skill}`,
       ].filter(Boolean).join(". ");
 
-      embedding = await generateEmbedding(text);
+      embedding = (_emb = await generateEmbeddingTagged(text, undefined, { strict: true })).vector;
       table = "skill_knowledge";
       // UPSERT, not insert. Without a conflict key every re-embed APPENDED a row: skill_knowledge reached
       // 28 rows for 4 distinct (hive_id, worker_name, discipline) — ~86% duplicates, each stale copy
@@ -219,7 +223,7 @@ serveObserved("embed-entry", async (req) => {
         return new Response(JSON.stringify({ skipped: true, reason: "insufficient_content", text_length: text.length }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
-      embedding = await generateEmbedding(text);
+      embedding = (_emb = await generateEmbeddingTagged(text, undefined, { strict: true })).vector;
       table = "project_knowledge";
       row = {
         hive_id:      hive_id || null,
@@ -252,7 +256,7 @@ serveObserved("embed-entry", async (req) => {
         healthSummary,
       ].filter(Boolean).join(". ");
 
-      embedding = await generateEmbedding(text);
+      embedding = (_emb = await generateEmbeddingTagged(text, undefined, { strict: true })).vector;
       table = "pm_knowledge";
       // UPSERT on the ASSET, because pm_knowledge is an asset-level summary (asset_name, category,
       // overdue_count, last_completed) rather than a per-completion record — 1,591 completions must
@@ -282,6 +286,13 @@ serveObserved("embed-entry", async (req) => {
     // UPSERT on the source key (fault: logbook_id) so a re-embed on edit REPLACES the
     // prior embedding instead of adding a stale duplicate; INSERT for types with no
     // source-unique key yet.
+    // STATE the provider that answered. The column previously took a DEFAULT while nothing wrote it, so
+    // every row claimed 'nomic-embed-text-v1_5' — a model absent from the chain. A label nobody writes is a
+    // label nobody can trust, and it sent today's investigation down the wrong path entirely.
+    // bge-local reports as the self-host tag the ingest tools and the healing sweep already use, so all
+    // three writers agree on one string for one space.
+    row.embedding_model = _emb.provider === "bge-local" ? "bge-small-en-v1.5-local" : _emb.provider;
+
     const { error } = conflictKey
       ? await db.from(table).upsert(row, { onConflict: conflictKey })
       : await db.from(table).insert(row);
