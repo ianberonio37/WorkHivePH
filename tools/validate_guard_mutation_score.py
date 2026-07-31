@@ -1098,9 +1098,34 @@ def main(argv):
     # operators or fake the baseline, which is the ratchet-that-turns-both-ways trap
     # ([[feedback_a_ratchet_that_turns_both_ways]], [[feedback_short_denominator_is_a_false_100]]).
     grew = base_viable is not None and denom > base_viable
-    if base_killed is not None and total_k < base_killed:
-        print(f"  {RED}FAIL{RST} — the bank now catches FEWER faults: {base_killed} -> {total_k} killed. "
-              f"That is a real regression regardless of the percentage.")
+
+    # THE MIRROR OF "SCOPE GREW": the mutation space can also SHRINK because the CODE changed, and that is
+    # not lost teeth. Found 2026-07-31 — `guard_service_request_status` legitimately gained 'settled' as a
+    # dispute origin (a settled job could not be disputed at all before, so failure mode 4 had no path), and
+    # the `state_list_widened` operator injects exactly VOCAB_EXTRA = 'settled' into `old.status in (...)`.
+    # The mutant became a NO-OP: the list already contains it. So viable AND killed both fell by one, the
+    # score stayed 100%, and nothing slipped through — yet the flat `killed < base_killed` rule called it a
+    # regression. Same shape as [[feedback_a_gate_reddened_because_the_code_improved]].
+    #
+    # The bar is deliberately narrow, because "the code absorbed it" is an easy thing to lie with: the drop
+    # in kills must be EXACTLY the drop in viable (nothing else moved), the score must not fall, and there
+    # must be ZERO survivors. A single survivor, or a kill lost while the denominator held, is still a FAIL.
+    shrank_equivalently = (
+        base_killed is not None and base_viable is not None
+        and total_k < base_killed
+        and (base_killed - total_k) == (base_viable - denom)
+        and overall >= base
+        and total_s == 0
+    )
+    if shrank_equivalently:
+        print(f"  {YEL}note{RST}  the mutation SPACE shrank {base_viable} -> {denom} because the CODE "
+              f"changed: a mutant this operator used to inject is now a no-op on the real source, so it is "
+              f"no longer viable. Kills fell by exactly the same one ({base_killed} -> {total_k}), the "
+              f"score held at {overall}%, and NO mutant survived — teeth absorbed, not lost.")
+    elif base_killed is not None and total_k < base_killed:
+        print(f"  {RED}FAIL{RST} — the bank now catches FEWER faults: {base_killed} -> {total_k} killed "
+              f"(viable {base_viable} -> {denom}, survivors {total_s}). That is a real regression regardless "
+              f"of the percentage.")
         return 1
     if overall < base and not grew:
         print(f"  {RED}FAIL{RST} — mutation score REGRESSED {base}% -> {overall}% at an unchanged operator "

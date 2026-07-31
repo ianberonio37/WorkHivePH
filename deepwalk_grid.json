@@ -1,7 +1,7 @@
 {
- "generated": "2026-07-31T01:11:25+00:00",
- "coverage_pct": 96.6,
- "page_pct": 95.9,
+ "generated": "2026-07-31T08:27:24+00:00",
+ "coverage_pct": 100.0,
+ "page_pct": 100.0,
  "ai_surface_pct": 100.0,
  "surfaces": {
   "pages": 90,
@@ -42,9 +42,9 @@
  ],
  "cells_total": 2154,
  "state_counts": {
-  "✅": 1203,
+  "✅": 1245,
   "🟡": 0,
-  "⬜": 42,
+  "⬜": 0,
   "n/a": 909
  },
  "gate_floor": [
@@ -95,23 +95,10 @@
   "validate_supervisor_approval_backstop",
   "validate_sw_shell_membership"
  ],
- "gates_failed": [
-  "validate_rls_tenant_isolation"
- ],
- "regressed_cells": [
-  "validate_rls_tenant_isolation"
- ],
- "next_target": {
-  "surface": "architecture",
-  "kind": "page",
-  "dim": "D8",
-  "dim_label": "rls/tenant-isolation + BOLA",
-  "surface_pct": 93.3,
-  "open_dims": [
-   "D8"
-  ]
- },
- "drive_plan": "Playwright-walk `architecture.html` for D8 (rls/tenant-isolation + BOLA): operate the affordance live, assert at the DATA layer via mcp__postgres__query, flywheel any miss, then tag+lock a validator `# DEEPWALK-CELL: architecture D8`.",
+ "gates_failed": [],
+ "regressed_cells": [],
+ "next_target": null,
+ "drive_plan": "grid DRY — nothing to drive",
  "orphan_oracles": [
   "ai_eval_gate",
   "audit_ai_prompt_standards",
@@ -201,13 +188,16 @@
   "validate_client_write_grants",
   "validate_cmms_import_rollback",
   "validate_cmms_webhook_security_live",
+  "validate_commission_leakage",
   "validate_committed_env_secret",
   "validate_companion_output_escaping",
   "validate_corrective_definition_parity",
+  "validate_credit_solvency",
   "validate_cron_batch_gate",
   "validate_cron_health",
   "validate_crud_rollback",
   "validate_csp",
+  "validate_d9_knob_integrity",
   "validate_data_completeness",
   "validate_debug_echo_prod_safe",
   "validate_degraded_state_central",
@@ -218,6 +208,7 @@
   "validate_embed_auth",
   "validate_embedding_chain_consistency",
   "validate_embedding_retention",
+  "validate_embedding_space_integrity",
   "validate_empty_state_discrimination",
   "validate_engdesign_a11y",
   "validate_engdesign_ai",
@@ -258,10 +249,12 @@
   "validate_inventory_txn_isolation",
   "validate_journey_ux_dims",
   "validate_jsonld_truth",
+  "validate_knowledge_is_retrievable",
   "validate_landing",
   "validate_leave_audit_ordering",
   "validate_lifecycle_state_reachability",
   "validate_lineage_status_drift",
+  "validate_local_triggers_dont_call_prod",
   "validate_logbook_quota",
   "validate_login_proxy_lockout",
   "validate_marketplace_bank_journey",
@@ -292,6 +285,7 @@
   "validate_payment_disclosure",
   "validate_persona_echo_live",
   "validate_persona_knowledge_wiring",
+  "validate_persona_task_success",
   "validate_ph_intelligence_benchmark",
   "validate_pm_compliance_weighted",
   "validate_pm_frequency_mapping",
@@ -357,6 +351,7 @@
   "validate_voice_alert_order",
   "validate_voice_journal_single_write",
   "validate_voice_kb_context",
+  "validate_voice_paraphrase_invariance",
   "validate_voice_response_latency",
   "validate_workflow_states_present",
   "video_quality_gate",
@@ -366,8 +361,9 @@
  "surface_set_hash": "9f26fa121503",
  "oracle_set_hash": "58ef82d9dc70",
  "live_bonus": {
-  "live_cells": 26,
+  "live_cells": 28,
   "live_cell_ids": [
+   "H1/F",
    "H1/I",
    "H1/M",
    "H1/U",
@@ -393,13 +389,14 @@
    "H7/F",
    "H7/U",
    "H8/A",
-   "H8/I"
+   "H8/I",
+   "H9/F"
   ],
   "breaches": 0,
   "fresh": true,
-  "age_days": 1.1,
+  "age_days": 0.3,
   "proven_ever": 32,
-  "this_run": 26
+  "this_run": 28
  },
  "cells": {
   "achievements|D1": {
@@ -438,10 +435,9 @@
    "locked": true
   },
   "achievements|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "achievements|D9": {
    "state": "✅",
@@ -534,10 +530,9 @@
    "locked": true
   },
   "agentic-rag-observability|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "agentic-rag-observability|D9": {
    "state": "✅",
@@ -630,10 +625,9 @@
    "locked": true
   },
   "ai-quality|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "ai-quality|D9": {
    "state": "✅",
@@ -728,10 +722,9 @@
    "locked": true
   },
   "alert-hub|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "alert-hub|D9": {
    "state": "✅",
@@ -826,10 +819,9 @@
    "locked": true
   },
   "analytics-report|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "analytics-report|D9": {
    "state": "✅",
@@ -928,10 +920,9 @@
    "locked": true
   },
   "analytics|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "analytics|D9": {
    "state": "✅",
@@ -1030,10 +1021,9 @@
    "locked": true
   },
   "architecture|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "architecture|D9": {
    "state": "✅",
@@ -1126,10 +1116,9 @@
    "locked": true
   },
   "asset-hub|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "asset-hub|D9": {
    "state": "✅",
@@ -1232,10 +1221,9 @@
    "locked": true
   },
   "assistant|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "assistant|D9": {
    "state": "✅",
@@ -1336,10 +1324,9 @@
    "locked": true
   },
   "audit-log|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "audit-log|D9": {
    "state": "✅",
@@ -1434,10 +1421,9 @@
    "locked": true
   },
   "community|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "community|D9": {
    "state": "✅",
@@ -1532,10 +1518,9 @@
    "locked": true
   },
   "dayplanner|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "dayplanner|D9": {
    "state": "✅",
@@ -1628,10 +1613,9 @@
    "locked": true
   },
   "design-system|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "design-system|D9": {
    "state": "✅",
@@ -1724,10 +1708,9 @@
    "locked": true
   },
   "engineering-design|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "engineering-design|D9": {
    "state": "✅",
@@ -1820,10 +1803,9 @@
    "locked": true
   },
   "founder-console|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "founder-console|D9": {
    "state": "✅",
@@ -1918,10 +1900,9 @@
    "locked": true
   },
   "hive|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "hive|D9": {
    "state": "✅",
@@ -2024,10 +2005,9 @@
    "locked": true
   },
   "index|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "index|D9": {
    "state": "✅",
@@ -2122,10 +2102,9 @@
    "locked": true
   },
   "integrations|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "integrations|D9": {
    "state": "✅",
@@ -2222,10 +2201,9 @@
    "locked": true
   },
   "inventory|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "inventory|D9": {
    "state": "✅",
@@ -2320,10 +2298,9 @@
    "locked": true
   },
   "llm-observability|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "llm-observability|D9": {
    "state": "✅",
@@ -2416,10 +2393,9 @@
    "locked": true
   },
   "logbook|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "logbook|D9": {
    "state": "✅",
@@ -2522,10 +2498,9 @@
    "locked": true
   },
   "marketplace-admin|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "marketplace-admin|D9": {
    "state": "✅",
@@ -2620,10 +2595,9 @@
    "locked": true
   },
   "marketplace-seller-profile|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "marketplace-seller-profile|D9": {
    "state": "✅",
@@ -2718,10 +2692,9 @@
    "locked": true
   },
   "marketplace-seller|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "marketplace-seller|D9": {
    "state": "✅",
@@ -2816,10 +2789,9 @@
    "locked": true
   },
   "marketplace|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "marketplace|D9": {
    "state": "✅",
@@ -2918,10 +2890,9 @@
    "locked": true
   },
   "offline-fallback|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "offline-fallback|D9": {
    "state": "✅",
@@ -3016,10 +2987,9 @@
    "locked": true
   },
   "ph-intelligence|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "ph-intelligence|D9": {
    "state": "✅",
@@ -3114,10 +3084,9 @@
    "locked": true
   },
   "plant-connections|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "plant-connections|D9": {
    "state": "✅",
@@ -3212,10 +3181,9 @@
    "locked": true
   },
   "platform-actions|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "platform-actions|D9": {
    "state": "✅",
@@ -3310,10 +3278,9 @@
    "locked": true
   },
   "pm-scheduler|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "pm-scheduler|D9": {
    "state": "✅",
@@ -3410,10 +3377,9 @@
    "locked": true
   },
   "project-manager|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "project-manager|D9": {
    "state": "✅",
@@ -3514,10 +3480,9 @@
    "locked": true
   },
   "project-report|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "project-report|D9": {
    "state": "✅",
@@ -3616,10 +3581,9 @@
    "locked": true
   },
   "promo-poster|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "promo-poster|D9": {
    "state": "✅",
@@ -3710,10 +3674,9 @@
    "locked": true
   },
   "public-feed|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "public-feed|D9": {
    "state": "✅",
@@ -3806,10 +3769,9 @@
    "locked": true
   },
   "report-sender|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "report-sender|D9": {
    "state": "✅",
@@ -3910,10 +3872,9 @@
    "locked": true
   },
   "resume|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "resume|D9": {
    "state": "✅",
@@ -4008,10 +3969,9 @@
    "locked": true
   },
   "shift-brain|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "shift-brain|D9": {
    "state": "✅",
@@ -4114,10 +4074,9 @@
    "locked": true
   },
   "skillmatrix|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "skillmatrix|D9": {
    "state": "✅",
@@ -4210,10 +4169,9 @@
    "locked": true
   },
   "status|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "status|D9": {
    "state": "✅",
@@ -4306,10 +4264,9 @@
    "locked": true
   },
   "symbol-gallery|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "symbol-gallery|D9": {
    "state": "✅",
@@ -4400,10 +4357,9 @@
    "locked": true
   },
   "validator-catalog|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "validator-catalog|D9": {
    "state": "✅",
@@ -4498,10 +4454,9 @@
    "locked": true
   },
   "voice-journal|D8": {
-   "state": "⬜",
-   "oracle": "validate_rls_tenant_isolation",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_definer_tenant_gate",
+   "locked": true
   },
   "voice-journal|D9": {
    "state": "✅",
@@ -9403,7 +9358,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": -3.4,
+ "delta_vs_last": 3.4,
  "dry_streak": 0,
  "dry": false
 }

@@ -18,7 +18,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | frontend | 20 | 91% | 54 |
 | mobile-maestro | 7 | 83% | 6 |
 | qa-tester | 6 | 96% | 9 |
-| security | 14 | 95% | 9 |
+| security | 14 | 95% | 11 |
 
 ## Critical / high-severity violations -- act immediately
 
@@ -87,8 +87,8 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `frontend_list_view_has_loading_state` | frontend | medium | 92% | platform-actions.html, status.html |
 | `qa_utils_js_loads_before_inline_script` | qa-tester | high | 91% | architecture.html, symbol-gallery.html, validator-catalog.html |
 | `a11y_main_landmark_present` | qa-tester | medium | 90% | design-system.html, platform-actions.html, promo-poster.html, status.html |
-| `migration_grant_when_rls_enabled` | security | medium | 89% | 20260620000007_rls_enable_project_family.sql, 20260620000008_rls_enable_remaining_hive_tables.sql, 20260707000001_marketplace_watchlist_savedsearch_rls.sql, 20260707000004_achievement_xp_log_rls.sql, 20260718000001_ops_artifact_metrics.sql ... |
 | `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | high | 88% | voice-journal.html |
+| `migration_grant_when_rls_enabled` | security | medium | 87% | 20260620000007_rls_enable_project_family.sql, 20260620000008_rls_enable_remaining_hive_tables.sql, 20260707000001_marketplace_watchlist_savedsearch_rls.sql, 20260707000004_achievement_xp_log_rls.sql, 20260718000001_ops_artifact_metrics.sql ... |
 | `frontend_filter_tabs_have_aria_roles` | frontend | high | 83% | alert-hub.html |
 | `frontend_list_view_has_empty_state` | frontend | medium | 83% | design-system.html, platform-actions.html, resume.html, status.html, validator-catalog.html |
 | `frontend_currency_uses_shared_formatter` | frontend | medium | 71% | founder-console.html, platform-actions.html |
@@ -106,8 +106,8 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `frontend_currency_uses_shared_formatter` | frontend | 71% (5/7) | html_pages | convention |
 | `frontend_list_view_has_empty_state` | frontend | 83% (25/30) | html_pages | convention |
 | `frontend_filter_tabs_have_aria_roles` | frontend | 83% (5/6) | html_pages | convention |
+| `migration_grant_when_rls_enabled` | security | 87% (63/72) | migrations | convention |
 | `mobile_decorative_anim_has_mobile_kill` | mobile-maestro | 88% (8/9) | html_pages | convention |
-| `migration_grant_when_rls_enabled` | security | 89% (62/69) | migrations | convention |
 | `a11y_main_landmark_present` | qa-tester | 90% (38/42) | html_pages | convention |
 | `qa_utils_js_loads_before_inline_script` | qa-tester | 91% (34/37) | html_pages | convention |
 | `frontend_list_view_has_loading_state` | frontend | 92% (24/26) | html_pages | convention |
@@ -138,13 +138,13 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `frontend_writeAuditLog_called` | frontend | 100% (2/2) | html_pages | convention |
 | `edge_fn_uses_get_cors_headers` | security | 100% (58/58) | edge_fns | convention |
 | `data_engineer_restore_identity_from_session` | data-engineer | 100% (1/1) | html_pages | convention |
-| `migration_function_sets_search_path` | security | 100% (159/159) | migrations | convention |
+| `migration_function_sets_search_path` | security | 100% (172/172) | migrations | convention |
 | `security_no_function_constructor` | security | 100% (83/83) | html_and_js | anti_pattern |
 | `security_no_token_in_localstorage` | security | 100% (83/83) | html_and_js | anti_pattern |
 | `designer_card_radius_not_125rem` | designer | 100% (42/42) | html_pages | anti_pattern |
 | `a11y_img_has_alt` | qa-tester | 100% (42/42) | html_pages | anti_pattern |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
-| `kg_migrations_no_broadcast_across_hives` | architect | 100% (454/454) | migrations | anti_pattern |
+| `kg_migrations_no_broadcast_across_hives` | architect | 100% (474/474) | migrations | anti_pattern |
 | `frontend_detail_toggle_uses_shared_helper` | frontend | 100% (17/17) | html_pages | convention |
 | `frontend_list_view_has_no_results_state` | frontend | 100% (11/11) | html_pages | convention |
 | `frontend_list_view_has_load_more` | frontend | 100% (12/12) | html_pages | convention |

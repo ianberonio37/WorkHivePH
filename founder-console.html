@@ -1918,7 +1918,11 @@
       const box = document.getElementById('credit-economy-content');
       if (!box) return;
       try {
-        const { data: rows, error } = await db.from('service_credit_ledger')
+        // The ENGINE VIEW, not the base table — the same rule the top-ups panel above follows ("the
+        // Dashboard never reads Fuel raw"). Reading service_credit_ledger directly registered as a
+        // canonical-drift GAP and blocked the commit, correctly: a console that reads raw drifts from
+        // whatever the view curates, and this is money.
+        const { data: rows, error } = await db.from('v_service_credit_ledger_truth')
           .select('entry_type, amount, account_type, account_id');
         if (error) throw error;
         const sum = t => (rows || []).filter(r => r.entry_type === t)

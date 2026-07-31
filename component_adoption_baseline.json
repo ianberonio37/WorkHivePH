@@ -1,6 +1,6 @@
 {
   "_doc": "Component adoption baseline (Layer F). Floors are FORWARD-ONLY: validate_component_adoption.py fails any drop and auto-tightens any rise. Regenerate view: python tools/component_adoption_census.py",
-  "generated": "2026-07-31T07:22:17.799513+00:00",
+  "generated": "2026-07-31T08:43:30.083025+00:00",
   "family_pages": 32,
   "rows": [
     {

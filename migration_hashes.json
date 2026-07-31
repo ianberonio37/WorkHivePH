@@ -469,5 +469,8 @@
   "20260731000015_money_spine_payment_record_and_cashback.sql": "91b4940186223e74aaee469894ab476496d2f935307edca258401bf33e5200b4",
   "20260731000016_min_list_balance_becomes_the_accept_floor.sql": "fe6c5bc198e0c3d6afbc1d52cd783cbb4cbe63fdf9f291efbd25171151bec345",
   "20260731000017_a_sale_needs_a_counterparty.sql": "f0cf9cc0dc30e90041ede12ded07a37ea45dbc932acfb637e3b22b8fa9c02907",
-  "20260731000018_dispute_adjustment_never_deletion.sql": "98643910bbebda4540c0a36f509125d0553f058c83b590665b932759f5e4c8cd"
+  "20260731000018_dispute_adjustment_never_deletion.sql": "98643910bbebda4540c0a36f509125d0553f058c83b590665b932759f5e4c8cd",
+  "20260731000019_accept_refusal_states_the_floor.sql": "6d6b5577ce565656d501e8f7ed3fcc3aee9b78263a8e174dc0786d34c27da4f3",
+  "20260731000020_min_balance_is_cold_start_safe.sql": "e9d44d63019e9989a09d0d85420261f0a8dedcbd8fcb0af87191016fa20a1ed8",
+  "20260731000021_voucher_budget_cap.sql": "86305c97cae04c38ac53394f50ce0af12fe8a305019684a6df4a0831e39defb4"
 }
