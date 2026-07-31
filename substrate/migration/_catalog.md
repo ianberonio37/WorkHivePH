@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:475
-source_sha: ab24b43ac1c83c3a
+source: dir:supabase/migrations:476
+source_sha: 32c487c8237b1fc7
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (475 migrations)
+## migration · catalog (476 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260707000007_fix_hard_delete_expired_soft_deletes` — fns:hard_delete_expired_soft_deletes
 - `20260707000008_fix_agent_memory_read_leak` — policies:agent_memory_read
 - `20260707000009_fix_episodic_and_feedback_read_leak` — policies:aem_read,ai_reply_feedback_read
 - `20260708000000_engdesign_calcs_write_isolation` — policies:engineering_calcs_delete,engineering_calcs_insert,engineering_calcs_update,engineering_calcs_write
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260731000020_min_balance_is_cold_start_safe` — (misc DDL/DML)
 - `20260731000021_voucher_budget_cap` — fns:guard_voucher_within_budget · triggers:trg_guard_voucher_within_budget
 - `20260731000022_restore_daily_cap_uuid_cast` — fns:check_daily_row_cap
+- `20260731000023_anchor_the_four_new_tables` — (misc DDL/DML)
 
 (showing last 200)
 
