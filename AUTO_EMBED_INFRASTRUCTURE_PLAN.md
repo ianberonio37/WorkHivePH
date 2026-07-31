@@ -268,3 +268,33 @@ download stalls, `docker cp` + `docker commit` off the running model-baked conta
 **This is the third time this arc that "we need to build X" turned out to be "X exists, check first"** — after
 the state inducers and the CDC contract. The rule is now explicit at the top of §15.4 of the deepwalk roadmap:
 check the ~700 gates and the existing tools before adding, every time.
+
+## §12 · The backfill ran through the KNOWN-BROKEN path, and the gate caught it mid-flight
+
+I diagnosed in §10.1 that the edge function cannot reach the host embedder and falls back to another
+provider — then started the 3,278-row backfill **through that exact path anyway**. Coverage climbed 14.0% →
+31.6%, and `fault_knowledge` went **split-space: 717 rows in nomic against 534 in bge-local.**
+
+**The gate built an hour earlier is what caught it.** Every one of those 717 writes SUCCEEDED — right shape,
+non-null vector, job marked done, coverage number rising. A row count could not tell them apart. Only
+`embedding_model` could, and only because something was reading it.
+
+Recovery, in order: **pause the queue** (2,563 jobs held on `next_attempt_at`), then heal with the existing
+sweep — 753 + 27 rows re-embedded into bge-local space, `PASS` restored. The stragglers appeared because the
+drain loop was still finishing while the healer ran; a second pass closed it, which is what "idempotent
+self-healing" buys.
+
+**Three lessons, none of them new — which is the point:**
+
+1. **A diagnosed defect is not a fixed defect.** Writing "§10.1: the relay should embed directly" and then
+   running 3,278 rows through the old path is the same class as
+   [[feedback_a_silently_failed_edit_becomes_a_false_report]]: the analysis was right and the *action* did
+   not follow it.
+2. **A rising metric is not a healthy one.** 14% → 31.6% looked like exactly the success I wanted, which is
+   precisely when a second, independent instrument matters. The retrievability gate and the space gate
+   disagreeing is what exposed it — the same shape as the self-healer's blind column map, caught the same way.
+3. **Backfill AFTER the pipeline is right, never before.** §8's phasing said spine-first for this reason and
+   I overran it. The remaining 2,498 stay queued and paused until the relay embeds via the host embedder
+   directly (§10.1) — the path that has put every correct row in this database.
+
+**Status: 1,314 of 3,811 retrievable (34.5%), all in one space, 2,498 queued and paused pending the relay fix.**
