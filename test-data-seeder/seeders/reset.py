@@ -23,11 +23,20 @@ RESET_TABLES = [
     "service_vouchers",
     "service_offers",
     "service_job_events",
+    # 20260731000015 — the record-only attestation that a consumer paid a provider DIRECTLY (D13).
+    # FK to service_requests, so it clears BEFORE its parent or the delete is refused.
+    "service_payments",
     "service_requests",
     "service_credit_topups",
     "service_credit_ledger",
     "service_providers",
     "service_catalog",
+    # 20260731000007 — per-hive D9 knobs (hail timing/reach, trust floors, credit rates, min balance).
+    # A reset must drop edited knobs so a hive falls back to the platform defaults the migration sets.
+    "hive_service_settings",
+    # 20260731000002/3 — the auto-embed spine. Transient queue + registry, no seeder; safe to wipe.
+    "embedding_outbox",
+    "embedding_registry",
     # 2026-05-21 paydown: new platform tables added in migrations, register
     # in reset.py so reset-coverage validator passes.
     "client_errors",               # 20260723000001 — D21 frontend error capture (transient diagnostics, no seeder; safe to wipe)
