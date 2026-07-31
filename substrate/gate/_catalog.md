@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 9a6087cb369f0aea
+source_sha: 56036acea60889bd
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (711) — the 'what's already gated' brain
+## gate · registered validators (712) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (111)
+### AI Validation (112)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -67,6 +67,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `hive_deepwalk_ratchet` ⚡ [fail] — Hive deepwalk ANTI-DRIFT ratchet (HIVE_DEEPWALK_EXPANSION_ROADMAP.md §4) — the measured %-board (14 journeys x 5 phases G/W/O/H/R, HK classes x 6 stages) held a
 - `indigenous_stack` ⚡ [fail] — Arc H/V: indigenous stack keeps local-first + fallback (data sovereignty, no hard external dep)
 - `integration_configs_authz_live` [fail] — CMMS: live integration_configs authz (config_id BOLA closed; worker token-read/write blocked)
+- `knowledge-is-retrievable` [fail] — KNOWLEDGE IS RETRIEVABLE - a logbook entry is the hive's memory of a failure and earns its keep only if someone can FIND it months later, which means reaching f
 - `landing-deep` ⚡ [fail] — Landing Deep-Arc Gate (title-token consistency + no-fabricated-metric + subdir twitter:card; forward-only ratchet)
 - `landing-extractability` [fail] — Landing Extractability Gate (P2.5: catalog tool-page links + popup copy/links crawlable + featureList; script-stripped DOM; forward-only ratchet)
 - `logbook_deepwalk_ratchet` ⚡ [fail] — Logbook deepwalk ANTI-DRIFT ratchet (LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md §4) — the measured %-board (20 journeys x 5 phases G/W/O/H/R, LG classes x 6 stages) 

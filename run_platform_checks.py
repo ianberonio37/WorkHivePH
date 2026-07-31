@@ -460,6 +460,15 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "knowledge-is-retrievable",
+        "script":  "tools/validate_knowledge_is_retrievable.py",
+        "args":    [],
+        "label":   "KNOWLEDGE IS RETRIEVABLE - a logbook entry is the hive's memory of a failure and earns its keep only if someone can FIND it months later, which means reaching fault_knowledge (the embedded, semantically searchable copy keyed logbook_id). A row with no fault_knowledge row is WRITTEN-ONLY: on the board, invisible to every search, RAG answer and 'has this happened before?'. Measured 2026-07-31: 3,811 qualifying entries, 533 retrievable (14.0%), 3,278 written-only. The denominator is honest - embed-entry SKIPS an entry whose composed text is under 50 chars, so this gate composes the SAME text the function does (Equipment/Problem/Root cause/Action taken/Lesson learned/Category) and counts only rows that would actually qualify; on this database ZERO rows are short enough to be skipped, so the 86% gap is real and not an artifact of the filter. Self-test asserts the composition reproduces the function's own 50-char rule on a rich-vs-bare pair, because a denominator that does not match the product invents a backlog. WHY THE BACKLOG EXISTS: the trigger meant to embed these rows POSTed them to a PRODUCTION url (see local-triggers-dont-call-prod), so embeddings landed in production while the local index stayed empty, and that trigger is now DISABLED. Backfilling means 3,278 free-tier embedding calls - a costed decision, not something a gate does behind anyone's back - so this is FORWARD-ONLY: the uncovered count may FALL, never rise. It does not fail on the existing backlog; it fails when a NEW write surface puts knowledge on the board without indexing it.",
+        "group":   "AI Validation",
+        "severity": "fail",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "local-triggers-dont-call-prod",
         "script":  "tools/validate_local_triggers_dont_call_prod.py",
         "args":    [],
