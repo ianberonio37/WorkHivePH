@@ -1,5 +1,5 @@
 {
-  "scored_at": "2026-07-31T01:53:24+00:00",
+  "scored_at": "2026-07-31T09:08:39+00:00",
   "lenses": {
     "F": {
       "title": "Failure-tolerance",
@@ -52,8 +52,8 @@
     },
     "R": {
       "title": "Recovery",
-      "pct": 100.0,
-      "passed": 4,
+      "pct": 75.0,
+      "passed": 3,
       "total": 4,
       "floor": 95,
       "cells": [
@@ -61,7 +61,7 @@
           "key": "schema_backup",
           "validator": "verify_backups",
           "sublayer": "S2",
-          "status": "PASS",
+          "status": "FINDINGS",
           "note": "schema reproducible from migration lock + restore runbook present",
           "covered": true
         },
@@ -93,8 +93,8 @@
     },
     "C": {
       "title": "Consistency",
-      "pct": 100.0,
-      "passed": 5,
+      "pct": 80.0,
+      "passed": 4,
       "total": 5,
       "floor": 100,
       "cells": [
@@ -102,7 +102,7 @@
           "key": "idempotency_6layer",
           "validator": "validate_idempotency",
           "sublayer": "S3",
-          "status": "PASS",
+          "status": "FINDINGS",
           "note": "6-layer webhook/upsert/external-API idempotency",
           "covered": true
         },
@@ -182,6 +182,9 @@
       ]
     }
   },
-  "floors_ok": true,
-  "regressions": []
+  "floors_ok": false,
+  "regressions": [
+    "R: 75.0 < baseline 100.0",
+    "C: 80.0 < baseline 100.0"
+  ]
 }

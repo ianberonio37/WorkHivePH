@@ -1,6 +1,6 @@
 {
   "validator": "gateway-bypass",
-  "gateway_axis_total": 8.0,
+  "gateway_axis_total": 8.5,
   "n_layers": 13,
   "measured_layers": 9,
   "assessed_or_absent": 4,
@@ -62,9 +62,9 @@
     {
       "code": "F",
       "name": "Frontend",
-      "gateway_grade": 0.5,
-      "bypass": 1,
-      "basis": "measured-partial",
+      "gateway_grade": 1.0,
+      "bypass": 0,
+      "basis": "measured",
       "report": "user_facing_kpi_canonical_report.json",
       "note": "rendered value must map to a canonical source; bypass = surface displaying a non-canonical value"
     },

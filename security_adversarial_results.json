@@ -1,5 +1,5 @@
 {
-  "scored_at": "2026-07-31T01:52:37+00:00",
+  "scored_at": "2026-07-31T09:07:52+00:00",
   "lenses": {
     "X": {
       "title": "Injection & XSS",
@@ -44,8 +44,8 @@
     },
     "Z": {
       "title": "AuthZ / Access",
-      "pct": 94.1,
-      "passed": 16,
+      "pct": 100.0,
+      "passed": 17,
       "total": 17,
       "floor": 100,
       "cells": [
@@ -109,7 +109,7 @@
           "key": "rls_tenant_isolation",
           "validator": "validate_rls_tenant_isolation",
           "owasp": "A01",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "two-tenant isolation proven",
           "covered": true
         },
@@ -305,7 +305,7 @@
   "owasp_top10": {
     "A01": {
       "scanners": 14,
-      "clean": false,
+      "clean": true,
       "covered": true
     },
     "A02": {
@@ -354,12 +354,10 @@
       "covered": true
     }
   },
-  "floors_ok": false,
-  "regressions": [
-    "Z: 94.1 < baseline 100.0"
-  ],
+  "floors_ok": true,
+  "regressions": [],
   "infra_errors": [],
   "baseline_error": false,
   "baseline_missing": false,
-  "exit_code": 1
+  "exit_code": 0
 }
