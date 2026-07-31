@@ -56,11 +56,21 @@ BEGIN
     END IF;
   END IF;
 
-  IF ident_val IS NOT NULL AND ident_val <> '' THEN
+  -- `%I::text = $3` — the cast is LOAD-BEARING and was restored after I regressed it. `ident_val` comes from
+  -- `to_jsonb(NEW) ->> ident_col`, which is always TEXT, while ident_col may be a UUID column
+  -- (service_requests.client_auth_uid, resume_versions.auth_uid). Without the cast Postgres raises
+  -- 42883 `operator does not exist: uuid = text` and EVERY insert into such a table fails.
+  --
+  -- Migration 20260709000000_fix_daily_cap_uuid_ident.sql fixed exactly this a month ago. I rebuilt this
+  -- function from a PARTIAL read of prosrc (three truncated substring() queries) and silently dropped the
+  -- cast, re-opening a closed bug — the precise failure of
+  -- [[feedback_i_rebuilt_a_guard_from_a_partial_read]]. Read the WHOLE function, or better, read the
+  -- migration that last defined it.
+  IF ident_val IS NOT NULL AND ident_col <> '' THEN
     EXECUTE format(
-      'SELECT count(*) FROM public.%I WHERE %I = $1 AND %I >= $2 AND %I < $3',
-      TG_TABLE_NAME, ident_col, ts_col, ts_col)
-      INTO user_n USING ident_val, day_start, day_end;
+      'SELECT count(*) FROM public.%I WHERE %I >= $1 AND %I < $2 AND %I::text = $3',
+      TG_TABLE_NAME, ts_col, ts_col, ident_col)
+      INTO user_n USING day_start, day_end, ident_val;
     IF user_n >= user_cap THEN
       RAISE EXCEPTION 'You have reached today''s free limit (%). Resets at midnight.', user_cap
         USING ERRCODE = '54000', HINT = 'daily_user_' || TG_TABLE_NAME;
