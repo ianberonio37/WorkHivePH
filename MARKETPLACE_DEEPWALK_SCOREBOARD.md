@@ -4,7 +4,7 @@
 > `marketplace_deepwalk_state.json`. Do not hand-edit — edit the STATE, re-run the tool.
 > Companion roadmap: `MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP.md`.
 
-**OVERALL 99.6%** · journeys **99.4%** (54) · MK classes **100.0%** (13)
+**OVERALL 99.7%** · journeys **99.6%** (54) · MK classes **100.0%** (13)
 
 ## Board 1 — Journeys (G/W/O/H/R)
 
@@ -41,7 +41,7 @@
 | SJ-J08-complete-review-bidirectional | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | SJ-J09-cancel-client | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
 | SJ-J10-cancel-provider | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
-| SJ-J11-expire | SJ | ✅ | 🟡 | ✅ | ✅ | ✅ | 0×1 | 90.0% |
+| SJ-J11-expire | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | SJ-J12-dispute | SJ | ✅ | ⬜ | ✅ | ✅ | ✅ | 0×0 | 80.0% |
 | SJ-J13-topup-verify-gcash | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | SJ-J14-commission-deduct | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
@@ -65,9 +65,9 @@
 | SJ-J32-ai-triage-assist | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 2×2 | 100.0% |
 | SJ-J33-idle-area-presence | SJ | ✅ | ✅ | ✅ | ✅ | ✅ | 3×2 | 100.0% |
 
-**Per phase:** G 100.0% · W 97.2% · O 100.0% · H 100.0% · R 100.0%
+**Per phase:** G 100.0% · W 98.1% · O 100.0% · H 100.0% · R 100.0%
 
-**Per type:** SJ 99.1% · T1-onboarding 100.0% · T10-social-gamification 100.0% · T11-admin-console 100.0% · T12-cross-page-handoff 100.0% · T2-capture 100.0% · T3-review-approval 100.0% · T4-analysis-insight 100.0% · T8-commerce 100.0% · T9-configuration 100.0%
+**Per type:** SJ 99.4% · T1-onboarding 100.0% · T10-social-gamification 100.0% · T11-admin-console 100.0% · T12-cross-page-handoff 100.0% · T2-capture 100.0% · T3-review-approval 100.0% · T4-analysis-insight 100.0% · T8-commerce 100.0% · T9-configuration 100.0%
 
 ## Board 2 — New MK dimension classes
 

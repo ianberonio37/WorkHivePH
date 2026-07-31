@@ -6931,6 +6931,51 @@
         "expected-kind agreement is REPORTED, never enforced: there is no correct wording, and grading a free-tier model on exact output tests its mood rather than the property the product depends on"
       ],
       "provenance": "The last of the five MRs the §11 plan named, and the one the oracle mix most needed: the bank held 233 refusal cells and exactly one eval. The deterministic half of the router (kind allowlist, confidence clamp, slot-fill guard, asset disambiguation) was already locked by tests/voice-router-determinism.spec.ts against _shared/voice-router-core.ts - what no test could see is the CHOICE the model makes, which is exactly what a paraphrase perturbs. First live run: 4/4 groups invariant, 4 distinct kinds (discriminates), 4/4 also matching the humanly-expected kind. Skips rather than fails when the stack or model is unavailable, since an infrastructure absence is not a product defect."
+    },
+    {
+      "id": "TB-SJ11-expire-two-personas",
+      "source": "authored",
+      "kind": "journey",
+      "journey": "SJ-J11-expire",
+      "authority": "member",
+      "state": "edge",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "status": "banked",
+      "layers": [
+        "S1-ui",
+        "S3-data",
+        "S4-db"
+      ],
+      "dims": [
+        "MK5"
+      ],
+      "role_pair": [
+        "client:P-client",
+        "provider:P-provider"
+      ],
+      "covers_tables": [
+        "service_requests"
+      ],
+      "walked": "2026-07-31 via TB-SJ11 probe: 2 personas x 2 states, driving the real sweep_service_broadcasts()",
+      "probe": {
+        "file": "TB-SJ11-expire-two-personas.sql",
+        "expect": {
+          "active_client_sees_hail": "1",
+          "active_provider_feed_has_hail": "1",
+          "terminal_client_status": "expired",
+          "terminal_provider_feed_dropped": "yes",
+          "live_hail_survived": "broadcasting"
+        }
+      },
+      "asserts": [
+        "S-ACTIVE both sides: the CLIENT sees their broadcasting hail in v_service_request_truth and the PROVIDER sees it on v_service_open_broadcasts - each read through the view that persona actually uses",
+        "the transition is driven by the PRODUCT's own sweep_service_broadcasts(), never a hand-written status='expired' UPDATE, so the sweep's real rules (stamp TTL, widen twice, then expire) are what is under test",
+        "S-TERMINAL both sides: the client's request reads 'expired' and the hail DISAPPEARS from the provider feed - a dead hail still listed is a wasted trip",
+        "NON-VACUITY: a sibling hail whose TTL has not passed SURVIVES the same sweep, so a sweep that expired everything could not pass"
+      ],
+      "provenance": "SJ-J11's W phase was PARTIAL: the state file declared the phases done while `walked` held ONE state and ZERO personas, and the board derives W from evidence rather than the declaration. Building it surfaced three contract facts the declaration hid: both truth views are auth.uid()-scoped so a probe with no JWT reads 0 rows and looks like 'the hail is missing' (the first run did exactly that); the provider feed resolves the caller through my_service_provider_ids(), so the persona needs a provider PROFILE not just an auth user; and the sweep is refused from a user identity by guard_service_request_status - expiry is the platform's decision, never a party's - so it must take the vetted backend path exactly as pg_cron does. It also caught a regression I had just introduced in check_daily_row_cap (a dropped ::text cast broke every uuid-ident insert), because it inserts a real service_request."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

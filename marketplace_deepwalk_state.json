@@ -1001,11 +1001,16 @@
         "G": "done",
         "O": "done",
         "H": "done",
-        "R": "done"
+        "R": "done",
+        "W": "done"
       },
       "walked": {
-        "personas": [],
+        "personas": [
+          "P-client",
+          "P-provider"
+        ],
         "states": [
+          "S-active",
           "S-terminal"
         ]
       },
@@ -1018,7 +1023,12 @@
       },
       "paths_note": "happy: the TTL sweep expires an unaccepted hail. error: radius widening capped at 100km. degraded: cron-driven, no user path to break.",
       "type": "SJ",
-      "absorbed_from": "service_hailing_state.json"
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "client:P-client",
+        "provider:P-provider"
+      ],
+      "notes": "| 2026-07-31 W WALKED (TB-SJ11-expire-two-personas): 2 personas x 2 states, driving the REAL sweep_service_broadcasts() rather than a hand-set status. Client sees the hail broadcasting then 'expired'; the provider's open-hail feed shows it then DROPS it (a dead hail still listed is a wasted trip). Non-vacuity: a hail whose TTL has not passed survives the same sweep. Three contract facts surfaced that the declaration hid: both truth views are auth.uid()-scoped (a no-JWT probe reads 0 and looks like 'missing'); the provider feed resolves via my_service_provider_ids() so the persona needs a provider PROFILE; and the sweep is REFUSED from a user identity by guard_service_request_status - expiry is the platform's call - so it runs on the vetted backend path as pg_cron does."
     },
     "SJ-J12-dispute": {
       "mode": "n/a",

@@ -2,7 +2,7 @@
 name: doc-MARKETPLACE_DEEPWALK_SCOREBOARD
 type: doc
 source: file:MARKETPLACE_DEEPWALK_SCOREBOARD.md
-source_sha: 76c7b3f3e87fb926
+source_sha: 011633c9e6a65137
 last_verified: 2026-07-13
 supersedes: null
 ---
