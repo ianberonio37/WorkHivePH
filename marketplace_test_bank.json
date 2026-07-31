@@ -7128,6 +7128,51 @@
         "the row cap is ANNOUNCED in the probe, because otherwise its 54000 masks the constraint under test and every case reads 'blocked' for the wrong reason"
       ],
       "provenance": "S7-ai's existing cells grade the ANSWER (a triage eval and MR5's paraphrase invariance). None graded the ACT: who wrote the row. fault_knowledge has carried source/ai_model/ai_confidence all along with NOTHING pairing them, so BOTH forgeries were accepted when probed - an ai_visual_capture row with a NULL model, and a manual row claiming gemini-2.0-flash. That is the AI6 class. A maintenance record is read months later by someone deciding whether to trust it; 'a machine suggested this' and 'a technician saw this' are different claims, and a knowledge base that cannot tell them apart launders one into the other. Migration 20260731000006 pairs them as an equivalence in both directions; all 3,811 existing rows are manual/NULL so it validated without a rewrite. The probe's FIRST run read 'blocked' on every case for the wrong reason - the daily row cap's 54000 - which is why the cap is announced."
+    },
+    {
+      "id": "TB-ECON-credit-unit-economics",
+      "source": "authored",
+      "kind": "dimension",
+      "journey": "J-credit-economy",
+      "authority": "member",
+      "state": "populated",
+      "path": "happy",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "status": "banked",
+      "layers": [
+        "S4-db",
+        "S3-data"
+      ],
+      "dims": [
+        "MK1"
+      ],
+      "covers_tables": [
+        "hive_service_settings",
+        "service_credit_ledger",
+        "service_requests"
+      ],
+      "probe": {
+        "file": "TB-ECON-credit-unit-economics.sql",
+        "expect": {
+          "policyA_net_take_pct": "4.00",
+          "policyA_net_on_2000": "80.00",
+          "policyB_net_take_pct": "4.00",
+          "insolvent_policy": "blocked",
+          "cashback_before_settled": "0",
+          "cashback_on_settled": "20.00",
+          "cashback_matches_rate": "yes",
+          "cashback_ledger_rows": "1"
+        }
+      },
+      "asserts": [
+        "NET TAKE IS WHAT WE THINK IT IS: fees minus cashback = 4.00% under BOTH the completion model and the listing-fee model - the money must add up whichever timing is chosen",
+        "THE PLATFORM CANNOT PAY OUT MORE THAN IT TAKES IN: a policy with cashback above the fees is structurally refused, because it would mint credits nobody earned - a slow insolvency that looks like generosity on every transaction",
+        "CASHBACK CANNOT MINT WITHOUT A SETTLED JOB: zero before settlement, so a self-dealt request cannot print credits",
+        "NON-VACUITY: the minted amount must MATCH the configured rate, not merely be non-zero - a hardcoded 1% would pass a '> 0' assertion while ignoring the knob entirely",
+        "the cashback is a LEDGER liability, exactly once per request"
+      ],
+      "provenance": "Ian proposed 5% at listing + 1% cashback; MARKETPLACE_CREDIT_ECONOMY.md argued for charging on COMPLETION because a listing fee really costs the provider 5%/sell-through. This cell asserts the arithmetic under BOTH policies deliberately - a test that only worked for the recommendation would be advocacy rather than verification. Ian DECIDED 2026-07-31: completion, 5%, 1% cashback in credits. Rates are read through the resolver, never restated here, because a probe that hardcodes the numbers passes while the product uses different ones."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
