@@ -193,7 +193,24 @@ const ALL_PROVIDERS: EmbeddingProvider[] = [
 // explicitly (or leaves it empty -> bge-local skipped). Same precedent as the rate-limit
 // override's code default.
 const _IS_LOCAL_EMBED = /(kong|localhost|127\.0\.0\.1)(:|\/|$)/.test(Deno.env.get("SUPABASE_URL") || "");
-const BGE_EMBED_URL = Deno.env.get("BGE_EMBED_URL") || (_IS_LOCAL_EMBED ? "http://host.docker.internal:8901/embed" : "");
+// CONTAINER DNS, not host.docker.internal. The self-hosted embedder runs as the `embed-server` container on
+// `supabase_network_workhive` — the SAME network as this edge runtime — so it resolves by name (verified:
+// embed-server -> 172.18.0.8, listening 8901). `host.docker.internal` asks the container to leave the network,
+// reach the host, and come back in; when that failed the chain FAILED OVER SILENTLY to another provider, which
+// is a DIFFERENT VECTOR SPACE. That is not a degraded result, it is an unfindable one: a 3,278-row backfill
+// put 717 rows into nomic space while every write reported success and the coverage number climbed
+// (AUTO_EMBED_INFRASTRUCTURE_PLAN §12). The host.docker.internal form is kept as the fallback for a host-run
+// server outside the compose network. PROD is untouched: it has no _IS_LOCAL_EMBED, so this whole branch is
+// skipped and BGE_EMBED_URL stays whatever prod sets.
+const _BGE_ENV = Deno.env.get("BGE_EMBED_URL") || "";
+// NORMALISE a stale host.docker.internal value. That env var is baked into the edge runtime at
+// `supabase start`, so correcting functions/.env does NOT reach a running stack — the old address survives
+// every container restart until a full stop/start. Rewriting it here means the fix lands on a module reload
+// instead of waiting for one, and it is safe: the two forms are the same server, one reachable and one not.
+// Only applied LOCALLY; prod never enters this branch.
+const BGE_EMBED_URL = _IS_LOCAL_EMBED
+  ? (_BGE_ENV.replace("host.docker.internal", "embed-server") || "http://embed-server:8901/embed")
+  : _BGE_ENV;
 
 // LOCKSTEP (2026-06-21): the LOCAL corpora are re-embedded with the self-host bge-small model
 // (fault_knowledge → reembed_fault_knowledge.py; persona_knowledge already bge-local), and the
