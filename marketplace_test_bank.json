@@ -6976,6 +6976,55 @@
         "NON-VACUITY: a sibling hail whose TTL has not passed SURVIVES the same sweep, so a sweep that expired everything could not pass"
       ],
       "provenance": "SJ-J11's W phase was PARTIAL: the state file declared the phases done while `walked` held ONE state and ZERO personas, and the board derives W from evidence rather than the declaration. Building it surfaced three contract facts the declaration hid: both truth views are auth.uid()-scoped so a probe with no JWT reads 0 rows and looks like 'the hail is missing' (the first run did exactly that); the provider feed resolves the caller through my_service_provider_ids(), so the persona needs a provider PROFILE not just an auth user; and the sweep is refused from a user identity by guard_service_request_status - expiry is the platform's decision, never a party's - so it must take the vetted backend path exactly as pg_cron does. It also caught a regression I had just introduced in check_daily_row_cap (a dropped ::text cast broke every uuid-ident insert), because it inserts a real service_request."
+    },
+    {
+      "id": "TB-SJ12-dispute-two-personas",
+      "source": "authored",
+      "kind": "journey",
+      "journey": "SJ-J12-dispute",
+      "authority": "counterparty",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "status": "banked",
+      "layers": [
+        "S1-ui",
+        "S3-data",
+        "S4-db"
+      ],
+      "dims": [
+        "MK3",
+        "MK6"
+      ],
+      "role_pair": [
+        "opener:P-buyer",
+        "resolver:P-admin"
+      ],
+      "covers_tables": [
+        "marketplace_disputes"
+      ],
+      "walked": "2026-07-31 via TB-SJ12 probe: 2 personas x 2 states under the authenticated ROLE so RLS applies",
+      "probe": {
+        "file": "TB-SJ12-dispute-two-personas.sql",
+        "expect": {
+          "buyer_opens_dispute": "allowed",
+          "open_as_someone_else": "blocked",
+          "seller_sees_dispute": "1",
+          "stranger_sees_dispute": "0",
+          "admin_resolves": "allowed",
+          "buyer_sees_resolution": "resolved_release",
+          "stranger_still_blind_after_resolve": "0"
+        }
+      },
+      "asserts": [
+        "S-OPEN: a buyer opens a dispute AS THEMSELVES, and opening one in someone ELSE'S name is REFUSED - the court of last resort must not be usable to smear a competitor (opened_by IN auth_worker_names())",
+        "the three parties see it and NOBODY else: seller yes, unrelated worker ZERO - a dispute names who paid whom and why a deal soured",
+        "S-RESOLVED: only the admin can END it, and both parties can then READ the outcome - a resolution nobody can see is not a resolution",
+        "NON-VACUITY on privacy: the stranger is still blind AFTER resolution, so the earlier zero cannot be explained by the row not existing yet",
+        "the probe assumes the authenticated ROLE, not just JWT claims: postgres is the table OWNER and BYPASSES RLS, which made the first run report three false 'findings'"
+      ],
+      "provenance": "The last unwalked journey on the board (W was TODO: zero personas, zero states). Its first run reported a forged dispute accepted, a stranger reading it, and a stranger still reading it after resolution - three spectacular security findings that were ALL the instrument: postgres owns the table and bypasses RLS. The sibling probes in this bank get away with claims alone because they assert TRIGGER behaviour, and triggers DO fire for the owner; RLS does not. Adding `set local role authenticated` per persona flipped every one of them to correct. Verify the instrument before believing the page."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

@@ -1040,11 +1040,18 @@
         "G": "done",
         "O": "done",
         "H": "done",
-        "R": "done"
+        "R": "done",
+        "W": "done"
       },
       "walked": {
-        "personas": [],
-        "states": []
+        "personas": [
+          "P-buyer",
+          "P-admin"
+        ],
+        "states": [
+          "S-open",
+          "S-resolved"
+        ]
       },
       "evidence": "DELIBERATELY CLOSED: WorkHive is contact-only, there is no in-app dispute filing. founder-console says so honestly ('none can arrive'), and the reachable-capability gate carries it as a documented honest-closed-queue. Scored as resolved-by-decision, not built",
       "w_exempt": "closed by DESIGN: WorkHive is contact-only, there is no in-app dispute filing path for any persona. The honest empty state says so and the reachable-capability gate carries the documented exemption",
@@ -1055,7 +1062,12 @@
       },
       "paths_note": "closed by design on every path; the copy says so and the reachable-capability gate carries the documented exemption.",
       "type": "SJ",
-      "absorbed_from": "service_hailing_state.json"
+      "absorbed_from": "service_hailing_state.json",
+      "role_pair": [
+        "opener:P-buyer",
+        "resolver:P-admin"
+      ],
+      "notes": "| 2026-07-31 W WALKED (TB-SJ12-dispute-two-personas): 2 personas x 2 states under the authenticated ROLE. Buyer opens as themselves; opening in ANOTHER's name is refused; seller sees it, an unrelated worker sees ZERO (before AND after resolution); only the admin can end it and both parties then read the outcome. The first run reported 3 false security findings because postgres OWNS the table and bypasses RLS - claims alone are enough for trigger assertions but never for RLS ones."
     },
     "SJ-J13-topup-verify-gcash": {
       "mode": "n/a",
