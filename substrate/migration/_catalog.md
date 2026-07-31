@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:461
-source_sha: 856ae89c07fb62ef
+source: dir:supabase/migrations:462
+source_sha: ae439cc8806c73aa
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (461 migrations)
+## migration · catalog (462 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260705000005_close_page_audit_gaps` — fns:cap_alert_dismissals_text,cap_community_reactions_text,cap_early_access_emails_text,cap_report_contacts_text · triggers:trg_daily_cap_alert_dismissals,trg_daily_cap_community_reactions,trg_daily_cap_early_access,trg_daily_cap_mkt_watchlist,trg_daily_cap_report_contacts,trg_text_caps_alert_dismissals
 - `20260705000006_q6_global_ai_budget` — fns:consume_ai_global_budget,record_ai_chain_depth · tables:ai_global_budget
 - `20260705000007_q1_enforce_cumulative_quota` — fns:check_hive_quota_ai_reports,check_hive_quota_community,check_hive_quota_inv_tx,check_hive_quota_logbook,check_hive_quota_pm_completions,seed_hive_quota_defaults · triggers:trg_hive_quota_ai_reports,trg_hive_quota_community_posts,trg_hive_quota_inv_tx,trg_hive_quota_logbook,trg_hive_quota_pm_completions,trg_seed_hive_quota_defaults · tables:against,hive_quotas
 - `20260705000008_q5b_retention_embedding_cache` — fns:prune_embedding_cache
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260731000006_ai_provenance_pairing` — tables:fault_knowledge
 - `20260731000007_d9_service_knobs` — policies:hive_service_settings_read,hive_service_settings_write · fns:service_knob · tables:hive_service_settings
 - `20260731000008_sweep_reads_d9_knobs` — fns:sweep_service_broadcasts
+- `20260731000009_tier_reads_d9_knobs` — fns:recompute_seller_sales_and_tier
 
 (showing last 200)
 
