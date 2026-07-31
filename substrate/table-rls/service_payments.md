@@ -2,7 +2,7 @@
 name: table-rls-service_payments
 type: table-rls
 source: db:pg_policies+pg_trigger:service_payments
-source_sha: dc682e54cc740cf9
+source_sha: 80536b83887afabc
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,11 +11,13 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: False
 
-Columns (*=NOT NULL): id*, request_id*, hive_id, amount_paid*, gcash_ref, method*, confirmed_by, paid_at*, created_at*
+Columns (*=NOT NULL): id*, request_id*, hive_id, amount_paid*, gcash_ref, method*, confirmed_by, paid_at*, created_at*, variance_reason
 
 Policies:
 - `service_payments_intake` [INSERT · roles=public] USING=`∅` CHECK=`((confirmed_by = auth.uid()) AND (EXISTS ( SELECT 1 FROM service_requests r WHERE ((r.id = service_payments.request_id) `
 - `service_payments_read` [SELECT · roles=public] USING=`((confirmed_by = auth.uid()) OR is_marketplace_admin() OR (EXISTS ( SELECT 1 FROM service_requests r WHERE ((r.id = serv` CHECK=`∅`
+
+Guard triggers: `trg_guard_payment_variance_explained`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:476
-source_sha: 32c487c8237b1fc7
+source: dir:supabase/migrations:477
+source_sha: 5cb618fce1c7dbc7
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (476 migrations)
+## migration · catalog (477 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260707000008_fix_agent_memory_read_leak` — policies:agent_memory_read
 - `20260707000009_fix_episodic_and_feedback_read_leak` — policies:aem_read,ai_reply_feedback_read
 - `20260708000000_engdesign_calcs_write_isolation` — policies:engineering_calcs_delete,engineering_calcs_insert,engineering_calcs_update,engineering_calcs_write
 - `20260708000001_inventory_ledger_reconcile_trigger` — fns:inventory_sync_balance_from_ledger · triggers:trg_inventory_sync_balance
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260731000021_voucher_budget_cap` — fns:guard_voucher_within_budget · triggers:trg_guard_voucher_within_budget
 - `20260731000022_restore_daily_cap_uuid_cast` — fns:check_daily_row_cap
 - `20260731000023_anchor_the_four_new_tables` — (misc DDL/DML)
+- `20260731000024_understatement_needs_a_reason` — fns:guard_payment_variance_explained,service_agreed_base · triggers:trg_guard_payment_variance_explained · tables:service_payments
 
 (showing last 200)
 

@@ -63,8 +63,26 @@ begin
   update public.service_requests set status='in_progress'  where id=v_req;
   update public.service_requests set status='completed'    where id=v_req;
   update public.service_requests set budget = 50000 where id=v_req;
-  insert into public.service_payments (request_id, hive_id, amount_paid, method, confirmed_by)
-    values (v_req, v_hive, 1, 'cash', v_client);
+  -- ATTACK AS A REAL USER, not as the table owner. The variance guard exempts backend writes
+  -- (auth.uid() IS NULL), so running this attack as `postgres` measured the EXEMPTION and reported the
+  -- hole still open after it had been closed — the same role-not-claims mistake that produced three
+  -- false security findings on this platform before ([[feedback_rls_probe_needs_the_role_not_just_claims]]).
+  perform set_config('request.jwt.claims', json_build_object('sub', v_client::text)::text, true);
+  set local role authenticated;
+  begin
+    insert into public.service_payments (request_id, hive_id, amount_paid, method, confirmed_by)
+      values (v_req, v_hive, 1, 'cash', v_client);
+    raise notice 'RESULT a3_understatement_unexplained=ACCEPTED';
+  exception when check_violation then
+    raise notice 'RESULT a3_understatement_unexplained=refused';
+  end;
+  -- ...and the same understatement WITH a stated reason is allowed: the control is accountability,
+  -- not a block, so a genuine discount still settles.
+  insert into public.service_payments (request_id, hive_id, amount_paid, method, confirmed_by, variance_reason)
+    values (v_req, v_hive, 1, 'cash', v_client, 'scope reduced to a single inspection visit');
+  raise notice 'RESULT a3_understatement_explained=accepted';
+  reset role;
+  perform set_config('request.jwt.claims', NULL, true);
   update public.service_requests set status='settled' where id=v_req;
   select -amount into v_bal from public.service_credit_ledger
    where ref_id=v_req and entry_type='commission';

@@ -23,8 +23,22 @@ Self-test:  python tools/validate_realtime_live.py --self-test
 """
 from __future__ import annotations
 import json
+import os
 import sys
 from pathlib import Path
+
+# A BROKEN MACHINE IS NOT A BROKEN PRODUCT. This gate drives a real browser, so it can fail for reasons that
+# have nothing to do with the page — most concretely, orphaned Playwright processes from an earlier run
+# starving the worker pool. That happened on 2026-07-31: three live gates went red, all three passed alone,
+# and 32 leftover chrome/node processes were the whole story. A false RED sends someone to read page code
+# that was never wrong, and gates that cry wolf get excluded.
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from browser_gate_health import infra_exhausted
+except Exception:                      # never let the health check itself break a gate
+    def infra_exhausted(_output):      # noqa: D103
+        return None
+
 
 if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
     import io

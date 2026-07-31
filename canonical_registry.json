@@ -3586,7 +3586,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track A \u2014 per-hive retention windows for soft-deleted rows, audit trail rows, and AI telemetry. PDPA evidence. Defaults applied when row missing.",
+      "comment": "Phase 5 Track A — per-hive retention windows for soft-deleted rows, audit trail rows, and AI telemetry. PDPA evidence. Defaults applied when row missing.",
       "read_by_surfaces": [
         "plant-connections.html"
       ],
@@ -3617,7 +3617,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track B \u2014 auth-side telemetry. Every login/logout/mfa event captured for session audit + anomalous-login triage. Written by auth-event-recorder edge fn (service role). Supervisor reads via hive-scope; workers read their own.",
+      "comment": "Phase 5 Track B — auth-side telemetry. Every login/logout/mfa event captured for session audit + anomalous-login triage. Written by auth-event-recorder edge fn (service role). Supervisor reads via hive-scope; workers read their own.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3648,7 +3648,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track B \u2014 MFA enrollment ledger. Recovery codes stored as SHA-256 hashes (server can verify; nobody can read them back). factor_id references Supabase Auth's factor; the TOTP secret itself never lives in this table. required_for_role tracks the Phase 5.B policy that supervisors must MFA.",
+      "comment": "Phase 5 Track B — MFA enrollment ledger. Recovery codes stored as SHA-256 hashes (server can verify; nobody can read them back). factor_id references Supabase Auth's factor; the TOTP secret itself never lives in this table. required_for_role tracks the Phase 5.B policy that supervisors must MFA.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3681,7 +3681,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 5 Track B \u2014 per-hive SSO/SAML readiness config. One row per hive. Service-role writes only (operator workflow during onboarding). enforced=true means SSO is the only login path for the hive.",
+      "comment": "Phase 5 Track B — per-hive SSO/SAML readiness config. One row per hive. Service-role writes only (operator workflow during onboarding). enforced=true means SSO is the only login path for the hive.",
       "read_by_surfaces": [
         "plant-connections.html"
       ],
@@ -3721,7 +3721,7 @@
         ]
       },
       "realtime_published": true,
-      "comment": "Phase 6A \u2014 typed semantic-claim store with confidence + source + embedding. Triples (subject -> predicate -> object) so GraphRAG can traverse the hive's domain knowledge. Distinct from asset_nodes (runtime hierarchy) and fault_knowledge (RAG corpus); this is the semantic ontology layer.",
+      "comment": "Phase 6A — typed semantic-claim store with confidence + source + embedding. Triples (subject -> predicate -> object) so GraphRAG can traverse the hive's domain knowledge. Distinct from asset_nodes (runtime hierarchy) and fault_knowledge (RAG corpus); this is the semantic ontology layer.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [
@@ -3763,7 +3763,7 @@
         ]
       },
       "realtime_published": true,
-      "comment": "Phase 6E \u2014 drone inspection job record. Photo paths point to Supabase Storage; AI inference happens through the existing visual-defect-capture pipeline (one defect per photo). This table holds the job-level metadata: who flew, when, what they inspected, lifecycle state.",
+      "comment": "Phase 6E — drone inspection job record. Photo paths point to Supabase Storage; AI inference happens through the existing visual-defect-capture pipeline (one defect per photo). This table holds the job-level metadata: who flew, when, what they inspected, lifecycle state.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3796,7 +3796,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Phase 6F \u2014 registry of standards the platform aligns to. The Standards Auto-Update Agent reads planned_review_at and surfaces drift. Hive-agnostic (standards are global / regulatory, not per-hive).",
+      "comment": "Phase 6F — registry of standards the platform aligns to. The Standards Auto-Update Agent reads planned_review_at and surfaces drift. Hive-agnostic (standards are global / regulatory, not per-hive).",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -3831,7 +3831,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Maturity-as-a-Service tracker (Phase 6 reframe addition). Records the consulting engagements we run on hives to lift them up the stack. Productisation surface that turns the methodology behind WorkHive's readiness layer into a paid offering \u2014 \"we will get you to Stair 3 in 90 days.\"",
+      "comment": "Maturity-as-a-Service tracker (Phase 6 reframe addition). Records the consulting engagements we run on hives to lift them up the stack. Productisation surface that turns the methodology behind WorkHive's readiness layer into a paid offering — \"we will get you to Stair 3 in 90 days.\"",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -4300,7 +4300,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Day 4 \u2014 full-text chunks of industry standards, embedded for semantic search. Platform-scoped (hive-agnostic). Populated by tools/day4_chunk_standards_pdfs.py.",
+      "comment": "Day 4 — full-text chunks of industry standards, embedded for semantic search. Platform-scoped (hive-agnostic). Populated by tools/day4_chunk_standards_pdfs.py.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -4337,7 +4337,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Day 8 \u2014 PLATFORM-scoped subject/predicate/object triples derived from regulatory canon + best-practice standards. Sibling to knowledge_graph_facts (HIVE-scoped). Replaces the broadcast-to-all-hives pattern. Single source of truth for cross-hive facts.",
+      "comment": "Day 8 — PLATFORM-scoped subject/predicate/object triples derived from regulatory canon + best-practice standards. Sibling to knowledge_graph_facts (HIVE-scoped). Replaces the broadcast-to-all-hives pattern. Single source of truth for cross-hive facts.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -4384,7 +4384,7 @@
         ]
       },
       "realtime_published": true,
-      "comment": "Universal feedback inbox: reviews, bugs, ideas, questions, praise, other.\n   Polymorphic table \u2014 `kind` discriminator + optional `rating` for reviews.\n   Accepts anon submissions; admin triage in Founder Console (sec-feel section).",
+      "comment": "Universal feedback inbox: reviews, bugs, ideas, questions, praise, other.\n   Polymorphic table — `kind` discriminator + optional `rating` for reviews.\n   Accepts anon submissions; admin triage in Founder Console (sec-feel section).",
       "read_by_surfaces": [
         "founder-console.html"
       ],
@@ -4415,7 +4415,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Tracks who voted on which public roadmap item. PK enforces one vote\n   per (feedback_id, voter_token) \u2014 voter_token is auth.uid()::text for\n   signed-in or a localStorage-generated random token for anon. Cascade\n   deletes when the parent feedback row is deleted.",
+      "comment": "Tracks who voted on which public roadmap item. PK enforces one vote\n   per (feedback_id, voter_token) — voter_token is auth.uid()::text for\n   signed-in or a localStorage-generated random token for anon. Cascade\n   deletes when the parent feedback row is deleted.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -5370,7 +5370,7 @@
       "rls_enabled": false,
       "grants": {},
       "realtime_published": false,
-      "comment": "Q6 2026-07-05: singleton platform-wide LLM budget counter (org-shared pool). The layer above per-hive/per-user/per-solo gates \u2014 those key on a tenant and cannot protect the ONE shared provider budget. minute_count=burst wall, day_count=daily circuit-breaker, shed/deny_today=ceiling-hit telemetry, depth_*_today=chain-depth (quality-decay) telemetry.",
+      "comment": "Q6 2026-07-05: singleton platform-wide LLM budget counter (org-shared pool). The layer above per-hive/per-user/per-solo gates — those key on a tenant and cannot protect the ONE shared provider budget. minute_count=burst wall, day_count=daily circuit-breaker, shed/deny_today=ceiling-hit telemetry, depth_*_today=chain-depth (quality-decay) telemetry.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -5578,7 +5578,7 @@
         ]
       },
       "realtime_published": true,
-      "comment": "A hail. State machine: requested\u2192broadcasting\u2192accepted\u2192en_route\u2192on_site\u2192in_progress\u2192completed\u2192settled (+cancelled_by_client/cancelled_by_provider/expired/disputed). Transitions DB-enforced by guard_service_request_status.",
+      "comment": "A hail. State machine: requested→broadcasting→accepted→en_route→on_site→in_progress→completed→settled (+cancelled_by_client/cancelled_by_provider/expired/disputed). Transitions DB-enforced by guard_service_request_status.",
       "read_by_surfaces": [
         "marketplace-seller.html",
         "marketplace.html"
@@ -5640,7 +5640,7 @@
         ]
       },
       "realtime_published": true,
-      "comment": "Append-only job timeline, written by the transition guard itself \u2014 the record outlives the action.",
+      "comment": "Append-only job timeline, written by the transition guard itself — the record outlives the action.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -5666,7 +5666,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Append-only credit ledger. Balance == SUM(amount) per account. NO client-writable path \u2014 entries are minted only by verified backend events (topup verification, completion commission, voucher flows). Credits are non-withdrawable prepaid platform fees.",
+      "comment": "Append-only credit ledger. Balance == SUM(amount) per account. NO client-writable path — entries are minted only by verified backend events (topup verification, completion commission, voucher flows). Credits are non-withdrawable prepaid platform fees.",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -5732,7 +5732,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Founder-minted discount vouchers \u2014 platform-funded acquisition (signup/referral). Admin-only writes.",
+      "comment": "Founder-minted discount vouchers — platform-funded acquisition (signup/referral). Admin-only writes.",
       "read_by_surfaces": [
         "founder-console.html"
       ],
@@ -5759,7 +5759,7 @@
         ]
       },
       "realtime_published": false,
-      "comment": "Voucher redemption records \u2014 created only by the completion-gated redemption path (RPC/GUC), never by a raw client.",
+      "comment": "Voucher redemption records — created only by the completion-gated redemption path (RPC/GUC), never by a raw client.",
       "read_by_surfaces": [
         "founder-console.html"
       ],
@@ -7383,7 +7383,7 @@
       "defined_in": "20260513000004_phase3_adoption_observability.sql",
       "args": "p_hive_id uuid",
       "security_definer": true,
-      "comment": "Phase 3.1 \u2014 Adoption Risk Score compute. Pure PL/pgSQL math: 5 components averaged, ranged 0..100 (higher = more risk), tiered healthy/at_risk/critical. Idempotent per (hive_id, snapshot_date). Drives Supervisor Engagement Card.",
+      "comment": "Phase 3.1 — Adoption Risk Score compute. Pure PL/pgSQL math: 5 components averaged, ranged 0..100 (higher = more risk), tiered healthy/at_risk/critical. Idempotent per (hive_id, snapshot_date). Drives Supervisor Engagement Card.",
       "called_by_surfaces": [
         "hive.html"
       ],
@@ -7403,7 +7403,7 @@
       "defined_in": "20260513000005_phase4_revenue_surfaces.sql",
       "args": "p_hive_id uuid",
       "security_definer": true,
-      "comment": "Phase 4.2 \u2014 Anomaly Engine 2.0 fusion ranker. Reads 5 sources, writes fused rows per (hive, machine, snapshot_date). Idempotent. Designed to run daily via pg_cron at 06:00 PHT alongside compute_hive_readiness and compute_adoption_risk.",
+      "comment": "Phase 4.2 — Anomaly Engine 2.0 fusion ranker. Reads 5 sources, writes fused rows per (hive, machine, snapshot_date). Idempotent. Designed to run daily via pg_cron at 06:00 PHT alongside compute_hive_readiness and compute_adoption_risk.",
       "called_by_surfaces": [
         "alert-hub.html"
       ],
@@ -7413,7 +7413,7 @@
       "defined_in": "20260513000006_phase5_enterprise_unlock.sql",
       "args": "",
       "security_definer": true,
-      "comment": "Phase 5 Track A \u2014 daily cron purge of soft-deleted rows past retention window. Hive-scoped via hive_retention_config; defaults to 30 days when row missing. PDPA Article 16.",
+      "comment": "Phase 5 Track A — daily cron purge of soft-deleted rows past retention window. Hive-scoped via hive_retention_config; defaults to 30 days when row missing. PDPA Article 16.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -7421,7 +7421,7 @@
       "defined_in": "20260513000006_phase5_enterprise_unlock.sql",
       "args": "p_hive_id uuid",
       "security_definer": true,
-      "comment": "Phase 5 Track A \u2014 PDPA right-to-access bulk export. Returns one JSONB blob with every hive-scoped row across canonical surfaces. Wrapped by export-hive-data edge fn for supervisor-only access.",
+      "comment": "Phase 5 Track A — PDPA right-to-access bulk export. Returns one JSONB blob with every hive-scoped row across canonical surfaces. Wrapped by export-hive-data edge fn for supervisor-only access.",
       "called_by_surfaces": [],
       "called_by_edge_fns": [
         "export-hive-data"
@@ -7503,7 +7503,7 @@
       "defined_in": "20260518000001_industry_standards_chunks.sql",
       "args": "p_query_embedding       vector,\n  p_similarity_threshold  real    DEFAULT 0.6,\n  p_limit                 int     DEFAULT 5,\n  p_family                text    DEFAULT NULL",
       "security_definer": false,
-      "comment": "Day 4 \u2014 platform-wide semantic retrieval over industry standards corpus. Mirrors semantic_search_kb but with NO hive filter (standards are global). Optional p_family narrows to specific bodies (iso/iec/philippine/etc).",
+      "comment": "Day 4 — platform-wide semantic retrieval over industry standards corpus. Mirrors semantic_search_kb but with NO hive filter (standards are global). Optional p_family narrows to specific bodies (iso/iec/philippine/etc).",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -7511,7 +7511,7 @@
       "defined_in": "20260518000003_semantic_search_kg_facts.sql",
       "args": "p_hive_id               uuid,\n  p_query_embedding       vector,\n  p_similarity_threshold  real DEFAULT 0.5,\n  p_limit                 int  DEFAULT 5,\n  p_min_confidence        real DEFAULT 0.5",
       "security_definer": true,
-      "comment": "Day 5 \u2014 hive-scoped semantic retrieval over knowledge_graph_facts triples. Returns top-N triples by cosine distance, filtered by min confidence. Voice handler calls this in parallel with semantic_search_kb (hive docs) and semantic_search_industry_standards (platform canon).",
+      "comment": "Day 5 — hive-scoped semantic retrieval over knowledge_graph_facts triples. Returns top-N triples by cosine distance, filtered by min confidence. Voice handler calls this in parallel with semantic_search_kb (hive docs) and semantic_search_industry_standards (platform canon).",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -7519,7 +7519,7 @@
       "defined_in": "20260519000001_platform_knowledge_graph_facts.sql",
       "args": "p_query_embedding       vector,\n  p_similarity_threshold  real DEFAULT 0.5,\n  p_limit                 int  DEFAULT 5,\n  p_min_confidence        real DEFAULT 0.5",
       "security_definer": false,
-      "comment": "Day 8 \u2014 platform-wide semantic retrieval over standards-derived KG triples. Mirrors semantic_search_kg_facts (hive-scoped) shape but takes no hive_id. Voice handler calls both and merges.",
+      "comment": "Day 8 — platform-wide semantic retrieval over standards-derived KG triples. Mirrors semantic_search_kg_facts (hive-scoped) shape but takes no hive_id. Voice handler calls both and merges.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -7551,7 +7551,7 @@
       "defined_in": "20260520000002_get_oee_by_machine.sql",
       "args": "p_hive_id     uuid,\n  p_period_days int DEFAULT 90",
       "security_definer": true,
-      "comment": "Tier E canonical OEE per machine. Reads asset_nodes.ideal_cycle_time_seconds to compute the Performance factor. Returns full OEE = A \u00d7 P \u00d7 Q when ideal cycle time and units_produced are both present; otherwise returns partial (A \u00d7 Q) with is_partial=true.",
+      "comment": "Tier E canonical OEE per machine. Reads asset_nodes.ideal_cycle_time_seconds to compute the Performance factor. Returns full OEE = A × P × Q when ideal cycle time and units_produced are both present; otherwise returns partial (A × Q) with is_partial=true.",
       "called_by_surfaces": [],
       "called_by_edge_fns": [
         "analytics-orchestrator"
@@ -8077,7 +8077,7 @@
       "defined_in": "20260705000009_q5a_inline_image_guard.sql",
       "args": "",
       "security_definer": true,
-      "comment": "Q5-a 2026-07-05: server-side size backstop for inline base64 photo columns (logbook/inventory_items). Blocks >1.5MB base64 \u2014 a client-bypass guard, not the honest-photo path. Full Storage-offload stays deferred until photo_attach_stats() shows attach-rate climbing.",
+      "comment": "Q5-a 2026-07-05: server-side size backstop for inline base64 photo columns (logbook/inventory_items). Blocks >1.5MB base64 — a client-bypass guard, not the honest-photo path. Full Storage-offload stays deferred until photo_attach_stats() shows attach-rate climbing.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -8722,7 +8722,7 @@
       "defined_in": "20260728000031_lessons_learned_is_signed_content.sql",
       "args": "",
       "security_definer": true,
-      "comment": "Only a supervisor may change meta.lessons_learned \u2014 it is rendered on the printable project ",
+      "comment": "Only a supervisor may change meta.lessons_learned — it is rendered on the printable project ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -9042,6 +9042,22 @@
       "comment": "Refuses a voucher_grant that would push total vouchers past total commission earned. Vouchers are the ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "guard_payment_variance_explained": {
+      "args": "",
+      "called_by_edge_fns": [],
+      "called_by_surfaces": [],
+      "security_definer": true,
+      "defined_in": "20260731000024_understatement_needs_a_reason.sql",
+      "comment": "Closes the A3 attack the fraud model found: a client and provider who agree PHP50,000 and declare PHP1 paid PHP0.10 commission instead of PHP2,500. Does NOT refuse a low payment - a discount, a reduced scope or part-payment in materials are all legitimate, and refusing them pushes people off-platform, which costs more than the leak. Instead a materially-understated payment (under 50% of service_agreed_base, on a job over PHP1,000) must carry a variance_reason: cheap for an honest user, expensive for a dishonest one, because it turns a silent gap into a written attributable claim beside an immutable record. Counter-confirmation would not work here - BOTH parties gain from understating, so the other side is a co-beneficiary, and the platform is the only loser."
+    },
+    "service_agreed_base": {
+      "args": "",
+      "called_by_edge_fns": [],
+      "called_by_surfaces": [],
+      "security_definer": true,
+      "defined_in": "20260731000024_understatement_needs_a_reason.sql",
+      "comment": "THE agreed price for a job: selected offer, else catalogue rate, else stated budget. Exists because that chain had been written out THREE times - both minters and the leakage gate - and three copies of a money rule drift silently."
     }
   },
   "surfaces": {

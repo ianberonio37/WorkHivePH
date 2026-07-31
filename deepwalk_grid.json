@@ -1,5 +1,5 @@
 {
- "generated": "2026-07-31T08:27:24+00:00",
+ "generated": "2026-07-31T09:40:51+00:00",
  "coverage_pct": 100.0,
  "page_pct": 100.0,
  "ai_surface_pct": 100.0,
@@ -361,9 +361,8 @@
  "surface_set_hash": "9f26fa121503",
  "oracle_set_hash": "58ef82d9dc70",
  "live_bonus": {
-  "live_cells": 28,
+  "live_cells": 26,
   "live_cell_ids": [
-   "H1/F",
    "H1/I",
    "H1/M",
    "H1/U",
@@ -389,14 +388,13 @@
    "H7/F",
    "H7/U",
    "H8/A",
-   "H8/I",
-   "H9/F"
+   "H8/I"
   ],
   "breaches": 0,
   "fresh": true,
-  "age_days": 0.3,
+  "age_days": 0.0,
   "proven_ever": 32,
-  "this_run": 28
+  "this_run": 26
  },
  "cells": {
   "achievements|D1": {
@@ -9358,7 +9356,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": 3.4,
- "dry_streak": 0,
+ "delta_vs_last": 0.0,
+ "dry_streak": 1,
  "dry": false
 }

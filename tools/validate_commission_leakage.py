@@ -55,13 +55,12 @@ def psql(sql):
 QUERY = """
 select r.id::text,
        coalesce(p.amount_paid, 0)::text,
-       coalesce(
-         (select o.price from public.service_offers o
-           where o.request_id = r.id and o.status = 'selected' and o.price is not null
-           order by o.updated_at desc limit 1),
-         (select c.base_rate from public.service_catalog c where c.id = r.catalog_item_id),
-         r.budget, 0)::text,
-       coalesce(r.segment, '?')
+       -- THE SHARED DEFINITION. This chain used to be written out here a THIRD time, alongside both
+       -- minters; three copies of a money rule drift, and the drift would be silent. `service_agreed_base`
+       -- is now the only place it lives, so the gate and the biller cannot disagree about what was agreed.
+       public.service_agreed_base(r.id)::text,
+       coalesce(r.segment, '?'),
+       coalesce(p.variance_reason, '')
   from public.service_requests r
   join public.service_payments p on p.request_id = r.id
  where r.status in ('settled', 'disputed');
@@ -71,13 +70,15 @@ select r.id::text,
 def judge(rows):
     """Pure arithmetic over (paid, agreed) pairs, so the self-test needs no database."""
     severe, total_gap = [], 0.0
-    for rid, paid, agreed, seg in rows:
+    for row in rows:
+        rid, paid, agreed, seg = row[0], row[1], row[2], row[3]
+        reason = row[4] if len(row) > 4 else ""
         paid, agreed = float(paid), float(agreed)
         if agreed < MATERIAL_AGREED:
             continue                      # too small for the gap to be worth routing around
         ratio = paid / agreed if agreed else 1.0
         if ratio < SEVERE_RATIO:
-            severe.append((rid, paid, agreed, ratio, seg))
+            severe.append((rid, paid, agreed, ratio, seg, reason))
             total_gap += agreed - paid
     return severe, total_gap
 
@@ -85,14 +86,14 @@ def judge(rows):
 def selftest():
     print("  selftest: the ratio arithmetic must catch an understated job and pass an honest one")
     ok = True
-    honest = [("a", "2000", "2000", "consumer"), ("b", "1800", "2000", "consumer")]
+    honest = [("a", "2000", "2000", "consumer", ""), ("b", "1800", "2000", "consumer", "")]
     if judge(honest)[0]:
         print(f"  {R}FAIL{X} — an honest job (and a modest discount) was flagged"); ok = False
-    attack = [("c", "1", "50000", "consumer")]
+    attack = [("c", "1", "50000", "consumer", "")]
     sev, gap = judge(attack)
     if not sev or round(gap) != 49999:
         print(f"  {R}FAIL{X} — the PHP1-on-PHP50,000 attack was not caught"); ok = False
-    noise = [("d", "80", "200", "consumer")]
+    noise = [("d", "80", "200", "consumer", "")]
     if judge(noise)[0]:
         print(f"  {R}FAIL{X} — a tiny job was flagged; the threshold must be material"); ok = False
     if ok:
@@ -116,9 +117,13 @@ def main(argv):
     floor = base.get("severe", 0)
 
     print(f"  {D}settled jobs with a payment record: {len(rows)}{X}")
-    for rid, paid, agreed, ratio, seg in sorted(severe, key=lambda s: s[3])[:5]:
+    for rid, paid, agreed, ratio, seg, reason in sorted(severe, key=lambda s: s[3])[:5]:
         print(f"  {R}severe{X} {rid[:8]} {seg:<10} declared {paid:>12,.2f} of {agreed:>12,.2f} "
               f"{D}({ratio*100:.1f}% — {agreed-paid:,.2f} of fee base unbilled){X}")
+        # The STATED reason is the point. Since mig ...024 a materially-understated payment cannot be
+        # written without one, so every severe case here carries an attributable claim — and a pattern of
+        # identical reasons across many jobs is the farming signal this gate exists to make actionable.
+        print(f"           {D}reason: {reason or '(none — pre-dates the variance guard)'}{X}")
 
     if "--accept" in argv:
         if len(severe) > floor and BASELINE.exists():

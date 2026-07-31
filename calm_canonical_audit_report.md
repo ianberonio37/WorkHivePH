@@ -7,9 +7,9 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 - Calm-opted-in pages: **13**
 - Fully compliant pages (0 drift + 0 gap): **10** (76%)
-- Canonical reads (✅): **46**
+- Canonical reads (✅): **47**
 - Drift reads (⚠️ wrapper exists, page reads raw): **0**
-- Gap reads (❌ no wrapper exists yet): **5**
+- Gap reads (❌ no wrapper exists yet): **4**
 - Allowed reads (legitimate raw): **51**
 - Truth views in registry: **45**
 
@@ -24,7 +24,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 | `analytics.html` | 0 | 0 | 1 | 0 | ✓ | ❌ |
 | `asset-hub.html` | 10 | 0 | 0 | 11 | ✓ | ✅ |
 | `dayplanner.html` | 2 | 0 | 0 | 2 | ✓ | ✅ |
-| `founder-console.html` | 5 | 0 | 3 | 8 | ✓ | ❌ |
+| `founder-console.html` | 6 | 0 | 2 | 8 | ✓ | ❌ |
 | `hive.html` | 10 | 0 | 0 | 9 | ✓ | ✅ |
 | `index.html` | 9 | 0 | 0 | 4 | ✓ | ✅ |
 | `ph-intelligence.html` | 0 | 0 | 0 | 2 | — | ✅ |
@@ -38,7 +38,6 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 | `ai_reply_feedback` | 1 | `v_ai_reply_feedback_truth` (suggested) |
 | `analytics_snapshots` | 1 | `v_analytics_snapshot_truth` (suggested) |
 | `marketplace_listings` | 1 | `v_marketplace_listing_truth` (suggested) |
-| `service_credit_ledger` | 1 | `v_service_credit_ledger_truth` (suggested) |
 | `service_credit_topups` | 1 | `v_service_credit_topup_truth` (suggested) |
 
 ## Top DRIFT tables (wrapper exists, pages still reading raw)
@@ -83,8 +82,8 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 ### `founder-console.html` — ❌ not compliant
 
-**Canonical** (5): `v_hive_readiness_truth`, `v_marketplace_listings_truth`, `v_marketplace_orders_truth`, `v_marketplace_sellers_truth`, `v_service_credit_topups_truth`
-**Gap** (3): `marketplace_listings`, `service_credit_ledger`, `service_credit_topups`
+**Canonical** (6): `v_hive_readiness_truth`, `v_marketplace_listings_truth`, `v_marketplace_orders_truth`, `v_marketplace_sellers_truth`, `v_service_credit_ledger_truth`, `v_service_credit_topups_truth`
+**Gap** (2): `marketplace_listings`, `service_credit_topups`
 **Allowed raw** (8): `ai_cost_log`, `analytics_events`, `hive_audit_log`, `marketplace_disputes`, `marketplace_sellers`, `platform_feedback`, `service_voucher_redemptions`, `service_vouchers`
 
 ### `hive.html` — ✅ compliant

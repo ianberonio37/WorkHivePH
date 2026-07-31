@@ -36,6 +36,19 @@ import os
 import subprocess
 import sys
 
+# A BROKEN MACHINE IS NOT A BROKEN PRODUCT. This gate drives a real browser, so it can fail for reasons that
+# have nothing to do with the page — most concretely, orphaned Playwright processes from an earlier run
+# starving the worker pool. That happened on 2026-07-31: three live gates went red, all three passed alone,
+# and 32 leftover chrome/node processes were the whole story. A false RED sends someone to read page code
+# that was never wrong, and gates that cry wolf get excluded.
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from browser_gate_health import infra_exhausted
+except Exception:                      # never let the health check itself break a gate
+    def infra_exhausted(_output):      # noqa: D103
+        return None
+
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLI = os.path.join(ROOT, "node_modules", "@playwright", "test", "cli.js")
 SPEC = "tests/marketplace-state-inducers.spec.ts"      # forward slashes: a backslash reads as an escape
@@ -54,9 +67,29 @@ def run(timeout=300):
     return r.returncode, (r.stdout or "") + (r.stderr or "")
 
 
+# Transient shapes: the RUNNER or the local stack wobbled, not the page. Narrow on purpose — an assertion
+# failure, a missing element or the vacuity guard are absent from this list and will never be retried.
+_TRANSIENT = ("Failed to fetch", "ECONNRESET", "socket hang up", "ERR_NETWORK_CHANGED",
+              "Timeout 8000ms exceeded")
+
+
 def main(argv):
     print("Marketplace state inducers (the `error` and `degraded` states, in a real browser)")
     rc, out = run()
+
+    # ONE RETRY, and only for a transient shape. Measured 2026-07-31: this gate failed three times under a
+    # loaded machine (a full suite, a 3,000-lifecycle simulation and a page battery all competing for
+    # Postgres connections and CPU) and passed every single time it was run on a quiet system — twice
+    # directly and once through this wrapper. The failures were `Failed to fetch` during sign-in and an
+    # 8s page-ready timeout, i.e. the local stack not answering in time, never an assertion about the page.
+    #
+    # A real product failure fails BOTH times, so this hides nothing; a load flake passes on the second.
+    # The retry is PRINTED, because a gate that quietly retries is a gate whose flakiness nobody ever fixes
+    # — and a false RED is worse than a skip: it sends someone to read page code that was never wrong.
+    if rc not in (0, None) and any(t in (out or "") for t in _TRANSIENT):
+        print(f"  {YEL}retry{RST}  first run hit a transient stack/runner error, not an assertion — "
+              f"re-running once before calling this a product failure")
+        rc, out = run()
     if rc is None:
         print(f"  {YEL}SKIP{RST} — {out}")
         return 0
@@ -76,6 +109,17 @@ def main(argv):
                   f"fails if whRequireOnline\n        is absent from the page rather than merely "
                   f"permissive.{RST}")
         return 0
+    # Before calling this a product failure, ask whether the RUNNER failed. Orphaned Playwright processes
+    # from an earlier run starve the worker pool and produce errors indistinguishable from a broken page —
+    # this gate went red three times on 2026-07-31 and passed alone every time. A skip here is LOUD: it
+    # prints the signature and the live process count, so it is a claim with evidence, not a shrug.
+    infra = infra_exhausted(out)
+    if infra:
+        print(f"  {YEL}SKIP{RST}  the RUNNER failed, not the page: {infra}")
+        print(f"    {DIM}nothing was measured. Reap leftovers with "
+              f"`python tools/browser_gate_health.py --reap` and re-run.{RST}")
+        return 0
+
     print(f"  {RED}FAIL{RST}  a state inducer did not hold:")
     for line in [l for l in out.splitlines() if "Error:" in l or "✘" in l][:6]:
         print(f"    {DIM}{line.strip()[:150]}{RST}")
