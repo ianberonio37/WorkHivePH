@@ -70,6 +70,56 @@ def psql(sql, want_rows=True):
     return out, ""
 
 
+def service_key():
+    """Read the LOCAL service-role key from the running edge-runtime container at call time.
+
+    Never stored, never printed, and never written into a trigger — which is precisely the failure this
+    whole spine replaces: the old webhooks carried a PRODUCTION service-role bearer inside their trigger
+    definitions, so the key sat in the catalog and every local write reached production. The relay holds it
+    in memory for one process instead.
+    """
+    try:
+        r = subprocess.run(["docker", "exec", "supabase_edge_runtime_workhive",
+                            "printenv", "SUPABASE_SERVICE_ROLE_KEY"],
+                           capture_output=True, text=True, timeout=30)
+        return (r.stdout or "").strip()
+    except Exception:
+        return ""
+
+
+def embed_row(source_table, row_id, key):
+    """POST the row to the LOCAL embed-entry in the DB-webhook shape it was written for.
+
+    The URL is local and passed per call; nothing about the destination lives in the database.
+    """
+    rows, err = psql(f"select to_jsonb(l) from public.{source_table} l "
+                     f"where l.id::text = {lit(row_id)};")
+    if rows is None or not rows:
+        return False, err or "source row vanished before it could be embedded"
+    payload = json.dumps({"type": "INSERT", "table": source_table, "record": json.loads(rows[0][0])})
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            "http://127.0.0.1:54321/functions/v1/embed-entry",
+            data=payload.encode(),
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+            method="POST")
+        with urllib.request.urlopen(req, timeout=90) as resp:
+            body = json.loads(resp.read().decode() or "{}")
+        if body.get("skipped"):
+            # The function's OWN reason for not embedding (near-empty, table not handled). Not a failure:
+            # retrying would never change the answer, so the job completes rather than looping.
+            return True, f"skipped by embed-entry: {body.get('reason')}"
+        return True, ""
+    except Exception as e:
+        detail = ""
+        try:
+            detail = e.read().decode()[:200]          # HTTPError carries the function's own message
+        except Exception:
+            detail = str(e)[:200]
+        return False, detail
+
+
 def lit(s):
     """A SQL STRING literal — single-quoted, with internal quotes doubled.
 
@@ -214,6 +264,11 @@ def main(argv):
         print(f"  {DIM}nothing due{RST}")
         return 0
 
+    key = service_key()
+    if not key and not a.dry_run:
+        print(f"  {YEL}SKIP{RST} local service key unavailable (edge runtime not up) — jobs left queued")
+        return 0
+
     embedded = skipped = failed = 0
     for jid, source_table, row_id, attempts in jobs:
         spec, err = compose_and_target(source_table, row_id)
@@ -231,10 +286,15 @@ def main(argv):
             print(f"  {DIM}would embed {source_table}/{row_id} -> {spec['target']} "
                   f"({len(spec['text'])} chars, {spec['model']}){RST}")
             continue
-        # The embedding call itself is intentionally the LAST thing wired: the queue semantics above are
-        # what make it safe to call at all, and they are provable without a model.
-        finish(jid, False, "embedding call not yet wired (P1 spine: queue proven, provider next)")
-        failed += 1
+        ok, detail = embed_row(source_table, row_id, key)
+        finish(jid, ok, detail)
+        if ok:
+            embedded += 1
+            if detail:
+                print(f"  {DIM}{source_table}/{row_id}: {detail}{RST}")
+        else:
+            failed += 1
+            print(f"  {YEL}retry{RST} {source_table}/{row_id} (attempt {attempts}): {detail[:110]}")
 
     print(f"  claimed {len(jobs)} · embedded {embedded} · skipped-short {skipped} · deferred {failed}")
     return 0
