@@ -39,6 +39,11 @@ REQUIRED_FLOORS = {
 REQUIRED_CONSUMERS = {
     "timing/reach":    ("sweep_service_broadcasts", ("instant_ttl_seconds", "broadcast_widen_rounds")),
     "trust thresholds": ("recompute_seller_sales_and_tier", ("tier_gold_sales", "tier_silver_sales")),
+    # Added after `broadcast_radius_start_m` shipped unread — the THIRD write-only knob in one feature. The
+    # sweep only caps with broadcast_radius_max_m, so the knob deciding how WIDE a hail STARTS had no
+    # consumer until a birth-time trigger read it. Listing every family here is what makes the omission
+    # impossible to repeat quietly.
+    "start radius":    ("apply_hive_broadcast_radius", ("broadcast_radius_start_m",)),
 }
 
 

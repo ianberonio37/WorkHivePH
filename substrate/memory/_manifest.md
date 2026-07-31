@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:625-files
-source_sha: 5de4734568b40eb6
+source: memory-curated:626-files
+source_sha: 9ab0a93f694d5bb9
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (625 durable topic files)
+## memory · curated auto-memory (626 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=247 · project=289 · reference=89
+**By type:** feedback=248 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -106,6 +106,7 @@ Entries (name · type · sha):
 - `feedback_fixed_char_window_validator_is_brittle` · feedback · 8d70c5bbff536c80
 - `feedback_flywheel_is_full_loop_not_shallow` · feedback · 86b75303ba39dfb5
 - `feedback_follow_framework_antidrift_before_building` · feedback · 014de31a1ef7f2bc
+- `feedback_four_false_readings_in_one_session` · feedback · 024913835ef97f15
 - `feedback_free_text_identity_is_a_claim` · feedback · 684321f29a60d9b4
 - `feedback_free_tier_only_models` · feedback · a7149c3cbb49a7fc
 - `feedback_fuel_engine_brain_metaphor` · feedback · 156389609ba95129
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_silo_monitor` · project · 90e04219d4cd8f22
 - `project_social_auto_publisher` · project · ccd39a73c47faf91
 - `project_streamline_arc_complete_2026_06_13` · project · e72febc7a4358311
-- `project_streamline_E1_jargon_fix_2026_06_14` · project · df0d8c2ce258f086
-- … +125 more (all included in the fingerprint)
+- … +126 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:462
-source_sha: ae439cc8806c73aa
+source: dir:supabase/migrations:463
+source_sha: c966f803737732c1
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (462 migrations)
+## migration · catalog (463 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260705000006_q6_global_ai_budget` — fns:consume_ai_global_budget,record_ai_chain_depth · tables:ai_global_budget
 - `20260705000007_q1_enforce_cumulative_quota` — fns:check_hive_quota_ai_reports,check_hive_quota_community,check_hive_quota_inv_tx,check_hive_quota_logbook,check_hive_quota_pm_completions,seed_hive_quota_defaults · triggers:trg_hive_quota_ai_reports,trg_hive_quota_community_posts,trg_hive_quota_inv_tx,trg_hive_quota_logbook,trg_hive_quota_pm_completions,trg_seed_hive_quota_defaults · tables:against,hive_quotas
 - `20260705000008_q5b_retention_embedding_cache` — fns:prune_embedding_cache
 - `20260705000009_q5a_inline_image_guard` — fns:check_inline_image_size,photo_attach_stats · triggers:trg_inline_image_size_inventory,trg_inline_image_size_logbook
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260731000007_d9_service_knobs` — policies:hive_service_settings_read,hive_service_settings_write · fns:service_knob · tables:hive_service_settings
 - `20260731000008_sweep_reads_d9_knobs` — fns:sweep_service_broadcasts
 - `20260731000009_tier_reads_d9_knobs` — fns:recompute_seller_sales_and_tier
+- `20260731000010_hail_starts_at_hive_radius` — fns:apply_hive_broadcast_radius · triggers:trg_apply_hive_broadcast_radius
 
 (showing last 200)
 
