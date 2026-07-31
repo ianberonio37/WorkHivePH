@@ -28,6 +28,7 @@ Usage:
 """
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -41,6 +42,12 @@ LEASE_SECONDS = 300
 # psql emits its command tag on stdout next to RETURNING rows; single-field and fixed shape.
 TAG_RE = re.compile(r"^(INSERT \d+ \d+|UPDATE \d+|DELETE \d+|SELECT \d+)$")
 BACKOFF_SECONDS = "30 * power(2, greatest(attempts - 1, 0))"      # 30s, 60s, 120s, 240s, 480s
+
+# CONFIG, not a constant. The relay must run against whatever host serves the platform — a deployed
+# embedder for production users, or the local stack while developing. Hardcoding 127.0.0.1 is the same
+# mistake in miniature as the trigger that hardcoded a PRODUCTION url: a destination baked into code is a
+# destination nobody can change without a deploy. Defaults to local so nothing changes for development.
+EMBED_FN_URL = os.environ.get("WH_EMBED_FN_URL", "http://127.0.0.1:54321/functions/v1/embed-entry")
 
 
 def psql(sql, want_rows=True):
@@ -88,9 +95,12 @@ def service_key():
 
 
 def embed_row(source_table, row_id, key):
-    """POST the row to the LOCAL embed-entry in the DB-webhook shape it was written for.
+    """POST the row to embed-entry (WH_EMBED_FN_URL) in the DB-webhook shape it was written for.
 
-    The URL is local and passed per call; nothing about the destination lives in the database.
+    The destination is CONFIG, never baked into the database. That distinction is the whole point of this
+    spine: the triggers it replaces carried a production URL and a service-role key inside their own
+    definitions, so the destination could not be changed and the key could not be rotated without touching
+    the catalog. Here the outbox row carries neither — only which row needs indexing.
     """
     rows, err = psql(f"select to_jsonb(l) from public.{source_table} l "
                      f"where l.id::text = {lit(row_id)};")
@@ -100,7 +110,7 @@ def embed_row(source_table, row_id, key):
     try:
         import urllib.request
         req = urllib.request.Request(
-            "http://127.0.0.1:54321/functions/v1/embed-entry",
+            EMBED_FN_URL,
             data=payload.encode(),
             headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
             method="POST")
