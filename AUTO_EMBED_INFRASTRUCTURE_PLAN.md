@@ -298,3 +298,35 @@ self-healing" buys.
    directly (§10.1) — the path that has put every correct row in this database.
 
 **Status: 1,314 of 3,811 retrievable (34.5%), all in one space, 2,498 queued and paused pending the relay fix.**
+
+## §13 · The principle the second split taught: FAILOVER IS SAFE FOR READS, POISON FOR WRITES
+
+Fixing the address (§12) was necessary and not sufficient. With `embed-server` correctly reachable, three
+test rows landed in bge-local — then resuming the backfill put **241 more rows into nomic**. The embedder was
+not misconfigured any more; it was intermittently slow or busy under sustained load, and on each stumble the
+chain did what it was designed to do: **fail over to the next provider.**
+
+That behaviour is correct for a QUERY and catastrophic for an INGEST:
+
+| | failover on a **read** | failover on a **write** |
+|---|---|---|
+| effect | a slightly worse answer, this once | a **permanent** vector in a foreign space |
+| visibility | the user sees a result | every signal says success — job done, count rises |
+| recovery | nothing to undo | DELETE-first re-embed of every affected row |
+
+A read failover degrades one response. A write failover **persists** the degradation, and because the vector
+is well-formed and non-null, nothing downstream can tell it apart from a good one. This is why the corpus was
+poisoned twice in one session by a system that reported success both times.
+
+**THE RULE: ingest must be PINNED and NO-FAILOVER.** If the pinned embedder cannot answer, the correct
+outcome is to FAIL THE JOB — the outbox already exists precisely to retry it with backoff, and a queued row
+is recoverable while a foreign-space row is not. Failover stays for query paths, where a degraded answer beats
+no answer.
+
+That is a small change to `generateEmbeddingTagged` (an ingest flag that refuses to walk the provider list)
+plus the relay passing it. It is the last thing standing between the paused 2,221 rows and a safe backfill —
+and it is the reason those rows stay paused rather than draining tonight.
+
+**Corrected status: the backfill is BLOCKED on a chain that fails over, not on quota, not on the address, and
+not on the embedder.** Everything else — outbox, registry, relay, upserts, dedup, both gates, the healing
+sweep — is built and proven.
