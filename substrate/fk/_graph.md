@@ -2,11 +2,11 @@
 name: fk-graph
 type: fk
 source: db:pg_constraint:foreign-keys
-source_sha: 9de3cc86a8239627
+source_sha: f4c199fe387160b2
 last_verified: 2026-07-13
 supersedes: null
 ---
-## fk · relational-integrity graph (163 foreign keys)
+## fk · relational-integrity graph (164 foreign keys)
 
 **UNINDEXED FK columns (26)** — slow joins + table-locking cascade deletes; add an index on the child column:
 - `agent_episodic_memory`.`auth_uid` -> `auth.users`
@@ -36,7 +36,7 @@ supersedes: null
 - `voice_journal_entries`.`hive_id` -> `hives`
 - `weibull_fits`.`fmea_mode_id` -> `rcm_fmea_modes`
 
-**ON DELETE CASCADE FKs (107)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
+**ON DELETE CASCADE FKs (108)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
 - `agent_episodic_memory`.`hive_id` -> `hives`
 - `agent_followups`.`hive_id` -> `hives`
 - `agent_memory`.`hive_id` -> `hives`

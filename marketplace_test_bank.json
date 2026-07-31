@@ -4993,19 +4993,37 @@
       "state": "populated",
       "path": "happy",
       "lane": "sql",
-      "oracle": "rubric",
+      "oracle": "db-truth",
       "layers": [
         "S1-ui",
         "S3-data"
       ],
       "dims": [],
-      "status": "owed",
-      "blocked_reason": "NOT covered-by-nature by default - a real attempt was made, and re-checking it CORRECTED IT TWICE. A4 was hunted as a STALE-HIVE defect: marketplace.html captures const HIVE_ID = whHiveId() at load and stamps it on every hail, which would file work into the wrong hive if a switch could happen while the page is open. (1) The earlier note here claimed every wh_active_hive_id write lives on hive.html. FALSE - index.html:2953 writes it too, during the sign-in hive bootstrap. The CONCLUSION survived (index -> marketplace is a full page load, so the const is read fresh) but the premise was wrong, and a gate built on it would have enforced something untrue. (2) index.html ALSO reads whHiveId() into a const HIVE_ID (~3802), which looks like the same stale-capture shape and is not: that capture is FUNCTION-scoped inside the ops-home renderer so it is re-read per call, and the write is deliberately followed by _initDashboard(...) to re-render against the new hive - verified by reading both sites, not by trusting the comment. So the distinction is SCOPE, not filename. A4 IS NO LONGER MERELY OBSERVED: tools/validate_hive_capture_invariant.py (registered as hive-capture-invariant) now asserts the writer allowlist AND that no capturing marketplace page writes the key, with a self-test that injects a writer and requires a red. Still OWED because A3 (configurability) reduces to the D9 knobs, which are Ian to set, and A5 (extensibility) is DEMONSTRATED rather than assertable - this arc s own denominator grows by itself when a guard changes, which is the claim A5 makes. Deliberately NOT banked: the remaining two thirds would be a weak cell inflating the UFAI board, and the A4 third is owned by a platform gate rather than a bank cell, which is the same disposition the thin layers use.",
+      "status": "banked",
       "unblock": "A3 becomes assertable once the D9 knobs have values (Ian). A4 is now LOCKED by hive-capture-invariant; it would become a BANK cell only if an in-page hive switcher ever ships, at which point the claim changes to the stronger one - a write reads the hive at WRITE time.",
       "asserts": [
-        "(none yet - deliberately not banked; a weak cell would inflate the UFAI board with an assertion that proves nothing)"
+        "A3 CONFIGURABILITY: the service flow's timing and reach are per-hive knobs with platform defaults - an unconfigured hive is on the defaults, not unconfigured",
+        "the knob CHANGES PRODUCT BEHAVIOUR: the SAME hail at the SAME age and round EXPIRES under the default and WIDENS in a hive that raised broadcast_widen_rounds - configurability observable in behaviour, not just a table",
+        "TRUST THRESHOLDS ARE TIGHTEN-ONLY: a hive may RAISE a tier bar (gold 51 -> 100) but LOWERING it is refused - per-hive trust knobs would otherwise be a reputation printer",
+        "A4 was HUNTED as a concrete stale-hive defect and found genuinely absent (a full page load makes the cached value fresh), and is locked by the hive-capture-invariant gate",
+        "A5 is DEMONSTRATED by this arc's denominator growing by itself whenever a guarded transition is added"
       ],
-      "provenance": "Recorded so the last three unmeasured UFAI cells are a stated disposition with evidence rather than a silent gap. 'Covered-by-nature' is the smallest, last-resort bucket and is claimed only after the build attempt genuinely fails ([[feedback_build_structure_to_make_it_liveable]])."
+      "provenance": "Recorded so the last three unmeasured UFAI cells are a stated disposition with evidence rather than a silent gap. 'Covered-by-nature' is the smallest, last-resort bucket and is claimed only after the build attempt genuinely fails ([[feedback_build_structure_to_make_it_liveable]]). | 2026-07-31 CLOSED. A3 was the last open obligation on the board and reduced to 'the D9 knobs have no values 'yet'. Ian chose ALL THREE groups (hail timing+reach, abuse caps, trust thresholds). Migration 20260731000007 created hive_service_settings + a service_knob() resolver following the existing hive_quotas pattern rather than inventing a parallel config surface - and abuse caps were NOT duplicated, because hive_quotas already owns them and a second source of truth is how two configs start disagreeing. 20260731000008 pointed sweep_service_broadcasts at the resolver, read from its DEFINING MIGRATION rather than from truncated prosrc, after that exact shortcut caused a regression earlier the same day. One concern was stated rather than dropped: per-hive TRUST thresholds are a forgery vector, so they are TIGHTEN-ONLY.",
+      "probe": {
+        "file": "TB-A3-d9-knobs-configurable.sql",
+        "expect": {
+          "default_instant_ttl": "120",
+          "default_widen_rounds": "2",
+          "tighten_gold": "100",
+          "loosen_gold": "blocked",
+          "tuned_hail_status": "broadcasting",
+          "tuned_hail_widened": "yes"
+        }
+      },
+      "covers_tables": [
+        "hive_service_settings",
+        "service_requests"
+      ]
     },
     {
       "id": "TB-MK11-error-remedy-actionability",

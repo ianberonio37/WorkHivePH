@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:624-files
-source_sha: dc09d0b3ff38bce1
+source: memory-curated:625-files
+source_sha: 5de4734568b40eb6
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (624 durable topic files)
+## memory · curated auto-memory (625 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=246 · project=289 · reference=89
+**By type:** feedback=247 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -208,6 +208,7 @@ Entries (name · type · sha):
 - `feedback_retrieve_first_no_workflow_for_known_knowledge` · feedback · b758fa87ccfc4bc2
 - `feedback_reveal_then_sweep` · feedback · 5d8bd29f948c0657
 - `feedback_review_ripple_first` · feedback · 1aef70243094cd25
+- `feedback_rls_probe_needs_the_role_not_just_claims` · feedback · 927d71b637b841bb
 - `feedback_roadmap_percent_is_the_anti_drift_compass` · feedback · fabf57776225b1bb
 - `feedback_rpc_overload_pgrst203_kills_endpoint` · feedback · d5e03cfb65d06cdc
 - `feedback_run_the_battery_dont_hand_roll_probes` · feedback · ee851f13a166f5cf
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_social_auto_publisher` · project · ccd39a73c47faf91
 - `project_streamline_arc_complete_2026_06_13` · project · e72febc7a4358311
 - `project_streamline_E1_jargon_fix_2026_06_14` · project · df0d8c2ce258f086
-- `project_streamline_E2_rollout_2026_06_14` · project · 15cf41613cb97ba8
-- … +124 more (all included in the fingerprint)
+- … +125 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:459
-source_sha: 9524e42ea34afb5b
+source: dir:supabase/migrations:461
+source_sha: 856ae89c07fb62ef
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (459 migrations)
+## migration · catalog (461 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260705000003_q4_daily_ai_ceiling` — fns:cap_pdf_job_size · triggers:trg_cap_pdf_job_size,trg_daily_cap_pdf_jobs · tables:ai_rate_limits,ai_user_rate_limits
-- `20260705000004_full_write_surface_coverage` — fns:cap_engineering_calcs_text,cap_marketplace_saved_searches_text,cap_parts_staged_reservations_text,cap_project_change_orders_text,cap_project_items_text,cap_project_links_text · triggers:trg_daily_cap_eng_calcs,trg_daily_cap_fault_knowledge,trg_daily_cap_pm_assets,trg_daily_cap_pm_scope,trg_daily_cap_project_co,trg_daily_cap_project_items
 - `20260705000005_close_page_audit_gaps` — fns:cap_alert_dismissals_text,cap_community_reactions_text,cap_early_access_emails_text,cap_report_contacts_text · triggers:trg_daily_cap_alert_dismissals,trg_daily_cap_community_reactions,trg_daily_cap_early_access,trg_daily_cap_mkt_watchlist,trg_daily_cap_report_contacts,trg_text_caps_alert_dismissals
 - `20260705000006_q6_global_ai_budget` — fns:consume_ai_global_budget,record_ai_chain_depth · tables:ai_global_budget
 - `20260705000007_q1_enforce_cumulative_quota` — fns:check_hive_quota_ai_reports,check_hive_quota_community,check_hive_quota_inv_tx,check_hive_quota_logbook,check_hive_quota_pm_completions,seed_hive_quota_defaults · triggers:trg_hive_quota_ai_reports,trg_hive_quota_community_posts,trg_hive_quota_inv_tx,trg_hive_quota_logbook,trg_hive_quota_pm_completions,trg_seed_hive_quota_defaults · tables:against,hive_quotas
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260731000004_drop_stale_embedding_model_default` — tables:fault_knowledge,pm_knowledge,skill_knowledge
 - `20260731000005_daily_row_cap_system_write` — fns:check_daily_row_cap
 - `20260731000006_ai_provenance_pairing` — tables:fault_knowledge
+- `20260731000007_d9_service_knobs` — policies:hive_service_settings_read,hive_service_settings_write · fns:service_knob · tables:hive_service_settings
+- `20260731000008_sweep_reads_d9_knobs` — fns:sweep_service_broadcasts
 
 (showing last 200)
 
