@@ -7173,6 +7173,46 @@
         "the cashback is a LEDGER liability, exactly once per request"
       ],
       "provenance": "Ian proposed 5% at listing + 1% cashback; MARKETPLACE_CREDIT_ECONOMY.md argued for charging on COMPLETION because a listing fee really costs the provider 5%/sell-through. This cell asserts the arithmetic under BOTH policies deliberately - a test that only worked for the recommendation would be advocacy rather than verification. Ian DECIDED 2026-07-31: completion, 5%, 1% cashback in credits. Rates are read through the resolver, never restated here, because a probe that hardcodes the numbers passes while the product uses different ones."
+    },
+    {
+      "id": "TB-TRUST-tier-selfmint",
+      "source": "authored",
+      "kind": "dimension",
+      "journey": "J-credit-economy",
+      "authority": "member",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "status": "banked",
+      "layers": [
+        "S4-db",
+        "S3-data"
+      ],
+      "dims": [
+        "MK1"
+      ],
+      "covers_tables": [
+        "marketplace_listings",
+        "marketplace_sellers"
+      ],
+      "probe": {
+        "file": "TB-TRUST-tier-selfmint.sql",
+        "expect": {
+          "seller_self_marks_sold": "12",
+          "tier_from_self_marked": "silver",
+          "sales_from_self_marked": "12",
+          "listing_records_buyer": "NO",
+          "orders_rows": "0"
+        }
+      },
+      "asserts": [
+        "LIVE VULNERABILITY: a seller marks 12 of their OWN listings 'sold' - as themselves under the authenticated role, not as the table owner - and total_sales/tier climb to SILVER. 51 would reach GOLD. No buyer, no order, no payment, no commission.",
+        "ROOT CAUSE: marketplace_listings records NO BUYER, so total_sales counts a self-declared STATUS rather than a completed TRANSACTION",
+        "marketplace_orders, the only table carrying buyer_name, is EMPTY and vestigial since the Stripe removal - so there is currently no counterparty record to derive a trustworthy tier from",
+        "the cell asserts CURRENT behaviour so the hole is on the BOARD rather than in a document; when a fix lands these expectations become 0/bronze and the cell flips with it"
+      ],
+      "provenance": "Found while modelling the credit economy's abuse surface. MARKETPLACE_CREDIT_SUSTAINABILITY §8 reasoned that faking a gold badge would cost ~PHP 4,080 in commission on fake jobs - expensive enough to deter casual abuse. It costs ZERO. The economics were sound but metered the wrong EVENT: total_sales counts a status a seller sets on their own row, not a transaction a counterparty confirmed. An economic model is only as good as the event it meters. Verified as a REAL seller under `set local role authenticated`, because postgres owns the table and bypasses RLS - the same instrument discipline that produced three false findings earlier the same day."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

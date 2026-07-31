@@ -138,7 +138,19 @@ not buying credits — they are buying a **gold badge**:
 | silver (11 sales) | 11 | ₱22,000 GMV | **₱880** |
 | gold (51 sales) | 51 | ₱102,000 GMV | **₱4,080** |
 
-**₱4,080 for a gold badge is cheap** if it wins one real ₱50,000 industrial contract. The economics of the
+> **⚠ CORRECTION, found by testing this section's own premise: it costs ₱0, not ₱4,080.**
+> `total_sales` counts `marketplace_listings WHERE status='sold'` — and a seller may mark their OWN listing
+> sold, while `marketplace_listings` records **no buyer at all**. Verified live as a real authenticated
+> seller (not as the table owner): **12 self-marked listings → silver; 51 → gold. No buyer, no order, no
+> payment, no commission.** `marketplace_orders`, the only table carrying `buyer_name`, is empty and
+> vestigial since the Stripe removal. Banked as `TB-TRUST-tier-selfmint`.
+>
+> The economics below were sound but metered the **wrong event**: a self-declared STATUS, not a completed
+> TRANSACTION. **An economic model is only as good as the event it meters** — and this is why §8's fix
+> (distinct counterparties) cannot be implemented today: there is no counterparty recorded to count.
+
+**₱4,080 for a gold badge would be cheap** if it wins one real ₱50,000 industrial contract — but the real
+price is zero. The economics of the
 trust ladder are therefore *inverted* from the credit ladder: credits defend themselves, reputation does not.
 
 What already blunts it, and it is not nothing: ratings recompute only over `verified_purchase = true` reviews
