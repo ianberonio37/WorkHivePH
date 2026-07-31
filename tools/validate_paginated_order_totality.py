@@ -49,6 +49,37 @@ UNIQUE_COLUMNS = {
     "service_area": "v_service_area_presence is one row PER AREA, so the area names the row",
     # a natural key that is UNIQUE by constraint
     "co_number":    "project_change_orders.co_number is the amendment's unique identity on the trail",
+    # The v_*_truth views RENAME the primary key rather than dropping it, so each carries a unique column
+    # under its own name. Every one below was MEASURED against the live view (count(*) == count(distinct k)),
+    # not inferred from the name — the same check caught v_risk_truth, whose asset_id looks like a key and is
+    # NOT one (97 rows, 74 distinct, because 23 rows carry a NULL asset_id).
+    "alert_id":     "v_alert_truth: 128 rows / 128 distinct",
+    "amc_id":       "v_amc_truth: 8 / 8",
+    "fmea_mode_id": "v_fmea_truth: 245 / 245",
+    "pm_asset_id":  "v_pm_compliance_truth: 91 / 91 (one row per PM asset)",
+    "project_id":   "v_project_truth: 12 / 12",
+    "reading_id":   "v_sensor_truth: 54 / 54",
+    "request_id":   "v_service_open_broadcasts selects service_requests.id AS request_id — the PK carried "
+                    "through a lookup join, so unique by construction (the view is empty today, so this one "
+                    "is structural rather than measured)",
+    "worker_name":  "community_xp: 10 rows / 10 distinct worker_name (PK is worker_name+hive_id, and the "
+                    "name is unique within the hive a page is scoped to)",
+    "hive_id":      "v_adoption_truth: one snapshot per hive per date, so hive_id closes the tie under the "
+                    "snapshot_date ordering these callers use (2 rows / 2 distinct)",
+}
+
+# Relations that CANNOT be totally ordered from the columns they expose — a real structural gap, recorded
+# here rather than papered over with a column that only looks like a key.
+#
+# v_risk_truth: 97 rows, and NO combination of its exposed columns is unique (asset_id 74, asset+model 76,
+# asset+hive 77, asset+generated_at 80). The rows are all distinct as WHOLE rows, so the view is not
+# duplicating data — it simply publishes no stable identity, and 23 of its rows carry a NULL asset_id. Five
+# callers page it. The fix is a migration that exposes the underlying row's key, not a client-side edit, so
+# these five stay counted as violations until that lands: the gate should keep naming them.
+UNORDERABLE_RELATIONS = {
+    "v_risk_truth": "exposes no unique column (97 rows; best combination 80 distinct; 23 rows have a NULL "
+                    "asset_id). Needs a migration to publish a stable key before its 5 paging callers can "
+                    "be made deterministic.",
 }
 
 # Files that are not product surfaces (fixtures, vendored, build output).
@@ -221,6 +252,17 @@ def main(argv):
 
     print(f"\n  {n} non-total paginated orders across {len(by_file)} files "
           f"({chains} paginated+ordered chains scanned)")
+
+    # A violation that NO client-side edit can fix is a different kind of item, so it is named separately
+    # instead of sitting in the same undifferentiated pile. Otherwise the backlog reads as "162 one-line
+    # fixes" when some of it is actually schema work.
+    blocked = [v for v in violations if v["relation"] in UNORDERABLE_RELATIONS]
+    if blocked:
+        rels = sorted({v["relation"] for v in blocked})
+        print(f"  {YEL}note{RST}  {len(blocked)} of these cannot be fixed in the client — the relation "
+              f"publishes no unique column:")
+        for r in rels:
+            print(f"          {DIM}{r}: {UNORDERABLE_RELATIONS[r]}{RST}")
 
     base = None
     if os.path.exists(BASELINE):

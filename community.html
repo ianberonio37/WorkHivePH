@@ -1009,6 +1009,7 @@
       .select('worker_name, xp_total')
       .eq('hive_id', HIVE_ID)
       .order('xp_total', { ascending: false })
+      .order('worker_name')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(10);
 
     if (error || !data || data.length === 0) {

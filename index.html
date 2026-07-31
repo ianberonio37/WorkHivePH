@@ -4203,6 +4203,7 @@
                   .eq('status', 'pending')
                   .gte('shift_date', todayIso)
                   .order('shift_date', { ascending: true })
+                  .order('amc_id')   // MR4 tiebreaker: the sort above is not total on its own
                   .limit(1)
                   .maybeSingle()
               : Promise.resolve({ data: null }),
@@ -4214,6 +4215,7 @@
               .eq('is_anomaly', true)
               .gte('recorded_at', new Date(Date.now() - 86400000).toISOString())
               .order('recorded_at', { ascending: false })
+              .order('reading_id')   // MR4 tiebreaker: the sort above is not total on its own
               .limit(1)
               .maybeSingle(),
             // Critical-severity failure-signature alert. Canonical: v_alert_truth
@@ -4226,6 +4228,7 @@
               .eq('alert_kind', 'signature')
               .eq('severity', 'critical')
               .order('detected_at', { ascending: false })
+              .order('alert_id')   // MR4 tiebreaker: the sort above is not total on its own
               .limit(1)
               .maybeSingle(),
           ]);

@@ -3912,7 +3912,7 @@ function _openWorkerProfileDrawer(workerName) {
     db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', workerName).order('level', { ascending: false }).order('id').limit(5),
     db.from('community_xp').select('xp_total').eq('worker_name', workerName).eq('hive_id', HIVE_ID).maybeSingle(),
     db.from('hive_members').select('role, joined_at').eq('worker_name', workerName).eq('hive_id', HIVE_ID).maybeSingle(),
-    db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).eq('worker_name', workerName).order('created_at', { ascending: false }).limit(3),
+    db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).eq('worker_name', workerName).order('created_at', { ascending: false }).order('worker_name').limit(3),
   ]).then(([bRes, xRes, mRes, lRes]) => {
     const badges = (bRes.data || []).slice().sort((a, b) => (b.level || 0) - (a.level || 0));
     const top    = badges[0];
@@ -5044,6 +5044,7 @@ async function loadPatternAlerts() {
         .eq('status', 'active')
         .order('severity', { ascending: false })
         .order('detected_at', { ascending: false })
+        .order('alert_id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(5);
       alerts = res.data;
     }

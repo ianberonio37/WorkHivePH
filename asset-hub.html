@@ -2175,6 +2175,7 @@
             .eq('is_anomaly', true)
             .gte('recorded_at', new Date(Date.now() - 86400000).toISOString())
             .order('recorded_at', { ascending: false })
+            .order('reading_id')   // MR4 tiebreaker: the sort above is not total on its own
             .limit(1)
             .maybeSingle();
           if (anom) {
@@ -3343,7 +3344,7 @@
           db.from('v_fmea_truth')
             .select('failure_mode, function_text, effect_text, cause_text, severity, occurrence, detection, rpn, consequence_class, source, ai_confidence, approved_at')
             .eq('hive_id', HIVE_ID).eq('asset_id', nodeId)
-            .order('rpn', { ascending: false }).limit(50),
+            .order('rpn', { ascending: false }).order('fmea_mode_id').limit(50),
           db.from('v_rcm_truth')
             .select('strategy_id, fmea_mode_id, decision, task_text, interval_days, rationale, written_to_pm_scope_item_id, source, approved_at')
             .eq('hive_id', HIVE_ID).eq('asset_id', nodeId).limit(50),

@@ -1080,6 +1080,7 @@
         .eq('hive_id', HIVE_ID)
         .eq('alert_kind', 'signature')
         .order('detected_at', { ascending: false })
+        .order('alert_id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(20),
 
       db.from('parts_staging_recommendations')

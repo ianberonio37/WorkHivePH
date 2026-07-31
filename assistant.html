@@ -535,7 +535,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           ? db.from('v_inventory_items_truth').select('part_name,qty_on_hand,unit,min_qty,category').eq('hive_id', hiveIdCtx).eq('status', 'approved').order('qty_on_hand', { ascending: true }).order('id').limit(20)
           : Promise.resolve({ data: [] }),
         hiveIdCtx
-          ? db.from('v_pm_compliance_truth').select('asset_name,category').eq('hive_id', hiveIdCtx).order('asset_name', { ascending: true }).limit(8)
+          ? db.from('v_pm_compliance_truth').select('asset_name,category').eq('hive_id', hiveIdCtx).order('asset_name', { ascending: true }).order('pm_asset_id').limit(8)
           : Promise.resolve({ data: [] }),
         db.from('voice_journal_entries').select('created_at,transcript,reply,lang').eq('worker_name', name).gte('created_at', journalSince).order('created_at', { ascending: false }).order('id').limit(5),
       ]);

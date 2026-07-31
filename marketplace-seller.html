@@ -1049,7 +1049,7 @@
       if (!_svcMyIds.length) { await renderSvcOnboard(area); return; }
       const [provRes, feedRes, jobsRes] = await Promise.all([
         db.from('v_service_provider_truth').select('*').in('id', _svcMyIds).limit(50),
-        db.from('v_service_open_broadcasts').select('*').order('created_at', { ascending: false }).limit(30),
+        db.from('v_service_open_broadcasts').select('*').order('created_at', { ascending: false }).order('request_id').limit(30),
         db.from('v_service_request_truth').select('*').in('status', SVC_ACTIVE.concat(SVC_FINISHED)).order('updated_at', { ascending: false }).order('id').limit(60)
       ]);
       if (provRes.error) throw provRes.error;

@@ -5906,7 +5906,7 @@
       db.from('v_logbook_truth').select('machine,category,problem,action,status,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Open').order('created_at', { ascending: false }).order('id').limit(30),
       db.from('v_inventory_items_truth').select('part_name,part_number,qty_on_hand,min_qty,reorder_point').eq('hive_id', hiveId).limit(50),
       db.from('v_asset_truth').select('name,tag,iso_class,criticality,last_failure_at,lifetime_logbook_entries').eq('hive_id', hiveId).limit(100),
-      db.from('v_adoption_truth').select('risk_tier,risk_score,active_ratio_risk,momentum_risk,snapshot_date').eq('hive_id', hiveId).order('snapshot_date', { ascending: false }).limit(1),
+      db.from('v_adoption_truth').select('risk_tier,risk_score,active_ratio_risk,momentum_risk,snapshot_date').eq('hive_id', hiveId).order('snapshot_date', { ascending: false }).order('hive_id').limit(1),
       db.from('v_knowledge_truth').select('source,content,created_at').eq('hive_id', hiveId).order('created_at', { ascending: false }).order('id').limit(5),
       // Schedule items for the worker — broaden to recent + upcoming so we never say "nothing" when items exist
       workerName ? db.from('schedule_items').select('title,start_time,end_time,category,item_status,date,worker_name').eq('worker_name', workerName).order('date', { ascending: false }).order('id').limit(30) : Promise.resolve({ data: [] }),
@@ -6114,6 +6114,7 @@
         .select('risk_tier, risk_score, snapshot_date')
         .eq('hive_id', hiveId)
         .order('snapshot_date', { ascending: false })
+        .order('hive_id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(1);
       const row = Array.isArray(data) && data.length ? data[0] : null;
       if (error || !row || !row.risk_tier) return '';
