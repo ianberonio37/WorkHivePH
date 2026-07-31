@@ -478,6 +478,14 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        "id":      "d9-knob-integrity",
+        "script":  "tools/validate_d9_knob_integrity.py",
+        "args":    [],
+        "label":   "D9 KNOB INTEGRITY - the per-hive service knobs (migrations 20260731000007/8/9) must stay SAFE and stay READ. TIGHTEN-ONLY TRUST: per-hive trust thresholds are a forgery vector - a hive that could set gold@1 would mint its own gold sellers and the tier ladder would stop meaning anything platform-wide. The floors (silver >= 11, gold >= 51, gold > silver) are what keep a badge comparable ACROSS hives: a hive may make its OWN sellers work harder, never easier. Drop those CHECKs and the marketplace's headline trust signal becomes self-service, so this gate reads them from the LIVE CATALOG rather than the migration text - what matters is the constraint that IS on the table, not the one a file once declared. THE KNOBS MUST BE READ: a knob nobody reads is write-only configuration, and this was not hypothetical - the trust half shipped UNWIRED for an hour, with tier_silver_sales/tier_gold_sales existing, validated, and consulted by NOTHING but the resolver returning them. So each family must have a real consumer (sweep_service_broadcasts for timing/reach, recompute_seller_sales_and_tier for trust); service_knob() itself deliberately does NOT count, because it RETURNS a value rather than USING one and counting it would let write-only config pass. Its own first run reported a FALSE UNREAD on both families: prosrc is multi-line and psql returns one row per line, so it was reading only each function's first line - the code was right and the instrument was not, which is why the body is now flattened before matching. Self-test refuses to judge constraints on a table it cannot see (a missing table is a FAILURE, never a silent pass). Static catalog read via docker exec psql; skips when the DB is down.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
         "id":      "local-triggers-dont-call-prod",
         "script":  "tools/validate_local_triggers_dont_call_prod.py",
         "args":    [],

@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 48557a9533a5c11a
+source_sha: 90da463860a61e89
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (713) — the 'what's already gated' brain
+## gate · registered validators (714) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -227,7 +227,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (501)
+### Platform (502)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -361,6 +361,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `css-class-existence` ⚡ [fail] — CSS Class Existence (every classList.* class must have a CSS rule; forward-only ratchet)
 - `css-id-existence` ⚡ [fail] — CSS id Existence (every CSS #id selector matches a declared id; dead-rule guard; forward-only ratchet)
 - `cumulative-quota-enforce` ⚡ [fail] — Q1 Cumulative Quota Enforcement (hive_quotas.enforce_blocking flipped ON + generous abuse-ceiling caps backfilled + new-hive auto-seed + all 5 cumulative trigge
+- `d9-knob-integrity` ⚡ [fail] — D9 KNOB INTEGRITY - the per-hive service knobs (migrations 20260731000007/8/9) must stay SAFE and stay READ. TIGHTEN-ONLY TRUST: per-hive trust thresholds are a
 - `data-fabric` ⚡ [fail] — Data Fabric Normalizer Phase 5 (9-layer scaffolding: migration + 10 sources + RLS + edge fn + 3 adapters + SHA-256 dedup + hive scoping + duplicate handling + n
 - `data-governance-kb` ⚡ [fail] — Data Governance Validator (ownership, metadata, write path, versioning)
 - `data-quality` ⚡ [fail] — Data Quality Validator (duplicates, incomplete, bias, inconsistent formats)
