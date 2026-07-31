@@ -8,6 +8,7 @@ import {WorkHiveInfographic} from './Infographic';
 import {WorkHiveMindmap} from './Mindmap';
 import {WorkHiveStoryboard, calculateStoryboardMetadata} from './Storyboard';
 import {FlagshipReel, FLAGSHIP_DURATION} from './FlagshipReel';
+import {DemoReel, DEMO_DURATION} from './DemoReel';
 
 // 1280x720 matches what video_assembler.py normalises the scene clip to,
 // so this renders straight into the existing scene_clip slot with no rescale.
@@ -144,6 +145,17 @@ export const RemotionRoot: React.FC = () => {
       fps={30}
       width={1920}
       height={1080}
+    />
+    {/* End-to-end product-journey demo in the reference's motion grammar
+        (reverse-engineered spec: .tmp/video_ref/Video Marketing_spec.json).
+        1280x720 to match the journey recording - no rescale of UI footage. */}
+    <Composition
+      id="WorkHiveDemoReel"
+      component={DemoReel}
+      durationInFrames={DEMO_DURATION}
+      fps={30}
+      width={1280}
+      height={720}
     />
     </>
   );

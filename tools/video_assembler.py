@@ -541,8 +541,14 @@ def assemble(
             "-i", str(narration),
             "-stream_loop", "-1", "-i", str(music_path),   # loop music from disk, not via aloop's in-RAM sample buffer (same OOM class as the scene loop)
             "-filter_complex",
+            # loudnorm: amix leaves the mix wherever the sources happened to sit,
+            # and every assembled video measured -28 to -29 LUFS - roughly 15 dB
+            # under the -14 LUFS platforms normalise to, so ours played far
+            # quieter than surrounding feed content. TP=-1.5 because single-pass
+            # loudnorm overshoots true peak by ~0.2-0.5 dB (explainer_studio.py:927).
             "[1:a]volume=1.0[narr];[2:a]volume=0.15[music];"
-            "[narr][music]amix=inputs=2:duration=first:dropout_transition=1[audio]",
+            "[narr][music]amix=inputs=2:duration=first:dropout_transition=1,"
+            "loudnorm=I=-14:TP=-1.5:LRA=11,aresample=44100[audio]",
             "-map", "0:v", "-map", "[audio]",
             "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
             "-shortest",
@@ -553,6 +559,9 @@ def assemble(
             "-i", str(main_video),
             "-i", str(narration),
             "-map", "0:v", "-map", "1:a",
+            # Same normalisation on the no-music path - narration alone is just
+            # as likely to land off-target as a mix.
+            "-af", "loudnorm=I=-14:TP=-1.5:LRA=11,aresample=44100",
             "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
             "-shortest",
             str(silent_mp4),

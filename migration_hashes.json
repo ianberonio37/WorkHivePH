@@ -450,5 +450,7 @@
   "20260730000004_scope_avatar_and_language_policies_to_owner.sql": "fbcb192e644108520ca7fe91b1aa19e0cf8192a9e810be7bd6e10add85dc68a9",
   "20260730000005_pin_topup_intake_facts_against_redirect.sql": "adc0429b2f3c81150e67cbfefddccfaa00f25876219739c7240f5613cac9d271",
   "20260730000006_pin_order_and_listing_identity_fields.sql": "702c45d2a8d853096def1477f4961c15aab1bb5f6a6156e5707a28fb531ba75a",
-  "20260730000007_scope_audit_actor_lookup_to_the_rows_hive.sql": "674056623b47692e92199b3bf156559faa6161932a76acbdc771e9a3338f819f"
+  "20260730000007_scope_audit_actor_lookup_to_the_rows_hive.sql": "674056623b47692e92199b3bf156559faa6161932a76acbdc771e9a3338f819f",
+  "20260730000008_anonymous_feedback_global_ceiling.sql": "14f8f8be7b49da7d79daceca41d17dc0ea74fff3715132577e2c45972b18cbb2",
+  "20260731000001_resolve_membership_by_auth_uid_not_display_name.sql": "1d384d8df7e9a29c7f7ec7456a5ae4498fff791f43137abb8fbf18551fbf6370"
 }

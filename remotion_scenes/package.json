@@ -9,8 +9,11 @@
   },
   "dependencies": {
     "@remotion/cli": "^4.0.0",
-    "@remotion/google-fonts": "^4.0.475",
-    "@remotion/transitions": "^4.0.475",
+    "@remotion/google-fonts": "4.0.473",
+    "@remotion/motion-blur": "4.0.473",
+    "@remotion/paths": "4.0.473",
+    "@remotion/shapes": "4.0.473",
+    "@remotion/transitions": "4.0.473",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remotion": "^4.0.0"

@@ -49,11 +49,11 @@ outliers are real gaps or legitimate exceptions for that page type.
 | `has_jsonld_schema` | 7% | 3 / 42 |
 | `loads_maturity_gate_js` | 7% | 3 / 42 |
 | `loads_wh_persona_js` | 4% | 2 / 42 |
+| `registers_service_worker` | 4% | 2 / 42 |
 | `has_theme_color` | 2% | 1 / 42 |
 | `loads_wh_ga4_js` | 2% | 1 / 42 |
 | `loads_wh_help_js` | 2% | 1 / 42 |
 | `loads_wh_tts_js` | 2% | 1 / 42 |
-| `registers_service_worker` | 2% | 1 / 42 |
 | `loads_floating_ai_js` | 0% | 0 / 42 |
 | `loads_search_overlay_js` | 0% | 0 / 42 |
 | `uses_createclient` | 0% | 0 / 42 |

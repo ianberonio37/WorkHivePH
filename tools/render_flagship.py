@@ -87,7 +87,16 @@ def mux_audio(ff: str, silent: Path, music: Path, out_path: Path) -> None:
         "afade=t=in:d=0.25,afade=t=out:st=0.32:d=0.3,volume=0.38,adelay=4000:all=1[s2];"
         "[4:a]aformat=channel_layouts=stereo,highpass=f=250,lowpass=f=5000,"
         "afade=t=in:d=0.25,afade=t=out:st=0.32:d=0.3,volume=0.34,adelay=11600:all=1[s3];"
-        "[mus][s1][s2][s3]amix=inputs=4:normalize=0:dropout_transition=0,alimiter=limit=0.95,aresample=44100[aout]"
+        # NORMALISE to the social target. Without this the chain ended at
+        # alimiter (a ceiling, not a level), and EVERY flagship render measured
+        # -23.9 LUFS - about 10 dB under the -14 LUFS platforms normalise to, so
+        # our videos played noticeably quieter than everything around them in a
+        # feed. explainer_studio.py already had the correct recipe; this path
+        # never adopted it. TP=-1.5 (not -1.0) because single-pass loudnorm's
+        # dynamic true-peak limiter overshoots by ~0.2-0.5 dB - the same lesson
+        # measured in explainer_studio.py:927.
+        "[mus][s1][s2][s3]amix=inputs=4:normalize=0:dropout_transition=0,"
+        "loudnorm=I=-14:TP=-1.5:LRA=11,aresample=44100[aout]"
     )
     cmd = [ff, "-y", "-loglevel", "error",
            "-i", str(silent), "-i", str(music),

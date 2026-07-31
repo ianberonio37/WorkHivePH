@@ -478,6 +478,14 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        "id":      "money-economy-board",
+        "script":  "tools/money_economy_board.py",
+        "args":    ["--check"],
+        "label":   "MONEY ECONOMY BOARD (M1-M8) - the anti-drift compass for the credit-economy arc, per [[feedback_follow_framework_antidrift_before_building]]: the structure is laid out BEFORE the build and the board is what decides what to do next, so a tangent cannot quietly replace the roadmap. Eight MEASURED rows - M1 money spine (payment record / cashback wired / commission bills what was paid / dispute path), M2 knobs READ, M3 deterministic SQL money cells, M4 the 12 request states reached by a LIVE walk, M5 diverse-persona pairings scored task-success, M6 the six economic simulation invariants, M7 the fraud model, M8 money gates registered. WHY A COMPUTED BOARD AND NOT A TABLE IN A DOC: a table drifts from reality the moment work starts and then it flatters; every row here is read from the live catalog, the test bank and this very registry, so it cannot claim a unit that does not exist. The denominators are fixed in the file BEFORE building precisely so they cannot be shortened later to manufacture a 100% ([[feedback_short_denominator_is_a_false_100]]). DONE = EVERY ROW AT 100%, never the greenest one - a single headline metric at 100% has already masked an open axis here ([[feedback_phase_table_is_one_axis_build_the_compass]]) - and every owed item prints WITH ITS REASON rather than being averaged away ([[feedback_a_skipped_partition_reads_as_a_covered_one]]). The M2 bar is deliberately strict: a knob counts as READ only when its consumer can actually FIRE (has a trigger, or is called), because the first draft credited cashback_pct to mint_service_cashback - a function that reads it and has NO trigger, so it mints for nobody. Forward-only ratchet; --check fails on ANY row regressing.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
         "id":      "credit-solvency",
         "script":  "tools/validate_credit_solvency.py",
         "args":    [],

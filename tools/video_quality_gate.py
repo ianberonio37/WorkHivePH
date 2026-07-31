@@ -191,6 +191,40 @@ def _c_brand_colors(ctx):
         return None, f"frame check unavailable ({type(e).__name__}) — skip"
 
 
+#: Social platforms normalise playback toward -14 LUFS. +/-3 LU is the working
+#: band: inside it a viewer hears no level jump against surrounding feed content.
+LUFS_TARGET, LUFS_TOL = -14.0, 3.0
+
+
+def _c_loudness(ctx):
+    """Is the master actually at social playback level?
+
+    WHY THIS IS BLOCKING: every video this pipeline ever produced shipped
+    10-15 dB under target (-23.9 LUFS from render_flagship, -27.5 from
+    video_assembler) because both audio chains ended at a limiter - a ceiling,
+    not a level - with no loudnorm. Nothing measured it, so nothing caught it,
+    across every render. A creative scorecard that says 100/100 while the audio
+    plays half as loud as everything around it is exactly the false-green this
+    gate exists to prevent."""
+    mp4 = ctx.get("mp4_path")
+    if not mp4 or not Path(mp4).exists():
+        return None, "no assembled mp4 to measure (skip)"
+    try:
+        sys.path.insert(0, str(_HERE))
+        from video_reference_study import loudness
+        m = loudness(Path(mp4))
+    except Exception as e:                                        # noqa: BLE001
+        return None, f"loudness unavailable ({type(e).__name__}) - skip"
+    i = m.get("integrated_lufs")
+    if i is None:
+        return None, "no audio track (skip)"
+    delta = i - LUFS_TARGET
+    ok = abs(delta) <= LUFS_TOL
+    hint = "" if ok else ("  <- add loudnorm=I=-14:TP=-1.5:LRA=11 to the audio "
+                          "chain (it ends at a limiter, not a level)")
+    return ok, f"{i:.1f} LUFS ({delta:+.1f} vs -14 target){hint}"
+
+
 CHECKS = [
     {"id": "hook_present",     "axis": "hook",      "blocking": True,  "fn": _c_hook_present},
     {"id": "shots_first_5s",   "axis": "hook",      "blocking": False, "fn": _c_shots_first_5s},
@@ -203,6 +237,7 @@ CHECKS = [
     {"id": "style_variety",    "axis": "craft",     "blocking": False, "fn": _c_style_variety},
     {"id": "duration_band",    "axis": "craft",     "blocking": True,  "fn": _c_duration_band},
     {"id": "brand_colors",     "axis": "brand",     "blocking": False, "fn": _c_brand_colors},
+    {"id": "loudness",         "axis": "craft",     "blocking": True,  "fn": _c_loudness},
 ]
 AXES = ["hook", "structure", "craft", "brand"]
 

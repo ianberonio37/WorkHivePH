@@ -1,7 +1,7 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-07-30T07:09:57.977325+00:00",
-  "surfaces": 175,
+  "generated": "2026-07-31T04:39:52.412791+00:00",
+  "surfaces": 177,
   "rows": [
     {
       "id": "D1",
@@ -9,8 +9,8 @@
       "name": "RLS enabled on tenant tables",
       "satisfies": "tenant isolation floor",
       "mode": "measured",
-      "adopters_n": 104,
-      "need_n": 104,
+      "adopters_n": 106,
+      "need_n": 106,
       "pct": 100,
       "adopters": [
         "agent_episodic_memory",
@@ -53,6 +53,7 @@
         "conversation_analytics",
         "dialog_state",
         "drone_inspections",
+        "embedding_outbox",
         "engineering_calcs",
         "external_sync",
         "failure_signature_alerts",
@@ -69,6 +70,7 @@
         "hive_retention_config",
         "hive_route_calls",
         "hive_route_quotas",
+        "hive_service_settings",
         "integration_configs",
         "inventory_items",
         "inventory_transactions",
@@ -126,9 +128,9 @@
       "name": "hive-membership scoping policy",
       "satisfies": "multitenant isolation",
       "mode": "measured",
-      "adopters_n": 99,
-      "need_n": 100,
-      "pct": 99,
+      "adopters_n": 100,
+      "need_n": 102,
+      "pct": 98,
       "adopters": [
         "agent_episodic_memory",
         "agent_followups",
@@ -168,6 +170,7 @@
         "consulting_engagements",
         "dialog_state",
         "drone_inspections",
+        "embedding_outbox",
         "engineering_calcs",
         "external_sync",
         "failure_signature_alerts",
@@ -231,6 +234,7 @@
         "wh_voice_presence"
       ],
       "gap": [
+        "hive_service_settings",
         "service_providers"
       ]
     },
@@ -241,8 +245,8 @@
       "satisfies": "write attribution",
       "mode": "measured",
       "adopters_n": 31,
-      "need_n": 31,
-      "pct": 100,
+      "need_n": 32,
+      "pct": 97,
       "adopters": [
         "agent_memory",
         "ai_reply_feedback",
@@ -276,7 +280,9 @@
         "worker_achievements",
         "worker_profiles"
       ],
-      "gap": []
+      "gap": [
+        "embedding_outbox"
+      ]
     },
     {
       "id": "D4",
@@ -380,8 +386,8 @@
     }
   ],
   "floors": {
-    "D1": 104,
-    "D2": 99,
+    "D1": 106,
+    "D2": 100,
     "D3": 31,
     "D4": 56
   }

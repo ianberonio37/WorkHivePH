@@ -142,7 +142,13 @@ def _authed_storage_state(browser, username, display_name, hive_id, log=print):
             pg.wait_for_selector("#si-username", timeout=10000, state="visible")
             pg.fill("#si-username", username)
             pg.fill("#si-password", DEFAULT_PASS)
-            pg.click("#si-btn")
+            # force=True: #si-btn animates, so Playwright's actionability check
+            # never sees it "stable" and the click times out after 30s — in
+            # HEADED runs only (headless renders no animation frames, which is
+            # why this hid for so long). The timeout was swallowed by the
+            # except below and surfaced as the misleading "no Supabase session
+            # token after sign-in".
+            pg.click("#si-btn", force=True)
         except Exception as exc:
             log(f"  [WARN] sign-in modal didn't appear ({exc})")
         # Wait for the real Supabase session token to land in localStorage.

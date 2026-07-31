@@ -1,6 +1,6 @@
 {
-  "uncovered": 3278,
+  "uncovered": 1,
   "qualifying": 3811,
-  "embedded": 533,
+  "embedded": 3810,
   "_doc": "FORWARD-ONLY: logbook entries that WOULD qualify for embedding (embed-entry's own 50-char rule) but have no fault_knowledge row. May only FALL. It does not fail on the existing backlog, which needs 3,278 free-tier embedding calls and is a costed decision; it fails when a NEW write surface skips the index."
 }

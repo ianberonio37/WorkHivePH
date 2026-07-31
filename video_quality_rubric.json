@@ -61,6 +61,11 @@
       "id": "brand_colors",
       "axis": "brand",
       "blocking": false
+    },
+    {
+      "id": "loudness",
+      "axis": "craft",
+      "blocking": true
     }
   ],
   "length_band": [
