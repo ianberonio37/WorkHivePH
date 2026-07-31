@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 282d30f793683b62
+source_sha: 9a6087cb369f0aea
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (710) — the 'what's already gated' brain
+## gate · registered validators (711) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -225,7 +225,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (500)
+### Platform (501)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -503,6 +503,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `link-target-existence` ⚡ [fail] — Link Target Existence (every <a href>/location.href to a .html target must exist on disk; forward-only ratchet)
 - `loading-state` ⚡ [fail] — Loading State Coverage (4-layer: async-no-loading + submit-no-preventDefault + mechanism distribution + async density)
 - `loads-utils-js` ⚡ [fail] — Loads-Utils-JS (3-layer: required + allowlist-freshness + census)
+- `local-triggers-dont-call-prod` ⚡ [fail] — LOCAL TRIGGERS MUST NOT CALL PRODUCTION — found 2026-07-31 while extending the S9-knowledge layer. THREE AFTER-INSERT triggers on the LOCAL database (embed-logb
 - `localstorage-key-consistency` ⚡ [fail] — localStorage Key Consistency (every key must be set AND read; forward-only ratchet)
 - `logbook` ⚡ [fail] — Logbook Validator
 - `logbook-asset-linkage` [fail] — Logbook->asset linkage (LIVE: 0 logbook entries whose `machine` EXACTLY matches a registered asset tag may be asset_node_id NULL — locks the asset-history fragm

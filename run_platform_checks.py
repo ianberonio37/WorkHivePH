@@ -460,6 +460,14 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "local-triggers-dont-call-prod",
+        "script":  "tools/validate_local_triggers_dont_call_prod.py",
+        "args":    [],
+        "label":   "LOCAL TRIGGERS MUST NOT CALL PRODUCTION — found 2026-07-31 while extending the S9-knowledge layer. THREE AFTER-INSERT triggers on the LOCAL database (embed-logbook, embed-pm-completions, embed-skill-badges) called supabase_functions.http_request() against a PRODUCTION URL with a SERVICE-ROLE BEARER EMBEDDED IN THE TRIGGER DEFINITION. Three things were MEASURED, not assumed: the definitions carry the production host and a JWT (read from pg_trigger); net._http_response holds delivered responses including 200s from the same day, so pg_net is live here; and the DB container resolves the production host (getent returns an address). So every COMMITTED local insert into those tables POSTed the row to production — and seeding/manual testing hammer `logbook` — meaning dev data flowed into the production embedding store, the mirror image of [[feedback_live_mcp_writes_pollute_test_db]] and worse because embeddings are not obviously reversible. Separately a service-role key BYPASSES RLS ENTIRELY, and this one sat in the local catalog, readable by anyone with catalog access or a dump — a secret in a place secret scanners never look ([[feedback_pasted_keys_in_docs_leak_scanner_blindspot]]). CONTAINED the same session by DISABLING all three (ALTER TABLE ... DISABLE TRIGGER — local, immediate, reversible with ENABLE); they can no longer fire. The gate distinguishes ENABLED (a live outbound path → FAIL) from DISABLED (contained → reported, not failed) from the KEY still being present in the definition (reported every run regardless, because containment is NOT rotation and only Ian can rotate a production credential). The JWT is matched STRUCTURALLY (three base64url segments), never by the word 'service_role', which lives inside the ENCODED payload — the first cut searched for that word and reported clean on a definition that was carrying a key. Definitions are never printed. Self-test proves all four behaviours (enabled-external caught, disabled-external reported as contained not live, embedded JWT caught, clean local trigger accepted) and main() refuses to report if it fails. It also SKIPPED rather than false-passed when its own query errored on a `text || \"char\"` ambiguity — the cast is now explicit. Static catalog read via docker exec psql; skips when the DB is down.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
         "id":      "voice-paraphrase-invariance",
         "script":  "tools/validate_voice_paraphrase_invariance.py",
         "args":    [],
