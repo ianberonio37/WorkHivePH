@@ -330,3 +330,32 @@ and it is the reason those rows stay paused rather than draining tonight.
 **Corrected status: the backfill is BLOCKED on a chain that fails over, not on quota, not on the address, and
 not on the embedder.** Everything else — outbox, registry, relay, upserts, dedup, both gates, the healing
 sweep — is built and proven.
+
+## §14 · BACKFILL COMPLETE — 14.0% → 99.97%, one space, queue empty
+
+| | before | after |
+|---|---:|---:|
+| logbook entries retrievable | 533 (14.0%) | **3,810 (99.97%)** |
+| written-only | 3,278 | **1** |
+| distinct vector spaces in `fault_knowledge` | 2 | **1** |
+| outbox queue | 3,278 | **0** |
+
+Both gates PASS: `knowledge-is-retrievable` ratcheted 3,278 → 1, and `embedding-space-integrity` confirms
+every corpus (fault 3,810 · persona 434 · skill 4) sits in exactly one declared space.
+
+**What made the difference was not effort, it was removing the broker.** The first two attempts pushed rows
+through the edge function and produced mislabelled, rate-limited, failover-prone writes. Going straight from
+the relay to the self-hosted embedder — host process to host process — drained 3,278 rows with **zero
+deferrals** once the abuse cap had a sanctioned operator path.
+
+**The one remaining row is honest, not swept:** it is a single logbook entry the pipeline could not compose
+past `min_chars`, which is the function's own rule working. The gate keeps counting it rather than rounding
+99.97% up to 100%.
+
+**Everything now holds by construction rather than by vigilance:** the trigger enqueues inside the user's
+transaction, the relay retries with backoff and dead-letters loudly, the conflict keys make a re-embed
+replace, the dropped default means an unlabelled row reads NULL instead of lying, ingest is pinned with no
+failover, and two independent gates disagree loudly whenever any of that stops being true.
+
+**Remaining, and outward:** where the (already-built, already-running) embedder container runs for production
+users, and rotating the exposed production service-role key.
