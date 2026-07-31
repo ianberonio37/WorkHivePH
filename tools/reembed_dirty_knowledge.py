@@ -47,8 +47,30 @@ MODEL_TAG = "bge-small-en-v1.5-local"
 CORPORA = {
     "fault_knowledge": ["machine", "problem", "root_cause", "action", "knowledge"],
     "pm_knowledge":    ["asset_name", "category", "health_summary"],
-    "skill_knowledge": ["skill_name", "summary", "detail"],
+    # CORRECTED 2026-07-31. This read ["skill_name", "summary", "detail"] — NOT ONE of which exists on
+    # skill_knowledge (its columns are worker_name / discipline / level / primary_skill). The composer skips
+    # any column the row lacks, so every row composed to the "entry" fallback and the sweep reported
+    # "skill_knowledge: clean (0 dirty)" while that corpus sat ENTIRELY in nomic space — proven by
+    # validate_embedding_space_integrity.py, which reads the model column instead of trusting this map.
+    # A self-healer that cannot read a corpus is worse than none, because it CERTIFIES it: the dirty rows
+    # were invisible to the one tool whose whole job was finding them. Column names are now the table's.
+    "skill_knowledge": ["worker_name", "discipline", "primary_skill", "level"],
 }
+
+
+def _assert_columns_exist(conn_cols: dict) -> list[str]:
+    """-> a list of 'table.column' entries in CORPORA that the live schema does not have.
+
+    The blindness above was silent because a missing column is indistinguishable from an empty one at
+    compose time. Checking the map against the catalog turns that into a loud failure instead.
+    """
+    missing = []
+    for table, cols in CORPORA.items():
+        have = conn_cols.get(table)
+        if have is None:
+            continue                      # table absent is a different (already-reported) condition
+        missing += [f"{table}.{c}" for c in cols if c not in have]
+    return missing
 
 
 def _compose(row: dict, cols: list[str]) -> str:
