@@ -45,8 +45,18 @@ begin
   perform set_config('request.jwt.claims',
     '{"sub":"62000000-0000-4000-8000-00000000000a","role":"authenticated"}', true);
   set local role authenticated;
-  update public.marketplace_listings set status = 'sold' where seller_name = 'TB TierFarm';
-  get diagnostics n = row_count;
+  -- THE PREMISE OF THIS PROBE IS NOW INVERTED, DELIBERATELY. It was written to DEMONSTRATE a live
+  -- vulnerability: the seller flipped their own listings to sold and the tier ladder counted every one,
+  -- so gold was 51 clicks. Migration 20260731000017 closed it — a sale must name the inquiry it sold
+  -- through — so the bare UPDATE now RAISES, and the probe would die on the very hole it documents.
+  -- A probe whose vulnerability has been fixed does not get deleted; it becomes the regression test that
+  -- the fix is still there. `seller_self_marks_sold` = 0 is now the PASSING value.
+  begin
+    update public.marketplace_listings set status = 'sold' where seller_name = 'TB TierFarm';
+    get diagnostics n = row_count;
+  exception when check_violation then
+    n := 0;
+  end;
   raise notice 'RESULT seller_self_marks_sold=%', n;
   reset role;
 

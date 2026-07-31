@@ -7199,20 +7199,922 @@
       "probe": {
         "file": "TB-TRUST-tier-selfmint.sql",
         "expect": {
-          "seller_self_marks_sold": "12",
-          "tier_from_self_marked": "silver",
-          "sales_from_self_marked": "12",
-          "listing_records_buyer": "NO",
+          "seller_self_marks_sold": "0",
+          "tier_from_self_marked": "bronze",
+          "sales_from_self_marked": "0",
+          "listing_records_buyer": "yes",
           "orders_rows": "0"
         }
       },
       "asserts": [
-        "LIVE VULNERABILITY: a seller marks 12 of their OWN listings 'sold' - as themselves under the authenticated role, not as the table owner - and total_sales/tier climb to SILVER. 51 would reach GOLD. No buyer, no order, no payment, no commission.",
-        "ROOT CAUSE: marketplace_listings records NO BUYER, so total_sales counts a self-declared STATUS rather than a completed TRANSACTION",
-        "marketplace_orders, the only table carrying buyer_name, is EMPTY and vestigial since the Stripe removal - so there is currently no counterparty record to derive a trustworthy tier from",
-        "the cell asserts CURRENT behaviour so the hole is on the BOARD rather than in a document; when a fix lands these expectations become 0/bronze and the cell flips with it"
+        "FIXED 2026-07-31 (mig 20260731000017), and this cell FLIPPED WITH IT exactly as its last assert predicted. Was: a seller marked 12 of their OWN listings 'sold' - as themselves under the authenticated role, not as the table owner - and total_sales/tier climbed to SILVER, 51 to GOLD, with no buyer, no order, no payment and no commission. Now: the self-marked sale is REFUSED, so 0 sales and BRONZE.",
+        "ROOT CAUSE (closed): marketplace_listings recorded NO BUYER, so total_sales counted a self-declared STATUS rather than a completed TRANSACTION. A listing now cannot reach 'sold' without naming the inquiry it sold through, and that inquiry must belong to THAT listing - so one inquiry cannot 'sell' every listing a seller owns.",
+        "AND THE COUNT CHANGED, which is the half that actually stops farming: recompute_seller_sales_and_tier counts DISTINCT COUNTERPARTIES, not rows, so 51 sales to one person is worth one. Thresholds were deliberately left alone - loosening them to compensate would have given back what the fix took.",
+        "A second, independent layer showed up unprompted during the proof: RLS already refuses a seller creating their own buyer inquiry, so the forgery needs a real counterparty at two layers, not one.",
+        "RESIDUAL, named rather than papered over: inquiries carry FREE-TEXT identity, so farming via invented contacts is still possible. A nullable buyer_auth_uid is preferred by the count and contacts are normalised (one phone written three ways folds to one buyer), but what remains is a DETECTION problem and belongs to the fraud model (TB-FRAUD A2), not to this guard.",
+        "The probe is kept, not deleted: a probe whose vulnerability has been fixed becomes the regression test that the fix is still there."
       ],
       "provenance": "Found while modelling the credit economy's abuse surface. MARKETPLACE_CREDIT_SUSTAINABILITY §8 reasoned that faking a gold badge would cost ~PHP 4,080 in commission on fake jobs - expensive enough to deter casual abuse. It costs ZERO. The economics were sound but metered the wrong EVENT: total_sales counts a status a seller sets on their own row, not a transaction a counterparty confirmed. An economic model is only as good as the event it meters. Verified as a REAL seller under `set local role authenticated`, because postgres owns the table and bypasses RLS - the same instrument discipline that produced three false findings earlier the same day."
+    },
+    {
+      "id": "TB-PAY-pay-01-settle-without-record",
+      "kind": "negative",
+      "transition": {
+        "table": "service_payments",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_01_settle_without_record = refused",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed refused"
+    },
+    {
+      "id": "TB-PAY-pay-02-zero-amount",
+      "kind": "negative",
+      "transition": {
+        "table": "service_payments",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_02_zero_amount = refused",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed refused"
+    },
+    {
+      "id": "TB-PAY-pay-03-bad-gcash-ref",
+      "kind": "negative",
+      "transition": {
+        "table": "service_payments",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_03_bad_gcash_ref = refused",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed refused"
+    },
+    {
+      "id": "TB-PAY-pay-04-valid-record-accepted",
+      "kind": "positive",
+      "transition": {
+        "table": "service_payments",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_04_valid_record_accepted = 1",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 1"
+    },
+    {
+      "id": "TB-PAY-pay-05-second-record",
+      "kind": "negative",
+      "transition": {
+        "table": "service_payments",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_05_second_record = refused",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed refused"
+    },
+    {
+      "id": "TB-PAY-pay-06-orphan-record",
+      "kind": "negative",
+      "transition": {
+        "table": "service_payments",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_06_orphan_record = refused",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed refused"
+    },
+    {
+      "id": "TB-PAY-pay-07-user-edit-rows",
+      "kind": "negative",
+      "transition": {
+        "table": "service_payments",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_07_user_edit_rows = 0",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 0"
+    },
+    {
+      "id": "TB-PAY-pay-08-user-delete-rows",
+      "kind": "negative",
+      "transition": {
+        "table": "service_payments",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_08_user_delete_rows = 0",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 0"
+    },
+    {
+      "id": "TB-ECON-econ-01-commission-minted",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_01_commission_minted = 1",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 1"
+    },
+    {
+      "id": "TB-ECON-econ-02-commission-is-negative",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_02_commission_is_negative = t",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed t"
+    },
+    {
+      "id": "TB-ECON-econ-03-commission-on-paid-not-budget",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_03_commission_on_paid_not_budget = 100.00",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 100.00"
+    },
+    {
+      "id": "TB-ECON-econ-04-charged-to-provider",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_04_charged_to_provider = t",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed t"
+    },
+    {
+      "id": "TB-ECON-econ-05-replay-mints-once",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_05_replay_mints_once = 1",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 1"
+    },
+    {
+      "id": "TB-ECON-econ-06-knob-readable",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_06_knob_readable = 5.00",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 5.00"
+    },
+    {
+      "id": "TB-ECON-econ-07-min-list-floor",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_07_min_list_floor = 200",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 200"
+    },
+    {
+      "id": "TB-CASHBACK-cashback-01-minted",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_01_minted = 1",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 1"
+    },
+    {
+      "id": "TB-CASHBACK-cashback-02-is-positive",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_02_is_positive = t",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed t"
+    },
+    {
+      "id": "TB-CASHBACK-cashback-03-to-consumer",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_03_to_consumer = t",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed t"
+    },
+    {
+      "id": "TB-CASHBACK-cashback-04-same-base-as-commission",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_04_same_base_as_commission = 20.00",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 20.00"
+    },
+    {
+      "id": "TB-CASHBACK-cashback-05-replay-mints-once",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_05_replay_mints_once = 1",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 1"
+    },
+    {
+      "id": "TB-CASHBACK-cashback-06-unsettled-mints-zero",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_06_unsettled_mints_zero = 0",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 0"
+    },
+    {
+      "id": "TB-CASHBACK-cashback-07-unknown-request-mints-zero",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_07_unknown_request_mints_zero = 0",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 0"
+    },
+    {
+      "id": "TB-CASHBACK-cashback-08-net-take-is-commission-minus-cashback",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_08_net_take_is_commission_minus_cashback = 80.00",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 80.00"
+    },
+    {
+      "id": "TB-TIER-tier-01-self-marked-sale",
+      "kind": "negative",
+      "transition": {
+        "table": "marketplace_listings",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_01_self_marked_sale = refused",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed refused"
+    },
+    {
+      "id": "TB-TIER-tier-02-sale-with-buyer",
+      "kind": "positive",
+      "transition": {
+        "table": "marketplace_listings",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_02_sale_with_buyer = t",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed t"
+    },
+    {
+      "id": "TB-TIER-tier-03-cross-listing-inquiry",
+      "kind": "negative",
+      "transition": {
+        "table": "marketplace_listings",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_03_cross_listing_inquiry = refused",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed refused"
+    },
+    {
+      "id": "TB-TIER-tier-04-seller-cannot-forge-own-inquiry",
+      "kind": "positive",
+      "transition": {
+        "table": "marketplace_listings",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_04_seller_cannot_forge_own_inquiry = 1",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 1"
+    },
+    {
+      "id": "TB-TIER-tier-05-lower-gold-bar",
+      "kind": "negative",
+      "transition": {
+        "table": "marketplace_listings",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_05_lower_gold_bar = refused",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed refused"
+    },
+    {
+      "id": "TB-TIER-tier-06-counts-distinct-buyers",
+      "kind": "positive",
+      "transition": {
+        "table": "marketplace_listings",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_06_counts_distinct_buyers = 1",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 1"
+    },
+    {
+      "id": "TB-DISPUTE-dispute-01-settled-can-be-disputed",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_01_settled_can_be_disputed = t",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed t"
+    },
+    {
+      "id": "TB-DISPUTE-dispute-02-party-can-adjust",
+      "kind": "negative",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "sql",
+      "oracle": "refusal",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_02_party_can_adjust = refused",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed refused"
+    },
+    {
+      "id": "TB-DISPUTE-dispute-03-admin-adjust-applied",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_03_admin_adjust_applied = true",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed true"
+    },
+    {
+      "id": "TB-DISPUTE-dispute-04-commission-reversed",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_04_commission_reversed = 100.00",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 100.00"
+    },
+    {
+      "id": "TB-DISPUTE-dispute-05-cashback-clawed-back",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_05_cashback_clawed_back = 20.00",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 20.00"
+    },
+    {
+      "id": "TB-DISPUTE-dispute-06-nothing-deleted",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_06_nothing_deleted = 4",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 4"
+    },
+    {
+      "id": "TB-DISPUTE-dispute-07-idempotent",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_07_idempotent = already_adjusted",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed already_adjusted"
+    },
+    {
+      "id": "TB-DISPUTE-dispute-08-net-position-zero",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_08_net_position_zero = 0.00",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 0.00"
+    },
+    {
+      "id": "TB-SOLV-solv-01-no-negative-consumer",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_01_no_negative_consumer = 0",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 0"
+    },
+    {
+      "id": "TB-SOLV-solv-02-vouchers-within-earned",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_02_vouchers_within_earned = t",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed t"
+    },
+    {
+      "id": "TB-SOLV-solv-03-entry-types-constrained",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_03_entry_types_constrained = 1",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 1"
+    },
+    {
+      "id": "TB-SOLV-solv-04-one-commission-index",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_04_one_commission_index = 1",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 1"
+    },
+    {
+      "id": "TB-SOLV-solv-05-one-cashback-index",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_05_one_cashback_index = 1",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 1"
+    },
+    {
+      "id": "TB-SOLV-solv-06-no-client-write-policy",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_06_no_client_write_policy = 0",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed 0"
+    },
+    {
+      "id": "TB-SOLV-solv-07-order-independent",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_07_order_independent = t",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed t"
+    },
+    {
+      "id": "TB-SOLV-solv-08-balance-equals-ledger-sum",
+      "kind": "positive",
+      "transition": {
+        "table": "service_credit_ledger",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_08_balance_equals_ledger_sum = t",
+      "status": "banked",
+      "covered_by": "money-economy-board",
+      "covered_evidence": "observed t"
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

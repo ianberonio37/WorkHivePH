@@ -231,8 +231,13 @@ def measure():
            "no adversary is modelled; this platform has already shipped a live tier self-mint")]),
         ("M8", "gates registered", sum(1 for _, ok, _ in m8 if ok), len(m8), m8),
     ]
+    # CAP each row's contribution at its own denominator. M3 landed 46 cells against a target of 40 and
+    # the row read 115%, which then inflated the OVERALL — exceeding a target must never flatter the
+    # total, or a single over-delivered row could mask an empty one. Overshoot is still PRINTED (46/40);
+    # it just does not buy credit elsewhere.
     return {"db_up": db_up, "rows": rows,
-            "overall": round(100.0 * sum(r[2] for r in rows) / max(1, sum(r[3] for r in rows)), 1)}
+            "overall": round(100.0 * sum(min(r[2], r[3]) for r in rows)
+                             / max(1, sum(r[3] for r in rows)), 1)}
 
 
 def render(m):
@@ -241,7 +246,7 @@ def render(m):
         out.append(f"  {Y}NOTE{X} database unreachable — DB-derived rows read 0 and say so, rather than "
                    f"passing vacuously")
     for rid, label, n, total, items in m["rows"]:
-        pct = round(100.0 * n / max(1, total), 1)
+        pct = round(100.0 * min(n, total) / max(1, total), 1)
         col = G if n >= total else (Y if n else R)
         out.append(f"  {col}{rid}{X} {label:<26} {col}{pct:>5.1f}%{X}  {D}{n}/{total}{X}")
         for name, ok, why in items:

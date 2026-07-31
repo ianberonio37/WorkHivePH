@@ -60,6 +60,13 @@ begin
   v_minted := public.mint_service_cashback('60000000-0000-4000-8000-0000000000d1');
   raise notice 'RESULT cashback_before_settled=%', v_minted;
 
+  -- The release now requires the payment record (mig 20260731000015): commission and cashback bill what
+  -- was ACTUALLY paid rather than the stated budget, so a settle with no record is refused. PRICE is used
+  -- as the declared payment so the rate assertions below still measure against the same base.
+  insert into public.service_payments(request_id, hive_id, amount_paid, method, confirmed_by)
+  values ('60000000-0000-4000-8000-0000000000d1', H, PRICE, 'cash',
+          '60000000-0000-4000-8000-00000000000a');
+
   update public.service_requests set status = 'settled'
    where id = '60000000-0000-4000-8000-0000000000d1';
   v_minted := public.mint_service_cashback('60000000-0000-4000-8000-0000000000d1');

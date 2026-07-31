@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: f0bd581f4e7ce451
+source_sha: 4332a791dc8ac2cd
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (716) — the 'what's already gated' brain
+## gate · registered validators (718) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -227,7 +227,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (504)
+### Platform (506)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -338,6 +338,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `cold-archive` ⚡ [fail] — Cold Lakehouse Archive Phase 6 (10-layer contract: edge fn + 4 supported tables + 200 ok:true hyparquet read + storage list + hive scoping + Python exporter + -
 - `cold-archive-wiring` ⚡ [fail] — Cold Archive Wiring (Hierarchical layer: hyparquet Parquet read stays wired into cold-archive-query - _shared helpers + parquetReadObjects + bounds + ok:true)
 - `cold-start-memoization` ⚡ [fail] — Cold-Start Memoization (4-layer: createClient-in-handler + multiple-calls + adoption + budget)
+- `commission-leakage` ⚡ [fail] — COMMISSION LEAKAGE - found by ATTACKING, not by testing (TB-FRAUD-money-economy-attacks A3). Commission bills what was actually PAID, which is the honest base a
 - `community` ⚡ [fail] — Community Validator (24 checks: XSS + isolation + access + realtime + standards + feature schema completeness)
 - `companion-dim-gate` ⚡ [fail] — Companion Per-Dimension Regression Gate (Phase 8 §8.3: agent/rag/memory/persona locked-test; degrade-to-SKIP without data)
 - `companion-diverse-gate` ⚡ [fail] — Companion Held-Out Diverse Gate (§0.7: novel-phrasing fabrication floor; threshold-not-zero; degrade-to-SKIP without a fresh board)
@@ -353,6 +354,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `context-window` ⚡ [fail] — Context Window Management Validator
 - `correctness-scoreboard` [fail] — CORRECTNESS anti-drift scoreboard — the value-at-the-glass sibling of bughunt-scoreboard. Regenerates CORRECTNESS_SCOREBOARD.md mapping every contracted user-fa
 - `cors-wildcard` ⚡ [fail] — CORS Wildcard Audit (4-layer: hardcoded-* + wildcard-on-data + strategy distribution + echo-without-allowlist)
+- `credit-economy-simulation` [fail] — CREDIT ECONOMY SIMULATION - generated job lifecycles driven through the REAL guards, triggers and ledger inside ONE transaction that is ROLLED BACK, so no simul
 - `credit-solvency` ⚡ [fail] — CREDIT SOLVENCY - are the credits given away backed by anything? MARKETPLACE_CREDIT_SUSTAINABILITY §5 named liability cover the number that matters, and §4.5 na
 - `cron-functional` ⚡ [fail] — Cron Job Functional Coverage (4-layer: target exists + config entry + AI gate + density)
 - `cron-health` [fail] — Cron health (LIVE: no active pg_cron job's latest run failed with a CODE error — locks the unattended-silent-failure class found live 2026-07-07, where the soft

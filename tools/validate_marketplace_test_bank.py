@@ -202,6 +202,14 @@ def build_sql(from_state: str, to_state: str, as_uid: str | None):
         "matched_provider_id) values "
         f"('d1cccccc-0000-4000-8000-000000000001','{C}','instant','tb probe',{LOC},'{from_state}',"
         "'d1bbbbbb-0000-4000-8000-000000000001');\n"
+        # RELEASE NOW REQUIRES A PAYMENT RECORD (mig 20260731000015). `guard_settle_requires_payment`
+        # refuses `-> settled` unless the job carries what was actually paid, so without this the
+        # completed->settled cell reports "rows=0 REFUSED" and reads as a broken transition when the
+        # transition is fine and the PRECONDITION is new. Seeded only for the settled target, so no other
+        # cell's setup changes.
+        + ("insert into public.service_payments(request_id, amount_paid, method, confirmed_by) values "
+           f"('d1cccccc-0000-4000-8000-000000000001', 2000, 'cash', '{C}');\n"
+           if to_state == "settled" else "")
         # `as_uid=None` means the ANON partition: not a different identity, the ABSENCE of one. It needs
         # the `anon` role with no JWT claims at all, so nothing about the row can authorise the caller.
         # This partition was enumerated as 18 obligations and skipped for want of a uid to mint - the

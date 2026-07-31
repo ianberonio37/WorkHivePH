@@ -146,12 +146,29 @@ not buying credits — they are buying a **gold badge**:
 > vestigial since the Stripe removal. Banked as `TB-TRUST-tier-selfmint`.
 >
 > The economics below were sound but metered the **wrong event**: a self-declared STATUS, not a completed
-> TRANSACTION. **An economic model is only as good as the event it meters** — and this is why §8's fix
-> (distinct counterparties) cannot be implemented today: there is no counterparty recorded to count.
+> TRANSACTION. **An economic model is only as good as the event it meters.**
+>
+> **✅ CLOSED 2026-07-31 (mig `20260731000017`).** The counterparty this section said did not exist was
+> *built*: a listing cannot reach `sold` without naming the **inquiry it sold through**, that inquiry must
+> belong to **that** listing (so one inquiry cannot "sell" a whole catalogue), and
+> `recompute_seller_sales_and_tier` now counts **DISTINCT counterparties instead of rows** — the half that
+> actually stops farming, since 51 sales to one person are worth one. Thresholds were deliberately left
+> alone: loosening them to compensate would have handed back exactly what the fix took. A second layer
+> turned up unprompted during the proof — **RLS already refuses a seller creating their own buyer inquiry**,
+> so the forgery now needs a real counterparty at two independent layers.
+> `TB-TRUST-tier-selfmint` flipped from documenting the hole to guarding the fix (0 sales, bronze), exactly
+> as its own last assertion predicted it would.
+>
+> **Residual, stated rather than papered over:** inquiries carry **free-text** identity, so farming via
+> invented contacts is still possible. A nullable `buyer_auth_uid` is now preferred by the count, and
+> contacts are normalised (one phone written three ways folds to one buyer), but the remainder is a
+> **detection** problem and lives in the fraud model as `TB-FRAUD` A2 — not in this guard. A fix that claims
+> to close a hole it only narrows is worse than the hole, because it stops anyone looking.
 
-**₱4,080 for a gold badge would be cheap** if it wins one real ₱50,000 industrial contract — but the real
-price is zero. The economics of the
-trust ladder are therefore *inverted* from the credit ladder: credits defend themselves, reputation does not.
+**₱4,080 for a gold badge would be cheap** if it wins one real ₱50,000 industrial contract — and until
+2026-07-31 the real price was zero. With the counterparty requirement in place the price is no longer money
+at all: it is **51 different people who will vouch for you**, which is the thing the badge was always
+supposed to mean. The trust ladder no longer inverts the credit ladder — both now defend themselves.
 
 What already blunts it, and it is not nothing: ratings recompute only over `verified_purchase = true` reviews
 (confirmed in `update_seller_rating`); `guard_marketplace_order_status` refuses a client-side jump to

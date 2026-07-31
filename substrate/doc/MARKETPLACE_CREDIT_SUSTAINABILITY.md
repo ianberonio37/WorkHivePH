@@ -2,7 +2,7 @@
 name: doc-MARKETPLACE_CREDIT_SUSTAINABILITY
 type: doc
 source: file:MARKETPLACE_CREDIT_SUSTAINABILITY.md
-source_sha: 56f8e86d0d95f768
+source_sha: b3080fc0450d0873
 last_verified: 2026-07-13
 supersedes: null
 ---
