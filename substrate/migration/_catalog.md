@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:464
-source_sha: d18a9db1dd5b4ff7
+source: dir:supabase/migrations:466
+source_sha: 6f1a583eda347028
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (464 migrations)
+## migration · catalog (466 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260705000008_q5b_retention_embedding_cache` — fns:prune_embedding_cache
-- `20260705000009_q5a_inline_image_guard` — fns:check_inline_image_size,photo_attach_stats · triggers:trg_inline_image_size_inventory,trg_inline_image_size_logbook
 - `20260706000001_marketplace_rls` — policies:mkt_admins_read,mkt_admins_write,mkt_disp_delete,mkt_disp_insert,mkt_disp_read,mkt_disp_update · fns:auth_worker_names,is_marketplace_admin · tables:marketplace_disputes,marketplace_inquiries,marketplace_listings,marketplace_orders,marketplace_platform_admins,marketplace_sellers
 - `20260706000002_marketplace_listings_realtime` — (misc DDL/DML)
 - `20260707000000_supervisor_approval_backstop` — fns:wh_guard_supervisor_approval · triggers:tg_guard_approval
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260731000009_tier_reads_d9_knobs` — fns:recompute_seller_sales_and_tier
 - `20260731000010_hail_starts_at_hive_radius` — fns:apply_hive_broadcast_radius · triggers:trg_apply_hive_broadcast_radius
 - `20260731000011_credit_policy_knobs` — tables:hive_service_settings
+- `20260731000012_consumer_cashback` — fns:mint_service_cashback · tables:service_credit_ledger
+- `20260731000013_service_knob_pct` — fns:mint_service_cashback,service_knob,service_knob_pct
 
 (showing last 200)
 
