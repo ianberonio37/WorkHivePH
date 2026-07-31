@@ -193,3 +193,50 @@ The edge function keeps its role for browser-initiated embeds; the outbox relay 
 `embedding_model='bge-small-en-v1.5-local'` and the registry's conflict key; (2) a gate asserting every corpus
 holds exactly ONE `embedding_model` — the split above would have been caught the day it happened; (3) then the
 backfill, which is now free.
+
+## §11 · PRODUCTION USERS — "their own auto embedder infra", not mine
+
+> **Ian, 2026-07-31:** *"it works for me because I am using local, but you have to consider the production
+> users that they are using their own devices — that's what I mean, that they have their own auto embedder
+> infras."*
+
+§10 was solved for the wrong machine. `tools/embed_server.py` on `:8901` is **my laptop**. A maintenance
+worker on their own Android phone in a plant has no such server, so "we own the embedder" is only true for
+development. The requirement is: **no external LLM embedding API, and it must work for every production
+user** — which is a different problem with two honest answers.
+
+### §11.1 · The two runtimes, and the one rule that binds them
+
+| | **A · Our own hosted embedder** | **B · On-device (in-browser)** |
+|---|---|---|
+| where | one small service we run (CPU-only ONNX/fastembed `bge-small-en-v1.5`) | the user's browser, via transformers.js / ONNX-WASM |
+| user device needs | nothing | ~33 MB quantized model, one-time download + cache |
+| offline write | embeds on sync | **embeds immediately, offline** |
+| cost | one always-on small container (~100 MB RAM), no per-call fee | zero infra, spends the user's battery/CPU |
+| PH mobile reality | works on the cheapest handset | a low-end Android will be slow; the 33 MB download is real on mobile data |
+| privacy | text reaches our server (it already does — it is our DB) | text never leaves the device to be embedded |
+
+**THE RULE THAT MATTERS MORE THAN THE CHOICE: one model, one space.** Whatever runs where, it must be
+`bge-small-en-v1.5` at 384d on *both* sides. A device embedding with one model and the server querying with
+another is the SPLIT-SPACE bug at fleet scale — and §10 just caught that exact failure with a single row
+(`nomic` vs `bge-local`), silently, with no error. This is why the registry pins `embedding_model` per corpus
+and why a gate must assert each corpus holds exactly one.
+
+### §11.2 · The recommendation
+
+**A as the floor, B as the enhancement.** Ship the hosted embedder first: it makes auto-embed true for
+*every* user on *any* device with nothing to install, and it is the only option that can also backfill the
+existing corpus. Then add on-device embedding for the offline-first case — a worker who logs a fault with no
+signal gets it indexed on the spot, and it syncs already-embedded, which is a genuine advantage for this
+product's actual field conditions.
+
+What must NOT happen is B alone: a user on a device too weak to run the model would silently get no indexing,
+which fails the contract in §1 precisely for the users least able to notice.
+
+### §11.3 · What this changes in the plan
+
+- §6's backfill: runs against **A**, not my laptop — and is still quota-free, since we host it.
+- The relay (§10.1) points at the hosted embedder's URL by config, not `127.0.0.1`.
+- `embedding_model` stays pinned to `bge-small-en-v1.5`; the runtime may vary, the SPACE may not.
+- The self-hosted service is the one new piece of infrastructure this whole plan requires. Everything else —
+  outbox, registry, relay, gates — is already built and does not care where the vectors come from.
