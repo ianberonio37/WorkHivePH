@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-07-31T19:26:36.103995",
+  "timestamp": "2026-07-31T19:32:21.692933",
   "passed": 6,
   "failed": 0,
   "results": [
     {
       "id": "coverage-map",
       "status": "PASS",
-      "duration": 34.5,
+      "duration": 38.9,
       "stderr": ""
     },
     {
@@ -24,19 +24,19 @@
     {
       "id": "pattern-consistency",
       "status": "PASS",
-      "duration": 0.3,
+      "duration": 0.1,
       "stderr": ""
     },
     {
       "id": "depth",
       "status": "PASS",
-      "duration": 0.3,
+      "duration": 0.2,
       "stderr": ""
     },
     {
       "id": "freshness",
       "status": "PASS",
-      "duration": 0.4,
+      "duration": 0.1,
       "stderr": ""
     }
   ]

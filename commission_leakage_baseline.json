@@ -1,0 +1,4 @@
+{
+  "severe": 0,
+  "_doc": "Forward-only floor for severe commission understatement. A RISE FAILs the gate; --accept only ratchets DOWN as the backlog is worked off."
+}

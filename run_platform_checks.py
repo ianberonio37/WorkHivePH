@@ -495,6 +495,14 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "commission-leakage",
+        "script":  "tools/validate_commission_leakage.py",
+        "args":    [],
+        "label":   "COMMISSION LEAKAGE - found by ATTACKING, not by testing (TB-FRAUD-money-economy-attacks A3). Commission bills what was actually PAID, which is the honest base and a deliberate fix, but it hands both parties a lever: a client and provider who agree a PHP50,000 job and declare PHP1 on the payment record pay PHP0.10 instead of PHP2,500. The attack probe measured exactly that, and NOTHING refused it or noticed. This DETECTS rather than refuses, on purpose: a declared payment below the quote is often legitimate (job under scope, a discount, part-payment in materials), and refusing those would block honest work and push people off-platform entirely, which costs more than the leak. So the platform bills honestly on what was declared and MEASURES the gap - the fraud model's standing disposition that an attack is either refused or DETECTED AND NAMED, never silently absorbed. Measures, for every settled job with a payment record, the ratio of declared to agreed (selected offer price, else catalogue rate, else stated budget); severe below 50% and only on jobs over PHP1,000, since a PHP200 job declared at PHP80 is noise. Forward-only ratchet on the severe COUNT so an existing backlog does not block the build while a NEW pattern shows immediately; --accept only ratchets DOWN. Self-test proves the arithmetic on the real attack (PHP1 of PHP50,000 caught, PHP1,800 of PHP2,000 not) without needing the database.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
         "id":      "credit-solvency",
         "script":  "tools/validate_credit_solvency.py",
         "args":    [],

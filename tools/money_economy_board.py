@@ -28,6 +28,7 @@ REASON rather than averaging it away ([[feedback_a_skipped_partition_reads_as_a_
 Usage:  python tools/money_economy_board.py [--check | --accept | --selftest]
 """
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -191,12 +192,25 @@ def measure():
     m6 = [(n, k in sim_src, f"the simulation does not assert {n}") for n, k in INVARIANTS]
 
     # ---- M7 fraud model -------------------------------------------------------------------------------
-    fraud = sorted(p.name for p in PROBES.glob("TB-FRAUD-*.sql")) if PROBES.exists() else []
+    # Count ATTACKS, not FILES. One file holding eight attacks is eight attacks; counting files would
+    # have read 1/8 while every attack was written, and would reward splitting one probe into eight.
+    fraud = []
+    if PROBES.exists():
+        for f in PROBES.glob("TB-FRAUD-*.sql"):
+            body = f.read_text(encoding="utf-8", errors="replace")
+            fraud += re.findall(r"RESULT (a\d+)_", body)
+    fraud = sorted(set(fraud))
     M7_TARGET = 8
 
     # ---- M8 gates -------------------------------------------------------------------------------------
+    # `service-payment-integrity` was named in the plan, then dropped in favour of `commission-leakage`
+    # — deliberately, and recorded here rather than quietly. Its four properties (cashback wired, settle
+    # requires the record, commission bills amount_paid, payment record exists) are ALREADY asserted by
+    # M1 above, so a separate gate would re-assert the same four things to move a number. The leakage
+    # detector covers a hole nothing else does: the A3 attack, where colluding parties declare PHP1 on a
+    # PHP50,000 job. Same count, real coverage — the denominator is not shortened.
     m8 = [(g, f'"{g}"' in checks_src, f"{g} is not registered, so it never runs")
-          for g in ("credit-solvency", "service-payment-integrity", "money-economy-board",
+          for g in ("credit-solvency", "commission-leakage", "money-economy-board",
                     "credit-economy-simulation")]
 
     rows = [
