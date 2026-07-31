@@ -2,7 +2,7 @@
 name: doc-MONEY_ECONOMY_BOARD
 type: doc
 source: file:MONEY_ECONOMY_BOARD.md
-source_sha: 12abf13b2816e0d6
+source_sha: 9c11a5b151779335
 last_verified: 2026-07-13
 supersedes: null
 ---

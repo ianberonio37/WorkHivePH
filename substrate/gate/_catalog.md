@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 4332a791dc8ac2cd
+source_sha: 01d348a00377bddb
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (718) — the 'what's already gated' brain
+## gate · registered validators (719) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -227,7 +227,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (506)
+### Platform (507)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -568,6 +568,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `performance` ⚡ [fail] — Performance Anti-Pattern Validator
 - `persona-contract` ⚡ [fail] — Persona Contract Validator (8-layer: modules + server + client + gateway + hive + migrations + key parity + Step D differentiation)
 - `persona-echo-live` [fail] — CL9 persona-echo LIVE (the floating companion's persona SELECTION must reach the backend: ai-gateway agent=voice-journal with context.persona=hezekiah|zaniah mu
+- `persona-task-success` ⚡ [fail] — PERSONA TASK-SUCCESS - can a DIVERSE human finish the money task, not just an idealised one? (Ian 2026-07-31: consider the diversity of human beings.) Every jou
 - `pg-cron-target` ⚡ [fail] — pg_cron Target Existence (jobs reference real tables + RPCs; forward-only ratchet)
 - `pgvector-consistency` ⚡ [fail] — pgvector Consistency (4-layer: dim match + hive filter + embedding RLS + dim distribution)
 - `phantom-captures` ⚡ [fail] — Phantom Capture Auditor (reverse-lineage: every <input>/<select> must have >=1 downstream consumer)

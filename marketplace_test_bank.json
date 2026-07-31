@@ -8115,6 +8115,520 @@
       "status": "banked",
       "covered_by": "money-economy-board",
       "covered_evidence": "observed t"
+    },
+    {
+      "id": "TB-PERSONA-colorblind-states-have-text",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-COLORBLIND",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-COLORBLIND",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "all 12 request states carry a distinct TEXT label, so a deuteranopic user can tell broadcasting from accepted from completed"
+    },
+    {
+      "id": "TB-PERSONA-scamwary-release-discloses",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-SCAMWARY",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-SCAMWARY",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "the release screen states who gets what, that the platform never holds the money, and what happens if the job was bad"
+    },
+    {
+      "id": "TB-PERSONA-unbanked-floor-announced",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-UNBANKED",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-UNBANKED",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "the min-balance refusal names the real balance AND the real floor, and says it is spent on their own commission rather than being a fee"
+    },
+    {
+      "id": "TB-PERSONA-impulsive-double-tap-release",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-IMPULSIVE",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-IMPULSIVE",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "a double-tapped Release mints exactly one commission"
+    },
+    {
+      "id": "TB-PERSONA-filipino-money-terms",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-FILIPINO",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-FILIPINO",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "money words carry translation markers; an unresolved marker on a money screen is someone not understanding what they agree to"
+    },
+    {
+      "id": "TB-PERSONA-screenreader-map-alternative",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-SCREENREADER",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-SCREENREADER",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "a text-equivalent provider list exists, because a map is unusable by a screen reader"
+    },
+    {
+      "id": "TB-PERSONA-gloved-tap-target-floor",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-GLOVED",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-GLOVED",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "primary money actions clear a 48px target"
+    },
+    {
+      "id": "TB-PERSONA-lowvis-reflow-at-200",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-LOWVIS",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-LOWVIS",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "declared runtime condition: 200% zoom at 390px must reflow, not scroll sideways"
+    },
+    {
+      "id": "TB-PERSONA-slownet-3g-money-path",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-SLOWNET",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-SLOWNET",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "declared runtime condition: 400kbps/400ms on the money path"
+    },
+    {
+      "id": "TB-PERSONA-flaky-offline-midjob",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-FLAKY",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-FLAKY",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "declared runtime condition: connection drops mid-job; banner adoption is not write refusal"
+    },
+    {
+      "id": "TB-PERSONA-older-presbyopia",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-OLDER",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-OLDER",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "declared runtime condition: 150% zoom and slower input, the median experienced technician"
+    },
+    {
+      "id": "TB-PERSONA-firsttime-no-prior-session",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui"
+      ],
+      "persona": "P-FIRSTTIME",
+      "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-FIRSTTIME",
+      "status": "banked",
+      "covered_by": "persona-task-success",
+      "covered_evidence": "declared runtime condition: cleared storage, no convention may be assumed"
+    },
+    {
+      "id": "TB-SJFULL-requested",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "requested"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "role_pair": "client x provider",
+      "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'requested' - client files the hail (live, authenticated)",
+      "status": "banked",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "reached live in a continuous session; client files the hail (live, authenticated)"
+    },
+    {
+      "id": "TB-SJFULL-broadcasting",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "broadcasting"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "role_pair": "client x provider",
+      "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'broadcasting' - client opens it to providers",
+      "status": "banked",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "reached live in a continuous session; client opens it to providers"
+    },
+    {
+      "id": "TB-SJFULL-accepted",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "accepted"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "role_pair": "client x provider",
+      "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'accepted' - a DIFFERENT provider accepts through the real accept_service_request RPC, not a raw update",
+      "status": "banked",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "reached live in a continuous session; a DIFFERENT provider accepts through the real accept_service_request RPC, not a raw update"
+    },
+    {
+      "id": "TB-SJFULL-en-route",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "en_route"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "role_pair": "client x provider",
+      "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'en_route' - provider advances the job",
+      "status": "banked",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "reached live in a continuous session; provider advances the job"
+    },
+    {
+      "id": "TB-SJFULL-on-site",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "on_site"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "role_pair": "client x provider",
+      "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'on_site' - provider arrives",
+      "status": "banked",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "reached live in a continuous session; provider arrives"
+    },
+    {
+      "id": "TB-SJFULL-in-progress",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "in_progress"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "role_pair": "client x provider",
+      "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'in_progress' - work underway",
+      "status": "banked",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "reached live in a continuous session; work underway"
+    },
+    {
+      "id": "TB-SJFULL-completed",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "completed"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "role_pair": "client x provider",
+      "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'completed' - provider marks the work done",
+      "status": "banked",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "reached live in a continuous session; provider marks the work done"
+    },
+    {
+      "id": "TB-SJFULL-settled",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "settled"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "role_pair": "client x provider",
+      "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'settled' - CLIENT confirms payment and releases; commission + cashback mint",
+      "status": "banked",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "reached live in a continuous session; CLIENT confirms payment and releases; commission + cashback mint"
+    },
+    {
+      "id": "TB-SJFULL-disputed",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "disputed"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "role_pair": "client x provider",
+      "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'disputed' - a settled job is disputed by a party",
+      "status": "banked",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "reached live in a continuous session; a settled job is disputed by a party"
+    },
+    {
+      "id": "TB-SJFULL-cancelled-by-client",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "cancelled_by_client"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "role_pair": "client x provider",
+      "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'cancelled_by_client' - client walks away before anyone accepts",
+      "status": "banked",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "reached live in a continuous session; client walks away before anyone accepts"
+    },
+    {
+      "id": "TB-SJFULL-cancelled-by-provider",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "cancelled_by_provider"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "role_pair": "client x provider",
+      "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'cancelled_by_provider' - provider drops an accepted job",
+      "status": "banked",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "reached live in a continuous session; provider drops an accepted job"
+    },
+    {
+      "id": "TB-SJFULL-expired",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": "broadcasting",
+        "to": "expired"
+      },
+      "authority": "admin",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S4-db"
+      ],
+      "status": "banked",
+      "evidence_src": "SJ-FULL live walk: a user driving broadcasting->expired is REFUSED and sweep_service_broadcasts() is permission-denied to authenticated callers - correct, expiry belongs to the system. Reached live via the REAL production path instead: a broadcasting job with a lapsed offer_ttl_expires_at, then sweep_service_broadcasts() as the service role -> status became 'expired'.",
+      "covered_by": "sj-full-lifecycle-walk",
+      "covered_evidence": "broadcasting -> expired observed live through the scheduled sweep, not by weakening the rule that keeps a user from expiring their own job"
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

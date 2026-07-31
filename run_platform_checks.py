@@ -495,6 +495,14 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "persona-task-success",
+        "script":  "tools/validate_persona_task_success.py",
+        "args":    [],
+        "label":   "PERSONA TASK-SUCCESS - can a DIVERSE human finish the money task, not just an idealised one? (Ian 2026-07-31: consider the diversity of human beings.) Every journey in the bank implicitly walked a competent, sighted, literate, English-reading, fast-network, calm user, and almost none of this platform's real users are all six at once - PH plant technicians in their fifties, first-time e-wallet users, someone outdoors in glare wearing gloves, someone on 3G. DIVERSITY IS NOT A PAGE PROPERTY, it is WHO IS WALKING, so it lives on the journey axis. DIVISION OF LABOUR, deliberately: UFAI grades the PAGE (validate_service_ufai_deep measures 390/1280 tap targets and overflow), validate_i18n_coverage owns language, validate_clickable_keyboard_a11y owns keyboard - none can answer 'could THIS PERSON complete THIS TASK'. The 25 personas and their journey pairings live in tools/service_personas.mjs as RUNTIME CONDITIONS (viewport, zoom, colour filter, throttle, locale, input delay), not comments, and 129 unpaired combinations are recorded WITH REASONS rather than dropped - 25 personas x 7 families is 175 walks nobody runs, and an unrunnable matrix silently becomes an unrun one. Seven checks on the families where failure costs pesos: 12 states carry DISTINCT TEXT labels not colour alone (P-COLORBLIND); the release screen discloses who gets what, that the platform never holds the money, and what happens if the job was bad (P-SCAMWARY, the persona who decides whether this economy works at all); the min-balance refusal is announced AND says how to fix it (P-UNBANKED); the release resists a double tap (P-IMPULSIVE); money terms are translatable (P-FILIPINO); the map has a text equivalent, since a map is unusable by a screen reader and without a list discovery is closed entirely (P-SCREENREADER); and a 48px target floor (P-GLOVED, a real industrial constraint). ITS OWN FIRST TWO READINGS WERE INSTRUMENT BUGS: it reported the 12 status labels MISSING because its regex assumed quoted object keys while the source uses bare ones, and reported the min-balance refusal owed because it read only marketplace.html while the message lives on marketplace-seller.html. Both are fixed and both are why it now reads the real SVC_CHIP mapping across BOTH money surfaces instead of pattern-matching one.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
         "id":      "commission-leakage",
         "script":  "tools/validate_commission_leakage.py",
         "args":    [],

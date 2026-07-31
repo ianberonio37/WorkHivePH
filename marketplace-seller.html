@@ -1386,7 +1386,17 @@
         category_mismatch: 'This job needs a service you don\'t offer',
         out_of_radius: 'This job is outside your service radius',
         own_request: 'You can\'t accept your own request',
-        insufficient_credits: 'Your credit balance is negative. Top up via GCash to keep accepting jobs',
+        // The floor moved from "not in debt" to a real DEPOSIT (min_list_balance, PHP200 by default) in
+        // mig 20260731000016, and this message did not move with it: a provider sitting at +150 was told
+        // their balance was NEGATIVE, which is both false and unactionable. Say the real balance, the real
+        // floor, and what it is FOR — a deposit you spend on your own commission is a very different thing
+        // from a fee, and providers accept the first far more readily than the second.
+        insufficient_credits: (data && data.balance !== undefined && data.balance !== null
+            ? 'You have ₱' + Number(data.balance).toLocaleString() + '. '
+            : '')
+          + 'Accepting jobs needs at least ₱'
+          + Number((data && data.min_balance) || 200).toLocaleString() + '. '
+          + 'It is not a fee - it is spent on your own commission when you get paid. Top up via GCash.',
         // J20: the badge gate. Say WHICH trade and point at the exam - a refusal with no route
         // forward is just a wall.
         not_certified: 'This trade needs a certified badge'

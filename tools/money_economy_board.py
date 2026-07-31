@@ -219,8 +219,16 @@ def measure():
         ("M3", "bank - SQL money cells", len(money_cells), M3_TARGET,
          [(f"{len(money_cells)}/{M3_TARGET} banked", len(money_cells) >= M3_TARGET,
            "money has no deterministic cells of its own; the 293 sql cells cover dispatch")]),
+        # Each owed state carries the reason recorded on ITS OWN cell where one exists. A generic
+        # "no LIVE journey reaches this state" is a complaint; the cell's reason is a work list — and for
+        # `expired` the reason mattered, because it is not user-reachable BY DESIGN.
         ("M4", "bank - lifecycle states", len(reached), len(STATES),
-         [(s, s in reached, "no LIVE journey reaches this state") for s in STATES]),
+         [(s, s in reached,
+           next((t.get("owed_reason") or t.get("evidence_src", ""))[:150]
+                for t in tests if t.get("id") == f"TB-SJFULL-{s.replace('_','-')}"
+                and (t.get("owed_reason") or t.get("evidence_src"))),
+           ) if any(t.get("id") == f"TB-SJFULL-{s.replace('_','-')}" for t in tests)
+          else (s, s in reached, "no LIVE journey reaches this state") for s in STATES]),
         ("M5", "bank - persona pairings", len(persona_cells), 12,
          [("persona registry exists", persona_reg.exists(), "no runtime persona conditions to walk with"),
           (f"{len(persona_cells)} task-success cells", len(persona_cells) >= 12,
