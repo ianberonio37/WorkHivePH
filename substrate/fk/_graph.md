@@ -2,13 +2,13 @@
 name: fk-graph
 type: fk
 source: db:pg_constraint:foreign-keys
-source_sha: f4c199fe387160b2
+source_sha: a349dfc3ba4afa3b
 last_verified: 2026-07-13
 supersedes: null
 ---
-## fk · relational-integrity graph (164 foreign keys)
+## fk · relational-integrity graph (167 foreign keys)
 
-**UNINDEXED FK columns (26)** — slow joins + table-locking cascade deletes; add an index on the child column:
+**UNINDEXED FK columns (28)** — slow joins + table-locking cascade deletes; add an index on the child column:
 - `agent_episodic_memory`.`auth_uid` -> `auth.users`
 - `agent_episodic_memory`.`source_trace_id` -> `agentic_rag_traces`
 - `anomaly_signals`.`asset_node_id` -> `asset_nodes`
@@ -19,7 +19,9 @@ supersedes: null
 - `knowledge_graph_facts`.`superseded_by` -> `knowledge_graph_facts`
 - `logbook`.`pm_completion_id` -> `pm_completions`
 - `marketplace_disputes`.`listing_id` -> `marketplace_listings`
+- `marketplace_inquiries`.`buyer_auth_uid` -> `auth.users`
 - `marketplace_inquiries`.`hive_id` -> `hives`
+- `marketplace_listings`.`sold_to_inquiry_id` -> `marketplace_inquiries`
 - `marketplace_orders`.`hive_id` -> `hives`
 - `marketplace_sellers`.`hive_id` -> `hives`
 - `pf_intervals`.`fmea_mode_id` -> `rcm_fmea_modes`
@@ -36,7 +38,7 @@ supersedes: null
 - `voice_journal_entries`.`hive_id` -> `hives`
 - `weibull_fits`.`fmea_mode_id` -> `rcm_fmea_modes`
 
-**ON DELETE CASCADE FKs (108)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
+**ON DELETE CASCADE FKs (109)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
 - `agent_episodic_memory`.`hive_id` -> `hives`
 - `agent_followups`.`hive_id` -> `hives`
 - `agent_memory`.`hive_id` -> `hives`

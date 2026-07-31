@@ -2,7 +2,7 @@
 name: table-rls-marketplace_inquiries
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_inquiries
-source_sha: a5aed95354d3d4ff
+source_sha: 70558b6d5edf0def
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: False
 
-Columns (*=NOT NULL): id*, listing_id, hive_id, buyer_name*, buyer_contact, message*, status*, created_at*, seller_name, reply_text, replied_at
+Columns (*=NOT NULL): id*, listing_id, hive_id, buyer_name*, buyer_contact, message*, status*, created_at*, seller_name, reply_text, replied_at, buyer_auth_uid
 
 Policies:
 - `mkt_inq_delete` [DELETE · roles=public] USING=`is_marketplace_admin()` CHECK=`∅`

@@ -2,7 +2,7 @@
 name: table-rls-service_requests
 type: table-rls
 source: db:pg_policies+pg_trigger:service_requests
-source_sha: 2e057e02dbffbe80
+source_sha: 1f0997558af4653e
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -18,7 +18,7 @@ Policies:
 - `service_requests_party_read` [SELECT · roles=authenticated] USING=`((client_auth_uid = auth.uid()) OR ((hive_id IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_members hm WHERE` CHECK=`∅`
 - `service_requests_party_update` [UPDATE · roles=authenticated] USING=`((client_auth_uid = auth.uid()) OR (matched_provider_id IN ( SELECT my_service_provider_ids() AS my_service_provider_ids` CHECK=`∅`
 
-Guard triggers: `trg_daily_cap_service_requests`, `trg_guard_service_request_status`
+Guard triggers: `trg_daily_cap_service_requests`, `trg_guard_service_request_status`, `trg_guard_settle_requires_payment`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

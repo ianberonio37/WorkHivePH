@@ -8873,6 +8873,30 @@
       "comment": "Births a broadcasting hail at its hive's D9 start radius when the caller did not choose one (column default 3000 = unchosen). An explicit radius is honoured untouched.",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "guard_settle_requires_payment": {
+      "args": "",
+      "called_by_edge_fns": [],
+      "called_by_surfaces": [],
+      "security_definer": true,
+      "defined_in": "20260731000015_money_spine_payment_record_and_cashback.sql",
+      "comment": "Confirm-to-release: a service_requests transition to `settled` must carry a service_payments row, so the release and the record of what was actually paid cannot diverge. Kept SEPARATE from guard_service_request_status (long, mutation-scored) because rebuilding that guard from a partial read is how a rule gets silently dropped. Commission then bills amount_paid rather than the catalogue price."
+    },
+    "trg_fn_mint_service_cashback": {
+      "args": "",
+      "called_by_edge_fns": [],
+      "called_by_surfaces": [],
+      "security_definer": true,
+      "defined_in": "20260731000015_money_spine_payment_record_and_cashback.sql",
+      "comment": "The WIRE for mint_service_cashback, which had NO trigger and no caller — the 1% cashback the credit economy is designed around minted for nobody. It is an RPC (takes an id, returns the amount) so no trigger can bind to it directly, which is very likely why it stayed unwired; this adapter fires it on completed -> settled. Idempotent via service_credit_ledger_one_cashback_per_request."
+    },
+    "guard_listing_sale_needs_counterparty": {
+      "args": "",
+      "called_by_edge_fns": [],
+      "called_by_surfaces": [],
+      "security_definer": true,
+      "defined_in": "20260731000017_a_sale_needs_a_counterparty.sql",
+      "comment": "A marketplace_listings transition to `sold` must name the inquiry it sold through, and that inquiry must belong to THAT listing (else one inquiry could \"sell\" every listing a seller owns). Closes a live tier self-mint: the ladder counted COUNT(*) WHERE status=sold on listings the seller marks themselves, so gold was 51 clicks. Paired with recompute_seller_sales_and_tier now counting DISTINCT buyers."
     }
   },
   "surfaces": {

@@ -48,15 +48,20 @@ REQUIRED_CONSUMERS = {
 
 
 def psql(sql):
+    # THE SEPARATOR IS 0x1f (unit separator), NOT "|". A pipe is SQL's own concatenation operator, so a
+    # function body containing `a || b` was split mid-source and everything after the first `||` was
+    # silently discarded — which reported a knob as UNREAD on a function that plainly reads it. Same
+    # class as the multi-line prosrc bug: the code was right and the instrument was not. 0x1f cannot
+    # occur in SQL source, so it cannot collide with anything.
     try:
         r = subprocess.run(["docker", "exec", CONTAINER, "psql", "-U", "postgres", "-d", "postgres",
-                            "-t", "-A", "-F", "|", "-c", sql],
+                            "-t", "-A", "-F", "", "-c", sql],
                            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
     except Exception as e:
         return None, str(e)
     if r.returncode != 0:
         return None, (r.stderr or "")[:160]
-    return [ln.split("|") for ln in (r.stdout or "").splitlines() if ln.strip()], ""
+    return [ln.split("") for ln in (r.stdout or "").splitlines() if ln.strip()], ""
 
 
 def selftest():
