@@ -240,3 +240,31 @@ which fails the contract in §1 precisely for the users least able to notice.
 - `embedding_model` stays pinned to `bge-small-en-v1.5`; the runtime may vary, the SPACE may not.
 - The self-hosted service is the one new piece of infrastructure this whole plan requires. Everything else —
   outbox, registry, relay, gates — is already built and does not care where the vectors come from.
+
+### §11.4 · Correction — the hosted embedder is NOT new infrastructure; it is already built and running
+
+§11.3 called the self-hosted service "the ONE new piece of infrastructure this whole plan requires." That is
+wrong, and checking beat assuming again. It already exists:
+
+```
+image      workhive-embed-server:selfheal   (and :latest)
+container  embed-server                      Up 3 days
+```
+
+Built in a prior session with `--restart unless-stopped` (survives reboots, unlike a nohup), on the Supabase
+network plus a host port, and with the self-heal sweep **baked in** (`WH_EMBED_SELFHEAL_MIN`, an env DSN to
+`supabase_db_workhive:5432`, `psycopg2`, and `reembed_dirty_knowledge.py` copied inside). It serves fastembed
+`BAAI/bge-small-en-v1.5` at 384d with no rate limit.
+
+So **option A of §11.1 is a packaged, restart-surviving, self-healing container that has been running for
+three days** — not a thing to design. What remains is genuinely outward and Ian's: *where it runs* for
+production users (a host, a cost, a URL), after which the relay points at that URL by config instead of
+`127.0.0.1:8901`.
+
+Two build gotchas recorded from when it was made, so a rebuild does not relearn them: a pip-layer change
+busts the cached ~130 MB model layer (install `psycopg2` AFTER the model bake), and when a fresh model
+download stalls, `docker cp` + `docker commit` off the running model-baked container sidesteps it.
+
+**This is the third time this arc that "we need to build X" turned out to be "X exists, check first"** — after
+the state inducers and the CDC contract. The rule is now explicit at the top of §15.4 of the deepwalk roadmap:
+check the ~700 gates and the existing tools before adding, every time.
