@@ -85,20 +85,23 @@ GUARDS = {
     # kyb/cert/tier/sales, by UPDATE or at INSERT) AND the intentional admin self-management Ian decided to
     # keep 2026-07-31 (admin_self_kyb=ALLOWED) — so a later party-guard on the admin bypass turns the cell red.
     "guard_marketplace_seller_trust_columns": "marketplace_sellers",
-    # ── ARC 13 / F — guard_service_review is behaviourally BANKED (TB-SREVIEW, 11 assertions incl. its mig-003
-    # admin-party self-deal protection) but its mutation-SCORING is DEFERRED, on purpose. It reuses the variable
-    # names v_is_party / v_is_client from the service_request guards, so ~6 GENERIC operators written for those
-    # guards bleed onto it (operators are not scoped to a guard). The admin-party case kills the party operators,
-    # but the residual survivors are harness artifacts, not guard gaps — and forcing a 100% via unexplained
-    # exclusions would be the false-green this arc exists to prevent. Scoring it cleanly needs OPERATOR SCOPING
-    # (roadmap S14.3a / S14.4), the first harness improvement in the queue. The TB-SREVIEW cell still runs in the
-    # SQL lane, so the guard's behaviour is covered; only the mutation SCORE waits for the scoping. A genuine
-    # re-attempt 2026-07-31 (after the admin-party case) reproduced 58.3% with 5 survivors — client_check_true,
-    # refusal_removed, backend_branch_removed, admin_check_always_true, review_client_direction_unchecked — of
-    # which admin_check_always_true SHOULD be killed by the stranger case yet is not, for reasons not cleanly
-    # explained. Excluding what cannot be proven equivalent would be the false-green this arc exists to prevent,
-    # so the deferral is confirmed, not lifted. The behaviour is covered by TB-SREVIEW in the SQL lane.
-    # "guard_service_review": "marketplace_reviews",
+    # ── ARC 13 / F — guard_service_review. The deferral (once "operator bleed, unscoreable without scoping") was
+    # LIFTED 2026-07-31 by the per-survivor investigation the doctrine demands instead of a defer. The four
+    # survivors were not unprovable equivalents; three were GENUINE GAPS the probe could not yet see, and the
+    # mechanism for each was found by injecting the mutant and reading the RESULT lines:
+    #   * admin_check_always_true / client_check_true survived because the stranger reviewed d1, whose
+    #     (request_id,'client_to_provider') slot the client's own review already held — the UNIQUE index
+    #     `marketplace_reviews_one_per_request_direction` refused the stranger regardless of the guard, MASKING
+    #     the mutation. Fix: the stranger now reviews a FRESH request (d4) where the guard is the sole blocker,
+    #     so both mutants become observable and are KILLED.
+    #   * backend_branch_removed survived because no cell wrote a review as a null-JWT backend. Fix: a backend
+    #     insert on an in_progress job (d5) — the real guard allows it via the no-JWT bypass, the mutant falls to
+    #     the status gate and refuses — KILLS it.
+    #   * refusal_removed's first match is the `unknown service request` raise, made unobservable by the
+    #     request_id FK; it is the ONE genuine equivalent, EXCLUDED with that mechanism (see EXCLUDED).
+    # The three guard-own operators (status gate + two direction rules) are re-added and each killed by a cell.
+    # Result: 100% (all viable killed, refusal_removed excluded). Judge: TB-SREVIEW.
+    "guard_service_review": "marketplace_reviews",
     # ── ARC 13 / F — contract-terms immutability. A change order is a contract amendment; once raised its
     # commercial terms are fixed. Shares NO variable names with the status machines and calls neither
     # is_marketplace_admin() nor a system-write GUC, so no generic operator bleeds — it scores against its own
@@ -441,9 +444,20 @@ OPERATORS = [
      r"COALESCE\(NEW\.cert_verified,false\)\s+IS DISTINCT FROM COALESCE\(OLD\.cert_verified,false\)", "false",
      "a seller may turn their OWN cert_verified on - the certification badge, self-awarded (UPDATE branch)"),
 
-    # NOTE: the three guard_service_review operators were removed again when the guard's re-attempt confirmed the
-    # deferral (see the commented GUARDS entry above). They only match guard_service_review's text, so they are
-    # re-added with it if/when operator scoping or a per-survivor investigation lands.
+    # ── ARC 13 / F · guard_service_review's own three rules, re-added when the per-survivor investigation LANDED
+    # (2026-07-31) and lifted the deferral. Each pattern is unique to this guard (its status gate and the two
+    # direction raises), so none bleeds. Every one is killed by a TB-SREVIEW cell: the status gate by
+    # review_open_job (a review on an in_progress job), the client-direction check by the stranger-on-d4 case
+    # (a non-client's client_to_provider review, isolated from the UNIQUE index), the provider-direction check by
+    # client_wrong_direction (the client posting provider_to_client).
+    ("review_status_gate_removed", r"v_req\.status not in \('completed','settled'\)", "false",
+     "a review may be posted before the job is completed/settled - reviewing a job that never happened"),
+    ("review_client_direction_unchecked",
+     r"new\.direction = 'client_to_provider' and not v_is_client", "false",
+     "the 'only the client reviews the provider' rule drops, so a non-client can post a client_to_provider review"),
+    ("review_provider_direction_unchecked",
+     r"new\.direction = 'provider_to_client' and not v_is_provider", "false",
+     "the 'only the matched provider reviews the client' rule drops, so the client can self-review as the provider"),
 
     # ── ARC 13 / F · guard_change_order_terms_immutable's five rot modes. Each pattern names a column UNIQUE to
     # project_change_orders (cost_impact_php / scope_change / co_number / schedule_impact_days) or the guard's own
@@ -655,6 +669,25 @@ EXCLUDED = {
         "The row-version divergence that produced three live exploits is now unreachable on this branch by "
         "construction. Recorded rather than deleted: if the pin is ever loosened, this mutant becomes "
         "killable and the STALE EXCLUSION failure is the alarm."
+    ),
+    # ARC 13 / F: refusal_removed's FIRST 'Not allowed' match in guard_service_review is the `unknown service
+    # request` raise, which fires only when the request lookup finds nothing (v_req.id IS NULL). marketplace_
+    # reviews.request_id carries an FK to service_requests(id), so an invalid request_id is refused by the FK at
+    # row-insert time regardless: the real guard blocks it at the raise, the mutant lets it fall through to the
+    # same FK, and both outcomes are `blocked`. The raise is a belt-and-suspenders check the FK makes
+    # unobservable - killing it would need the message, not the outcome, which this bank does not assert. All the
+    # guard's OTHER refusals (status gate, the two direction raises) are killed by their own operators
+    # (review_status_gate_removed / review_client_direction_unchecked / review_provider_direction_unchecked), so
+    # only this first, FK-masked one is excluded. Falsifiable: still run every time; drop the FK and the
+    # unknown_request cell would object, failing the gate as a STALE EXCLUSION.
+    ("guard_service_review", "refusal_removed"): (
+        "Masked by the request_id FK. refusal_removed removes the FIRST 'Not allowed' raise, which in this guard "
+        "is the `unknown service request` check (fires only when the service_requests lookup returns no row). "
+        "marketplace_reviews.request_id REFERENCES service_requests(id), so an unknown request_id is refused by "
+        "the FK at insert time whether or not the guard raises - real blocks at the raise, mutant blocks at the "
+        "FK, both `blocked`. The guard's other refusals (status gate + the two direction rules) each have their "
+        "own operator and ARE killed. Falsifiable: still run every time; without the FK the unknown_request cell "
+        "would object and this fails as a STALE EXCLUSION."
     ),
 }
 

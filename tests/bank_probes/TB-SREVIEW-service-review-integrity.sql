@@ -40,7 +40,19 @@ insert into public.service_requests(id, client_auth_uid, matched_provider_id, st
    'ce000000-0000-4000-8000-0000000000f1','in_progress','instant','TB probe scope'),
   -- the admin's OWN settled job (admin is the client)
   ('ce000000-0000-4000-8000-0000000000d3','ce000000-0000-4000-8000-00000000000d',
-   'ce000000-0000-4000-8000-0000000000f1','settled','instant','TB probe scope');
+   'ce000000-0000-4000-8000-0000000000f1','settled','instant','TB probe scope'),
+  -- d4: a FRESH settled job with NO prior review, so the stranger's client_to_provider is not a duplicate.
+  -- Without this, the stranger reviewing d1 is refused by the (request_id,direction) UNIQUE index (aa01 already
+  -- holds that slot), NOT by this guard — which MASKS admin_check_always_true and client_check_true (a mutant
+  -- that lets the stranger through is still stopped by the index, so no cell objects). On a fresh request the
+  -- guard is the SOLE blocker, so those mutants become observable.
+  ('ce000000-0000-4000-8000-0000000000d4','ce000000-0000-4000-8000-00000000000a',
+   'ce000000-0000-4000-8000-0000000000f1','settled','instant','TB probe scope'),
+  -- d5: an in_progress job for the BACKEND-write case (a null-JWT seeder/system review). The real guard allows
+  -- it via the no-JWT bypass; backend_branch_removed makes it fall to the status gate and be refused — the
+  -- divergence that kills that mutant. in_progress (not completed/settled) is what makes the status gate bite.
+  ('ce000000-0000-4000-8000-0000000000d5','ce000000-0000-4000-8000-00000000000a',
+   'ce000000-0000-4000-8000-0000000000f1','in_progress','instant','TB probe scope');
 
 -- ── CLIENT (a party) reviews the provider on a SETTLED job — the legitimate case ──
 select set_config('request.jwt.claims',
@@ -118,7 +130,8 @@ begin
   exception when others then raise notice 'RESULT admin_party_right_direction=BLOCKED'; end;
 end $probe$;
 
--- ── STRANGER (no party) cannot review at all ──
+-- ── STRANGER (no party) cannot review at all — on a FRESH request (d4) so THIS guard is the sole blocker ──
+-- (reviewing d1 would be refused by the (request_id,direction) UNIQUE index instead, masking the guard).
 select set_config('request.jwt.claims',
   '{"sub":"ce000000-0000-4000-8000-00000000000c","role":"authenticated"}', true);
 do $probe$
@@ -126,9 +139,24 @@ declare n int;
 begin
   begin
     insert into public.marketplace_reviews(id, request_id, reviewer_name, rating, direction)
-      values ('ce000000-0000-4000-8000-00000000aa05','ce000000-0000-4000-8000-0000000000d1','TB Stranger',5,'client_to_provider');
+      values ('ce000000-0000-4000-8000-00000000aa05','ce000000-0000-4000-8000-0000000000d4','TB Stranger',5,'client_to_provider');
     get diagnostics n=row_count; raise notice 'RESULT stranger_reviews=%', case when n>0 then 'ALLOWED' else 'blocked' end;
   exception when others then raise notice 'RESULT stranger_reviews=blocked'; end;
+end $probe$;
+
+-- ── BACKEND (no JWT: seeder/system) MAY write a review — isolates the null-auth bypass branch ──
+-- With no jwt claim auth.uid() is null, so the guard takes its backend path and allows the write even on an
+-- in_progress job. backend_branch_removed deletes that path, so the same write falls to the status gate and is
+-- refused — real=allowed vs mutant=blocked is the divergence that kills the mutant.
+select set_config('request.jwt.claims', '{}', true);
+do $probe$
+declare n int;
+begin
+  begin
+    insert into public.marketplace_reviews(id, request_id, reviewer_name, rating, direction)
+      values ('ce000000-0000-4000-8000-00000000aa09','ce000000-0000-4000-8000-0000000000d5','TB Backend',5,'client_to_provider');
+    get diagnostics n=row_count; raise notice 'RESULT backend_review=%', case when n>0 then 'allowed' else 'BLOCKED' end;
+  exception when others then raise notice 'RESULT backend_review=BLOCKED sqlstate=%', sqlstate; end;
 end $probe$;
 
 rollback;

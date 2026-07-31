@@ -6152,7 +6152,8 @@
           "stranger_reviews": "blocked",
           "admin_party_is_admin": "t",
           "admin_party_wrong_direction": "blocked",
-          "admin_party_right_direction": "allowed"
+          "admin_party_right_direction": "allowed",
+          "backend_review": "allowed"
         }
       },
       "asserts": [

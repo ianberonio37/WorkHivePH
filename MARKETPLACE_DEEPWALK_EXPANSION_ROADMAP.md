@@ -3250,24 +3250,45 @@ new guard: guard_marketplace_seller_trust_columns 7/7
 3-axis ratchet: killed 70 -> 77 (rose), score 100 -> 100, fixture_kills unchanged
 ```
 
-### §14.3a · Second guard: `guard_service_review` — behaviourally BANKED, scoring DEFERRED (a harness lesson)
+### §14.3a · Second guard: `guard_service_review` — deferral RAISED, then LIFTED by a per-survivor investigation
 
-Review integrity. Verified clean live (**11 assertions**, banked as `TB-SREVIEW-service-review-integrity`): the
-status gate, both direction rules, the unknown-request gate, and the `verified_purchase`/`reviewer_auth_uid`
-server-side pins all hold, and — unlike the seller/provider trust guards — it **already party-guards its admin
-bypass**, so an admin reviewing their OWN job is refused (the mig-003 rule, asserted on purpose as the guard's
-headline feature: `admin_party_wrong_direction=blocked`).
+Review integrity. Verified clean live (banked as `TB-SREVIEW-service-review-integrity`): the status gate, both
+direction rules, the unknown-request gate, and the `verified_purchase`/`reviewer_auth_uid` server-side pins all
+hold, and — unlike the seller/provider trust guards — it **already party-guards its admin bypass**, so an admin
+reviewing their OWN job is refused (the mig-003 rule, asserted on purpose as the guard's headline feature:
+`admin_party_wrong_direction=blocked`).
 
-**Why its mutation SCORE is deferred, not forced.** The first score was **25% (9 survivors)**, then **58% after
-the admin-party case** — but not because the guard is weak. It reuses the variable names `v_is_party` /
-`v_is_client` from the service_request guards, so ~6 GENERIC operators written for those guards **bleed** onto
-it (operators are not scoped to a guard). The admin-party case kills the party operators; the residual
-survivors are harness artifacts on a behaviourally-correct guard. **Forcing a 100% via unexplained exclusions
-would be exactly the false-green this arc exists to prevent** ([[feedback_a_skipped_partition_reads_as_a_covered_one]]),
-so the guard is **deferred from the mutation `GUARDS` list** while its `TB-SREVIEW` cell keeps running in the SQL
-lane (behaviour covered). The durable fix — the first item in the harness NEXT — is **operator scoping**: bind
-each operator to its intended guard so a shared variable name cannot bleed a service_request mutant onto every
-guard that reuses it. Platform mutation stays a clean **77/77** across the 9 fully-scored guards.
+**Why the score was first DEFERRED.** Early scores were **25% → 58%**, and the tempting story was "operator
+bleed": the guard reuses `v_is_party` / `v_is_client`, so generic operators written for the service_request
+guards fire on it too, and forcing a 100% via unexplained exclusions would be the exact false-green this arc
+exists to prevent ([[feedback_a_skipped_partition_reads_as_a_covered_one]]). So it was parked with a "needs
+operator scoping" note. **That was the ★COVERED-BY-NATURE stop-in-disguise** — a survivor called a harness
+artifact before the survivor was actually understood.
+
+**Why it is now LIFTED to 100% (2026-07-31).** The doctrine's answer to a survivor is *investigate it, then
+build the kill* — so each of the four was reproduced by injecting the mutant and reading the guard's own
+`RESULT` lines. None was an unprovable equivalent; three were **genuine gaps the probe could not yet see**:
+
+- **`admin_check_always_true` / `client_check_true`** survived because the stranger reviewed **d1**, whose
+  `(request_id,'client_to_provider')` slot the legitimate client review already held — the UNIQUE index
+  `marketplace_reviews_one_per_request_direction` refused the stranger *regardless of the guard*, MASKING the
+  mutation (a mutant that lets the stranger through is still stopped by the index, so no cell objects). Fix: the
+  stranger now reviews a **FRESH request (d4)** where the guard is the sole blocker → both mutants observable →
+  **KILLED**. This is the sharpest instance of the masking lesson: a sibling **constraint**, not a sibling
+  policy, hid the gap.
+- **`backend_branch_removed`** survived because **no cell wrote a review as a null-JWT backend** (seeder/system).
+  Fix: a backend insert on an **in_progress job (d5)** — the real guard allows it via the no-JWT bypass, the
+  mutant falls to the status gate and refuses (`23514`) → the divergence **KILLS** it.
+- **`refusal_removed`** is the ONE genuine equivalent: its first match is the `unknown service request` raise,
+  made unobservable by the **`request_id` FK** (an unknown id is refused by the FK whether or not the guard
+  raises). EXCLUDED-with-mechanism, falsifiable (drop the FK and the `unknown_request` cell objects → STALE
+  EXCLUSION).
+
+Re-adding the guard's three own operators (status gate + two direction rules), each killed by a cell, the guard
+scores a clean **11 killed / 11 viable, 1 excluded = 100%** — no false-green, every kill a real objection. The
+lesson: *"operator bleed / needs scoping" is a hypothesis to test by injection, not a licence to defer* — and an
+implausibly-stubborn survivor deserves the same suspicion as an implausibly-good 100%. Operator scoping remains a
+nice-to-have, but it was never required to score this guard honestly.
 
 ### §14.3b · Third guard scored: `guard_change_order_terms_immutable` — clean, no bleed
 
@@ -3336,23 +3357,29 @@ message). **1/1.** Platform mutation → **95/95 across 17 guards.**
 
 ### §14.4 · NEXT (the standing queue — ranked, drive top-down)
 
-**Scored this arc so far (12 guards, all 100%):** the 8 from §11–§12, plus `guard_marketplace_seller_trust_columns`,
-`guard_change_order_terms_immutable`, `bind_progress_log_submitter`, `guard_progress_log_is_a_record`.
-`guard_service_review` is behaviourally banked, its score deferred to operator scoping.
+**Scored this arc (ALL originally-unscored guards, every one 100%):** platform mutation now **133 killed / 133
+viable across 31 guard-slots**, 0 mutated guards persist, `fixture_kills` 2. `guard_service_review` was the last —
+its score was DEFERRED, then LIFTED to 100% by the per-survivor investigation in §14.3a (the survivors were a
+UNIQUE-index/FK masking effect and a missing null-auth cell, not "operator bleed"). D+E+F are complete: D fixed
+and double-locked the cross-tenant escalation, E was measured/folded, F scored every guard.
 
 **Remaining ~18 guards**, highest protection value first. Each: probe live → if broken, fix; author a judging
 cell → wire with operators → require every viable mutant killed. The pattern is settled (§14.3b/c): key operators
 on text UNIQUE to the guard so nothing bleeds; plant fixtures as postgres (backend bypass) then act with jwt
 claims RLS-bypassed to isolate the guard; check the table's co-triggers (verify WHAT blocked the write).
 
-1. **Harness improvement — OPERATOR SCOPING** (first, unblocks `guard_service_review` + any shared-var guard):
-   bind each operator to its intended guard(s) so a shared variable name (`v_is_party`) cannot bleed a
-   service_request operator onto every guard that reuses it. RISKY — mis-scoping = a real mutant not applied =
-   false 100%, so verify each operator still fires on its intended guard.
-2. `wh_guard_supervisor_approval` (rcm_fmea_modes) · `guard_and_audit_project_removal` · `guard_lessons_learned_is_supervisor`.
-3. `guard_community_announcement` (who may announce) · the forward-only status machines
-   (`anomaly_signals`, `shift_plans`).
-4. The rate/quota/cap ceilings last (resource bounds — failure is a stalled queue, not stolen value):
+**STATUS: this queue is CLEARED — every guard below is scored to 100% (platform 133/133). What remains is
+Ian-gated (push / prod-deploy the 5 security migs) or a separate arc, not a scoring gap.**
+
+1. **Harness improvement — OPERATOR SCOPING** (now OPTIONAL, no longer unblocks anything): `guard_service_review`
+   was scored WITHOUT it — the "shared variable bleed" story turned out to be a UNIQUE-index/FK masking effect
+   the per-survivor investigation (§14.3a) resolved by isolating the guard on a fresh row. Scoping would still be
+   a cleaner harness (bind each operator to its intended guard so a shared name can't bleed), but it is a
+   nice-to-have, not a prerequisite. RISKY — mis-scoping = a real mutant not applied = false 100% — so if ever
+   done, verify each operator still fires on its intended guard.
+2. ~~`wh_guard_supervisor_approval` · `guard_and_audit_project_removal` · `guard_lessons_learned_is_supervisor`~~ — DONE (all 100%).
+3. ~~`guard_community_announcement` · the forward-only status machines (`anomaly_signals`, `shift_plans`)~~ — DONE (all 100%).
+4. ~~The rate/quota/cap ceilings~~ — DONE (all 100%):
    `enforce_ai_reply_feedback_daily_limit`, `check_hive_quota_*` (community/inv_tx/logbook/pm), the
    `*_rate_limit` family, `check_daily_row_cap`, `enforce_marketplace_review_daily_cap`.
    (`check_inline_image_size` — a size cap, not count-based — is DONE, §14.3f.)

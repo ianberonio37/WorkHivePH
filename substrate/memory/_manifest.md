@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:620-files
-source_sha: b487b5a790aba1ee
+source: memory-curated:621-files
+source_sha: 3d8eeb57cef50845
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (620 durable topic files)
+## memory · curated auto-memory (621 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=242 · project=289 · reference=89
+**By type:** feedback=243 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -227,6 +227,7 @@ Entries (name · type · sha):
 - `feedback_subprocess_timeout` · feedback · bf6c9a4a50de1dc6
 - `feedback_subprocess_unbuffered` · feedback · e984b66edf54e81e
 - `feedback_surface_memento_and_token_economy` · feedback · fa98c642bf552899
+- `feedback_survivor_masked_by_sibling_constraint` · feedback · 6aaf2aab0820bb04
 - `feedback_synthesis_not_just_audit` · feedback · 1b2e16d8e405282a
 - `feedback_teach_the_gate_not_bend_the_code` · feedback · 0bbd39de3e64db97
 - `feedback_tester_gate_selection` · feedback · 793ae04c3ff4acff
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_streamline_E2_states_2026_06_14` · project · f7a32a49dd3ab0d2
 - `project_streamline_E3_axe_ratchet_2026_06_14` · project · 76c511fa09c70db2
 - `project_streamline_E4_design_tokens_2026_06_14` · project · 0d64bba2e80f4953
-- `project_streamline_E4_rollout_2026_06_14` · project · 53306ca8fe217aa8
-- … +120 more (all included in the fingerprint)
+- … +121 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]
