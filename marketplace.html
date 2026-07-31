@@ -3319,8 +3319,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       '<label style="display:block;font-size:0.8rem;font-weight:600;">What do you need?' +
       '<select id="svc-hail-item" aria-label="Which service do you need" style="' + _svcInputC + '">' +
       '<option value="">Choose a service…</option>' +
-      cats.map(c => '<option value="' + e(c.id) + '">' + e(c.category) + ' - ' + e(c.name) + ' (₱' + Number(c.base_rate).toLocaleString() + (c.unit === 'per_hour' ? '/hr' : '/visit') + ')</option>').join('') +
+      cats.map(c => '<option value="' + e(c.id) + '"' +
+        (c.requires_cert_level ? ' data-cert="' + e(String(c.requires_cert_level)) + '" data-cert-cat="' + e(c.category) + '"' : '') +
+        '>' + e(c.category) + ' - ' + e(c.name) + ' (₱' + Number(c.base_rate).toLocaleString() + (c.unit === 'per_hour' ? '/hr' : '/visit') + ')' +
+        (c.requires_cert_level ? ' — certified only' : '') + '</option>').join('') +
       '</select></label>' +
+      /* SAY IT BEFORE THE HAIL, NOT AFTER THE TIMEOUT. A cert-gated trade can only be accepted by a
+         provider holding an EARNED badge (the J20 gate), and on a live walk 2026-08-01 BOTH gated
+         services — Calibration and Generator, each requiring level 2 — had ZERO qualifying providers.
+         A client could hail one, watch "Finding a provider…" for the full TTL, and get "No provider
+         found", never learning the real reason was that nobody on the platform is certified for it.
+         The hail is still ALLOWED — an unfilled hail is genuine demand signal and worth capturing —
+         but the person deserves to know what they are waiting for before they wait. */
+      '<p id="svc-cert-note" style="display:none;margin:0.45rem 0 0;font-size:0.72rem;color:var(--wh-steel-bright);"></p>' +
       '<label style="display:block;margin-top:0.6rem;font-size:0.8rem;font-weight:600;">Where? (site / address)' +
       '<input id="svc-hail-address" type="text" aria-label="Job site or address" maxlength="120" placeholder="e.g. Plant 2, Baguio" style="' + _svcInputC + '"></label>' +
       '<label style="display:block;margin-top:0.6rem;font-size:0.8rem;font-weight:600;">How urgent?' +
@@ -3345,6 +3356,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       '</div>';
     pane.innerHTML = html;
     svcLoadPresence();   // J33: fill the area-presence line after the pane exists
+
+    /* Surface the certified-only requirement the moment a gated trade is picked (see the note above
+       the picker). Reads the option's own data-cert, so it costs no extra query. */
+    (function wireCertNote() {
+      const sel = document.getElementById('svc-hail-item');
+      const note = document.getElementById('svc-cert-note');
+      if (!sel || !note) return;
+      const show = () => {
+        const opt = sel.options[sel.selectedIndex];
+        const lvl = opt && opt.getAttribute('data-cert');
+        if (!lvl) { note.style.display = 'none'; note.textContent = ''; return; }
+        note.style.display = 'block';
+        note.textContent = 'This trade is certified-only: a provider needs an earned '
+          + (opt.getAttribute('data-cert-cat') || '') + ' badge (level ' + lvl + '+) to accept it. '
+          + 'You can still hail — if nobody certified is available yet, the request will expire and you '
+          + 'will not be charged.';
+      };
+      sel.addEventListener('change', show);
+      show();
+    })();
   }
 
   /* S2 OFFLINE POSTURE (§1b), decided and enforced rather than left implicit:

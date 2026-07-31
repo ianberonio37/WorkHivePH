@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:477
-source_sha: 5cb618fce1c7dbc7
+source: dir:supabase/migrations:478
+source_sha: e6a16ff9012b334a
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (477 migrations)
+## migration · catalog (478 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260707000009_fix_episodic_and_feedback_read_leak` — policies:aem_read,ai_reply_feedback_read
 - `20260708000000_engdesign_calcs_write_isolation` — policies:engineering_calcs_delete,engineering_calcs_insert,engineering_calcs_update,engineering_calcs_write
 - `20260708000001_inventory_ledger_reconcile_trigger` — fns:inventory_sync_balance_from_ledger · triggers:trg_inventory_sync_balance
 - `20260708000002_fault_knowledge_reembed_on_edit` — (misc DDL/DML)
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260731000022_restore_daily_cap_uuid_cast` — fns:check_daily_row_cap
 - `20260731000023_anchor_the_four_new_tables` — (misc DDL/DML)
 - `20260731000024_understatement_needs_a_reason` — fns:guard_payment_variance_explained,service_agreed_base · triggers:trg_guard_payment_variance_explained · tables:service_payments
+- `20260801000001_catalog_truth_exposes_cert_level` — (misc DDL/DML)
 
 (showing last 200)
 
