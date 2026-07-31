@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:623-files
-source_sha: 4a688422d4251a34
+source: memory-curated:624-files
+source_sha: dc09d0b3ff38bce1
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (623 durable topic files)
+## memory · curated auto-memory (624 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=245 · project=289 · reference=89
+**By type:** feedback=246 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -143,6 +143,7 @@ Entries (name · type · sha):
 - `feedback_local_only_tester` · feedback · 89db0250b1703035
 - `feedback_local_runtime_verify_no_deploy` · feedback · 5c13ccf3a3b6b9c5
 - `feedback_local_supabase_rewrite` · feedback · a970d46ace63fba7
+- `feedback_local_triggers_called_prod_with_service_key` · feedback · 23f78e4991fb72c6
 - `feedback_lower_cards_rubric_applied_and_verified` · feedback · 071ce814e4717d4c
 - `feedback_make_it_earnable_not_coming_soon` · feedback · 580fc6fddab6aee8
 - `feedback_marketplace_moderation_and_identity_deepwalk` · feedback · f41ed251831fe47e
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_streamline_arc_complete_2026_06_13` · project · e72febc7a4358311
 - `project_streamline_E1_jargon_fix_2026_06_14` · project · df0d8c2ce258f086
 - `project_streamline_E2_rollout_2026_06_14` · project · 15cf41613cb97ba8
-- `project_streamline_E2_states_2026_06_14` · project · f7a32a49dd3ab0d2
-- … +123 more (all included in the fingerprint)
+- … +124 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

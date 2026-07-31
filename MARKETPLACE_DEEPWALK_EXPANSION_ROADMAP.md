@@ -3605,3 +3605,39 @@ nine *greens*; caught by reading the code after the run rather than trusting its
 
 **The S2-pwa layer is no longer 2 cells with one of them sidelined** — and the lesson generalises: a
 quarantined cell is a lead, not a footnote.
+
+### §15.6 · The S9 pull found the arc's most serious defect — local writes were reaching PRODUCTION
+
+Extending `S9-knowledge` meant asking the question memory
+[[feedback_write_only_index_and_hidden_nav]] insists on: *who READS this?* The writeback lands a logbook row —
+does it become retrievable? Following the embedding path into the catalog found something else entirely.
+
+**Three `AFTER INSERT` triggers on the LOCAL database** — `embed-logbook`, `embed-pm-completions`,
+`embed-skill-badges` — called `supabase_functions.http_request()` against a **production** URL, carrying a
+**service-role bearer embedded in the trigger definition**.
+
+Measured on three axes rather than assumed:
+
+| axis | evidence |
+|---|---|
+| the target | definitions carry the production host **and** a JWT (read from `pg_trigger`) |
+| delivery | `net._http_response` holds delivered responses, incl. **200s from the same day** — pg_net is live |
+| reachability | the container **resolves** the production host (`getent hosts` returns an address) |
+
+So every **committed** local insert POSTed the row to production. Seeding and manual testing hammer `logbook`,
+so dev data was flowing into the production embedding store — the mirror of the pollution rule, and worse,
+since embeddings are not obviously reversible. Separately, a service-role key **bypasses RLS entirely**, and
+this one sat in the local catalog, readable by anyone with catalog access or a `pg_dump`.
+
+**Why ~700 gates missed it:** they read *code* — HTML, edge functions, migrations. Nothing read the **live
+catalog** for outbound calls, and these triggers came from a dashboard hook rather than a tracked migration, so
+no file contained them.
+
+**Contained** the same session: all three `DISABLE`d (local, immediate, reversible, verified `D`). **Locked**
+by the new gate `local-triggers-dont-call-prod`, which separates ENABLED (live path → FAIL) from DISABLED
+(contained → reported) from KEY-PRESENT (reported **every run**, because containment is not rotation). The JWT
+is matched *structurally* — `service_role` lives inside the encoded payload, and the first cut searched for
+that word and reported clean on a definition that was carrying a key.
+
+**Outstanding and NOT mine: rotating the exposed production key**, and deciding what production's own triggers
+should do. Both are outward actions.
