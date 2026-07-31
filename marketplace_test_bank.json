@@ -7025,6 +7025,50 @@
         "the probe assumes the authenticated ROLE, not just JWT claims: postgres is the table OWNER and BYPASSES RLS, which made the first run report three false 'findings'"
       ],
       "provenance": "The last unwalked journey on the board (W was TODO: zero personas, zero states). Its first run reported a forged dispute accepted, a stranger reading it, and a stranger still reading it after resolution - three spectacular security findings that were ALL the instrument: postgres owns the table and bypasses RLS. The sibling probes in this bank get away with claims alone because they assert TRIGGER behaviour, and triggers DO fire for the owner; RLS does not. Adding `set local role authenticated` per persona flipped every one of them to correct. Verify the instrument before believing the page."
+    },
+    {
+      "id": "TB-S9-knowledge-retrievable-and-scoped",
+      "source": "authored",
+      "kind": "dimension",
+      "journey": "J17-job-to-knowledge",
+      "authority": "member",
+      "state": "populated",
+      "path": "happy",
+      "lane": "sql",
+      "oracle": "db-truth",
+      "status": "banked",
+      "layers": [
+        "S9-knowledge",
+        "S4-db"
+      ],
+      "dims": [
+        "MK6"
+      ],
+      "covers_tables": [
+        "fault_knowledge",
+        "logbook"
+      ],
+      "ufai_earned": {
+        "F5": "the round trip is asserted end-to-end: knowledge written is knowledge FINDABLE, in one space, once, and only by its own tenant"
+      },
+      "probe": {
+        "file": "TB-S9-knowledge-retrievable-and-scoped.sql",
+        "expect": {
+          "knowledge_written_only": "1",
+          "knowledge_vector_spaces": "1",
+          "knowledge_duplicate_sources": "0",
+          "knowledge_hive_mismatched": "0",
+          "knowledge_hives_represented": "multi"
+        }
+      },
+      "asserts": [
+        "RETRIEVABLE: an entry rich enough to embed HAS its fault_knowledge row - measured over the product's OWN qualifying rule (embed-entry skips anything under 50 composed chars), not an invented denominator",
+        "ONE SPACE: the corpus carries a single embedding_model - a vector from another model is SILENTLY unfindable, because cosine against a foreign geometry is noise rather than a worse answer",
+        "NO DUPLICATES: exactly one knowledge row per source entry - skill_knowledge reached 28 rows for 4 distinct keys before a conflict key existed, every stale copy competing with the current one",
+        "TENANT-SCOPED: knowledge derived from a hive's failures carries that hive, so a search cannot cross the org boundary the platform is built on",
+        "NON-VACUITY: the corpus spans MULTIPLE hives, so the isolation assertion is meaningful - a single-tenant or empty corpus would satisfy every check above while proving nothing"
+      ],
+      "provenance": "S9-knowledge was the thinnest layer on the board (1 cell) and the existing cell proves a job's writeback BECOMES a logbook entry - this one asks what makes that worth anything: can it be FOUND, and only by the right people. The auto-embed arc measured the answer at 14% (3,278 of 3,811 entries had no knowledge row at all, on the board and invisible to every search), then drove it to 99.97% in one space. A platform gate now tracks the ratio; this is the bank's own re-runnable assertion of the property, so the marketplace's knowledge layer does not rest on that gate alone. Deliberately DB-level: whether the embedder is reachable is the relay's problem, but the knowledge being present, single-spaced, unduplicated and scoped is the bank's."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
