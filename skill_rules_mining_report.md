@@ -138,13 +138,13 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `frontend_writeAuditLog_called` | frontend | 100% (2/2) | html_pages | convention |
 | `edge_fn_uses_get_cors_headers` | security | 100% (58/58) | edge_fns | convention |
 | `data_engineer_restore_identity_from_session` | data-engineer | 100% (1/1) | html_pages | convention |
-| `migration_function_sets_search_path` | security | 100% (172/172) | migrations | convention |
+| `migration_function_sets_search_path` | security | 100% (174/174) | migrations | convention |
 | `security_no_function_constructor` | security | 100% (83/83) | html_and_js | anti_pattern |
 | `security_no_token_in_localstorage` | security | 100% (83/83) | html_and_js | anti_pattern |
 | `designer_card_radius_not_125rem` | designer | 100% (42/42) | html_pages | anti_pattern |
 | `a11y_img_has_alt` | qa-tester | 100% (42/42) | html_pages | anti_pattern |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
-| `kg_migrations_no_broadcast_across_hives` | architect | 100% (474/474) | migrations | anti_pattern |
+| `kg_migrations_no_broadcast_across_hives` | architect | 100% (477/477) | migrations | anti_pattern |
 | `frontend_detail_toggle_uses_shared_helper` | frontend | 100% (17/17) | html_pages | convention |
 | `frontend_list_view_has_no_results_state` | frontend | 100% (11/11) | html_pages | convention |
 | `frontend_list_view_has_load_more` | frontend | 100% (12/12) | html_pages | convention |

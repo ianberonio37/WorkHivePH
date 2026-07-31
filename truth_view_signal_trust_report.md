@@ -6,7 +6,7 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **334**
+- View/column pairs scanned: **336**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
 - Files scanned: **257**
@@ -329,8 +329,10 @@ re-deriving what the canonical view should expose:
 | `v_sensor_truth` | `recorded_at` | ✅ OK | 2 | direct |
 | `v_sensor_truth` | `value` | ✅ OK | 1 | direct |
 | `v_service_catalog_truth` | `category` | ✅ OK | 2 | direct |
-| `v_service_credit_ledger_truth` | `amount` | ✅ OK | 1 | direct |
-| `v_service_credit_ledger_truth` | `entry_type` | ✅ OK | 1 | direct |
+| `v_service_credit_ledger_truth` | `account_id` | ✅ OK | 1 | direct |
+| `v_service_credit_ledger_truth` | `account_type` | ✅ OK | 1 | direct |
+| `v_service_credit_ledger_truth` | `amount` | ✅ OK | 2 | direct |
+| `v_service_credit_ledger_truth` | `entry_type` | ✅ OK | 2 | direct |
 | `v_service_credit_ledger_truth` | `note` | ✅ OK | 1 | direct |
 | `v_service_credit_topups_truth` | `account_id` | ✅ OK | 1 | direct |
 | `v_service_credit_topups_truth` | `account_type` | ✅ OK | 1 | direct |

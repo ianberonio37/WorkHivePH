@@ -90,6 +90,15 @@ def _sql(uid: str, hive: str) -> str:
 begin;
 set local role authenticated;
 set local request.jwt.claims = '{{"sub":"{uid}","role":"authenticated"}}';
+-- ANNOUNCE PAST THE DAILY ROW CAP, and only that. This probe asserts ONE thing: that a client INSERT into
+-- fault_knowledge is GRANT/RLS-locked (42501). On 2026-07-31 it began failing with 54000 — "You have
+-- reached today's free limit (500)" — because an embedding backfill had put 1,520 rows in the hive that
+-- day, so `check_daily_row_cap` fired FIRST and the probe never reached the layer it exists to measure.
+-- That is the read-the-SQLSTATE-and-assert-the-LAYER rule: a refusal from a DIFFERENT control is not the
+-- refusal under test, and treating it as a pass (or, as here, a hard error) measures the wrong thing.
+-- The cap is a real control with its own gate (validate_quota_coverage); announcing past it here narrows
+-- this probe to its own question rather than weakening anything.
+set local workhive.row_cap_system_write = 'on';
 do $$ begin
   insert into fault_knowledge(hive_id, machine, category, problem, worker_name)
   values('{hive}', 'CMMSGATE machine', 'Mechanical', 'CMMSGATE-FKLOCK probe', 'probe');
@@ -97,6 +106,7 @@ do $$ begin
 exception when others then
   if sqlstate = '42501' then raise notice 'FKLOCK|true'; else raise; end if;
 end $$;
+set local workhive.row_cap_system_write = 'off';
 insert into external_sync(hive_id, system_type, external_id, entity_type, workhive_table, status, sync_payload, sync_status)
 values('{hive}','generic','CMMSGATE-WO-1','work_order','logbook','Open','{{"probe":true}}'::jsonb,'active')
 on conflict (system_type,external_id,entity_type) do update set status=excluded.status, sync_payload=excluded.sync_payload, sync_status=excluded.sync_status;

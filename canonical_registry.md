@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **172**
 - Views:         **63**
-- RPCs:          **247**
+- RPCs:          **249**
 - HTML surfaces: **61**
 - Edge fns:      **99**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -188,7 +188,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `embedding_outbox` | 12 | yes | no | — | — | — |
 | `embedding_registry` | 9 | yes | no | — | — | — |
 | `hive_service_settings` | 14 | yes | no | — | — | — |
-| `service_payments` | 9 | yes | no | — | — | — |
+| `service_payments` | 10 | yes | no | — | — | — |
 
 ## RPCs / Functions
 
@@ -336,6 +336,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `guard_marketplace_listing_status` |  | yes | — | — |
 | `guard_marketplace_order_status` |  | yes | — | — |
 | `guard_marketplace_seller_trust_columns` |  | yes | — | — |
+| `guard_payment_variance_explained` |  | yes | — | — |
 | `guard_progress_log_is_a_record` |  | yes | — | — |
 | `guard_progress_log_is_mine` |  | yes | — | — |
 | `guard_service_provider_writes` |  | yes | — | — |
@@ -396,6 +397,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `semantic_search_kg_facts` | p_hive_id               uuid,   p_query_embedding       vect | yes | — | — |
 | `semantic_search_platform_kg_facts` | p_query_embedding       vector,   p_similarity_threshold  re | no | — | — |
 | `sensor_readings_set_external_key` |  | no | — | — |
+| `service_agreed_base` | p_request_id uuid | yes | — | — |
 | `service_knob` | p_hive uuid, p_key text | yes | — | — |
 | `service_knob_pct` | p_hive uuid, p_key text | yes | — | — |
 | `set_community_best_answer` | p_reply_id uuid, p_accepted boolean | yes | community.html | — |

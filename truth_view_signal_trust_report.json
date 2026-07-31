@@ -1,6 +1,6 @@
 {
   "summary": {
-    "view_column_pairs": 334,
+    "view_column_pairs": 336,
     "at_risk": 0,
     "review": 9,
     "files_scanned": 257
@@ -6791,8 +6791,39 @@
     },
     {
       "view": "v_service_credit_ledger_truth",
+      "column": "account_id",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_credit_ledger_truth",
+      "column": "account_type",
+      "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_credit_ledger_truth",
       "column": "amount",
       "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "marketplace-seller.html",
           "shape": "direct",
@@ -6806,6 +6837,11 @@
       "view": "v_service_credit_ledger_truth",
       "column": "entry_type",
       "consumers": [
+        {
+          "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "marketplace-seller.html",
           "shape": "direct",
