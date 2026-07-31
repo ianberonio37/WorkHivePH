@@ -2,7 +2,7 @@
   "validator": "ai_live_invoke",
   "base": "http://127.0.0.1:54321",
   "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
-  "live_cells": 28,
+  "live_cells": 29,
   "breaches": [],
   "cells": {
     "H15/F": {
@@ -11,7 +11,7 @@
     },
     "H1/U": {
       "live": true,
-      "evidence": "ai-gateway voice-journal 200 \u00b7 persona envelope {ok,data.answer,trace_id} answer=161ch model_chain=['voice-journal-agent']"
+      "evidence": "ai-gateway voice-journal 200 \u00b7 persona envelope {ok,data.answer,trace_id} answer=184ch model_chain=['voice-journal-agent']"
     },
     "H2/U": {
       "live": true,
@@ -87,15 +87,15 @@
     },
     "H1/M": {
       "live": true,
-      "evidence": "multi-turn recall LIVE: turn-2 recalled the turn-1 fact ('impeller'/'north line') from (worker,agent) memory \u00b7 ans=73ch"
+      "evidence": "multi-turn recall LIVE: turn-2 recalled the turn-1 fact ('impeller'/'north line') from (worker,agent) memory \u00b7 ans=61ch"
     },
     "H9/F": {
       "live": true,
-      "evidence": "asset-brain-query RAG faithfulness LIVE: nonexistent-asset query \u2192 abstained + 0 fabricated currency/date values (never-invent invariant held) \u00b7 ans=167ch"
+      "evidence": "asset-brain-query RAG faithfulness LIVE: nonexistent-asset query \u2192 abstained + 0 fabricated currency/date values (never-invent invariant held) \u00b7 ans=156ch"
     },
     "H10/F": {
-      "live": false,
-      "evidence": "temporal-rag-orchestrator AI rate-limit \u2014 re-run after reset"
+      "live": true,
+      "evidence": "temporal-rag faithfulness LIVE: unknowable time-window query \u2192 abstained + 0 fabricated currency/date values \u00b7 ans=69ch"
     },
     "H8/F": {
       "live": false,
@@ -127,7 +127,7 @@
     },
     "H2/F": {
       "live": false,
-      "evidence": "ai-orchestrator fabrication residual (re-runnable slip)"
+      "evidence": "ai-orchestrator unavailable (HTTP None) \u2014 env/transport"
     }
   },
   "partial": false

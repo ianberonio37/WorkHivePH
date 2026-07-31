@@ -594,10 +594,18 @@
   }
 
   /* ── Render listings ────────────────────────────────────────────────────── */
+  /* TAB GUARD — #content-area is SHARED by every tab (listings / inquiries / analytics / services),
+     and boot runs `Promise.all([loadProfile(), loadListings(), loadInquiries()])`, so both renderers
+     raced into the same node and whichever RESOLVED LAST won. Inquiries won: a seller sitting on the
+     Listings tab, with two real listings, was shown "No inquiries yet — Buyers will appear here when
+     they contact you" — the wrong tab's empty state, with no error and no way to tell the listings
+     had loaded fine. Found on a live provider walk 2026-08-01. Painting only for the ACTIVE tab is
+     the fix; the loads may still race, but only the owner of the surface may draw on it. */
   function renderListings() {
     const e = escHtml;
     const area = document.getElementById('content-area');
     if (!area) return;
+    if (_tab !== 'listings') return;   // see TAB GUARD above
 
     const filtered = _statusFilter === 'all' ? _listings : _listings.filter(l => l.status === _statusFilter);
     const lmWrap = document.getElementById('seller-load-more-wrap');
@@ -676,6 +684,7 @@
     const e = escHtml;
     const area = document.getElementById('content-area');
     if (!area) return;
+    if (_tab !== 'inquiries') return;   // see TAB GUARD above
 
     if (!_inquiries.length) {
       area.innerHTML = `<div class="empty-state">

@@ -17,7 +17,7 @@
   },
   "detail": {
     "analytics": {
-      "http": 546,
+      "http": 403,
       "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     },
     "analytics-report": {
@@ -51,17 +51,18 @@
       "grounding_numbers": 39,
       "prose_strings": 1,
       "substantive_nums_checked": 12,
-      "cited_grounded": 11,
+      "cited_grounded": 10,
       "fabricated": [
-        "365"
+        "45",
+        "45"
       ],
       "baseline_cap": 1,
-      "new_drift": false
+      "new_drift": true
     },
     "asset-hub": {
       "http": 403,
       "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     }
   },
-  "result": "PASS"
+  "result": "FAIL"
 }
