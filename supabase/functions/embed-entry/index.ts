@@ -190,6 +190,12 @@ serveObserved("embed-entry", async (req) => {
 
       embedding = await generateEmbedding(text);
       table = "skill_knowledge";
+      // UPSERT, not insert. Without a conflict key every re-embed APPENDED a row: skill_knowledge reached
+      // 28 rows for 4 distinct (hive_id, worker_name, discipline) — ~86% duplicates, each stale copy
+      // competing with the current one in every semantic search. Migration 20260731000003 de-duplicated and
+      // added the matching unique index, so this key makes a re-embed REPLACE (the fault corpus has worked
+      // this way since uidx 20260708000002, which is why it never grew duplicates).
+      conflictKey = "hive_id,worker_name,discipline";
       row = {
         hive_id:       hive_id || null,
         worker_name:   entry.worker_name || null,
@@ -248,6 +254,10 @@ serveObserved("embed-entry", async (req) => {
 
       embedding = await generateEmbedding(text);
       table = "pm_knowledge";
+      // UPSERT on the ASSET, because pm_knowledge is an asset-level summary (asset_name, category,
+      // overdue_count, last_completed) rather than a per-completion record — 1,591 completions must
+      // converge onto one row per asset, not 1,591 rows. Unique index added in 20260731000003.
+      conflictKey = "hive_id,asset_id";
       row = {
         hive_id:        hive_id || null,
         asset_id:       entry.asset_id || null,
