@@ -66,20 +66,18 @@ UNIQUE_COLUMNS = {
                     "name is unique within the hive a page is scoped to)",
     "hive_id":      "v_adoption_truth: one snapshot per hive per date, so hive_id closes the tie under the "
                     "snapshot_date ordering these callers use (2 rows / 2 distinct)",
-}
-
-# Relations that CANNOT be totally ordered from the columns they expose — a real structural gap, recorded
-# here rather than papered over with a column that only looks like a key.
-#
-# v_risk_truth: 97 rows, and NO combination of its exposed columns is unique (asset_id 74, asset+model 76,
-# asset+hive 77, asset+generated_at 80). The rows are all distinct as WHOLE rows, so the view is not
-# duplicating data — it simply publishes no stable identity, and 23 of its rows carry a NULL asset_id. Five
-# callers page it. The fix is a migration that exposes the underlying row's key, not a client-side edit, so
-# these five stay counted as violations until that lands: the gate should keep naming them.
-UNORDERABLE_RELATIONS = {
-    "v_risk_truth": "exposes no unique column (97 rows; best combination 80 distinct; 23 rows have a NULL "
-                    "asset_id). Needs a migration to publish a stable key before its 5 paging callers can "
-                    "be made deterministic.",
+    # READING THE VIEW BEAT GUESSING FROM THE COLUMN NAMES, and this entry is the proof. v_risk_truth was
+    # first recorded here as UNORDERABLE — "97 rows, no unique combination, needs a migration" — because
+    # every id-shaped candidate failed (asset_id 74, asset+model 76, asset+hive 77, asset+generated_at 80).
+    # That premise was WRONG. The view is `SELECT DISTINCT ON (rs.hive_id, rs.asset_name) n.id AS asset_id,
+    # ...`, so (hive_id, asset_name) is its key BY CONSTRUCTION — verified 97 rows / 97 distinct — while
+    # `asset_id` is a LEFT JOIN column that is NULL for the 23 rows with no approved asset node, which is
+    # exactly why it looked keyless. All five callers are .eq('hive_id', ...)-scoped, so asset_name alone is
+    # total for them (it is 64/97 platform-wide, unique only WITHIN a hive). No migration needed
+    # ([[feedback_check_the_premise_before_building_the_pattern]] — a structural blocker I nearly recorded
+    # as real).
+    "asset_name":   "v_risk_truth is DISTINCT ON (hive_id, asset_name): 97 rows / 97 distinct on that pair, "
+                    "so asset_name is unique within the hive every caller scopes to",
 }
 
 # Files that are not product surfaces (fixtures, vendored, build output).
@@ -253,16 +251,6 @@ def main(argv):
     print(f"\n  {n} non-total paginated orders across {len(by_file)} files "
           f"({chains} paginated+ordered chains scanned)")
 
-    # A violation that NO client-side edit can fix is a different kind of item, so it is named separately
-    # instead of sitting in the same undifferentiated pile. Otherwise the backlog reads as "162 one-line
-    # fixes" when some of it is actually schema work.
-    blocked = [v for v in violations if v["relation"] in UNORDERABLE_RELATIONS]
-    if blocked:
-        rels = sorted({v["relation"] for v in blocked})
-        print(f"  {YEL}note{RST}  {len(blocked)} of these cannot be fixed in the client — the relation "
-              f"publishes no unique column:")
-        for r in rels:
-            print(f"          {DIM}{r}: {UNORDERABLE_RELATIONS[r]}{RST}")
 
     base = None
     if os.path.exists(BASELINE):

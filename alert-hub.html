@@ -1032,6 +1032,7 @@
         .eq('hive_id', HIVE_ID)
         .in('risk_level', ['critical', 'high'])
         .order('risk_score', { ascending: false })
+        .order('asset_name')   // MR4 tiebreaker: DISTINCT ON (hive_id, asset_name) is the view's key
         .limit(20),
 
       // Canonical: inventory_items_truth. The view aliases min_qty as

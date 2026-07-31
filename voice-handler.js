@@ -847,6 +847,7 @@
           .select('asset_name, risk_score, risk_level')
           .eq('hive_id', hiveId)
           .order('risk_score', { ascending: false })
+          .order('asset_name')   // MR4 tiebreaker: DISTINCT ON (hive_id, asset_name) is the view's key
           .limit(intent.limit || 3);
         if (error || !data || !data.length) return '';
         const lines = data.map(r => '  - ' + r.asset_name + ': ' + r.risk_level + ' (score ' + Number(r.risk_score).toFixed(2) + ')');
@@ -5900,7 +5901,7 @@
 
     const fetches = await Promise.allSettled([
       db.from('v_kpi_truth').select('machine,mtbf_30d,mttr_30d,total_downtime_30d,failures_30d').eq('hive_id', hiveId).limit(50),
-      db.from('v_risk_truth').select('asset_name,risk_score,risk_level,mtbf_days,days_until_failure').eq('hive_id', hiveId).order('risk_score', { ascending: false }).limit(5),
+      db.from('v_risk_truth').select('asset_name,risk_score,risk_level,mtbf_days,days_until_failure').eq('hive_id', hiveId).order('risk_score', { ascending: false }).order('asset_name').limit(5),
       db.from('v_pm_compliance_truth').select('asset_name,category,criticality,last_anchor_date,days_since_last_completion,completions_30d').eq('hive_id', hiveId).limit(20),
       // Open logbook items (the "open work" backlog — what Day Planner shows in its sidebar)
       db.from('v_logbook_truth').select('machine,category,problem,action,status,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Open').order('created_at', { ascending: false }).order('id').limit(30),
@@ -6075,6 +6076,7 @@
         .select('asset_name, risk_level')
         .eq('hive_id', hiveId)
         .order('risk_score', { ascending: false })
+        .order('asset_name')   // MR4 tiebreaker: DISTINCT ON (hive_id, asset_name) is the view's key
         .limit(limit);
       if (error || !data || !data.length) return '';
       return data.map(r => r.asset_name + ' (' + r.risk_level + ')').join(', ');
