@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 56036acea60889bd
+source_sha: 48557a9533a5c11a
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (712) — the 'what's already gated' brain
+## gate · registered validators (713) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (112)
+### AI Validation (113)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -51,6 +51,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `definer_tenant_gate` [fail] — Arc G: DEFINER tenant-gate (no un-gated cross-tenant DEFINER mutator)
 - `diagram_value_alignment` [fail] — AI Self-Improvement: Diagram-Value Alignment (§13.13 A4, live)
 - `dom_xss_fields` ⚡ [fail] — Arc R: DOM-XSS DB-field escaping (DB free-text in HTML must be escHtml; A03)
+- `embedding-space-integrity` [fail] — EMBEDDING SPACE INTEGRITY - every corpus must live in exactly ONE vector space, matching its registry pin. Caught live 2026-07-31: fault_knowledge held 534 rows
 - `engdesign_a11y` ⚡ [fail] — Deep-arc P3: Engineering-Design report a11y (contrast U-1/U-4, 44px U-6, label/announce passes U-2/U-3/U-8)
 - `engdesign_ai` ⚡ [fail] — Deep-arc P5: Engineering-Design AI egress integrity (timeout AI-4, honest copy AI-5, disclosure AI-7, friendly errors AI-8, narration grounding AI-1)
 - `engdesign_ai_citations` [fail] — Deep-arc P5/AI-6: Engineering-Design AI citation grounding (fabricated-standard detector w/ teeth; live narratives cite only real standard families)

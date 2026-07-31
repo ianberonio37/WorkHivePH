@@ -460,6 +460,15 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "embedding-space-integrity",
+        "script":  "tools/validate_embedding_space_integrity.py",
+        "args":    [],
+        "label":   "EMBEDDING SPACE INTEGRITY - every corpus must live in exactly ONE vector space, matching its registry pin. Caught live 2026-07-31: fault_knowledge held 534 rows in bge-small-en-v1.5-local while a newly written pm_knowledge row came back nomic-embed-text-v1_5. Both writes SUCCEEDED and nothing errored - but a vector embedded by a different model lives in a DIFFERENT GEOMETRY, so cosine against it is noise: the row is silently unfindable AND can outrank real matches. A row COUNT cannot catch this (every row is present, non-null, correctly shaped); only the model column distinguishes a usable vector from a useless one. Running it immediately found MORE than the row that prompted it: skill_knowledge sits ENTIRELY in nomic space (4 rows), so that corpus is unusable against bge queries, and three different tag strings were in play for the same model. Asserts: one distinct embedding_model per corpus, no NULL model (which would make single-space unprovable), and agreement with the registry pin so ingest and query cannot drift into different spaces. Corpora are DISCOVERED from the catalog, so a new knowledge table is covered the day it appears. FIX is DELETE-first re-embed, never an upsert - a hash-keyed upsert will not replace a vector when only the MODEL changed and the text did not. Self-test proves the detector on synthetic input (split caught, NULL caught, pin-disagreement caught, clean corpus accepted) and main() refuses to report if it fails.",
+        "group":   "AI Validation",
+        "severity": "fail",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "knowledge-is-retrievable",
         "script":  "tools/validate_knowledge_is_retrievable.py",
         "args":    [],
