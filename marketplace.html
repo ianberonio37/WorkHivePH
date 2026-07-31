@@ -188,6 +188,14 @@
     .listings-info span { color: var(--wh-orange); font-weight: 600; }
 
     /* Listing grid */
+    /* [hidden] MUST WIN over an explicit display. The UA default `[hidden]{display:none}` has the
+       lowest possible specificity, so ANY explicit `display` rule silently defeats it — and this one
+       did. Switching to the Services section runs `grid.hidden = true` (correctly), but the grid kept
+       `display:grid` and stayed on screen, so a client who tapped Services saw the services pane AND
+       nine parts listings stacked together, under a header reading "9 parts listings after filter".
+       Found on a live client walk 2026-08-01. Declared once, for every [hidden] element on the page,
+       because the next element to hit this would fail exactly as silently. */
+    [hidden] { display: none !important; }
     .listing-grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
     @media (min-width: 480px) { .listing-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 720px) { .listing-grid { grid-template-columns: repeat(3, 1fr); } }
