@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:622-files
-source_sha: 6030eae89e043047
+source: memory-curated:623-files
+source_sha: 4a688422d4251a34
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (622 durable topic files)
+## memory · curated auto-memory (623 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=244 · project=289 · reference=89
+**By type:** feedback=245 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -18,6 +18,7 @@ First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed 
 Entries (name · type · sha):
 - `drawing_standards_skill` · reference · 16ac90968a9af898
 - `feedback_a_dead_fixture_invents_page_defects` · feedback · 4132e64aeb98e099
+- `feedback_a_false_red_hides_which_cell_broke` · feedback · 38921d8dbd6c2b2f
 - `feedback_a_gate_reddened_because_the_code_improved` · feedback · 7e92f10d3882b6f5
 - `feedback_a_gate_that_exhausts_its_own_rate_budget` · feedback · 225cf26e51228b75
 - `feedback_a_metamorphic_relation_needs_a_non_vacuity_check` · feedback · 3ef9b3ad98824df5
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_streamline_E1_jargon_fix_2026_06_14` · project · df0d8c2ce258f086
 - `project_streamline_E2_rollout_2026_06_14` · project · 15cf41613cb97ba8
 - `project_streamline_E2_states_2026_06_14` · project · f7a32a49dd3ab0d2
-- `project_streamline_E3_axe_ratchet_2026_06_14` · project · 76c511fa09c70db2
-- … +122 more (all included in the fingerprint)
+- … +123 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

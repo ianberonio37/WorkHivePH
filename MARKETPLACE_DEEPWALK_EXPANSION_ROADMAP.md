@@ -3576,3 +3576,32 @@ S7-ai** — each preceded by a live journey establishing the friction is real, p
 each checked against the existing gates first.
 
 Ian-gated and outward, unchanged: the push, and the prod deploy of the five LOCAL-only security migrations.
+
+### §15.5 · The thin-layer pull found a dark lane — one flaky test was condemning eight healthy cells
+
+Going after the thin `S2-pwa` layer meant pulling on its one quarantined cell,
+`TB-S2-pwa-offline-hail-degraded` (quarantined 2026-07-29, reason "Timeout"). It was not one flaky cell. **The
+entire journey lane had been dark for two days** — all nine cells quarantined, the lane reporting `0 passed`.
+
+**Playwright had run 9 tests and passed 8.** Only `TB-S6-realtime-map` failed, on a flaky sign-in. The runner
+derived every cell's status from a global tally — `claimed = npass >= len(CELLS) and nfail == 0` — so a single
+failure condemned all nine, and the `(\d+) passed` regex never matched the line reporter's failing-run output,
+producing `0 passed` next to eight passes.
+
+This is the platform's familiar *"a status whose evidence is somewhere else"* shape
+([[feedback_gate_parsed_text_not_the_db_false_green]]) pointing the other way: a manufactured **false RED**.
+Not the harmless direction — it **hides which cell actually broke** and teaches the reader to discount the
+board.
+
+**Fix:** judge each cell by its own test. JSON reporter, each test title mapped to its cell through the `CELLS`
+dict that already existed for exactly this purpose, and the totals taken from that same per-test source rather
+than from a different place than the statuses. A cell whose test disappears now fails loudly (*"no test claims
+this cell"*) instead of silently losing coverage.
+
+**Result: 9 passed, 0 failed, all nine un-quarantined and banked** — the flaky sign-in did not recur. Teeth
+re-proven: `--selftest` still goes RED with a frozen publisher, so the greens are the live feed and not a
+runner that lost its ability to fail. (The first cut of the fix dropped the `banked` branch and quarantined all
+nine *greens*; caught by reading the code after the run rather than trusting its output.)
+
+**The S2-pwa layer is no longer 2 cells with one of them sidelined** — and the lesson generalises: a
+quarantined cell is a lead, not a footnote.
