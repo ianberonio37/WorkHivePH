@@ -119,3 +119,145 @@ could honour it. That is the difference between a float and a hole.
 Keep credits non-withdrawable, keep fixed costs near zero, set the min-balance, and watch liability cover
 above 1.0 — and this funds a lean platform. The credit economy's real advantage is that money arrives before
 revenue is earned; its real danger is forgetting that those are different things.
+
+---
+
+# Part II — the expansion
+
+## §8 · The attack the 4% actually invites: buying reputation
+
+Cashback cannot be farmed for profit, and the arithmetic is what protects it: a provider who fakes a job with
+a sock-puppet consumer pays **5% commission** to receive **1% cashback** — a guaranteed **4% loss**.
+Self-dealing for credits is unprofitable by construction, which is the right way to defend it.
+
+**But the same 4% is a price list for something else.** Tier is derived from completed sales, so a scammer is
+not buying credits — they are buying a **gold badge**:
+
+| target | fake jobs | at ₱2,000 each | cost at 4% |
+|---|---:|---:|---:|
+| silver (11 sales) | 11 | ₱22,000 GMV | **₱880** |
+| gold (51 sales) | 51 | ₱102,000 GMV | **₱4,080** |
+
+**₱4,080 for a gold badge is cheap** if it wins one real ₱50,000 industrial contract. The economics of the
+trust ladder are therefore *inverted* from the credit ladder: credits defend themselves, reputation does not.
+
+What already blunts it, and it is not nothing: ratings recompute only over `verified_purchase = true` reviews
+(confirmed in `update_seller_rating`); `guard_marketplace_order_status` refuses a client-side jump to
+`released`/`refunded`; the D9 trust knobs are tighten-only. What remains is that **the cost of faking scales
+linearly while the value of a badge is a step function** — gold is worth the same whether earned or bought.
+
+**Suggestions, cheapest first:**
+
+1. **Make tier require DISTINCT COUNTERPARTIES**, not just a sale count — gold needs ≥51 sales across ≥20
+   distinct buyers. A sock-puppet ring must then scale its *identities*, which is far harder than scaling its
+   pesos. One line in the tier query, and the highest-leverage fix here.
+2. **Age the badge.** Require gold's sales to span ≥90 days. Reputation bought in a weekend is the signature
+   of farming; real accumulation is slow.
+3. **Watch a ratio, not a job:** `completed_jobs / distinct_counterparties` per seller. A real provider trends
+   toward many buyers; a farm trends toward few.
+4. **Never sell verification.** A paid KYB badge turns the one signal money *cannot* buy into one it can.
+
+## §9 · Revenue lines beyond the 4%, ranked by whether they corrupt the marketplace
+
+| line | verdict | why |
+|---|---|---|
+| **Featured placement** | **ADOPT, later** | a fee for *visibility*, chosen when it pays. Does not tax existence. |
+| **Pro subscription** (₱X/mo: lower commission, analytics, more listings) | **ADOPT at scale** | turns lumpy commission into predictable MRR, and the providers who want predictability self-select. Only once volume makes the trade real. |
+| **Lead fees on quotes** (Thumbtack) | **DEFER** | roadmap §5 keeps quotes free to protect thin supply. Charging for a lead that may not convert is a listing fee in another hat. |
+| **Paid verification / badges** | **REJECT** | corrupts the trust signal, per §8. |
+| **Payment processing margin** | **BLOCKED** | needs business registration; the platform is deliberately GCash-personal for now. |
+| **Auxiliary services** (reports, AI briefs, parts sourcing) | **WATCH — strongest** | see below. |
+
+**The strongest non-obvious line is the last.** The maintenance intelligence this platform already generates —
+failure history, PM compliance, asset health, the now-99.97%-retrievable knowledge corpus — is worth money to
+a hive *independently of any transaction*. That revenue does not depend on marketplace liquidity, which is
+this model's single largest vulnerability. It is the natural hedge.
+
+## §10 · Sizing the min-balance, concretely
+
+`min_list_balance` is built and currently 0. Too low protects nothing; too high is the listing fee you
+rejected, wearing a deposit's clothes. **Principle: cover one job's commission, not one month's.**
+
+- A ₱2,000 job costs **₱100** in commission.
+- **₱200** covers two average jobs, so a provider is never caught empty at completion.
+- ₱500+ stops being a deposit and becomes an entry fee — the supply suppression you avoided.
+
+**Suggestion: ₱200, per-hive tunable** (the knob already is), and say it plainly in the UI: *"₱200 keeps your
+listings live. It is spent on your commission — it is not a fee."* Providers accept a deposit they can spend
+far more readily than a fee they cannot.
+
+## §11 · Philippine specifics that change the model's shape
+
+1. **Payday cycles (15th & 30th).** Top-ups and demand will spike biweekly; monthly averages will mislead.
+2. **13th-month pay (December).** A real annual demand spike — the best month to spend acquisition vouchers,
+   because the cashback lands when people are already spending.
+3. **Typhoon season (Jun–Nov).** Repair demand is *counter*-cyclical to comfort: storm damage drives urgent
+   work. Then **capacity**, not demand, is the constraint — precisely when per-hive
+   `broadcast_radius_start_m` earns its keep.
+4. **GCash P2P limits.** Personal accounts have ceilings, so a large top-up may need splitting — friction
+   exactly where money enters. **Cap credit packs comfortably under the limit** (₱1,000 / ₱2,500 / ₱5,000)
+   rather than letting a provider discover the ceiling mid-transfer.
+5. **Prepaid is culturally native** — load, e-wallets, prepaid everything. The credit model matches how people
+   already pay, which is a genuine tailwind worth saying out loud in the copy.
+
+## §12 · Credit packs: price the behaviour you want
+
+A flat "buy N credits" wastes a lever. Bulk discounts denominated **in credits** are commission discounts for
+committed providers that cost nothing when unredeemed:
+
+| pack | credits | effective discount | what it buys |
+|---:|---:|---:|---|
+| ₱1,000 | 1,000 | — | low-friction entry |
+| ₱2,500 | 2,600 | 4% | mild commitment |
+| ₱5,000 | 5,300 | 6% | a provider who has pre-paid ~50 jobs of commission |
+
+**Why this beats cutting the rate:** the discount is paid in *credits* (a liability that may never be spent)
+rather than *cash* (gone immediately), and it is opt-in by your most committed providers. Headline stays 5%;
+the committed provider effectively pays ~4.7%.
+
+## §13 · Vouchers — the acquisition line already half-built
+
+`service_vouchers` and `service_voucher_redemptions` exist, and roadmap §5 has them platform-funded with the
+provider reimbursed in credits on verified completion. That makes a voucher a **real CAC**:
+
+- **A ₱200 signup voucher is ₱200 of real liability.** At 4% of a ₱2,000 job you earn ₱80 per completion, so
+  a ₱200 voucher needs **~2.5 completed jobs** to pay back. That is the bar to hold vouchers to.
+- **Vouchers are the one place cashback's self-funding logic does NOT apply** — they mint with no fee behind
+  them. The §4 solvency CHECK covers cashback but **not vouchers**: that is a live gap, and a per-period
+  voucher budget closes it.
+- **Completion-gate every voucher**, exactly as cashback is, or it becomes a free-credit faucet.
+
+## §14 · When to raise the rate (and how not to)
+
+4% net is thin and should eventually rise. The wrong way is changing it on everyone at once.
+
+- **Grandfather by cohort.** Existing providers keep their rate; new ones join at the new one. The D9 knobs
+  already make per-*hive* rates expressible, so per-*cohort* is a small extension.
+- **Raise only after liquidity is proven** — when leaving would cost a provider real income. Before that, the
+  rate is not what keeps them.
+- **Prefer adding lines to raising the rate.** Featured placement and subscriptions are opt-in; a rate rise
+  taxes everyone, including the providers you most want to keep.
+
+## §15 · Free levers worth more than 1%
+
+Tier benefits that cost nothing but are worth real money — and which make the ladder valuable enough that
+faking it (§8) matters more:
+
+- **Broadcast priority** for higher tiers — pure ordering, zero cost.
+- **More concurrent listings** at higher tiers — the per-hive caps already express this.
+- **A faster verification queue** for gold — your time, not your money.
+- **Search prominence**, earned rather than bought.
+
+Every peso of cashback is a peso of liability; a priority slot costs nothing and may retain better. **Spend
+the free levers first.**
+
+## §16 · The revised short list
+
+1. **`min_list_balance` = ₱200**, framed as a spendable deposit, never a fee.
+2. **Tier requires distinct counterparties** (≥20 buyers for gold) — highest-leverage anti-farming fix, one
+   line of SQL.
+3. **Voucher budget cap** — the solvency CHECK covers cashback but not vouchers. Live gap.
+4. **Credit packs** with credit-denominated bulk discounts, capped under GCash P2P limits.
+5. **The four ledger metrics on the founder console — before real money moves.**
+6. **Paid maintenance-intelligence reports** — the one revenue line that does not depend on marketplace
+   liquidity, and therefore the hedge against this model's main vulnerability.
