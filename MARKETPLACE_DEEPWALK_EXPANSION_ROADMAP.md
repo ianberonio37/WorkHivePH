@@ -3419,3 +3419,87 @@ Ian-gated (push / prod-deploy the 5 security migs) or a separate arc, not a scor
      same short-window/per-author reasoning inverts to score `community_post_rate_limit` /
      `community_reply_rate_limit` directly: insert two posts by the SAME author to trip the recent-window limit,
      with the cumulative quota cap pinned high.
+
+---
+
+## §15 · P2 CONTINUED — the metamorphic oracle finds a real ordering bug (ARC 14, 2026-07-31)
+
+With every guard scored (§14, 133/133), the next measured gap was the **oracle mix**, not coverage: 233 of 300
+cells were `refusal`, `eval` was 1, and `metamorphic` was **1** — the §11 plan called for **five** MRs and only
+MR1/MR2/MR3 (filter subset · permission monotonicity · order-independent credit) had been built, all inside one
+cell. MR4 and MR5 were still owed. This section is MR4.
+
+### §15.1 · MR4 · rank stability — and the defect it found
+
+**The relation:** the same query over an unchanged corpus must return the same ORDER. There is no expected value
+for "what order should the marketplace be in" — only a relation between two runs — which is precisely why this
+surface had no oracle.
+
+**The defect (real, proven, then fixed).** `marketplace.html` browsed listings with
+
+```js
+.order('created_at', { ascending: false }).limit(PAGE_SIZE)
+```
+
+and `created_at` alone is **not a total order**. A bulk import inserts many listings inside ONE transaction,
+where `now()` is FIXED, so every row shares an identical timestamp. Postgres promises nothing about the order of
+tied rows, and it genuinely moves. Proof, before any fix:
+
+| | result |
+|---|---|
+| tied rows induced (6 inserts, one txn) | 6 rows, **1** distinct `created_at` |
+| row SET across the two runs | **identical** (`differing_ids = 0`) |
+| rows returned at a **different rank** | **4 of 12** |
+
+The transform was an ordinary edit to an **unrelated column** (MVCC appends a new tuple at the end of the heap).
+Under `.limit(PAGE_SIZE)` that is user-visible: a listing can be shown **twice** across a refresh or **skipped**
+between pages. Adding the unique `id` as a tiebreaker took `rank_changed` **4 → 0**.
+
+**Fixed at all seven paginated sites in `marketplace.html`** — browse, watchlist, saved searches, listing
+reviews, service requests, the service rate card, and the service-area presence strip (the last ordering by
+`providers_online`, a COUNT, where ties are the norm rather than the exception; its tiebreaker is the unique
+`service_area`).
+
+**Banked as `TB-MR4-rank-stability`** with the non-vacuity discipline
+([[feedback_a_metamorphic_relation_needs_a_non_vacuity_check]]) doing real work: today's seeded corpus has
+**zero** ties (21 published listings, 21 distinct timestamps), so a naive "same order twice" test would have
+passed forever while the defect sat there. The probe therefore **induces** the tie and asserts both directions —
+the product's order (with the tiebreaker) is STABLE, **and** the same query without it is genuinely UNSTABLE.
+The second assertion is what proves the first is doing work; if it ever flips, the fixture stopped creating ties
+and the cell has gone vacuous, which is a red rather than a pass.
+
+### §15.2 · The lock — `paginated-order-totality`, a platform-wide class
+
+One page's bug was the tell for a class. Scanning every product surface found **162 non-total paginated orders
+across 38 files** (169 paginated+ordered chains scanned — only a handful were already total). `tools/
+validate_paginated_order_totality.py` is registered as `paginated-order-totality`, forward-only.
+
+Three decisions worth keeping:
+
+1. **`.limit(1)` is IN scope.** It is the quieter, worse case: "the most recent X" silently picks an *arbitrary*
+   row among ties — the exact shape that once resolved the WRONG HIVE for a signed-in worker
+   ([[feedback_resolving_live_is_not_enough_be_deterministic]]).
+2. **The unique-column list names WHY each column is unique** (`id`/`uuid` = primary key; `service_area` = one
+   row per area, verified 4/4; `co_number` = unique by constraint). A wrong entry silently converts a real
+   violation into a pass, so it carries the same "an exclusion must name its mechanism" discipline as the
+   mutation harness's EXCLUDED dict.
+3. **Comments are stripped before scanning, with line numbers preserved.** The gate's own first run flagged the
+   very query the MR4 fix had just corrected, because the six-line explanatory comment between
+   `.order('created_at')` and `.order('id')` pushed the tiebreaker outside the chain window. A gate that reddens
+   on a CORRECT fix teaches the wrong lesson and gets worked around
+   ([[feedback_teach_the_gate_not_bend_the_code]]), so that shape is now a self-test case — alongside catching a
+   known-bad chain, accepting a known-good one, and treating `.limit(1)` as pagination. `main()` refuses to
+   report a count at all if its own self-test fails.
+
+The 162 are a **named backlog, not an averaged-away number**: the fix is always the same single line, and the
+ratchet means no NEW ambiguous pagination can land while it is worked down.
+
+### §15.3 · NEXT
+
+- **MR5 · triage paraphrase invariance** — the last of the plan's five MRs: paraphrasing the problem text must
+  not change the chosen **category**. This replaces the single `eval` cell's exact-match temptation, since the
+  vocabulary is the invariant and the wording is not
+  ([[feedback_llm_parrots_fewshot_example_codes]]).
+- **Chip the 162** — highest user-visible pagination first (feeds and lists a user actually pages through).
+- Then the §11 plan's **P3 breadth** (state inducers; the thin S2-pwa / S7-ai / S9-knowledge layers), noting the
+  CDC piece is already owned by `edge-caller-contract` and must not be re-implemented.

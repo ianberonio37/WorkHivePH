@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: de4fb70bdd8acbb4
+source_sha: 250df3a68ceef1f8
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (708) — the 'what's already gated' brain
+## gate · registered validators (709) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -224,7 +224,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (499)
+### Platform (500)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -550,6 +550,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `p6-concurrency-class` [fail] — P6 concurrent-edit disposition gate (LIVE + static teeth) — locks the concurrency-safety CLASS of the 9 remaining P6-partial pages so each reaches gated-100, co
 - `page-battery` [fail] — Platform-wide page battery (LIVE headless Playwright, real Baguio supervisor sign-in) - PER_PAGE_BUGHUNT_ROADMAP section 5 mechanical floor across ALL ~30 inter
 - `page-crud` [fail] — Per-page P3 CRUD-at-DB gate (LIVE headless Playwright, real WORKER sign-in via live_page_journeys). Three invariant shapes, because not every entity is a worker
+- `paginated-order-totality` ⚡ [fail] — PAGINATED ORDER TOTALITY — every query that pages or truncates must sort by a TOTAL order, i.e. end its ORDER BY with a column unique per row. Found live 2026-0
 - `pareto-content` ⚡ [blocker] — Pareto Content Gate (Arc P: displayed defensive-copy ratchet -> 0; per-page P1/P3 metrics)
 - `partial-label-honesty` ⚡ [fail] — Partial-Label Honesty Audit (Tier S rendering — every page displaying a partial-variant metric must render the honesty marker near the value)
 - `password-input-form` ⚡ [fail] — <input type=password> Form Wrapper (password inputs wrapped in <form> for autofill+save; forward-only ratchet)

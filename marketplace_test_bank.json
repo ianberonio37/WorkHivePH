@@ -6858,6 +6858,48 @@
         "this guard is SHARED across rcm_fmea_modes / project_change_orders / project_progress_logs; scored on project_change_orders where the privileged status transition is easy to exercise"
       ],
       "provenance": "wh_guard_supervisor_approval, the second and last hard shared project guard, found unscored 2026-07-31 (ARC 13 / F, roadmap S14)."
+    },
+    {
+      "id": "TB-MR4-rank-stability",
+      "source": "authored",
+      "kind": "metamorphic",
+      "journey": "J1-buyer-browse-search",
+      "authority": "member",
+      "state": "populated",
+      "path": "happy",
+      "lane": "sql",
+      "oracle": "metamorphic",
+      "status": "banked",
+      "layers": [
+        "S1-ui",
+        "S3-data",
+        "S4-db"
+      ],
+      "dims": [
+        "MK1"
+      ],
+      "covers_tables": [
+        "marketplace_listings"
+      ],
+      "ufai_earned": {
+        "F2": "ordering correctness asserted as a RELATION between two runs (same corpus -> same order) on a surface where no exact expected order exists"
+      },
+      "probe": {
+        "file": "TB-MR4-rank-stability.sql",
+        "expect": {
+          "mr4_ties_exist": "yes",
+          "mr4_rank_stable": "yes",
+          "mr4_row_set_unchanged": "yes",
+          "mr4_untied_order_is_unstable": "yes"
+        }
+      },
+      "asserts": [
+        "MR4 rank stability: the browse query returns the SAME ORDER across an edit that touches neither the sort key nor the row set",
+        "NON-VACUITY 1: the corpus genuinely contains tied sort keys (a one-transaction bulk import shares one now()), so 'same order twice' is not free",
+        "NON-VACUITY 2: the SAME query without the unique tiebreaker IS unstable under the same transform - proving the tiebreaker is what buys stability",
+        "the row SET is unchanged, so any difference would be a RANK change and not a silently dropped row"
+      ],
+      "provenance": "FOUND A REAL DEFECT. marketplace.html browsed with .order('created_at',{ascending:false}).limit(PAGE_SIZE); created_at alone is not a TOTAL order because a bulk import inside one transaction shares a fixed now(). Touching an unrelated column on one tied row moved 4 of 12 rows to a different rank with the row set identical, so under LIMIT a listing could be shown twice across a refresh or skipped between pages. Fixed by adding the unique id as a tiebreaker at all six paginated sites in marketplace.html; the experiment then reported rank_changed 4 -> 0. Today's seeded corpus has ZERO ties (21 listings, 21 distinct timestamps), so the probe INDUCES the tie - a naive version of this test would have passed forever while the defect sat there."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

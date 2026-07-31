@@ -1,0 +1,4 @@
+{
+  "violations": 162,
+  "_doc": "FORWARD-ONLY: the count of paginated queries whose ORDER BY is not a total order. It may only FALL. Every one is a row that can be shown twice or skipped across a page boundary (or, at limit(1), an arbitrary pick among ties). The fix is always the same: end the ordering with a unique column, normally .order('id')."
+}

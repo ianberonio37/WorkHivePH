@@ -1438,6 +1438,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('worker_name', WORKER_NAME)
         .eq('active', true)
         .order('created_at', { ascending: false })
+        .order('id', { ascending: false })   // MR4 tiebreaker: created_at alone is not a total order
         .limit(50);
       if (error) throw error;
 
@@ -1715,6 +1716,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('id,title,section,category,price,location,seller_name,image_url,status,created_at')
         .in('id', ids)
         .order('created_at', { ascending: false })
+        .order('id', { ascending: false })   // MR4 tiebreaker: created_at alone is not a total order
         .limit(500);
       if (error) throw error;
 
@@ -2123,6 +2125,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('status', 'published')
         .eq('section', _section)
         .order('created_at', { ascending: false })
+        // TIEBREAKER (MR4 rank stability). `created_at` alone is NOT a total order: a bulk import inserts
+        // many listings inside ONE transaction, where now() is fixed, so they share an identical timestamp.
+        // Postgres promises nothing about the order of tied rows, and it genuinely changes - proven by
+        // touching an unrelated column on one tied row and watching 4 of 12 rows come back at a different
+        // rank with the row SET unchanged. Under `.limit(PAGE_SIZE)` that means a listing can be shown twice
+        // or skipped entirely between refreshes. `id` is unique, so it makes the order TOTAL and stable.
+        .order('id', { ascending: false })
         .limit(PAGE_SIZE);
 
       /* Server-side search. The canonical truth view (v_marketplace_listings_truth)
@@ -2276,6 +2285,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('reviewer_name,rating,comment,created_at,verified_purchase')
         .eq('listing_id', id)
         .order('created_at', { ascending: false })
+        .order('id', { ascending: false })   // MR4 tiebreaker: created_at alone is not a total order
         .limit(5);
       if (reviews && reviews.length) {
         reviewsHtml = reviews.map(rv => `
@@ -3215,8 +3225,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     pane.innerHTML = '<div class="empty-state"><div class="skel skel-pulse" style="height:120px;border-radius:var(--wh-radius);"></div></div>';
     try {
       const [catRes, mineRes] = await Promise.all([
-        db.from('v_service_catalog_truth').select('*').eq('segment', (HIVE_ID ? 'industrial' : 'consumer')).order('category').limit(200),  // P8 consumer door: hive-less clients see the COMMON services rate card
-        _authUid ? db.from('v_service_request_truth').select('*').order('created_at', { ascending: false }).limit(20)
+        db.from('v_service_catalog_truth').select('*').eq('segment', (HIVE_ID ? 'industrial' : 'consumer')).order('category').order('id').limit(200),  // P8 consumer door: hive-less clients see the COMMON services rate card. MR4 tiebreaker: many services share a category, so category alone is not a total order and the rate card could reshuffle between loads.
+        _authUid ? db.from('v_service_request_truth').select('*').order('created_at', { ascending: false }).order('id', { ascending: false }).limit(20)  // MR4 tiebreaker: created_at alone is not a total order
                  : Promise.resolve({ data: [] })
       ]);
       const cats = catRes.data || [];
@@ -3515,7 +3525,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       const { data, error } = await db.from('v_service_area_presence')
         .select('service_area, providers_online, verified_online, categories')
-        .order('providers_online', { ascending: false }).limit(6);
+        // MR4 tiebreaker: providers_online is a COUNT, so ties are the norm, not the exception (several areas
+        // with the same number online). service_area is unique in this view, making the order total.
+        .order('providers_online', { ascending: false }).order('service_area').limit(6);
       if (error || !data || !data.length) return;
       const total = data.reduce((s, r) => s + Number(r.providers_online || 0), 0);
       if (!total) return;
