@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:458
-source_sha: 22cdd6412b854cb6
+source: dir:supabase/migrations:459
+source_sha: 9524e42ea34afb5b
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (458 migrations)
+## migration · catalog (459 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260705000002_q3_server_text_caps` — fns:cap_asset_nodes_text,cap_inventory_items_text,cap_inventory_transactions_text,cap_marketplace_inquiries_text,cap_marketplace_listings_text,cap_marketplace_sellers_text · triggers:trg_text_caps_asset_nodes,trg_text_caps_inv_items,trg_text_caps_inv_tx,trg_text_caps_mkt_inquiries,trg_text_caps_mkt_listings,trg_text_caps_mkt_sellers
 - `20260705000003_q4_daily_ai_ceiling` — fns:cap_pdf_job_size · triggers:trg_cap_pdf_job_size,trg_daily_cap_pdf_jobs · tables:ai_rate_limits,ai_user_rate_limits
 - `20260705000004_full_write_surface_coverage` — fns:cap_engineering_calcs_text,cap_marketplace_saved_searches_text,cap_parts_staged_reservations_text,cap_project_change_orders_text,cap_project_items_text,cap_project_links_text · triggers:trg_daily_cap_eng_calcs,trg_daily_cap_fault_knowledge,trg_daily_cap_pm_assets,trg_daily_cap_pm_scope,trg_daily_cap_project_co,trg_daily_cap_project_items
 - `20260705000005_close_page_audit_gaps` — fns:cap_alert_dismissals_text,cap_community_reactions_text,cap_early_access_emails_text,cap_report_contacts_text · triggers:trg_daily_cap_alert_dismissals,trg_daily_cap_community_reactions,trg_daily_cap_early_access,trg_daily_cap_mkt_watchlist,trg_daily_cap_report_contacts,trg_text_caps_alert_dismissals
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260731000003_embed_outbox_pm_and_skills` — (misc DDL/DML)
 - `20260731000004_drop_stale_embedding_model_default` — tables:fault_knowledge,pm_knowledge,skill_knowledge
 - `20260731000005_daily_row_cap_system_write` — fns:check_daily_row_cap
+- `20260731000006_ai_provenance_pairing` — tables:fault_knowledge
 
 (showing last 200)
 

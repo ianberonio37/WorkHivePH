@@ -7069,6 +7069,47 @@
         "NON-VACUITY: the corpus spans MULTIPLE hives, so the isolation assertion is meaningful - a single-tenant or empty corpus would satisfy every check above while proving nothing"
       ],
       "provenance": "S9-knowledge was the thinnest layer on the board (1 cell) and the existing cell proves a job's writeback BECOMES a logbook entry - this one asks what makes that worth anything: can it be FOUND, and only by the right people. The auto-embed arc measured the answer at 14% (3,278 of 3,811 entries had no knowledge row at all, on the board and invisible to every search), then drove it to 99.97% in one space. A platform gate now tracks the ratio; this is the bank's own re-runnable assertion of the property, so the marketplace's knowledge layer does not rest on that gate alone. Deliberately DB-level: whether the embedder is reachable is the relay's problem, but the knowledge being present, single-spaced, unduplicated and scoped is the bank's."
+    },
+    {
+      "id": "TB-S7-ai-write-accountability",
+      "source": "authored",
+      "kind": "dimension",
+      "journey": "J17-job-to-knowledge",
+      "authority": "member",
+      "state": "populated",
+      "path": "error",
+      "lane": "sql",
+      "oracle": "refusal",
+      "status": "banked",
+      "layers": [
+        "S7-ai",
+        "S4-db"
+      ],
+      "dims": [
+        "MK6"
+      ],
+      "covers_tables": [
+        "fault_knowledge"
+      ],
+      "ufai_earned": {
+        "I5": "auditability: a knowledge row states whether a MACHINE or a PERSON authored it, and cannot claim the other"
+      },
+      "probe": {
+        "file": "TB-S7-ai-write-accountability.sql",
+        "expect": {
+          "ai_without_model": "blocked",
+          "manual_claiming_ai": "blocked",
+          "ai_with_model": "allowed",
+          "manual_plain": "allowed"
+        }
+      },
+      "asserts": [
+        "an ai_* sourced row with NO ai_model is REFUSED - an AI diagnosis must name the model that produced it",
+        "a manual row CLAIMING an ai_model is REFUSED - the forgery in the other direction, a human entry wearing an AI badge",
+        "NON-VACUITY: both LEGITIMATE shapes still write (ai_* WITH a model, manual WITHOUT one), so the rule is a contract rather than a wall that would stop the product recording AI work at all",
+        "the row cap is ANNOUNCED in the probe, because otherwise its 54000 masks the constraint under test and every case reads 'blocked' for the wrong reason"
+      ],
+      "provenance": "S7-ai's existing cells grade the ANSWER (a triage eval and MR5's paraphrase invariance). None graded the ACT: who wrote the row. fault_knowledge has carried source/ai_model/ai_confidence all along with NOTHING pairing them, so BOTH forgeries were accepted when probed - an ai_visual_capture row with a NULL model, and a manual row claiming gemini-2.0-flash. That is the AI6 class. A maintenance record is read months later by someone deciding whether to trust it; 'a machine suggested this' and 'a technician saw this' are different claims, and a knowledge base that cannot tell them apart launders one into the other. Migration 20260731000006 pairs them as an equivalence in both directions; all 3,811 existing rows are manual/NULL so it validated without a rewrite. The probe's FIRST run read 'blocked' on every case for the wrong reason - the daily row cap's 54000 - which is why the cap is announced."
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",
