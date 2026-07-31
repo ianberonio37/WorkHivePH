@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:454
-source_sha: 2905d6fe57c39485
+source: dir:supabase/migrations:455
+source_sha: e6d346adfb77995c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (454 migrations)
+## migration · catalog (455 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260702000000_realign_display_count_chip_asset_hub` — (misc DDL/DML)
 - `20260702000001_slo_error_budget_rollup` — fns:slo_error_budget
 - `20260705000000_q0_logbook_quota_pilot` — fns:cap_logbook_text_fields,check_logbook_rate_limit · triggers:trg_logbook_rate_limit,trg_logbook_text_caps · tables:hive_quotas
 - `20260705000001_q2_high_write_daily_caps` — fns:check_daily_row_cap · triggers:trg_daily_cap_asset_nodes,trg_daily_cap_comm_posts,trg_daily_cap_comm_replies,trg_daily_cap_inv_items,trg_daily_cap_inv_tx,trg_daily_cap_pm_comp
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260730000007_scope_audit_actor_lookup_to_the_rows_hive` — fns:audit_logbook_post_close_amendment,audit_pm_completion_amendment
 - `20260730000008_anonymous_feedback_global_ceiling` — fns:check_platform_feedback_rate_limit
 - `20260731000001_resolve_membership_by_auth_uid_not_display_name` — (misc DDL/DML)
+- `20260731000002_embedding_outbox_spine` — fns:enqueue_for_embedding · triggers:trg_embed_outbox_logbook · tables:embedding_outbox,embedding_registry
 
 (showing last 200)
 
