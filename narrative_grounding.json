@@ -48,7 +48,7 @@
       "page": "ph-intelligence",
       "edge_fn": "__DB__",
       "http": 200,
-      "grounding_numbers": 38,
+      "grounding_numbers": 39,
       "prose_strings": 1,
       "substantive_nums_checked": 10,
       "cited_grounded": 10,

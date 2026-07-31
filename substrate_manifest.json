@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T09:19:05.596061+00:00",
+  "generated_at": "2026-07-31T10:37:52.569730+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -103,7 +103,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 474,
+        "files_scanned": 477,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -190,7 +190,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 605,
+        "files_scanned": 606,
         "features_extracted": 22,
         "promotion_candidates": 1
       },

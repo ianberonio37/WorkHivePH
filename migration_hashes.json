@@ -474,5 +474,6 @@
   "20260731000020_min_balance_is_cold_start_safe.sql": "e9d44d63019e9989a09d0d85420261f0a8dedcbd8fcb0af87191016fa20a1ed8",
   "20260731000021_voucher_budget_cap.sql": "86305c97cae04c38ac53394f50ce0af12fe8a305019684a6df4a0831e39defb4",
   "20260731000022_restore_daily_cap_uuid_cast.sql": "1d39779f3348e8c552d855dcf9eb60b08c56eb7799b5dcbe6e3b8b850678d802",
-  "20260731000023_anchor_the_four_new_tables.sql": "115614524b11da5e78c67ccbb6c17680ef8797291f5cdd9eb02c9167c1683623"
+  "20260731000023_anchor_the_four_new_tables.sql": "d7874acafb8f0afc4b2ea83d2d2cdbb07a38e7ae46d216be9f6535bf60cad474",
+  "20260731000024_understatement_needs_a_reason.sql": "cd2d483beb186158de951a05d654ca7e1670928d283e40e563727da495c6eb43"
 }
