@@ -224,6 +224,17 @@
         <span class="ic ic-back" aria-hidden="true"></span>
         Browse
       </a>
+      <!-- POST A LISTING, on the page where a seller MANAGES listings. The create flow lives on
+           marketplace.html (the #fab-post sheet), so this dashboard had no way to start one: a provider
+           signed in to their seller page, saw "Listings 2", and had to know to navigate elsewhere to add
+           a third. The only "Post a Listing" CTA in this file sits INSIDE the empty-state branch, so a
+           seller who already has listings never sees it at all. Found on a live provider walk 2026-08-01.
+           Links to the existing sheet rather than duplicating the form — one create path, two doors. -->
+      <a href="marketplace.html?post=1" class="btn-primary"
+         style="font-size:0.72rem;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.3rem;min-height:44px;padding:0 0.75rem;border-radius:0.5rem;">
+        <span class="ic ic-post" aria-hidden="true"></span>
+        Post a listing
+      </a>
     </div>
     <div class="profile-stats">
       <div class="pstat"><div class="pstat-num" id="ps-listings">-</div><div class="pstat-lbl">Listings</div></div>

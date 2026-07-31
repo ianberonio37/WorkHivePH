@@ -433,7 +433,19 @@
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 0.625rem;
       color: #0f1923; font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer;
     }
-    .action-row { display: flex; gap: 0.625rem; margin-top: 1rem; }
+    /* STICKY, because this row is the ONLY way to transact and it was unreachable without scrolling.
+       Measured on a live client walk 2026-08-01: in a 753px viewport the "Contact Seller" button sat at
+       y=1408 — 699px BELOW the fold, under the full description, the seller profile card and the reviews
+       block. A buyer who did not think to scroll to the very bottom of a 1287px panel had no way to reach
+       the seller at all, and nothing on screen suggested one existed.
+       Sticking it to the bottom of the scrolling panel keeps the whole detail readable while the action
+       stays permanently in reach. `bottom:0` + a backdrop so text scrolling underneath stays legible. */
+    .action-row {
+      display: flex; gap: 0.625rem; margin-top: 1rem;
+      position: sticky; bottom: 0; z-index: 2;
+      padding: 0.625rem 0 calc(0.625rem + env(safe-area-inset-bottom, 0px));
+      background: linear-gradient(to top, var(--wh-navy, #0f1923) 72%, transparent);
+    }
 
     /* Detail sheet */
     .detail-image {
@@ -2385,7 +2397,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="detail-section">
         <div class="detail-section-label" style="display:flex;justify-content:space-between;align-items:center;">
           <span>Seller</span>
-          <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size:0.7rem;color:var(--wh-blue-text);text-decoration:none;font-weight:600;">View profile →</a>
+          <!-- min-height 44px + inline-flex: this measured 17px tall on a live walk, well under the 44px
+               floor. On a maintenance platform the person tapping is often gloved or one-handed, so a
+               17px target is not a nicety — it is the difference between reaching the seller's history
+               and giving up. Padding only; the visual weight is unchanged. -->
+          <a href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-transform:none;letter-spacing:normal;font-size:0.7rem;color:var(--wh-blue-text);text-decoration:none;font-weight:600;min-height:44px;display:inline-flex;align-items:center;padding:0 0.35rem;">View profile →</a>
         </div>
         <div class="seller-card">
           <div style="flex-shrink:0;padding-bottom:${(_sellerTiers[item.seller_name]||0)>0?'10px':'0'}">${renderWorkerAvatar(item.seller_name || 'Seller', _sellerTiers[item.seller_name] || 0, 42)}</div>
