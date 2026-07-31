@@ -317,6 +317,7 @@
       ({ data, error } = await db.from('ph_intelligence_reports')
         .select('*')
         .order('generated_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(1)
         .maybeSingle());
       if (error) throw error;

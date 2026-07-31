@@ -528,16 +528,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // signed-out user still degrades to the empty-records path exactly as before.
       try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: proceed; reads degrade to empty */ }
       const [lRes, sRes, skillRes, invRes, pmRes, jRes] = await Promise.all([
-        db.from('v_logbook_truth').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used').eq('worker_name', name).order('date', { ascending: false }).limit(10),
-        db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }).limit(500), // L2: date-windowed + row-cap (gte/lte bound the span; .limit bounds egress)
-        db.from('v_skill_badges_truth').select('discipline,level').eq('worker_name', name).order('level', { ascending: false }).limit(6),
+        db.from('v_logbook_truth').select('date,machine,maintenance_type,category,status,problem,root_cause,downtime_hours,action,parts_used').eq('worker_name', name).order('date', { ascending: false }).order('id').limit(10),
+        db.from('schedule_items').select('date,start_time,end_time,title,category,item_status,notes').eq('worker_name', name).gte('date', pastDate).lte('date', futureDate).order('date', { ascending: true }).order('start_time', { ascending: true }).order('id').limit(500), // L2: date-windowed + row-cap (gte/lte bound the span; .limit bounds egress)
+        db.from('v_skill_badges_truth').select('discipline,level').eq('worker_name', name).order('level', { ascending: false }).order('id').limit(6),
         hiveIdCtx
-          ? db.from('v_inventory_items_truth').select('part_name,qty_on_hand,unit,min_qty,category').eq('hive_id', hiveIdCtx).eq('status', 'approved').order('qty_on_hand', { ascending: true }).limit(20)
+          ? db.from('v_inventory_items_truth').select('part_name,qty_on_hand,unit,min_qty,category').eq('hive_id', hiveIdCtx).eq('status', 'approved').order('qty_on_hand', { ascending: true }).order('id').limit(20)
           : Promise.resolve({ data: [] }),
         hiveIdCtx
           ? db.from('v_pm_compliance_truth').select('asset_name,category').eq('hive_id', hiveIdCtx).order('asset_name', { ascending: true }).limit(8)
           : Promise.resolve({ data: [] }),
-        db.from('voice_journal_entries').select('created_at,transcript,reply,lang').eq('worker_name', name).gte('created_at', journalSince).order('created_at', { ascending: false }).limit(5),
+        db.from('voice_journal_entries').select('created_at,transcript,reply,lang').eq('worker_name', name).gte('created_at', journalSince).order('created_at', { ascending: false }).order('id').limit(5),
       ]);
       const logbook  = lRes.data || [];
       const schedule = sRes.data || [];

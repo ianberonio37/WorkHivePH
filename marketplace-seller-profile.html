@@ -621,6 +621,7 @@
         .eq('seller_name', WORKER_VIEW)
         .eq('status', 'published')
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(60);
       if (error) throw error;
       _listings = data || [];
@@ -703,6 +704,7 @@
         .select('reviewer_name, rating, comment, created_at, verified_purchase')
         .in('listing_id', listingIds)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(REVIEWS_SHOWN);
       _reviews = data || [];
     } catch (_) { _reviews = []; }

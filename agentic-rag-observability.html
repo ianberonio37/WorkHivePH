@@ -280,6 +280,7 @@
         .eq('hive_id', HIVE_ID)
         .gte('created_at', cutoff)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500);
       if (routeFilter) q = q.eq('route', routeFilter);
 

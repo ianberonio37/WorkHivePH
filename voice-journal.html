@@ -822,6 +822,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const { data, error } = await db.from('voice_journal_entries')
         .select('id, transcript, reply, lang, created_at')
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(HISTORY_LIMIT);
 
       if (error) {

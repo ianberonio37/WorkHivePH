@@ -1671,7 +1671,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     if (!HIVE_ID) return;
     const { data, error } = await db.from('integration_configs')
-      .select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(500);
+      .select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(500);
     const list = document.getElementById('sync-active-list');
     if (error) {
       // A5 outage honesty: a real read failure must NOT render as fake-empty.
@@ -1845,7 +1845,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   async function loadApiKeys() {
     if (!HIVE_ID) return;
-    const { data } = await db.from('api_keys').select('id, key_prefix, label, enabled, call_count, last_used_at').eq('hive_id', HIVE_ID).eq('enabled', true).order('created_at', { ascending: false }).limit(500);
+    const { data } = await db.from('api_keys').select('id, key_prefix, label, enabled, call_count, last_used_at').eq('hive_id', HIVE_ID).eq('enabled', true).order('created_at', { ascending: false }).order('id').limit(500);
     const list = document.getElementById('api-keys-list');
     if (!data?.length) { list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<p style="font-size:.75rem; color:var(--muted);">No keys yet. Generate one above.</p>'; return; }
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(k => {
@@ -1877,6 +1877,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('hive_id', HIVE_ID)
         .eq('operation', 'file_import')
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(5);
 
       if (!data?.length) return;
@@ -1981,6 +1982,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           .neq('worker_name', 'CMMS Sync')
           .neq('worker_name', 'cmms-sync')
           .order('date', { ascending: false })
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(1);
 
         const log = logRows?.[0];

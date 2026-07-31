@@ -1148,7 +1148,7 @@
     let q = db.from('v_community_posts_truth')
       .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
       .eq('hive_id', HIVE_ID).eq('pinned', false).is('deleted_at', null)
-      .order('created_at', { ascending: false }).limit(20);
+      .order('created_at', { ascending: false }).order('id').limit(20);
     if (HIVE_ROLE !== 'supervisor') q = q.eq('flagged', false);
     if (activeFilter !== 'all') q = q.eq('category', activeFilter);
     if (safQ) q = q.or(`content.ilike.%${safQ}%,author_name.ilike.%${safQ}%`);
@@ -1170,7 +1170,7 @@
       db.from('v_community_posts_truth')
         .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
         .eq('hive_id', HIVE_ID).eq('pinned', true).is('deleted_at', null)
-        .order('created_at', { ascending: false }).limit(500),
+        .order('created_at', { ascending: false }).order('id').limit(500),
       _fetchPage(),
     ]);
 
@@ -1522,7 +1522,7 @@
     const { data, error } = await db.from('v_community_posts_truth')
       .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hive_name')
       .eq('public', true).eq('flagged', false).is('deleted_at', null)
-      .order('created_at', { ascending: false }).limit(20);
+      .order('created_at', { ascending: false }).order('id').limit(20);
 
     if (error || !data || data.length === 0) {
       el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80); text-align:center; padding:1rem 0;">No public posts yet. Supervisors can make posts public from the Feed tab.</p>';
@@ -1553,7 +1553,7 @@
       .select('id, hive_id, author_name, content, category, created_at, edited_at, mentions, deleted_at, hive_name')
       .eq('public', true).eq('flagged', false).is('deleted_at', null)
       .lt('created_at', _globalLastCreatedAt)
-      .order('created_at', { ascending: false }).limit(20);
+      .order('created_at', { ascending: false }).order('id').limit(20);
 
     if (data && data.length > 0) {
       _globalLastCreatedAt = data[data.length - 1].created_at;
@@ -2143,7 +2143,7 @@
     // canonical-allow: community_replies is forum thread detail (the replies under one post) — single-surface community data, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
     const { data, error } = await db.from('community_replies')
       .select('*').eq('post_id', postId).eq('hive_id', HIVE_ID)
-      .order('created_at', { ascending: true }).limit(200);
+      .order('created_at', { ascending: true }).order('id').limit(200);
 
     const el = document.getElementById('thread-replies');
     if (error) { el.innerHTML = '<p style="color:rgba(239,68,68,0.7); font-size:0.78rem;">Could not load replies.</p>'; return; }

@@ -518,6 +518,7 @@
         .select('id,title,description,section,category,condition,price,location,seller_contact,image_url,view_count,status,created_at,updated_at,moderation_reason,moderated_at')
         .eq('seller_name', WORKER_NAME)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500); // limit-as-count-allow: list cap only; _listingsTotal head-count query below drives the badge
       if (error) throw error;
       _listings = data || [];
@@ -550,6 +551,7 @@
         .select('id,listing_id,buyer_name,buyer_contact,message,status,reply_text,replied_at,created_at,listing_title')
         .eq('seller_name', WORKER_NAME)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(50); // limit-as-count-allow: list cap only; tile counts come from the head-count queries below
       if (error) throw error;
       _inquiries = data || [];
@@ -1048,7 +1050,7 @@
       const [provRes, feedRes, jobsRes] = await Promise.all([
         db.from('v_service_provider_truth').select('*').in('id', _svcMyIds).limit(50),
         db.from('v_service_open_broadcasts').select('*').order('created_at', { ascending: false }).limit(30),
-        db.from('v_service_request_truth').select('*').in('status', SVC_ACTIVE.concat(SVC_FINISHED)).order('updated_at', { ascending: false }).limit(60)
+        db.from('v_service_request_truth').select('*').in('status', SVC_ACTIVE.concat(SVC_FINISHED)).order('updated_at', { ascending: false }).order('id').limit(60)
       ]);
       if (provRes.error) throw provRes.error;
       const provs = provRes.data || [];
@@ -1189,7 +1191,7 @@
       // re-asserts the own-account boundary; the balance itself still comes from the RPC above.
       const led = await db.from('v_service_credit_ledger_truth').select('entry_type, amount, note, created_at')
         .eq('account_type', 'provider').eq('account_id', provId)
-        .order('created_at', { ascending: false }).limit(3);
+        .order('created_at', { ascending: false }).order('id').limit(3);
       lines = led.data || [];
     } catch (_) { /* empty-catch-allow: wallet card degrades to the top-up form alone */ }
     return '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.9rem 1rem;">' +
@@ -1613,6 +1615,7 @@
         .select('created_at, replied_at')
         .not('replied_at', 'is', null)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500);
       const platRepl = platRepliedInq || [];
       if (platRepl.length) {

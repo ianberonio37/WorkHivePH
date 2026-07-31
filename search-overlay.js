@@ -277,6 +277,7 @@
         .eq(scopeFilter.col, scopeFilter.val)
         .or(`machine.ilike.%${safe}%,problem.ilike.%${safe}%,action.ilike.%${safe}%`)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(8),
       // Canonical: inventory_items_truth — exposes reorder_point as alias
       // for min_qty (the underlying table has no reorder_point column, so

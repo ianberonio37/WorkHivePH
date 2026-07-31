@@ -1115,6 +1115,7 @@ async function openDiscipline(disc) {
     .eq('discipline', disc)
     .eq('level', nextLevel)
     .order('attempted_at', { ascending: false })
+    .order('id')   // MR4 tiebreaker: the sort above is not total on its own
     .limit(1)
     .maybeSingle();
 

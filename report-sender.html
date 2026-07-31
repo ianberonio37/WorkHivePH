@@ -1034,6 +1034,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('id, report_type, summary, created_at')
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(5);
       if (error) {
         // created_at may not exist — retry without ordering
@@ -1168,6 +1169,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('id, name, email, label')
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: true })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500);
       if (error) {
         // Supabase failed — fall back to localStorage so contacts aren't lost

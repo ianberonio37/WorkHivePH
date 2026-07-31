@@ -426,6 +426,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('id, system_type, label, endpoint_url, auth_method, sync_freq, last_sync_at, enabled')
         .eq('hive_id', HIVE_ID)
         .order('last_sync_at', { ascending: false, nullsFirst: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500); // L2: hive-scoped CMMS-connector config (≤ handful per hive, bounded-by-nature); cap = egress insurance, can't truncate a set that never nears 500.
       if (error) throw error;
       return data || [];
@@ -438,6 +439,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('hive_id', HIVE_ID)
         .gte('last_synced_at', sinceIso)
         .order('last_synced_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(50);
       if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
       return data || [];
@@ -449,6 +451,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('id, topic_pattern, parameter, unit, asset_id')
         .eq('hive_id', HIVE_ID)
         .order('topic_pattern')
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500); // L2: hive-scoped MQTT-topic→asset resolver config (supervisor-maintained, bounded by physical sensor count, not time/events); cap = egress insurance, sensor_readings holds the time-series, not this.
       if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
       return data || [];
@@ -462,6 +465,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('hive_id', HIVE_ID)
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(50);
       if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
       return data || [];

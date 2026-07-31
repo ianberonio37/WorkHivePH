@@ -634,6 +634,7 @@ async function loadSchedule() {
       .select('*')
       .eq('worker_name', WORKER_NAME)
       .order('date', { ascending: true })
+      .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(1000); // L2: a worker's planner is bounded-by-nature (dozens-hundreds); insurance cap
     if (error) throw error;
     scheduleItems = (data || []).map(fromDBRow);
@@ -755,7 +756,7 @@ function toggleSidebar() {
 
 async function loadLogbook() {
   try {
-    const { data, error } = await db.from('v_logbook_truth').select('*').eq('worker_name', WORKER_NAME).order('date', { ascending: false }).limit(1000); // L2: newest-first insurance cap on a worker's logbook
+    const { data, error } = await db.from('v_logbook_truth').select('*').eq('worker_name', WORKER_NAME).order('date', { ascending: false }).order('id').limit(1000); // L2: newest-first insurance cap on a worker's logbook
     if (error) throw error;
     // Show open items: not Closed/Resolved
     logbookItems = (data || []).filter(r => r.status !== 'Closed' && r.status !== 'Resolved');
@@ -777,6 +778,7 @@ async function loadPlantWork() {
       .or('is_overdue.eq.true,is_due_soon.eq.true')
       .order('is_overdue', { ascending: false })
       .order('next_due_date', { ascending: true })
+      .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(30);
     if (error) throw error;
     plantWork = data || [];

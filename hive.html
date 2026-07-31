@@ -3608,6 +3608,7 @@ async function loadMembers() {
         .eq('hive_id', HIVE_ID)
         .neq('status', 'kicked')
         .order('joined_at')
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500),  // L2: hive members are bounded-by-nature (<= dozens); insurance cap, never truncates the member list
       db.from('v_logbook_truth')
         .select('worker_name')
@@ -3739,6 +3740,7 @@ async function loadFeed() {
         .select('id, worker_name, date, machine, category, problem, status, created_at')
         .eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(40),
       db.from('v_logbook_truth')
         .select('*', { count: 'exact', head: true })
@@ -3749,6 +3751,7 @@ async function loadFeed() {
         .eq('hive_id', HIVE_ID)
         .eq('status', 'done')
         .order('completed_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(20)
     ]);
     // A5 honest-degraded: a failed read must NOT render as a fake-empty "quiet hive" or a
@@ -3801,7 +3804,7 @@ async function loadFeed() {
       const [oldLogRes] = await Promise.all([
         db.from('v_logbook_truth').select('id, worker_name, date, machine, category, problem, status, created_at')
           .in('worker_name', memberNames).is('hive_id', null)
-          .order('created_at', { ascending: false }).limit(40)
+          .order('created_at', { ascending: false }).order('id').limit(40)
       ]);
       const oldMerged = (oldLogRes.data || []).map(e => ({ ...e, _type: 'logbook' }))
         .sort((a, b) => (b.created_at || b.date || '').localeCompare(a.created_at || a.date || '')).slice(0, 40);
@@ -3906,7 +3909,7 @@ function _openWorkerProfileDrawer(workerName) {
 
   // Parallel fetch: skill badges + community XP + recent activity.
   Promise.all([
-    db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', workerName).order('level', { ascending: false }).limit(5),
+    db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', workerName).order('level', { ascending: false }).order('id').limit(5),
     db.from('community_xp').select('xp_total').eq('worker_name', workerName).eq('hive_id', HIVE_ID).maybeSingle(),
     db.from('hive_members').select('role, joined_at').eq('worker_name', workerName).eq('hive_id', HIVE_ID).maybeSingle(),
     db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).eq('worker_name', workerName).order('created_at', { ascending: false }).limit(3),
@@ -4248,6 +4251,7 @@ async function buildNotifications() {
       .eq('status', 'Open')
       .lt('created_at', cutoff)
       .order('created_at', { ascending: false })
+      .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(5); // L2: order+limit on the base chain (server applies them by query-param) so this read is row-bounded; the conditional .or() below is just an extra filter
     if (HIVE_ID) woQuery = woQuery.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
     const res = await woQuery;
@@ -4288,6 +4292,7 @@ async function loadPMHealth() {
         .select('scope_item_id, completed_at, worker_name')
         .eq('hive_id', HIVE_ID).eq('status', 'done')
         .order('completed_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(2000),  // L2: newest-first cap on completion-history egress; generous for a hive's recent PM history
     ]);
     // P2-02 honest-degraded: a FAILED scope read must NOT fall through as a fake-empty "no overdue
@@ -4713,6 +4718,7 @@ async function loadAuditLog() {
       .select('*')
       .eq('hive_id', HIVE_ID)
       .order('created_at', { ascending: false })
+      .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(50);
     data = res.data; error = res.error;
   }
@@ -4937,7 +4943,7 @@ async function loadTodaysBrief() {
       db.from('v_ai_reports_truth')
         .select('summary, report_json, generated_at, report_type')
         .eq('hive_id', HIVE_ID).eq('report_type', type)
-        .order('generated_at', { ascending: false }).limit(1).maybeSingle()
+        .order('generated_at', { ascending: false }).order('id').limit(1).maybeSingle()
     ));
   }
 
@@ -5131,10 +5137,12 @@ async function loadBenchmarks() {
           .select('equipment_category, mtbf_days, failure_count, sample_machines')
           .eq('hive_id', HIVE_ID)
           .order('failure_count', { ascending: false })
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(5),
         db.from('network_benchmarks')
           .select('equipment_category, avg_mtbf_days, p75_mtbf_days, sample_hives')
           .order('sample_hives', { ascending: false })
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(10),
       ]);
       hiveData    = hiveRes.data    || [];

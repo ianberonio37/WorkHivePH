@@ -283,6 +283,7 @@
           .eq('is_public', true)
           .order('upvotes', { ascending: false })
           .order('created_at', { ascending: false })
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(200),
         db.from('platform_feedback_votes')
           .select('feedback_id')

@@ -413,6 +413,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('hive_id', HIVE_ID)
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(2000);
       if (error) throw error;
       return data || [];
@@ -430,6 +431,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('hive_id', HIVE_ID)
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(5000);
       if (error) throw error;   // surface via render()'s catch (whListError+Retry), not a fake empty
       return data || [];

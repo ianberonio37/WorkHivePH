@@ -1898,7 +1898,7 @@
         // in provider_display_name, so the queue no longer N+1s the provider directory.
         const { data: rows, error } = await db.from('v_service_credit_topups_truth')
           .select('id, account_type, account_id, amount, gcash_ref, created_at, provider_display_name')
-          .eq('status', 'pending_verification').order('created_at', { ascending: true }).limit(50);
+          .eq('status', 'pending_verification').order('created_at', { ascending: true }).order('id').limit(50);
         if (error) throw error;
         setRagDot('rag-svc-topups', (rows || []).length ? 'amber' : 'green');
         const upd = document.getElementById('svc-topups-updated');
@@ -1945,7 +1945,7 @@
           // surface that reads it, writes are admin-only at the DB, and no KPI derives from it.
           db.from('service_vouchers')
             .select('id, code, kind, value, segment, max_uses, per_user_limit, expires_at, active, created_at')
-            .order('created_at', { ascending: false }).limit(30),
+            .order('created_at', { ascending: false }).order('id').limit(30),
           // canonical-allow: one-off admin TALLY (how many times each campaign was used and what it
           // cost). Single surface, no KPI derives from it, and redemptions are RPC-written only -
           // a v_*_truth wrapper would add a layer with exactly one consumer.
@@ -2026,13 +2026,13 @@
         const [drafts, sellers, disputes] = await Promise.all([
           db.from('v_marketplace_listings_truth')
             .select('id,title,section,category,price,seller_name,created_at')
-            .eq('status','draft').order('created_at',{ascending:true}).limit(50),
+            .eq('status','draft').order('created_at',{ascending:true}).order('id').limit(50),
           db.from('v_marketplace_sellers_truth')
             .select('worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
-            .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at',{ascending:false}).limit(50),
+            .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at',{ascending:false}).order('id').limit(50),
           db.from('marketplace_disputes')
             .select('id,order_id,listing_id,opened_by,seller_name,reason,status,created_at')
-            .in('status',['open','seller_responded']).order('created_at',{ascending:true}).limit(50),
+            .in('status',['open','seller_responded']).order('created_at',{ascending:true}).order('id').limit(50),
         ]);
         return {
           drafts: drafts.data||[], sellers: sellers.data||[], disputes: disputes.data||[],
@@ -2215,6 +2215,7 @@
         const { data, error } = await db.from('hive_audit_log')
           .select('id, action, actor, target_type, target_name, hive_id, created_at, meta')
           .order('created_at', { ascending: false })
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(50);
         if (error) return { _error: error.message };
         return { events: data || [] };
@@ -2699,6 +2700,7 @@
         const { data, error } = await db.from('platform_feedback')
           .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at,is_public,updated_at')
           .order('created_at', { ascending: false })
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(500);
         if (error) throw error;
         _fb.rows = data || [];

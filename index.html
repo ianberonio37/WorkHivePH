@@ -3965,6 +3965,7 @@
         .eq(scopeFilter.col, scopeFilter.val)
         .eq('status', 'Open')
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(5),
 
       // Risk alerts (critical/high assets). Canonical: v_risk_truth gives
@@ -4107,6 +4108,7 @@
             .in('asset_id', assetIds)
             .eq('status', 'done')
             .order('completed_at', { ascending: false })
+            .order('id')   // MR4 tiebreaker: the sort above is not total on its own
             .limit(500);
           const lastByAsset = {};
           (comps || []).forEach(c => {

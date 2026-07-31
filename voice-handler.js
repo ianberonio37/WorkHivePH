@@ -931,6 +931,7 @@
           .select('turn_num, user_input, assistant_response')
           .eq('session_id', sessionId)
           .order('turn_num', { ascending: true })
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(10);
 
         if (!sessionErr && sessionData && sessionData.length) {
@@ -954,6 +955,7 @@
           .eq('worker_name', workerName)
           .gte('created_at', since)
           .order('created_at', { ascending: false })
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(5);
         if (!error && data && data.length) {
           voiceJournalTurns = data.slice().reverse().map(row => ({
@@ -4022,6 +4024,7 @@
         .eq('to_worker', ctx.worker_name)
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(10);
       return Array.isArray(data) ? data : [];
     } catch (_) { return []; }
@@ -4150,6 +4153,7 @@
         .eq('status', 'open')
         .gte('created_at', since)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(20);
       return Array.isArray(data) ? data : [];
     } catch (_) { return []; }
@@ -5733,6 +5737,7 @@
         .eq('worker_name', workerName)
         .eq('hive_id', hiveId)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(1);
       const recent = Array.isArray(data) && data[0];
       if (!recent || !recent.machine) return dialogState;
@@ -5898,18 +5903,18 @@
       db.from('v_risk_truth').select('asset_name,risk_score,risk_level,mtbf_days,days_until_failure').eq('hive_id', hiveId).order('risk_score', { ascending: false }).limit(5),
       db.from('v_pm_compliance_truth').select('asset_name,category,criticality,last_anchor_date,days_since_last_completion,completions_30d').eq('hive_id', hiveId).limit(20),
       // Open logbook items (the "open work" backlog — what Day Planner shows in its sidebar)
-      db.from('v_logbook_truth').select('machine,category,problem,action,status,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Open').order('created_at', { ascending: false }).limit(30),
+      db.from('v_logbook_truth').select('machine,category,problem,action,status,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Open').order('created_at', { ascending: false }).order('id').limit(30),
       db.from('v_inventory_items_truth').select('part_name,part_number,qty_on_hand,min_qty,reorder_point').eq('hive_id', hiveId).limit(50),
       db.from('v_asset_truth').select('name,tag,iso_class,criticality,last_failure_at,lifetime_logbook_entries').eq('hive_id', hiveId).limit(100),
       db.from('v_adoption_truth').select('risk_tier,risk_score,active_ratio_risk,momentum_risk,snapshot_date').eq('hive_id', hiveId).order('snapshot_date', { ascending: false }).limit(1),
-      db.from('v_knowledge_truth').select('source,content,created_at').eq('hive_id', hiveId).order('created_at', { ascending: false }).limit(5),
+      db.from('v_knowledge_truth').select('source,content,created_at').eq('hive_id', hiveId).order('created_at', { ascending: false }).order('id').limit(5),
       // Schedule items for the worker — broaden to recent + upcoming so we never say "nothing" when items exist
-      workerName ? db.from('schedule_items').select('title,start_time,end_time,category,item_status,date,worker_name').eq('worker_name', workerName).order('date', { ascending: false }).limit(30) : Promise.resolve({ data: [] }),
+      workerName ? db.from('schedule_items').select('title,start_time,end_time,category,item_status,date,worker_name').eq('worker_name', workerName).order('date', { ascending: false }).order('id').limit(30) : Promise.resolve({ data: [] }),
       workerName ? db.from('v_worker_skill_truth').select('discipline,primary_skill,role').eq('worker_name', workerName).limit(10) : Promise.resolve({ data: [] }),
-      db.from('v_anomaly_truth').select('machine,composite_score,logbook_cluster_score,snapshot_date').eq('hive_id', hiveId).order('snapshot_date', { ascending: false }).limit(5),
+      db.from('v_anomaly_truth').select('machine,composite_score,logbook_cluster_score,snapshot_date').eq('hive_id', hiveId).order('snapshot_date', { ascending: false }).order('id').limit(5),
       db.from('v_project_truth').select('name,project_code,project_type,status,priority').eq('hive_id', hiveId).limit(10),
       // Recent CLOSED logbook (so Zaniah can answer "what did we fix recently?")
-      db.from('v_logbook_truth').select('machine,category,problem,action,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Closed').order('created_at', { ascending: false }).limit(10),
+      db.from('v_logbook_truth').select('machine,category,problem,action,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Closed').order('created_at', { ascending: false }).order('id').limit(10),
     ]);
 
     const data = fetches.map((r, i) => {
@@ -6177,6 +6182,7 @@
         .eq('worker_name', workerName)
         .gt('created_at', since)
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(5)
         .execute();
 

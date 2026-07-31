@@ -1602,6 +1602,7 @@ async function searchTeam(append = false) {
     .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name')
     .eq('hive_id', HIVE_ID)
     .order('date', { ascending: false })
+    .order('id')   // MR4 tiebreaker: the sort above is not total on its own
     .limit(TEAM_PAGE);
 
   if (category) query = query.eq('category', category);
@@ -1644,7 +1645,7 @@ async function loadTeamMembers() {
   if (!HIVE_ID) return;
   // canonical-allow: dropdown picker needs the membership list ordered by name within THIS hive
   const { data } = await db.from('hive_members')
-    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name').limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the dropdown read)
+    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name').order('id').limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the dropdown read)
   const sel = document.getElementById('filter-worker');
   sel.innerHTML = '<option value="">All workers</option>';
   (data || []).forEach(m => {
@@ -1853,6 +1854,7 @@ async function loadEntries() {
     .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name')
     .eq('worker_name', WORKER_NAME)
     .order('date', { ascending: false })
+    .order('id')   // MR4 tiebreaker: the sort above is not total on its own
     .limit(200); // L2: order+limit on the base chain (server applies them by query-param) so the read is row-bounded; the conditional .or() below is just an extra filter
   if (HIVE_ID) query = query.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
 
@@ -2668,6 +2670,7 @@ async function loadAssetDetail(asset) {
           .select('id, date, machine, category, maintenance_type, problem, status, created_at')
           .eq('asset_node_id', assetNodeId)
           .order('created_at', { ascending: false })
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(50)
       : Promise.resolve({ data: [] }),
     ...invQueries,
@@ -2691,6 +2694,7 @@ async function loadAssetDetail(asset) {
       .in('item_id', ids)
       .eq('type', 'use')
       .order('created_at', { ascending: false })
+      .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(50);
     txns = t || [];
   }
@@ -2927,6 +2931,7 @@ async function loadMachineHistory(machineId) {
       .eq('machine', machineId)
       .not('problem', 'is', null)
       .order('created_at', { ascending: false })
+      .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(5);
 
     if (HIVE_ID) q.eq('hive_id', HIVE_ID);
@@ -3075,7 +3080,7 @@ async function loadReadingTemplates() {
     // Arc L · L2: a real .limit() row cap keeps it formally bounded (free-tier egress safe even if it grows)
     const { data, error } = await db.from('equipment_reading_templates')
       .select('category, reading_key, label, unit, placeholder, sort_order')
-      .order('category').order('sort_order').limit(500);
+      .order('category').order('sort_order').order('id').limit(500);
     if (error || !data?.length) {
       _readingTemplates = READINGS_FALLBACK;
       return _readingTemplates;
@@ -4122,7 +4127,7 @@ async function loadPMTasksForAsset() {
     .in('asset_id', assetIds)
     .limit(500); // limit-as-count-allow: scope items per asset are bounded-by-nature (≤ dozens), cap never truncates so needsAttention.length stays accurate. Arc L · L2 row cap
   // canonical-allow: per-scope-item completion HISTORY is needed for the inline PM context panel; the rollup view only exposes last_completed_at
-  let compsQ  = db.from('pm_completions').select('scope_item_id, completed_at').in('asset_id', assetIds).eq('status', 'done').order('completed_at', { ascending: false }).limit(2000); // L2: newest-first cap on completion-history egress; generous for the inline PM context panel
+  let compsQ  = db.from('pm_completions').select('scope_item_id, completed_at').in('asset_id', assetIds).eq('status', 'done').order('completed_at', { ascending: false }).order('id').limit(2000); // L2: newest-first cap on completion-history egress; generous for the inline PM context panel
   if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); compsQ = compsQ.eq('hive_id', HIVE_ID); }
   const [itemsRes, compsRes] = await Promise.all([scopeQ, compsQ]);
 

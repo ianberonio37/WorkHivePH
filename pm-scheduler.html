@@ -1345,8 +1345,8 @@ async function loadData() {
 
   // Load assets first: pm_scope_items has no worker_name, must join via asset_id
   const assetsRes = await (HIVE_ID
-    ? db.from('pm_assets').select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: true }).limit(500)
-    : db.from('pm_assets').select('*').eq('worker_name', WORKER_NAME).order('created_at', { ascending: true }).limit(500)
+    ? db.from('pm_assets').select('*').eq('hive_id', HIVE_ID).order('created_at', { ascending: true }).order('id').limit(500)
+    : db.from('pm_assets').select('*').eq('worker_name', WORKER_NAME).order('created_at', { ascending: true }).order('id').limit(500)
   ); // L2: per-branch order+limit (server applies them by query-param, not chain position) so each read is row-bounded
 
   if (assetsRes.error) { console.error('pm_assets load:', assetsRes.error.message); showToast('Could not load PM assets. Check your connection.'); return; }
@@ -1366,10 +1366,10 @@ async function loadData() {
   // not just the latest one the view exposes. canonical-allow: history list
   let scopeQ = db.from('v_pm_scope_items_truth')
     .select('id:scope_item_id, asset_id, hive_id, item_text, frequency, anchor_date, is_custom, frequency_days, last_completed_at, last_completed_by, next_due_date, days_until_due, is_overdue, is_due_soon, created_at')
-    .in('asset_id', assetIds).order('created_at', { ascending: true }).limit(500);
+    .in('asset_id', assetIds).order('created_at', { ascending: true }).order('id').limit(500);
   // canonical-allow: detail view needs full completion history (the view only exposes last_completed_at)
   // L2: newest-first cap bounds completion-history egress; 2000 is generous for a hive's recent history (keyset "load older" is the scale fix if ever needed)
-  let compsQ = db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false }).limit(2000);
+  let compsQ = db.from('pm_completions').select('*').in('asset_id', assetIds).order('completed_at', { ascending: false }).order('id').limit(2000);
   if (HIVE_ID) { scopeQ = scopeQ.eq('hive_id', HIVE_ID); compsQ = compsQ.eq('hive_id', HIVE_ID); }
   const [itemsRes, compRes] = await Promise.all([scopeQ, compsQ]);
 

@@ -477,6 +477,7 @@
       .select('id, actor, action, target_type, target_id, target_name, meta, created_at')
       .eq('hive_id', HIVE_ID)
       .order('created_at', { ascending: false })
+      .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(500);
     if (range.hours) {
       const since = new Date(Date.now() - range.hours * 3600 * 1000).toISOString();

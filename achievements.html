@@ -1028,6 +1028,7 @@
         .select('achievement_id, xp_earned, source_action, earned_at')
         .eq('worker_name', WORKER_NAME)
         .order('earned_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(30), // recent-activity LIST cap (renderRecentActivity slice(0,10) / toggleDomain slice(0,3)) — NOT an aggregate source.
       // BUGFIX (limit-as-aggregate): "XP this week" must be a WINDOW-scoped SUM, never
       // derived from the 30-row list above — an active worker can log >30 XP events in 7

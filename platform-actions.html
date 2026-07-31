@@ -131,13 +131,13 @@
         const [drafts, sellers, disputes] = await Promise.all([
           db.from('v_marketplace_listings_truth')
             .select('id,title,section,category,price,seller_name,created_at')
-            .eq('status', 'draft').order('created_at', { ascending: true }).limit(50),
+            .eq('status', 'draft').order('created_at', { ascending: true }).order('id').limit(50),
           db.from('v_marketplace_sellers_truth')
             .select('worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
-            .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at', { ascending: false }).limit(50),
+            .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at', { ascending: false }).order('id').limit(50),
           db.from('marketplace_disputes')
             .select('id,order_id,listing_id,opened_by,seller_name,reason,status,created_at')
-            .in('status', ['open', 'seller_responded']).order('created_at', { ascending: true }).limit(50),
+            .in('status', ['open', 'seller_responded']).order('created_at', { ascending: true }).order('id').limit(50),
         ]);
         return {
           drafts: drafts.data || [], sellers: sellers.data || [], disputes: disputes.data || [],

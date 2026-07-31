@@ -660,7 +660,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (error) return;  // versioning is best-effort, never blocks the main save
         // Prune to the 10 most recent.
         // canonical-allow: resume_versions is owner-scoped private version history (RLS owner-only), read here only to prune the worker's OWN snapshots — single-surface, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
-        const { data } = await db.from('resume_versions').select('id').eq('resume_id', _resumeId).order('created_at', { ascending: false }).range(10, 49);
+        const { data } = await db.from('resume_versions').select('id').eq('resume_id', _resumeId).order('created_at', { ascending: false }).order('id').range(10, 49);
         if (data && data.length) await db.from('resume_versions').delete().in('id', data.map(r => r.id));
       } catch (_) { /* empty-catch-allow: versioning is best-effort, never blocks save */ }
     }
@@ -712,7 +712,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // canonical-allow: resume_documents is a PRIVATE owner-scoped personal document (RLS owner-only), read only by resume.html to load the worker's own resume draft — not a cross-surface KPI/aggregate, so a v_*_truth wrapper does not apply.
         const { data, error } = await db.from('resume_documents')
           .select('id, doc, template, title').eq('auth_uid', _authUid)
-          .order('updated_at', { ascending: false }).limit(1).maybeSingle();
+          .order('updated_at', { ascending: false }).order('id').limit(1).maybeSingle();
         if (error || !data || !data.doc || !data.doc.basics) return false;
         resume = mergeDefaults(data.doc);
         _resumeId = data.id;
@@ -742,7 +742,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // canonical-allow: resume_documents is a PRIVATE owner-scoped personal document (RLS owner-only); this lists the worker's OWN resume drafts for the picker — single-surface, not a cross-surface KPI/aggregate, so a v_*_truth wrapper does not apply.
         const { data, error } = await db.from('resume_documents')
           .select('id, title, updated_at').eq('auth_uid', _authUid)
-          .order('updated_at', { ascending: false }).limit(50);
+          .order('updated_at', { ascending: false }).order('id').limit(50);
         return (!error && Array.isArray(data)) ? data : [];
       } catch (_) { return []; }
     }
@@ -904,7 +904,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         db.from('skill_profiles').select('primary_skill').eq('worker_name', wname).maybeSingle(),
         // canonical-allow: v_skill_badges_truth (read above) exposes discipline+level only; the resume certificate auto-fill also needs earned_at + exam_score, which the truth view does not expose, so it reads skill_badges directly for those supplementary columns.
         db.from('skill_badges').select('discipline, level, earned_at, exam_score').eq('worker_name', wname).limit(500),
-        db.from('v_logbook_truth').select('machine, asset_tag, maintenance_type, problem, action, root_cause, downtime_hours, date, created_at').eq('worker_name', wname).order('created_at', { ascending: false }).limit(300),
+        db.from('v_logbook_truth').select('machine, asset_tag, maintenance_type, problem, action, root_cause, downtime_hours, date, created_at').eq('worker_name', wname).order('created_at', { ascending: false }).order('id').limit(300),
         db.auth.getUser(),
       ]);
       const badges  = (badgesRes.status === 'fulfilled' && badgesRes.value.data) || [];

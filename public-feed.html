@@ -224,6 +224,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       .eq('public', true)
       .eq('flagged', false)
       .order('created_at', { ascending: false })
+      .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(PAGE_SIZE);
     if (_lastCreatedAt) q = q.lt('created_at', _lastCreatedAt);
     return q;

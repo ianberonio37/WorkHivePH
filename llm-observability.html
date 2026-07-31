@@ -194,6 +194,7 @@
       .select('fn, model, provider, prompt_tokens, output_tokens, latency_ms, status, schema_compliance, created_at, hive_id')
       .gte('created_at', since)
       .order('created_at', { ascending: false })
+      .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(5000);
 
     if (e1) {

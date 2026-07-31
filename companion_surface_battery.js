@@ -84,7 +84,7 @@
     try {
       var r = await _state.client.from('ai_reply_feedback')
         .select('id, rating, source, created_at')
-        .order('created_at', { ascending: false }).limit(limit || 3);
+        .order('created_at', { ascending: false }).order('id').limit(limit || 3);
       return r.error ? null : (r.data || []);
     } catch (_) { return null; }
   }

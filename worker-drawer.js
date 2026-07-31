@@ -105,9 +105,9 @@
         window.db.from('logbook').select('id', { count: 'exact', head: true })
           .eq('worker_name', workerName).eq('status', 'Open'),
         window.db.from('logbook').select('machine, problem, created_at')
-          .eq('worker_name', workerName).order('created_at', { ascending: false }).limit(3),
+          .eq('worker_name', workerName).order('created_at', { ascending: false }).order('id').limit(3),
         window.db.from('inventory_items').select('part_name, qty_on_hand, reorder_point')
-          .eq('worker_name', workerName).order('qty_on_hand', { ascending: true }).limit(5),
+          .eq('worker_name', workerName).order('qty_on_hand', { ascending: true }).order('id').limit(5),
       ]);
 
       const skills  = skillRes.status === 'fulfilled' ? (skillRes.value.data || []) : [];

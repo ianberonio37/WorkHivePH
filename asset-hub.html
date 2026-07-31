@@ -1066,6 +1066,7 @@
         .eq('hive_id', HIVE_ID)
         .eq('status', 'approved')
         .order('tag', { ascending: true })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(200);
 
       if (error) {
@@ -1871,6 +1872,7 @@
         .in('status', ['pending', 'expired'])
         .in('asset_name', candidates)
         .order('generated_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(1);
 
       if (error) {
@@ -2066,6 +2068,7 @@
           .eq('hive_id', HIVE_ID)
           .eq('asset_node_id', node.id)
           .order('created_at', { ascending: false })
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(20)
       );
       if (node.pm_asset_id) {
@@ -2075,6 +2078,7 @@
             .eq('hive_id', HIVE_ID)
             .eq('asset_id', node.pm_asset_id)
             .order('completed_at', { ascending: false })
+            .order('id')   // MR4 tiebreaker: the sort above is not total on its own
             .limit(20)
         );
       }
@@ -2195,6 +2199,7 @@
         .eq('hive_id', HIVE_ID)
         .eq('asset_id', nodeId)
         .order('recorded_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500);
 
       if (error) {
@@ -2415,6 +2420,7 @@
         .eq('hive_id', HIVE_ID)
         .eq('asset_id', nodeId)
         .order('rpn', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(50);
 
       if (error) {
@@ -2444,6 +2450,7 @@
           // rcm_fmea_modes read (one asset's modes), and the replace policy keeps ~one
           // strategy row per mode, so this set is <=50. A .limit(500) is safe insurance
           // (can't truncate a set that never reaches 500) and caps free-tier egress.
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
           .limit(500);
         if (stratErr) {
           console.warn('rcm load:', stratErr.message);
@@ -3150,6 +3157,7 @@
         .select('category, reading_key, label, unit, sort_order')
         .order('category', { ascending: true })
         .order('sort_order', { ascending: true })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500);
       if (error) {
         console.warn('reading templates load:', error.message);
@@ -3349,7 +3357,7 @@
             .select('created_at, problem, root_cause, downtime_hours, maintenance_type')
             .eq('hive_id', HIVE_ID).eq('asset_node_id', node.id)
             .gte('created_at', sinceIso)
-            .order('created_at', { ascending: false }).limit(8),
+            .order('created_at', { ascending: false }).order('id').limit(8),
         ]);
 
         const fmea    = (fmeaRes.status === 'fulfilled' && fmeaRes.value.data)    || [];
@@ -3637,6 +3645,7 @@
         .eq('status', 'active')
         .ilike('category', '%' + safeClass + '%')
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(8);
 
       if (error) {
@@ -3693,6 +3702,7 @@
         .eq('entity_type', 'asset')
         .in('external_id', ids)
         .order('last_synced_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(1);
 
       // AH6 (Asset Hub deepwalk, 2026-07-28): a blank line used to be the answer to BOTH "the

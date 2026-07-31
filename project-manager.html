@@ -996,7 +996,7 @@ async function loadHiveMembers() {
   // (active membership for THIS hive, ordered for the dropdown); v_worker_truth
   // is a worker-centric composite that doesn't expose the same ordering scope
   const { data, error } = await db.from('hive_members')
-    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name').limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the dropdown read)
+    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name').order('id').limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the dropdown read)
   if (error) { console.warn(error.message); return; }
   _members = (data || []).map(r => r.worker_name).filter(Boolean);
   // Populate filter + form pickers
@@ -1013,7 +1013,7 @@ async function loadProjects() {
   if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('card-grid'), 4);
   const { data, error } = await db.from('projects')
     .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, created_at, updated_at')  /* PJ9: budget_php REMOVED. Mig 024. */
-    .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false }).limit(1000); // Arc L · L2: row cap (projects/hive ≤ low hundreds; newest-first so the active set is never truncated)
+    .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false }).order('id').limit(1000); // Arc L · L2: row cap (projects/hive ≤ low hundreds; newest-first so the active set is never truncated)
   if (error) { showToast('Load failed: ' + error.message, 'error'); return; }
   _projects = data || [];
   // Pull rollup from project_items in batch (one query, then group)
@@ -1932,12 +1932,12 @@ async function openDetail(id) {
 
   // Load children + rollup + roles + change_orders in parallel
   const [itemsRes, linksRes, logsRes, progRes, rolesRes, coRes] = await Promise.all([
-    db.from('v_project_items_truth').select('*').eq('project_id', id).order('sort_order').limit(500), // Arc L · L2: row cap (one project's scope items ≤ dozens; insurance cap)
-    db.from('project_links').select('*').eq('project_id', id).order('created_at').limit(500), // Arc L · L2: row cap (one project's links ≤ dozens; insurance cap)
-    db.from('v_project_progress_truth').select('*').eq('project_id', id).order('log_date', { ascending: false }).limit(30),
+    db.from('v_project_items_truth').select('*').eq('project_id', id).order('sort_order').order('id').limit(500), // Arc L · L2: row cap (one project's scope items ≤ dozens; insurance cap)
+    db.from('project_links').select('*').eq('project_id', id).order('created_at').order('id').limit(500), // Arc L · L2: row cap (one project's links ≤ dozens; insurance cap)
+    db.from('v_project_progress_truth').select('*').eq('project_id', id).order('log_date', { ascending: false }).order('id').limit(30),
     fetchProgressRollup(id),
-    db.from('project_roles').select('*').eq('project_id', id).order('assigned_at', { ascending: false }).limit(500), // Arc L · L2: row cap (one project's roles ≤ dozens; insurance cap)
-    db.from('project_change_orders').select('*').eq('project_id', id).order('created_at', { ascending: false }).limit(500), // Arc L · L2: row cap (one project's change orders ≤ dozens; insurance cap)
+    db.from('project_roles').select('*').eq('project_id', id).order('assigned_at', { ascending: false }).order('id').limit(500), // Arc L · L2: row cap (one project's roles ≤ dozens; insurance cap)
+    db.from('project_change_orders').select('*').eq('project_id', id).order('created_at', { ascending: false }).order('id').limit(500), // Arc L · L2: row cap (one project's change orders ≤ dozens; insurance cap)
   ]);
   _items = itemsRes.data || [];
   _links = linksRes.data || [];
@@ -2266,7 +2266,7 @@ async function refreshSuggestedLinks() {
     .select('id, machine, problem, status, created_at')
     .eq('hive_id', HIVE_ID).eq('status', 'Open')
     .gte('created_at', since)
-    .order('created_at', { ascending: false }).limit(20);
+    .order('created_at', { ascending: false }).order('id').limit(20);
   _linkSuggestions = (data || []).filter(r => !linkedLogIds.has(r.id)).slice(0, 5);
 }
 async function linkSuggested(idx) {
@@ -2324,13 +2324,13 @@ async function loadLinkOptions() {
   $('l-picker-wrap').classList.toggle('hidden', t === 'contractor');
   if (t === 'contractor') return;
   const queries = {
-    asset:               () => db.from('asset_nodes').select('id, name').eq('hive_id', HIVE_ID).order('name').limit(200),
-    logbook:             () => db.from('v_logbook_truth').select('id, machine, problem, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(50),
+    asset:               () => db.from('asset_nodes').select('id, name').eq('hive_id', HIVE_ID).order('name').order('id').limit(200),
+    logbook:             () => db.from('v_logbook_truth').select('id, machine, problem, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(50),
     // canonical-allow: project link picker needs individual completion rows; v_pm_compliance_truth aggregates only
-    pm_completion:       () => db.from('pm_completions').select('id, asset_id, completed_at').eq('hive_id', HIVE_ID).order('completed_at', { ascending: false }).limit(50),
-    inventory_item:      () => db.from('v_inventory_items_truth').select('id, part_name, part_number').eq('hive_id', HIVE_ID).order('part_name').limit(200),
-    engineering_calc:    () => db.from('engineering_calcs').select('id, calc_type, project_name, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(30),
-    marketplace_listing: () => db.from('v_marketplace_listings_truth').select('id, title').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).limit(30),
+    pm_completion:       () => db.from('pm_completions').select('id, asset_id, completed_at').eq('hive_id', HIVE_ID).order('completed_at', { ascending: false }).order('id').limit(50),
+    inventory_item:      () => db.from('v_inventory_items_truth').select('id, part_name, part_number').eq('hive_id', HIVE_ID).order('part_name').order('id').limit(200),
+    engineering_calc:    () => db.from('engineering_calcs').select('id, calc_type, project_name, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(30),
+    marketplace_listing: () => db.from('v_marketplace_listings_truth').select('id, title').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(30),
   };
   const fn = queries[t]; if (!fn) { $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = ''; return; }
   const { data, error } = await fn();

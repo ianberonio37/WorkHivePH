@@ -1148,6 +1148,7 @@ happens to know maintenance, not a manual.`;
         .eq('status', 'pending')
         .lte('due_at', new Date().toISOString())
         .order('due_at', { ascending: true })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(5);
       if (error || !Array.isArray(data) || !data.length) return;
 

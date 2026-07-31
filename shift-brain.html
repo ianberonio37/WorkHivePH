@@ -411,6 +411,7 @@
         .neq('status', 'archived')   // F15: an archived plan must not render as the active plan
         .order('shift_date', { ascending: false })
         .order('generated_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(1);
 
       if (error) {

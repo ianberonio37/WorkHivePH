@@ -467,6 +467,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('id,title,description,section,category,condition,price,location,seller_name,seller_contact,image_url,status,created_at')
         .eq('status', status)
         .order('created_at', { ascending: true })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(100);
       if (error) throw error;
       _listings = data || [];
@@ -486,6 +487,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .from('v_marketplace_sellers_truth')
         .select('id,worker_name,tier,kyb_verified,kyb_verified_at,cert_verified,cert_verified_at,certifications,total_sales,rating_avg,created_at,active_listings_count,is_verified_public,last_listed_at')
         .order('created_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(100);
       if (error) throw error;
       _sellers = data || [];
@@ -838,6 +840,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .from('marketplace_disputes')
         .select('id,order_id,listing_id,opened_by,seller_name,reason,status,seller_reply,seller_replied_at,admin_decision,resolved_at,created_at')
         .order('created_at', { ascending: true })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(100);
       if (error) throw error;
       _disputes = data || [];

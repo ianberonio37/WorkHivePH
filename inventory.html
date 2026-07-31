@@ -2006,7 +2006,7 @@ async function initData() {
         ? _hiveItemsQ.in('status', ['approved', 'pending', 'rejected'])
         : _hiveItemsQ.eq('status', 'approved')
       ).order('created_at').limit(2000),
-      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at').limit(2000)
+      db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at').order('id').limit(2000)
     ]);
     // canonical-allow: inventory's asset picker writes back asset_nodes
     // (LS-migration upserts below) and needs the exact column set ASSET_COLS
@@ -2014,8 +2014,8 @@ async function initData() {
     // breaks the existing _buildAssetNodeMaps() consumer
     assetsFetches = Promise.all([
       // L2: a hive's asset register is bounded-by-nature (config list); insurance cap
-      db.from('asset_nodes').select(ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').limit(2000),
-      db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).order('created_at').limit(2000)
+      db.from('asset_nodes').select(ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').order('id').limit(2000),
+      db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).order('created_at').order('id').limit(2000)
     ]);
   } else {
     itemsFetches  = Promise.resolve([{ data: null }, { data: null }]);
@@ -2023,13 +2023,13 @@ async function initData() {
   }
 
   const [itemsRes, txnsRes, assetsRes, [hiveItemsRes, myItemsRes], [hiveAssetsRes, myAssetsRes]] = await Promise.all([
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
     // Architect skill Query-First pattern: cap inventory_transactions to
     // the last 365 days, max 500 rows, newest-first. Workers very rarely
     // need older context. Detail modal slices per-item from this window.
-    db.from('v_inventory_transactions_truth').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500),
+    db.from('v_inventory_transactions_truth').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500),
     // canonical-allow: solo-mode asset list — same write-companion read as above, ASSET_COLS shape required
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at').limit(2000), // L2: solo asset register bounded-by-nature; insurance cap
+    HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at').order('id').limit(2000), // L2: solo asset register bounded-by-nature; insurance cap
     itemsFetches,
     assetsFetches
   ]);
@@ -2066,9 +2066,9 @@ async function initData() {
     localStorage.removeItem(INV_KEY);
     localStorage.removeItem(TXN_KEY);
     const [ir, tr] = await Promise.all([
-      db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
+      db.from('v_inventory_items_truth').select('*').eq('worker_name', WORKER_NAME).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap
       // Same window/cap as the primary fetch above — keep the two paths consistent.
-      db.from('v_inventory_transactions_truth').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).limit(500)
+      db.from('v_inventory_transactions_truth').select('*').eq('worker_name', WORKER_NAME).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500)
     ]);
     _items = ir.data || [];
     _txns  = tr.data || [];
@@ -2119,7 +2119,7 @@ async function initData() {
     localStorage.removeItem(ASSETS_KEY);
     // canonical-allow: post-upsert read-back to refresh the local cache after localStorage migration
     const { data: migA } = await db.from('asset_nodes').select(ASSET_COLS)
-      .eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at').limit(2000); // L2: solo asset register bounded-by-nature; insurance cap
+      .eq('worker_name', WORKER_NAME).is('hive_id', null).order('created_at').order('id').limit(2000); // L2: solo asset register bounded-by-nature; insurance cap
     _assets = migA || [];
   } else {
     _assets = mergedAssets;
