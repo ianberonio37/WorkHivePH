@@ -3641,3 +3641,56 @@ that word and reported clean on a definition that was carrying a key.
 
 **Outstanding and NOT mine: rotating the exposed production key**, and deciding what production's own triggers
 should do. Both are outward actions.
+
+## §16 · THE BOARD REACHES 100.0% — and the thin end is closed by examination, not inflation
+
+| board | before this session | after |
+|---|---:|---:|
+| journeys | 99.4% | **100.0%** |
+| per phase | W 97.2% | **W 100%** (G/O/H/R already 100) |
+| **OVERALL** | 99.6% | **100.0%** |
+| transition | 301/302 | **305/306** |
+| SQL lane | 183 | **187 / 187 pass** |
+| mutation | 133/133 | **133/133** |
+
+### §16.1 · Two journeys were declaring what they had not walked
+
+`SJ-J11-expire` and `SJ-J12-dispute` had phases marked done while `walked` held one state and zero personas,
+and nothing at all, respectively. The board derives W from **evidence**, not the declaration, so it read them
+PARTIAL and TODO — the "a walked cell is not a banked cell" rule catching a self-report.
+
+Both walks found what the declaration hid:
+
+- **J11** drives the product's own `sweep_service_broadcasts()` instead of setting `status='expired'` by hand.
+  Surfaced three contract facts: both truth views are `auth.uid()`-scoped (a no-JWT probe reads 0 and looks
+  exactly like "the hail is missing" — the first run reported 0/0 and I nearly believed it); the provider feed
+  resolves through `my_service_provider_ids()`, so the persona needs a provider PROFILE; and the sweep is
+  REFUSED from a user identity, because expiry is the platform's decision and never a party's.
+- **J12** reported **three spectacular security findings on its first run** — a forged dispute accepted, a
+  stranger reading it, a stranger still reading it after resolution. All three were the INSTRUMENT: `postgres`
+  owns the table and bypasses RLS. The sibling probes get away with claims alone because they assert TRIGGER
+  behaviour, and triggers DO fire for the owner. `set local role authenticated` flipped every one to correct.
+
+### §16.2 · The thin layers — examined, and only two needed a cell
+
+The layer board counts a layer covered at ≥1 cell and **discloses that rule**, so thinness is a prompt to
+check rather than a number to inflate. Each was checked against the registered gates first:
+
+- **S9-knowledge 1 → 2.** The existing cell proved knowledge is WRITTEN; nothing proved it is FINDABLE — the
+  gap the auto-embed arc measured at 14%. The new cell asserts retrievable + one vector space + no duplicates
+  + tenant-scoped, with a non-vacuity check that the corpus spans multiple hives.
+- **S7-ai 2 → 3, with a migration.** Both existing cells graded the ANSWER; neither graded the ACT. Probing
+  showed a knowledge row could claim **either** authorship — an `ai_*` source with no model, or a `manual` row
+  wearing an AI badge. `20260731000006` pairs them as an equivalence in both directions.
+- **S2-pwa stays at 2, thin BY DESIGN.** Eight gates own it statically and platform-wide, and
+  `offline-write-guard` was itself BORN from building the S2 bank cell then generalised to all 17 writes
+  across both service pages. The bank found the class; the gate owns the sweep.
+
+### §16.3 · What remains
+
+**One obligation, and it is Ian's:** `TB-A345` — its A3 reduces to the **D9 knobs**, configuration values only
+Ian can set. Owed with evidence, never banked as a weak green.
+
+**Outward, unchanged:** the push, the prod deploy of the LOCAL-only security migrations (now seven), where the
+already-built embedder container runs for production users, and rotating the exposed production service-role
+key.
