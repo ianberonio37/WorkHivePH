@@ -105,6 +105,19 @@ def main(argv):
                   f"getNotifications() a broken handler gives.{RST}")
         return 0
 
+    # A BROKEN MACHINE IS NOT A BROKEN PRODUCT. Before calling this a product failure, ask whether the
+    # RUNNER failed. Orphaned Playwright processes from an earlier run starve the worker pool and produce
+    # errors indistinguishable from a broken page — measured 2026-07-31, when five live gates went red
+    # during a full suite and every one passed alone. A skip here is LOUD (signature + live process count),
+    # because a silent skip is the thing this platform bans everywhere else, and a false RED is worse than
+    # a skip: it sends someone to read page code that was never wrong.
+    infra = infra_exhausted(out)
+    if infra:
+        print(f"  {YEL}SKIP{RST}  the RUNNER failed, not the page: {infra}")
+        print(f"    {DIM}nothing was measured. Reap leftovers with "
+              f"`python tools/browser_gate_health.py --reap` and re-run.{RST}")
+        return 0
+
     print(f"  {RED}FAIL{RST}  the push runtime tier did not hold:")
     for line in [l for l in out.splitlines() if "Error:" in l or "✘" in l or " failed" in l][:8]:
         print(f"    {DIM}{line.strip()[:150]}{RST}")

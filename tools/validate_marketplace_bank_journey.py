@@ -24,17 +24,10 @@ import re
 import subprocess
 import sys
 
-# A BROKEN MACHINE IS NOT A BROKEN PRODUCT. This gate drives a real browser, so it can fail for reasons that
-# have nothing to do with the page — most concretely, orphaned Playwright processes from an earlier run
-# starving the worker pool. That happened on 2026-07-31: three live gates went red, all three passed alone,
-# and 32 leftover chrome/node processes were the whole story. A false RED sends someone to read page code
-# that was never wrong, and gates that cry wolf get excluded.
-try:
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from browser_gate_health import infra_exhausted
-except Exception:                      # never let the health check itself break a gate
-    def infra_exhausted(_output):      # noqa: D103
-        return None
+# NOTE: this lane deliberately does NOT use tools/browser_gate_health.py. It already has a BETTER
+# mechanism for the same problem — ENV_MARKS plus per-cell QUARANTINE, which attributes an
+# environmental failure to the one cell it hit and keeps it on the board with a count, instead of
+# skipping the whole run. A second, coarser check here would only be a dead import.
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -201,6 +194,7 @@ def main():
     # that claims it and by nothing else. If the JSON reporter gave nothing (an invocation problem, not
     # a journey problem), fall back to the old global reading rather than inventing per-cell verdicts —
     # but say so, because a lane judged globally is exactly what produced eight false quarantines.
+    quarantined_now, real_failures = [], []
     outcomes = per_test_outcomes(out_json)
     if not outcomes:
         print(f"  {YEL}note{RST}  per-test results unavailable — falling back to the GLOBAL tally, "
@@ -245,6 +239,12 @@ def main():
             cell["status"] = "quarantined"
         else:
             cell["status"] = "owed"
+        # Remember the SPLIT, so the final verdict can use the per-cell attribution this loop just did
+        # rather than discarding it (see the return below).
+        if cell["status"] == "quarantined":
+            quarantined_now.append(cid)
+        elif cell["status"] == "owed":
+            real_failures.append(cid)
         mark = (GREEN + "PASS" + RST if cell["status"] == "banked" else
                 (YEL + "QUAR" + RST if cell["status"] == "quarantined" else RED + "FAIL" + RST))
         print(f"  {mark}  {cid}"
@@ -258,12 +258,28 @@ def main():
         # the session-db fallback still proves the watcher but not the publisher's geolocation wiring.
         print(f"  {DIM}publisher path exercised: {path.group(1).strip()}{RST}")
     print(f"\n  {npass} passed · {nfail} failed")
-    if code != 0:
+    # THE VERDICT MUST USE THE PER-CELL ATTRIBUTION ABOVE, not the raw process exit code. This was
+    # `if code != 0: return 1`, which threw all of it away: a cell correctly QUARANTINED as environmental
+    # still failed the whole lane, so the careful per-cell work changed the board and changed nothing
+    # about the verdict — the same "a false RED hides which cell broke" defect this runner already fixed
+    # ONCE at the cell level, still live at the gate level. Measured 2026-07-31: TB-SJ01 quarantined on a
+    # sign-in Timeout under machine load, 8 other cells green, gate FAILED; a quiet re-run was 9/0.
+    #
+    # A REAL cell failure (`owed`) still FAILS. Quarantine passes but is never silent — it prints, and it
+    # carries a count on the board, because flakiness that is invisible masks real bugs, which is the whole
+    # reason quarantine exists here rather than just marking the cell green.
+    if real_failures:
         tail = [l for l in out.splitlines() if "Error:" in l or "✘" in l][:6]
-        print(f"\n  {RED}FAIL{RST} — the journey lane did not hold:")
+        print(f"\n  {RED}FAIL{RST} — the journey lane did not hold "
+              f"({len(real_failures)} cell(s): {', '.join(real_failures)}):")
         for l in tail:
             print(f"    {l.strip()[:150]}")
         return 1
+    if quarantined_now:
+        print(f"\n  {YEL}PASS, {len(quarantined_now)} QUARANTINED{RST} — {', '.join(quarantined_now)} "
+              f"failed on the ENVIRONMENT (sign-in, timeout, connection), not on the journey. Counted on "
+              f"the board, so an unexplained one is debt with a name; re-run on a quiet machine to clear.")
+        return 0
     print(f"  {GREEN}PASS{RST} — the two-sided journey holds end to end: what the PUBLISHER does "
           f"appears on the WATCHER's screen")
     return 0

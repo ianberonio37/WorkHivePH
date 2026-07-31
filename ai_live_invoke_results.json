@@ -83,19 +83,19 @@
     },
     "H1/F": {
       "live": true,
-      "evidence": "companion faithfulness LIVE (anti-fabrication rail): 2 unknowable-specific probes \u2192 0 fabricated currency/date values (hard no-invent invariant held), 2/2 explicitly abstained \u2014 deterministic control fires end-to-end (probabilistic slip = the named \u00a75 residual)"
+      "evidence": "companion faithfulness LIVE (anti-fabrication rail): 3 unknowable-specific probes \u2192 0 fabricated currency/date values (hard no-invent invariant held), 1/3 explicitly abstained \u2014 deterministic control fires end-to-end (probabilistic slip = the named \u00a75 residual)"
     },
     "H1/M": {
-      "live": false,
-      "evidence": "ai-gateway recall probe unavailable (t1=None t2=skip) \u2014 env/transport"
+      "live": true,
+      "evidence": "multi-turn recall LIVE: turn-2 recalled the turn-1 fact ('impeller'/'north line') from (worker,agent) memory \u00b7 ans=73ch"
     },
     "H9/F": {
       "live": true,
-      "evidence": "asset-brain-query RAG faithfulness LIVE: nonexistent-asset query \u2192 abstained + 0 fabricated currency/date values (never-invent invariant held) \u00b7 ans=176ch"
+      "evidence": "asset-brain-query RAG faithfulness LIVE: nonexistent-asset query \u2192 abstained + 0 fabricated currency/date values (never-invent invariant held) \u00b7 ans=167ch"
     },
     "H10/F": {
-      "live": true,
-      "evidence": "temporal-rag faithfulness LIVE: unknowable time-window query \u2192 abstained + 0 fabricated currency/date values \u00b7 ans=288ch"
+      "live": false,
+      "evidence": "temporal-rag-orchestrator AI rate-limit \u2014 re-run after reset"
     },
     "H8/F": {
       "live": false,
@@ -127,7 +127,7 @@
     },
     "H2/F": {
       "live": false,
-      "evidence": "ai-orchestrator unavailable (HTTP None) \u2014 env/transport"
+      "evidence": "ai-orchestrator fabrication residual (re-runnable slip)"
     }
   },
   "partial": false
