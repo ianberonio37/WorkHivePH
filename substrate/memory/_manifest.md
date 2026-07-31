@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:630-files
-source_sha: 05802ed8a6599d0f
+source: memory-curated:631-files
+source_sha: 2deffa5071632120
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (630 durable topic files)
+## memory · curated auto-memory (631 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=252 · project=289 · reference=89
+**By type:** feedback=253 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -58,6 +58,7 @@ Entries (name · type · sha):
 - `feedback_build_own_minimal_dependencies` · feedback · b2c31fd6d026718a
 - `feedback_build_structure_to_make_it_liveable` · feedback · 57d882251cd6bba3
 - `feedback_built_but_never_called_and_excluded_errors` · feedback · 86358f5c9815c153
+- `feedback_calling_it_by_hand_is_not_verifying_the_wiring` · feedback · b24edb1ac1005ae0
 - `feedback_canonical_audit_reflex` · feedback · d9fee199f5963282
 - `feedback_canonical_view_reachability` · feedback · 15168eef96b382a8
 - `feedback_catalog_tables` · feedback · 4c50b33390fe8e49
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_seo_closed_loop` · project · 569f9007ad770ff4
 - `project_seo_indexnow_bing_launch_state` · project · adf90e1026ca4670
 - `project_service_hailing_arc` · project · 0a4f503d58cf371f
-- `project_session_handoff_2026_05_18` · project · 90fc780ca92a90b9
-- … +130 more (all included in the fingerprint)
+- … +131 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

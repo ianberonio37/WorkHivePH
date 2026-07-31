@@ -187,10 +187,20 @@
 
 <!-- Auth gate -->
 <div id="auth-gate" role="alert">
-  <span class="ic ic-bell" aria-hidden="true"></span>
+  <!-- ic-secure (🔒), not ic-bell (🔔): a BELL means "notifications". This screen is a lock, and the
+       icon is the first thing read on it — it was saying the opposite of what the screen is for.
+       (First draft of this fix used `ic-lock`, which does not exist in wh-icons.css and would have
+       rendered nothing at all — the icon must be one the library actually defines.) -->
+  <span class="ic ic-secure" aria-hidden="true"></span>
   <h2>Sign In Required</h2>
   <p>You need to be signed in to view your seller dashboard.</p>
-  <a href="index.html">Sign In</a>
+  <!-- `?signin=1` OPENS the sign-in modal. Without it this dropped a provider on the marketing
+       homepage with no form open, leaving them to hunt for sign-in after clicking a button labelled
+       "Sign In" — measured on a live walk 2026-08-01. -->
+  <a href="index.html?signin=1">Sign In</a>
+  <!-- ...and a way OUT. This screen had exactly one link, so a signed-out visitor who did not want to
+       sign in had nowhere to go but the back button. -->
+  <a href="marketplace.html" style="display:block;margin-top:0.75rem;font-size:0.85rem;opacity:0.75;">Browse the marketplace instead</a>
 </div>
 
 <div id="toast" role="alert" aria-live="polite"></div>
@@ -1869,6 +1879,7 @@
 
     window.loadMoreSeller = () => { _sellerDisplayCount += 30; renderListings(); };
 
+
     document.getElementById('overlay-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
     document.getElementById('btn-close-edit')?.addEventListener('click', () => { document.getElementById('overlay-edit')?.classList.remove('open'); document.getElementById('sheet-edit')?.classList.remove('open'); document.body.style.overflow = ''; });
     // a11y (deep-walk dim 8, 2026-07-06): Escape closes the edit sheet (it had role/aria but no Escape).
@@ -1903,6 +1914,33 @@
     } catch (_) { /* empty-catch-allow: best-effort filter restore */ }
   });
 
+})();
+</script>
+<script>
+/* A CLOSED SHEET MUST BE CLOSED TO THE KEYBOARD TOO — AND ESPECIALLY TO A STRANGER.
+   The edit sheet is hidden with opacity:0, which hides it from SIGHTED users and from nobody else: its
+   7 fields (title, category, condition, description, price, location, contact) plus Save Changes stayed
+   in the tab order and the accessibility tree. `visibility:hidden` would remove them, but a child that
+   sets `visibility:visible` overrides its hidden parent — and these do; `opacity` never removes anything.
+   Measured on a live walk 2026-08-01 by asking whether focus would LAND on #edit-title. It did.
+
+   THIS RUNS OUTSIDE THE AUTH-GATED INIT, deliberately. The first version of this fix lived inside the
+   signed-in bootstrap, so it protected the dashboard and left the "Sign In Required" screen — the one a
+   STRANGER sees — still tabbable into a seller's edit form. The wrong half was covered.
+
+   `inert` is the single thing that removes a subtree from focus, the a11y tree and pointer events at once.
+   Synced from the `.open` class by observer rather than at each of the four toggle sites, so a fifth
+   toggle added later cannot quietly reopen the hole. */
+(function keepClosedSheetInert() {
+  var apply = function () {
+    var sheet = document.getElementById('sheet-edit');
+    if (!sheet) return;
+    var sync = function () { sheet.toggleAttribute('inert', !sheet.classList.contains('open')); };
+    sync();
+    new MutationObserver(sync).observe(sheet, { attributes: true, attributeFilter: ['class'] });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+  else apply();
 })();
 </script>
 <script src="nav-hub.js"></script>
