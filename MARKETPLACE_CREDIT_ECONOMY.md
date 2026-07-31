@@ -122,3 +122,52 @@ the posture changes entirely — so they must not.
 3. A **min-balance predicate** on publish (the listing guard exists; it needs the balance check).
 4. A **unit-economics probe**: given N completions at price P, assert net take == 4%, and that cashback can
    NEVER mint without a verified completion — the refusal-plus-non-vacuity shape the bank uses everywhere.
+
+---
+
+## §8 · Custody — deliberately deferred, and the number that should reopen it
+
+> **Ian, 2026-07-31:** *"when the consumer user pays, they pay into my GCash, then I send the payment less
+> the commission to the provider within 24 hours."*
+
+The instinct is right about the thing that matters: **netting beats collecting.** A commission you subtract
+from money already in your hands is collected 100% of the time; one you must ask a provider to pre-fund is
+not. Marketplace leakage runs up to ~18% of transactions, and custody is the standard answer.
+
+**It was declined on arithmetic, not principle.** Under custody every peso of GMV crosses a personal GCash
+wallet, and a fully-verified personal wallet accepts **₱100,000 incoming per month**:
+
+| | through the wallet | cap binds at | at ₱25,000/job | net revenue |
+|---|---|---|---|---|
+| **custody** | 100% of GMV | ₱100,000 GMV/mo | **~4 jobs/mo** | ~₱4,000/mo |
+| **fee-only** (today) | ~5% of GMV | **₱2,000,000 GMV/mo** | ~80 jobs/mo | ~₱80,000/mo |
+
+The multiplier is exactly `1 ÷ commission_pct` = **20×**. Custody would also make the founder an *Operator of
+Payment System* under [RA 11127](https://www.bsp.gov.ph/PaymentAndSettlement/FAQ_OPS_Registration.pdf) —
+which covers anyone providing *"clearing or settlement services"* — requiring the BSP registration D6 says is
+not feasible yet, plus a 24-hour remittance funded personally before the money is irreversibly the platform's.
+
+**What was built instead: confirm-to-release.** Money keeps moving consumer→provider directly; the platform
+records it (`service_payments`, immutable), the **buyer confirms**, and only then does commission net from
+the provider's prepaid wallet and cashback mint. This **upholds D13** ("payments stay OUTSIDE the platform,
+record-only") rather than reversing it — it builds the record layer D13 always implied. It also produced the
+proof-of-sale the tier ladder needed, which is how the self-mint in §8 of the sustainability study got closed.
+
+### The landing pad, and when to use it
+
+`marketplace_orders` already carries the full escrow state machine — `pending_payment → escrow_hold →
+buyer_confirmed → released | refunded | disputed`, with `escrow_release_at` / `buyer_confirmed_at` /
+`released_at`, policed by `guard_marketplace_order_status`. It has **0 rows**: a Stripe-era shape left
+standing. Custody is therefore a **knob, not a rebuild**.
+
+**The number that should reopen this: ~₱500k–1M GMV/month.** Below that, recovered leakage at 4% is smaller
+than the compliance cost (BSP OPS registration + GCash for Business + BIR). Above it, custody starts paying
+for itself — and the ₱100,000 personal-wallet ceiling will have been the binding constraint long before, so
+the wallet upgrade comes first regardless.
+
+**What custody would still need, none of which exists today and none of which is an accident:**
+`escrow_in` / `payout` entry types on `service_credit_ledger` (the CHECK currently allows only topup,
+commission, voucher_grant, voucher_reimburse, adjustment, cashback), a `platform` account type (the CHECK
+allows only provider and consumer), a payout queue with a 24-hour SLA clock, and reconciliation against the
+wallet statement. The ledger deliberately has **no representation for money the platform holds**, because the
+platform holds none.

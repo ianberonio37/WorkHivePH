@@ -1,22 +1,23 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:626-files
-source_sha: 9ab0a93f694d5bb9
+source: memory-curated:628-files
+source_sha: a670254d8e4cbbf2
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (626 durable topic files)
+## memory · curated auto-memory (628 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=248 · project=289 · reference=89
+**By type:** feedback=250 · project=289 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
 
 Entries (name · type · sha):
 - `drawing_standards_skill` · reference · 16ac90968a9af898
+- `feedback_a_config_change_froze_the_marketplace` · feedback · c121cc5285824442
 - `feedback_a_dead_fixture_invents_page_defects` · feedback · 4132e64aeb98e099
 - `feedback_a_false_red_hides_which_cell_broke` · feedback · 38921d8dbd6c2b2f
 - `feedback_a_gate_reddened_because_the_code_improved` · feedback · 7e92f10d3882b6f5
@@ -240,6 +241,7 @@ Entries (name · type · sha):
 - `feedback_the_check_and_the_action_read_different_rows` · feedback · 7d1ea2b813e416ad
 - `feedback_the_prose_was_stale_the_registry_was_right` · feedback · c4430f86125103dc
 - `feedback_the_repair_crossed_the_tenant_boundary` · feedback · 9001a87e34f5c5d1
+- `feedback_the_teeth_test_that_never_fired` · feedback · 6fd2f80923ab955d
 - `feedback_trace_the_curve_dont_approximate_with_springs` · feedback · 2e395296070f4863
 - `feedback_trust_signal_needs_a_living_producer` · feedback · 9992a30b60bb2887
 - `feedback_two_sided_journeys_need_a_role_pair` · feedback · 22e876fa1f71967e
@@ -514,8 +516,6 @@ Entries (name · type · sha):
 - `project_session_handoff_2026_05_18` · project · 90fc780ca92a90b9
 - `project_session_handoff_2026_05_19` · project · 4b64fb8e6350f49c
 - `project_silo_monitor` · project · 90e04219d4cd8f22
-- `project_social_auto_publisher` · project · ccd39a73c47faf91
-- `project_streamline_arc_complete_2026_06_13` · project · e72febc7a4358311
-- … +126 more (all included in the fingerprint)
+- … +128 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

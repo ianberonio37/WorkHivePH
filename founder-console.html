@@ -1012,6 +1012,25 @@
             <div class="panel-body"><div id="svc-topups-content"></div></div>
           </section>
 
+          <!-- capture: credit_economy_health_v1 -->
+          <!-- MARKETPLACE_CREDIT_SUSTAINABILITY §5, shipped BEFORE real money moves, deliberately: "a
+               number you cannot see is a number you cannot manage", and §4.5 names spending the float the
+               most dangerous failure mode precisely BECAUSE it is invisible until it is fatal. The four
+               numbers are all derivable from service_credit_ledger today. LIABILITY COVER is the one that
+               matters: it says whether every credit could be honoured if they were all spent tomorrow -
+               the difference between a float and a hole. -->
+          <section class="panel" id="credit-economy-health">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-credit-economy"></span>
+              <div style="flex:1">
+                <h2>Credit economy health</h2>
+                <div class="panel-sub">Credits outstanding are services owed, not profit</div>
+              </div>
+              <span class="updated" id="credit-economy-updated">-</span>
+            </div>
+            <div class="panel-body"><div id="credit-economy-content"></div></div>
+          </section>
+
           <!-- capture: service_voucher_v1 -->
           <!-- J16 · voucher MINT (SERVICE_HAILING_ROADMAP.md P6b, §3 D-J). Redemption shipped
                first and vouchers were seeded, so the founder could not actually START a campaign
@@ -1890,6 +1909,68 @@
        trigger (guard_service_topup_status, admin branch) mints the ledger credits;
        Reject leaves the money question to a direct conversation. Self-contained
        fetch+render, mirrors the moderation-queue idiom. */
+    // MARKETPLACE_CREDIT_SUSTAINABILITY §5 — the four numbers, shipped BEFORE real money moves.
+    // Computed from the ledger, which is the only source of truth for a balance; nothing is read from a
+    // cached profile column, because this platform has already been bitten by trust numbers standing on
+    // nothing. Liability cover is the headline: credits outstanding are SERVICES OWED, and treating the
+    // float as profit is the failure mode the study calls invisible until it is fatal.
+    async function loadCreditEconomy() {
+      const box = document.getElementById('credit-economy-content');
+      if (!box) return;
+      try {
+        const { data: rows, error } = await db.from('service_credit_ledger')
+          .select('entry_type, amount, account_type, account_id');
+        if (error) throw error;
+        const sum = t => (rows || []).filter(r => r.entry_type === t)
+                                     .reduce((a, r) => a + Number(r.amount || 0), 0);
+        const topups = sum('topup'), earned = -sum('commission');
+        const cashback = sum('cashback'), vouchers = sum('voucher_grant');
+        const liability = topups + cashback + vouchers - earned;
+        // Cover asks: if every credit were spent tomorrow, is it backed? Cash in is what providers
+        // actually paid; there is no external cash figure here by design, because the platform holds
+        // no third-party money (see MARKETPLACE_CREDIT_ECONOMY §8).
+        const cover = liability > 0 ? (topups + earned) / liability : null;
+        const peso = n => '₱' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
+        setRagDot('rag-credit-economy',
+          cover === null ? 'green' : (cover >= 1 ? 'green' : (cover >= 0.8 ? 'amber' : 'red')));
+        const upd = document.getElementById('credit-economy-updated');
+        if (upd) upd.textContent = liability > 0 ? 'Live from the ledger' : 'No money moved yet';
+        const e = escHtml;
+        // Reuses the page's OWN stat idiom (hero-stats / stat / n / l / sub) rather than inventing
+        // kpi-* classes that exist nowhere — a repeated defect is one unadopted component, and the
+        // CSS-existence gate would have caught the invention anyway.
+        box.innerHTML =
+          '<div class="hero-stats">'
+          + '<div class="stat"><span><span class="n">' + e(peso(earned)) + '</span></span>'
+          + '<span class="l">Earned revenue</span>'
+          + '<span class="sub">commission on settled jobs</span></div>'
+          + '<div class="stat"><span><span class="n">' + e(peso(liability)) + '</span></span>'
+          + '<span class="l">Credit liability</span>'
+          + '<span class="sub">services owed, not profit</span></div>'
+          + '<div class="stat"><span><span class="n">'
+          + e(cover === null ? '-' : cover.toFixed(2) + 'x') + '</span></span>'
+          + '<span class="l">Liability cover</span>'
+          + '<span class="sub">keep at or above 1.00</span></div>'
+          + '<div class="stat"><span><span class="n">' + e(peso(cashback)) + '</span></span>'
+          + '<span class="l">Cashback minted</span>'
+          + '<span class="sub">a discount on a future job</span></div>'
+          + '</div>'
+          + (vouchers > earned
+              ? '<div class="honest-empty">Vouchers granted (' + e(peso(vouchers)) + ') exceed everything '
+                + 'earned. Vouchers are the only credits backed by nothing.</div>'
+              : '')
+          + (liability <= 0
+              ? '<div class="honest-empty">No credits are outstanding yet. These figures start moving on '
+                + 'the first verified top-up.</div>'
+              : '');
+      } catch (err) {
+        console.error('credit economy panel', err);
+        setRagDot('rag-credit-economy', 'red');
+        box.innerHTML = '<div class="honest-empty">Could not read the ledger. '
+          + escHtml(err.message || String(err)) + '</div>';
+      }
+    }
+
     async function loadSvcTopups() {
       const box = document.getElementById('svc-topups-content');
       if (!box) return;
@@ -1929,6 +2010,7 @@
       if (!data || !data.length) { showToast('No change saved. Are you signed in as the platform admin?'); return; }
       showToast(verify ? 'Verified. Credits minted to the provider\'s wallet.' : 'Rejected. No credits were minted.');
       loadSvcTopups();
+      loadCreditEconomy();
     }
     window.svcTopupDecide = svcTopupDecide;
 

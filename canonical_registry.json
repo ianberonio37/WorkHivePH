@@ -8897,6 +8897,14 @@
       "security_definer": true,
       "defined_in": "20260731000017_a_sale_needs_a_counterparty.sql",
       "comment": "A marketplace_listings transition to `sold` must name the inquiry it sold through, and that inquiry must belong to THAT listing (else one inquiry could \"sell\" every listing a seller owns). Closes a live tier self-mint: the ladder counted COUNT(*) WHERE status=sold on listings the seller marks themselves, so gold was 51 clicks. Paired with recompute_seller_sales_and_tier now counting DISTINCT buyers."
+    },
+    "guard_voucher_within_budget": {
+      "args": "",
+      "called_by_edge_fns": [],
+      "called_by_surfaces": [],
+      "security_definer": true,
+      "defined_in": "20260731000021_voucher_budget_cap.sql",
+      "comment": "Refuses a voucher_grant that would push total vouchers past total commission EARNED. Vouchers are the only credits backed by nothing, so the platform own earnings are the budget. The solvency gate DETECTS over-granting after the fact; this PREVENTS it, because unlike an understated price it is entirely the platform own decision and needs no human judgement. A trigger rather than a CHECK because the rule is about the SUM of a column across the table, which a row-level CHECK cannot see."
     }
   },
   "surfaces": {
