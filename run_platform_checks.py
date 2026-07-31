@@ -478,6 +478,14 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        "id":      "credit-solvency",
+        "script":  "tools/validate_credit_solvency.py",
+        "args":    [],
+        "label":   "CREDIT SOLVENCY - are the credits given away backed by anything? MARKETPLACE_CREDIT_SUSTAINABILITY §5 named liability cover the number that matters, and §4.5 named spending the float the most dangerous failure mode BECAUSE IT IS INVISIBLE UNTIL IT IS FATAL. Credits enter three ways and they are NOT equal: topup is backed by CASH (a provider paid GCash), cashback is backed by REVENUE (funded out of commission, and the hive_service_settings CHECK already refuses cashback_pct > commission_pct + listing_fee_pct so it cannot outrun the take per transaction), and voucher_grant is backed by NOTHING - platform-funded acquisition minted from thin air. Vouchers are therefore the LIVE GAP: nothing currently bounds them, and a generous promo is indistinguishable from an accident until the float is gone. The invariant held here is `unbacked credits (vouchers) <= credits actually EARNED (commission)` - if the platform has given away more than it has ever earned, it is funding acquisition out of other people's prepayments, which works right up until they spend them. ALSO ASSERTED: a negative CONSUMER balance is impossible by construction (consumers only receive cashback and spend it), so one appearing means credits were spent that were never minted; a negative PROVIDER balance is expected and fine, since commission is debited on completion and min_list_balance is what keeps wallets funded. The arithmetic is a pure function so the self-test proves it catches over-granting and negative consumer balances and passes a healthy ledger WITHOUT needing the real ledger in any particular state - and an empty ledger PASSES vacuously while saying so, rather than reporting a false green. Reads service_credit_ledger via docker exec psql; skips when the DB is down.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
         "id":      "d9-knob-integrity",
         "script":  "tools/validate_d9_knob_integrity.py",
         "args":    [],
