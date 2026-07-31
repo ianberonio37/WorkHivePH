@@ -7180,5 +7180,11 @@
       "data-governance-kb",
       "ai-companion-knowledge-graph"
     ]
+  },
+  "_thin_layer_disposition": {
+    "_doc": "Why the three THIN layers (<=3 bank cells) are thin, examined 2026-07-31 rather than assumed. The layer board counts a layer covered at >=1 cell and DISCLOSES that rule, so a thin layer is a prompt to check, not a number to inflate. Each was checked against the registered gates first, per the method constraint: a known adjacent must not be re-implemented worse.",
+    "S9-knowledge": "2 cells. Was 1. The second (TB-S9-knowledge-retrievable-and-scoped) was ADDED this session because the existing cell proved knowledge is WRITTEN and nothing proved it is FINDABLE - a gap the auto-embed arc measured at 14%. Now asserts retrievable + one vector space + no duplicates + tenant-scoped.",
+    "S7-ai": "3 cells. Was 2. Both existing cells graded the ANSWER (a triage eval, MR5 paraphrase invariance); neither graded the ACT. TB-S7-ai-write-accountability was ADDED with migration 20260731000006 after probing showed a knowledge row could claim either authorship - an ai_* source with no model, or a manual row wearing an AI badge.",
+    "S2-pwa": "2 cells, and thin BY DESIGN - examined and left. Eight registered gates own this layer statically and platform-wide: sw-shell-membership (every shell page exists on disk), offline-write-guard (a user-triggered write REFUSES before it fires), offline-resilience (snapshot caching + response queue), sw-offline (4-layer coverage), pwa (integrity), plus the deep-walk flywheel. offline-write-guard was itself BORN from building the S2 bank cell on 2026-07-29 and then generalised to all 17 writes across both service pages - the bank found the class, the gate owns the sweep. A third bank cell would re-implement a static platform-wide sweep worse, which is the same reasoning that keeps U1/U2/U5-U7 with the live UFAI walk rather than in the bank."
   }
 }
