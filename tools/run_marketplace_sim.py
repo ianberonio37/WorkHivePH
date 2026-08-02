@@ -176,6 +176,10 @@ BROWSER_COVERED = {
     # that is where a persona failure costs pesos rather than a re-render. Paired, not multiplied.
     "MS-PERSONA-filipino", "MS-PERSONA-tremor", "MS-PERSONA-onehanded", "MS-PERSONA-screenreader",
     "MS-PERSONA-impulsive", "MS-PERSONA-older", "MS-PERSONA-sunlight", "MS-PERSONA-datacap",
+    # tests/marketplace-sim-founder.spec.ts — the only screen where a click mints money, pressed through
+    # the console's own handler. No clearing house sits behind it: the button IS the control.
+    "MS-ADMIN-topup-verify-mints-once", "MS-ADMIN-topup-reject-mints-nothing",
+    "MS-ADMIN-money-tile-cover-rag", "MS-MONEY-topup-verify-mints",
 }
 
 

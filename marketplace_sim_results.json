@@ -29,6 +29,7 @@
     "MS-STATE-expired-wrong-role",
     "MS-MONEY-double-tap-release",
     "MS-MONEY-second-payment-refused",
+    "MS-MONEY-topup-verify-mints",
     "MS-MONEY-settle-cta-reachable",
     "MS-MONEY-settle-form-asks-amount",
     "MS-MONEY-settle-empty-amount-named",
@@ -69,7 +70,10 @@
     "MS-MAP-presence-counts-are-real",
     "MS-MAP-presence-silent-when-empty",
     "MS-ADMIN-topup-queue-lists-pendings",
-    "MS-ADMIN-money-tile-four-numbers"
+    "MS-ADMIN-topup-verify-mints-once",
+    "MS-ADMIN-topup-reject-mints-nothing",
+    "MS-ADMIN-money-tile-four-numbers",
+    "MS-ADMIN-money-tile-cover-rag"
   ],
   "needs_browser": [
     "MS-D5-ui-hail-carries-geo",
@@ -81,7 +85,6 @@
     "MS-STATE-disputed",
     "MS-STATE-disputed-wrong-role",
     "MS-MONEY-dispute-reverses-both",
-    "MS-MONEY-topup-verify-mints",
     "MS-PERSONA-lowend",
     "MS-PERSONA-unbanked",
     "MS-PERSONA-haggler",
@@ -104,10 +107,7 @@
     "MS-ACCEPT-RACE-LOSER-TOLD",
     "MS-MAP-map-pin-adjustable",
     "MS-MAP-radius-widens-over-rounds",
-    "MS-ADMIN-topup-verify-mints-once",
-    "MS-ADMIN-topup-reject-mints-nothing",
-    "MS-ADMIN-topup-self-verify-refused",
-    "MS-ADMIN-money-tile-cover-rag"
+    "MS-ADMIN-topup-self-verify-refused"
   ],
   "needs_manual": [
     "MS-PERSONA-lowliteracy",
