@@ -10232,10 +10232,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-self-deal — a provider cannot accept their own request",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-FRAUD-tier-self-mint",
@@ -10348,10 +10347,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-self-verified-topup — nobody may verify their own GCash top-up",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-FRAUD-knob-self-service",
@@ -10443,10 +10441,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-cross-hive-read — a hive cannot read another hive's requests or ledger",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-BROWSE-ANON-SEES-LISTINGS",

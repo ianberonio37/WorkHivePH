@@ -146,6 +146,9 @@ BROWSER_COVERED = {
     "MS-MAP-map-not-loaded-until-asked", "MS-MAP-map-pin-sets-location", "MS-MAP-map-pin-optional",
     "MS-MAP-presence-counts-are-real", "MS-MAP-presence-silent-when-empty",
     "MS-ADMIN-topup-queue-lists-pendings", "MS-ADMIN-money-tile-four-numbers",
+    # tests/marketplace-sim-fraud.spec.ts — attacks run as a REAL signed-in user, never as the owner
+    "MS-FRAUD-ledger-self-mint", "MS-FRAUD-self-deal", "MS-FRAUD-self-verified-topup",
+    "MS-FRAUD-knob-self-service", "MS-FRAUD-cross-hive-read",
 }
 
 
