@@ -137,6 +137,11 @@ BROWSER_COVERED = {
     # tests/marketplace-sim-personas.spec.ts
     "MS-PERSONA-colorblind", "MS-PERSONA-lowvis", "MS-PERSONA-gloved", "MS-PERSONA-slownet",
     "MS-PERSONA-battery", "MS-PERSONA-night", "MS-PERSONA-flaky", "MS-PERSONA-scamwary",
+    # tests/marketplace-sim-lifecycle.spec.ts — two contexts, the state machine's owner AND non-owner
+    "MS-STATE-requested", "MS-STATE-broadcasting", "MS-STATE-cancelled-by-client",
+    "MS-STATE-accepted-wrong-role", "MS-STATE-en-route-wrong-role", "MS-STATE-on-site-wrong-role",
+    "MS-STATE-in-progress-wrong-role", "MS-STATE-completed-wrong-role", "MS-STATE-settled-wrong-role",
+    "MS-STATE-expired-wrong-role",
 }
 
 

@@ -8840,10 +8840,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-requested — the job reaches 'requested' and BOTH parties' screens agree on it",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-STATE-requested-wrong-role",
@@ -8888,10 +8887,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-broadcasting — the job reaches 'broadcasting' and BOTH parties' screens agree on it",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-STATE-broadcasting-wrong-role",
@@ -8960,10 +8958,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-accepted-wrong-role — the transition to 'accepted' is REFUSED for the non-owning role",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-STATE-en-route",
@@ -9008,10 +9005,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-en-route-wrong-role — the transition to 'en_route' is REFUSED for the non-owning role",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-STATE-on-site",
@@ -9056,10 +9052,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-on-site-wrong-role — the transition to 'on_site' is REFUSED for the non-owning role",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-STATE-in-progress",
@@ -9104,10 +9099,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-in-progress-wrong-role — the transition to 'in_progress' is REFUSED for the non-owning role",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-STATE-completed",
@@ -9152,10 +9146,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-completed-wrong-role — the transition to 'completed' is REFUSED for the non-owning role",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-STATE-settled",
@@ -9200,10 +9193,9 @@
       "persona": null,
       "role_pair": "provider x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-settled-wrong-role — the transition to 'settled' is REFUSED for the non-owning role",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-STATE-cancelled-by-client",
@@ -9224,10 +9216,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-cancelled-by-client — the job reaches 'cancelled_by_client' and BOTH parties' screens agree on it",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-STATE-cancelled-by-client-wrong-role",
@@ -9344,10 +9335,9 @@
       "persona": null,
       "role_pair": "client x admin",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-expired-wrong-role — the transition to 'expired' is REFUSED for the non-owning role",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-STATE-disputed",
