@@ -20,11 +20,18 @@ against seed data sees a working radius. Only a hail created through the real fo
 recurring shape here: seed data that is healthier than the product
 ([[feedback_a_dead_fixture_invents_page_defects]] is the mirror of this).
 
-WHAT THIS GATE DOES, AND DELIBERATELY DOES NOT DO. It does not fail the build for the missing feature —
-capturing a client's coordinates needs either a browser geolocation PROMPT or an external geocoder, and both
-are product/privacy decisions that belong to Ian, not to a validator. It makes the gap MEASURED and
-FORWARD-ONLY: the share of hails with no geo may not grow. If the capture is ever added, this ratchets down
-toward zero; if someone adds another geo-less write path, it goes red the same day.
+CAPTURE SHIPPED 2026-08-02: the hail form now offers "Pin the exact spot on a map" — Ian chose the pin over
+a geolocation prompt (no permission popup) and over a geocoder (PH plant addresses like "Plant 2, Surigao"
+do not resolve, and per-lookup pricing does not fit a free-tier platform). The 800KB MapLibre bundle loads
+ONLY when that button is pressed, so the hail screen stays light on 3G. Pinning is OPTIONAL: a hail without
+one still sends, which is why this gate still exists and why the floor is a count rather than zero.
+
+Proven on a pinned hail: with a point, `st_dwithin` discriminates for real — 2 of 7 providers inside 5km
+(1.7km each) and the rest excluded at 46 / 74 / 93 / 204 / 568 km. Without one, all seven were equally
+eligible because the whole distance test was skipped.
+
+WHAT THIS GATE DOES. It holds the count of geo-less hails FORWARD-ONLY: the number may never rise. It
+ratchets toward zero as pinning is adopted, and goes red the day a new write path skips the location.
 
 Usage:  python tools/validate_hail_geo_coverage.py [--accept] [--selftest]
 """
@@ -102,8 +109,8 @@ def main(argv):
     for p in judge(total, no_geo, inert):
         print(f"  {Y}note{X} {p}")
     if no_geo:
-        print(f"  {D}the UI hail form captures a free-text address and no point; capturing one needs a "
-              f"browser permission prompt or a geocoder — a product decision, not a validator's{X}")
+        print(f"  {D}these pre-date the pin, or were sent without using it — pinning is optional by "
+              f"design, so this is a count to drive DOWN, not a failure{X}")
 
     base = json.loads(BASELINE.read_text(encoding="utf-8")) if BASELINE.exists() else {}
     floor = base.get("no_geo")

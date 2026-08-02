@@ -1,5 +1,5 @@
 {
-  "ran": "2026-07-31T20:20:20.663Z",
+  "ran": "2026-08-02T11:19:34.329Z",
   "role": "supervisor",
   "seeder": "http://127.0.0.1:5000",
   "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
@@ -10,7 +10,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1116 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=0"
+          "bodyLen=1024 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=0"
         ]
       },
       "P2": {
@@ -50,7 +50,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3299 title=\"Hive Live Board: WorkHive\" loadErrors=0"
+          "bodyLen=3295 title=\"Hive Live Board: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -250,7 +250,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=4552 title=\"Alert Hub | WorkHive\" loadErrors=0"
+          "bodyLen=4529 title=\"Alert Hub | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -290,7 +290,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=4313 title=\"Analytics Engine | WorkHive\" loadErrors=0"
+          "bodyLen=1262 title=\"Analytics Engine | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -300,10 +300,10 @@
         "badNet": []
       },
       "P4": {
-        "score": 60,
+        "score": 10,
         "xssReflected": false,
         "xssExecuted": false,
-        "inputsFuzzed": 2,
+        "inputsFuzzed": 0,
         "handlerErrors": []
       },
       "P8": {
@@ -370,7 +370,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2352 title=\"Achievements: WorkHive\" loadErrors=0"
+          "bodyLen=2348 title=\"Achievements: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -690,7 +690,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3968 title=\"Maintenance Day Planner: WorkHive\" loadErrors=0"
+          "bodyLen=3966 title=\"Maintenance Day Planner: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -810,7 +810,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1886 title=\"Report Sender | WorkHive\" loadErrors=0"
+          "bodyLen=1882 title=\"Report Sender | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -970,7 +970,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=757 title=\"Philippine Industrial Intelligence Report | WorkHive\" loadErrors=0"
+          "bodyLen=795 title=\"Philippine Industrial Intelligence Report | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1050,7 +1050,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3169 title=\"Shift Brain | WorkHive\" loadErrors=0"
+          "bodyLen=3132 title=\"Shift Brain | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1090,7 +1090,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3157 title=\"Audit Log | WorkHive\" loadErrors=0"
+          "bodyLen=3147 title=\"Audit Log | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1130,7 +1130,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2827 title=\"Voice Journal: WorkHive\" loadErrors=0"
+          "bodyLen=2828 title=\"Voice Journal: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1170,7 +1170,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=14353 title=\"WorkHive Founder Console\" loadErrors=0"
+          "bodyLen=14385 title=\"WorkHive Founder Console\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1370,7 +1370,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1249 title=\"WorkHive Gateway — Status\" loadErrors=0"
+          "bodyLen=570 title=\"WorkHive Gateway — Status\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1409,7 +1409,7 @@
     "pages": 35,
     "P1": 100,
     "P2": 100,
-    "P4": 34,
+    "P4": 33,
     "P8": 75,
     "P9": 90,
     "P12": 100,

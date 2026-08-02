@@ -3239,6 +3239,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   ============================================================ */
   const _svcBtnC = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid transparent;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-family:\'Poppins\',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;min-height:44px;';
   const _svcGhostC = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:\'Poppins\',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;min-height:44px;';
+  /* Secondary/ghost variant for OPTIONAL actions, so the pin button cannot compete with the
+     primary "Hail now". Mirrors the seller console's _svcBtnGhost. */
+  /* NO font-family here, deliberately. This string is interpolated into style="..." , so a quoted
+     font name terminates the attribute at its first inner quote and SILENTLY DROPS everything after
+     it — which is exactly what happened: min-height:44px vanished and the button rendered 40px, under
+     the tap-target floor, with no error anywhere. The button inherits the page font perfectly well. */
+  const _svcBtnGhostC = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-size:0.8rem;font-weight:600;cursor:pointer;min-height:44px;';
   const _svcInputC = 'display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;';
   const SVC_OPEN = ['requested', 'broadcasting', 'accepted', 'en_route', 'on_site', 'in_progress'];
   const SVC_CHIP = { requested: 'Draft', broadcasting: 'Finding a provider…', accepted: 'Provider accepted', en_route: 'Provider on the way', on_site: 'Provider on site', in_progress: 'Work in progress', completed: 'Completed', settled: 'Settled', cancelled_by_client: 'You cancelled', cancelled_by_provider: 'Provider cancelled', expired: 'No provider found', disputed: 'In dispute' };
@@ -3334,6 +3341,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       '<p id="svc-cert-note" style="display:none;margin:0.45rem 0 0;font-size:0.72rem;color:var(--wh-steel-bright);"></p>' +
       '<label style="display:block;margin-top:0.6rem;font-size:0.8rem;font-weight:600;">Where? (site / address)' +
       '<input id="svc-hail-address" type="text" aria-label="Job site or address" maxlength="120" placeholder="e.g. Plant 2, Baguio" style="' + _svcInputC + '"></label>' +
+      /* PIN THE EXACT SPOT. Industrial sites mostly have no usable street address — "Plant 2,
+         Surigao" is not something any geocoder resolves — so the client taps the map instead.
+         Until this existed the hail carried WORDS ONLY and service_requests.location was NULL, which
+         made the accept gate's `st_dwithin(...)` skip entirely: the advertised 5km radius filtered
+         nothing and every provider in the country was equally eligible. Measured on a live walk.
+         COLLAPSED BY DEFAULT and the 800KB MapLibre bundle is loaded ONLY when the button is
+         pressed (reusing _svcMapLoad(), already built for job tracking) — many of these users are on
+         3G, and a hail screen that ships a map to everyone would cost more than it fixes.
+         Optional on purpose: a hail with no pin still sends, exactly as before. */
+      '<button type="button" id="svc-pin-btn" onclick="svcPinSite()" style="' + _svcBtnGhostC + 'width:100%;margin-top:0.5rem;">Pin the exact spot on a map (optional)</button>' +
+      '<div id="svc-pin-slot" style="margin-top:0.5rem;"></div>' +
       '<label style="display:block;margin-top:0.6rem;font-size:0.8rem;font-weight:600;">How urgent?' +
       '<select id="svc-hail-urgency" aria-label="How urgent is this job" style="' + _svcInputC + '">' +
       '<option value="normal" selected>Normal - within a few days</option><option value="high">High - today if possible</option><option value="critical">Critical - production is down</option><option value="low">Low - whenever convenient</option>' +
@@ -3398,6 +3416,43 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return true;
   }
 
+  /* The pinned job site, as [lng, lat]. Null until the client taps the map. */
+  let _svcPin = null;
+
+  async function svcPinSite() {
+    const slot = document.getElementById('svc-pin-slot');
+    const btn = document.getElementById('svc-pin-btn');
+    if (!slot) return;
+    if (slot.dataset.open === '1') {           // toggle closed, keeping any pin already dropped
+      slot.innerHTML = ''; slot.dataset.open = '';
+      if (btn) btn.textContent = _svcPin ? 'Spot pinned - tap to adjust' : 'Pin the exact spot on a map (optional)';
+      return;
+    }
+    slot.dataset.open = '1';
+    slot.innerHTML = '<div class="skel skel-pulse" style="height:200px;border-radius:var(--wh-radius);"></div>';
+    try { await _svcMapLoad(); } catch (_) {
+      // Degrade honestly: the typed address still sends. Never strand the hail behind a map.
+      slot.innerHTML = '<p style="font-size:0.75rem;opacity:0.8;">Map could not load (offline?). '
+        + 'Your typed address still works - providers will read it.</p>';
+      return;
+    }
+    slot.innerHTML = '<div id="svc-pin-map" style="height:220px;border-radius:var(--wh-radius);overflow:hidden;"'
+      + ' role="application" aria-label="Tap the map to mark where the job is"></div>'
+      + '<p id="svc-pin-note" style="font-size:0.72rem;opacity:0.85;margin-top:0.25rem;">Tap the map where the job is.</p>';
+    const map = whMap.create('svc-pin-map', _svcPin ? { center: _svcPin, zoom: 14 } : { zoom: 11 });
+    if (!map) { slot.innerHTML = '<p style="font-size:0.75rem;opacity:0.8;">Map unavailable on this device. '
+      + 'Your typed address still works.</p>'; return; }
+    let mk = _svcPin ? whMap.marker(map, _svcPin, 'site', 'Job site') : null;
+    map.on('click', (ev) => {
+      _svcPin = [ev.lngLat.lng, ev.lngLat.lat];
+      if (mk) mk.setLngLat(_svcPin); else mk = whMap.marker(map, _svcPin, 'site', 'Job site');
+      const note = document.getElementById('svc-pin-note');
+      if (note) note.textContent = 'Spot pinned. Tap again to move it.';
+      if (btn) btn.textContent = 'Spot pinned - tap to adjust';
+    });
+  }
+  window.svcPinSite = svcPinSite;
+
   async function svcHailNow() {
     if (!_authUid) { showToast('Sign in first to hail a service'); return; }
     if (!svcRequireOnline('Hailing a provider')) return;
@@ -3409,7 +3464,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const { data, error } = await db.from('service_requests').insert({
       client_auth_uid: _authUid, client_worker_name: WORKER_NAME || null,
       hive_id: HIVE_ID || null, segment: HIVE_ID ? 'industrial' : 'consumer', mode: 'instant', catalog_item_id: itemId,
-      address: address, urgency: urgency, status: 'broadcasting'
+      address: address, urgency: urgency, status: 'broadcasting',
+      // EWKT for geography(Point,4326). Omitted when unpinned so the row stays exactly as it
+      // was before this feature — a hail without a pin is still a valid hail.
+      ...(_svcPin ? { location: 'SRID=4326;POINT(' + _svcPin[0] + ' ' + _svcPin[1] + ')' } : {})
     }).select('id');
     if (error) { showToast(error.message); return; }
     if (!data || !data.length) { showToast('Request didn\'t save - please try again'); return; }
