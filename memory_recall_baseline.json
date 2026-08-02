@@ -1,13 +1,13 @@
 {
-  "updated_iso": "2026-07-31T11:26:09Z",
+  "updated_iso": "2026-08-02T19:46:22Z",
   "floors": {
     "recall@3": 0.85,
     "recall@5": 0.88,
     "mrr": 0.8
   },
   "n": 25,
-  "recall@1": 0.96,
-  "recall@3": 0.96,
-  "recall@5": 0.96,
-  "mrr": 0.96
+  "recall@1": 0.92,
+  "recall@3": 0.92,
+  "recall@5": 0.92,
+  "mrr": 0.92
 }

@@ -478,5 +478,8 @@
   "20260731000024_understatement_needs_a_reason.sql": "cd2d483beb186158de951a05d654ca7e1670928d283e40e563727da495c6eb43",
   "20260801000001_catalog_truth_exposes_cert_level.sql": "21010fe10c34eaf53cc5d75dc5e3d8319bcf2142e1cb49ce6dc8e3c93ec5db81",
   "20260802000001_the_provider_may_read_what_they_were_paid.sql": "feff438a2bdbc91b3e16ccd45060a33e04911398257be50d93caf23238bcea87",
-  "20260802000002_a_provider_who_finished_is_not_still_busy.sql": "f953dd4bb15aa1047926e7b92dc3b2e0364f87ecf244cc4fc7c3a16b8349cdbc"
+  "20260802000002_a_provider_who_finished_is_not_still_busy.sql": "f953dd4bb15aa1047926e7b92dc3b2e0364f87ecf244cc4fc7c3a16b8349cdbc",
+  "20260803000001_cap_the_new_payment_write.sql": "6127be553cf3cf765d016383424ca94f4fd69394164914870b86556d52dc00c7",
+  "20260803000002_restore_security_invoker_on_catalog_truth.sql": "a85815665d9ed3fbac4b15dd2fc32570e4af8a175b32f50e6449f92974fe9fca",
+  "20260803000003_grant_service_payments_explicitly.sql": "c770be1c256b029bf17df42cf49173309d3280be58138938499c7adf1b894776"
 }

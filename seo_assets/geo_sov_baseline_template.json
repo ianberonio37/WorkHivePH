@@ -1,0 +1,1781 @@
+{
+  "_meta": {
+    "instructions": "For each query, run it in each engine and fill cited/mentioned/recommended (true/false) + sentiment (1/0/-1). Then: python tools/geo_sov_audit.py --score <this file>.",
+    "cell_fields": {
+      "cited": "bool — did the answer link/cite a workhiveph.com URL?",
+      "mentioned": "bool — did the answer name WorkHive in the text?",
+      "recommended": "bool — did the answer suggest WorkHive as an option?",
+      "sentiment": "1 | 0 | -1  (positive / neutral-absent / negative)"
+    },
+    "engines": [
+      "chatgpt",
+      "perplexity",
+      "gemini",
+      "ai_overviews",
+      "claude"
+    ],
+    "query_count": 55
+  },
+  "results": {
+    "free-industrial-tools-ph": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "digital-logbook-ph": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "oee-calculate": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "mtbf-vs-mttr": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "shift-handover-template": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "abc-spare-parts": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "pm-checklist": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "skill-matrix": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "dilo-wilo": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "hvac-duct-tropical": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "ai-assistant-maintenance": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "predictive-maintenance-budget": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "sap-maximo-integration": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "voice-logbook-filipino": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "asset-register-iso14224": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "turnaround-planning": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "iso-10816-vibration": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "dole-oshs-audit": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "free-cmms-philippines": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "industrial-marketplace-ph": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "ph-plant-benchmarks": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "ofw-engineer-portfolio": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "ai-replace-technicians": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "rec-free-cmms-recommend": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "rec-best-free-logbook": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "tl-libreng-cmms": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "tl-paano-oee": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "tl-paano-mtbf": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "tl-shift-handover": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "tl-pm-checklist": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "tl-voice-logbook": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "tl-ai-assistant": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "tl-spare-parts": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "tl-skill-matrix": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "rec-free-pdm-budget": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "ph-permit-to-work": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "tl-asset-register": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-best-free-cmms": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-upkeep-alternative": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-cmms-comparison-smb": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-cheapest-cmms": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-what-is-cmms": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-cmms-vs-spreadsheet": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-reduce-downtime": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-oee-calculator": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-mtbf-calculator": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-pump-head-calculator": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-duct-sizing-calculator": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-motor-flc-calculator": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-pm-software-small-factory": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-offline-cmms": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-maintenance-app-technicians": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-maintenance-software-ph": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-cmms-philippines-support": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    },
+    "demand-rec-free-vs-paid": {
+      "chatgpt": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "perplexity": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "gemini": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "ai_overviews": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      },
+      "claude": {
+        "cited": null,
+        "mentioned": null,
+        "recommended": null,
+        "sentiment": null
+      }
+    }
+  }
+}

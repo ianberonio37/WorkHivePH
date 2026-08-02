@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pump TDH Calculator — Free Online + Worked Example | WorkHive</title>
+<meta name="description" content="Free pump TDH (total dynamic head) calculator with a worked example. Size a pump and motor from flow, static head, pipe, and fittings — ISO 9906 / PSME Code. Built for Philippine plants by WorkHive.">
+<link rel="canonical" href="https://workhiveph.com/tools/pump-tdh-calculator/">
+<meta property="og:title" content="Pump TDH Calculator | WorkHive">
+<meta property="og:description" content="Free pump TDH (total dynamic head) calculator with a worked example. Size a pump and motor from flow, static head, pipe, and fittings — ISO 9906 / PSME Code. Built for Philippine plants by WorkHive.">
+<meta property="og:url" content="https://workhiveph.com/tools/pump-tdh-calculator/">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "Pump TDH Calculator",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "url": "https://workhiveph.com/tools/pump-tdh-calculator/",
+      "description": "Free pump TDH (total dynamic head) calculator with a worked example. Size a pump and motor from flow, static head, pipe, and fittings — ISO 9906 / PSME Code. Built for Philippine plants by WorkHive.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "PHP"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "WorkHive",
+        "url": "https://workhiveph.com"
+      }
+    },
+    {
+      "@type": "HowTo",
+      "name": "How to use the Pump TDH Calculator",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "text": "Measure the required flow rate (L/min) and the vertical static lift (m)."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "text": "Record the pipe: diameter (mm), total length (m), and material (for roughness)."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "text": "Compute friction head from Darcy–Weisbach + Colebrook–White (velocity, Reynolds number, friction factor)."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 4,
+          "text": "Add static + friction + velocity head to get TDH (m)."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 5,
+          "text": "Size the motor from hydraulic power ÷ pump efficiency ÷ motor efficiency, then round up to the next standard IEC/PEC size."
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is total dynamic head (TDH)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "TDH is the total equivalent height a pump must overcome: the static lift plus friction losses in the pipe plus the velocity head. It sets the pump and motor size."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I calculate pump head?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Add static head + friction head + velocity head. Friction head comes from the Darcy–Weisbach equation using the Colebrook–White friction factor for the pipe material and flow."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What motor size do I need for a 200 L/min pump?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "For a typical 200 L/min duty at ~18 m TDH, a 1.1 kW (1.5 HP) motor is usually enough after applying pump and motor efficiency and a service-factor margin. Always confirm against the manufacturer curve."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is NPSH available and why does it matter?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "NPSH available is the suction-side pressure margin before cavitation. It must exceed the pump's NPSH required, or the pump cavitates and wears out. It falls with elevation and hot water."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+  <main>
+    <nav aria-label="Breadcrumb"><a href="/learn/free-engineering-calculators-philippine-plants/">Free Engineering Calculators for Philippine Plants</a> &rsaquo; Pump TDH Calculator</nav>
+    <h1>Pump Total Dynamic Head (TDH) Calculator</h1>
+
+    <!-- answer-first: the worked-example stat AI cites -->
+    <p class="answer-first"><strong>To size a pump, calculate Total Dynamic Head (TDH) = static head + friction head + velocity head. For a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe, TDH ≈ 18.12 m at 1.54 m/s (standard velocity), needing about a 1.1 kW (1.5 HP) motor and NPSH available of 9.44 m (per ISO 9906 | PSME Code | ASHRAE 2021 Ch.22).</strong></p>
+
+    <section aria-labelledby="formula">
+      <h2 id="formula">The formula</h2>
+      <p>TDH = H_static + H_friction + H_velocity, where friction head uses Darcy–Weisbach with the Colebrook–White friction factor and real water properties (density, viscosity) at the operating temperature.</p>
+    </section>
+
+    <section aria-labelledby="worked">
+      <h2 id="worked">Worked example (Plumbing &amp; Pumps)</h2>
+      <p>Inputs: a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe.</p>
+      <table>
+        <thead><tr><th>Result</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Total Dynamic Head (TDH)</td><td>18.12 m</td></tr>
+          <tr><td>Pipe velocity</td><td>1.54 m/s (Standard - acceptable)</td></tr>
+          <tr><td>Friction head</td><td>3.001 m</td></tr>
+          <tr><td>Recommended motor</td><td>1.1 kW (1.5 HP)</td></tr>
+          <tr><td>NPSH available</td><td>9.44 m</td></tr>
+        </tbody>
+      </table>
+      <p><small>Computed with python/fluids+iapws; standard: ISO 9906 | PSME Code | ASHRAE 2021 Ch.22.</small></p>
+    </section>
+
+    <section aria-labelledby="howto">
+      <h2 id="howto">How to calculate it</h2>
+      <ol>
+        <li>Measure the required flow rate (L/min) and the vertical static lift (m).</li>
+        <li>Record the pipe: diameter (mm), total length (m), and material (for roughness).</li>
+        <li>Compute friction head from Darcy–Weisbach + Colebrook–White (velocity, Reynolds number, friction factor).</li>
+        <li>Add static + friction + velocity head to get TDH (m).</li>
+        <li>Size the motor from hydraulic power ÷ pump efficiency ÷ motor efficiency, then round up to the next standard IEC/PEC size.</li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="faq">
+      <h2 id="faq">FAQ</h2>
+      <details class="faq"><summary>What is total dynamic head (TDH)?</summary><p>TDH is the total equivalent height a pump must overcome: the static lift plus friction losses in the pipe plus the velocity head. It sets the pump and motor size.</p></details>
+      <details class="faq"><summary>How do I calculate pump head?</summary><p>Add static head + friction head + velocity head. Friction head comes from the Darcy–Weisbach equation using the Colebrook–White friction factor for the pipe material and flow.</p></details>
+      <details class="faq"><summary>What motor size do I need for a 200 L/min pump?</summary><p>For a typical 200 L/min duty at ~18 m TDH, a 1.1 kW (1.5 HP) motor is usually enough after applying pump and motor efficiency and a service-factor margin. Always confirm against the manufacturer curve.</p></details>
+      <details class="faq"><summary>What is NPSH available and why does it matter?</summary><p>NPSH available is the suction-side pressure margin before cavitation. It must exceed the pump&#x27;s NPSH required, or the pump cavitates and wears out. It falls with elevation and hot water.</p></details>
+    </section>
+
+    <section aria-labelledby="try">
+      <h2 id="try">Run it on your own numbers</h2>
+      <p><a href="/workhive/#/tools/engineering-design" class="cta">Open the interactive Pump TDH Calculator in WorkHive</a> — free, no sign-up needed for the calculators.</p>
+    </section>
+
+    <section aria-labelledby="related">
+      <h2 id="related">Related</h2>
+      <ul>
+        <li><a href="/learn/free-engineering-calculators-philippine-plants/">Free Engineering Calculators for Philippine Plants</a> (pillar)</li>
+        <li><a href="/tools/pipe-sizing-calculator/">Pipe Sizing Calculator</a></li>
+        <li><a href="/tools/duct-sizing-calculator/">Duct Sizing Calculator</a></li>
+        <li><a href="/learn/predictive-maintenance-on-a-budget-philippines/">Predictive maintenance on a budget</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

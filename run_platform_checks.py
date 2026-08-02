@@ -4654,6 +4654,27 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        # Programmatic calculator-page gate (SEO_AEO_GEO_STRATEGY_V2.md, Pillar 3) — the
+        # 58 engineering calculators are the largest programmatic-SEO surface WorkHive
+        # owns, but they live ONLY in a noindex client-side JS app (engineering-design.js),
+        # invisible to AI crawlers that fetch-but-don't-execute JS
+        # (external-ai-crawlers-fetch-but-do-not-execute-javascript-). This gate proves
+        # every generated /tools/<calc>-calculator/ STATIC page is crawlable (numeric
+        # worked result in raw HTML, not JS-injected), answer-first (a .answer-first stat
+        # right after the H1), schema-valid (SoftwareApplication + FAQPage + HowTo),
+        # non-orphan (>=2 internal /learn|/tools links), and non-thin. Scans
+        # seo_assets/calc_pages_staging/ (pre-ship) + any shipped tools/*-calculator/.
+        # PASSES when no pages exist yet (nothing to gate). Static, offline (~1s).
+        # Self-test: `python tools/validate_calc_pages.py --self-test`.
+        "id":      "calc-pages",
+        "script":  "tools/validate_calc_pages.py",
+        "args":    [],
+        "label":   "Programmatic Calculator-Page Gate (Pillar 3: crawlable + answer-first + SoftwareApplication/FAQPage schema + non-orphan; static HTML for AI crawlers)",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         # Landing + Home-Dashboard Deep Arc gate (LANDING_DASHBOARD_DEEP_ARC.md) —
         # locks the confirmed front-door defects the arc fixed so they cannot
         # regress: (G6/F4) og:title + twitter:title must equal <title> (the arc

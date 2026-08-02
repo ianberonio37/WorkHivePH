@@ -7,11 +7,11 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **172**
 - Views:         **63**
-- RPCs:          **249**
+- RPCs:          **250**
 - HTML surfaces: **61**
 - Edge fns:      **99**
 - Phantom tables (referenced in code, not in migrations): **0**
-- Duplicate signals: **80**
+- Duplicate signals: **79**
 
 ## Tables (sorted by usage)
 
@@ -50,6 +50,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `rcm_fmea_modes` | 20 | yes | yes | asset-hub.html | asset-hub.html | fmea-populator |
 | `amc_briefings` | 14 | yes | yes | alert-hub.html | alert-hub.html | amc-orchestrator |
 | `canonical_period_summaries` | 12 | yes | no | — | — | hierarchical-summarizer |
+| `service_providers` | 18 | yes | no | marketplace-seller.html, marketplace.html | marketplace-seller.html | — |
 | `service_requests` | 29 | yes | yes | marketplace-seller.html, marketplace.html | marketplace-seller.html, marketplace.html | — |
 | `service_credit_topups` | 11 | yes | no | founder-console.html, marketplace-seller.html | founder-console.html, marketplace-seller.html | — |
 | `push_subscriptions` | 8 | yes | no | marketplace-seller.html | marketplace-seller.html | notify-push |
@@ -63,7 +64,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `wh_traces` | 9 | yes | no | — | — | _shared/error-tracker.ts |
 | `ai_reply_feedback` | 12 | yes | no | ai-quality.html, assistant.html | assistant.html | — |
 | `analytics_snapshots` | 7 | yes | no | analytics.html | — | analytics-orchestrator |
-| `service_providers` | 18 | yes | no | marketplace-seller.html | marketplace-seller.html | — |
 | `ai_reports` | 7 | yes | no | — | — | scheduled-agents |
 | `community_posts` | 14 | yes | no | community.html | community.html | — |
 | `community_reactions` | 6 | yes | no | community.html | community.html | — |
@@ -103,6 +103,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `embedding_cache` | 6 | no | no | — | — | _shared/embedding-chain.ts |
 | `alert_dismissals` | 7 | yes | no | alert-hub.html | alert-hub.html | — |
 | `service_vouchers` | 10 | yes | no | founder-console.html | founder-console.html | — |
+| `service_payments` | 10 | yes | no | marketplace.html | marketplace.html | — |
 | `skill_badges` | 8 | yes | no | resume.html | — | — |
 | `skill_exam_attempts` | 9 | yes | no | skillmatrix.html | — | — |
 | `achievement_xp_log` | 7 | yes | no | achievements.html | — | — |
@@ -188,7 +189,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `embedding_outbox` | 12 | yes | no | — | — | — |
 | `embedding_registry` | 9 | yes | no | — | — | — |
 | `hive_service_settings` | 14 | yes | no | — | — | — |
-| `service_payments` | 10 | yes | no | — | — | — |
 
 ## RPCs / Functions
 
@@ -374,6 +374,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `prune_embedding_cache` | p_max_age_days int DEFAULT 45 | yes | — | — |
 | `publish_service_showcase` | p_request_id uuid | yes | — | — |
 | `recompute_seller_sales_and_tier` | p_seller_name text | yes | — | — |
+| `reconcile_provider_availability` |  | yes | — | — |
 | `reconcile_service_outbox` |  | yes | — | — |
 | `record_ai_chain_depth` | p_depth int | yes | — | ai-gateway |
 | `record_login_failure` | p_identifier text, p_ip text default '',                     | yes | — | login |
@@ -601,4 +602,3 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 - `embedding_outbox` (defined but unreferenced)
 - `embedding_registry` (defined but unreferenced)
 - `hive_service_settings` (defined but unreferenced)
-- `service_payments` (defined but unreferenced)

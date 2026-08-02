@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T15:10:03.978140+00:00",
+  "generated_at": "2026-08-02T19:55:42.332057+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -103,7 +103,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 477,
+        "files_scanned": 483,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -176,7 +176,7 @@
       "proposals": [
         {
           "feature": "has_print_calls",
-          "conformance": 0.988,
+          "conformance": 0.989,
           "outlier_count": 7,
           "outliers": [
             "analyze_walkthrough_new.py",
@@ -190,7 +190,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 606,
+        "files_scanned": 609,
         "features_extracted": 22,
         "promotion_candidates": 1
       },

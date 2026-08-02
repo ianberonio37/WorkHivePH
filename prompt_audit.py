@@ -2,8 +2,13 @@
 WorkHive Weekly AI Visibility Prompt Audit
 ==========================================
 Run this Mondays. Walks through each target query in prompt_audit_queries.json,
-asks you whether ChatGPT, Perplexity, Gemini, and Claude cited WorkHive for
-that query, and logs the result to prompt_audit_results/<YYYY-MM-DD>.csv.
+asks you whether ChatGPT, Perplexity, Gemini, Google AI Overviews, and Claude
+cited WorkHive for that query, and logs the result to
+prompt_audit_results/<YYYY-MM-DD>.csv.
+
+Engines synced to geo_sov_audit.py ENGINES (5) as of the 2026-08-03 V2
+re-strategization — AI Overviews is Google's default answer surface and the
+highest-leverage AEO target, so the weekly walk must not silently omit it.
 
 After 4+ weeks of data you can plot the trend and see which AI engines are
 discovering WorkHive first and which queries still need more off-site
@@ -31,7 +36,9 @@ QUERIES_FILE = ROOT / "prompt_audit_queries.json"
 RESULTS_DIR = ROOT / "prompt_audit_results"
 RESULTS_DIR.mkdir(exist_ok=True)
 
-ENGINES = ["chatgpt", "perplexity", "gemini", "claude"]
+# Synced to geo_sov_audit.py ENGINES + prompt_audit_queries.json _meta.engines.
+# ai_overviews (Google AI Overviews) added 2026-08-03 (V2 re-strategization).
+ENGINES = ["chatgpt", "perplexity", "gemini", "ai_overviews", "claude"]
 
 # ANSI colors for terminal feedback
 def bold(s): return f"\033[1m{s}\033[0m"
