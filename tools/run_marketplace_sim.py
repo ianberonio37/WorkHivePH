@@ -180,6 +180,12 @@ BROWSER_COVERED = {
     # the console's own handler. No clearing house sits behind it: the button IS the control.
     "MS-ADMIN-topup-verify-mints-once", "MS-ADMIN-topup-reject-mints-nothing",
     "MS-ADMIN-money-tile-cover-rag", "MS-MONEY-topup-verify-mints",
+    # tests/marketplace-sim-unhappy.spec.ts — where most production pain lives and least had been walked.
+    # The radius cell came free: asserting expiry HONESTLY meant looping the sweep, which is the only way
+    # to observe the widening that happens before a hail gives up.
+    "MS-ACCEPT-RACE-LOSER-TOLD", "MS-STATE-cancelled-by-provider",
+    "MS-STATE-cancelled-by-provider-wrong-role", "MS-STATE-expired", "MS-TTL-EXPIRY-VISIBLE",
+    "MS-STATE-disputed", "MS-OFFLINE-HAIL-REFUSED", "MS-MAP-radius-widens-over-rounds",
 }
 
 
