@@ -5392,7 +5392,7 @@
         "SJ-J27-dayplanner-job-lands",
         "SJ-J30-consumer-hail-instant"
       ],
-      "status": "quarantined",
+      "status": "banked",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5409,11 +5409,6 @@
       "ufai_earned": {
         "F5": "a full round trip across two parties: the client hails, the provider accepts on their own page, and the client's chip reads it back - plus the dayplan side-effect asserted",
         "U3": "the client's STATUS chip advances without a reload; the handoff is confirmed on the screen, not only in the row"
-      },
-      "quarantine": {
-        "count": 2,
-        "first_seen": "2026-07-29",
-        "last_reason": "Timeout"
       }
     },
     {

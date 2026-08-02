@@ -527,8 +527,24 @@ test.describe('marketplace test bank — role-pair cells (two browser contexts)'
       const line = C.locator('#svc-presence');
       await expect(line, 'the presence line never rendered for the viewer').toContainText(/provider/i,
         { timeout: 20000 });
+      /* THE TRUTH IS DISTINCT PEOPLE, NOT THE SUM OF AREA ROWS — and this cell used to assert the sum.
+         v_service_area_presence is one row per SERVICE AREA, so a provider covering {Batangas, Manila}
+         appears twice; summing those rows into a headline double-counts them. Measured live: the sum
+         said 9 while exactly 7 providers had availability='online'. The UI was fixed to take a DISTINCT
+         head-count, and this assertion went red for the right reason — the code got better and the
+         expectation was still pinned to the old, overstating number.
+         The cell's own comment above already names the principle it was violating: a liquidity hint that
+         overstates is worse than none, because it tells someone to wait for help that is not there. So
+         the expectation moves to the truth, not the code back to the bug
+         ([[feedback_a_gate_reddened_because_the_code_improved]], [[feedback_teach_the_gate_not_bend_the_code]]).
+         The `after === before + 1` check above still stands: the per-area view SHOULD increment when
+         someone comes online — that view is not wrong, it is just the wrong thing to sum. */
+      const { count: distinctOnline } = await db.from('service_providers')
+        .select('id', { count: 'exact', head: true }).eq('availability', 'online');
       const shown = Number(((await line.innerText()).match(/(\d+)\s+provider/i) || [])[1] || -1);
-      expect(shown, `the rendered count (${shown}) must equal the view's total (${after})`).toBe(after);
+      expect(shown, `the rendered count (${shown}) must equal the number of DISTINCT online providers `
+        + `(${distinctOnline}); the per-area sum is ${after}, which double-counts anyone covering two `
+        + 'areas').toBe(Number(distinctOnline));
 
       await ctxP.close();
       await ctxC.close();
