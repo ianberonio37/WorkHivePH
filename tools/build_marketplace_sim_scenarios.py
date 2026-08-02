@@ -164,6 +164,15 @@ def build():
         ("deposit-blocks-accept", "a provider below the floor cannot accept, and is told the real numbers"),
         ("cold-start-can-accept", "a provider with NO ledger history may take a first job"),
         ("topup-verify-mints", "a founder-verified GCash top-up mints credits to the right wallet"),
+        # The DOOR to all of the above. Added after the money spine shipped with its interface missing:
+        # migration 15 made a payment record mandatory, svcSettle kept writing only status='settled', and
+        # every press of "Mark as paid" raised the guard's exception into a toast. The data layer was
+        # green the whole time. A backend nobody can reach is not a working feature, and only a cell that
+        # presses the real button can tell the two apart.
+        ("settle-cta-reachable", "a completed job offers a tappable way to confirm payment"),
+        ("settle-form-asks-amount", "the form asks what was actually paid, and says the platform holds nothing"),
+        ("settle-empty-amount-named", "submitting with no amount names the amount and writes nothing"),
+        ("settle-ui-records-and-releases", "one press writes the payment record AND releases the job"),
     ]
     for k, why in money:
         S.append(sc(f"MS-MONEY-{k}", "E-money", BROWSE, ["client", "provider"],

@@ -1,5 +1,5 @@
 {
-  "authored": 115,
+  "authored": 119,
   "executed": 15,
   "passed": 15,
   "failed": 0,
@@ -29,6 +29,10 @@
     "MS-STATE-expired-wrong-role",
     "MS-MONEY-double-tap-release",
     "MS-MONEY-second-payment-refused",
+    "MS-MONEY-settle-cta-reachable",
+    "MS-MONEY-settle-form-asks-amount",
+    "MS-MONEY-settle-empty-amount-named",
+    "MS-MONEY-settle-ui-records-and-releases",
     "MS-PERSONA-colorblind",
     "MS-PERSONA-lowvis",
     "MS-PERSONA-gloved",

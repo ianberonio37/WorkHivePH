@@ -163,6 +163,10 @@ BROWSER_COVERED = {
     "MS-STATE-completed", "MS-STATE-settled",
     "MS-STATE-requested-wrong-role", "MS-STATE-broadcasting-wrong-role",
     "MS-MONEY-double-tap-release", "MS-MONEY-second-payment-refused",
+    # tests/marketplace-sim-money-ui.spec.ts — the DOOR to the money spine, pressed as a user
+    "MS-MONEY-settle-cta-reachable", "MS-MONEY-settle-form-asks-amount",
+    "MS-MONEY-settle-empty-amount-named", "MS-MONEY-settle-ui-records-and-releases",
+    "MS-MONEY-release-needs-record",
 }
 
 

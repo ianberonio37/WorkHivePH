@@ -3317,7 +3317,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           (['en_route', 'on_site', 'in_progress'].includes(r.status)
             ? '<div id="svc-track-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcTrack(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;">Track provider</button>' : '') +
           (r.status === 'completed'
-            ? '<button type="button" onclick="svcSettle(\'' + e(r.id) + '\')" style="' + _svcBtnC + 'margin-right:0.4rem;">Mark as paid ✓</button>' : '') +
+            ? '<div id="svc-pay-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcConfirmPay(\'' + e(r.id) + '\',' + Number(r.catalog_rate || r.budget || 0) + ')" style="' + _svcBtnC + 'margin-right:0.4rem;">Confirm payment &amp; release</button>' : '') +
           (['completed', 'settled'].includes(r.status)
             ? '<div id="svc-rate-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcRateProvider(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;">Rate provider</button>' +
               '<span style="display:inline-flex;gap:0.3rem;align-items:center;flex-wrap:wrap;"><input id="svc-vcode-' + e(r.id) + '" type="text" maxlength="24" placeholder="Voucher code" aria-label="Voucher code" style="width:9rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;"><button type="button" onclick="svcApplyVoucher(\'' + e(r.id) + '\')" style="' + _svcGhostC + '">Apply</button></span>' : '') +
@@ -3542,13 +3542,106 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      settling mints the provider's commission server-side) and rates the provider
      (birth-guarded review: only this job's client, once; rating aggregates in the
      truth view from guarded rows only). */
+  /* CONFIRM PAYMENT & RELEASE — the client's half of confirm-to-release.
+     This used to be a bare "Mark as paid ✓" that only wrote status='settled'. Then the money spine added
+     service_payments and guard_settle_requires_payment, and the button went DEAD: every press raised the
+     guard's exception straight into a toast, because the migration shipped without the interface that
+     satisfies it. The record is not paperwork — commission is billed against amount_paid, so a settle
+     with no payment row bills a price nobody ever confirmed.
+     What the client is asked for is deliberately small: the amount they actually handed over, how, and
+     (only if GCash) the reference. Nothing here moves money — the payment already happened, directly
+     between two people. This screen records it. */
+  function svcConfirmPay(requestId, suggested) {
+    const slot = document.getElementById('svc-pay-' + requestId);
+    if (!slot) return;
+    if (slot.innerHTML) { slot.innerHTML = ''; return; }   // toggle, like the rating panel
+    const e = escHtml, id = e(requestId);
+    slot.innerHTML =
+      '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);padding:0.7rem 0.8rem;">' +
+        '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.15rem;">Confirm what you paid</div>' +
+        '<div style="font-size:0.72rem;opacity:0.8;margin-bottom:0.5rem;">WorkHive never holds your money — you pay the provider directly. This records it so both of you have the same number.</div>' +
+        '<label for="svc-pay-amt-' + id + '" style="font-size:0.72rem;opacity:0.85;">Amount paid (₱)</label>' +
+        '<input id="svc-pay-amt-' + id + '" type="number" min="1" step="0.01" inputmode="decimal" value="' +
+          (Number(suggested) > 0 ? Number(suggested) : '') + '" style="' + _svcInputC + '">' +
+        '<label for="svc-pay-method-' + id + '" style="font-size:0.72rem;opacity:0.85;">How you paid</label>' +
+        '<select id="svc-pay-method-' + id + '" onchange="svcPayMethodChanged(\'' + id + '\')" style="' + _svcInputC + '">' +
+          '<option value="cash">Cash</option><option value="gcash">GCash</option>' +
+          '<option value="bank">Bank transfer</option><option value="other">Other</option></select>' +
+        '<div id="svc-pay-refwrap-' + id + '" style="display:none;">' +
+          '<label for="svc-pay-ref-' + id + '" style="font-size:0.72rem;opacity:0.85;">GCash reference (13 digits, optional)</label>' +
+          '<input id="svc-pay-ref-' + id + '" type="text" inputmode="numeric" maxlength="13" placeholder="e.g. 1234567890123" style="' + _svcInputC + '">' +
+        '</div>' +
+        '<div id="svc-pay-whywrap-' + id + '" style="display:none;">' +
+          '<label for="svc-pay-why-' + id + '" style="font-size:0.72rem;opacity:0.85;">Why the difference?</label>' +
+          '<input id="svc-pay-why-' + id + '" type="text" maxlength="140" placeholder="a smaller job, a discount, part paid in materials…" style="' + _svcInputC + '">' +
+        '</div>' +
+        '<button type="button" id="svc-pay-go-' + id + '" onclick="svcSettle(\'' + id + '\')" style="' + _svcBtnC + 'margin-top:0.35rem;">Confirm payment &amp; release</button>' +
+      '</div>';
+    const amt = document.getElementById('svc-pay-amt-' + requestId);
+    if (amt) amt.focus();
+  }
+  window.svcConfirmPay = svcConfirmPay;
+
+  function svcPayMethodChanged(requestId) {
+    const m = document.getElementById('svc-pay-method-' + requestId);
+    const w = document.getElementById('svc-pay-refwrap-' + requestId);
+    if (m && w) w.style.display = (m.value === 'gcash') ? '' : 'none';
+  }
+  window.svcPayMethodChanged = svcPayMethodChanged;
+
   async function svcSettle(requestId) {
     if (!svcRequireOnline('Confirming payment')) return;
-    const { data, error } = await db.from('service_requests').update({ status: 'settled', settled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', requestId).select('id');
-    if (error) { showToast(error.message); return; }
-    if (!data || !data.length) { showToast('Couldn\'t update. Refresh and try again.'); return; }
-    showToast('Marked as paid. Thanks for confirming!');
-    loadClientServices();
+    const val = (id) => ((document.getElementById(id + '-' + requestId) || {}).value || '').trim();
+    const amount = Number(val('svc-pay-amt'));
+    const method = val('svc-pay-method') || 'cash';
+    const ref    = val('svc-pay-ref');
+    const why    = val('svc-pay-why');
+
+    // Validate before writing, so a refusal names the field rather than arriving as a raw constraint.
+    if (!(amount > 0)) {
+      showToast('Enter the amount you actually paid.', 'error');
+      document.getElementById('svc-pay-amt-' + requestId)?.focus(); return;
+    }
+    if (method === 'gcash' && ref && !/^[0-9]{13}$/.test(ref)) {
+      showToast('A GCash reference number is exactly 13 digits.', 'error');
+      document.getElementById('svc-pay-ref-' + requestId)?.focus(); return;
+    }
+
+    const btn = document.getElementById('svc-pay-go-' + requestId);
+    if (btn) { btn.disabled = true; btn.textContent = 'Confirming…'; }
+    try {
+      const pay = await db.from('service_payments').insert({
+        request_id: requestId, amount_paid: amount, method,
+        gcash_ref: (method === 'gcash' && ref) ? ref : null,
+        variance_reason: why || null, confirmed_by: _authUid
+      }).select('id');
+
+      if (pay.error) {
+        // The variance guard writes its refusal for a human ("This is 40% of the agreed ₱2,000…"), so
+        // show it verbatim and open the field that answers it, rather than replacing it with our own
+        // vaguer wording.
+        if (/agreed|variance/i.test(pay.error.message)) {
+          const w = document.getElementById('svc-pay-whywrap-' + requestId);
+          if (w) w.style.display = '';
+          showToast(pay.error.message, 'error');
+          document.getElementById('svc-pay-why-' + requestId)?.focus();
+          return;
+        }
+        // A payment already on file is not a failure: the settle below is the step that did not finish
+        // last time, and the unique index is what makes retrying safe.
+        if (!/duplicate|unique/i.test(pay.error.message)) { showToast(pay.error.message, 'error'); return; }
+      }
+
+      const { data, error } = await db.from('service_requests')
+        .update({ status: 'settled', settled_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        .eq('id', requestId).select('id');
+      if (error) { showToast(error.message, 'error'); return; }
+      if (!data || !data.length) { showToast('Couldn\'t update. Refresh and try again.', 'error'); return; }
+      showToast('Payment recorded and released. Thanks for confirming!', 'success');
+      loadClientServices();
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Confirm payment & release'; }
+    }
   }
 
   function svcRateProvider(requestId) {
