@@ -535,6 +535,14 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "credit-circuit-sim",
+        "script":  "tools/simulate_credit_circuit.py",
+        "args":    [],
+        "label":   "CREDIT CIRCUIT SIMULATION - do the economy's defaults still deserve their values? Every knob in the credit circuit was chosen from simulation rather than instinct, and TWO were set AGAINST the first instinct because the numbers contradicted it: reward_max_per_listing=500 (measured 4.9x throughput at scale versus a flat 10%, because a flat rate locks PHP2,500 on a PHP25,000 listing and exhausts the supply) and reward_min_per_listing=0 (a PHP200 floor was the MOST HARMFUL knob tested, 66%->38% healthy, since it makes a PHP500 listing reserve 40% of its own value). A design justified by a measurement has to KEEP being measured, or the justification quietly becomes folklore and the knob drifts to whatever felt right later. Five assertions, each a claim the design rests on rather than a statistic: the per-listing cap raises throughput at scale; the starter grant raises cold-start throughput (the largest single gain, and cold-start failure lands on the DEMAND side as fill rate falling 51%->30%); hoarding raises cash demand ~71% WITHOUT stopping trade (which is why appreciation was dropped - a credit that grows is a credit you hoard); the holding fee separates spam from slow selling (PHP8 honest versus PHP2,400 for 50 junk listings a year); and the supply cap binds at ~20,000 providers. TEETH: --inject cap|grant|fee removes a lever and the corresponding assertion MUST break, each injection verified to break precisely its own claim and no other. It also guards against ITS OWN last bug - an early version reported a catastrophic industrial jam that did not exist, because int(1*0.5) truncates to zero so one-listing providers never sold; a pinned known-good case now fails if that regresses, and main() refuses to report results when the selftest fails. Pure arithmetic, no DB, fast.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
         "id":      "d9-knob-integrity",
         "script":  "tools/validate_d9_knob_integrity.py",
         "args":    [],
