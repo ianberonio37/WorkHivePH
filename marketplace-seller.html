@@ -242,6 +242,36 @@
       <div class="pstat"><div class="pstat-num red" id="ps-pending-inq">-</div><div class="pstat-lbl">New Inquiries</div></div>
     </div>
 
+    <!-- CREDIT WALLET. A seller cannot publish without holding 10% of the price in credits, and being
+         blocked with no explanation is the cold-start failure the simulation put at 31% of providers —
+         which lands on the BUYER side as fill rate dropping from 51% to 30%. So the wallet says what is
+         available, what is held, and — this is the part that changes behaviour — that held credits COME
+         BACK if the listing does not sell. Without that sentence a reservation reads as a fee. -->
+    <div id="credit-wallet" style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+        <span class="ic ic-secure" aria-hidden="true"></span>
+        <strong style="font-size:0.85rem;">WorkHive Credits</strong>
+        <span id="cw-total" style="margin-left:auto;font-size:0.8rem;opacity:0.85;"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+        <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.55rem 0.7rem;">
+          <div id="cw-available" style="font-size:1.05rem;font-weight:700;">-</div>
+          <div style="font-size:0.7rem;opacity:0.75;">Available to list</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.55rem 0.7rem;">
+          <div id="cw-reserved" style="font-size:1.05rem;font-weight:700;">-</div>
+          <div style="font-size:0.7rem;opacity:0.75;">Held by live listings</div>
+        </div>
+      </div>
+      <p id="cw-note" style="font-size:0.72rem;opacity:0.8;margin:0.5rem 0 0;">
+        Publishing holds 10% of the price in credits. It is not a fee &mdash; it comes back in full if the
+        listing does not sell, and goes to your buyer as their reward if it does.
+      </p>
+      <button type="button" id="cw-claim" onclick="claimStarter()" style="display:none;min-height:44px;width:100%;margin-top:0.5rem;padding:0 12px;border-radius:8px;border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;">
+        Claim your starter credits
+      </button>
+    </div>
+
     <!-- Messenger handle input — buyers reach you via m.me/<handle> -->
     <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
@@ -405,6 +435,13 @@
       restoreIdentityFromSession(db).then(_n => {
         if (!_n) return;
         WORKER_NAME = _n;
+        /* PAINT THE WALLET NOW THAT WE KNOW WHO THIS IS. The boot Promise.all races this restore, so
+           loadCreditWallet() ran with an empty WORKER_NAME and returned early, leaving the wallet
+           showing "-" on every cold load. Caught by reloading the page rather than by calling the
+           loader in a console ([[feedback_calling_it_by_hand_is_not_verifying_the_wiring]]) - the same
+           shape as the founder money tile, and the same shape as the gate re-open directly below, which
+           exists because a decision made too early was never revisited. */
+        if (typeof loadCreditWallet === 'function') Promise.resolve(loadCreditWallet());
         /* AND RE-OPEN THE GATE. The gate below decides ONCE, synchronously, from the cached worker
            name — but this restore is ASYNCHRONOUS, so a visitor holding a valid session whose name is
            not yet in local storage (cleared site data, a new device, a fresh profile) was shown
@@ -426,6 +463,7 @@
             if (typeof loadProfile === 'function') loadProfile();
             if (typeof loadListings === 'function') Promise.resolve(loadListings());
             if (typeof loadInquiries === 'function') loadInquiries();
+            if (typeof loadCreditWallet === 'function') Promise.resolve(loadCreditWallet());
           } catch (_) { /* empty-catch-allow: best-effort re-open, the gate is already down */ }
         }
       });
@@ -639,6 +677,68 @@
     if (pss) pss.textContent = _seller?.total_sales || 0;
     if (psi) psi.textContent = _inquiries.filter(i => i.status === 'pending').length;
   }
+
+  /* ── Credit wallet ──────────────────────────────────────────────────────────
+     Reads the DERIVED balance rather than a stored number: available = bought + received - reserved,
+     computed by seller_credit_balance(). A stored "available" column would drift from the reservations
+     the moment one is returned, and this platform has been bitten by trust numbers standing on nothing
+     often enough that the rule is now automatic. */
+  async function loadCreditWallet() {
+    if (!WORKER_NAME) return;
+    try {
+      const { data, error } = await db.rpc('seller_credit_balance', { p_seller: WORKER_NAME });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      const avail = Number(row?.available || 0);
+      const held  = Number(row?.reserved  || 0);
+      const total = Number(row?.total     || 0);
+      const peso = n => '₱' + Number(n).toLocaleString('en-PH', { maximumFractionDigits: 0 });
+
+      const a = document.getElementById('cw-available');
+      const r = document.getElementById('cw-reserved');
+      const t = document.getElementById('cw-total');
+      if (a) a.textContent = peso(avail);
+      if (r) r.textContent = peso(held);
+      if (t) t.textContent = total > 0 ? peso(total) + ' total' : '';
+
+      /* The starter grant offer only appears to someone who would actually be blocked without it, and
+         only if they have never claimed. Showing it to a funded seller is noise; showing it twice is a
+         promise the guard will refuse. */
+      const btn = document.getElementById('cw-claim');
+      if (btn) btn.style.display = (total === 0) ? '' : 'none';
+    } catch (_e) {
+      // empty-catch-allow: the wallet is informational; a failed read must never block the dashboard
+      console.warn('credit wallet unavailable:', _e?.message || _e);
+    }
+  }
+
+  async function claimStarter() {
+    const btn = document.getElementById('cw-claim');
+    if (btn) { btn.disabled = true; btn.textContent = 'Claiming…'; }
+    try {
+      const { data, error } = await db.rpc('claim_starter_grant');
+      if (error) throw error;
+      if (data?.granted) {
+        showToast('Starter credits added. You can publish your first listings now.', 'success');
+        await loadCreditWallet();
+      } else {
+        // The RPC names WHY, so say that rather than a generic failure - "already claimed" and
+        // "no seller profile yet" need completely different actions from the person reading it.
+        const why = {
+          already_claimed: 'You have already claimed your starter credits.',
+          no_verified_seller_profile: 'Finish setting up your seller profile first, then claim.',
+          not_signed_in: 'Sign in again to claim your starter credits.',
+          grant_disabled: 'Starter credits are not being offered right now.',
+        }[data?.reason] || 'Could not claim starter credits.';
+        showToast(why, 'error');
+      }
+    } catch (e) {
+      showToast(whWriteError(e, 'Could not claim starter credits.'), 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Claim your starter credits'; }
+    }
+  }
+  window.claimStarter = claimStarter;
 
   /* ── Render listings ────────────────────────────────────────────────────── */
   /* TAB GUARD — #content-area is SHARED by every tab (listings / inquiries / analytics / services),
@@ -1934,7 +2034,11 @@
 
     const urlParams = new URLSearchParams(window.location.search);
 
-    const tasks = [loadProfile(), loadListings(), loadInquiries()];
+    // loadCreditWallet is in the BOOT set, not called from a button handler. The founder money tile
+    // shipped wired only inside a decision handler and was blank on every cold load, "verified" by
+    // invoking it in the console ([[feedback_calling_it_by_hand_is_not_verifying_the_wiring]]). A wallet
+    // a seller only sees after doing something else is a wallet they never see.
+    const tasks = [loadProfile(), loadListings(), loadInquiries(), loadCreditWallet()];
     await Promise.all(tasks);
 
     /* Arc X A3: restore the listing status filter + active tab from the URL so a
