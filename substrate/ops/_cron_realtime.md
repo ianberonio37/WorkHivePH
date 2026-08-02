@@ -2,13 +2,13 @@
 name: ops-cron-realtime
 type: ops
 source: db:cron.job+pg_publication_tables
-source_sha: 6aae90164ced59c5
+source_sha: e8298afe79e60e3c
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## ops · cron jobs + realtime publication
 
-**pg_cron jobs (23)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
+**pg_cron jobs (24)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
 - `achievement-xp-log-purge` @ `0 3 * * 0` → DELETE FROM achievement_xp_log WHERE earned_at < now() - interval '90 days'
 - `agent-memory-retention` @ `15 4 * * *` →        DELETE FROM public.agent_memory        WHERE kind = 'turn'          AND c
 - `ai-eval-daily` @ `30 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
@@ -21,6 +21,7 @@ supersedes: null
 - `gateway-audit-retention` @ `30 4 * * *` →        DELETE FROM public.gateway_audit_log        WHERE created_at < now() - IN
 - `hard-delete-soft-expired` @ `0 4 * * *` →  SELECT public.hard_delete_expired_soft_deletes(); 
 - `hive-route-calls-retention` @ `45 4 * * *` →        DELETE FROM public.hive_route_calls        WHERE hour_bucket < now() - IN
+- `listing-holding-fee-monthly` @ `0 3 1 * *` → SELECT public.sweep_listing_holding_fee();
 - `ml-retrain-weekly` @ `0 18 * * 6` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/t
 - `ops-db-size-snapshot-daily` @ `10 0 * * *` → select public.snapshot_db_size()
 - `parts-recs-expire-0550pht` @ `50 21 * * *` → SELECT public.expire_stale_parts_recommendations();

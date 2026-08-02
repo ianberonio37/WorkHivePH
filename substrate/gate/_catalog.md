@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 7996436e1dbe8ae0
+source_sha: dc468d5df15fd51e
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (721) — the 'what's already gated' brain
+## gate · registered validators (723) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (113)
+### AI Validation (114)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -36,6 +36,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `auth_role_guard_live` [fail] — Arc I: live function-level role guard (worker → 403 on supervisor-only fn)
 - `auth_role_render_live` [fail] — Arc I: live role-gated render (RBAC at the render layer; supervisor-only visibility)
 - `bom_sow_grounding` [fail] — AI Self-Improvement: BOM/SOW Grounding-Consistency (§13.13, live LLM)
+- `calc-pages` ⚡ [fail] — Programmatic Calculator-Page Gate (Pillar 3: crawlable + answer-first + SoftwareApplication/FAQPage schema + non-orphan; static HTML for AI crawlers)
 - `calc_api_serializable` ⚡ [fail] — Calc API JSON-Serializability (numpy-500 / silent-TS-fallback class)
 - `calc_formula_accuracy` ⚡ [fail] — AI Self-Improvement: Calc Formula Accuracy
 - `calc_live_value` [fail] — Arc Q: Calc LIVE Value-at-the-Glass (63/63 types — running API serves the standard-correct number)
@@ -227,7 +228,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (509)
+### Platform (510)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -354,6 +355,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `context-window` ⚡ [fail] — Context Window Management Validator
 - `correctness-scoreboard` [fail] — CORRECTNESS anti-drift scoreboard — the value-at-the-glass sibling of bughunt-scoreboard. Regenerates CORRECTNESS_SCOREBOARD.md mapping every contracted user-fa
 - `cors-wildcard` ⚡ [fail] — CORS Wildcard Audit (4-layer: hardcoded-* + wildcard-on-data + strategy distribution + echo-without-allowlist)
+- `credit-circuit-sim` ⚡ [fail] — CREDIT CIRCUIT SIMULATION - do the economy's defaults still deserve their values? Every knob in the credit circuit was chosen from simulation rather than instin
 - `credit-economy-simulation` [fail] — CREDIT ECONOMY SIMULATION - generated job lifecycles driven through the REAL guards, triggers and ledger inside ONE transaction that is ROLLED BACK, so no simul
 - `credit-solvency` ⚡ [fail] — CREDIT SOLVENCY - are the credits given away backed by anything? MARKETPLACE_CREDIT_SUSTAINABILITY §5 named liability cover the number that matters, and §4.5 na
 - `cron-functional` ⚡ [fail] — Cron Job Functional Coverage (4-layer: target exists + config entry + AI gate + density)

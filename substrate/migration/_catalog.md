@@ -1,23 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:483
-source_sha: 8fd3773da3740d68
+source: dir:supabase/migrations:491
+source_sha: e8debd18140686e9
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (483 migrations)
+## migration · catalog (491 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260710000000_get_oee_by_machine_good_total_quality` — fns:get_oee_by_machine
-- `20260710000001_integration_configs_supervisor_rls` — policies:integration_configs_hive_rw,integration_configs_supervisor_all
-- `20260710000002_external_sync_workhive_link` — tables:external_sync
-- `20260710000003_hive_board_security_hardening` — policies:anon_insert_hives,hive_audit_log_hive_rw,hive_audit_log_insert_member,hive_audit_log_select_supervisor,inventory_items_write · fns:wh_bind_audit_actor · triggers:wh_bind_audit_actor_trg
-- `20260710000004_find_hive_by_code_require_auth` — (misc DDL/DML)
-- `20260710000005_get_pm_compliance_smrp_weighted` — fns:get_pm_compliance_smrp
-- `20260711000000_community_xp_write_lockdown` — policies:community_xp_read,community_xp_write
-- `20260711000001_community_reputation_bridge` — fns:get_community_reputation
 - `20260711000002_community_marketplace_category` — tables:community_posts
 - `20260711000003_community_best_answer` — fns:set_community_best_answer · tables:community_replies
 - `20260711000004_community_xp_auth_uid` — fns:get_community_reputation_by_auth,increment_community_xp · tables:community_xp
@@ -210,6 +202,14 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260803000001_cap_the_new_payment_write` — triggers:trg_daily_cap_service_payments
 - `20260803000002_restore_security_invoker_on_catalog_truth` — (misc DDL/DML)
 - `20260803000003_grant_service_payments_explicitly` — (misc DDL/DML)
+- `20260803000004_the_radius_only_ever_reached_20km` — fns:service_knob
+- `20260803000005_credit_treasury_the_liability_cap` — policies:credit_treasury_read · fns:issue_credits,retire_credits · tables:credit_treasury
+- `20260803000006_credit_economy_knobs` — fns:service_knob,service_knob_pct · tables:hive_service_settings
+- `20260803000007_listing_reservations` — policies:credit_reservations_read · fns:guard_listing_requires_reservation,listing_reservation_amount,release_reservation_on_delist,seller_credit_balance · triggers:trg_listing_requires_reservation,trg_release_reservation · tables:credit_reservations
+- `20260803000008_reward_earn_or_spend` — fns:grant_listing_reward,guard_reward_exclusive,guard_reward_spend_cap · triggers:trg_grant_listing_reward,trg_reward_exclusive,trg_reward_spend_cap · tables:service_credit_ledger
+- `20260803000009_reward_fund_is_not_a_spend` — fns:grant_listing_reward · tables:service_credit_ledger
+- `20260803000010_holding_fee_and_starter_grant` — fns:claim_starter_grant,sweep_listing_holding_fee · tables:credit_starter_grants
+- `20260803000011_a_wallet_is_nobody_elses_business` — fns:seller_credit_balance
 
 (showing last 200)
 

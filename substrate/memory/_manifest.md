@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:635-files
-source_sha: bf70378f2e3334e1
+source: memory-curated:636-files
+source_sha: 23dc74e7018c96c9
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (635 durable topic files)
+## memory · curated auto-memory (636 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=257 · project=289 · reference=89
+**By type:** feedback=257 · project=290 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -516,6 +516,6 @@ Entries (name · type · sha):
 - `project_sentinel_architecture` · project · 0bf1619f0fc0adac
 - `project_seo_aeo_geo_100_arc` · project · e98ab698366f1024
 - `project_seo_aeo_geo_maximization_roadmap` · project · 591d83a32d51cb37
-- … +135 more (all included in the fingerprint)
+- … +136 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]
