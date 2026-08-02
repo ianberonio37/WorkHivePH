@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:482
-source_sha: 958d1cee78d4b4f0
+source: dir:supabase/migrations:483
+source_sha: 8fd3773da3740d68
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (482 migrations)
+## migration · catalog (483 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260709000000_fix_daily_cap_uuid_ident` — fns:check_daily_row_cap
 - `20260710000000_get_oee_by_machine_good_total_quality` — fns:get_oee_by_machine
 - `20260710000001_integration_configs_supervisor_rls` — policies:integration_configs_hive_rw,integration_configs_supervisor_all
 - `20260710000002_external_sync_workhive_link` — tables:external_sync
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260802000002_a_provider_who_finished_is_not_still_busy` — fns:reconcile_provider_availability,sync_provider_availability
 - `20260803000001_cap_the_new_payment_write` — triggers:trg_daily_cap_service_payments
 - `20260803000002_restore_security_invoker_on_catalog_truth` — (misc DDL/DML)
+- `20260803000003_grant_service_payments_explicitly` — (misc DDL/DML)
 
 (showing last 200)
 
