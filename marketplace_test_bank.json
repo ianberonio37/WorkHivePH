@@ -8634,6 +8634,2751 @@
       "evidence_src": "SJ-FULL live walk: a user driving broadcasting->expired is REFUSED and sweep_service_broadcasts() is permission-denied to authenticated callers - correct, expiry belongs to the system. Reached live via the REAL production path instead: a broadcasting job with a lapsed offer_ttl_expires_at, then sweep_service_broadcasts() as the service role -> status became 'expired'.",
       "covered_by": "sj-full-lifecycle-walk",
       "covered_evidence": "broadcasting -> expired observed live through the scheduled sweep, not by weakening the rule that keeps a user from expiring their own job"
+    },
+    {
+      "id": "MS-D1-tab-owns-surface",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-D1-tab-owns-surface — #content-area shows the seller's LISTINGS, never another tab's empty state",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-D2-section-switch-hides-grid",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-D2-section-switch-hides-grid — exactly ONE of #listing-grid / #services-pane is displayed, never both",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-D3-closed-sheet-is-inert",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-D3-closed-sheet-is-inert — focus does NOT land on the hidden edit form; the sheet carries [inert]",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-D4-cert-level-reaches-client",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-D4-cert-level-reaches-client — cert-gated options carry data-cert, sourced from the truth VIEW not the base table",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "cert-gated options carry data-cert, sourced from the truth VIEW not the base table"
+    },
+    {
+      "id": "MS-D5-ui-hail-carries-geo",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-D5-ui-hail-carries-geo — service_requests.location is NOT NULL and st_dwithin actually discriminates by distance",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-D6-primary-cta-reachable",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "rubric",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-D6-primary-cta-reachable — the primary CTA is within the viewport without scrolling (sticky action row)",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-D7-refusal-states-truth",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "rubric",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-D7-refusal-states-truth — the refusal names the REAL balance and the REAL floor, never 'negative' when positive",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-D8-tile-populates-on-load",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-D8-tile-populates-on-load — the credit-economy tile populates on its OWN, with no manual invocation",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-requested",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "requested"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-requested — the job reaches 'requested' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-requested-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "requested"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-requested-wrong-role — the transition to 'requested' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-broadcasting",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "broadcasting"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-broadcasting — the job reaches 'broadcasting' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-broadcasting-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "broadcasting"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-broadcasting-wrong-role — the transition to 'broadcasting' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-accepted",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "accepted"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-accepted — the job reaches 'accepted' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-accepted-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "accepted"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-accepted-wrong-role — the transition to 'accepted' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-en-route",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "en_route"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-en-route — the job reaches 'en_route' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-en-route-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "en_route"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-en-route-wrong-role — the transition to 'en_route' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-on-site",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "on_site"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-on-site — the job reaches 'on_site' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-on-site-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "on_site"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-on-site-wrong-role — the transition to 'on_site' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-in-progress",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "in_progress"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-in-progress — the job reaches 'in_progress' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-in-progress-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "in_progress"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-in-progress-wrong-role — the transition to 'in_progress' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-completed",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "completed"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-completed — the job reaches 'completed' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-completed-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "completed"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-completed-wrong-role — the transition to 'completed' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-settled",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "settled"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-settled — the job reaches 'settled' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-settled-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "settled"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-settled-wrong-role — the transition to 'settled' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-cancelled-by-client",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "cancelled_by_client"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-cancelled-by-client — the job reaches 'cancelled_by_client' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-cancelled-by-client-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "cancelled_by_client"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-cancelled-by-client-wrong-role — the transition to 'cancelled_by_client' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-cancelled-by-provider",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "cancelled_by_provider"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-cancelled-by-provider — the job reaches 'cancelled_by_provider' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-cancelled-by-provider-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "cancelled_by_provider"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-cancelled-by-provider-wrong-role — the transition to 'cancelled_by_provider' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-expired",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "expired"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "admin x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-expired — the job reaches 'expired' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-expired-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "expired"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x admin",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-expired-wrong-role — the transition to 'expired' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-disputed",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "disputed"
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-disputed — the job reaches 'disputed' and BOTH parties' screens agree on it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-STATE-disputed-wrong-role",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": "disputed"
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-disputed-wrong-role — the transition to 'disputed' is REFUSED for the non-owning role",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MONEY-commission-on-paid",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-commission-on-paid — commission bills what was PAID, not the catalogue or the budget",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "commission bills what was PAID, not the catalogue or the budget"
+    },
+    {
+      "id": "MS-MONEY-cashback-mints-once",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-cashback-mints-once — exactly one cashback per settled job, to the CONSUMER",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "exactly one cashback per settled job, to the CONSUMER"
+    },
+    {
+      "id": "MS-MONEY-double-tap-release",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-double-tap-release — a double-tapped Release mints exactly one commission",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MONEY-release-needs-record",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-release-needs-record — settling without a payment record is refused",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "settling without a payment record is refused"
+    },
+    {
+      "id": "MS-MONEY-second-payment-refused",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-second-payment-refused — the price cannot be restated after commission is billed",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MONEY-understatement-needs-reason",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-understatement-needs-reason — a materially low payment requires a written reason",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "a materially low payment requires a written reason"
+    },
+    {
+      "id": "MS-MONEY-dispute-reverses-both",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-dispute-reverses-both — an adjustment reverses commission and claws back cashback, deleting nothing",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MONEY-deposit-blocks-accept",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-deposit-blocks-accept — a provider below the floor cannot accept, and is told the real numbers",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "a provider below the floor cannot accept, and is told the real numbers"
+    },
+    {
+      "id": "MS-MONEY-cold-start-can-accept",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-cold-start-can-accept — a provider with NO ledger history may take a first job",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "a provider with NO ledger history may take a first job"
+    },
+    {
+      "id": "MS-MONEY-topup-verify-mints",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-topup-verify-mints — a founder-verified GCash top-up mints credits to the right wallet",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-colorblind",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-COLORBLIND",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-colorblind — every status is distinguishable without colour",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-screenreader",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-SCREENREADER",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-screenreader — a text-equivalent provider list exists behind the map",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-lowvis",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-LOWVIS",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-lowvis — at 200% zoom the money screen reflows and nothing is clipped",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-gloved",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-GLOVED",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-gloved — every primary control clears 44px",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-tremor",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-TREMOR",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-tremor — a double tap cannot double-charge",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-onehanded",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-ONEHANDED",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-onehanded — the primary action sits in the bottom third",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-filipino",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-FILIPINO",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-filipino — money words carry translation markers and resolve",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-lowliteracy",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-LOWLITERACY",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-lowliteracy — the release screen avoids untranslated jargon",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs human judgement (tone/comprehension for P-LOWLITERACY) — no assertion can decide it, and pretending otherwise would be a false green"
+    },
+    {
+      "id": "MS-PERSONA-slownet",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-SLOWNET",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-slownet — the hail screen is usable before the map library loads",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-lowend",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-LOWEND",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-lowend — the grid renders at 360px without horizontal scroll",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-flaky",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-FLAKY",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-flaky — a mid-job disconnect refuses the write AND says so",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-battery",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-BATTERY",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-battery — no affordance depends on animation",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-firsttime",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-FIRSTTIME",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-firsttime — nothing assumes a convention they have never met",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs human judgement (tone/comprehension for P-FIRSTTIME) — no assertion can decide it, and pretending otherwise would be a false green"
+    },
+    {
+      "id": "MS-PERSONA-scamwary",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-SCAMWARY",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-scamwary — the release screen says who gets what and that we hold nothing",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs human judgement (tone/comprehension for P-SCAMWARY) — no assertion can decide it, and pretending otherwise would be a false green"
+    },
+    {
+      "id": "MS-PERSONA-unbanked",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-UNBANKED",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-unbanked — the deposit refusal explains it is spendable, not a fee",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-older",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-OLDER",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-older — at 150% zoom the hail form is still completable",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-sunlight",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-SUNLIGHT",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-sunlight — contrast holds at APCA 60 for primary text",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-night",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-NIGHT",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-night — dark mode keeps every status legible",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-impulsive",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-IMPULSIVE",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-impulsive — a double-tapped Hail creates ONE request",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-haggler",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-HAGGLER",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-haggler — the quote path accepts a counter-offer without losing the thread",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-noshow",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-NOSHOW",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-noshow — abandoning mid-flow leaves no half-written row",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-deaf",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-DEAF",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-deaf — an arriving hail is signalled visually, never by sound alone",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-noisy",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-NOISY",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-noisy — same as P-DEAF: no audio-only signal",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-datacap",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-DATACAP",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-datacap — the map is not fetched unless asked for",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PERSONA-taglish",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "task-success",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": "P-TAGLISH",
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-taglish — search works with mixed-language terms",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-FRAUD-self-deal",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-self-deal — a provider cannot accept their own request",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-FRAUD-tier-self-mint",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-tier-self-mint — 51 self-marked sales reach BRONZE, not gold",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "51 self-marked sales reach BRONZE, not gold"
+    },
+    {
+      "id": "MS-FRAUD-tier-farm-one-buyer",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-tier-farm-one-buyer — many sales to one buyer count as ONE counterparty",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "many sales to one buyer count as ONE counterparty"
+    },
+    {
+      "id": "MS-FRAUD-ledger-delete",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-ledger-delete — no user can DELETE or UPDATE a ledger row",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "no user can DELETE or UPDATE a ledger row"
+    },
+    {
+      "id": "MS-FRAUD-ledger-self-mint",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-ledger-self-mint — no user can INSERT credits for themselves",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "no user can INSERT credits for themselves"
+    },
+    {
+      "id": "MS-FRAUD-self-verified-topup",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-self-verified-topup — nobody may verify their own GCash top-up",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-FRAUD-knob-self-service",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-knob-self-service — a hive cannot lower its own gold bar",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "a hive cannot lower its own gold bar"
+    },
+    {
+      "id": "MS-FRAUD-cashback-farm-cycle",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-cashback-farm-cycle — settle/dispute/settle does not mint cashback twice",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-FRAUD-review-without-purchase",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-review-without-purchase — a review requires a real completed job",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-FRAUD-cross-hive-read",
+      "kind": "negative",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "refused",
+      "lane": "journey",
+      "oracle": "refusal",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-cross-hive-read — a hive cannot read another hive's requests or ledger",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-BROWSE-ANON-SEES-LISTINGS",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-BROWSE-ANON-SEES-LISTINGS — an anonymous visitor can browse and is told plainly how to act",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-BROWSE-SECTION-COUNTS-TRUE",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-BROWSE-SECTION-COUNTS-TRUE — each section tab's count equals the rows it actually renders",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-SEARCH-EMPTY-VS-ERROR",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-SEARCH-EMPTY-VS-ERROR — a failed search shows an ERROR, never a first-run empty state",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-SELLER-PROFILE-REACHABLE",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-SELLER-PROFILE-REACHABLE — the seller profile opens from the listing detail",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-RANKING-TRANSPARENCY",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-RANKING-TRANSPARENCY — the ordering rule is stated where results are ranked",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-LISTING-CREATE-FROM-DASHBOARD",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-LISTING-CREATE-FROM-DASHBOARD — a seller can start a listing from the page where they manage listings",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-LISTING-EDIT-PERSISTS",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-LISTING-EDIT-PERSISTS — an edit round-trips and the card reflects it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-LISTING-SOLD-NEEDS-BUYER",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x client",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-LISTING-SOLD-NEEDS-BUYER — marking sold requires a linked inquiry for THAT listing",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "marking sold requires a linked inquiry for THAT listing"
+    },
+    {
+      "id": "MS-INQUIRY-REACHES-SELLER",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-INQUIRY-REACHES-SELLER — a buyer inquiry appears on the seller's Inquiries tab",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-REVIEW-BIDIRECTIONAL",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-REVIEW-BIDIRECTIONAL — both sides can review after completion",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-TIER-REFLECTS-DISTINCT-BUYERS",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-TIER-REFLECTS-DISTINCT-BUYERS — the tier chip matches distinct confirmed counterparties",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-JOB-WRITES-BACK-TO-LOGBOOK",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-JOB-WRITES-BACK-TO-LOGBOOK — a completed job produces a retrievable logbook entry",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-ASSET-CONTEXT-HAIL",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-ASSET-CONTEXT-HAIL — hailing from an asset carries the asset context through",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-ALERT-TO-HAIL",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-ALERT-TO-HAIL — an alert can raise a hail without retyping the problem",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-PM-AUTO-HAIL",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-PM-AUTO-HAIL — a due PM files its own hail without a human pressing anything",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-OFFLINE-HAIL-REFUSED",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-OFFLINE-HAIL-REFUSED — an offline hail is REFUSED and says nothing was sent",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-TTL-EXPIRY-VISIBLE",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-TTL-EXPIRY-VISIBLE — an expired hail tells the client why, not just that it ended",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-ACCEPT-RACE-LOSER-TOLD",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "provider x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-ACCEPT-RACE-LOSER-TOLD — the losing provider is told someone else took it",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-map-not-loaded-until-asked",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-not-loaded-until-asked — maplibregl is UNDEFINED on a fresh services view; the 800KB bundle loads only on demand",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-map-pin-sets-location",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-pin-sets-location — tapping the pin map writes a real SRID=4326 point onto the request",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-map-pin-optional",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-pin-optional — a hail sent WITHOUT pinning still succeeds, exactly as before the feature",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-map-degrades-offline",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-degrades-offline — if the map library cannot load, the typed address still sends and says so",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-map-pin-adjustable",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-pin-adjustable — tapping again MOVES the pin rather than adding a second marker",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-map-track-shows-provider",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-track-shows-provider — Track plots the provider position for an ACTIVE job and nobody else's",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-map-track-shows-site",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-track-shows-site — with a pinned hail the tracking map also shows the client's own site marker",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-map-track-stops-honestly",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-track-stops-honestly — when the job leaves the active window tracking STOPS and says why, not silently",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-map-track-privacy",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x stranger",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-track-privacy — a non-party cannot read v_service_job_tracking for someone else's job",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-presence-counts-are-real",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-presence-counts-are-real — the 'N providers online' line matches providers actually marked online",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-presence-silent-when-empty",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": null,
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-presence-silent-when-empty — with nobody online the presence line stays silent rather than printing a discouraging zero",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-MAP-radius-widens-over-rounds",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "client x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-radius-widens-over-rounds — an unanswered hail widens its radius across broadcast rounds, up to the hive cap",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-ADMIN-topup-queue-lists-pendings",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "admin x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-topup-queue-lists-pendings — the GCash queue lists every pending top-up with payer, ref and filed time",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-ADMIN-topup-verify-mints-once",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "admin x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-topup-verify-mints-once — verifying mints credits exactly once; a second press changes nothing",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-ADMIN-topup-reject-mints-nothing",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "admin x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-topup-reject-mints-nothing — rejecting mints no credits and says so",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-ADMIN-topup-self-verify-refused",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "admin x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-topup-self-verify-refused — an admin cannot verify a top-up they themselves filed",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-ADMIN-money-tile-four-numbers",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "admin x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-money-tile-four-numbers — earned, liability, cover and cashback all render real values",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-ADMIN-money-tile-cover-rag",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "admin x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-money-tile-cover-rag — the RAG dot turns amber/red as liability cover falls below 1.0",
+      "status": "owed",
+      "covered_by": null,
+      "covered_evidence": null,
+      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+    },
+    {
+      "id": "MS-ADMIN-voucher-budget-refused",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "admin x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-voucher-budget-refused — a voucher grant beyond commission earned is refused at write time",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "a voucher grant beyond commission earned is refused at write time"
+    },
+    {
+      "id": "MS-ADMIN-dispute-adjust-admin-only",
+      "kind": "positive",
+      "transition": {
+        "table": "service_requests",
+        "from": null,
+        "to": null
+      },
+      "authority": "counterparty",
+      "expect": "allowed",
+      "lane": "journey",
+      "oracle": "db-truth",
+      "layers": [
+        "S1-ui",
+        "S4-db"
+      ],
+      "persona": null,
+      "role_pair": "admin x provider",
+      "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-dispute-adjust-admin-only — only a platform admin may adjust, and never their own job",
+      "status": "banked",
+      "covered_by": "marketplace-sim",
+      "covered_evidence": "only a platform admin may adjust, and never their own job"
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

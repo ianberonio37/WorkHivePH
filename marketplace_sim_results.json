@@ -1,0 +1,188 @@
+{
+  "authored": 115,
+  "executed": 15,
+  "passed": 15,
+  "failed": 0,
+  "needs_browser": [
+    "MS-D1-tab-owns-surface",
+    "MS-D2-section-switch-hides-grid",
+    "MS-D3-closed-sheet-is-inert",
+    "MS-D5-ui-hail-carries-geo",
+    "MS-D6-primary-cta-reachable",
+    "MS-D7-refusal-states-truth",
+    "MS-D8-tile-populates-on-load",
+    "MS-STATE-requested",
+    "MS-STATE-requested-wrong-role",
+    "MS-STATE-broadcasting",
+    "MS-STATE-broadcasting-wrong-role",
+    "MS-STATE-accepted",
+    "MS-STATE-accepted-wrong-role",
+    "MS-STATE-en-route",
+    "MS-STATE-en-route-wrong-role",
+    "MS-STATE-on-site",
+    "MS-STATE-on-site-wrong-role",
+    "MS-STATE-in-progress",
+    "MS-STATE-in-progress-wrong-role",
+    "MS-STATE-completed",
+    "MS-STATE-completed-wrong-role",
+    "MS-STATE-settled",
+    "MS-STATE-settled-wrong-role",
+    "MS-STATE-cancelled-by-client",
+    "MS-STATE-cancelled-by-client-wrong-role",
+    "MS-STATE-cancelled-by-provider",
+    "MS-STATE-cancelled-by-provider-wrong-role",
+    "MS-STATE-expired",
+    "MS-STATE-expired-wrong-role",
+    "MS-STATE-disputed",
+    "MS-STATE-disputed-wrong-role",
+    "MS-MONEY-double-tap-release",
+    "MS-MONEY-second-payment-refused",
+    "MS-MONEY-dispute-reverses-both",
+    "MS-MONEY-topup-verify-mints",
+    "MS-PERSONA-colorblind",
+    "MS-PERSONA-screenreader",
+    "MS-PERSONA-lowvis",
+    "MS-PERSONA-gloved",
+    "MS-PERSONA-tremor",
+    "MS-PERSONA-onehanded",
+    "MS-PERSONA-filipino",
+    "MS-PERSONA-slownet",
+    "MS-PERSONA-lowend",
+    "MS-PERSONA-flaky",
+    "MS-PERSONA-battery",
+    "MS-PERSONA-unbanked",
+    "MS-PERSONA-older",
+    "MS-PERSONA-sunlight",
+    "MS-PERSONA-night",
+    "MS-PERSONA-impulsive",
+    "MS-PERSONA-haggler",
+    "MS-PERSONA-noshow",
+    "MS-PERSONA-deaf",
+    "MS-PERSONA-noisy",
+    "MS-PERSONA-datacap",
+    "MS-PERSONA-taglish",
+    "MS-FRAUD-self-deal",
+    "MS-FRAUD-self-verified-topup",
+    "MS-FRAUD-cashback-farm-cycle",
+    "MS-FRAUD-review-without-purchase",
+    "MS-FRAUD-cross-hive-read",
+    "MS-BROWSE-ANON-SEES-LISTINGS",
+    "MS-BROWSE-SECTION-COUNTS-TRUE",
+    "MS-SEARCH-EMPTY-VS-ERROR",
+    "MS-SELLER-PROFILE-REACHABLE",
+    "MS-RANKING-TRANSPARENCY",
+    "MS-LISTING-CREATE-FROM-DASHBOARD",
+    "MS-LISTING-EDIT-PERSISTS",
+    "MS-INQUIRY-REACHES-SELLER",
+    "MS-REVIEW-BIDIRECTIONAL",
+    "MS-TIER-REFLECTS-DISTINCT-BUYERS",
+    "MS-JOB-WRITES-BACK-TO-LOGBOOK",
+    "MS-ASSET-CONTEXT-HAIL",
+    "MS-ALERT-TO-HAIL",
+    "MS-PM-AUTO-HAIL",
+    "MS-OFFLINE-HAIL-REFUSED",
+    "MS-TTL-EXPIRY-VISIBLE",
+    "MS-ACCEPT-RACE-LOSER-TOLD",
+    "MS-MAP-map-not-loaded-until-asked",
+    "MS-MAP-map-pin-sets-location",
+    "MS-MAP-map-pin-optional",
+    "MS-MAP-map-degrades-offline",
+    "MS-MAP-map-pin-adjustable",
+    "MS-MAP-map-track-shows-provider",
+    "MS-MAP-map-track-shows-site",
+    "MS-MAP-map-track-stops-honestly",
+    "MS-MAP-map-track-privacy",
+    "MS-MAP-presence-counts-are-real",
+    "MS-MAP-presence-silent-when-empty",
+    "MS-MAP-radius-widens-over-rounds",
+    "MS-ADMIN-topup-queue-lists-pendings",
+    "MS-ADMIN-topup-verify-mints-once",
+    "MS-ADMIN-topup-reject-mints-nothing",
+    "MS-ADMIN-topup-self-verify-refused",
+    "MS-ADMIN-money-tile-four-numbers",
+    "MS-ADMIN-money-tile-cover-rag"
+  ],
+  "needs_manual": [
+    "MS-PERSONA-lowliteracy",
+    "MS-PERSONA-firsttime",
+    "MS-PERSONA-scamwary"
+  ],
+  "results": [
+    {
+      "id": "MS-D4-cert-level-reaches-client",
+      "outcome": "pass",
+      "property": "the truth view exposes requires_cert_level, so the client can mark certified-only trades"
+    },
+    {
+      "id": "MS-MONEY-commission-on-paid",
+      "outcome": "pass",
+      "property": "commission bills what was actually paid, not the catalogue price"
+    },
+    {
+      "id": "MS-MONEY-cashback-mints-once",
+      "outcome": "pass",
+      "property": "the partial unique index makes a second cashback impossible"
+    },
+    {
+      "id": "MS-MONEY-release-needs-record",
+      "outcome": "pass",
+      "property": "a settle without a payment record is refused by a live trigger"
+    },
+    {
+      "id": "MS-MONEY-understatement-needs-reason",
+      "outcome": "pass",
+      "property": "a materially understated payment must carry a written reason"
+    },
+    {
+      "id": "MS-MONEY-deposit-blocks-accept",
+      "outcome": "pass",
+      "property": "the accept gate reads the deposit floor knob"
+    },
+    {
+      "id": "MS-MONEY-cold-start-can-accept",
+      "outcome": "pass",
+      "property": "a provider with no ledger history may take a first job (cold-start exemption)"
+    },
+    {
+      "id": "MS-FRAUD-tier-self-mint",
+      "outcome": "pass",
+      "property": "a sale cannot be self-marked; it must name a counterparty"
+    },
+    {
+      "id": "MS-FRAUD-tier-farm-one-buyer",
+      "outcome": "pass",
+      "property": "the tier counts DISTINCT counterparties, not rows"
+    },
+    {
+      "id": "MS-FRAUD-ledger-delete",
+      "outcome": "pass",
+      "property": "no client-facing DELETE/UPDATE policy exists on the ledger"
+    },
+    {
+      "id": "MS-FRAUD-ledger-self-mint",
+      "outcome": "pass",
+      "property": "no client-facing INSERT policy exists on the ledger"
+    },
+    {
+      "id": "MS-FRAUD-knob-self-service",
+      "outcome": "pass",
+      "property": "tighten-only tier floors still guard the trust ladder"
+    },
+    {
+      "id": "MS-LISTING-SOLD-NEEDS-BUYER",
+      "outcome": "pass",
+      "property": "a sold listing carries the inquiry it sold through"
+    },
+    {
+      "id": "MS-ADMIN-voucher-budget-refused",
+      "outcome": "pass",
+      "property": "an over-budget voucher grant is refused at write time"
+    },
+    {
+      "id": "MS-ADMIN-dispute-adjust-admin-only",
+      "outcome": "pass",
+      "property": "only a platform admin may adjust a disputed job"
+    }
+  ],
+  "_doc": "The roadmap number is EXECUTED, never AUTHORED. Un-run scenarios are listed by id so the gap is visible rather than implied."
+}

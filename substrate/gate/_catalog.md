@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: cd1cb7e82d947a52
+source_sha: 7996436e1dbe8ae0
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (720) — the 'what's already gated' brain
+## gate · registered validators (721) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -227,7 +227,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (508)
+### Platform (509)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -517,6 +517,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `logbook-quota` ⚡ [fail] — Q0 Logbook Quota Pilot (per-day rate-limit trigger + server text caps + friendly UX + photo size assert; the Q2-replication template)
 - `marketplace` ⚡ [fail] — Marketplace Validator (4-layer: schema + edge functions + UI gates + money flow)
 - `marketplace-bank-journey` [fail] — MARKETPLACE TEST BANK — journey lane, TWO BROWSER CONTEXTS (§10). Runs tests/marketplace-bank-two-context.spec.ts: two independent Playwright contexts holding t
+- `marketplace-sim` ⚡ [fail] — MARKETPLACE SIMULATION - 115 live scenarios composed from DECLARED dimensions (Ian 2026-08-02: 'we need around diverse 100+ live simulation tests, and from ther
 - `marketplace-state-inducers` [fail] — MARKETPLACE STATE INDUCERS — the two bank states SQL altitude cannot reach. TB-STATE-inducers induces `empty`, `filtered0` and `edge` in rolled-back SQL and del
 - `marketplace-test-bank` [fail] — MARKETPLACE TEST BANK — SQL lane (MARKETPLACE_DEEPWALK_EXPANSION_ROADMAP §10). The bank's denominator is DERIVED from the four guard functions by tools/derive_t
 - `marketplace-trust-integrity` [fail] — Per-page P5/P6 marketplace SELLER-TRUST forge lock (LIVE, rolled-back psql as a real authenticated worker). The marketplace runs on the seller trust signal (rat
