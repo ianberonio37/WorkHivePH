@@ -34,6 +34,50 @@ export function adminClient(): SupabaseClient {
 }
 
 /**
+ * Sweep everything a SERVICE-ARC spec creates, in dependency order, and prove it worked.
+ *
+ * Each marketplace-sim spec was cleaning up its own rows by hand, and every one of them missed the same
+ * thing: driving a job to `completed` fires writeback_service_job_to_logbook, which copies custom_scope
+ * into logbook.problem. Four specs each left their logbook rows behind — 15 of them — because the
+ * cleanups asserted a residue count for service_requests and never looked at the side effect. A cleanup
+ * that only checks the rows it remembers writing is the same no-op as one that checks nothing
+ * ([[feedback_live_mcp_writes_pollute_test_db]]).
+ *
+ * Ordering matters: children before parents, or an FK refuses the delete and leaves the parent standing.
+ * Throws if anything survives, so a silent RLS drop cannot pass for success.
+ */
+export async function cleanupServiceArc(tag: string): Promise<void> {
+  const db = adminClient();
+  const { data: reqs } = await db.from('service_requests').select('id').ilike('custom_scope', `${tag}%`);
+  for (const r of reqs || []) {
+    await db.from('marketplace_reviews').delete().eq('request_id', r.id);
+    await db.from('service_credit_ledger').delete().eq('ref_id', r.id);
+    await db.from('service_payments').delete().eq('request_id', r.id);
+    await db.from('service_job_events').delete().eq('request_id', r.id);
+    await db.from('service_offers').delete().eq('request_id', r.id);
+  }
+  await db.from('service_requests').delete().ilike('custom_scope', `${tag}%`);
+  // The side effect nobody remembered: a completed job writes itself into the logbook.
+  await db.from('logbook').delete().ilike('problem', `${tag}%`);
+
+  const { data: topups } = await db.from('service_credit_topups').select('id').ilike('note', `${tag}%`);
+  for (const t of topups || []) await db.from('service_credit_ledger').delete().eq('ref_id', t.id);
+  await db.from('service_credit_topups').delete().ilike('note', `${tag}%`);
+
+  // Accepting a job flips a shared fixture provider to on_job; re-derive availability from truth.
+  await db.rpc('reconcile_provider_availability');
+
+  const left: string[] = [];
+  const { data: r2 } = await db.from('service_requests').select('id').ilike('custom_scope', `${tag}%`);
+  if (r2?.length) left.push(`${r2.length} service_requests`);
+  const { data: l2 } = await db.from('logbook').select('id').ilike('problem', `${tag}%`);
+  if (l2?.length) left.push(`${l2.length} logbook`);
+  const { data: t2 } = await db.from('service_credit_topups').select('id').ilike('note', `${tag}%`);
+  if (t2?.length) left.push(`${t2.length} service_credit_topups`);
+  if (left.length) throw new Error(`cleanupServiceArc(${tag}) left rows behind: ${left.join(', ')}`);
+}
+
+/**
  * Delete every row across the platform's writable tables that contains
  * the given test marker in one of its text fields. The marker is the
  * per-test unique tag (e.g. "WH-PW-0-mxyz") that tests embed in

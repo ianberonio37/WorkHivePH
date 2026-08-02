@@ -22,7 +22,7 @@
  * CLEANUP IS PART OF THE TEST: service role, in afterAll, with an asserted residue count.
  */
 import { test, expect, Page, Browser } from '@playwright/test';
-import { adminClient } from './_db-cleanup';
+import { adminClient, cleanupServiceArc } from './_db-cleanup';
 
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
 const CLIENT = 'romeobeltran@auth.workhiveph.com';
@@ -80,28 +80,7 @@ test.describe('marketplace simulation — SJ-FULL, the whole arc in one session'
 
   test.afterAll(async () => {
     try {
-      const admin = adminClient();
-      if (REQ) {
-        await admin.from('service_credit_ledger').delete().eq('ref_id', REQ);
-        await admin.from('service_payments').delete().eq('request_id', REQ);
-        await admin.from('service_offers').delete().eq('request_id', REQ);
-        await admin.from('service_job_events').delete().eq('request_id', REQ);
-      }
-      await admin.from('service_requests').delete().ilike('custom_scope', TAG + '%');
-      /* RESTORE THE FIXTURE, NOT JUST THE ROWS. Accepting flips the provider to 'on_job', and deleting
-         the request afterwards removes the very row whose transition would have freed them — so an arc
-         that aborts mid-job strands a shared fixture provider permanently. That is precisely how three
-         providers came to be sitting 'on_job' with no job on this database, and a later run then fails
-         at the accept with `no_online_provider_identity`, which reads like a product bug. The reconciler
-         this arc added IS the restore: it re-derives availability from whether an active job exists. */
-      await admin.rpc('reconcile_provider_availability');
-      const { data: left } = await admin.from('service_requests')
-        .select('id').ilike('custom_scope', TAG + '%');
-      expect(left?.length ?? 0, 'the arc spec left requests in a shared database').toBe(0);
-      if (REQ) {
-        const { data: led } = await admin.from('service_credit_ledger').select('id').eq('ref_id', REQ);
-        expect(led?.length ?? 0, 'the arc spec left ledger rows behind').toBe(0);
-      }
+      await cleanupServiceArc(TAG);
     } finally { await C?.ctx.close(); await P?.ctx.close(); }
   });
 

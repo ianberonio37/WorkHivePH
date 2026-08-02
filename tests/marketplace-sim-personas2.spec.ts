@@ -18,7 +18,7 @@
  * re-render.
  */
 import { test, expect, Page, Browser } from '@playwright/test';
-import { adminClient } from './_db-cleanup';
+import { adminClient, cleanupServiceArc } from './_db-cleanup';
 
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
 const CLIENT = 'romeobeltran@auth.workhiveph.com';
@@ -89,24 +89,7 @@ test.describe('marketplace simulation — personas on the money screen', () => {
     REQ = await stageCompleted(browser, 'shared read-only job');
   });
 
-  test.afterAll(async () => {
-    const admin = adminClient();
-    // Sweep by TAG, not by a single captured id — this spec stages more than one job, and a cleanup
-    // that only knows about the first leaves the others behind.
-    const { data: mine } = await admin.from('service_requests')
-      .select('id').ilike('custom_scope', TAG + '%');
-    for (const r of mine || []) {
-      await admin.from('service_credit_ledger').delete().eq('ref_id', r.id);
-      await admin.from('service_payments').delete().eq('request_id', r.id);
-      await admin.from('service_job_events').delete().eq('request_id', r.id);
-      await admin.from('service_offers').delete().eq('request_id', r.id);
-    }
-    await admin.from('service_requests').delete().ilike('custom_scope', TAG + '%');
-    await admin.rpc('reconcile_provider_availability');
-    const { data: left } = await admin.from('service_requests')
-      .select('id').ilike('custom_scope', TAG + '%');
-    expect(left?.length ?? 0, 'the persona spec left requests behind').toBe(0);
-  });
+  test.afterAll(async () => { await cleanupServiceArc(TAG); });
 
   test('P-FILIPINO · the money screen speaks Filipino, or it is not a money screen', async ({ browser }) => {
     /* The highest-stakes translation on the platform. "Settle", "release", "commission" and "cashback"

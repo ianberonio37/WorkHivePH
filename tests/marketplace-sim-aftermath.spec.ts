@@ -16,7 +16,7 @@
  * reading balances.
  */
 import { test, expect, Page, Browser } from '@playwright/test';
-import { adminClient } from './_db-cleanup';
+import { adminClient, cleanupServiceArc } from './_db-cleanup';
 
 const PASSWORD = process.env.WH_TEST_PASSWORD || 'test1234';
 const CLIENT = 'romeobeltran@auth.workhiveph.com';
@@ -88,22 +88,7 @@ test.describe('marketplace simulation — the aftermath, and the forgeries it mu
 
   test.afterAll(async () => {
     try {
-      const admin = adminClient();
-      const { data: mine } = await admin.from('service_requests')
-        .select('id').ilike('custom_scope', TAG + '%');
-      for (const r of mine || []) {
-        await admin.from('marketplace_reviews').delete().eq('request_id', r.id);
-        await admin.from('service_credit_ledger').delete().eq('ref_id', r.id);
-        await admin.from('service_payments').delete().eq('request_id', r.id);
-        await admin.from('service_job_events').delete().eq('request_id', r.id);
-        await admin.from('service_offers').delete().eq('request_id', r.id);
-        await admin.from('logbook').delete().eq('problem', TAG + ' aftermath job');
-      }
-      await admin.from('service_requests').delete().ilike('custom_scope', TAG + '%');
-      await admin.rpc('reconcile_provider_availability');
-      const { data: left } = await admin.from('service_requests')
-        .select('id').ilike('custom_scope', TAG + '%');
-      expect(left?.length ?? 0, 'the aftermath spec left requests behind').toBe(0);
+      await cleanupServiceArc(TAG);
     } finally { await C?.ctx.close(); await P?.ctx.close(); }
   });
 
