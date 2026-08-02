@@ -191,6 +191,13 @@ BROWSER_COVERED = {
     "MS-JOB-WRITES-BACK-TO-LOGBOOK", "MS-FRAUD-review-without-purchase", "MS-REVIEW-BIDIRECTIONAL",
     "MS-STATE-cancelled-by-client-wrong-role", "MS-MONEY-dispute-reverses-both",
     "MS-FRAUD-cashback-farm-cycle",
+    # tests/marketplace-sim-entrypoints.spec.ts — the doors that are not the marketplace. Each asserts the
+    # CONTEXT survived the page jump, not merely that the destination loaded: a dropped payload still
+    # inserts a request, it just arrives blank.
+    # MS-ALERT-TO-HAIL is deliberately NOT here — its cell skips when no alert currently offers the
+    # hand-off, and a skipped partition must never read as a covered one.
+    "MS-ASSET-CONTEXT-HAIL", "MS-PM-AUTO-HAIL", "MS-MAP-map-pin-adjustable",
+    "MS-ADMIN-topup-self-verify-refused",
 }
 
 

@@ -69,6 +69,8 @@
     "MS-INQUIRY-REACHES-SELLER",
     "MS-REVIEW-BIDIRECTIONAL",
     "MS-JOB-WRITES-BACK-TO-LOGBOOK",
+    "MS-ASSET-CONTEXT-HAIL",
+    "MS-PM-AUTO-HAIL",
     "MS-OFFLINE-HAIL-REFUSED",
     "MS-TTL-EXPIRY-VISIBLE",
     "MS-ACCEPT-RACE-LOSER-TOLD",
@@ -76,6 +78,7 @@
     "MS-MAP-map-pin-sets-location",
     "MS-MAP-map-pin-optional",
     "MS-MAP-map-degrades-offline",
+    "MS-MAP-map-pin-adjustable",
     "MS-MAP-map-track-shows-provider",
     "MS-MAP-map-track-shows-site",
     "MS-MAP-map-track-stops-honestly",
@@ -86,6 +89,7 @@
     "MS-ADMIN-topup-queue-lists-pendings",
     "MS-ADMIN-topup-verify-mints-once",
     "MS-ADMIN-topup-reject-mints-nothing",
+    "MS-ADMIN-topup-self-verify-refused",
     "MS-ADMIN-money-tile-four-numbers",
     "MS-ADMIN-money-tile-cover-rag"
   ],
@@ -103,11 +107,7 @@
     "MS-RANKING-TRANSPARENCY",
     "MS-LISTING-EDIT-PERSISTS",
     "MS-TIER-REFLECTS-DISTINCT-BUYERS",
-    "MS-ASSET-CONTEXT-HAIL",
-    "MS-ALERT-TO-HAIL",
-    "MS-PM-AUTO-HAIL",
-    "MS-MAP-map-pin-adjustable",
-    "MS-ADMIN-topup-self-verify-refused"
+    "MS-ALERT-TO-HAIL"
   ],
   "needs_manual": [
     "MS-PERSONA-lowliteracy",
