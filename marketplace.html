@@ -3558,25 +3558,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const e = escHtml, id = e(requestId);
     slot.innerHTML =
       '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);padding:0.7rem 0.8rem;">' +
-        '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.15rem;">Confirm what you paid</div>' +
-        '<div style="font-size:0.72rem;opacity:0.8;margin-bottom:0.5rem;">WorkHive never holds your money — you pay the provider directly. This records it so both of you have the same number.</div>' +
-        '<label for="svc-pay-amt-' + id + '" style="font-size:0.72rem;opacity:0.85;">Amount paid (₱)</label>' +
+        '<div data-i="payconfirmtitle" style="font-size:0.78rem;font-weight:600;margin-bottom:0.15rem;">Confirm what you paid</div>' +
+        '<div data-i="paynocustody" style="font-size:0.72rem;opacity:0.8;margin-bottom:0.5rem;">WorkHive never holds your money — you pay the provider directly. This records it so both of you have the same number.</div>' +
+        '<label data-i="payamount" for="svc-pay-amt-' + id + '" style="font-size:0.72rem;opacity:0.85;">Amount paid (₱)</label>' +
         '<input id="svc-pay-amt-' + id + '" type="number" min="1" step="0.01" inputmode="decimal" value="' +
           (Number(suggested) > 0 ? Number(suggested) : '') + '" style="' + _svcInputC + '">' +
-        '<label for="svc-pay-method-' + id + '" style="font-size:0.72rem;opacity:0.85;">How you paid</label>' +
+        '<label data-i="paymethod" for="svc-pay-method-' + id + '" style="font-size:0.72rem;opacity:0.85;">How you paid</label>' +
         '<select id="svc-pay-method-' + id + '" onchange="svcPayMethodChanged(\'' + id + '\')" style="' + _svcInputC + '">' +
-          '<option value="cash">Cash</option><option value="gcash">GCash</option>' +
-          '<option value="bank">Bank transfer</option><option value="other">Other</option></select>' +
+          '<option value="cash" data-i="paycash">Cash</option><option value="gcash">GCash</option>' +
+          '<option value="bank" data-i="paybank">Bank transfer</option><option value="other" data-i="payother">Other</option></select>' +
         '<div id="svc-pay-refwrap-' + id + '" style="display:none;">' +
-          '<label for="svc-pay-ref-' + id + '" style="font-size:0.72rem;opacity:0.85;">GCash reference (13 digits, optional)</label>' +
+          '<label data-i="payref" for="svc-pay-ref-' + id + '" style="font-size:0.72rem;opacity:0.85;">GCash reference (13 digits, optional)</label>' +
           '<input id="svc-pay-ref-' + id + '" type="text" inputmode="numeric" maxlength="13" placeholder="e.g. 1234567890123" style="' + _svcInputC + '">' +
         '</div>' +
         '<div id="svc-pay-whywrap-' + id + '" style="display:none;">' +
-          '<label for="svc-pay-why-' + id + '" style="font-size:0.72rem;opacity:0.85;">Why the difference?</label>' +
+          '<label data-i="paywhy" for="svc-pay-why-' + id + '" style="font-size:0.72rem;opacity:0.85;">Why the difference?</label>' +
           '<input id="svc-pay-why-' + id + '" type="text" maxlength="140" placeholder="a smaller job, a discount, part paid in materials…" style="' + _svcInputC + '">' +
         '</div>' +
-        '<button type="button" id="svc-pay-go-' + id + '" onclick="svcSettle(\'' + id + '\')" style="' + _svcBtnC + 'margin-top:0.35rem;">Confirm payment &amp; release</button>' +
+        '<button type="button" data-i="payconfirmgo" id="svc-pay-go-' + id + '" onclick="svcSettle(\'' + id + '\')" style="' + _svcBtnC + 'margin-top:0.35rem;">Confirm payment &amp; release</button>' +
       '</div>';
+    /* RE-APPLY THE DICTIONARY. whI18nApply() runs once on DOMContentLoaded over the [data-i] nodes that
+       exist then, so anything rendered later stays English no matter how well it is marked. On a money
+       screen that is not a cosmetic gap: someone is agreeing to a peso figure in a language they may not
+       read ([[feedback_i18n_unresolved_marker_is_broken_translation]]). */
+    if (typeof whI18nApply === 'function') whI18nApply(window.WH_FIL_PAGE || {});
     const amt = document.getElementById('svc-pay-amt-' + requestId);
     if (amt) amt.focus();
   }
@@ -4221,6 +4226,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
   window.WH_FIL_PAGE = {
     pagetitle:     'Marketplace',
+    /* The money screen, in Filipino. These are the words someone agrees to a peso figure in, so they are
+       written the way people actually speak rather than translated literally: "release" and "settle" have
+       no natural everyday equivalent, and inventing one would be less clear than the Taglish a PH user
+       already reads daily. The no-custody sentence is the one that matters most — it is what a wary
+       first-time user is deciding on. */
+    payconfirmtitle: 'Kumpirmahin ang binayad mo',
+    paynocustody:  'Hindi hinahawakan ng WorkHive ang pera mo — direkta mong binabayaran ang provider. Itinatala lang namin ito para pareho kayo ng numero.',
+    payamount:     'Halagang binayad (₱)',
+    paymethod:     'Paano ka nagbayad',
+    paycash:       'Cash',
+    paybank:       'Bank transfer',
+    payother:      'Iba pa',
+    payref:        'GCash reference (13 digits, opsyonal)',
+    paywhy:        'Bakit may pagkakaiba?',
+    payconfirmgo:  'Kumpirmahin ang bayad',
     showdetails:   'Ipakita ang detalye',
     tabparts:      'Parts',
     tabtraining:   'Training',

@@ -172,6 +172,10 @@ BROWSER_COVERED = {
     # a matched job in the active window WITH a live position staged.
     "MS-MAP-map-track-shows-site", "MS-MAP-map-track-shows-provider",
     "MS-MAP-map-track-stops-honestly", "MS-MAP-map-track-privacy", "MS-MAP-map-degrades-offline",
+    # tests/marketplace-sim-personas2.spec.ts — the diversity axis, aimed at the money screen, because
+    # that is where a persona failure costs pesos rather than a re-render. Paired, not multiplied.
+    "MS-PERSONA-filipino", "MS-PERSONA-tremor", "MS-PERSONA-onehanded", "MS-PERSONA-screenreader",
+    "MS-PERSONA-impulsive", "MS-PERSONA-older", "MS-PERSONA-sunlight", "MS-PERSONA-datacap",
 }
 
 
