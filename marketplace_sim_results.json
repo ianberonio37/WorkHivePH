@@ -50,10 +50,12 @@
     "MS-PERSONA-tremor",
     "MS-PERSONA-onehanded",
     "MS-PERSONA-filipino",
+    "MS-PERSONA-lowliteracy",
     "MS-PERSONA-slownet",
     "MS-PERSONA-lowend",
     "MS-PERSONA-flaky",
     "MS-PERSONA-battery",
+    "MS-PERSONA-firsttime",
     "MS-PERSONA-scamwary",
     "MS-PERSONA-unbanked",
     "MS-PERSONA-older",
@@ -108,10 +110,7 @@
     "MS-ADMIN-money-tile-cover-rag"
   ],
   "needs_browser": [],
-  "needs_manual": [
-    "MS-PERSONA-lowliteracy",
-    "MS-PERSONA-firsttime"
-  ],
+  "needs_manual": [],
   "results": [
     {
       "id": "MS-D4-cert-level-reaches-client",

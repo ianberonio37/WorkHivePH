@@ -204,6 +204,12 @@ BROWSER_COVERED = {
     "MS-LISTING-EDIT-PERSISTS", "MS-TIER-REFLECTS-DISTINCT-BUYERS",
     "MS-PERSONA-noshow", "MS-PERSONA-taglish", "MS-STATE-disputed-wrong-role",
     "MS-PERSONA-haggler",
+    # tests/marketplace-sim-comprehension.spec.ts — the two cells classify() sent to `manual`. Tone is a
+    # judgement; "does the money screen use ESCROW without ever saying what escrow is" is a FACT, and it
+    # is the fact that decides whether these personas can finish. Calling a cell manual because its
+    # HARDEST part needs a human left its LARGEST part untested. The residue that genuinely needs Ian's
+    # eye is printed by the spec's last cell rather than implied.
+    "MS-PERSONA-lowliteracy", "MS-PERSONA-firsttime",
 }
 
 
