@@ -198,6 +198,13 @@ BROWSER_COVERED = {
     # hand-off, and a skipped partition must never read as a covered one.
     "MS-ASSET-CONTEXT-HAIL", "MS-PM-AUTO-HAIL", "MS-MAP-map-pin-adjustable",
     "MS-ADMIN-topup-self-verify-refused",
+    # tests/marketplace-sim-closeout.spec.ts — the remaining personas (bound to surfaces other than the
+    # money form) and the loose truths: the geo the radius needs, the refusal the floor owes, the
+    # ordering rule the grid never stated, and the tier counter that used to count a seller's own clicks.
+    "MS-PERSONA-lowend", "MS-PERSONA-deaf", "MS-PERSONA-noisy", "MS-PERSONA-unbanked",
+    "MS-D5-ui-hail-carries-geo", "MS-D7-refusal-states-truth", "MS-RANKING-TRANSPARENCY",
+    "MS-LISTING-EDIT-PERSISTS", "MS-TIER-REFLECTS-DISTINCT-BUYERS",
+    "MS-PERSONA-noshow", "MS-PERSONA-taglish", "MS-STATE-disputed-wrong-role",
 }
 
 
