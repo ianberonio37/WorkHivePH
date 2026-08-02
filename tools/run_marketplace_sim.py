@@ -186,6 +186,11 @@ BROWSER_COVERED = {
     "MS-ACCEPT-RACE-LOSER-TOLD", "MS-STATE-cancelled-by-provider",
     "MS-STATE-cancelled-by-provider-wrong-role", "MS-STATE-expired", "MS-TTL-EXPIRY-VISIBLE",
     "MS-STATE-disputed", "MS-OFFLINE-HAIL-REFUSED", "MS-MAP-radius-widens-over-rounds",
+    # tests/marketplace-sim-aftermath.spec.ts — the record the platform leaves behind, paired with the
+    # forgery each one must refuse. A trust signal anyone can write is worse than none.
+    "MS-JOB-WRITES-BACK-TO-LOGBOOK", "MS-FRAUD-review-without-purchase", "MS-REVIEW-BIDIRECTIONAL",
+    "MS-STATE-cancelled-by-client-wrong-role", "MS-MONEY-dispute-reverses-both",
+    "MS-FRAUD-cashback-farm-cycle",
 }
 
 
