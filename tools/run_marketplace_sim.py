@@ -167,6 +167,11 @@ BROWSER_COVERED = {
     "MS-MONEY-settle-cta-reachable", "MS-MONEY-settle-form-asks-amount",
     "MS-MONEY-settle-empty-amount-named", "MS-MONEY-settle-ui-records-and-releases",
     "MS-MONEY-release-needs-record",
+    # tests/marketplace-sim-map.spec.ts — the tracking map against a job that is genuinely en route.
+    # Every earlier map cell tested the PIN; none had ever followed a moving provider, because that needs
+    # a matched job in the active window WITH a live position staged.
+    "MS-MAP-map-track-shows-site", "MS-MAP-map-track-shows-provider",
+    "MS-MAP-map-track-stops-honestly", "MS-MAP-map-track-privacy", "MS-MAP-map-degrades-offline",
 }
 
 
