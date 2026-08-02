@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:478
-source_sha: e6a16ff9012b334a
+source: dir:supabase/migrations:480
+source_sha: 5b954541a39be997
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (478 migrations)
+## migration · catalog (480 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260708000000_engdesign_calcs_write_isolation` — policies:engineering_calcs_delete,engineering_calcs_insert,engineering_calcs_update,engineering_calcs_write
-- `20260708000001_inventory_ledger_reconcile_trigger` — fns:inventory_sync_balance_from_ledger · triggers:trg_inventory_sync_balance
 - `20260708000002_fault_knowledge_reembed_on_edit` — (misc DDL/DML)
 - `20260708000003_backfill_logbook_asset_node_link` — (misc DDL/DML)
 - `20260709000000_fix_daily_cap_uuid_ident` — fns:check_daily_row_cap
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260731000023_anchor_the_four_new_tables` — (misc DDL/DML)
 - `20260731000024_understatement_needs_a_reason` — fns:guard_payment_variance_explained,service_agreed_base · triggers:trg_guard_payment_variance_explained · tables:service_payments
 - `20260801000001_catalog_truth_exposes_cert_level` — (misc DDL/DML)
+- `20260802000001_the_provider_may_read_what_they_were_paid` — policies:service_payments_read
+- `20260802000002_a_provider_who_finished_is_not_still_busy` — fns:reconcile_provider_availability,sync_provider_availability
 
 (showing last 200)
 

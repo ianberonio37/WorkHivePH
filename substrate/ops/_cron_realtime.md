@@ -2,13 +2,13 @@
 name: ops-cron-realtime
 type: ops
 source: db:cron.job+pg_publication_tables
-source_sha: f61ffd8eb89d454c
+source_sha: 6aae90164ced59c5
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## ops · cron jobs + realtime publication
 
-**pg_cron jobs (22)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
+**pg_cron jobs (23)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
 - `achievement-xp-log-purge` @ `0 3 * * 0` → DELETE FROM achievement_xp_log WHERE earned_at < now() - interval '90 days'
 - `agent-memory-retention` @ `15 4 * * *` →        DELETE FROM public.agent_memory        WHERE kind = 'turn'          AND c
 - `ai-eval-daily` @ `30 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
@@ -28,6 +28,7 @@ supersedes: null
 - `pm-overdue-daily` @ `0 6 * * *` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/s
 - `predictive-weekly` @ `0 20 * * 0` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/s
 - `project-risk-weekly` @ `0 6 * * 3` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/s
+- `service-availability-reconcile-1min` @ `* * * * *` → SELECT public.reconcile_provider_availability();
 - `service-broadcast-sweep-1min` @ `* * * * *` → SELECT public.sweep_service_broadcasts();
 - `service-outbox-drain-1min` @ `* * * * *` → SELECT public.drain_service_outbox(20);
 - `service-outbox-reconcile-1min` @ `* * * * *` → SELECT public.reconcile_service_outbox();

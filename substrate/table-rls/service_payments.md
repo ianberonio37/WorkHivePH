@@ -2,7 +2,7 @@
 name: table-rls-service_payments
 type: table-rls
 source: db:pg_policies+pg_trigger:service_payments
-source_sha: 80536b83887afabc
+source_sha: f3e66645f0790fa9
 last_verified: 2026-07-13
 supersedes: null
 ---
