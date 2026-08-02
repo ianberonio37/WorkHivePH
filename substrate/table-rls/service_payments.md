@@ -2,7 +2,7 @@
 name: table-rls-service_payments
 type: table-rls
 source: db:pg_policies+pg_trigger:service_payments
-source_sha: f3e66645f0790fa9
+source_sha: b351c12b29643941
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -17,7 +17,7 @@ Policies:
 - `service_payments_intake` [INSERT · roles=public] USING=`∅` CHECK=`((confirmed_by = auth.uid()) AND (EXISTS ( SELECT 1 FROM service_requests r WHERE ((r.id = service_payments.request_id) `
 - `service_payments_read` [SELECT · roles=public] USING=`((confirmed_by = auth.uid()) OR is_marketplace_admin() OR (EXISTS ( SELECT 1 FROM service_requests r WHERE ((r.id = serv` CHECK=`∅`
 
-Guard triggers: `trg_guard_payment_variance_explained`
+Guard triggers: `trg_daily_cap_service_payments`, `trg_guard_payment_variance_explained`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

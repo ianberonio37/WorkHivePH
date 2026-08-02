@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:480
-source_sha: 5b954541a39be997
+source: dir:supabase/migrations:482
+source_sha: 958d1cee78d4b4f0
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (480 migrations)
+## migration · catalog (482 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260708000002_fault_knowledge_reembed_on_edit` — (misc DDL/DML)
-- `20260708000003_backfill_logbook_asset_node_link` — (misc DDL/DML)
 - `20260709000000_fix_daily_cap_uuid_ident` — fns:check_daily_row_cap
 - `20260710000000_get_oee_by_machine_good_total_quality` — fns:get_oee_by_machine
 - `20260710000001_integration_configs_supervisor_rls` — policies:integration_configs_hive_rw,integration_configs_supervisor_all
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260801000001_catalog_truth_exposes_cert_level` — (misc DDL/DML)
 - `20260802000001_the_provider_may_read_what_they_were_paid` — policies:service_payments_read
 - `20260802000002_a_provider_who_finished_is_not_still_busy` — fns:reconcile_provider_availability,sync_provider_availability
+- `20260803000001_cap_the_new_payment_write` — triggers:trg_daily_cap_service_payments
+- `20260803000002_restore_security_invoker_on_catalog_truth` — (misc DDL/DML)
 
 (showing last 200)
 

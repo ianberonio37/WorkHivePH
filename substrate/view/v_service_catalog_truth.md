@@ -2,13 +2,13 @@
 name: view-v_service_catalog_truth
 type: view
 source: db:pg_get_viewdef:v_service_catalog_truth
-source_sha: d28608e7d4bc8cc7
+source_sha: 076d270a76519972
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## view · `v_service_catalog_truth`
 
-**security_invoker:** OFF ⚠  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
+**security_invoker:** on  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
 **Source tables:** `service_catalog`
 **Trust/identity cols exposed:** (none)  (each must be sourced from a CANONICAL/guarded base col, not a forgeable one — mig 009)
 
