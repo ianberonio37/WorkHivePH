@@ -149,6 +149,11 @@ BROWSER_COVERED = {
     # tests/marketplace-sim-fraud.spec.ts — attacks run as a REAL signed-in user, never as the owner
     "MS-FRAUD-ledger-self-mint", "MS-FRAUD-self-deal", "MS-FRAUD-self-verified-topup",
     "MS-FRAUD-knob-self-service", "MS-FRAUD-cross-hive-read",
+    # tests/marketplace-sim-discovery.spec.ts — the funnel's top and the return visit. The inquiry cell
+    # is the one that found the defect: the direct Contact-Seller path never validated the buyer's name
+    # before writing, so its RLS refusal reached the buyer as "your session expired, sign in again".
+    "MS-BROWSE-ANON-SEES-LISTINGS", "MS-BROWSE-SECTION-COUNTS-TRUE", "MS-SEARCH-EMPTY-VS-ERROR",
+    "MS-SELLER-PROFILE-REACHABLE", "MS-LISTING-CREATE-FROM-DASHBOARD", "MS-INQUIRY-REACHES-SELLER",
 }
 
 

@@ -3193,6 +3193,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const message   = (document.getElementById('inq-message')?.value || '').trim();
 
     if (!name || !contact || !message) { showToast('All fields are required.', 'error'); return; }
+    // The SAME RLS wall the RFQ path guards against above — WITH CHECK (buyer_name IN auth_worker_names()) —
+    // and this path, its sibling, was left unguarded when that fix landed (2026-07-24). The field is
+    // prefilled but editable, so a buyer who puts their nickname or company name got a raw 42501, which
+    // whIsAuthFailure classifies as an expired session: they were told to sign in again. That instruction
+    // is not merely unhelpful, it is false — the session is fine, the NAME is the problem, and no number of
+    // re-logins will ever deliver the message. Validate before writing, exactly as quote requests do.
+    if (WORKER_NAME && name !== WORKER_NAME) {
+      showToast(`Send this under your WorkHive name (${WORKER_NAME}) so the seller can verify who is asking.`, 'error');
+      document.getElementById('inq-name')?.focus();
+      return;
+    }
 
     const btn = document.getElementById('btn-submit-inquiry');
     if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
