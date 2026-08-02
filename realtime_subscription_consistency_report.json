@@ -296,6 +296,8 @@
         "marketplace_saved_searches",
         "marketplace_watchlist",
         "service_offers",
+        "service_payments",
+        "service_providers",
         "service_requests",
         "v_inventory_items_truth",
         "v_marketplace_inquiries_truth",
@@ -597,12 +599,12 @@
         {
           "table": "amc_briefings",
           "allowed": false,
-          "offset": 44293
+          "offset": 45758
         },
         {
           "table": "anomaly_signals",
           "allowed": false,
-          "offset": 55582
+          "offset": 57047
         }
       ],
       "drift": []

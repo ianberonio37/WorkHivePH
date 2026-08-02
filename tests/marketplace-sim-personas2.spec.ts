@@ -194,6 +194,9 @@ test.describe('marketplace simulation — personas on the money screen', () => {
     await page.evaluate((rid) => {
       (window as any).svcConfirmPay(rid, 1500);
       (document.getElementById('svc-pay-amt-' + rid) as HTMLInputElement).value = '1500';
+      // The method no longer defaults to Cash: a money form must not put words in the client's mouth,
+      // so an explicit choice is required and this cell has to make one before it can double-tap.
+      (document.getElementById('svc-pay-method-' + rid) as HTMLSelectElement).value = 'cash';
       const go = document.getElementById('svc-pay-go-' + rid) as HTMLButtonElement;
       go.click(); go.click();          // the double tap, with no wait between
     }, own);

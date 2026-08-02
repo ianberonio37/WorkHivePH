@@ -274,6 +274,67 @@ test.describe('marketplace simulation — closeout', () => {
     } finally { await ctx.close(); }
   });
 
+  test('P-HAGGLER · comparing quotes keeps every offer, and the chosen price is the one that binds', async ({ browser }) => {
+    /* Haggling is the norm in this market, not an edge case. Two things have to hold: the offers a client
+       did NOT take must survive as declined rather than vanish (a marketplace that erases the losing
+       quotes leaves nobody able to show what was offered), and — the part that actually matters — the
+       price they DID take has to become the price that binds. service_agreed_base prefers the selected
+       offer over the catalogue rate and the budget, so commission and the variance guard both follow the
+       haggle. If they did not, agreeing a lower price would still be billed at the list rate. */
+    const admin = adminClient();
+    const { data: users } = await admin.auth.admin.listUsers();
+    const clientId = users.users.find((u: any) => u.email === CLIENT)?.id;
+    const { data: provs } = await admin.from('service_providers')
+      .select('id,hive_id').not('hive_id', 'is', null).limit(2);
+    test.skip((provs?.length ?? 0) < 2, 'need two providers to compare quotes');
+
+    const { data: req } = await admin.from('service_requests').insert({
+      client_auth_uid: clientId, hive_id: provs![0].hive_id, segment: 'consumer',
+      mode: 'quote', status: 'broadcasting', custom_scope: TAG + ' haggle', budget: 5000,
+    }).select('id').single();
+
+    await admin.from('service_offers').insert([
+      { request_id: req!.id, provider_id: provs![0].id, kind: 'quote', price: 4200, status: 'pending' },
+      { request_id: req!.id, provider_id: provs![1].id, kind: 'quote', price: 3100, status: 'pending' },
+    ]);
+
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    try {
+      await signIn(page, CLIENT);
+      const seen = await page.evaluate(async (rid) => {
+        const db = (window as any).getDb();
+        const { data } = await db.from('service_offers')
+          .select('id,price,status').eq('request_id', rid).order('price');
+        return data || [];
+      }, req!.id);
+      expect(seen.length, 'the client cannot see the quotes they asked for, so there is nothing to '
+        + 'compare').toBe(2);
+
+      const cheapest = seen[0];
+      const picked = await page.evaluate(async (oid) => {
+        const db = (window as any).getDb();
+        const { data, error } = await db.rpc('select_quote', { p_offer_id: oid });
+        return { ok: !!data?.selected || !error, reason: data?.reason || error?.message };
+      }, cheapest.id);
+      expect(picked.ok, `the client could not accept the quote they chose: ${picked.reason}`).toBe(true);
+    } finally { await ctx.close(); }
+
+    const { data: offers } = await admin.from('service_offers')
+      .select('price,status').eq('request_id', req!.id);
+    expect(offers?.length ?? 0, 'selecting one quote DELETED the others — neither party can show what '
+      + 'was actually offered').toBe(2);
+    expect(offers!.filter((o: any) => o.status === 'selected').length,
+      'more than one quote ended up selected').toBe(1);
+    expect(offers!.filter((o: any) => o.status === 'declined').length,
+      'the quotes that lost were left pending, so those providers are still waiting on an answer').toBe(1);
+
+    // The haggle binds: the agreed base is the chosen quote, not the ₱5,000 the client first budgeted.
+    const { data: agreed } = await admin.rpc('service_agreed_base', { p_request_id: req!.id });
+    expect(Number(agreed), `the agreed base is ${agreed}, not the ₱3,100 quote the client accepted — the `
+      + 'negotiation had no effect on what the provider is billed against').toBe(3100);
+  });
+
   test('TIER · the chip counts DISTINCT confirmed buyers, not a seller\'s own clicks', async () => {
     /* The self-mint that shipped: gold was 51 listings a seller marked sold themselves. The counter must
        count counterparties, so the badge means something a buyer can rely on. */

@@ -60,6 +60,9 @@ test.describe('marketplace simulation — discovery tier', () => {
       await page.click(`[data-section="${sec}"]`);
       await page.waitForTimeout(2200);
       const r = await page.evaluate((s) => {
+        // The element is real; the literal id is not — it is composed at runtime from the section name,
+        // so the prefix the scanner extracts can never appear in static markup.
+        // pw-selector-allow: runtime-composed id
         const chip = document.getElementById('count-' + s);
         const claimed = Number((chip?.textContent || '').trim());
         const rendered = document.getElementById('listing-grid')?.children.length ?? 0;

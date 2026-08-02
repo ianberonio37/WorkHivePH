@@ -5,7 +5,7 @@ the platform should obey - and currently no Playwright spec exercises it.
 
 **Check coverage:** 82.8% (274 of 331 per-page checks - HONEST behavioral coverage)
 **Topic coverage:** 93.8% (45 of 48 per-page validators - loose, validator-level)
-**Raw coverage:** 77.9% (320 of 411 validators)
+**Raw coverage:** 78.6% (323 of 411 validators)
 
 Each section below groups uncovered checks by validator. Use the per-check
 list as your test backlog - one scenario per check, not one scenario per
@@ -478,16 +478,15 @@ so the next sentinel run automatically marks the check as covered.
 
 ---
 
-## Platform-wide gaps (2)
+## Platform-wide gaps (1)
 
 These validators scan ALL pages (LIVE_PAGES list, glob, etc.). Layer 0
 is the right enforcement layer because writing a Playwright scenario per
 page would just duplicate the validator with 50x the runtime.
 
-- `validate_optimistic_ui.py` (no named checks) - validate_optimistic_ui
 - `validate_user_facing_jargon.py` (1 checks) - validate_user_facing_jargon
 
-## Infrastructure gaps (86)
+## Infrastructure gaps (84)
 
 These validators have no UI surface - they enforce backend / schema /
 edge function / configuration rules. Layer 0 is the right enforcement
@@ -496,7 +495,6 @@ layer; no Playwright scenario is needed.
 - `validate_api_adoption.py` (no named checks) - validate_api_adoption
 - `validate_atomic_writes.py` (no named checks) - validate_atomic_writes
 - `validate_au_adoption.py` (no named checks) - validate_au_adoption
-- `validate_auto_discovery.py` (no named checks) - validate_auto_discovery
 - `validate_av_adoption.py` (no named checks) - validate_av_adoption
 - `validate_bundle_bloat.py` (4 checks) - validate_bundle_bloat
 - `validate_button_type_in_form.py` (1 checks) - validate_button_type_in_form
@@ -532,7 +530,6 @@ layer; no Playwright scenario is needed.
 - `validate_fields.py` (no named checks) - validate_fields
 - `validate_fk_on_delete.py` (1 checks) - validate_fk_on_delete
 - `validate_followup_queue_wiring.py` (7 checks) - validate_followup_queue_wiring
-- `validate_frequency_map_consistency.py` (2 checks) - validate_frequency_map_consistency
 - `validate_ga4_coverage.py` (4 checks) - validate_ga4_coverage
 - `validate_game_day_readiness.py` (1 checks) - validate_game_day_readiness
 - `validate_gateway_coverage.py` (4 checks) - validate_gateway_coverage
@@ -580,4 +577,4 @@ layer; no Playwright scenario is needed.
 - `validate_trigger_reentrancy.py` (4 checks) - validate_trigger_reentrancy
 - `validate_validator_self_coverage.py` (4 checks) - validate_validator_self_coverage
 
-_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 2 platform-wide and 86 infrastructure._
+_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 1 platform-wide and 84 infrastructure._

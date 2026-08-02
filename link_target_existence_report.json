@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 28,
-    "total_links": 271,
+    "total_links": 273,
     "total_broken": 0,
     "baseline": 0
   },
@@ -63,7 +63,7 @@
     },
     {
       "page": "marketplace-seller.html",
-      "link_count": 7,
+      "link_count": 9,
       "broken": []
     },
     {

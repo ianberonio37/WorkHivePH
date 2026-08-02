@@ -417,8 +417,26 @@
   // ── Identity / hive gate ───────────────────────────────────────────────────
   let WORKER_NAME = whWorker()
                   || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
-  if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  /* SETTLE THE JWT *BEFORE* THE IDENTITY READ, NOT AFTER IT.
+     restoreIdentityFromSession() performs a gated read, so it needs the token attached — which is
+     precisely what this getUser() call exists to guarantee, and it was sitting one line too late. On a
+     COLD load (a fresh sign-in, or arriving straight from a notification link with only `sb-127-auth-token`
+     in storage and no cached `wh_last_worker`) the restore ran without the JWT, resolved nothing, and the
+     next line redirected a perfectly signed-in user to the sign-in page. Measured: first visit bounced to
+     index.html?signin=1, second and third visits loaded fine — because the bounce itself warmed the cache.
+     That is the worst shape this bug can take: it disappears the moment you retry, so it never looks real,
+     and the one journey that always hits it cold is the one that matters most — following an alert
+     notification to the alert hub.
+     A redirect is also unrecoverable in a way the seller page's gate was not: there is no dismissable
+     panel to re-open, the user simply loses the page they were sent to. Belt and braces, then: settle
+     first, and if the restore still comes back empty, try once more after the session has had a chance to
+     hydrate rather than bouncing on the first miss. */
   try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
+  if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  if (!WORKER_NAME) {
+    const { data: _s } = await db.auth.getSession();
+    if (_s?.session) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  }
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
 
   const HIVE_ID   = whHiveId() || '';

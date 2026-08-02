@@ -194,9 +194,7 @@ BROWSER_COVERED = {
     # tests/marketplace-sim-entrypoints.spec.ts — the doors that are not the marketplace. Each asserts the
     # CONTEXT survived the page jump, not merely that the destination loaded: a dropped payload still
     # inserts a request, it just arrives blank.
-    # MS-ALERT-TO-HAIL is deliberately NOT here — its cell skips when no alert currently offers the
-    # hand-off, and a skipped partition must never read as a covered one.
-    "MS-ASSET-CONTEXT-HAIL", "MS-PM-AUTO-HAIL", "MS-MAP-map-pin-adjustable",
+    "MS-ALERT-TO-HAIL", "MS-ASSET-CONTEXT-HAIL", "MS-PM-AUTO-HAIL", "MS-MAP-map-pin-adjustable",
     "MS-ADMIN-topup-self-verify-refused",
     # tests/marketplace-sim-closeout.spec.ts — the remaining personas (bound to surfaces other than the
     # money form) and the loose truths: the geo the radius needs, the refusal the floor owes, the
@@ -205,6 +203,7 @@ BROWSER_COVERED = {
     "MS-D5-ui-hail-carries-geo", "MS-D7-refusal-states-truth", "MS-RANKING-TRANSPARENCY",
     "MS-LISTING-EDIT-PERSISTS", "MS-TIER-REFLECTS-DISTINCT-BUYERS",
     "MS-PERSONA-noshow", "MS-PERSONA-taglish", "MS-STATE-disputed-wrong-role",
+    "MS-PERSONA-haggler",
 }
 
 

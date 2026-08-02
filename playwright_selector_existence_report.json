@@ -1,7 +1,7 @@
 {
   "summary": {
-    "specs_scanned": 35,
-    "total_lookups": 160,
+    "specs_scanned": 50,
+    "total_lookups": 222,
     "total_drift": 2,
     "baseline": 2
   },
@@ -353,6 +353,147 @@
         "marketplace-seller.html",
         "marketplace.html",
         "marketplace.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-aftermath.spec.ts",
+      "targets": [
+        "index.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-arc.spec.ts",
+      "targets": [
+        "index.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-closeout.spec.ts",
+      "targets": [
+        "index.html",
+        "marketplace.html",
+        "marketplace.html",
+        "marketplace-seller.html",
+        "index.html",
+        "marketplace.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-defects.spec.ts",
+      "targets": [
+        "index.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "marketplace-seller.html",
+        "marketplace.html",
+        "founder-console.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-discovery.spec.ts",
+      "targets": [
+        "index.html",
+        "marketplace.html",
+        "marketplace.html",
+        "marketplace.html",
+        "marketplace.html",
+        "marketplace-seller.html",
+        "marketplace-seller.html",
+        "marketplace.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-entrypoints.spec.ts",
+      "targets": [
+        "index.html",
+        "marketplace.html",
+        "alert-hub.html",
+        "marketplace.html",
+        "founder-console.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-founder.spec.ts",
+      "targets": [
+        "index.html",
+        "founder-console.html",
+        "founder-console.html",
+        "founder-console.html",
+        "founder-console.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-fraud.spec.ts",
+      "targets": [
+        "index.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-lifecycle.spec.ts",
+      "targets": [
+        "index.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-map-admin.spec.ts",
+      "targets": [
+        "index.html",
+        "marketplace.html",
+        "founder-console.html",
+        "founder-console.html",
+        "founder-console.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-map.spec.ts",
+      "targets": [
+        "index.html",
+        "marketplace.html",
+        "index.html",
+        "marketplace.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-money-ui.spec.ts",
+      "targets": [
+        "index.html",
+        "marketplace.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-personas.spec.ts",
+      "targets": [
+        "index.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-personas2.spec.ts",
+      "targets": [
+        "index.html",
+        "marketplace.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-unhappy.spec.ts",
+      "targets": [
+        "index.html",
+        "marketplace.html",
+        "index.html"
       ],
       "misses": []
     },

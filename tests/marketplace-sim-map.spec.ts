@@ -64,10 +64,16 @@ test.describe('marketplace simulation — the live tracking map', () => {
     const made = await C.page.evaluate(async ([tag, lng, lat]) => {
       const db = (window as any).getDb();
       const { data: s } = await db.auth.getSession();
-      const { data: prov } = await db.from('service_providers').select('hive_id')
-        .not('hive_id', 'is', null).limit(1);
+      /* THE CLIENT'S OWN HIVE, not whichever provider limit(1) happens to return. The tracking view
+         admits active members of the REQUEST'S hive, so the hive decides who counts as a stranger — and
+         with an arbitrary hive the D8 cell later flipped from passing to failing on nothing but planner
+         order, reporting a leak that was really a colleague. Pin it to the client
+         ([[feedback_resolving_live_is_not_enough_be_deterministic]]). */
+      const { data: mine } = await db.from('hive_members').select('hive_id')
+        .eq('auth_uid', s.session.user.id).eq('status', 'active')
+        .order('hive_id', { ascending: true }).limit(1);
       const { data, error } = await db.from('service_requests').insert({
-        client_auth_uid: s.session.user.id, hive_id: prov?.[0]?.hive_id, segment: 'consumer',
+        client_auth_uid: s.session.user.id, hive_id: mine?.[0]?.hive_id, segment: 'consumer',
         mode: 'instant', status: 'broadcasting', custom_scope: tag + ' tracked job', budget: 1500,
         location: `SRID=4326;POINT(${lng} ${lat})`, address: 'SIMMAP test site',
       }).select('id').single();
@@ -137,6 +143,9 @@ test.describe('marketplace simulation — the live tracking map', () => {
     await C.page.waitForTimeout(7000);
 
     const r = await C.page.evaluate((rid) => {
+      // One map container per tracked request, so the id is built per job at runtime and no static id
+      // exists for the scanner to match.
+      // pw-selector-allow: runtime-composed id
       const holder = document.getElementById('svc-map-' + rid);
       return {
         lib: typeof (window as any).maplibregl !== 'undefined',

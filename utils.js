@@ -2660,8 +2660,22 @@ async function restoreIdentityFromSession(db) {
       return '';
     }
     // Signed IN: resolve THIS session's worker and reconcile the cache so a foreign cache can't persist.
-    const { data: profile } = await db.from('v_worker_truth')
-      .select('worker_name').eq('auth_uid', session.user.id).maybeSingle();
+    /* NOT .maybeSingle(). v_worker_truth carries ONE ROW PER HIVE MEMBERSHIP, so a worker who belongs to
+       two hives — a contractor covering two plants, which is a supported state, not an anomaly — returns
+       two rows, and maybeSingle() resolves to NULL on multiple rows. The error is swallowed by the
+       destructure, identity restoration silently returns the (empty) cache, and every page that gates on
+       it bounces the user to the sign-in screen. Measured live: 2 of 14 seeded accounts belong to two
+       hives, and BOTH were being redirected on any cold load.
+       It hid for two reasons. The bounce itself warms `wh_last_worker`, so the second visit always works
+       and it never looks reproducible. And the accounts it breaks are the multi-hive ones — the founder
+       and the cross-plant contractor — who are the least likely to be the seeded happy path.
+       All rows for one auth_uid carry the SAME worker_name (the name is the person, the fan-out is the
+       membership), so any row is correct; ordering makes the choice deterministic rather than
+       whichever the planner returns first ([[feedback_resolving_live_is_not_enough_be_deterministic]]). */
+    const { data: _rows } = await db.from('v_worker_truth')
+      .select('worker_name').eq('auth_uid', session.user.id)
+      .order('worker_name', { ascending: true }).limit(1);
+    const profile = (_rows && _rows[0]) || null;
     if (profile?.worker_name) {
       if (cached !== profile.worker_name) localStorage.setItem('wh_last_worker', profile.worker_name);
       return profile.worker_name;

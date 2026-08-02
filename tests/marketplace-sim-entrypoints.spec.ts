@@ -68,8 +68,26 @@ test.describe('marketplace simulation — the other doors into a hail', () => {
 
   test('ALERT → HAIL · the alert-hub link carries the asset it was raised for', async ({ page }) => {
     await signIn(page, ADMIN);
+    /* SEED THE HIVE CONTEXT THE WAY A REAL SIGN-IN DOES. alert-hub reads `wh_hive_id` from localStorage
+       and, finding none, correctly shows its "join a hive" gate and returns BEFORE loading any alerts —
+       so a programmatic sign-in lands on an empty page and the cell skipped, looking like the hand-off
+       did not exist. That is the harness, not the product: signing in through index.html sets the hive.
+       (Chasing this did surface a real bug alongside it — v_worker_truth carries one row per hive
+       membership, so `.maybeSingle()` resolved to NULL for the two multi-hive accounts and bounced them
+       to the sign-in screen on any cold load. Fixed in utils.js.) */
+    await page.evaluate(async () => {
+      const db = (window as any).getDb();
+      const { data: s } = await db.auth.getSession();
+      const { data: m } = await db.from('hive_members')
+        .select('hive_id, hives(name)').eq('auth_uid', s.session.user.id)
+        .eq('status', 'active').limit(1);
+      if (m?.length) {
+        localStorage.setItem('wh_hive_id', m[0].hive_id);
+        if (m[0].hives?.name) localStorage.setItem('wh_hive_name', m[0].hives.name);
+      }
+    });
     await page.goto('/workhive/alert-hub.html');
-    await page.waitForTimeout(5000);
+    await page.waitForTimeout(9000);
     const link = await page.evaluate(() => {
       const a = Array.from(document.querySelectorAll('a[href*="marketplace.html"]'))
         .map(x => x.getAttribute('href') || '')

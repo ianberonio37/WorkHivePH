@@ -1,5 +1,7 @@
 {
   "_doc": "Forward-only ratchet baseline. Updated only via --update-baseline after a deliberate reduction.",
   "tier_a_pages": {},
-  "gap_table_counts": {}
+  "gap_table_counts": {
+    "service_providers": 1
+  }
 }

@@ -60,6 +60,7 @@
     "MS-PERSONA-sunlight",
     "MS-PERSONA-night",
     "MS-PERSONA-impulsive",
+    "MS-PERSONA-haggler",
     "MS-PERSONA-noshow",
     "MS-PERSONA-deaf",
     "MS-PERSONA-noisy",
@@ -82,6 +83,7 @@
     "MS-TIER-REFLECTS-DISTINCT-BUYERS",
     "MS-JOB-WRITES-BACK-TO-LOGBOOK",
     "MS-ASSET-CONTEXT-HAIL",
+    "MS-ALERT-TO-HAIL",
     "MS-PM-AUTO-HAIL",
     "MS-OFFLINE-HAIL-REFUSED",
     "MS-TTL-EXPIRY-VISIBLE",
@@ -105,10 +107,7 @@
     "MS-ADMIN-money-tile-four-numbers",
     "MS-ADMIN-money-tile-cover-rag"
   ],
-  "needs_browser": [
-    "MS-PERSONA-haggler",
-    "MS-ALERT-TO-HAIL"
-  ],
+  "needs_browser": [],
   "needs_manual": [
     "MS-PERSONA-lowliteracy",
     "MS-PERSONA-firsttime"

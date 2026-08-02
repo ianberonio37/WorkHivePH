@@ -475,5 +475,8 @@
   "20260731000021_voucher_budget_cap.sql": "86305c97cae04c38ac53394f50ce0af12fe8a305019684a6df4a0831e39defb4",
   "20260731000022_restore_daily_cap_uuid_cast.sql": "1d39779f3348e8c552d855dcf9eb60b08c56eb7799b5dcbe6e3b8b850678d802",
   "20260731000023_anchor_the_four_new_tables.sql": "d7874acafb8f0afc4b2ea83d2d2cdbb07a38e7ae46d216be9f6535bf60cad474",
-  "20260731000024_understatement_needs_a_reason.sql": "cd2d483beb186158de951a05d654ca7e1670928d283e40e563727da495c6eb43"
+  "20260731000024_understatement_needs_a_reason.sql": "cd2d483beb186158de951a05d654ca7e1670928d283e40e563727da495c6eb43",
+  "20260801000001_catalog_truth_exposes_cert_level.sql": "21010fe10c34eaf53cc5d75dc5e3d8319bcf2142e1cb49ce6dc8e3c93ec5db81",
+  "20260802000001_the_provider_may_read_what_they_were_paid.sql": "feff438a2bdbc91b3e16ccd45060a33e04911398257be50d93caf23238bcea87",
+  "20260802000002_a_provider_who_finished_is_not_still_busy.sql": "f953dd4bb15aa1047926e7b92dc3b2e0364f87ecf244cc4fc7c3a16b8349cdbc"
 }

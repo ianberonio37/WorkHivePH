@@ -82,6 +82,11 @@ test.describe('marketplace simulation — persona tier', () => {
     await signIn(page, CLIENT);
     await openServices(page);
     const small = await page.evaluate(() => {
+      /* The services view and its hail form are RENDERED BY JS, and this spec navigates via the BROWSE
+         constant rather than a string literal, so the scanner resolves its target as index.html and
+         cannot see these ids at all. Verified live: #services-pane, #svc-hail-item and
+         #svc-hail-address all resolve once the services section is switched on. */
+      // pw-selector-allow: JS-rendered ids; scanner resolves this spec's target as index.html
       const pane = document.getElementById('services-pane');
       return Array.from(pane?.querySelectorAll('button, select, input, a') || [])
         .map(e => ({ t: ((e as HTMLElement).innerText || (e as HTMLInputElement).placeholder || e.id || '').slice(0, 24),
@@ -98,6 +103,7 @@ test.describe('marketplace simulation — persona tier', () => {
     await page.route('**/maplibre-gl.js', route => setTimeout(() => route.abort(), 3000));
     await openServices(page);
     const usable = await page.evaluate(() => {
+      // pw-selector-allow: JS-rendered hail-form ids; scanner target resolves to index.html
       const sel = document.getElementById('svc-hail-item') as HTMLSelectElement | null;
       const addr = document.getElementById('svc-hail-address');
       const btn = Array.from(document.querySelectorAll('button'))
