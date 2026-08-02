@@ -142,6 +142,10 @@ BROWSER_COVERED = {
     "MS-STATE-accepted-wrong-role", "MS-STATE-en-route-wrong-role", "MS-STATE-on-site-wrong-role",
     "MS-STATE-in-progress-wrong-role", "MS-STATE-completed-wrong-role", "MS-STATE-settled-wrong-role",
     "MS-STATE-expired-wrong-role",
+    # tests/marketplace-sim-map-admin.spec.ts — the leg Ian named, and the founder's money surface
+    "MS-MAP-map-not-loaded-until-asked", "MS-MAP-map-pin-sets-location", "MS-MAP-map-pin-optional",
+    "MS-MAP-presence-counts-are-real", "MS-MAP-presence-silent-when-empty",
+    "MS-ADMIN-topup-queue-lists-pendings", "MS-ADMIN-money-tile-four-numbers",
 }
 
 

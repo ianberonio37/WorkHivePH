@@ -3642,7 +3642,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // with the same number online). service_area is unique in this view, making the order total.
         .order('providers_online', { ascending: false }).order('service_area').limit(6);
       if (error || !data || !data.length) return;
-      const total = data.reduce((s, r) => s + Number(r.providers_online || 0), 0);
+      /* COUNT PEOPLE, NOT AREA-ROWS. `service_areas` is an ARRAY, so a provider covering
+         {Batangas, Manila} appears in BOTH rows of this view — correct for the per-area breakdown,
+         and double-counting when those rows are summed into a headline. Measured 2026-08-02: the line
+         read "5 providers online now" while exactly 4 providers had availability='online', because
+         Lucena Pharmaceutical serves two areas. Inflating available supply is the same class as any
+         other trust number standing on nothing, and it is the number a client decides to wait on.
+         The DISTINCT count comes straight from the source of truth rather than from a sum. */
+      let total = 0;
+      try {
+        const { data: onlineRows } = await db.from('service_providers')
+          .select('id').eq('availability', 'online');
+        total = (onlineRows || []).length;
+      } catch (_) { /* empty-catch-allow: fall back below rather than lose the hint entirely */ }
+      // Fallback keeps the hint alive if that read fails, but never claims MORE than the areas show.
+      if (!total) total = Math.max(...data.map(r => Number(r.providers_online || 0)), 0);
       if (!total) return;
       const e = escHtml;
       const areas = data.slice(0, 3).map(r =>

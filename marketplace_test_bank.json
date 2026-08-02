@@ -10898,10 +10898,9 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-not-loaded-until-asked — maplibregl is UNDEFINED on a fresh services view; the 800KB bundle loads only on demand",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-MAP-map-pin-sets-location",
@@ -10922,10 +10921,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-pin-sets-location — tapping the pin map writes a real SRID=4326 point onto the request",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-MAP-map-pin-optional",
@@ -10946,10 +10944,9 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-pin-optional — a hail sent WITHOUT pinning still succeeds, exactly as before the feature",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-MAP-map-degrades-offline",
@@ -11114,10 +11111,9 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-presence-counts-are-real — the 'N providers online' line matches providers actually marked online",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-MAP-presence-silent-when-empty",
@@ -11138,10 +11134,9 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-presence-silent-when-empty — with nobody online the presence line stays silent rather than printing a discouraging zero",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-MAP-radius-widens-over-rounds",
@@ -11186,10 +11181,9 @@
       "persona": null,
       "role_pair": "admin x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-topup-queue-lists-pendings — the GCash queue lists every pending top-up with payer, ref and filed time",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-ADMIN-topup-verify-mints-once",
@@ -11282,10 +11276,9 @@
       "persona": null,
       "role_pair": "admin x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-money-tile-four-numbers — earned, liability, cover and cashback all render real values",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in a real browser with real sessions"
     },
     {
       "id": "MS-ADMIN-money-tile-cover-rag",
