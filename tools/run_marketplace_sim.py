@@ -154,6 +154,15 @@ BROWSER_COVERED = {
     # before writing, so its RLS refusal reached the buyer as "your session expired, sign in again".
     "MS-BROWSE-ANON-SEES-LISTINGS", "MS-BROWSE-SECTION-COUNTS-TRUE", "MS-SEARCH-EMPTY-VS-ERROR",
     "MS-SELLER-PROFILE-REACHABLE", "MS-LISTING-CREATE-FROM-DASHBOARD", "MS-INQUIRY-REACHES-SELLER",
+    # tests/marketplace-sim-arc.spec.ts — SJ-FULL, the whole machine in ONE continuous two-context
+    # session. The forward half of the lifecycle had never been driven end to end, and doing so
+    # immediately found two defects the fragments could not see: the provider could not read the payment
+    # record their commission is computed from, and a provider who COMPLETED a job stayed 'on_job'
+    # (4 of 7 providers were stranded that way, none of them working).
+    "MS-STATE-accepted", "MS-STATE-en-route", "MS-STATE-on-site", "MS-STATE-in-progress",
+    "MS-STATE-completed", "MS-STATE-settled",
+    "MS-STATE-requested-wrong-role", "MS-STATE-broadcasting-wrong-role",
+    "MS-MONEY-double-tap-release", "MS-MONEY-second-payment-refused",
 }
 
 
