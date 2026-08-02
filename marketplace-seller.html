@@ -402,7 +402,33 @@
     // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs
     // first; session identity overrides asynchronously.
     if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
-      restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+      restoreIdentityFromSession(db).then(_n => {
+        if (!_n) return;
+        WORKER_NAME = _n;
+        /* AND RE-OPEN THE GATE. The gate below decides ONCE, synchronously, from the cached worker
+           name — but this restore is ASYNCHRONOUS, so a visitor holding a valid session whose name is
+           not yet in local storage (cleared site data, a new device, a fresh profile) was shown
+           "Sign In Required" and left there permanently: the identity arrived a moment later and
+           nothing re-checked. Found by the simulation spec on its first run — the dashboard rendered
+           on a RELOAD but not on first load, which is the signature of a decision made too early and
+           never revisited. Re-evaluating here costs nothing when the gate was never shown. */
+        const gate = document.getElementById('auth-gate');
+        const main = document.getElementById('main-content');
+        if (gate && gate.style.display === 'flex') {
+          gate.style.display = 'none';
+          if (main) main.style.display = '';
+          /* Load the data the gate prevented. There is no boot() to call — the init is an anonymous
+             DOMContentLoaded handler — so the three loaders are invoked directly (function
+             declarations hoist, so they are in scope here even though they appear further down).
+             Guarding on `typeof` rather than assuming: a re-open that throws would leave the visitor
+             on a blank page, which is worse than the gate they started with. */
+          try {
+            if (typeof loadProfile === 'function') loadProfile();
+            if (typeof loadListings === 'function') Promise.resolve(loadListings());
+            if (typeof loadInquiries === 'function') loadInquiries();
+          } catch (_) { /* empty-catch-allow: best-effort re-open, the gate is already down */ }
+        }
+      });
     }
     if (typeof db !== 'undefined') {
       db.auth.getSession().then(({ data }) => { _authUid = data?.session?.user?.id || null; }).catch(() => {});
