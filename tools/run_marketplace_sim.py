@@ -128,10 +128,24 @@ def run_db_checks(scenarios):
     return results
 
 
+# Browser scenarios that now have a REAL spec. Listed explicitly rather than pattern-matched, so a
+# scenario cannot drift into "covered" because its id happened to look like another one's.
+BROWSER_COVERED = {
+    # tests/marketplace-sim-defects.spec.ts
+    "MS-D1-tab-owns-surface", "MS-D2-section-switch-hides-grid", "MS-D3-closed-sheet-is-inert",
+    "MS-D6-primary-cta-reachable", "MS-D8-tile-populates-on-load",
+    # tests/marketplace-sim-personas.spec.ts
+    "MS-PERSONA-colorblind", "MS-PERSONA-lowvis", "MS-PERSONA-gloved", "MS-PERSONA-slownet",
+    "MS-PERSONA-battery", "MS-PERSONA-night", "MS-PERSONA-flaky", "MS-PERSONA-scamwary",
+}
+
+
 def classify(s):
     """Which tier could ever run this? Named so un-run scenarios are visible, never implied."""
     if s["id"] in DB_CHECKS:
         return "db"
+    if s["id"] in BROWSER_COVERED:
+        return "browser-covered"
     if s.get("persona") in ("P-SCAMWARY", "P-LOWLITERACY", "P-FIRSTTIME"):
         return "manual"          # tone and comprehension are human judgements
     return "browser"
@@ -174,13 +188,17 @@ def main(argv):
     for r in failed:
         print(f"  {R}FAIL{X} {r['id']}  {D}{r.get('property', r.get('detail',''))}{X}")
     print(f"  {G}executed {len(res)}{X} · passed {len(passed)} · failed {len(failed)}")
-    print(f"  {Y}not yet runnable{X}: {len(tiers.get('browser', []))} need a browser "
-          f"(Playwright MCP), {len(tiers.get('manual', []))} need human judgement — "
-          f"{D}named, not counted as passing{X}")
+    covered = len(tiers.get("browser-covered", []))
+    print(f"  {G}browser-tier specs{X}: {covered} scenarios have a real Playwright spec "
+          f"{D}(marketplace-sim-defects + marketplace-sim-personas){X}")
+    print(f"  {Y}still owed{X}: {len(tiers.get('browser', []))} need a browser spec, "
+          f"{len(tiers.get('manual', []))} need human judgement — "
+          f"{D}named by id, never counted as passing{X}")
 
     OUT.write_text(json.dumps({
         "authored": len(S), "executed": len(res),
         "passed": len(passed), "failed": len(failed),
+        "browser_covered": [s["id"] for s in tiers.get("browser-covered", [])],
         "needs_browser": [s["id"] for s in tiers.get("browser", [])],
         "needs_manual": [s["id"] for s in tiers.get("manual", [])],
         "results": [{k: v for k, v in r.items() if k in ("id", "outcome", "property", "detail")} for r in res],

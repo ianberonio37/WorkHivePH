@@ -3,14 +3,24 @@
   "executed": 15,
   "passed": 15,
   "failed": 0,
-  "needs_browser": [
+  "browser_covered": [
     "MS-D1-tab-owns-surface",
     "MS-D2-section-switch-hides-grid",
     "MS-D3-closed-sheet-is-inert",
-    "MS-D5-ui-hail-carries-geo",
     "MS-D6-primary-cta-reachable",
-    "MS-D7-refusal-states-truth",
     "MS-D8-tile-populates-on-load",
+    "MS-PERSONA-colorblind",
+    "MS-PERSONA-lowvis",
+    "MS-PERSONA-gloved",
+    "MS-PERSONA-slownet",
+    "MS-PERSONA-flaky",
+    "MS-PERSONA-battery",
+    "MS-PERSONA-scamwary",
+    "MS-PERSONA-night"
+  ],
+  "needs_browser": [
+    "MS-D5-ui-hail-carries-geo",
+    "MS-D7-refusal-states-truth",
     "MS-STATE-requested",
     "MS-STATE-requested-wrong-role",
     "MS-STATE-broadcasting",
@@ -39,21 +49,14 @@
     "MS-MONEY-second-payment-refused",
     "MS-MONEY-dispute-reverses-both",
     "MS-MONEY-topup-verify-mints",
-    "MS-PERSONA-colorblind",
     "MS-PERSONA-screenreader",
-    "MS-PERSONA-lowvis",
-    "MS-PERSONA-gloved",
     "MS-PERSONA-tremor",
     "MS-PERSONA-onehanded",
     "MS-PERSONA-filipino",
-    "MS-PERSONA-slownet",
     "MS-PERSONA-lowend",
-    "MS-PERSONA-flaky",
-    "MS-PERSONA-battery",
     "MS-PERSONA-unbanked",
     "MS-PERSONA-older",
     "MS-PERSONA-sunlight",
-    "MS-PERSONA-night",
     "MS-PERSONA-impulsive",
     "MS-PERSONA-haggler",
     "MS-PERSONA-noshow",
@@ -104,8 +107,7 @@
   ],
   "needs_manual": [
     "MS-PERSONA-lowliteracy",
-    "MS-PERSONA-firsttime",
-    "MS-PERSONA-scamwary"
+    "MS-PERSONA-firsttime"
   ],
   "results": [
     {

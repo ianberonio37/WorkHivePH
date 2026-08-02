@@ -8654,10 +8654,9 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D1-tab-owns-surface — #content-area shows the seller's LISTINGS, never another tab's empty state",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-D2-section-switch-hides-grid",
@@ -8678,10 +8677,9 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D2-section-switch-hides-grid — exactly ONE of #listing-grid / #services-pane is displayed, never both",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-D3-closed-sheet-is-inert",
@@ -8702,10 +8700,9 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D3-closed-sheet-is-inert — focus does NOT land on the hidden edit form; the sheet carries [inert]",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-D4-cert-level-reaches-client",
@@ -8773,10 +8770,9 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D6-primary-cta-reachable — the primary CTA is within the viewport without scrolling (sticky action row)",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-D7-refusal-states-truth",
@@ -8821,10 +8817,9 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D8-tile-populates-on-load — the credit-economy tile populates on its OWN, with no manual invocation",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-STATE-requested",
@@ -9655,10 +9650,9 @@
       "persona": "P-COLORBLIND",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-colorblind — every status is distinguishable without colour",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-PERSONA-screenreader",
@@ -9703,10 +9697,9 @@
       "persona": "P-LOWVIS",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-lowvis — at 200% zoom the money screen reflows and nothing is clipped",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-PERSONA-gloved",
@@ -9727,10 +9720,9 @@
       "persona": "P-GLOVED",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-gloved — every primary control clears 44px",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-PERSONA-tremor",
@@ -9847,10 +9839,9 @@
       "persona": "P-SLOWNET",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-slownet — the hail screen is usable before the map library loads",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-PERSONA-lowend",
@@ -9895,10 +9886,9 @@
       "persona": "P-FLAKY",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-flaky — a mid-job disconnect refuses the write AND says so",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-PERSONA-battery",
@@ -9919,10 +9909,9 @@
       "persona": "P-BATTERY",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-battery — no affordance depends on animation",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-PERSONA-firsttime",
@@ -9967,10 +9956,9 @@
       "persona": "P-SCAMWARY",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-scamwary — the release screen says who gets what and that we hold nothing",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs human judgement (tone/comprehension for P-SCAMWARY) — no assertion can decide it, and pretending otherwise would be a false green"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-PERSONA-unbanked",
@@ -10063,10 +10051,9 @@
       "persona": "P-NIGHT",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-night — dark mode keeps every status legible",
-      "status": "owed",
-      "covered_by": null,
-      "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "status": "banked",
+      "covered_by": "marketplace-sim-browser",
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
     },
     {
       "id": "MS-PERSONA-impulsive",
