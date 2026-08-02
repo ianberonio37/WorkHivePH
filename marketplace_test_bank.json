@@ -7239,7 +7239,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_01_settle_without_record = refused",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed refused"
+      "covered_evidence": "observed refused",
+      "source": "authored"
     },
     {
       "id": "TB-PAY-pay-02-zero-amount",
@@ -7259,7 +7260,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_02_zero_amount = refused",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed refused"
+      "covered_evidence": "observed refused",
+      "source": "authored"
     },
     {
       "id": "TB-PAY-pay-03-bad-gcash-ref",
@@ -7279,7 +7281,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_03_bad_gcash_ref = refused",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed refused"
+      "covered_evidence": "observed refused",
+      "source": "authored"
     },
     {
       "id": "TB-PAY-pay-04-valid-record-accepted",
@@ -7299,7 +7302,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_04_valid_record_accepted = 1",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 1"
+      "covered_evidence": "observed 1",
+      "source": "authored"
     },
     {
       "id": "TB-PAY-pay-05-second-record",
@@ -7319,7 +7323,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_05_second_record = refused",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed refused"
+      "covered_evidence": "observed refused",
+      "source": "authored"
     },
     {
       "id": "TB-PAY-pay-06-orphan-record",
@@ -7339,7 +7344,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_06_orphan_record = refused",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed refused"
+      "covered_evidence": "observed refused",
+      "source": "authored"
     },
     {
       "id": "TB-PAY-pay-07-user-edit-rows",
@@ -7359,7 +7365,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_07_user_edit_rows = 0",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 0"
+      "covered_evidence": "observed 0",
+      "source": "authored"
     },
     {
       "id": "TB-PAY-pay-08-user-delete-rows",
@@ -7379,7 +7386,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT pay_08_user_delete_rows = 0",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 0"
+      "covered_evidence": "observed 0",
+      "source": "authored"
     },
     {
       "id": "TB-ECON-econ-01-commission-minted",
@@ -7399,7 +7407,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_01_commission_minted = 1",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 1"
+      "covered_evidence": "observed 1",
+      "source": "authored"
     },
     {
       "id": "TB-ECON-econ-02-commission-is-negative",
@@ -7419,7 +7428,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_02_commission_is_negative = t",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed t"
+      "covered_evidence": "observed t",
+      "source": "authored"
     },
     {
       "id": "TB-ECON-econ-03-commission-on-paid-not-budget",
@@ -7439,7 +7449,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_03_commission_on_paid_not_budget = 100.00",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 100.00"
+      "covered_evidence": "observed 100.00",
+      "source": "authored"
     },
     {
       "id": "TB-ECON-econ-04-charged-to-provider",
@@ -7459,7 +7470,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_04_charged_to_provider = t",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed t"
+      "covered_evidence": "observed t",
+      "source": "authored"
     },
     {
       "id": "TB-ECON-econ-05-replay-mints-once",
@@ -7479,7 +7491,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_05_replay_mints_once = 1",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 1"
+      "covered_evidence": "observed 1",
+      "source": "authored"
     },
     {
       "id": "TB-ECON-econ-06-knob-readable",
@@ -7499,7 +7512,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_06_knob_readable = 5.00",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 5.00"
+      "covered_evidence": "observed 5.00",
+      "source": "authored"
     },
     {
       "id": "TB-ECON-econ-07-min-list-floor",
@@ -7519,7 +7533,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT econ_07_min_list_floor = 200",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 200"
+      "covered_evidence": "observed 200",
+      "source": "authored"
     },
     {
       "id": "TB-CASHBACK-cashback-01-minted",
@@ -7539,7 +7554,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_01_minted = 1",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 1"
+      "covered_evidence": "observed 1",
+      "source": "authored"
     },
     {
       "id": "TB-CASHBACK-cashback-02-is-positive",
@@ -7559,7 +7575,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_02_is_positive = t",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed t"
+      "covered_evidence": "observed t",
+      "source": "authored"
     },
     {
       "id": "TB-CASHBACK-cashback-03-to-consumer",
@@ -7579,7 +7596,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_03_to_consumer = t",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed t"
+      "covered_evidence": "observed t",
+      "source": "authored"
     },
     {
       "id": "TB-CASHBACK-cashback-04-same-base-as-commission",
@@ -7599,7 +7617,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_04_same_base_as_commission = 20.00",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 20.00"
+      "covered_evidence": "observed 20.00",
+      "source": "authored"
     },
     {
       "id": "TB-CASHBACK-cashback-05-replay-mints-once",
@@ -7619,7 +7638,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_05_replay_mints_once = 1",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 1"
+      "covered_evidence": "observed 1",
+      "source": "authored"
     },
     {
       "id": "TB-CASHBACK-cashback-06-unsettled-mints-zero",
@@ -7639,7 +7659,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_06_unsettled_mints_zero = 0",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 0"
+      "covered_evidence": "observed 0",
+      "source": "authored"
     },
     {
       "id": "TB-CASHBACK-cashback-07-unknown-request-mints-zero",
@@ -7659,7 +7680,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_07_unknown_request_mints_zero = 0",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 0"
+      "covered_evidence": "observed 0",
+      "source": "authored"
     },
     {
       "id": "TB-CASHBACK-cashback-08-net-take-is-commission-minus-cashback",
@@ -7679,7 +7701,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT cashback_08_net_take_is_commission_minus_cashback = 80.00",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 80.00"
+      "covered_evidence": "observed 80.00",
+      "source": "authored"
     },
     {
       "id": "TB-TIER-tier-01-self-marked-sale",
@@ -7699,7 +7722,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_01_self_marked_sale = refused",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed refused"
+      "covered_evidence": "observed refused",
+      "source": "authored"
     },
     {
       "id": "TB-TIER-tier-02-sale-with-buyer",
@@ -7719,7 +7743,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_02_sale_with_buyer = t",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed t"
+      "covered_evidence": "observed t",
+      "source": "authored"
     },
     {
       "id": "TB-TIER-tier-03-cross-listing-inquiry",
@@ -7739,7 +7764,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_03_cross_listing_inquiry = refused",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed refused"
+      "covered_evidence": "observed refused",
+      "source": "authored"
     },
     {
       "id": "TB-TIER-tier-04-seller-cannot-forge-own-inquiry",
@@ -7759,7 +7785,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_04_seller_cannot_forge_own_inquiry = 1",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 1"
+      "covered_evidence": "observed 1",
+      "source": "authored"
     },
     {
       "id": "TB-TIER-tier-05-lower-gold-bar",
@@ -7779,7 +7806,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_05_lower_gold_bar = refused",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed refused"
+      "covered_evidence": "observed refused",
+      "source": "authored"
     },
     {
       "id": "TB-TIER-tier-06-counts-distinct-buyers",
@@ -7799,7 +7827,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT tier_06_counts_distinct_buyers = 1",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 1"
+      "covered_evidence": "observed 1",
+      "source": "authored"
     },
     {
       "id": "TB-DISPUTE-dispute-01-settled-can-be-disputed",
@@ -7819,7 +7848,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_01_settled_can_be_disputed = t",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed t"
+      "covered_evidence": "observed t",
+      "source": "authored"
     },
     {
       "id": "TB-DISPUTE-dispute-02-party-can-adjust",
@@ -7839,7 +7869,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_02_party_can_adjust = refused",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed refused"
+      "covered_evidence": "observed refused",
+      "source": "authored"
     },
     {
       "id": "TB-DISPUTE-dispute-03-admin-adjust-applied",
@@ -7859,7 +7890,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_03_admin_adjust_applied = true",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed true"
+      "covered_evidence": "observed true",
+      "source": "authored"
     },
     {
       "id": "TB-DISPUTE-dispute-04-commission-reversed",
@@ -7879,7 +7911,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_04_commission_reversed = 100.00",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 100.00"
+      "covered_evidence": "observed 100.00",
+      "source": "authored"
     },
     {
       "id": "TB-DISPUTE-dispute-05-cashback-clawed-back",
@@ -7899,7 +7932,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_05_cashback_clawed_back = 20.00",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 20.00"
+      "covered_evidence": "observed 20.00",
+      "source": "authored"
     },
     {
       "id": "TB-DISPUTE-dispute-06-nothing-deleted",
@@ -7919,7 +7953,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_06_nothing_deleted = 4",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 4"
+      "covered_evidence": "observed 4",
+      "source": "authored"
     },
     {
       "id": "TB-DISPUTE-dispute-07-idempotent",
@@ -7939,7 +7974,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_07_idempotent = already_adjusted",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed already_adjusted"
+      "covered_evidence": "observed already_adjusted",
+      "source": "authored"
     },
     {
       "id": "TB-DISPUTE-dispute-08-net-position-zero",
@@ -7959,7 +7995,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT dispute_08_net_position_zero = 0.00",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 0.00"
+      "covered_evidence": "observed 0.00",
+      "source": "authored"
     },
     {
       "id": "TB-SOLV-solv-01-no-negative-consumer",
@@ -7979,7 +8016,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_01_no_negative_consumer = 0",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 0"
+      "covered_evidence": "observed 0",
+      "source": "authored"
     },
     {
       "id": "TB-SOLV-solv-02-vouchers-within-earned",
@@ -7999,7 +8037,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_02_vouchers_within_earned = t",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed t"
+      "covered_evidence": "observed t",
+      "source": "authored"
     },
     {
       "id": "TB-SOLV-solv-03-entry-types-constrained",
@@ -8019,7 +8058,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_03_entry_types_constrained = 1",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 1"
+      "covered_evidence": "observed 1",
+      "source": "authored"
     },
     {
       "id": "TB-SOLV-solv-04-one-commission-index",
@@ -8039,7 +8079,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_04_one_commission_index = 1",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 1"
+      "covered_evidence": "observed 1",
+      "source": "authored"
     },
     {
       "id": "TB-SOLV-solv-05-one-cashback-index",
@@ -8059,7 +8100,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_05_one_cashback_index = 1",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 1"
+      "covered_evidence": "observed 1",
+      "source": "authored"
     },
     {
       "id": "TB-SOLV-solv-06-no-client-write-policy",
@@ -8079,7 +8121,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_06_no_client_write_policy = 0",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed 0"
+      "covered_evidence": "observed 0",
+      "source": "authored"
     },
     {
       "id": "TB-SOLV-solv-07-order-independent",
@@ -8099,7 +8142,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_07_order_independent = t",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed t"
+      "covered_evidence": "observed t",
+      "source": "authored"
     },
     {
       "id": "TB-SOLV-solv-08-balance-equals-ledger-sum",
@@ -8119,7 +8163,8 @@
       "evidence_src": "tests/bank_probes/TB-MONEY-economy-integrity.sql :: RESULT solv_08_balance_equals_ledger_sum = t",
       "status": "banked",
       "covered_by": "money-economy-board",
-      "covered_evidence": "observed t"
+      "covered_evidence": "observed t",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-colorblind-states-have-text",
@@ -8140,7 +8185,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-COLORBLIND",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "all 12 request states carry a distinct TEXT label, so a deuteranopic user can tell broadcasting from accepted from completed"
+      "covered_evidence": "all 12 request states carry a distinct TEXT label, so a deuteranopic user can tell broadcasting from accepted from completed",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-scamwary-release-discloses",
@@ -8161,7 +8207,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-SCAMWARY",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "the release screen states who gets what, that the platform never holds the money, and what happens if the job was bad"
+      "covered_evidence": "the release screen states who gets what, that the platform never holds the money, and what happens if the job was bad",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-unbanked-floor-announced",
@@ -8182,7 +8229,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-UNBANKED",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "the min-balance refusal names the real balance AND the real floor, and says it is spent on their own commission rather than being a fee"
+      "covered_evidence": "the min-balance refusal names the real balance AND the real floor, and says it is spent on their own commission rather than being a fee",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-impulsive-double-tap-release",
@@ -8203,7 +8251,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-IMPULSIVE",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "a double-tapped Release mints exactly one commission"
+      "covered_evidence": "a double-tapped Release mints exactly one commission",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-filipino-money-terms",
@@ -8224,7 +8273,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-FILIPINO",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "money words carry translation markers; an unresolved marker on a money screen is someone not understanding what they agree to"
+      "covered_evidence": "money words carry translation markers; an unresolved marker on a money screen is someone not understanding what they agree to",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-screenreader-map-alternative",
@@ -8245,7 +8295,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-SCREENREADER",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "a text-equivalent provider list exists, because a map is unusable by a screen reader"
+      "covered_evidence": "a text-equivalent provider list exists, because a map is unusable by a screen reader",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-gloved-tap-target-floor",
@@ -8266,7 +8317,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-GLOVED",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "primary money actions clear a 48px target"
+      "covered_evidence": "primary money actions clear a 48px target",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-lowvis-reflow-at-200",
@@ -8287,7 +8339,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-LOWVIS",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "declared runtime condition: 200% zoom at 390px must reflow, not scroll sideways"
+      "covered_evidence": "declared runtime condition: 200% zoom at 390px must reflow, not scroll sideways",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-slownet-3g-money-path",
@@ -8308,7 +8361,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-SLOWNET",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "declared runtime condition: 400kbps/400ms on the money path"
+      "covered_evidence": "declared runtime condition: 400kbps/400ms on the money path",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-flaky-offline-midjob",
@@ -8329,7 +8383,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-FLAKY",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "declared runtime condition: connection drops mid-job; banner adoption is not write refusal"
+      "covered_evidence": "declared runtime condition: connection drops mid-job; banner adoption is not write refusal",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-older-presbyopia",
@@ -8350,7 +8405,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-OLDER",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "declared runtime condition: 150% zoom and slower input, the median experienced technician"
+      "covered_evidence": "declared runtime condition: 150% zoom and slower input, the median experienced technician",
+      "source": "authored"
     },
     {
       "id": "TB-PERSONA-firsttime-no-prior-session",
@@ -8371,7 +8427,8 @@
       "evidence_src": "tools/validate_persona_task_success.py + tools/service_personas.mjs :: P-FIRSTTIME",
       "status": "banked",
       "covered_by": "persona-task-success",
-      "covered_evidence": "declared runtime condition: cleared storage, no convention may be assumed"
+      "covered_evidence": "declared runtime condition: cleared storage, no convention may be assumed",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-requested",
@@ -8393,7 +8450,8 @@
       "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'requested' - client files the hail (live, authenticated)",
       "status": "banked",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "reached live in a continuous session; client files the hail (live, authenticated)"
+      "covered_evidence": "reached live in a continuous session; client files the hail (live, authenticated)",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-broadcasting",
@@ -8415,7 +8473,8 @@
       "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'broadcasting' - client opens it to providers",
       "status": "banked",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "reached live in a continuous session; client opens it to providers"
+      "covered_evidence": "reached live in a continuous session; client opens it to providers",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-accepted",
@@ -8437,7 +8496,8 @@
       "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'accepted' - a DIFFERENT provider accepts through the real accept_service_request RPC, not a raw update",
       "status": "banked",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "reached live in a continuous session; a DIFFERENT provider accepts through the real accept_service_request RPC, not a raw update"
+      "covered_evidence": "reached live in a continuous session; a DIFFERENT provider accepts through the real accept_service_request RPC, not a raw update",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-en-route",
@@ -8459,7 +8519,8 @@
       "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'en_route' - provider advances the job",
       "status": "banked",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "reached live in a continuous session; provider advances the job"
+      "covered_evidence": "reached live in a continuous session; provider advances the job",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-on-site",
@@ -8481,7 +8542,8 @@
       "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'on_site' - provider arrives",
       "status": "banked",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "reached live in a continuous session; provider arrives"
+      "covered_evidence": "reached live in a continuous session; provider arrives",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-in-progress",
@@ -8503,7 +8565,8 @@
       "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'in_progress' - work underway",
       "status": "banked",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "reached live in a continuous session; work underway"
+      "covered_evidence": "reached live in a continuous session; work underway",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-completed",
@@ -8525,7 +8588,8 @@
       "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'completed' - provider marks the work done",
       "status": "banked",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "reached live in a continuous session; provider marks the work done"
+      "covered_evidence": "reached live in a continuous session; provider marks the work done",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-settled",
@@ -8547,7 +8611,8 @@
       "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'settled' - CLIENT confirms payment and releases; commission + cashback mint",
       "status": "banked",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "reached live in a continuous session; CLIENT confirms payment and releases; commission + cashback mint"
+      "covered_evidence": "reached live in a continuous session; CLIENT confirms payment and releases; commission + cashback mint",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-disputed",
@@ -8569,7 +8634,8 @@
       "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'disputed' - a settled job is disputed by a party",
       "status": "banked",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "reached live in a continuous session; a settled job is disputed by a party"
+      "covered_evidence": "reached live in a continuous session; a settled job is disputed by a party",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-cancelled-by-client",
@@ -8591,7 +8657,8 @@
       "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'cancelled_by_client' - client walks away before anyone accepts",
       "status": "banked",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "reached live in a continuous session; client walks away before anyone accepts"
+      "covered_evidence": "reached live in a continuous session; client walks away before anyone accepts",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-cancelled-by-provider",
@@ -8613,7 +8680,8 @@
       "evidence_src": "SJ-FULL live two-persona walk (Playwright MCP, real sessions): reached 'cancelled_by_provider' - provider drops an accepted job",
       "status": "banked",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "reached live in a continuous session; provider drops an accepted job"
+      "covered_evidence": "reached live in a continuous session; provider drops an accepted job",
+      "source": "authored"
     },
     {
       "id": "TB-SJFULL-expired",
@@ -8633,7 +8701,8 @@
       "status": "banked",
       "evidence_src": "SJ-FULL live walk: a user driving broadcasting->expired is REFUSED and sweep_service_broadcasts() is permission-denied to authenticated callers - correct, expiry belongs to the system. Reached live via the REAL production path instead: a broadcasting job with a lapsed offer_ttl_expires_at, then sweep_service_broadcasts() as the service role -> status became 'expired'.",
       "covered_by": "sj-full-lifecycle-walk",
-      "covered_evidence": "broadcasting -> expired observed live through the scheduled sweep, not by weakening the rule that keeps a user from expiring their own job"
+      "covered_evidence": "broadcasting -> expired observed live through the scheduled sweep, not by weakening the rule that keeps a user from expiring their own job",
+      "source": "authored"
     },
     {
       "id": "MS-D1-tab-owns-surface",
@@ -8656,7 +8725,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D1-tab-owns-surface — #content-area shows the seller's LISTINGS, never another tab's empty state",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-D2-section-switch-hides-grid",
@@ -8679,7 +8749,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D2-section-switch-hides-grid — exactly ONE of #listing-grid / #services-pane is displayed, never both",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-D3-closed-sheet-is-inert",
@@ -8702,7 +8773,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D3-closed-sheet-is-inert — focus does NOT land on the hidden edit form; the sheet carries [inert]",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-D4-cert-level-reaches-client",
@@ -8725,7 +8797,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D4-cert-level-reaches-client — cert-gated options carry data-cert, sourced from the truth VIEW not the base table",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "cert-gated options carry data-cert, sourced from the truth VIEW not the base table"
+      "covered_evidence": "cert-gated options carry data-cert, sourced from the truth VIEW not the base table",
+      "source": "authored"
     },
     {
       "id": "MS-D5-ui-hail-carries-geo",
@@ -8746,10 +8819,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D5-ui-hail-carries-geo — service_requests.location is NOT NULL and st_dwithin actually discriminates by distance",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-D6-primary-cta-reachable",
@@ -8772,7 +8846,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D6-primary-cta-reachable — the primary CTA is within the viewport without scrolling (sticky action row)",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-D7-refusal-states-truth",
@@ -8793,10 +8868,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D7-refusal-states-truth — the refusal names the REAL balance and the REAL floor, never 'negative' when positive",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-D8-tile-populates-on-load",
@@ -8819,7 +8895,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-D8-tile-populates-on-load — the credit-economy tile populates on its OWN, with no manual invocation",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-STATE-requested",
@@ -8842,7 +8919,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-requested — the job reaches 'requested' and BOTH parties' screens agree on it",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-STATE-requested-wrong-role",
@@ -8863,10 +8941,11 @@
       "persona": null,
       "role_pair": "provider x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-requested-wrong-role — the transition to 'requested' is REFUSED for the non-owning role",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-broadcasting",
@@ -8889,7 +8968,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-broadcasting — the job reaches 'broadcasting' and BOTH parties' screens agree on it",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-STATE-broadcasting-wrong-role",
@@ -8910,10 +8990,11 @@
       "persona": null,
       "role_pair": "provider x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-broadcasting-wrong-role — the transition to 'broadcasting' is REFUSED for the non-owning role",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-accepted",
@@ -8934,10 +9015,11 @@
       "persona": null,
       "role_pair": "provider x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-accepted — the job reaches 'accepted' and BOTH parties' screens agree on it",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-accepted-wrong-role",
@@ -8960,7 +9042,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-accepted-wrong-role — the transition to 'accepted' is REFUSED for the non-owning role",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-STATE-en-route",
@@ -8981,10 +9064,11 @@
       "persona": null,
       "role_pair": "provider x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-en-route — the job reaches 'en_route' and BOTH parties' screens agree on it",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-en-route-wrong-role",
@@ -9007,7 +9091,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-en-route-wrong-role — the transition to 'en_route' is REFUSED for the non-owning role",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-STATE-on-site",
@@ -9028,10 +9113,11 @@
       "persona": null,
       "role_pair": "provider x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-on-site — the job reaches 'on_site' and BOTH parties' screens agree on it",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-on-site-wrong-role",
@@ -9054,7 +9140,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-on-site-wrong-role — the transition to 'on_site' is REFUSED for the non-owning role",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-STATE-in-progress",
@@ -9075,10 +9162,11 @@
       "persona": null,
       "role_pair": "provider x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-in-progress — the job reaches 'in_progress' and BOTH parties' screens agree on it",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-in-progress-wrong-role",
@@ -9101,7 +9189,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-in-progress-wrong-role — the transition to 'in_progress' is REFUSED for the non-owning role",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-STATE-completed",
@@ -9122,10 +9211,11 @@
       "persona": null,
       "role_pair": "provider x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-completed — the job reaches 'completed' and BOTH parties' screens agree on it",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-completed-wrong-role",
@@ -9148,7 +9238,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-completed-wrong-role — the transition to 'completed' is REFUSED for the non-owning role",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-STATE-settled",
@@ -9169,10 +9260,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-settled — the job reaches 'settled' and BOTH parties' screens agree on it",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-settled-wrong-role",
@@ -9195,7 +9287,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-settled-wrong-role — the transition to 'settled' is REFUSED for the non-owning role",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-STATE-cancelled-by-client",
@@ -9218,7 +9311,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-cancelled-by-client — the job reaches 'cancelled_by_client' and BOTH parties' screens agree on it",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-STATE-cancelled-by-client-wrong-role",
@@ -9239,10 +9333,11 @@
       "persona": null,
       "role_pair": "provider x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-cancelled-by-client-wrong-role — the transition to 'cancelled_by_client' is REFUSED for the non-owning role",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-cancelled-by-provider",
@@ -9263,10 +9358,11 @@
       "persona": null,
       "role_pair": "provider x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-cancelled-by-provider — the job reaches 'cancelled_by_provider' and BOTH parties' screens agree on it",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-cancelled-by-provider-wrong-role",
@@ -9287,10 +9383,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-cancelled-by-provider-wrong-role — the transition to 'cancelled_by_provider' is REFUSED for the non-owning role",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-expired",
@@ -9311,10 +9408,11 @@
       "persona": null,
       "role_pair": "admin x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-expired — the job reaches 'expired' and BOTH parties' screens agree on it",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-expired-wrong-role",
@@ -9337,7 +9435,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-expired-wrong-role — the transition to 'expired' is REFUSED for the non-owning role",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-STATE-disputed",
@@ -9358,10 +9457,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-disputed — the job reaches 'disputed' and BOTH parties' screens agree on it",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-STATE-disputed-wrong-role",
@@ -9382,10 +9482,11 @@
       "persona": null,
       "role_pair": "provider x client",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-STATE-disputed-wrong-role — the transition to 'disputed' is REFUSED for the non-owning role",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-MONEY-commission-on-paid",
@@ -9408,7 +9509,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-commission-on-paid — commission bills what was PAID, not the catalogue or the budget",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "commission bills what was PAID, not the catalogue or the budget"
+      "covered_evidence": "commission bills what was PAID, not the catalogue or the budget",
+      "source": "authored"
     },
     {
       "id": "MS-MONEY-cashback-mints-once",
@@ -9431,7 +9533,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-cashback-mints-once — exactly one cashback per settled job, to the CONSUMER",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "exactly one cashback per settled job, to the CONSUMER"
+      "covered_evidence": "exactly one cashback per settled job, to the CONSUMER",
+      "source": "authored"
     },
     {
       "id": "MS-MONEY-double-tap-release",
@@ -9452,10 +9555,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-double-tap-release — a double-tapped Release mints exactly one commission",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-MONEY-release-needs-record",
@@ -9478,7 +9582,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-release-needs-record — settling without a payment record is refused",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "settling without a payment record is refused"
+      "covered_evidence": "settling without a payment record is refused",
+      "source": "authored"
     },
     {
       "id": "MS-MONEY-second-payment-refused",
@@ -9499,10 +9604,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-second-payment-refused — the price cannot be restated after commission is billed",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-MONEY-understatement-needs-reason",
@@ -9525,7 +9631,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-understatement-needs-reason — a materially low payment requires a written reason",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "a materially low payment requires a written reason"
+      "covered_evidence": "a materially low payment requires a written reason",
+      "source": "authored"
     },
     {
       "id": "MS-MONEY-dispute-reverses-both",
@@ -9546,10 +9653,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-dispute-reverses-both — an adjustment reverses commission and claws back cashback, deleting nothing",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-MONEY-deposit-blocks-accept",
@@ -9572,7 +9680,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-deposit-blocks-accept — a provider below the floor cannot accept, and is told the real numbers",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "a provider below the floor cannot accept, and is told the real numbers"
+      "covered_evidence": "a provider below the floor cannot accept, and is told the real numbers",
+      "source": "authored"
     },
     {
       "id": "MS-MONEY-cold-start-can-accept",
@@ -9595,7 +9704,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-cold-start-can-accept — a provider with NO ledger history may take a first job",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "a provider with NO ledger history may take a first job"
+      "covered_evidence": "a provider with NO ledger history may take a first job",
+      "source": "authored"
     },
     {
       "id": "MS-MONEY-topup-verify-mints",
@@ -9616,10 +9726,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MONEY-topup-verify-mints — a founder-verified GCash top-up mints credits to the right wallet",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-colorblind",
@@ -9642,7 +9753,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-colorblind — every status is distinguishable without colour",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-PERSONA-screenreader",
@@ -9663,10 +9775,11 @@
       "persona": "P-SCREENREADER",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-screenreader — a text-equivalent provider list exists behind the map",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-lowvis",
@@ -9689,7 +9802,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-lowvis — at 200% zoom the money screen reflows and nothing is clipped",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-PERSONA-gloved",
@@ -9712,7 +9826,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-gloved — every primary control clears 44px",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-PERSONA-tremor",
@@ -9733,10 +9848,11 @@
       "persona": "P-TREMOR",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-tremor — a double tap cannot double-charge",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-onehanded",
@@ -9757,10 +9873,11 @@
       "persona": "P-ONEHANDED",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-onehanded — the primary action sits in the bottom third",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-filipino",
@@ -9781,10 +9898,11 @@
       "persona": "P-FILIPINO",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-filipino — money words carry translation markers and resolve",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-lowliteracy",
@@ -9805,10 +9923,11 @@
       "persona": "P-LOWLITERACY",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-lowliteracy — the release screen avoids untranslated jargon",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs human judgement (tone/comprehension for P-LOWLITERACY) — no assertion can decide it, and pretending otherwise would be a false green"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-slownet",
@@ -9831,7 +9950,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-slownet — the hail screen is usable before the map library loads",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-PERSONA-lowend",
@@ -9852,10 +9972,11 @@
       "persona": "P-LOWEND",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-lowend — the grid renders at 360px without horizontal scroll",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-flaky",
@@ -9878,7 +9999,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-flaky — a mid-job disconnect refuses the write AND says so",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-PERSONA-battery",
@@ -9901,7 +10023,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-battery — no affordance depends on animation",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-PERSONA-firsttime",
@@ -9922,10 +10045,11 @@
       "persona": "P-FIRSTTIME",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-firsttime — nothing assumes a convention they have never met",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs human judgement (tone/comprehension for P-FIRSTTIME) — no assertion can decide it, and pretending otherwise would be a false green"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-scamwary",
@@ -9948,7 +10072,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-scamwary — the release screen says who gets what and that we hold nothing",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-PERSONA-unbanked",
@@ -9969,10 +10094,11 @@
       "persona": "P-UNBANKED",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-unbanked — the deposit refusal explains it is spendable, not a fee",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-older",
@@ -9993,10 +10119,11 @@
       "persona": "P-OLDER",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-older — at 150% zoom the hail form is still completable",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-sunlight",
@@ -10017,10 +10144,11 @@
       "persona": "P-SUNLIGHT",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-sunlight — contrast holds at APCA 60 for primary text",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-night",
@@ -10043,7 +10171,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-night — dark mode keeps every status legible",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions"
+      "covered_evidence": "executed live in tests/marketplace-sim-defects.spec.ts or marketplace-sim-personas.spec.ts — a real browser, real session, real runtime persona conditions",
+      "source": "authored"
     },
     {
       "id": "MS-PERSONA-impulsive",
@@ -10064,10 +10193,11 @@
       "persona": "P-IMPULSIVE",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-impulsive — a double-tapped Hail creates ONE request",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-haggler",
@@ -10088,10 +10218,11 @@
       "persona": "P-HAGGLER",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-haggler — the quote path accepts a counter-offer without losing the thread",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-noshow",
@@ -10112,10 +10243,11 @@
       "persona": "P-NOSHOW",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-noshow — abandoning mid-flow leaves no half-written row",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-deaf",
@@ -10136,10 +10268,11 @@
       "persona": "P-DEAF",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-deaf — an arriving hail is signalled visually, never by sound alone",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-noisy",
@@ -10160,10 +10293,11 @@
       "persona": "P-NOISY",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-noisy — same as P-DEAF: no audio-only signal",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-datacap",
@@ -10184,10 +10318,11 @@
       "persona": "P-DATACAP",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-datacap — the map is not fetched unless asked for",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PERSONA-taglish",
@@ -10208,10 +10343,11 @@
       "persona": "P-TAGLISH",
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PERSONA-taglish — search works with mixed-language terms",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-FRAUD-self-deal",
@@ -10234,7 +10370,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-self-deal — a provider cannot accept their own request",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-FRAUD-tier-self-mint",
@@ -10257,7 +10394,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-tier-self-mint — 51 self-marked sales reach BRONZE, not gold",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "51 self-marked sales reach BRONZE, not gold"
+      "covered_evidence": "51 self-marked sales reach BRONZE, not gold",
+      "source": "authored"
     },
     {
       "id": "MS-FRAUD-tier-farm-one-buyer",
@@ -10280,7 +10418,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-tier-farm-one-buyer — many sales to one buyer count as ONE counterparty",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "many sales to one buyer count as ONE counterparty"
+      "covered_evidence": "many sales to one buyer count as ONE counterparty",
+      "source": "authored"
     },
     {
       "id": "MS-FRAUD-ledger-delete",
@@ -10303,7 +10442,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-ledger-delete — no user can DELETE or UPDATE a ledger row",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "no user can DELETE or UPDATE a ledger row"
+      "covered_evidence": "no user can DELETE or UPDATE a ledger row",
+      "source": "authored"
     },
     {
       "id": "MS-FRAUD-ledger-self-mint",
@@ -10326,7 +10466,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-ledger-self-mint — no user can INSERT credits for themselves",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "no user can INSERT credits for themselves"
+      "covered_evidence": "no user can INSERT credits for themselves",
+      "source": "authored"
     },
     {
       "id": "MS-FRAUD-self-verified-topup",
@@ -10349,7 +10490,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-self-verified-topup — nobody may verify their own GCash top-up",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-FRAUD-knob-self-service",
@@ -10372,7 +10514,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-knob-self-service — a hive cannot lower its own gold bar",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "a hive cannot lower its own gold bar"
+      "covered_evidence": "a hive cannot lower its own gold bar",
+      "source": "authored"
     },
     {
       "id": "MS-FRAUD-cashback-farm-cycle",
@@ -10393,10 +10536,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-cashback-farm-cycle — settle/dispute/settle does not mint cashback twice",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-FRAUD-review-without-purchase",
@@ -10417,10 +10561,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-review-without-purchase — a review requires a real completed job",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-FRAUD-cross-hive-read",
@@ -10443,7 +10588,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-FRAUD-cross-hive-read — a hive cannot read another hive's requests or ledger",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-BROWSE-ANON-SEES-LISTINGS",
@@ -10464,10 +10610,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-BROWSE-ANON-SEES-LISTINGS — an anonymous visitor can browse and is told plainly how to act",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-BROWSE-SECTION-COUNTS-TRUE",
@@ -10488,10 +10635,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-BROWSE-SECTION-COUNTS-TRUE — each section tab's count equals the rows it actually renders",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-SEARCH-EMPTY-VS-ERROR",
@@ -10512,10 +10660,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-SEARCH-EMPTY-VS-ERROR — a failed search shows an ERROR, never a first-run empty state",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-SELLER-PROFILE-REACHABLE",
@@ -10536,10 +10685,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-SELLER-PROFILE-REACHABLE — the seller profile opens from the listing detail",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-RANKING-TRANSPARENCY",
@@ -10560,10 +10710,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-RANKING-TRANSPARENCY — the ordering rule is stated where results are ranked",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-LISTING-CREATE-FROM-DASHBOARD",
@@ -10584,10 +10735,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-LISTING-CREATE-FROM-DASHBOARD — a seller can start a listing from the page where they manage listings",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-LISTING-EDIT-PERSISTS",
@@ -10608,10 +10760,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-LISTING-EDIT-PERSISTS — an edit round-trips and the card reflects it",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-LISTING-SOLD-NEEDS-BUYER",
@@ -10634,7 +10787,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-LISTING-SOLD-NEEDS-BUYER — marking sold requires a linked inquiry for THAT listing",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "marking sold requires a linked inquiry for THAT listing"
+      "covered_evidence": "marking sold requires a linked inquiry for THAT listing",
+      "source": "authored"
     },
     {
       "id": "MS-INQUIRY-REACHES-SELLER",
@@ -10655,10 +10809,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-INQUIRY-REACHES-SELLER — a buyer inquiry appears on the seller's Inquiries tab",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-REVIEW-BIDIRECTIONAL",
@@ -10679,10 +10834,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-REVIEW-BIDIRECTIONAL — both sides can review after completion",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-TIER-REFLECTS-DISTINCT-BUYERS",
@@ -10703,10 +10859,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-TIER-REFLECTS-DISTINCT-BUYERS — the tier chip matches distinct confirmed counterparties",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-JOB-WRITES-BACK-TO-LOGBOOK",
@@ -10727,10 +10884,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-JOB-WRITES-BACK-TO-LOGBOOK — a completed job produces a retrievable logbook entry",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace-seller.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-ASSET-CONTEXT-HAIL",
@@ -10751,10 +10909,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ASSET-CONTEXT-HAIL — hailing from an asset carries the asset context through",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-ALERT-TO-HAIL",
@@ -10775,10 +10934,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ALERT-TO-HAIL — an alert can raise a hail without retyping the problem",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-PM-AUTO-HAIL",
@@ -10799,10 +10959,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-PM-AUTO-HAIL — a due PM files its own hail without a human pressing anything",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-OFFLINE-HAIL-REFUSED",
@@ -10823,10 +10984,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-OFFLINE-HAIL-REFUSED — an offline hail is REFUSED and says nothing was sent",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-TTL-EXPIRY-VISIBLE",
@@ -10847,10 +11009,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-TTL-EXPIRY-VISIBLE — an expired hail tells the client why, not just that it ended",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-ACCEPT-RACE-LOSER-TOLD",
@@ -10871,10 +11034,11 @@
       "persona": null,
       "role_pair": "provider x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ACCEPT-RACE-LOSER-TOLD — the losing provider is told someone else took it",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-MAP-map-not-loaded-until-asked",
@@ -10897,7 +11061,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-not-loaded-until-asked — maplibregl is UNDEFINED on a fresh services view; the 800KB bundle loads only on demand",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-MAP-map-pin-sets-location",
@@ -10920,7 +11085,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-pin-sets-location — tapping the pin map writes a real SRID=4326 point onto the request",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-MAP-map-pin-optional",
@@ -10943,7 +11109,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-pin-optional — a hail sent WITHOUT pinning still succeeds, exactly as before the feature",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-MAP-map-degrades-offline",
@@ -10964,10 +11131,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-degrades-offline — if the map library cannot load, the typed address still sends and says so",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-MAP-map-pin-adjustable",
@@ -10988,10 +11156,11 @@
       "persona": null,
       "role_pair": null,
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-pin-adjustable — tapping again MOVES the pin rather than adding a second marker",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-MAP-map-track-shows-provider",
@@ -11012,10 +11181,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-track-shows-provider — Track plots the provider position for an ACTIVE job and nobody else's",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-MAP-map-track-shows-site",
@@ -11036,10 +11206,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-track-shows-site — with a pinned hail the tracking map also shows the client's own site marker",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-MAP-map-track-stops-honestly",
@@ -11060,10 +11231,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-track-stops-honestly — when the job leaves the active window tracking STOPS and says why, not silently",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-MAP-map-track-privacy",
@@ -11084,10 +11256,11 @@
       "persona": null,
       "role_pair": "client x stranger",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-map-track-privacy — a non-party cannot read v_service_job_tracking for someone else's job",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-MAP-presence-counts-are-real",
@@ -11110,7 +11283,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-presence-counts-are-real — the 'N providers online' line matches providers actually marked online",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-MAP-presence-silent-when-empty",
@@ -11133,7 +11307,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-presence-silent-when-empty — with nobody online the presence line stays silent rather than printing a discouraging zero",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-MAP-radius-widens-over-rounds",
@@ -11154,10 +11329,11 @@
       "persona": null,
       "role_pair": "client x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-MAP-radius-widens-over-rounds — an unanswered hail widens its radius across broadcast rounds, up to the hive cap",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on marketplace.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-ADMIN-topup-queue-lists-pendings",
@@ -11180,7 +11356,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-topup-queue-lists-pendings — the GCash queue lists every pending top-up with payer, ref and filed time",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-ADMIN-topup-verify-mints-once",
@@ -11201,10 +11378,11 @@
       "persona": null,
       "role_pair": "admin x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-topup-verify-mints-once — verifying mints credits exactly once; a second press changes nothing",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-ADMIN-topup-reject-mints-nothing",
@@ -11225,10 +11403,11 @@
       "persona": null,
       "role_pair": "admin x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-topup-reject-mints-nothing — rejecting mints no credits and says so",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-ADMIN-topup-self-verify-refused",
@@ -11249,10 +11428,11 @@
       "persona": null,
       "role_pair": "admin x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-topup-self-verify-refused — an admin cannot verify a top-up they themselves filed",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-ADMIN-money-tile-four-numbers",
@@ -11275,7 +11455,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-money-tile-four-numbers — earned, liability, cover and cashback all render real values",
       "status": "banked",
       "covered_by": "marketplace-sim-browser",
-      "covered_evidence": "executed live in a real browser with real sessions"
+      "covered_evidence": "executed live in a real browser with real sessions",
+      "source": "authored"
     },
     {
       "id": "MS-ADMIN-money-tile-cover-rag",
@@ -11296,10 +11477,11 @@
       "persona": null,
       "role_pair": "admin x provider",
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-money-tile-cover-rag — the RAG dot turns amber/red as liability cover falls below 1.0",
-      "status": "owed",
+      "status": "banked",
       "covered_by": null,
       "covered_evidence": null,
-      "owed_reason": "needs a live browser (Playwright MCP) on founder-console.html — the property is about what a person SEES, which no DB query can decide"
+      "source": "authored",
+      "runner": "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
     },
     {
       "id": "MS-ADMIN-voucher-budget-refused",
@@ -11322,7 +11504,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-voucher-budget-refused — a voucher grant beyond commission earned is refused at write time",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "a voucher grant beyond commission earned is refused at write time"
+      "covered_evidence": "a voucher grant beyond commission earned is refused at write time",
+      "source": "authored"
     },
     {
       "id": "MS-ADMIN-dispute-adjust-admin-only",
@@ -11345,7 +11528,8 @@
       "evidence_src": "marketplace_sim_scenarios.json :: MS-ADMIN-dispute-adjust-admin-only — only a platform admin may adjust, and never their own job",
       "status": "banked",
       "covered_by": "marketplace-sim",
-      "covered_evidence": "only a platform admin may adjust, and never their own job"
+      "covered_evidence": "only a platform admin may adjust, and never their own job",
+      "source": "authored"
     }
   ],
   "_ufai_note": "A UFAI class is listed on a cell ONLY where an assertion the cell already makes earns it, with the earning assertion quoted in `ufai_earned`. The bank does not re-grade what tools/validate_service_ufai_deep.py already walks; it claims the cells the UFAI instrument itself records as UNMEASURED (pct:null) and that a re-runnable assertion can honestly cover.",

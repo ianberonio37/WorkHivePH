@@ -199,8 +199,39 @@ def build():
     # pages and asserts PII staging, which no state machine describes. Dropping them on refresh would
     # silently delete the very work the journey lane exists to produce.
     derived_ids = {t["id"] for t in tests}
-    authored = [t for tid, t in prior.items()
-                if tid not in derived_ids and t.get("source") == "authored"]
+    # PRESERVE EVERY NON-DERIVED CELL, not only the ones that happen to carry source:"authored".
+    # The rule above states the intent correctly and the predicate did not honour it: 139 of the 154
+    # journey cells have NO `source` field at all, so each rebuild silently deleted them — 492
+    # obligations collapsed to 308, the journey lane from 154 to 15, and `owed` fell to 0 because the
+    # owed cells were the ones destroyed. A coverage number that improves by losing the obligations is
+    # the most dangerous shape a green can take. If this builder did not derive a cell, it does not own
+    # it, and it must not drop it.
+    authored = [t for tid, t in prior.items() if tid not in derived_ids]
+    for t in authored:
+        t.setdefault("source", "authored")   # backfill so the intent is explicit from here on
+
+    # AN AUTHORED CELL IS BANKED THE MOMENT A REAL SPEC EXECUTES IT — learned from the runner, never
+    # from a human remembering to edit this file. 67 journey cells sat `owed` with the reason "needs a
+    # live browser (Playwright MCP)" long after every one of them had a Playwright spec: the reason had
+    # simply stopped being true and nothing re-read it. A bank that cannot learn from its own runner
+    # reports debt it no longer has, which is the same dishonesty as reporting coverage it never earned
+    # — just in the flattering direction instead of the alarming one.
+    try:
+        from run_marketplace_sim import BROWSER_COVERED, DB_CHECKS   # the runner is the source of truth
+        executes = set(BROWSER_COVERED) | set(DB_CHECKS)
+    except Exception:
+        executes = set()
+    promoted = 0
+    for cell in authored:
+        if cell.get("status") == "owed" and cell["id"] in executes:
+            cell["status"] = "banked"
+            cell["runner"] = "tools/run_marketplace_sim.py (tests/marketplace-sim-*.spec.ts)"
+            cell.pop("reason", None)
+            cell.pop("owed_reason", None)
+            promoted += 1
+    if promoted:
+        print(f"  promoted {promoted} authored cell(s) owed -> banked (a real spec now executes them)")
+
     tests.extend(authored)
 
     bank = {
