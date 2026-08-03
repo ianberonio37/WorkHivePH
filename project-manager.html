@@ -1939,6 +1939,24 @@ async function openDetail(id) {
     db.from('project_roles').select('*').eq('project_id', id).order('assigned_at', { ascending: false }).order('id').limit(500), // Arc L · L2: row cap (one project's roles ≤ dozens; insurance cap)
     db.from('project_change_orders').select('*').eq('project_id', id).order('created_at', { ascending: false }).order('id').limit(500), // Arc L · L2: row cap (one project's change orders ≤ dozens; insurance cap)
   ]);
+  /* A FAILED READ IS NOT AN EMPTY PROJECT. supabase-js resolves with { data: null, error } rather
+     than throwing, so five unchecked `.data || []` would render this project as having no scope, no
+     links, no progress history, NO TEAM and NO CHANGE ORDERS -- while the project header above still
+     shows its name and priority, which makes the emptiness look authoritative rather than broken.
+     Change orders are cost-impacting and roles decide who may approve them; "there are none" is the
+     most expensive thing this page can say incorrectly.
+     There is no try/catch on this function, so the throw is caught by the caller's own handling;
+     the fields are left untouched rather than being overwritten with empty arrays, so a previously
+     loaded project is not blanked by a transient failure either. */
+  const _readErr = itemsRes.error || linksRes.error || logsRes.error
+                || rolesRes.error || coRes.error;
+  if (_readErr) {
+    console.error('project detail load failed:', _readErr);
+    if (typeof showToast === 'function') {
+      showToast("Couldn't load this project's details, so nothing below is complete. Try again.", 'error');
+    }
+    throw _readErr;
+  }
   _items = itemsRes.data || [];
   _links = linksRes.data || [];
   _logs  = logsRes.data || [];
