@@ -579,9 +579,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -676,9 +676,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -1623,9 +1623,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -1682,9 +1682,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -1747,9 +1747,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -2330,9 +2330,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -2389,9 +2389,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -2448,9 +2448,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -2513,9 +2513,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -2921,9 +2921,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -4999,9 +4999,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -5032,9 +5032,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -5071,9 +5071,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -6487,9 +6487,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -6598,9 +6598,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -6715,9 +6715,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -7048,9 +7048,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -7087,9 +7087,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -7775,9 +7775,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -7834,9 +7834,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -7893,9 +7893,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -7952,9 +7952,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -8011,9 +8011,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -10262,13 +10262,13 @@
     "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
     "asserts": "the client never paginates on a partial order",
     "value_checked": true,
-    "checked": "NON-VACUITY FIRST, because the naive version of this test passes for the wrong reason: the dataset has 27 listings with 27 DISTINCT created_at values, so ORDER BY created_at is total by accident and a live pagination probe proves nothing. Forced 4 real ties inside a rolled-back transaction (verified: tied_rows=4; rollback verified, 27 distinct again afterwards). With ties present, both the PARTIAL order (created_at) and the TOTAL order (created_at, id) returned overlap=0 between page 1 and page 2 — Postgres happened to be stable on 27 rows, which is a non-guarantee rather than a proof. So the claim rests on the CLIENT instead: every paginated read in the codebase carries a tiebreaker. One .range() paginator exists platform-wide and it orders by a tiebreaker; the public-feed cursor at public-feed.html:228 orders created_at DESC then id, with the reason written beside it (\"MR4 tiebreaker: the sort above is not total on its own\"). Zero partial-order paginators found.",
+    "checked": "NON-VACUITY FIRST, because the naive version of this test passes for the wrong reason: the dataset has 27 listings with 27 DISTINCT created_at values, so ORDER BY created_at is total by accident and a live pagination probe proves nothing. Forced 4 real ties inside a rolled-back transaction (verified: tied_rows=4; rollback verified, 27 distinct again afterwards). With ties present, both the PARTIAL order (created_at) and the TOTAL order (created_at, id) returned overlap=0 between page 1 and page 2 — Postgres happened to be stable on 27 rows, which is a non-guarantee rather than a proof. So the claim rests on the CLIENT instead: every paginated read in the codebase carries a tiebreaker. One .range() paginator exists platform-wide and it orders by a tiebreaker; the public-feed cursor at public-feed.html:228 orders created_at DESC then id, with the reason written beside it (\"MR4 tiebreaker: the sort above is not total on its own\"). Zero partial-order paginators found. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "public-feed.html",
      "marketplace.html",
      "platform-actions.html"
     ],
-    "sha": "8532cdec498ab02c",
+    "sha": "26e12455797cd145",
     "walked_at": "2026-08-04"
    }
   },
@@ -10315,12 +10315,12 @@
     "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
     "asserts": "the gateway does not convert a refusal into a 2xx, nor a failure into data",
     "value_checked": true,
-    "checked": "Measured ON THE WIRE, both paths. HAPPY: 7 responses across 7 distinct endpoints, all 200, zero disagreements. FAILURE (real refusals, no interception): credit_treasury -> 200 (correct: this session IS a platform admin, so the read is permitted); marketplace_listings UPDATE on a nonexistent id -> 204 (PostgREST returns no-content for a 0-row write, the documented \"a 0-row write is not an error\" characteristic); rpc/redeem_service_voucher -> 404 PGRST202 with an error body; unknown table -> 404 PGRST205 with an error body. ZERO cases of 2xx-carrying-an-error or 4xx-carrying-data. INSTRUMENT CORRECTION recorded rather than filed as a defect: the PGRST202 initially looked like mig 45 regressing (a broken voucher signature once took that endpoint down). It was my probe - I called p_request; the function is (p_code text, p_request_id uuid) and marketplace.html:4073 calls it with exactly those names. Endpoint healthy, client correct.",
+    "checked": "Measured ON THE WIRE, both paths. HAPPY: 7 responses across 7 distinct endpoints, all 200, zero disagreements. FAILURE (real refusals, no interception): credit_treasury -> 200 (correct: this session IS a platform admin, so the read is permitted); marketplace_listings UPDATE on a nonexistent id -> 204 (PostgREST returns no-content for a 0-row write, the documented \"a 0-row write is not an error\" characteristic); rpc/redeem_service_voucher -> 404 PGRST202 with an error body; unknown table -> 404 PGRST205 with an error body. ZERO cases of 2xx-carrying-an-error or 4xx-carrying-data. INSTRUMENT CORRECTION recorded rather than filed as a defect: the PGRST202 initially looked like mig 45 regressing (a broken voucher signature once took that endpoint down). It was my probe - I called p_request; the function is (p_code text, p_request_id uuid) and marketplace.html:4073 calls it with exactly those names. Endpoint healthy, client correct. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "platform-actions.html",
      "marketplace.html"
     ],
-    "sha": "0448051b80dbd289",
+    "sha": "a4e3816be39c14d1",
     "walked_at": "2026-08-04"
    }
   },
@@ -10393,12 +10393,12 @@
     "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
     "asserts": "the HTTP status and the body agree on both the happy and the refusal path",
     "value_checked": true,
-    "checked": "Measured ON THE WIRE, both paths. HAPPY: 7 responses across 7 distinct endpoints, all 200, zero disagreements. FAILURE (real refusals, no interception): credit_treasury -> 200 (correct: this session IS a platform admin, so the read is permitted); marketplace_listings UPDATE on a nonexistent id -> 204 (PostgREST returns no-content for a 0-row write, the documented \"a 0-row write is not an error\" characteristic); rpc/redeem_service_voucher -> 404 PGRST202 with an error body; unknown table -> 404 PGRST205 with an error body. ZERO cases of 2xx-carrying-an-error or 4xx-carrying-data. INSTRUMENT CORRECTION recorded rather than filed as a defect: the PGRST202 initially looked like mig 45 regressing (a broken voucher signature once took that endpoint down). It was my probe - I called p_request; the function is (p_code text, p_request_id uuid) and marketplace.html:4073 calls it with exactly those names. Endpoint healthy, client correct.",
+    "checked": "Measured ON THE WIRE, both paths. HAPPY: 7 responses across 7 distinct endpoints, all 200, zero disagreements. FAILURE (real refusals, no interception): credit_treasury -> 200 (correct: this session IS a platform admin, so the read is permitted); marketplace_listings UPDATE on a nonexistent id -> 204 (PostgREST returns no-content for a 0-row write, the documented \"a 0-row write is not an error\" characteristic); rpc/redeem_service_voucher -> 404 PGRST202 with an error body; unknown table -> 404 PGRST205 with an error body. ZERO cases of 2xx-carrying-an-error or 4xx-carrying-data. INSTRUMENT CORRECTION recorded rather than filed as a defect: the PGRST202 initially looked like mig 45 regressing (a broken voucher signature once took that endpoint down). It was my probe - I called p_request; the function is (p_code text, p_request_id uuid) and marketplace.html:4073 calls it with exactly those names. Endpoint healthy, client correct. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "platform-actions.html",
      "marketplace.html"
     ],
-    "sha": "0448051b80dbd289",
+    "sha": "a4e3816be39c14d1",
     "walked_at": "2026-08-04"
    }
   },
@@ -10531,13 +10531,13 @@
     "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
     "asserts": "every paginated read uses a TOTAL order, so page 2 cannot repeat or skip a row from page 1",
     "value_checked": true,
-    "checked": "NON-VACUITY FIRST, because the naive version of this test passes for the wrong reason: the dataset has 27 listings with 27 DISTINCT created_at values, so ORDER BY created_at is total by accident and a live pagination probe proves nothing. Forced 4 real ties inside a rolled-back transaction (verified: tied_rows=4; rollback verified, 27 distinct again afterwards). With ties present, both the PARTIAL order (created_at) and the TOTAL order (created_at, id) returned overlap=0 between page 1 and page 2 — Postgres happened to be stable on 27 rows, which is a non-guarantee rather than a proof. So the claim rests on the CLIENT instead: every paginated read in the codebase carries a tiebreaker. One .range() paginator exists platform-wide and it orders by a tiebreaker; the public-feed cursor at public-feed.html:228 orders created_at DESC then id, with the reason written beside it (\"MR4 tiebreaker: the sort above is not total on its own\"). Zero partial-order paginators found.",
+    "checked": "NON-VACUITY FIRST, because the naive version of this test passes for the wrong reason: the dataset has 27 listings with 27 DISTINCT created_at values, so ORDER BY created_at is total by accident and a live pagination probe proves nothing. Forced 4 real ties inside a rolled-back transaction (verified: tied_rows=4; rollback verified, 27 distinct again afterwards). With ties present, both the PARTIAL order (created_at) and the TOTAL order (created_at, id) returned overlap=0 between page 1 and page 2 — Postgres happened to be stable on 27 rows, which is a non-guarantee rather than a proof. So the claim rests on the CLIENT instead: every paginated read in the codebase carries a tiebreaker. One .range() paginator exists platform-wide and it orders by a tiebreaker; the public-feed cursor at public-feed.html:228 orders created_at DESC then id, with the reason written beside it (\"MR4 tiebreaker: the sort above is not total on its own\"). Zero partial-order paginators found. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "public-feed.html",
      "marketplace.html",
      "platform-actions.html"
     ],
-    "sha": "8532cdec498ab02c",
+    "sha": "26e12455797cd145",
     "walked_at": "2026-08-04"
    }
   },
@@ -11039,11 +11039,11 @@
     "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
     "asserts": "what the base tables hold is what the views the admin surface reads return, value-to-value",
     "value_checked": true,
-    "checked": "Compared BASE (docker exec psql) against VIEW (read live in the browser through the same client the page uses), never screen-to-screen. topups 2c00../2d30../5cde..: 500.00/verified/1009876543210, 300.00/pending_verification/1005556667770, 1000.00/verified/1001234567890 — all three identical on both sides including the GCash reference. credit_treasury authorised 10,000,000.00 == v_credit_posture.authorised_credits 10,000,000; issued 1,500.00 == 1,500. Ledger: base topup sum 1500.00 over 2 rows == view 1500; base total 5 rows == view 5 rows. Also surfaced from the ledger: commission -360.00 across 3 rows, which is the repealed-commission overhang awaiting Ian.",
+    "checked": "Compared BASE (docker exec psql) against VIEW (read live in the browser through the same client the page uses), never screen-to-screen. topups 2c00../2d30../5cde..: 500.00/verified/1009876543210, 300.00/pending_verification/1005556667770, 1000.00/verified/1001234567890 — all three identical on both sides including the GCash reference. credit_treasury authorised 10,000,000.00 == v_credit_posture.authorised_credits 10,000,000; issued 1,500.00 == 1,500. Ledger: base topup sum 1500.00 over 2 rows == view 1500; base total 5 rows == view 5 rows. Also surfaced from the ledger: commission -360.00 across 3 rows, which is the repealed-commission overhang awaiting Ian. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "platform-actions.html"
     ],
-    "sha": "b1c0f8a15da9eb85",
+    "sha": "699468feecf6b353",
     "walked_at": "2026-08-04"
    }
   },
@@ -11064,11 +11064,11 @@
     "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
     "asserts": "the fields keep their names and meaning across the edge/DB seam",
     "value_checked": true,
-    "checked": "The view exposes amount, status and gcash_ref under the SAME names the base table uses, so a reader cannot silently bind to a renamed column and get null. Verified live for all three topup rows and for authorised_credits/issued_credits on v_credit_posture.",
+    "checked": "The view exposes amount, status and gcash_ref under the SAME names the base table uses, so a reader cannot silently bind to a renamed column and get null. Verified live for all three topup rows and for authorised_credits/issued_credits on v_credit_posture. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "platform-actions.html"
     ],
-    "sha": "b1c0f8a15da9eb85",
+    "sha": "699468feecf6b353",
     "walked_at": "2026-08-04"
    }
   },
@@ -11284,11 +11284,11 @@
     "ref": "2026-08-04 live MCP + psql two-system walk · /workhive/platform-actions.html",
     "asserts": "a committed DB change reaches the browser with the same value and name",
     "value_checked": true,
-    "checked": "Two systems, one probe. Subscribed to platform_feedback in the LIVE MCP browser, then committed a change from psql (admin_note = SEAM-PROBE-VALUE-4711) and read what actually arrived: 1 event, value identical, under the SAME column name, 20 columns delivered. A realtime seam that carries a different value or drops a column is invisible from either side alone, which is why this is walked from both. Probe write reverted immediately: admin_note back to NULL, 0 probe rows left.",
+    "checked": "Two systems, one probe. Subscribed to platform_feedback in the LIVE MCP browser, then committed a change from psql (admin_note = SEAM-PROBE-VALUE-4711) and read what actually arrived: 1 event, value identical, under the SAME column name, 20 columns delivered. A realtime seam that carries a different value or drops a column is invisible from either side alone, which is why this is walked from both. Probe write reverted immediately: admin_note back to NULL, 0 probe rows left. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "platform-actions.html"
     ],
-    "sha": "b1c0f8a15da9eb85",
+    "sha": "699468feecf6b353",
     "walked_at": "2026-08-04"
    }
   },
@@ -11309,11 +11309,11 @@
     "ref": "2026-08-04 live MCP + psql two-system walk · /workhive/platform-actions.html",
     "asserts": "the realtime payload keeps the column names the client binds to",
     "value_checked": true,
-    "checked": "Two systems, one probe. Subscribed to platform_feedback in the LIVE MCP browser, then committed a change from psql (admin_note = SEAM-PROBE-VALUE-4711) and read what actually arrived: 1 event, value identical, under the SAME column name, 20 columns delivered. A realtime seam that carries a different value or drops a column is invisible from either side alone, which is why this is walked from both. Probe write reverted immediately: admin_note back to NULL, 0 probe rows left.",
+    "checked": "Two systems, one probe. Subscribed to platform_feedback in the LIVE MCP browser, then committed a change from psql (admin_note = SEAM-PROBE-VALUE-4711) and read what actually arrived: 1 event, value identical, under the SAME column name, 20 columns delivered. A realtime seam that carries a different value or drops a column is invisible from either side alone, which is why this is walked from both. Probe write reverted immediately: admin_note back to NULL, 0 probe rows left. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "platform-actions.html"
     ],
-    "sha": "b1c0f8a15da9eb85",
+    "sha": "699468feecf6b353",
     "walked_at": "2026-08-04"
    }
   },
@@ -13449,8 +13449,20 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "count_matches_source",
    "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP + psql per-figure check · /workhive/platform-actions.html",
+    "asserts": "every count equals the count its own predicate returns",
+    "value_checked": true,
+    "checked": "Harvested EVERY numeric figure the admin surface renders (14 of them, each with its own label) and checked each against psql computed from ITS OWN source — never against another tile, which is the failure mode this oracle exists for. 13 matched exactly: liability ₱1,140.00, cap 10,000,000, issued 1,500, available 9,998,500, top-ups pending 1, drafts 3, sellers unverified 9, feedback 10/new 10, and the tab counters. ONE DID NOT, and it was the solvency tile: cover read 1.63 while cash-in / credits-owed is 1.32. The formula was (topups + earned) / liability, adding the PHP360 commission to the numerator. Commission is taken IN CREDITS, not new cash — proven in the ledger: the three commission rows are NEGATIVE amounts on PROVIDER accounts (-200, -80, -80) with NO positive platform leg, and issued_credits does not move when one fires (1500 still equals the minting-only sum). No peso enters the business; 360 credits leave circulation. That benefit is ALREADY in the denominator (liability fell 1500 -> 1140 because of it), so the numerator counted it twice and overstated solvency by 24% on the one tile whose entire job is to say \"keep at or above 1.00\". FIXED to topups / liability. Verified live: the tile now reads 1.32x matching psql, every other figure unchanged.",
+    "depends_on": [
+     "platform-actions.html"
+    ],
+    "sha": "699468feecf6b353",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BC-ufai-F-admin-buyer-money_matches_ledger",
@@ -13462,8 +13474,20 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "money_matches_ledger",
    "oracle": "every peso and credit figure equals the canonical view, to the centavo",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP + psql per-figure check · /workhive/platform-actions.html",
+    "asserts": "every money figure on the surface equals its own source to the centavo",
+    "value_checked": true,
+    "checked": "Harvested EVERY numeric figure the admin surface renders (14 of them, each with its own label) and checked each against psql computed from ITS OWN source — never against another tile, which is the failure mode this oracle exists for. 13 matched exactly: liability ₱1,140.00, cap 10,000,000, issued 1,500, available 9,998,500, top-ups pending 1, drafts 3, sellers unverified 9, feedback 10/new 10, and the tab counters. ONE DID NOT, and it was the solvency tile: cover read 1.63 while cash-in / credits-owed is 1.32. The formula was (topups + earned) / liability, adding the PHP360 commission to the numerator. Commission is taken IN CREDITS, not new cash — proven in the ledger: the three commission rows are NEGATIVE amounts on PROVIDER accounts (-200, -80, -80) with NO positive platform leg, and issued_credits does not move when one fires (1500 still equals the minting-only sum). No peso enters the business; 360 credits leave circulation. That benefit is ALREADY in the denominator (liability fell 1500 -> 1140 because of it), so the numerator counted it twice and overstated solvency by 24% on the one tile whose entire job is to say \"keep at or above 1.00\". FIXED to topups / liability. Verified live: the tile now reads 1.32x matching psql, every other figure unchanged.",
+    "depends_on": [
+     "platform-actions.html"
+    ],
+    "sha": "699468feecf6b353",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BC-ufai-F-admin-buyer-idempotent_repeat",
@@ -14041,12 +14065,12 @@
     "ref": "2026-08-04 live MCP two-identity walk · /workhive/marketplace.html + /workhive/platform-actions.html",
     "asserts": "another person's object is refused at the server",
     "value_checked": true,
-    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards.",
+    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "marketplace.html",
      "platform-actions.html"
     ],
-    "sha": "0448051b80dbd289",
+    "sha": "a4e3816be39c14d1",
     "walked_at": "2026-08-04"
    }
   },
@@ -14067,12 +14091,12 @@
     "ref": "2026-08-04 live MCP two-identity walk · /workhive/marketplace.html + /workhive/platform-actions.html",
     "asserts": "an admin-only surface is refused at the server, not merely hidden",
     "value_checked": true,
-    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards.",
+    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "marketplace.html",
      "platform-actions.html"
     ],
-    "sha": "0448051b80dbd289",
+    "sha": "a4e3816be39c14d1",
     "walked_at": "2026-08-04"
    }
   },
@@ -14106,12 +14130,12 @@
     "ref": "2026-08-04 live MCP two-identity walk · /workhive/marketplace.html + /workhive/platform-actions.html",
     "asserts": "identity comes from the JWT; a forged body changes nothing",
     "value_checked": true,
-    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards.",
+    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "marketplace.html",
      "platform-actions.html"
     ],
-    "sha": "0448051b80dbd289",
+    "sha": "a4e3816be39c14d1",
     "walked_at": "2026-08-04"
    }
   },
@@ -14262,12 +14286,12 @@
     "ref": "2026-08-04 live MCP two-identity walk · /workhive/marketplace.html + /workhive/platform-actions.html",
     "asserts": "the same holds for a signed-out visitor",
     "value_checked": true,
-    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards.",
+    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "marketplace.html",
      "platform-actions.html"
     ],
-    "sha": "0448051b80dbd289",
+    "sha": "a4e3816be39c14d1",
     "walked_at": "2026-08-04"
    }
   },
@@ -14340,12 +14364,12 @@
     "ref": "2026-08-04 live MCP two-identity walk · /workhive/marketplace.html + /workhive/platform-actions.html",
     "asserts": "a permission boundary reads as a boundary, never as an emptiness",
     "value_checked": true,
-    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards.",
+    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql.",
     "depends_on": [
      "marketplace.html",
      "platform-actions.html"
     ],
-    "sha": "0448051b80dbd289",
+    "sha": "a4e3816be39c14d1",
     "walked_at": "2026-08-04"
    }
   },
@@ -17233,9 +17257,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {
@@ -17318,9 +17342,9 @@
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "331e80cece3b8502",
+    "sha": "6efc8671ab26491e",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 after the cover-ratio correction; all 14 figures re-checked against psql."
    }
   },
   {

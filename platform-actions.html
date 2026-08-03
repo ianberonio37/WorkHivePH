@@ -563,7 +563,20 @@
       const earned   = -sum('commission');          // historical only; the rate is 0 now
       const vouchers = sum('voucher_grant');        // retired mechanic, kept for historical rows
       const liability = topups + sum('cashback') + vouchers - earned;
-      const cover = liability > 0 ? (topups + earned) / liability : null;
+      /* COVER COUNTED THE COMMISSION TWICE (found 2026-08-04, BC-ufai-F money_matches_ledger walk:
+         the tile read 1.63 while cash-in / credits-owed is 1.32).
+         The numerator was `topups + earned`. But commission is taken IN CREDITS, not in new cash —
+         verified in the ledger: the three commission rows are NEGATIVE amounts on PROVIDER accounts
+         (-200, -80, -80) with NO positive platform leg, and issued_credits does not move when one
+         fires (1500 issued still equals the minting-only ledger sum exactly). No peso enters the
+         business when commission is taken; 360 credits simply leave circulation.
+         So that 360 is already inside the 1500 of top-up cash, and its benefit is ALREADY expressed
+         in the DENOMINATOR — liability fell from 1500 to 1140 precisely because of it. Adding it to
+         the numerator as well overstated solvency by 24% on the one tile whose entire job is to say
+         "keep at or above 1.00". An overstated cover is exactly the wrong error on a ratio designed
+         to warn about approaching insolvency.
+         Cover is cash in / credits owed. Nothing else. */
+      const cover = liability > 0 ? topups / liability : null;
       const supply = m.posture ? Number(m.posture.authorised_credits) : null;
       const issued = m.posture ? Number(m.posture.issued_credits) : null;
       const peso = n => '₱' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
