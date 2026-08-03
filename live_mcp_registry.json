@@ -862,8 +862,16 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "populated",
       "oracle": "the surface renders real rows and every visible number matches its source of truth",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "verified-correct",
+          "title": "a signed-out stranger sees numbers that match the database, and no credit promise they cannot act on",
+          "measured": "Walked TRULY anonymous - signOut + cleared every wh_* key + RELOADED, because clearing keys without a reload leaves the prior signed-in DOM up and contaminates the read. Verified no session before measuring. Every tab badge matches its section: Parts 9 / Training 6 / Services 0 against published parts=9, training=6, services=0. The grid rendered exactly 9 children and the footer said 'Showing 9 listings · newest first. Sellers cannot pay for placement.' - a disclosure that is both true and the kind a marketplace usually omits.",
+          "note": "An apparent 9-vs-21 mismatch was MY instrument: the page's total published is 21, split jobs=6 / parts=9 / training=6, and my first probe guessed three section names and missed 'jobs'. The page under-renders nothing. Also observed and NOT filed as a defect: anon sees zero credit copy. Credits are a signed-in concept and the page promises the stranger nothing it cannot keep - though the 10%-back earn line is arguably a selling point worth showing signed-out. That is a product call for Ian, not a correctness bug."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-F-credits-market-buyer-empty",
