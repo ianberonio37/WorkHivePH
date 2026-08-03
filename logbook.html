@@ -2676,6 +2676,26 @@ async function loadAssetDetail(asset) {
     ...invQueries,
   ]);
 
+  /* A FAILED READ IS NOT AN ABSENT PART OR A CLEAN HISTORY. supabase-js resolves with
+     { data: null, error } instead of throwing, so an unchecked `.data || []` here would show this
+     asset with NO linked spare parts and NO fault history. On a maintenance record both are
+     load-bearing claims: "no fault history" is what an engineer reads before deciding a failure is
+     the first of its kind, and a missing linked part is a part nobody orders.
+     Surfaced rather than swallowed, and the partial results are kept: whatever DID load is still
+     shown, with a note saying the rest could not be read, because a half-loaded parts list is
+     useful while a blank one is misleading. */
+  const _invErr   = invResults.find(r => r && r.error);
+  const _faultErr = faultsRes.error;
+  if (_invErr || _faultErr) {
+    console.error('asset detail partial load failure:', (_invErr && _invErr.error) || _faultErr);
+    if (typeof showToast === 'function') {
+      showToast(_faultErr
+        ? "Couldn't load this asset's fault history, so it is not shown - it is not necessarily empty."
+        : "Couldn't load every linked part for this asset, so the list below may be incomplete.",
+        'error');
+    }
+  }
+
   // Deduplicate by id: own items take precedence (preserve pending status)
   const seen = new Set();
   _detailLinkedItems = [];
