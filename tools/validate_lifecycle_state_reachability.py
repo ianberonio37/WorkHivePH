@@ -144,6 +144,20 @@ def page_text(pages):
     return "\n".join(out)
 
 
+# ── PER-PAGE EXEMPTIONS: the state is genuinely one-sided, so its absence is correct ────────────────
+# An entry without a reason is a silenced failure, same rule as every other allowlist here.
+ONE_SIDED = {
+    ("service_requests", "requested", "marketplace-seller.html"):
+        "a client's unsent draft. No provider is attached yet and none should see it.",
+    ("service_requests", "broadcasting", "marketplace-seller.html"):
+        "still looking for a provider. Providers meet this through the 'Open requests near you' feed, "
+        "which renders v_service_open_broadcasts rather than a status label on their own job list.",
+    ("service_requests", "expired", "marketplace-seller.html"):
+        "expired BEFORE anyone accepted, so by definition no provider ever held this job. (It is in "
+        "SVC_CLOSED anyway, for the case where a provider saw it in the feed and it lapsed.)",
+}
+
+
 def analyse():
     findings = []
     checked = 0
@@ -171,6 +185,27 @@ def analyse():
             elif not produced:
                 findings.append((table, state, "no producer: it is rendered but nothing in the "
                                                "product can ever put a row there"))
+            elif produced:
+                # PER-PAGE, added 2026-08-04. `surfaced` above tests the owning pages CONCATENATED,
+                # so one page rendering a state hid another page dropping it entirely. That is
+                # exactly how `disputed` passed for months: marketplace.html carries
+                # `disputed: 'In dispute'` in SVC_CHIP, and marketplace-seller.html matched it on
+                # NEITHER of its buckets, so a provider's job silently vanished the moment a client
+                # objected -- while apply_dispute_adjustment could still take credits back from them.
+                # A state that a page's own rows can reach must be renderable BY THAT PAGE.
+                for page in pages:
+                    if (table, state, page) in ONE_SIDED:
+                        continue
+                    src_p = page_text([page])
+                    if not src_p:
+                        continue
+                    seen_here = (re.search(rf"['\"`]{re.escape(state)}['\"`]", src_p) is not None
+                                 or re.search(rf"(^|[{{,\s]){re.escape(state)}\s*:", src_p, re.M) is not None)
+                    if not seen_here:
+                        findings.append((table, state,
+                                         f"reachable but INVISIBLE on {page}: another owning page "
+                                         f"renders it, which is what hid this. A row that reaches "
+                                         f"this state disappears from that surface"))
     return findings, checked
 
 

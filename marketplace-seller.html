@@ -1380,9 +1380,23 @@
   // Its own bucket on purpose: a disputed job is neither active work nor finished work, and putting
   // it in either would be a lie. Before this existed it matched no bucket and was rendered nowhere.
   const SVC_DISPUTED = ['disputed'];
+  /* The SAME hole, three more times. SVC_ACTIVE + SVC_FINISHED cover 6 of the 12 states in the
+     service_requests vocabulary, so every CLOSED-but-unsettled state also matched no bucket and
+     vanished. `cancelled_by_client` is the one that matters: guard_service_request_status permits it
+     from accepted, en_route AND on_site, so a client can cancel while the provider is standing at
+     the site — and the job would simply disappear from their console with no explanation. Found by
+     making the reachability gate check surfacing PER PAGE instead of against every owning page
+     concatenated together, which is what let `disputed` hide behind marketplace.html's chip map. */
+  const SVC_CLOSED = ['cancelled_by_client', 'cancelled_by_provider', 'expired'];
   const SVC_NEXT = { accepted: ['en_route', 'On my way'], en_route: ['on_site', 'Arrived on site'], on_site: ['in_progress', 'Start work'], in_progress: ['completed', 'Mark completed'] };
   const SVC_TS_COL = { en_route: 'en_route_at', on_site: 'on_site_at', in_progress: 'in_progress_at', completed: 'completed_at' };
-  const SVC_STATUS_LABEL = { accepted: 'Accepted: head over', en_route: 'On the way', on_site: 'On site', in_progress: 'Work in progress' };
+  /* The closed states were missing here as well as from the buckets, so even once a row rendered it
+     would have printed the raw enum (`|| j.status`) — "cancelled_by_client" is not a sentence. */
+  const SVC_STATUS_LABEL = { accepted: 'Accepted: head over', en_route: 'On the way', on_site: 'On site',
+    in_progress: 'Work in progress', completed: 'Marked done — waiting on the client',
+    settled: 'Settled', disputed: 'The client reported a problem',
+    cancelled_by_client: 'The client cancelled', cancelled_by_provider: 'You cancelled this job',
+    expired: 'Expired before anyone accepted' };
   let _svcMyIds = [];
 
   function _svcPeso(v) { return (typeof whFmtPeso === 'function') ? whFmtPeso(v, { decimals: 0 }) : ('₱' + Number(v || 0).toLocaleString()); }
@@ -1432,6 +1446,7 @@
          them, and until now the first they would know of a case against them is money leaving their
          wallet. Shown FIRST, above active work, because it is the most urgent thing on the page. */
       const disputed = mine.filter(j => SVC_DISPUTED.includes(j.status));
+      const closed = mine.filter(j => SVC_CLOSED.includes(j.status)).slice(0, 8);
       // P6 second direction: a finished job is rateable provider->client until rated. This only
       // decides whether to OFFER the control; the guard (mig 46) is the enforcement.
       const done = mine.filter(j => SVC_FINISHED.includes(j.status)).slice(0, 8);
@@ -1445,7 +1460,7 @@
       }
       const badge = document.getElementById('badge-services');
       if (badge) badge.textContent = String(feed.length);
-      renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed);
+      renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed, closed);
       // P6b wallet card (async append under the provider cards; first identity's wallet)
       /* WHOSE WALLET IS THIS? provs[0] on an UNORDERED query bound the top-up form to an arbitrary
          provider. my_service_provider_ids() returns every provider the user can act for — including
@@ -1754,7 +1769,7 @@
   }
   window.svcFileTopup = svcFileTopup;
 
-  function renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed) {
+  function renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed, closed) {
     const e = escHtml;
     let html = '';
     provs.forEach(p => {
@@ -1825,6 +1840,25 @@
           // parts cross-sell (P9/§1c): a job that needs a part feeds the parts marketplace
           '<a href="marketplace.html" style="' + _svcBtnGhost + 'display:inline-flex;align-items:center;text-decoration:none;" aria-label="Find a replacement part in the parts marketplace">🔩 Find a part</a>' +
           '</div>';
+      });
+    }
+
+    /* Closed but not settled. These used to vanish: a provider who had accepted a job and driven to
+       the site would simply find it gone if the client cancelled, with nothing saying why. No
+       controls here on purpose — the job is over and there is nothing left to do to it; the value is
+       entirely in the row still existing and naming its own ending. */
+    if (closed && closed.length) {
+      html += '<h2 style="font-size:0.95rem;margin:1.1rem 0 0.5rem;">Closed '
+           +  '<span class="tab-count">' + closed.length + '</span></h2>';
+      closed.forEach(j => {
+        html +=
+          '<div class="simple-card" style="margin-bottom:0.6rem;padding:0.9rem 1rem;opacity:0.85;">'
+          + '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>'
+          + '<div style="font-size:0.75rem;opacity:0.85;margin:0.2rem 0 0;">'
+          + e(SVC_STATUS_LABEL[j.status] || j.status)
+          + (j.address ? ' · ' + e(j.address) : '')
+          + (j.client_worker_name ? ' · ' + e(j.client_worker_name) : '')
+          + '</div></div>';
       });
     }
 
