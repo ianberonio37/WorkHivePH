@@ -95,6 +95,9 @@ GATEWAY_BYPASS_OK = {
     "cold-archive-query":         "Cold-archive retrieval; forwarded server-side; resolveTenancy gate (Pillar I); 0 frontend callers",
     "data-fabric-normalizer":     "Machine-ingest endpoint; requireServiceRole gate (Pillar I); 0 frontend callers",
     "equipment-label-ocr":        "Browser-callable structured OCR tool (logbook Tag-OCR); resolveTenancy gate (Pillar I); image-in/fields-out, not a flattenable chat",
+    # mig 38 GCash receipt intake, 2026-08-03. Two functions, two different reasons.
+    "gcash-receipt-inbound":      "External webhook: an SMS/email forwarder POSTs a GCash notification. It has NO Supabase session, so it cannot pass a gateway that authenticates one - it authenticates by HMAC-SHA256 over the raw body and FAILS CLOSED with no GCASH_INBOUND_SECRET. Routing it through the gateway would lock the forwarder out and take automatic top-up verification with it. Writes only via service role; the receipt is a CLAIM that still needs the provider's own filing to agree before any credit mints.",
+    "gcash-receipt-ocr":          "Browser-callable structured OCR tool, the direct sibling of equipment-label-ocr above: image-in/fields-out for a provider or buyer reading their own receipt, not a flattenable chat. config.toml verify_jwt=true, so the session IS the gate. Mints nothing - it returns two fields for a human to check before they submit.",
     "export-hive-data":           "Server-side hive export (admin tooling, 0 frontend callers); inline v_worker_truth membership gate",
     "hierarchical-summarizer":    "Server-side summarization pipeline; resolveTenancy gate (Pillar I); 0 frontend callers",
     "platform-scraper":           "Browser-triggered admin scraper; resolveTenancy gate (Pillar I)",
