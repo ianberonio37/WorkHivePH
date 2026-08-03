@@ -4,8 +4,8 @@ Documented rules from `C:/Users/ILBeronio/.claude/skills/<skill>/SKILL.md` files
 mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 
 - Rules evaluated: **57**
-- Critical / high-severity violations: **9**
-- Promotion candidates (drift band): **21**
+- Critical / high-severity violations: **8**
+- Promotion candidates (drift band): **20**
 - Rules by source: skill_md:designer=2, skill_md:mobile-maestro=2, skill_md:security=3, manifest=50
 
 ## Per-skill roll-up
@@ -18,7 +18,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | frontend | 20 | 90% | 56 |
 | mobile-maestro | 7 | 83% | 6 |
 | qa-tester | 6 | 96% | 9 |
-| security | 14 | 95% | 13 |
+| security | 14 | 95% | 11 |
 
 ## Critical / high-severity violations -- act immediately
 
@@ -39,12 +39,6 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 - **Conformance:** 94%  (35 / 37)
 - **Violators (2):** platform-actions.html, status.html
 - **Why it matters:** Any page that uses innerHTML to render user data must escape it. Two canonical idioms are accepted: direct escHtml() calls, or the `const e = escHtml` alias (memory rule -- shortens template literals in renderer functions).
-
-### `edge_fn_uses_get_cors_headers` (high)  -- security :: Edge Function CORS
-- **Rule:** Every edge fn imports getCorsHeaders from _shared/cors.ts
-- **Conformance:** 96%  (58 / 60)
-- **Violators (2):** gcash-receipt-inbound, gcash-receipt-ocr
-- **Why it matters:** Static CORS origin is always wrong; the dynamic helper handles file:// (null origin) for local testing.
 
 ### `mobile_decorative_anim_has_mobile_kill` (high)  -- mobile-maestro :: Auto-Mineable Rules
 - **Rule:** Pages with DECORATIVE infinite CSS animations include a @media (max-width: 767px) animation:none kill
@@ -85,7 +79,6 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `qa_no_innerhtml_plus_equals` | qa-tester | medium | 97% | design-system.html |
 | `designer_poppins_font` | designer | info | 97% | validator-catalog.html |
 | `mobile_toast_has_aria_live` | mobile-maestro | high | 96% | platform-actions.html |
-| `edge_fn_uses_get_cors_headers` | security | high | 96% | gcash-receipt-inbound, gcash-receipt-ocr |
 | `frontend_list_view_has_error_state` | frontend | medium | 96% | status.html |
 | `mobile_viewport_fit_cover` | mobile-maestro | high | 95% | promo-poster.html, validator-catalog.html |
 | `frontend_no_em_dash_in_prompt_template` | frontend | medium | 95% | ai-gateway, analytics-orchestrator, voice-journal-agent |
@@ -128,7 +121,6 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `mobile_viewport_fit_cover` | mobile-maestro | 95% (40/42) | html_pages | convention |
 | `frontend_list_view_has_error_state` | frontend | 96% (27/28) | html_pages | convention |
 | `mobile_toast_has_aria_live` | mobile-maestro | 96% (29/30) | html_pages | convention |
-| `edge_fn_uses_get_cors_headers` | security | 96% (58/60) | edge_fns | convention |
 | `designer_poppins_font` | designer | 97% (39/40) | html_pages | convention |
 | `qa_no_innerhtml_plus_equals` | qa-tester | 97% (41/42) | html_pages | anti_pattern |
 | `edge_fn_handles_options_preflight` | security | 98% (59/60) | edge_fns | convention |
@@ -148,14 +140,15 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `designer_no_wrong_input_bg_rgba_black` | designer | 100% (42/42) | html_pages | anti_pattern |
 | `qa_supabase_cdn_when_createclient_used` | qa-tester | 100% (0/0) | html_pages | convention |
 | `frontend_writeAuditLog_called` | frontend | 100% (2/2) | html_pages | convention |
+| `edge_fn_uses_get_cors_headers` | security | 100% (60/60) | edge_fns | convention |
 | `data_engineer_restore_identity_from_session` | data-engineer | 100% (1/1) | html_pages | convention |
-| `migration_function_sets_search_path` | security | 100% (206/206) | migrations | convention |
+| `migration_function_sets_search_path` | security | 100% (207/207) | migrations | convention |
 | `security_no_function_constructor` | security | 100% (83/83) | html_and_js | anti_pattern |
 | `security_no_token_in_localstorage` | security | 100% (83/83) | html_and_js | anti_pattern |
 | `designer_card_radius_not_125rem` | designer | 100% (42/42) | html_pages | anti_pattern |
 | `a11y_img_has_alt` | qa-tester | 100% (42/42) | html_pages | anti_pattern |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
-| `kg_migrations_no_broadcast_across_hives` | architect | 100% (522/522) | migrations | anti_pattern |
+| `kg_migrations_no_broadcast_across_hives` | architect | 100% (526/526) | migrations | anti_pattern |
 | `frontend_detail_toggle_uses_shared_helper` | frontend | 100% (17/17) | html_pages | convention |
 | `frontend_calm_dashboard_has_verdict` | frontend | 100% (13/13) | html_pages | convention |
 | `frontend_calm_dashboard_uses_details_disclosure` | frontend | 100% (13/13) | html_pages | convention |

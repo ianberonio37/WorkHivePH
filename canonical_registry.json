@@ -7094,7 +7094,8 @@
       "defined_in": "20260729000000_service_money_truth_views.sql",
       "read_by_surfaces": [
         "founder-console.html",
-        "marketplace-seller.html"
+        "marketplace-seller.html",
+        "platform-actions.html"
       ],
       "read_by_edge_fns": [],
       "columns": []
@@ -7131,7 +7132,8 @@
     "v_credit_posture": {
       "defined_in": "20260803000012_non_transferable_non_withdrawable.sql",
       "read_by_surfaces": [
-        "founder-console.html"
+        "founder-console.html",
+        "platform-actions.html"
       ],
       "read_by_edge_fns": [],
       "columns": []
@@ -9087,7 +9089,7 @@
       "defined_in": "20260728000049_voucher_redeem_and_tiers.sql",
       "args": "p_code text, p_request_id uuid",
       "security_definer": true,
-      "comment": "",
+      "comment": "Retired feature, kept as a SPEAKING refusal (mig 36 intent, mig 45 placement). Vouchers were the ",
       "called_by_surfaces": [
         "marketplace.html"
       ],
@@ -9814,7 +9816,7 @@
         "benchmark-compute",
         "supervisor-reset-password"
       ],
-      "size_kb": 335.6
+      "size_kb": 338.4
     },
     "index.html": {
       "tables_read": [],
@@ -9926,7 +9928,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 312.0
+      "size_kb": 313.2
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -10010,7 +10012,7 @@
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 151.3
+      "size_kb": 154.2
     },
     "marketplace.html": {
       "tables_read": [
@@ -10066,7 +10068,7 @@
         "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 271.0
+      "size_kb": 272.9
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -10108,9 +10110,11 @@
         "marketplace_sellers",
         "platform_feedback",
         "service_credit_topups",
+        "v_credit_posture",
         "v_gcash_receipts_needing_eyes",
         "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth",
+        "v_service_credit_ledger_truth",
         "v_service_credit_topups_truth"
       ],
       "tables_written": [
@@ -10122,7 +10126,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 56.8
+      "size_kb": 64.7
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -10191,7 +10195,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 178.3
+      "size_kb": 179.5
     },
     "project-report.html": {
       "tables_read": [
@@ -11138,14 +11142,14 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 151
+      "loc": 172
     },
     "gcash-receipt-ocr": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 132
+      "loc": 142
     },
     "hierarchical-summarizer": {
       "tables_read": [
@@ -11574,11 +11578,13 @@
         "marketplace_sellers",
         "platform_feedback",
         "service_credit_topups",
+        "v_credit_posture",
         "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth",
+        "v_service_credit_ledger_truth",
         "v_service_credit_topups_truth"
       ],
-      "jaccard": 0.5
+      "jaccard": 0.62
     },
     {
       "kind": "surface_overlap",

@@ -5452,6 +5452,24 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # The READ-side sibling of client_write_grants, and it exists because three gates each asked
+        # a neighbouring question and left this one uncovered. credit_treasury — one row holding the
+        # platform's whole money position — was granted SELECT to anon AND authenticated under
+        # `using (id = 1)`, a predicate that picks a row without ever checking a person. rls_coverage
+        # classifies by TENANT COLUMN and this table has none; the rls_open_policy flywheel check
+        # greps migration text for `USING (true)` and this is not that string; write_grants asks who
+        # can WRITE. Nobody wrote. The leak was a read, and every gate passed.
+        "id":      "public_read_surface",
+        "script":  "tools/validate_public_read_surface.py",
+        "args":    [],
+        "label":   "Public read surface (every table a client can SELECT must either consult the "
+                   "caller, inherit scoping through a subquery, deny by default, or be DECLARED "
+                   "public with a reason; reads the LIVE catalogue, not migration text)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         "id":      "post_action_coherence",
         "script":  "tools/validate_post_action_coherence.py",
         "args":    [],

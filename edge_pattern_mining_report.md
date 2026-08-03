@@ -3,7 +3,7 @@
 - Functions scanned: **60**
 - Features extracted: **35**
 - Promotion threshold: >= 80% conformance, <= 6 outliers
-- Promotion candidates: **8**
+- Promotion candidates: **7**
 
 ## Promotion candidates (sweet spot)
 
@@ -14,29 +14,28 @@ Review each: write a real validator from the outlier list, or allowlist them.
 |---|---|---:|---|
 | `imports_supabase_esm` | convention (stays TRUE) | 98% | gcash-receipt-ocr |
 | `handles_options` | convention (stays TRUE) | 98% | visual-defect-capture |
-| `sets_content_type_json` | convention (stays TRUE) | 98% | notify-push |
+| `uses_get_cors_headers` | convention (stays TRUE) | 98% | visual-defect-capture |
 | `reads_supabase_url_env` | convention (stays TRUE) | 98% | gcash-receipt-ocr |
 | `reads_service_role_env` | convention (stays TRUE) | 98% | gcash-receipt-ocr |
-| `imports_cors_shared` | convention (stays TRUE) | 96% | gcash-receipt-inbound, gcash-receipt-ocr |
-| `uses_get_cors_headers` | convention (stays TRUE) | 95% | gcash-receipt-inbound, gcash-receipt-ocr, visual-defect-capture |
 | `uses_error_envelope` | convention (stays TRUE) | 95% | gcash-receipt-inbound, gcash-receipt-ocr, notify-push |
+| `sets_content_type_json` | convention (stays TRUE) | 95% | gcash-receipt-inbound, gcash-receipt-ocr, notify-push |
 
 ## Full conformance ranking
 
 | Feature | Conformance | Positive / Total |
 |---|---:|---|
+| `imports_cors_shared` | 100% | 60 / 60 |
 | `has_try_catch` | 100% | 60 / 60 |
 | `imports_supabase_esm` | 98% | 59 / 60 |
 | `handles_options` | 98% | 59 / 60 |
-| `sets_content_type_json` | 98% | 59 / 60 |
+| `uses_get_cors_headers` | 98% | 59 / 60 |
 | `reads_supabase_url_env` | 98% | 59 / 60 |
 | `reads_service_role_env` | 98% | 59 / 60 |
-| `imports_cors_shared` | 96% | 58 / 60 |
-| `uses_get_cors_headers` | 95% | 57 / 60 |
 | `uses_error_envelope` | 95% | 57 / 60 |
+| `sets_content_type_json` | 95% | 57 / 60 |
 | `ends_with_serve_close` | 81% | 49 / 60 |
+| `responses_spread_cors_headers` | 75% | 45 / 60 |
 | `imports_rate_limit` | 73% | 44 / 60 |
-| `responses_spread_cors_headers` | 73% | 44 / 60 |
 | `memoizes_supabase_client` | 70% | 42 / 60 |
 | `has_jsdoc_header` | 61% | 37 / 60 |
 | `returns_400_on_bad_input` | 61% | 37 / 60 |

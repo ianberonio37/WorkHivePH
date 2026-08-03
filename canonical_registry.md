@@ -549,7 +549,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 | Surface A | Surface B | Shared tables | Jaccard |
 |---|---|---|---:|
-| `founder-console.html` | `platform-actions.html` | hive_audit_log, marketplace_listings, marketplace_sellers, platform_feedback, service_credit_topups, v_marketplace_listings_truth, v_marketplace_sellers_truth, v_service_credit_topups_truth | 0.5 |
+| `founder-console.html` | `platform-actions.html` | hive_audit_log, marketplace_listings, marketplace_sellers, platform_feedback, service_credit_topups, v_credit_posture, v_marketplace_listings_truth, v_marketplace_sellers_truth, v_service_credit_ledger_truth, v_service_credit_topups_truth | 0.62 |
 | `logbook.html` | `pm-scheduler.html` | asset_nodes, hive_audit_log, hive_members, logbook, pm_assets, pm_completions, project_links, projects, v_pm_scope_items_truth | 0.5 |
 
 ### Near-duplicate column names within a table

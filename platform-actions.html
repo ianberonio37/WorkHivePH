@@ -526,7 +526,19 @@
         ]);
         if (posture.error) throw posture.error;
         if (ledger.error)  throw ledger.error;      // a failed read is not an empty ledger
-        return { posture: posture.data, rows: ledger.data || [], _error: null };
+        /* A REFUSAL CAN ARRIVE AS NULLS INSTEAD OF AN ERROR (2026-08-04, mig 47). v_credit_posture
+           has no top-level FROM, so it ALWAYS returns exactly one row; its money columns are
+           scalar sub-selects over credit_treasury. Once that table became admin-only, a non-admin
+           stopped getting 42501 and started getting a row whose values are NULL — and Number(null)
+           is 0, so the card would have rendered "supply 0 · issued 0 · liability PHP0.00": a
+           confident, false claim that the platform holds no money at all. Same family as a failed
+           read painting an empty state, except the read SUCCEEDED and the refusal hid in the data.
+           Treat null money columns as the permission boundary they are. */
+        const p = posture.data;
+        if (!p || p.authorised_credits === null || p.issued_credits === null) {
+          return { posture: null, rows: [], _error: 'permission denied', _code: '42501' };
+        }
+        return { posture: p, rows: ledger.data || [], _error: null };
       } catch (err) {
         return { posture: null, rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null };
       }
