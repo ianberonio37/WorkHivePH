@@ -953,6 +953,12 @@
           "why_it_matters": "That is the failure this very panel was built to prevent - its own comment reads 'being blocked with no explanation is the cold-start failure the simulation put at 31% of providers, which lands on the BUYER side as fill rate dropping from 51% to 30%'. It covered the cold start and missed the cold stop.",
           "fix": "loadCreditWallet now fills a note when available < 0: 'Below zero, so publishing is paused: a listing needs 10% of its price held in credits. Top up by PHP200 to clear this, plus the hold for whatever you list next.' It names the state, the rule, the exact amount, and that the amount is not the whole story.",
           "teeth": "Proven CONDITIONAL end to end rather than by reading the branch: seeded a temporary +500 ledger row, reloaded -> available PHP300, note hidden and empty; deleted the row, reloaded -> available PHP-200, note visible. Ledger restored to 5 rows, zero probe residue."
+        },
+        {
+          "severity": "verified-correct",
+          "title": "the new copy quotes the guard's own rule, verified against the guard rather than against my reading",
+          "measured": "guard_listing_requires_reservation, asked directly with the review-gate bypassed so IT is what answers: 'Listing needs 500 credits held (10% of the price) and you have -200 available. The credits are not a fee...' The panel note now states the same rule and the same arithmetic BEFORE the seller hits it, instead of after. The two negative-balance messages on this page do not contradict: the credits panel names PUBLISHING (its surface) and the services wallet names ACCEPTING JOBS (its surface), and both are true because the credits are one pot gated by two guards.",
+          "note": "Getting to that answer took THREE failed probes, each a different instrument error. (1) An UPDATE targeting Pablo's drafts matched ZERO rows - he has none - and my DO block reported 'allowed', which is the banked '0-row write is not an error' trap; the guard never ran. (2) Cloning a listing row failed on a generated column (search_vector), so the staged draft never existed. (3) The first successful publish attempt was refused by the SELF-PUBLISH gate rather than the reservation guard, which answers a different question. Only bypassing the review gate isolated the guard whose sentence the copy quotes. I nearly shipped user-facing copy on the strength of probe #1 saying 'allowed'."
         }
       ],
       "walked_at": "2026-08-03"
