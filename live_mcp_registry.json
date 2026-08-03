@@ -1319,8 +1319,14 @@
    "persona_note": "platform moderator",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "pass",
+     "title": "a real admin gets the governance controls",
+     "measured": "pabloaguilar: is_marketplace_admin = true; Approve / Reject / Verify ID rendered."
+    }
+   ]
   },
   {
    "id": "LM-H-moderation-admin-admin-empty",
@@ -1345,8 +1351,18 @@
    "persona_note": "signed in, listing and answering",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "lane-reassigned",
+   "findings": [
+    {
+     "severity": "harness",
+     "title": "the 'a non-admin is visibly refused' oracle CANNOT be walked on localhost",
+     "measured": "as isidrosuarez (is_marketplace_admin = false, isPlatformAdmin = false) the Platform Actions page rendered 9 'Verify ID' controls and no refusal. The gate is `IS_LOCAL_FOUNDER || isPlatformAdmin(db)`, and IS_LOCAL_FOUNDER is ['127.0.0.1','localhost','::1'].includes(location.hostname) - so every LOCAL walk takes the bypass, whoever is signed in.",
+     "not_a_defect": "In production the hostname check is false and the gate falls through to isPlatformAdmin, which correctly returned FALSE here. Recording this rather than filing 'a non-admin can reach the governance console' would have been a confident, false report about production - the same shape as blaming a page for a dead fixture.",
+     "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
+     "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
+    }
+   ],
+   "lane": "spec-nonloopback"
   },
   {
    "id": "LM-H-moderation-admin-seller-empty",
@@ -1358,8 +1374,18 @@
    "persona_note": "signed in, listing and answering",
    "state": "empty",
    "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
-   "status": "owed",
-   "findings": []
+   "status": "lane-reassigned",
+   "findings": [
+    {
+     "severity": "harness",
+     "title": "the 'a non-admin is visibly refused' oracle CANNOT be walked on localhost",
+     "measured": "as isidrosuarez (is_marketplace_admin = false, isPlatformAdmin = false) the Platform Actions page rendered 9 'Verify ID' controls and no refusal. The gate is `IS_LOCAL_FOUNDER || isPlatformAdmin(db)`, and IS_LOCAL_FOUNDER is ['127.0.0.1','localhost','::1'].includes(location.hostname) - so every LOCAL walk takes the bypass, whoever is signed in.",
+     "not_a_defect": "In production the hostname check is false and the gate falls through to isPlatformAdmin, which correctly returned FALSE here. Recording this rather than filing 'a non-admin can reach the governance console' would have been a confident, false report about production - the same shape as blaming a page for a dead fixture.",
+     "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
+     "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
+    }
+   ],
+   "lane": "spec-nonloopback"
   },
   {
    "id": "LM-H-moderation-admin-anon-populated",
@@ -1371,8 +1397,18 @@
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "lane-reassigned",
+   "findings": [
+    {
+     "severity": "harness",
+     "title": "the 'a non-admin is visibly refused' oracle CANNOT be walked on localhost",
+     "measured": "as isidrosuarez (is_marketplace_admin = false, isPlatformAdmin = false) the Platform Actions page rendered 9 'Verify ID' controls and no refusal. The gate is `IS_LOCAL_FOUNDER || isPlatformAdmin(db)`, and IS_LOCAL_FOUNDER is ['127.0.0.1','localhost','::1'].includes(location.hostname) - so every LOCAL walk takes the bypass, whoever is signed in.",
+     "not_a_defect": "In production the hostname check is false and the gate falls through to isPlatformAdmin, which correctly returned FALSE here. Recording this rather than filing 'a non-admin can reach the governance console' would have been a confident, false report about production - the same shape as blaming a page for a dead fixture.",
+     "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
+     "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
+    }
+   ],
+   "lane": "spec-nonloopback"
   },
   {
    "id": "LM-H-moderation-admin-anon-empty",
@@ -1384,8 +1420,18 @@
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "empty",
    "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
-   "status": "owed",
-   "findings": []
+   "status": "lane-reassigned",
+   "findings": [
+    {
+     "severity": "harness",
+     "title": "the 'a non-admin is visibly refused' oracle CANNOT be walked on localhost",
+     "measured": "as isidrosuarez (is_marketplace_admin = false, isPlatformAdmin = false) the Platform Actions page rendered 9 'Verify ID' controls and no refusal. The gate is `IS_LOCAL_FOUNDER || isPlatformAdmin(db)`, and IS_LOCAL_FOUNDER is ['127.0.0.1','localhost','::1'].includes(location.hostname) - so every LOCAL walk takes the bypass, whoever is signed in.",
+     "not_a_defect": "In production the hostname check is false and the gate falls through to isPlatformAdmin, which correctly returned FALSE here. Recording this rather than filing 'a non-admin can reach the governance console' would have been a confident, false report about production - the same shape as blaming a page for a dead fixture.",
+     "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
+     "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
+    }
+   ],
+   "lane": "spec-nonloopback"
   },
   {
    "id": "LM-H-moderation-seller-admin-populated",
@@ -1423,8 +1469,18 @@
    "persona_note": "signed in, listing and answering",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "lane-reassigned",
+   "findings": [
+    {
+     "severity": "harness",
+     "title": "the 'a non-admin is visibly refused' oracle CANNOT be walked on localhost",
+     "measured": "as isidrosuarez (is_marketplace_admin = false, isPlatformAdmin = false) the Platform Actions page rendered 9 'Verify ID' controls and no refusal. The gate is `IS_LOCAL_FOUNDER || isPlatformAdmin(db)`, and IS_LOCAL_FOUNDER is ['127.0.0.1','localhost','::1'].includes(location.hostname) - so every LOCAL walk takes the bypass, whoever is signed in.",
+     "not_a_defect": "In production the hostname check is false and the gate falls through to isPlatformAdmin, which correctly returned FALSE here. Recording this rather than filing 'a non-admin can reach the governance console' would have been a confident, false report about production - the same shape as blaming a page for a dead fixture.",
+     "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
+     "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
+    }
+   ],
+   "lane": "spec-nonloopback"
   },
   {
    "id": "LM-H-moderation-seller-seller-empty",
@@ -1436,8 +1492,18 @@
    "persona_note": "signed in, listing and answering",
    "state": "empty",
    "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
-   "status": "owed",
-   "findings": []
+   "status": "lane-reassigned",
+   "findings": [
+    {
+     "severity": "harness",
+     "title": "the 'a non-admin is visibly refused' oracle CANNOT be walked on localhost",
+     "measured": "as isidrosuarez (is_marketplace_admin = false, isPlatformAdmin = false) the Platform Actions page rendered 9 'Verify ID' controls and no refusal. The gate is `IS_LOCAL_FOUNDER || isPlatformAdmin(db)`, and IS_LOCAL_FOUNDER is ['127.0.0.1','localhost','::1'].includes(location.hostname) - so every LOCAL walk takes the bypass, whoever is signed in.",
+     "not_a_defect": "In production the hostname check is false and the gate falls through to isPlatformAdmin, which correctly returned FALSE here. Recording this rather than filing 'a non-admin can reach the governance console' would have been a confident, false report about production - the same shape as blaming a page for a dead fixture.",
+     "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
+     "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
+    }
+   ],
+   "lane": "spec-nonloopback"
   },
   {
    "id": "LM-H-moderation-seller-anon-populated",
@@ -1449,8 +1515,18 @@
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "lane-reassigned",
+   "findings": [
+    {
+     "severity": "harness",
+     "title": "the 'a non-admin is visibly refused' oracle CANNOT be walked on localhost",
+     "measured": "as isidrosuarez (is_marketplace_admin = false, isPlatformAdmin = false) the Platform Actions page rendered 9 'Verify ID' controls and no refusal. The gate is `IS_LOCAL_FOUNDER || isPlatformAdmin(db)`, and IS_LOCAL_FOUNDER is ['127.0.0.1','localhost','::1'].includes(location.hostname) - so every LOCAL walk takes the bypass, whoever is signed in.",
+     "not_a_defect": "In production the hostname check is false and the gate falls through to isPlatformAdmin, which correctly returned FALSE here. Recording this rather than filing 'a non-admin can reach the governance console' would have been a confident, false report about production - the same shape as blaming a page for a dead fixture.",
+     "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
+     "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
+    }
+   ],
+   "lane": "spec-nonloopback"
   },
   {
    "id": "LM-H-moderation-seller-anon-empty",
@@ -1462,8 +1538,18 @@
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "empty",
    "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
-   "status": "owed",
-   "findings": []
+   "status": "lane-reassigned",
+   "findings": [
+    {
+     "severity": "harness",
+     "title": "the 'a non-admin is visibly refused' oracle CANNOT be walked on localhost",
+     "measured": "as isidrosuarez (is_marketplace_admin = false, isPlatformAdmin = false) the Platform Actions page rendered 9 'Verify ID' controls and no refusal. The gate is `IS_LOCAL_FOUNDER || isPlatformAdmin(db)`, and IS_LOCAL_FOUNDER is ['127.0.0.1','localhost','::1'].includes(location.hostname) - so every LOCAL walk takes the bypass, whoever is signed in.",
+     "not_a_defect": "In production the hostname check is false and the gate falls through to isPlatformAdmin, which correctly returned FALSE here. Recording this rather than filing 'a non-admin can reach the governance console' would have been a confident, false report about production - the same shape as blaming a page for a dead fixture.",
+     "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
+     "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
+    }
+   ],
+   "lane": "spec-nonloopback"
   },
   {
    "id": "LM-I-map-market_svc-buyer-populated",
@@ -2838,5 +2924,13 @@
    "status": "owed",
    "findings": []
   }
- ]
+ ],
+ "_harness_note_2": {
+  "severity": "harness",
+  "title": "the 'a non-admin is visibly refused' oracle CANNOT be walked on localhost",
+  "measured": "as isidrosuarez (is_marketplace_admin = false, isPlatformAdmin = false) the Platform Actions page rendered 9 'Verify ID' controls and no refusal. The gate is `IS_LOCAL_FOUNDER || isPlatformAdmin(db)`, and IS_LOCAL_FOUNDER is ['127.0.0.1','localhost','::1'].includes(location.hostname) - so every LOCAL walk takes the bypass, whoever is signed in.",
+  "not_a_defect": "In production the hostname check is false and the gate falls through to isPlatformAdmin, which correctly returned FALSE here. Recording this rather than filing 'a non-admin can reach the governance console' would have been a confident, false report about production - the same shape as blaming a page for a dead fixture.",
+  "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
+  "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
+ }
 }
