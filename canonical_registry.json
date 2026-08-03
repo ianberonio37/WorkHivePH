@@ -6013,7 +6013,8 @@
         "amount",
         "state",
         "released_at",
-        "created_at"
+        "created_at",
+        "request_id"
       ],
       "rls_enabled": true,
       "grants": {
@@ -6050,6 +6051,38 @@
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
+    },
+    "gcash_inbound_receipts": {
+      "defined_in": "20260803000038_credits_that_appear_without_anyone_pressing_verify.sql",
+      "columns": [
+        "id",
+        "reference",
+        "amount",
+        "sender_name",
+        "received_at",
+        "raw_text",
+        "source",
+        "matched_topup",
+        "match_state",
+        "match_note",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [
+        "gcash-receipt-inbound"
+      ],
+      "written_by_edge_fns": [
+        "gcash-receipt-inbound"
+      ]
     }
   },
   "views": {
@@ -7099,6 +7132,21 @@
       ],
       "read_by_edge_fns": [],
       "columns": []
+    },
+    "v_gcash_receipts_needing_eyes": {
+      "defined_in": "20260803000038_credits_that_appear_without_anyone_pressing_verify.sql",
+      "read_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "columns": [
+        "id",
+        "reference",
+        "amount",
+        "sender_name",
+        "received_at",
+        "match_state",
+        "match_note",
+        "created_at"
+      ]
     }
   },
   "rpcs": {
@@ -9134,6 +9182,7 @@
       "security_definer": true,
       "comment": "Per-hive service knob with platform defaults. broadcast_radius_start_m is 15,000 and widen_rounds is 3, ",
       "called_by_surfaces": [
+        "marketplace-seller.html",
         "marketplace.html"
       ],
       "called_by_edge_fns": []
@@ -9259,7 +9308,9 @@
       "args": "p_hive uuid, p_price numeric",
       "security_definer": true,
       "comment": "",
-      "called_by_surfaces": [],
+      "called_by_surfaces": [
+        "marketplace-seller.html"
+      ],
       "called_by_edge_fns": []
     },
     "guard_listing_requires_reservation": {
@@ -9418,6 +9469,38 @@
     },
     "guard_listing_meets_minimum": {
       "defined_in": "20260803000036_no_vouchers_and_a_floor_under_the_listing_price.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_accept_requires_reservation": {
+      "defined_in": "20260803000037_a_service_is_a_listing_too.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "grant_service_reward": {
+      "defined_in": "20260803000037_a_service_is_a_listing_too.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "release_service_reservation_on_close": {
+      "defined_in": "20260803000037_a_service_is_a_listing_too.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "match_gcash_receipt": {
+      "defined_in": "20260803000038_credits_that_appear_without_anyone_pressing_verify.sql",
       "args": "",
       "security_definer": true,
       "comment": "",
@@ -9716,7 +9799,7 @@
         "benchmark-compute",
         "supervisor-reset-password"
       ],
-      "size_kb": 349.8
+      "size_kb": 335.6
     },
     "index.html": {
       "tables_read": [],
@@ -9902,13 +9985,15 @@
       "rpcs_called": [
         "accept_service_request",
         "claim_starter_grant",
+        "listing_reservation_amount",
         "my_service_provider_ids",
         "provider_credit_balance",
         "seller_credit_balance",
+        "service_knob",
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 132.4
+      "size_kb": 145.0
     },
     "marketplace.html": {
       "tables_read": [
@@ -10016,7 +10101,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 25.4
+      "size_kb": 27.5
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -10577,7 +10662,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 308
+      "loc": 301
     },
     "_shared/provider-health.ts": {
       "tables_read": [],
@@ -11022,6 +11107,17 @@
       "rpcs_called": [],
       "edge_fns_invoked": [],
       "loc": 368
+    },
+    "gcash-receipt-inbound": {
+      "tables_read": [
+        "gcash_inbound_receipts"
+      ],
+      "tables_written": [
+        "gcash_inbound_receipts"
+      ],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 130
     },
     "hierarchical-summarizer": {
       "tables_read": [

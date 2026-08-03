@@ -118,6 +118,15 @@ verify_jwt = false
 enabled = true
 verify_jwt = false
 
+# verify_jwt = false because the caller is a mail/SMS forwarder, not a signed-in
+# user — it authenticates with an HMAC over the body keyed by GCASH_INBOUND_SECRET,
+# and FAILS CLOSED when that secret is unset. It cannot mint credits on its own:
+# it records a receipt, and mig 38's trigger verifies only a top-up the provider
+# already filed, only when reference AND amount agree.
+[functions.gcash-receipt-inbound]
+enabled = true
+verify_jwt = false
+
 [functions.cmms-push-completion]
 enabled = true
 verify_jwt = false

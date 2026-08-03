@@ -8,8 +8,8 @@ candidates punch list. Allowlist a column by adding it to
 ## Summary
 
 - Tables scanned:           **175**
-- Total columns:            **1848**
-- Alive (consumed):         **1401** ✅
+- Total columns:            **1851**
+- Alive (consumed):         **1404** ✅
 - Universal-skipped:        **447** (id, created_at, hive_id, ...)
 - Allowlisted phantoms:     **0**
 - Phantom (deletion cand):  **0** ❌
