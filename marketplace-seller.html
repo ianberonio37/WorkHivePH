@@ -1377,6 +1377,9 @@
      or a guard refusal, surfaced honestly, never a silent "saved". */
   const SVC_ACTIVE = ['accepted', 'en_route', 'on_site', 'in_progress'];
   const SVC_FINISHED = ['completed', 'settled'];   // rateable provider -> client (P6 second direction)
+  // Its own bucket on purpose: a disputed job is neither active work nor finished work, and putting
+  // it in either would be a lie. Before this existed it matched no bucket and was rendered nowhere.
+  const SVC_DISPUTED = ['disputed'];
   const SVC_NEXT = { accepted: ['en_route', 'On my way'], en_route: ['on_site', 'Arrived on site'], on_site: ['in_progress', 'Start work'], in_progress: ['completed', 'Mark completed'] };
   const SVC_TS_COL = { en_route: 'en_route_at', on_site: 'on_site_at', in_progress: 'in_progress_at', completed: 'completed_at' };
   const SVC_STATUS_LABEL = { accepted: 'Accepted: head over', en_route: 'On the way', on_site: 'On site', in_progress: 'Work in progress' };
@@ -1421,6 +1424,14 @@
       const feed = feedRes.data || [];
       const mine = (jobsRes.data || []).filter(j => _svcMyIds.includes(j.matched_provider_id));
       const jobs = mine.filter(j => SVC_ACTIVE.includes(j.status));
+      /* A DISPUTED JOB USED TO VANISH FROM THIS CONSOLE ENTIRELY (found 2026-08-04, S-adversarial
+         scam_buyer walk). SVC_ACTIVE is accepted/en_route/on_site/in_progress and SVC_FINISHED is
+         completed/settled, so `disputed` fell into NEITHER bucket and the row simply stopped being
+         rendered. The provider's own job disappeared the moment a client objected to it. That is the
+         worst possible silence on this platform: apply_dispute_adjustment can claw credits back from
+         them, and until now the first they would know of a case against them is money leaving their
+         wallet. Shown FIRST, above active work, because it is the most urgent thing on the page. */
+      const disputed = mine.filter(j => SVC_DISPUTED.includes(j.status));
       // P6 second direction: a finished job is rateable provider->client until rated. This only
       // decides whether to OFFER the control; the guard (mig 46) is the enforcement.
       const done = mine.filter(j => SVC_FINISHED.includes(j.status)).slice(0, 8);
@@ -1434,7 +1445,7 @@
       }
       const badge = document.getElementById('badge-services');
       if (badge) badge.textContent = String(feed.length);
-      renderSvcConsole(area, provs, feed, jobs, done, ratedIds);
+      renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed);
       // P6b wallet card (async append under the provider cards; first identity's wallet)
       /* WHOSE WALLET IS THIS? provs[0] on an UNORDERED query bound the top-up form to an arbitrary
          provider. my_service_provider_ids() returns every provider the user can act for — including
@@ -1743,7 +1754,7 @@
   }
   window.svcFileTopup = svcFileTopup;
 
-  function renderSvcConsole(area, provs, feed, jobs, done, ratedIds) {
+  function renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed) {
     const e = escHtml;
     let html = '';
     provs.forEach(p => {
@@ -1767,6 +1778,36 @@
         '<button type="button" onclick="svcEnablePush()" style="' + _svcBtn + '">Enable job alerts</button></div>';
     }
     html += '<div id="svc-wallet-slot"></div>';
+    /* Disputed work comes FIRST. It is not active and not finished, and it is the only state on this
+       page where money can move against the provider without them doing anything. No "Respond"
+       button is offered because no provider-side dispute RPC exists (apply_dispute_adjustment is
+       admin-only) — offering one would promise a control the product cannot honour, which is the
+       defect this very walk was hunting. What IS offered is true and actionable: the client's own
+       contact details, since this marketplace is contact-only by design and talking to them directly
+       is the real remedy. */
+    if (disputed && disputed.length) {
+      html += '<h2 style="font-size:0.95rem;margin:1rem 0 0.5rem;">Reported by the client '
+           +  '<span class="tab-count">' + disputed.length + '</span></h2>';
+      disputed.forEach(j => {
+        html +=
+          '<div class="simple-card" role="alert" style="margin-bottom:0.6rem;padding:0.9rem 1rem;'
+          + 'border-left:3px solid var(--wh-danger,#d9534f);">'
+          + '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>'
+          + '<div style="font-size:0.75rem;opacity:0.85;margin:0.25rem 0 0.5rem;">'
+          + 'The client reported a problem with this job, so it has not settled. WorkHive is '
+          + 'reviewing it. If credits were applied to this job they may be returned to the client '
+          + 'as part of that review.'
+          + '</div>'
+          + '<div style="font-size:0.75rem;opacity:0.8;margin-bottom:0.5rem;">'
+          + e(j.address || 'Site not given')
+          + (j.client_worker_name ? ' · Client: ' + e(j.client_worker_name) : '')
+          + '</div>'
+          + '<div style="font-size:0.75rem;opacity:0.9;">Talk to the client directly — that settles '
+          + 'most of these faster than a review does.</div>'
+          + '</div>';
+      });
+    }
+
     html += '<h2 style="font-size:0.95rem;margin:1rem 0 0.5rem;">My active jobs <span class="tab-count">' + jobs.length + '</span></h2>';
     if (!jobs.length) {
       html += '<div class="empty-state" style="padding:1rem;"><p>No active job. Accept a request below to get started.</p></div>';

@@ -3725,8 +3725,15 @@
    "persona_note": "receives the work then objects in bad faith to avoid settling",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the scam_buyer: a bad-faith objection is bounded - it must reach adjudication rather than auto-refunding, and the provider must be able to see and answer it",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "defect-fixed",
+     "title": "a disputed job vanished from the provider console entirely - no bucket matched it",
+     "measured": "The oracle asks that a bad-faith objection reach adjudication AND that the provider can see and answer it. The first half held; the second failed completely. SVC_ACTIVE is accepted/en_route/on_site/in_progress and SVC_FINISHED is completed/settled, so `disputed` matched NEITHER bucket and the row was rendered nowhere - the provider's own job VANISHED from their console the moment a client objected. apply_dispute_adjustment can claw credits back from them, so the first they would know of a case against them is money leaving their wallet. Two instrument corrections before this was believable: the first probe reported 'provider does not see it' while the mutated rows were not his provider jobs at all (the DB has ZERO disputed rows and no active provider-side work for him), and the field is matched_provider_id, not provider_id. Only after setting matched_provider_id to one of his four ids did the scenario exist. FIXED: a `disputed` bucket rendered FIRST, above active work, with role=alert. Verified live: 'Reported by the client 1 - Pump Overhaul (site)', names the client, and states the money consequence ('If credits were applied to this job they may be returned to the client'). No 'Respond' control was invented, because no provider-side dispute RPC exists - offering one would promise a control the product cannot honour, which is the exact defect class this walk was hunting. What is offered is true: the client's identity, since this marketplace is contact-only by design.",
+     "walked": "2026-08-04 · live MCP (Playwright) payload-mutation lane, provider console"
+    }
+   ]
   },
   {
    "id": "LM-S-adversarial-seller-scam_buyer-edge",
@@ -3876,8 +3883,15 @@
    "persona_note": "receives the work then objects in bad faith to avoid settling",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the scam_buyer: a bad-faith objection is bounded - it must reach adjudication rather than auto-refunding, and the provider must be able to see and answer it",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "defect-fixed",
+     "title": "a disputed job vanished from the provider console entirely - no bucket matched it",
+     "measured": "The oracle asks that a bad-faith objection reach adjudication AND that the provider can see and answer it. The first half held; the second failed completely. SVC_ACTIVE is accepted/en_route/on_site/in_progress and SVC_FINISHED is completed/settled, so `disputed` matched NEITHER bucket and the row was rendered nowhere - the provider's own job VANISHED from their console the moment a client objected. apply_dispute_adjustment can claw credits back from them, so the first they would know of a case against them is money leaving their wallet. Two instrument corrections before this was believable: the first probe reported 'provider does not see it' while the mutated rows were not his provider jobs at all (the DB has ZERO disputed rows and no active provider-side work for him), and the field is matched_provider_id, not provider_id. Only after setting matched_provider_id to one of his four ids did the scenario exist. FIXED: a `disputed` bucket rendered FIRST, above active work, with role=alert. Verified live: 'Reported by the client 1 - Pump Overhaul (site)', names the client, and states the money consequence ('If credits were applied to this job they may be returned to the client'). No 'Respond' control was invented, because no provider-side dispute RPC exists - offering one would promise a control the product cannot honour, which is the exact defect class this walk was hunting. What is offered is true: the client's identity, since this marketplace is contact-only by design.",
+     "walked": "2026-08-04 · live MCP (Playwright) payload-mutation lane, provider console"
+    }
+   ]
   },
   {
    "id": "LM-S-adversarial-market_svc-scam_buyer-edge",
