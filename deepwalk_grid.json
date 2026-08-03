@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-03T08:53:15+00:00",
+ "generated": "2026-08-03T09:53:15+00:00",
  "coverage_pct": 97.2,
  "page_pct": 96.6,
  "ai_surface_pct": 100.0,
@@ -9412,7 +9412,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": -2.8,
+ "delta_vs_last": 0.0,
  "dry_streak": 0,
  "dry": false
 }

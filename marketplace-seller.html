@@ -463,6 +463,15 @@
            shape as the founder money tile, and the same shape as the gate re-open directly below, which
            exists because a decision made too early was never revisited. */
         if (typeof loadCreditWallet === 'function') Promise.resolve(loadCreditWallet());
+        /* AND REPAINT THE LISTING HOLD PANEL. WORKER_NAME starts as the CACHED name and is only
+           corrected here, asynchronously — so a hold panel that painted during the boot window asked
+           seller_credit_balance() for the PREVIOUS user on this device and showed their wallet against
+           this seller's price. Narrow (it needs a device where someone else signed in) but it is a
+           money figure, and a money figure attributed to the wrong person is not a cosmetic race.
+           Re-running costs one round-trip and only when a price is already typed. */
+        if (typeof updateListingHold === 'function' && document.getElementById('edit-price')?.value) {
+          Promise.resolve(updateListingHold());
+        }
         /* AND RE-OPEN THE GATE. The gate below decides ONCE, synchronously, from the cached worker
            name — but this restore is ASYNCHRONOUS, so a visitor holding a valid session whose name is
            not yet in local storage (cleared site data, a new device, a fresh profile) was shown
