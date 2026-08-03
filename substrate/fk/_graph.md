@@ -2,13 +2,13 @@
 name: fk-graph
 type: fk
 source: db:pg_constraint:foreign-keys
-source_sha: a742e96ce83dd306
+source_sha: 7b466cf7e5464886
 last_verified: 2026-07-13
 supersedes: null
 ---
-## fk · relational-integrity graph (168 foreign keys)
+## fk · relational-integrity graph (170 foreign keys)
 
-**UNINDEXED FK columns (28)** — slow joins + table-locking cascade deletes; add an index on the child column:
+**UNINDEXED FK columns (29)** — slow joins + table-locking cascade deletes; add an index on the child column:
 - `agent_episodic_memory`.`auth_uid` -> `auth.users`
 - `agent_episodic_memory`.`source_trace_id` -> `agentic_rag_traces`
 - `anomaly_signals`.`asset_node_id` -> `asset_nodes`
@@ -16,6 +16,7 @@ supersedes: null
 - `auth_session_events`.`auth_uid` -> `auth.users`
 - `auth_session_events`.`hive_id` -> `hives`
 - `drone_inspections`.`asset_node_id` -> `asset_nodes`
+- `gcash_inbound_receipts`.`matched_topup` -> `service_credit_topups`
 - `knowledge_graph_facts`.`superseded_by` -> `knowledge_graph_facts`
 - `logbook`.`pm_completion_id` -> `pm_completions`
 - `marketplace_disputes`.`listing_id` -> `marketplace_listings`
@@ -38,7 +39,7 @@ supersedes: null
 - `voice_journal_entries`.`hive_id` -> `hives`
 - `weibull_fits`.`fmea_mode_id` -> `rcm_fmea_modes`
 
-**ON DELETE CASCADE FKs (110)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
+**ON DELETE CASCADE FKs (111)** — deleting the parent row deletes children; confirm the blast radius is intended (esp. FKs into hives/hive_members):
 - `agent_episodic_memory`.`hive_id` -> `hives`
 - `agent_followups`.`hive_id` -> `hives`
 - `agent_memory`.`hive_id` -> `hives`
@@ -71,6 +72,7 @@ supersedes: null
 - `companion_handoff`.`hive_id` -> `hives`
 - `consulting_engagements`.`hive_id` -> `hives`
 - `credit_reservations`.`listing_id` -> `marketplace_listings`
+- `credit_reservations`.`request_id` -> `service_requests`
 - `drone_inspections`.`hive_id` -> `hives`
 - `failure_signature_alerts`.`hive_id` -> `hives`
 - `fault_knowledge`.`hive_id` -> `hives`
@@ -78,6 +80,5 @@ supersedes: null
 - `hive_adoption_score`.`hive_id` -> `hives`
 - `hive_analytics_cache`.`hive_id` -> `hives`
 - `hive_audit_log`.`hive_id` -> `hives`
-- `hive_benchmarks`.`hive_id` -> `hives`
 
 Links: [[reference_pm_knowledge_fk_100pct_broken]] [[reference_logbook_asset_linkage_undercount]]

@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:641-files
-source_sha: 3a5f3d5a313d17ba
+source: memory-curated:642-files
+source_sha: 1b568f12c9c112ec
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (641 durable topic files)
+## memory · curated auto-memory (642 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=262 · project=290 · reference=89
+**By type:** feedback=263 · project=290 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -158,7 +158,7 @@ Entries (name · type · sha):
 - `feedback_make_it_earnable_not_coming_soon` · feedback · 580fc6fddab6aee8
 - `feedback_marketplace_moderation_and_identity_deepwalk` · feedback · f41ed251831fe47e
 - `feedback_marketplace_trust_forge_verified_only` · feedback · ce22a69bb392017c
-- `feedback_maybesingle_bounced_multihive_users` · feedback · 2ff8b452b1fe3227
+- `feedback_maybesingle_bounced_multihive_users` · feedback · b4a1c5dabcee73d2
 - `feedback_measure_the_worked_state_not_the_generator` · feedback · 5242b6458d5c3110
 - `feedback_measured_percent_not_qualitative_done` · feedback · a0140544db758050
 - `feedback_membership_resolved_by_auth_uid` · feedback · ba5e55000349dafd
@@ -218,6 +218,7 @@ Entries (name · type · sha):
 - `feedback_research_sequence` · feedback · 55066f378f2742a0
 - `feedback_resolving_live_is_not_enough_be_deterministic` · feedback · 5a716b982dd8fe68
 - `feedback_responsive_design` · feedback · 0dff971e8a433642
+- `feedback_retired_page_hid_the_only_live_control` · feedback · cd370706bf4b66c4
 - `feedback_retrieve_first_no_workflow_for_known_knowledge` · feedback · b758fa87ccfc4bc2
 - `feedback_reveal_then_sweep` · feedback · 5d8bd29f948c0657
 - `feedback_review_ripple_first` · feedback · 1aef70243094cd25
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_retired_pages` · project · aee0dd352c2004f0
 - `project_rigorous_companion_flywheel_2026_05_26` · project · 8dc8c64554a7b2b9
 - `project_rls_decision` · project · cc16dc52616e9cfe
-- `project_schema_coverage_validator` · project · 29f0119607107118
-- … +141 more (all included in the fingerprint)
+- … +142 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

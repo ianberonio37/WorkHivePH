@@ -2,7 +2,7 @@
 name: table-rls-credit_reservations
 type: table-rls
 source: db:pg_policies+pg_trigger:credit_reservations
-source_sha: d2cd7afff4348379
+source_sha: bc15dc4b13aececc
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: False
 
-Columns (*=NOT NULL): id*, listing_id*, seller_name*, hive_id, amount*, state*, released_at, created_at*
+Columns (*=NOT NULL): id*, listing_id, seller_name, hive_id, amount*, state*, released_at, created_at*, request_id
 
 Policies:
 - `credit_reservations_read` [SELECT · roles=public] USING=`((seller_name IN ( SELECT auth_worker_names() AS auth_worker_names)) OR is_marketplace_admin())` CHECK=`∅`

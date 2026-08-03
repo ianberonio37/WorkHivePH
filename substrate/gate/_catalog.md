@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 69b030e920940051
+source_sha: 335d99689aff3367
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (728) — the 'what's already gated' brain
+## gate · registered validators (730) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -228,7 +228,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (513)
+### Platform (515)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -236,6 +236,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `add-column-default` ⚡ [fail] — ADD COLUMN DEFAULT (every ADD COLUMN NOT NULL has a DEFAULT; backfill safety; forward-only ratchet)
 - `admin-gates` ⚡ [fail] — Admin Gate Enforcement (founder-console, marketplace-admin must verify admin)
 - `adoption-observability` ⚡ [fail] — Adoption Observability Validator (Phase 3.6: hive_adoption_score migration + supervisor card + onboarding stepper + intent capture + canonical anchors)
+- `adversarial-personas` ⚡ [fail] — ADVERSARIAL PERSONAS REFUSED LEGIBLY - the 500-run simulation proved the ECONOMICS hold (a collusive pair extracts PHP0, the spam cap blocks 274,428 listings, s
 - `agent-episodic-memory` ⚡ [fail] — Agent Episodic Memory Phase 7 (12-layer: migration + 4 types + RLS + edge fn + recall+store ops + caps + content cap + importance×log rank + batch cap + hive sc
 - `agent-handoff-contract` ⚡ [fail] — Agent Handoff Contract (4-layer: handoff keys + specialist awareness + worker_name trust + inventory)
 - `agent-memory-persist-complete` ⚡ [fail] — agent_memory persist-complete (the store_memory_turn RPC's INSERT names every NOT NULL column [worker_name/agent_id/kind] + sets kind to a CHECK-allowed literal
@@ -634,6 +635,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `report-sender` ⚡ [fail] — Report Sender Validator (32 checks: structure + UI + logic + PWA)
 - `reset-coverage` ⚡ [blocker] — Reset Coverage Validator (every migration table is in reset.py)
 - `resilience` ⚡ [fail] — Resilience Validator (Phase 1.10 reframe: offline queue + network-loss UI + fetchWithTimeout + shared-device sign-out)
+- `retired_page_sole_control` ⚡ [fail] — Retired-page sole control (retiring a PAGE must not silently delete a capability: every write/RPC on an overlay-retired page must also be reachable from a live 
 - `revenue-surfaces` ⚡ [fail] — Revenue Surfaces Validator (Phase 4: AI Quality Stair 2 gate + Anomaly Engine 2.0 Stair 3 gate + Knowledge Pipeline tile + canonical anchors)
 - `rls-open-policy` ⚡ [fail] — RLS Open Policy (CREATE POLICY USING(true)/WITH CHECK(true) flagged; covers DROP POLICY supersede; forward-only ratchet)
 - `rls-readiness` ⚡ [fail] — RLS Readiness Audit (4-layer: lockout traps + dead policies + permissive USING(true) catalog + verb completeness)

@@ -2,7 +2,7 @@
 name: table-rls-service_payments
 type: table-rls
 source: db:pg_policies+pg_trigger:service_payments
-source_sha: b351c12b29643941
+source_sha: 30a833cfe154e892
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: False
 
-Columns (*=NOT NULL): id*, request_id*, hive_id, amount_paid*, gcash_ref, method*, confirmed_by, paid_at*, created_at*, variance_reason
+Columns (*=NOT NULL): id*, request_id*, hive_id, amount_paid*, gcash_ref, method*, confirmed_by, paid_at*, created_at*, variance_reason, auto_confirmed_at
 
 Policies:
 - `service_payments_intake` [INSERT · roles=public] USING=`∅` CHECK=`((confirmed_by = auth.uid()) AND (EXISTS ( SELECT 1 FROM service_requests r WHERE ((r.id = service_payments.request_id) `

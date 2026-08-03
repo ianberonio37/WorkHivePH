@@ -2,16 +2,16 @@
 name: page-marketplace
 type: page
 source: file:marketplace.html
-source_sha: 0f0a175df3f757ad
+source_sha: 748403f396b82cea
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `marketplace.html` — Marketplace: WorkHive
 
-Size: 259KB · 94 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 271KB · 98 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (12): `hive_audit_log.insert`, `marketplace_inquiries.insert`, `marketplace_listings.insert`, `marketplace_reviews.insert`, `marketplace_saved_searches.delete`, `marketplace_saved_searches.insert`, `marketplace_saved_searches.update`, `marketplace_watchlist.delete`, `marketplace_watchlist.insert`, `service_payments.insert`, `service_requests.insert`, `service_requests.update`
-**RPC calls**: `apply_credits_to_request`, `get_community_reputation`, `get_marketplace_parts_for_my_assets`, `get_marketplace_price_comps`, `get_marketplace_trust_badges`, `get_saved_search_matches`, `increment_listing_view`, `my_credit_balance`, `redeem_service_voucher`, `select_quote`, `service_knob`, `service_knob_pct`, `service_request_price`
+**RPC calls**: `apply_credits_to_request`, `get_community_reputation`, `get_marketplace_parts_for_my_assets`, `get_marketplace_price_comps`, `get_marketplace_trust_badges`, `get_saved_search_matches`, `increment_listing_view`, `listing_reservation_amount`, `my_credit_balance`, `raise_service_objection`, `redeem_service_voucher`, `select_quote`, `service_knob`, `service_knob_pct`, `service_request_price`
 **Edge invokes**: `ai-gateway`, `marketplace-listing-assist`
 **Truth views read**: `v_inventory_items_truth`, `v_marketplace_inquiries_truth`, `v_marketplace_listings_truth`, `v_marketplace_sellers_truth`, `v_service_area_presence`, `v_service_catalog_truth`, `v_service_job_tracking`, `v_service_provider_truth`, `v_service_request_truth`
 

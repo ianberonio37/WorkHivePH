@@ -1,30 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:510
-source_sha: e517d71d08c513cc
+source: dir:supabase/migrations:525
+source_sha: 3bd4ee51709599bd
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (510 migrations)
+## migration · catalog (525 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260712000013_intelligence_write_guard` — policies:asset_nodes_write,asset_risk_scores_delete_locked,asset_risk_scores_hive_rw,asset_risk_scores_insert_locked,asset_risk_scores_read,asset_risk_scores_update_locked
-- `20260712000014_arm_intelligence_crons` — (misc DDL/DML)
-- `20260712000015_skill_profiles_bola_fix` — policies:before,skill_profiles_write
-- `20260712000016_skill_exam_server_grading` — policies:skill_badges_write,skill_exam_attempts_write · fns:grade_skill_exam · tables:skill_exam_keys
-- `20260712000017_schedule_items_source_ref` — tables:schedule_items
-- `20260712000018_achievement_earn_dead_domains` — fns:trg_engcalc_achievement_xp,trg_hivemember_achievement_xp,trg_iron_worker_check,trg_shiftplan_achievement_xp · triggers:trg_engcalc_achievement,trg_hivemember_achievement,trg_iron_worker,trg_shiftplan_achievement
-- `20260712000019_close_xhive_write_holes_inventory_reportcontacts` — policies:inventory_items_write,report_contacts_write
-- `20260712000020_intra_hive_role_gate_apikeys_projectfamily` — policies:api_keys_hive_rw,api_keys_supervisor_all,project_roles_hive_rw,project_roles_supervisor_all · triggers:tg_guard_approval_project_co
-- `20260712000021_cmms_audit_log_append_only` — policies:cmms_audit_log_hive_rw,cmms_audit_log_insert,cmms_audit_log_select
-- `20260713000001_close_xhive_read_leak_truth_views` — policies:community_xp_read
-- `20260713000002_hive_membership_gates` — policies:hive_members_delete,hive_members_insert · fns:join_hive_by_code
-- `20260713000003_hive_defensive_hardening` — fns:bind_asset_nodes_submitter,cap_hive_members_text,cap_hives_text,wh_bind_audit_actor · triggers:trg_bind_submitter_asset_nodes,trg_text_caps_hive_members,trg_text_caps_hives
-- `20260713000004_logbook_attribution_pin` — fns:bind_logbook_submitter · triggers:trg_bind_submitter_logbook
-- `20260713000005_projects_attribution_pin` — fns:bind_projects_submitter · triggers:trg_bind_submitter_projects
-- `20260713000006_community_announcement_role_gate` — fns:guard_community_announcement · triggers:trg_guard_community_announcement
 - `20260713000007_community_attribution_pin` — policies:anon,community_replies_delete,community_replies_insert,community_replies_modify,community_replies_write,so · fns:bind_community_reaction_submitter,bind_community_reply_submitter · triggers:trg_bind_submitter_community_reaction,trg_bind_submitter_community_reply
 - `20260713000008_inventory_restock_rpc` — fns:inventory_restock
 - `20260713000009_marketplace_listing_trust_from_canonical` — (misc DDL/DML)
@@ -210,6 +195,21 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260803000028_anon_could_truncate_140_tables` — (misc DDL/DML)
 - `20260803000029_a_disputed_job_kept_the_credits_the_buyer_paid` — fns:apply_dispute_adjustment
 - `20260803000030_no_revenue_means_the_rate_is_zero_in_all_three_places` — fns:mint_settlement_commission,service_knob_pct · tables:hive_service_settings
+- `20260803000031_a_job_marked_done_waited_forever_for_a_buyer_who_never_came_back` — fns:service_knob,service_objection_deadline,sweep_service_completions · tables:hive_service_settings,service_payments
+- `20260803000032_the_completion_window_needs_a_clock_that_actually_ticks` — (misc DDL/DML)
+- `20260803000033_a_silent_window_is_just_a_slower_way_to_lose` — fns:enqueue_user_push,fanout_completion_push · triggers:trg_fanout_completion_push
+- `20260803000034_the_screen_and_the_sweep_must_quote_the_same_date` — fns:raise_service_objection
+- `20260803000035_ten_percent_means_ten_percent` — fns:listing_reservation_amount,service_knob · tables:hive_service_settings
+- `20260803000036_no_vouchers_and_a_floor_under_the_listing_price` — fns:guard_listing_meets_minimum,guard_vouchers_retired,redeem_service_voucher,service_knob · triggers:trg_guard_listing_meets_minimum,trg_guard_vouchers_retired · tables:hive_service_settings
+- `20260803000037_a_service_is_a_listing_too` — fns:grant_service_reward,guard_accept_requires_reservation,release_service_reservation_on_close · triggers:trg_guard_accept_requires_reservation,trg_zz_grant_service_reward,trg_zz_release_service_reservation · tables:credit_reservations
+- `20260803000038_credits_that_appear_without_anyone_pressing_verify` — policies:gcash_inbound_receipts_admin_read · fns:match_gcash_receipt · triggers:trg_match_gcash_receipt · tables:gcash_inbound_receipts
+- `20260803000039_one_person_one_wallet` — fns:guard_accept_requires_reservation,person_credit_balance,provider_credit_balance,seller_credit_balance
+- `20260803000040_a_rejected_topup_could_be_revived_and_minted` — fns:guard_service_topup_status
+- `20260803000041_the_other_three_readers_that_still_split_one_wallet` — fns:guard_reward_spend_cap,my_credit_balance
+- `20260803000042_the_supply_cap_did_not_watch_the_only_door_credits_use` — fns:guard_service_topup_status
+- `20260803000043_anon_could_delete_the_founders_receipt_queue` — (misc DDL/DML)
+- `20260803000044_register_the_receipt_intake_in_the_canonical_registry` — (misc DDL/DML)
+- `20260803000045_the_voucher_refusal_took_the_endpoint_down_instead` — fns:redeem_service_voucher
 
 (showing last 200)
 
