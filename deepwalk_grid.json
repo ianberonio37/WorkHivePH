@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-03T15:50:03+00:00",
+ "generated": "2026-08-03T19:55:55+00:00",
  "coverage_pct": 100.0,
  "page_pct": 100.0,
  "ai_surface_pct": 100.0,
@@ -259,6 +259,7 @@
   "validate_leave_audit_ordering",
   "validate_lifecycle_state_reachability",
   "validate_lineage_status_drift",
+  "validate_live_mcp_bank",
   "validate_local_triggers_dont_call_prod",
   "validate_logbook_quota",
   "validate_login_proxy_lockout",
@@ -303,6 +304,7 @@
   "validate_project_guard_spine",
   "validate_project_tenancy",
   "validate_projects_correctness",
+  "validate_public_read_surface",
   "validate_push_handler_contract",
   "validate_push_runtime_delivery",
   "validate_python_api_auth",
@@ -369,25 +371,40 @@
  "surface_set_hash": "9f26fa121503",
  "oracle_set_hash": "58ef82d9dc70",
  "live_bonus": {
-  "live_cells": 11,
+  "live_cells": 26,
   "live_cell_ids": [
+   "H1/I",
+   "H1/M",
+   "H1/U",
+   "H11/F",
    "H12/F",
+   "H13/F",
+   "H14/F",
    "H15/F",
+   "H2/A",
+   "H2/I",
    "H2/U",
    "H3/A",
    "H3/F",
    "H3/U",
+   "H4/A",
    "H4/U",
+   "H5/A",
    "H5/F",
+   "H5/I",
    "H5/U",
-   "H8/F",
-   "H8/U"
+   "H6/A",
+   "H7/F",
+   "H7/U",
+   "H8/A",
+   "H8/I",
+   "H9/F"
   ],
   "breaches": 0,
   "fresh": true,
   "age_days": 0.1,
   "proven_ever": 32,
-  "this_run": 11
+  "this_run": 26
  },
  "cells": {
   "achievements|D1": {
@@ -9350,6 +9367,6 @@
   "coverage_pct": 100.0
  },
  "delta_vs_last": 0.0,
- "dry_streak": 1,
+ "dry_streak": 2,
  "dry": false
 }

@@ -60,6 +60,32 @@ SURFACES = {
     "community":    "/workhive/community.html",
     "achievements": "/workhive/achievements.html",
     "public_feed":  "/workhive/public-feed.html",
+
+    # ── THE 500 (2026-08-04, Ian: "system design and full architecture layers, UFAI, UI, UX") ────────
+    # The bank walked PAGES. These walk the STACK. A layer is not a URL, so each one is pinned to the
+    # surface where that layer is actually OBSERVABLE from a browser — the walk still happens in a real
+    # page, it just asks a question about the layer underneath it. Every file below was verified to
+    # exist on disk before being named, because a surface key pointing at a missing page sends a walk
+    # to a 404 and lets it report a page defect that is really a typo.
+    "layer_client":   "/workhive/marketplace.html",
+    "layer_gateway":  "/workhive/marketplace.html",
+    "layer_edge":     "/workhive/platform-actions.html",
+    "layer_db":       "/workhive/marketplace-seller.html",
+    "layer_realtime": "/workhive/platform-actions.html",
+    "layer_storage":  "/workhive/marketplace-seller.html",
+    "layer_cron":     "/workhive/platform-actions.html",
+    "layer_ai":       "/workhive/assistant.html",
+
+    # The SEAMS. Every money defect found this month lived on a join, not inside a layer: a trigger
+    # wrote a number the view never exposed; an edge fn returned 200 with an error body; a NULL that
+    # meant "no cap" arrived as a zero. So the seams get their own scenarios.
+    "seam_client_gateway":   "/workhive/marketplace.html",
+    "seam_gateway_edge":     "/workhive/platform-actions.html",
+    "seam_edge_db":          "/workhive/platform-actions.html",
+    "seam_trigger_view":     "/workhive/marketplace-seller.html",
+    "seam_realtime_client":  "/workhive/platform-actions.html",
+    "seam_storage_client":   "/workhive/marketplace-seller.html",
+    "seam_cron_db":          "/workhive/platform-actions.html",
 }
 
 PERSONAS = {
@@ -81,6 +107,13 @@ PERSONAS = {
     "colluder":      "a paired account trading credits with itself to extract value - structurally "
                      "impossible (every leg is a transfer, credits are non-withdrawable), so the oracle "
                      "is EXACTLY 0 extracted, proven not assumed",
+
+    # ── THE 500. Architecture scenarios have no human persona: the subject is the STACK. Naming that
+    # honestly beats pretending a buyer is the one exercising a trigger-to-view seam.
+    "system":        "no human - the scenario exercises the stack itself and asserts against psql or "
+                     "the network layer, never against another part of the screen",
+    "two_context":   "two identities signed in at once on the same object - the races and stale views "
+                     "that a single-identity walk cannot see by construction",
 }
 
 # category -> (the design question it answers, surfaces, personas, states)
@@ -195,6 +228,130 @@ CATEGORIES = {
         "these are the pages a real journey reaches next and no walk has ever opened",
         ["community", "achievements", "public_feed", "profile"], ["anon", "buyer"],
         ["populated", "empty", "error"]),
+
+    # ==============================================================================================
+    # THE 500 (2026-08-04) - Ian: "add 500 diverse live mcps in test banks, make it in categories of
+    # system design and full architecture layers, UFAI, UI, UX, we will reiteratively improve the
+    # entire marketplace."
+    #
+    # Four families. The existing A-W bank walks PAGES in their states; these walk the STACK, the four
+    # UFAI dimensions the platform already grades itself on (U/F/A/I, per CROSS_ARC_UFAI_REVIEW), and
+    # the UI/UX split that a page-state grid cannot express.
+    #
+    # Every state below has its own entry in ORACLES. That is enforced, not conventional: the lookup is
+    # strict, so a state nobody wrote an oracle for raises at build time instead of silently inheriting
+    # "populated" and being walked against the wrong success criterion forever.
+    # ==============================================================================================
+
+    # -- FAMILY 1 - SYSTEM DESIGN / ARCHITECTURE LAYERS --------------------------------------------
+    "AX-layer-contract": (
+        "does each layer honour its own contract at its own boundary - envelope, status/body "
+        "agreement, idempotency, total ordering?",
+        ["layer_client", "layer_gateway", "layer_edge", "layer_db", "layer_realtime", "layer_storage",
+         "layer_cron", "layer_ai"],
+        ["system"],
+        ["envelope_shape", "status_body_agreement", "idempotency", "ordering_totality", "units_declared"]),
+
+    "AY-seam": (
+        "the joins between layers, where every money defect this month actually lived - does what one "
+        "side writes arrive intact, named the same, on the other?",
+        ["seam_client_gateway", "seam_gateway_edge", "seam_edge_db", "seam_trigger_view",
+         "seam_realtime_client", "seam_storage_client", "seam_cron_db"],
+        ["system", "two_context"],
+        ["value_survives", "name_survives", "null_semantics", "partial_write"]),
+
+    "AZ-failure-injection": (
+        "each layer fails in turn - does the layer ABOVE degrade honestly, or invent a number?",
+        ["market", "market_svc", "seller", "admin", "profile", "community"],
+        ["system"],
+        ["fail_500", "fail_401", "fail_timeout", "fail_partial", "fail_slow", "fail_offline",
+         "fail_null_field"]),
+
+    "BA-invariant": (
+        "the cross-layer invariants that must hold at every instant, asserted from the ledger and the "
+        "catalogue rather than from a screen",
+        ["layer_db", "layer_edge", "layer_cron", "layer_realtime"],
+        ["system"],
+        ["credits_conserved", "reservation_matches_listing", "tenant_isolation_e2e", "no_orphan_ledger",
+         "cap_respected", "terminal_states_frozen", "audit_trail_complete", "grant_matches_policy",
+         "view_matches_base", "trigger_fires_once"]),
+
+    # -- FAMILY 2 - UFAI, using the dimensions the platform already grades itself on ----------------
+    "BB-ufai-U": (
+        "UNDERSTANDABLE - one vocabulary per concept, and a claim on screen that matches the view it "
+        "names",
+        ["market", "market_svc", "seller", "admin", "profile", "community"],
+        ["buyer"],
+        ["one_vocabulary", "source_chip_true", "units_visible", "no_raw_enum", "number_explained"]),
+
+    "BC-ufai-F": (
+        "FUNCTIONAL - the happy-path EFFECT is correct, asserted against psql, never against another "
+        "part of the same screen",
+        ["market", "market_svc", "seller", "admin", "profile"],
+        ["buyer"],
+        ["effect_in_db", "effect_visible", "count_matches_source", "money_matches_ledger",
+         "idempotent_repeat", "cross_surface_agreement"]),
+
+    "BD-ufai-A": (
+        "AVAILABLE / adaptable - fallback, retry, rate limits and degradation; the write refuses BEFORE "
+        "it fires and says nothing was sent",
+        ["market", "market_svc", "seller", "admin", "profile", "community"],
+        ["buyer"],
+        ["offline_refusal", "retry_path", "rate_limit_legible", "fallback_engaged", "slow_honest"]),
+
+    "BE-ufai-I": (
+        "IDENTITY / isolation - authN from the JWT not the body; a second identity meets a boundary, "
+        "never data and never a false all-clear",
+        ["market", "admin"],
+        ["anon", "buyer", "two_context"],
+        ["bola_object", "bfla_function", "tenant_boundary", "jwt_not_body", "boundary_not_emptiness"]),
+
+    # -- FAMILY 3 - UI ------------------------------------------------------------------------------
+    "BF-ui-layout": (
+        "layout under real content at three VERIFIED widths - the requested viewport is never trusted, "
+        "window.innerWidth is",
+        ["market", "market_svc", "seller", "admin", "profile", "community", "public_feed"],
+        ["buyer"],
+        ["w390_overflow", "w641_overflow", "w1280_overflow", "tap_target_44", "safe_area"]),
+
+    "BG-ui-state": (
+        "every COMPONENT's six states, not every page's - loading, skeleton, empty, error, populated, "
+        "disabled",
+        ["market", "market_svc", "seller", "admin", "profile", "community", "public_feed"],
+        ["buyer"],
+        ["component_loading", "component_skeleton", "component_disabled", "component_busy",
+         "component_populated"]),
+
+    "BH-ui-visual": (
+        "contrast, focus, motion and naming - the things a screenshot cannot confirm and a measurement "
+        "can",
+        ["market", "market_svc", "seller", "admin", "profile", "community", "public_feed"],
+        ["buyer"],
+        ["contrast_wcag", "contrast_apca", "focus_visible", "reduced_motion", "icon_only_name"]),
+
+    # -- FAMILY 4 - UX ------------------------------------------------------------------------------
+    "BI-ux-comprehension": (
+        "can a person say what this number means, what happens next, and what it costs - the class the "
+        "vanished credits chip belongs to",
+        ["market", "market_svc", "seller", "admin", "profile", "community", "public_feed"],
+        ["buyer"],
+        ["what_is_this_number", "what_happens_next", "what_does_it_cost", "why_refused",
+         "reward_explained"]),
+
+    "BJ-ux-journey": (
+        "multi-step flows end to end per persona, including the two-sided ones a single identity "
+        "cannot walk",
+        ["market", "market_svc", "seller", "admin"],
+        ["buyer", "two_context"],
+        ["first_run_to_value", "repeat_visit", "cross_surface_handoff", "two_sided_same_object",
+         "abandon_resume"]),
+
+    "BK-ux-recovery": (
+        "mistakes, reversals and interruption - and the question every person asks after a slow tap: "
+        "did my thing land?",
+        ["market", "market_svc", "seller", "admin", "profile", "community", "public_feed"],
+        ["buyer"],
+        ["double_tap", "back_out", "session_died", "wrong_then_fix", "did_it_land"]),
 }
 
 # ── Explicitly-enumerated branches ──────────────────────────────────────────────────────────────────
@@ -331,6 +488,7 @@ ADVERSARIAL_ORACLES = {
     "colluder":      "EXACTLY 0 extracted, proven from the ledger rather than assumed: circulation "
                      "delta is 0.00 across the pair, and the refusal explains that credits move only "
                      "on a purchase",
+
 }
 
 # The oracle families. Every scenario gets exactly one, so a finding is always actionable.
@@ -369,6 +527,144 @@ ORACLES = {
                    "so no row appears on two pages",
     "script_name": "a name in a non-Latin script (Baybayin, Arabic) renders without mojibake and without "
                    "breaking the row's layout",
+    # ══ THE 500 (2026-08-04). Every oracle below names an OBSERVABLE, and deliberately names one that a
+    # structural probe cannot fake. That is the whole lesson of the false 343: "the page rendered" is a
+    # real property and it is not "the number is right", and the credits-back chip lived in the gap
+    # between them for as long as nobody wrote the difference down. ══════════════════════════════════
+
+    # ── FAMILY 1 · architecture ────────────────────────────────────────────────────────────────────
+    "envelope_shape":        "the layer returns its declared envelope on BOTH paths - success and failure "
+                             "- and a caller can tell which without parsing prose",
+    "status_body_agreement": "the HTTP status and the body agree: no 200 carrying an error, no 4xx "
+                             "carrying data. Disagreement is measured on the wire, not inferred",
+    "idempotency":           "the same call twice produces ONE effect; the second is refused or absorbed, "
+                             "and the count in the DB proves which",
+    "ordering_totality":     "a paginated or sorted read has a TOTAL order - re-running it does not "
+                             "reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+    "units_declared":        "the value carries its unit at the boundary (pesos vs credits vs percent vs "
+                             "whole-percent) - the class that made a knob of 10 mean 1000%",
+
+    "value_survives":        "what one side of the seam WRITES is what the other side READS - compared "
+                             "value-to-value against psql, never screen-to-screen",
+    "name_survives":         "the field keeps its name and meaning across the seam; a rename on one side "
+                             "that the other still reads by the old name is a silent null",
+    "null_semantics":        "NULL means the SAME thing on both sides. The reward cap proved the cost: "
+                             "NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+    "partial_write":         "a multi-row or multi-table write either lands whole or not at all; a "
+                             "half-applied write is visible as an inconsistency in the ledger",
+
+    "fail_500":              "the layer above renders a failure, never an emptiness, and offers a way back",
+    "fail_401":              "an expired session says so AND says nothing was sent - never a bare retry, "
+                             "and never a sign-in instruction to someone already signed in",
+    "fail_timeout":          "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+    "fail_partial":          "when half the reads succeed, what loaded is kept and what did not is NAMED - "
+                             "no silent blanks beside real data",
+    "fail_slow":             "a slow response keeps the surface honest: a busy state that resolves, never a "
+                             "control that looks ready while nothing is behind it",
+    "fail_offline":          "the write is refused BEFORE it fires, the person is told nothing was sent, "
+                             "and reconnecting does not silently replay it",
+    "fail_null_field":       "a NULL field in an otherwise valid row renders as a stated gap, never as 0, "
+                             "'undefined', or a fabricated default",
+
+    "credits_conserved":     "sum of the ledger equals issued_credits, and no path creates value - proven "
+                             "from the ledger, not from a tile",
+    "reservation_matches_listing": "every published listing has exactly one live reservation and vice "
+                             "versa - an orphan on either side is a defect",
+    "tenant_isolation_e2e":  "a second tenant sees zero rows end to end - through the view, the RPC and "
+                             "the realtime channel, not merely through the base table",
+    "no_orphan_ledger":      "no ledger entry lacks its counterpart leg; a one-sided write is caught",
+    "cap_respected":         "issued can never exceed authorised; the guard is proven by attempting to "
+                             "exceed it in a rolled-back transaction",
+    "terminal_states_frozen":"a decided record cannot be re-opened and re-decided - proven by attempting "
+                             "the transition and reading the refusal",
+    "audit_trail_complete":  "every money-moving action leaves an audit row naming who did it",
+    "grant_matches_policy":  "the table grant and the RLS policy agree - a grant with no caller-aware "
+                             "policy is public data whether or not anyone decided that",
+    "view_matches_base":     "the view returns what the base table would, under the SAME identity - a "
+                             "security_invoker mismatch is the tell",
+    "trigger_fires_once":    "the trigger fires exactly once per qualifying change - not zero, not twice",
+
+    # ── FAMILY 2 · UFAI ────────────────────────────────────────────────────────────────────────────
+    "one_vocabulary":        "one concept, one word, across every surface that shows it - 'credits' is not "
+                             "'points' three screens later",
+    "source_chip_true":      "the source chip names the view the number actually came from, and that view "
+                             "returns that number right now",
+    "units_visible":         "the unit is on screen beside the number, not implied by position",
+    "no_raw_enum":           "no lowercase_with_underscores status reaches a person",
+    "number_explained":      "a person can say what the number MEANS without leaving the surface",
+
+    "effect_in_db":          "the happy path's effect is present in the database, asserted by psql",
+    "effect_visible":        "that same effect is visible to the person who caused it, on the surface "
+                             "where they caused it",
+    "count_matches_source":  "every count on screen equals the count its own predicate returns - measured "
+                             "with the page's OWN filter, not a guess at it",
+    "money_matches_ledger":  "every peso and credit figure equals the canonical view, to the centavo",
+    "idempotent_repeat":     "repeating the action changes nothing further and the surface says so",
+    "cross_surface_agreement":"the same fact reads the same on every surface that shows it",
+
+    "offline_refusal":       "offline, the write is refused before firing and the person is told nothing "
+                             "was sent",
+    "retry_path":            "a failure offers a retry that actually re-attempts, and succeeds when the "
+                             "cause is gone",
+    "rate_limit_legible":    "a rate limit states what was limited and when it clears - never a bare error",
+    "fallback_engaged":      "when the primary is down the fallback engages and the surface says which it "
+                             "used, rather than pretending nothing happened",
+    "slow_honest":           "under a slow dependency the surface stays honest: busy where busy, no "
+                             "control that implies readiness it does not have",
+
+    "bola_object":           "another person's object id is refused, and the refusal is legible",
+    "bfla_function":         "a function above this role is refused at the server, not merely hidden in "
+                             "the UI",
+    "tenant_boundary":       "a foreign hive's row is invisible, and its absence is stated as a boundary "
+                             "rather than shown as an emptiness",
+    "jwt_not_body":          "identity comes from the JWT; a forged identity in the body changes nothing",
+    "boundary_not_emptiness":"a permission boundary reads as 'not visible with this session', never as "
+                             "'nothing here' - the difference between 'you may not look' and 'all clear'",
+
+    # ── FAMILY 3 · UI ──────────────────────────────────────────────────────────────────────────────
+    "w390_overflow":         "at a VERIFIED innerWidth of ~390 nothing overflows its container and the "
+                             "document does not scroll sideways",
+    "w641_overflow":         "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+    "w1280_overflow":        "at 1280 the same holds, with real content rather than seed-perfect content",
+    "tap_target_44":         "every interactive control is at least 44x44 CSS px at the narrow width, "
+                             "measured by rect and not by stylesheet intent",
+    "safe_area":             "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+
+    "component_loading":     "the component's loading state is distinguishable from its empty state",
+    "component_skeleton":    "the skeleton reserves the space the content will take, so nothing jumps",
+    "component_disabled":    "a disabled control looks disabled AND refuses activation - both, not either",
+    "component_busy":        "an in-flight control is busy and cannot be re-fired",
+    "component_populated":   "populated renders every field it promises, with no undefined/NaN",
+
+    "contrast_wcag":         "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha "
+                             "included - the trap that made every tinted pill read 1.00",
+    "contrast_apca":         "the same text passes the APCA perceptual threshold for its size and weight",
+    "focus_visible":         "keyboard focus is visible on every interactive element, including custom ones",
+    "reduced_motion":        "prefers-reduced-motion is honoured - no animation that ignores it",
+    "icon_only_name":        "an icon-only control has an accessible name that says what it DOES",
+
+    # ── FAMILY 4 · UX ──────────────────────────────────────────────────────────────────────────────
+    "what_is_this_number":   "a person can state what the number means from the surface alone",
+    "what_happens_next":     "after an action, the surface says what happens next and when",
+    "what_does_it_cost":     "cost, hold and reward are stated before commitment, not after",
+    "why_refused":           "a refusal names the rule AND the way out - never a remedy that cannot work",
+    "reward_explained":      "the 10% reward is discoverable and correct for THIS item - the class the "
+                             "vanished credits chip belongs to",
+
+    "first_run_to_value":    "a first-time person reaches the first useful outcome without a dead end",
+    "repeat_visit":          "a returning person resumes where it matters, without redoing setup",
+    "cross_surface_handoff": "a flow that spans surfaces carries its context across the handoff",
+    "two_sided_same_object": "two identities acting on the SAME object each see a truthful view of it - "
+                             "the half a single-identity walk cannot see",
+    "abandon_resume":        "abandoning midway and returning leaves no half-applied state",
+
+    "double_tap":            "the second press changes nothing further and the surface says so",
+    "back_out":              "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+    "session_died":          "a session that dies between typing and submitting refuses the write and says "
+                             "nothing was sent, preserving what was typed",
+    "wrong_then_fix":        "a wrong entry can be corrected without starting over",
+    "did_it_land":           "after a slow action the person can tell whether it landed, without guessing",
+
 }
 
 
@@ -459,6 +755,12 @@ def main():
                 if s["id"] in old:
                     s["status"] = old[s["id"]].get("status", s["status"])
                     s["findings"] = old[s["id"]].get("findings", [])
+                    # EVIDENCE MUST SURVIVE A REGENERATION. It is the thing that makes a green row
+                    # green (validate_live_mcp_bank R1), so dropping it here would turn every earned
+                    # walk into an INVALID row the moment anyone rebuilt the bank — a rebuild that
+                    # silently destroys the proof is worse than one that destroys the status.
+                    if old[s["id"]].get("evidence") is not None:
+                        s["evidence"] = old[s["id"]]["evidence"]
         except Exception:
             pass
     with open(a.out, "w", encoding="utf-8", newline="\n") as f:
