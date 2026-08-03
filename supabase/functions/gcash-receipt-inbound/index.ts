@@ -32,16 +32,23 @@ import { serveObserved } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 const FN_NAME = "gcash-receipt-inbound";
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-workhive-signature, x-workhive-timestamp",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
+/* COMPOSED, not replaced. The shared helper decides the ORIGIN dynamically (a static "*" breaks
+   file:// testing, where Chrome sends `Origin: null`, and every non-production client) but its
+   Allow-Headers list does not know about this endpoint's signature headers. Swapping the whole block
+   for getCorsHeaders(req) would have silently dropped x-workhive-signature and x-workhive-timestamp
+   from the preflight, so any browser-based caller would fail on a header it is required to send.
+   Take the origin decision from the platform, keep the headers this endpoint actually needs. */
+function inboundCors(req: Request): Record<string, string> {
+  return {
+    ...getCorsHeaders(req),
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-workhive-signature, x-workhive-timestamp",
+  };
+}
 
 /** Constant-time-ish compare so a wrong signature cannot be probed byte by byte. */
 function safeEqual(a: string, b: string): boolean {
@@ -87,6 +94,7 @@ export function parseGcashText(text: string): { reference: string | null; amount
    mode available. /health answers "is the intake actually armed" without reading logs: with no
    shared secret it reports NOT ok, which is also the resting state until Ian sets one. */
 serveObserved(FN_NAME, async (req: Request) => {
+  const cors = inboundCors(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   const healthResp = await handleHealth(req, FN_NAME, async () => ({

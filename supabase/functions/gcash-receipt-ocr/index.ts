@@ -31,16 +31,9 @@
 import { serveObserved } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 const FN_NAME = "gcash-receipt-ocr";
-
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-const json = (b: unknown, s = 200) =>
-  new Response(JSON.stringify(b), { status: s, headers: { ...cors, "Content-Type": "application/json" } });
 
 const AZURE_ENDPOINT = Deno.env.get("AZURE_DOC_INTELLIGENCE_ENDPOINT") || "";
 const AZURE_KEY = Deno.env.get("AZURE_DOC_INTELLIGENCE_KEY") || "";
@@ -79,6 +72,12 @@ function decodeDataUrl(dataUrl: string): { bytes: Uint8Array; mime: string } {
    without reading logs. Both were missed when this shipped — the platform's edge conventions are a
    checklist and I wrote two functions without running it. */
 serveObserved(FN_NAME, async (req: Request) => {
+  /* getCorsHeaders(req), not a hardcoded "*". A static origin breaks file:// local testing (Chrome
+     sends `Origin: null`) and every non-production client, and the shared helper is what the rest of
+     the platform's 58 functions use. I hand-rolled the header block when this shipped -- the same
+     "wrote a new edge function without running the conventions checklist" miss that also left it
+     out of the deploy script and its secret undeclared. */
+  const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   const healthResp = await handleHealth(req, FN_NAME, async () => ({
