@@ -2851,8 +2851,15 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "empty",
       "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "verified-correct",
+          "title": "the genuine empty state names what is missing AND the next action",
+          "measured": "Observed live on the buyer's services pane with a successful read and zero requests: \"No requests yet. Hail your first service below - a nearby provider accepts and you track them here.\" It states the fact (no requests), the action (hail below), and what happens next (a provider accepts, you track them here) - and promises nothing it cannot keep: 'a nearby provider accepts' is conditional, not a guarantee of supply. Distinguished from the FAILED read in the same session, which now renders \"Couldn't load services\" + Retry instead of this copy."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-Q-payment-rails-market_svc-buyer-edge",
@@ -2939,8 +2946,16 @@
       "persona_note": "signed in, taking service hails",
       "state": "error",
       "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "defect-fixed",
+          "title": "the provider console rendered a failed broadcast/jobs read as 'nothing here'",
+          "measured": "Same class as the buyer pane, found by sweeping rather than by the next walk. loadServices checked provRes.error only; feedRes and jobsRes were consumed as `.data || []`, so a failure of the broadcast feed or the jobs read became an empty array. Verified live by failing ONLY the previously-unchecked feed read: before, the console painted an empty feed; after the fix it renders \"Couldn't load services\" with a Retry, and restoring the read renders the console normally.",
+          "why_it_matters": "A provider told there are no open jobs stops refreshing and misses the broadcast window; one told they have no active work believes a job they already accepted has vanished. Neither is true - the read failed."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-Q-payment-rails-market_svc-admin-populated",
