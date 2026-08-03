@@ -127,6 +127,14 @@ verify_jwt = false
 enabled = true
 verify_jwt = false
 
+# verify_jwt = TRUE, unlike its sibling above: this one is called by a signed-in
+# provider or buyer uploading their own receipt, so the caller IS a user and the
+# platform should say who. It reads an image and returns two fields for a human to
+# check — it mints nothing and verifies nothing, so a JWT is the whole auth story.
+[functions.gcash-receipt-ocr]
+enabled = true
+verify_jwt = true
+
 [functions.cmms-push-completion]
 enabled = true
 verify_jwt = false

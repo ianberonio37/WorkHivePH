@@ -3710,6 +3710,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         '<div id="svc-pay-refwrap-' + id + '" style="display:none;">' +
           '<label data-i="payref" for="svc-pay-ref-' + id + '" style="font-size:0.72rem;opacity:0.85;">GCash reference (13 digits, optional) — or paste your receipt</label>' +
           '<input id="svc-pay-ref-' + id + '" type="text" inputmode="numeric" maxlength="13" placeholder="e.g. 1234567890123" style="' + _svcInputC + '">' +
+          /* UPLOAD THE SCREENSHOT, same as the provider's top-up form. The buyer has just paid in
+             GCash and is holding the receipt; reading 13 digits off it by eye is the worst moment in
+             this flow and a mistyped digit is what makes the payment unmatchable later. Paste stays
+             available for people who copy text rather than screenshot. */
+          '<label for="svc-pay-img-' + id + '" style="display:inline-flex;align-items:center;gap:0.4rem;' +
+          'margin-top:0.35rem;font-size:0.72rem;cursor:pointer;color:var(--wh-blue,#29b6d9);min-height:44px;">' +
+          '&#128196; Upload your GCash receipt instead</label>' +
+          '<input id="svc-pay-img-' + id + '" type="file" accept="image/*" ' +
+          'onchange="svcReadPayReceipt(\'' + id + '\', this)" ' +
+          'aria-label="Upload a screenshot of your GCash receipt" style="display:none;">' +
         '</div>' +
         /* THE SPEND HALF OF THE SWITCH. Filled in asynchronously and left empty when the buyer holds no
            credits, so a wallet at zero never shows a field that can only refuse. The sheet itself stays
@@ -3775,6 +3785,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
   }
   window.svcCopyPayee = svcCopyPayee;
+
+  /* The buyer's half of "upload the receipt". Mirrors svcReadTopupReceipt on the seller page —
+     same helper, same non-destructive rule, same honest failure. */
+  async function svcReadPayReceipt(requestId, input) {
+    const f = input && input.files && input.files[0];
+    if (!f) return;
+    showToast('Reading your receipt...');
+    try {
+      const got = await whGcashReadReceipt(db, f);
+      const a = document.getElementById('svc-pay-amt-' + requestId);
+      const r = document.getElementById('svc-pay-ref-' + requestId);
+      const filled = [];
+      // A figure the buyer typed themselves always wins over our reading of their image.
+      if (got.amount != null && a && !String(a.value || '').trim()) { a.value = got.amount; filled.push('amount'); }
+      if (got.reference && r && !String(r.value || '').trim()) { r.value = got.reference; filled.push('reference'); }
+      showToast(filled.length
+        ? 'Read your receipt: ' + filled.join(' and ') + ' filled in. Check it before you confirm.'
+        : 'Read your receipt, but those fields were already filled - left them as they are.');
+    } catch (err) {
+      showToast((err && err.message) || 'Could not read that receipt. Type the details instead.', 'error');
+    } finally { if (input) input.value = ''; }
+  }
+  window.svcReadPayReceipt = svcReadPayReceipt;
 
   async function svcFillCreditsChoice(requestId) {
     const slot = document.getElementById('svc-pay-credits-' + requestId);
