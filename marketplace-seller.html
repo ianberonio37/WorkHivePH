@@ -1561,14 +1561,21 @@
         .order('created_at', { ascending: false }).order('id').limit(3);
       lines = led.data || [];
     } catch (_) { /* empty-catch-allow: wallet card degrades to the top-up form alone */ }
-    /* The provider's OWN filed-but-unverified top-ups (RLS policy service_credit_topups_own). Read
-       separately so a failure here costs the receipt, never the wallet balance above it. */
+    /* The provider's OWN filed-but-unverified top-ups. Read separately so a failure here costs the
+       receipt, never the wallet balance above it.
+       THE TRUTH VIEW, not the raw table — the same rule the ledger read two lines above states and
+       that I broke here on the first pass: the surface never reads the Fuel table directly. The view
+       is security_invoker, so the own-account RLS policy (service_credit_topups_own) still decides
+       the rows; going through it costs nothing and keeps one definition of what a top-up IS. The
+       canonical-drift ratchet caught this, which is the only reason it is not still shipping. */
     let pending = [];
     try {
-      const { data: _p } = await db.from('service_credit_topups')
+      const { data: _p } = await db.from('v_service_credit_topups_truth')
         .select('amount, gcash_ref, created_at')
         .eq('account_id', provId).eq('status', 'pending_verification')
-        .order('created_at', { ascending: false }).limit(5);
+        // MR4: created_at alone is not a total order — two receipts filed in the same second could
+        // swap places between renders, and this list is capped at 5, so one could vanish entirely.
+        .order('created_at', { ascending: false }).order('id').limit(5);
       pending = _p || [];
     } catch (_) { /* empty-catch-allow: no receipt is better than a broken wallet card */ }
     return '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.9rem 1rem;">' +

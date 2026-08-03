@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 128,
-    "total_calls": 766,
+    "files_scanned": 130,
+    "total_calls": 767,
     "total_unbounded": 1,
     "baseline": 1
   },
@@ -377,6 +377,14 @@
     },
     {
       "file": "supabase/functions/fmea-populator/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/gcash-receipt-inbound/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/gcash-receipt-ocr/index.ts",
       "issues": []
     },
     {

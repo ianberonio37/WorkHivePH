@@ -1,7 +1,7 @@
 {
   "_doc": "Layer A adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-08-03T10:07:15.987579+00:00",
-  "functions": 58,
+  "generated": "2026-08-03T11:34:31.735024+00:00",
+  "functions": 60,
   "rows": [
     {
       "id": "A1",
@@ -11,8 +11,8 @@
       "mode": "measured",
       "need_rule": "family",
       "adopters_n": 58,
-      "need_n": 58,
-      "pct": 100,
+      "need_n": 60,
+      "pct": 97,
       "adopters": [
         "agent-memory-store",
         "agentic-rag-loop",
@@ -73,7 +73,10 @@
         "walkthrough-analyzer",
         "weibull-fitter"
       ],
-      "gap": []
+      "gap": [
+        "gcash-receipt-inbound",
+        "gcash-receipt-ocr"
+      ]
     },
     {
       "id": "A2",
@@ -82,8 +85,8 @@
       "satisfies": "canonical success/error JSON envelope",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 55,
-      "need_n": 55,
+      "adopters_n": 57,
+      "need_n": 57,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -107,6 +110,8 @@
         "export-hive-data",
         "failure-signature-scan",
         "fmea-populator",
+        "gcash-receipt-inbound",
+        "gcash-receipt-ocr",
         "hierarchical-summarizer",
         "intelligence-api",
         "intelligence-report",
@@ -152,8 +157,8 @@
       "mode": "measured",
       "need_rule": "tenant-data",
       "adopters_n": 42,
-      "need_n": 42,
-      "pct": 100,
+      "need_n": 43,
+      "pct": 98,
       "adopters": [
         "agent-memory-store",
         "agentic-rag-loop",
@@ -198,7 +203,9 @@
         "voice-transcribe",
         "weibull-fitter"
       ],
-      "gap": []
+      "gap": [
+        "gcash-receipt-inbound"
+      ]
     },
     {
       "id": "A4",
@@ -249,8 +256,8 @@
       "mode": "measured",
       "need_rule": "family",
       "adopters_n": 41,
-      "need_n": 42,
-      "pct": 98,
+      "need_n": 44,
+      "pct": 93,
       "adopters": [
         "ai-eval-runner",
         "ai-gateway",
@@ -295,6 +302,8 @@
         "weibull-fitter"
       ],
       "gap": [
+        "gcash-receipt-inbound",
+        "gcash-receipt-ocr",
         "notify-push"
       ]
     },
@@ -338,8 +347,8 @@
       "satisfies": "L layer logging envelope",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 58,
-      "need_n": 58,
+      "adopters_n": 60,
+      "need_n": 60,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -364,6 +373,8 @@
         "export-hive-data",
         "failure-signature-scan",
         "fmea-populator",
+        "gcash-receipt-inbound",
+        "gcash-receipt-ocr",
         "hierarchical-summarizer",
         "intelligence-api",
         "intelligence-report",
@@ -410,8 +421,8 @@
       "satisfies": "AV G-1 /health endpoint",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 58,
-      "need_n": 58,
+      "adopters_n": 60,
+      "need_n": 60,
       "pct": 100,
       "adopters": [
         "agent-memory-store",
@@ -436,6 +447,8 @@
         "export-hive-data",
         "failure-signature-scan",
         "fmea-populator",
+        "gcash-receipt-inbound",
+        "gcash-receipt-ocr",
         "hierarchical-summarizer",
         "intelligence-api",
         "intelligence-report",
@@ -491,12 +504,12 @@
   ],
   "floors": {
     "A1": 58,
-    "A2": 55,
+    "A2": 57,
     "A3": 42,
     "A4": 27,
     "A5": 41,
     "A6": 3,
-    "A8": 58,
-    "A9": 58
+    "A8": 60,
+    "A9": 60
   }
 }

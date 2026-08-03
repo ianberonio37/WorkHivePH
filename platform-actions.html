@@ -51,6 +51,49 @@
     .row-controls { display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem; }
     .refresh-btn { padding:0.5rem 0.9rem; border-radius:0.5rem; background:rgba(41,182,217,0.12); color:var(--blue);
                    border:1px solid rgba(41,182,217,0.3); font-weight:700; font-size:0.8rem; cursor:pointer; min-height:44px; }
+
+    /* Feedback triage — lifted 2026-08-03 from the retired founder-console. Written in THIS page's
+       idiom (.card / .mod-row / .mod-btn) rather than porting the console's fb-* stylesheet: two
+       copies of a design system on one platform is how they drift. */
+    .fb-tabs { display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.6rem; }
+    .fb-tab { padding:0.5rem 0.75rem; border-radius:0.5rem; font-size:0.78rem; font-weight:700; cursor:pointer;
+              background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--muted); min-height:44px; }
+    .fb-tab[aria-selected="true"] { background:rgba(41,182,217,0.14); color:var(--blue); border-color:rgba(41,182,217,0.35); }
+    .fb-filters { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.6rem; }
+    .fb-filter { padding:0.5rem 0.7rem; border-radius:0.5rem; background:rgba(255,255,255,0.05); color:#fff;
+                 border:1px solid var(--border); font-size:0.8rem; min-height:44px; }
+    .fb-filter::placeholder { color:rgba(255,255,255,0.5); }
+    .fb-card { display:block; width:100%; text-align:left; cursor:pointer; padding:0.65rem 0.15rem;
+               background:none; border:0; border-top:1px solid var(--border); color:#fff; min-height:44px; }
+    .fb-card:first-child { border-top:0; }
+    .fb-card:hover { background:rgba(255,255,255,0.03); }
+    .fb-card:focus-visible { outline:2px solid var(--blue); outline-offset:-2px; }
+    .fb-card-top { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; font-size:0.72rem; color:var(--muted); }
+    .fb-kind, .fb-status { padding:0.1rem 0.45rem; border-radius:999px; font-weight:700; font-size:0.68rem;
+                           background:rgba(255,255,255,0.08); }
+    .fb-status.new { background:rgba(248,113,113,0.18); color:var(--red); }
+    .fb-status.triaged, .fb-status.in_progress { background:rgba(247,162,27,0.18); color:var(--gold); }
+    .fb-status.resolved, .fb-status.wontfix, .fb-status.duplicate { background:rgba(52,211,153,0.16); color:var(--green); }
+    .fb-subject { font-weight:700; font-size:0.88rem; margin-top:0.2rem; }
+    .fb-snippet { color:var(--muted); font-size:0.78rem; margin-top:0.15rem;
+                  display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .fb-drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9000; }
+    .fb-drawer { position:fixed; top:0; right:0; bottom:0; width:min(460px,100vw); z-index:9001; overflow-y:auto;
+                 background:var(--card); border-left:1px solid var(--border); padding:1.1rem; }
+    .fb-drawer h3 { margin:0; font-size:1rem; }
+    .fb-drawer-hdr { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:0.9rem; }
+    .fb-drawer-close { background:none; border:0; color:var(--muted); font-size:1.5rem; cursor:pointer;
+                       min-width:44px; min-height:44px; }
+    .fb-drawer label { display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em;
+                       color:var(--muted); margin:0.9rem 0 0.3rem; }
+    .fb-drawer select, .fb-drawer textarea { width:100%; padding:0.55rem 0.7rem; border-radius:0.5rem; font-size:0.85rem;
+                 background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--border); font-family:inherit; min-height:44px; }
+    .fb-drawer textarea { min-height:90px; resize:vertical; }
+    .fb-meta { color:var(--muted); font-size:0.76rem; line-height:1.5; }
+    .fb-body { white-space:pre-wrap; font-size:0.86rem; line-height:1.55; margin:0.6rem 0;
+               background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:0.5rem; padding:0.7rem; }
+    .fb-drawer-actions { display:flex; gap:0.5rem; margin-top:1.1rem; flex-wrap:wrap; }
+    .fb-drawer-actions .mod-btn { flex:1; text-align:center; text-decoration:none; line-height:1.9; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil" crossorigin="anonymous"></script>
   <script src="utils.js"></script>
@@ -118,7 +161,50 @@
          writer, and it offered a "Refund buyer" button for money the platform never holds. Real disputes
          are service jobs, adjudicated through apply_dispute_adjustment. The CARD WRAPPER goes with it:
          an empty .card still paints a bordered box, which is the same dead-surface defect one level up. -->
+
+    <!-- LIFTED HERE 2026-08-03 from founder-console.html, for the SAME reason as the top-up queue above:
+         `wh-feedback-fab.js` is on every page, so any user can send a bug/idea/review at any moment —
+         but the only screen that could READ, triage or reply to one lived on a console retired behind
+         #wh-retired-overlay. Feedback was being collected into a queue nobody could open. The floating
+         widget that invites the message is the promise; a reachable triage screen is the promise kept.
+         (founder-console keeps its copy — retired pages preserve content so the static validators that
+         scan them still pass, the same pattern as marketplace-admin.html.) -->
+    <div class="card" id="sec-feedback">
+      <div class="card-hdr"><h2>Feedback from users</h2><span id="fb-count-badge" class="count">—</span></div>
+      <div class="sub" style="margin:-0.4rem 0 0.75rem;">Bugs, ideas, questions, reviews and praise sent from the widget on any page. Open one to triage, note or reply.</div>
+      <div class="fb-tabs" role="tablist" aria-label="Filter feedback by status">
+        <button class="fb-tab" type="button" data-status="new"         role="tab" aria-selected="true">New <span id="fb-count-new">0</span></button>
+        <button class="fb-tab" type="button" data-status="triaged"     role="tab" aria-selected="false">Triaged <span id="fb-count-triaged">0</span></button>
+        <button class="fb-tab" type="button" data-status="in_progress" role="tab" aria-selected="false">In progress <span id="fb-count-in_progress">0</span></button>
+        <button class="fb-tab" type="button" data-status="resolved"    role="tab" aria-selected="false">Resolved <span id="fb-count-resolved">0</span></button>
+        <button class="fb-tab" type="button" data-status="*"           role="tab" aria-selected="false">All <span id="fb-count-all">0</span></button>
+      </div>
+      <div class="fb-filters">
+        <select class="fb-filter" id="fb-filter-kind" aria-label="Filter feedback by kind"
+                data-select-placeholder-allow="filter defaults to 'All kinds' (broadest match)">
+          <option value="*">All kinds</option>
+          <option value="bug">🐞 Bug</option>
+          <option value="idea">💡 Idea</option>
+          <option value="question">❓ Question</option>
+          <option value="review">⭐ Review</option>
+          <option value="praise">💛 Praise</option>
+          <option value="other">Other</option>
+        </select>
+        <input class="fb-filter" id="fb-filter-search" type="search" aria-label="Search feedback subject or body"
+               placeholder="Search subject or body…" />
+      </div>
+      <div id="fb-list" aria-live="polite"><div class="mod-empty">Loading…</div></div>
+    </div>
   </div>
+
+  <div id="fb-drawer-backdrop" class="fb-drawer-backdrop" hidden></div>
+  <aside id="fb-drawer" class="fb-drawer" hidden role="dialog" aria-labelledby="fb-drawer-title" aria-modal="true">
+    <div class="fb-drawer-hdr">
+      <h3 id="fb-drawer-title">Feedback detail</h3>
+      <button type="button" id="fb-drawer-close" class="fb-drawer-close" aria-label="Close feedback detail">×</button>
+    </div>
+    <div id="fb-drawer-body"></div>
+  </aside>
 
   <div id="toast"></div>
 
@@ -381,11 +467,19 @@
     }
 
     async function refreshQueues() {
-      const [mod, tops, gcash] = await Promise.all([
-        fetchMktModeration(), fetchSvcTopups(), fetchGcashLeftovers()]);
+      /* The 60-second poll must NOT refetch feedback while a triage drawer is open. Swapping
+         _fb.rows under an open editor replaces the updated_at snapshot the optimistic-concurrency
+         guard compares against — so a save would silently overwrite the very edit the guard exists
+         to catch, and the typed note would be judged against a row the admin never saw. The realtime
+         channel still delivers new arrivals; only the reload is deferred. */
+      const wantFeedback = !_fb.drawerId;
+      const [mod, tops, gcash, fb] = await Promise.all([
+        fetchMktModeration(), fetchSvcTopups(), fetchGcashLeftovers(),
+        wantFeedback ? fetchFeedback() : Promise.resolve(null)]);
       renderMktModeration(mod);
       renderSvcTopups(tops);
       renderGcashLeftovers(gcash);
+      if (fb) renderFeedback(fb);
       document.getElementById('last-sync').textContent = 'Updated ' + new Date().toLocaleTimeString();
     }
 
@@ -463,6 +557,307 @@
       });
     }
 
+    /* ── Feedback triage ────────────────────────────────────────────────────────────────────────
+       Lifted from founder-console.html 2026-08-03. Everything load-bearing came with it — the
+       optimistic-concurrency guard, the confirm before publishing to the public roadmap, and the
+       per-item draft autosave — because each of those exists for a defect this platform already hit,
+       and a lift that drops them re-opens all three. Two things are BETTER than the original: focus
+       returns to the card the drawer was opened from (the console left it on <body>), and the empty
+       state respects _sessionLimited instead of claiming an all-clear RLS never confirmed. */
+    const _fb = { rows: [], activeTab: 'new', kindFilter: '*', searchTerm: '', drawerId: null,
+                  channel: null, opener: null, openerIndex: -1, error: null };
+    let _fbDraft = { clear: function () {} };
+
+    function fbTimeAgo(iso) {
+      const t = new Date(iso).getTime();
+      if (isNaN(t)) return '';
+      const d = (Date.now() - t) / 1000;
+      if (d < 60) return Math.floor(d) + 's ago';
+      if (d < 3600) return Math.floor(d / 60) + 'm ago';
+      if (d < 86400) return Math.floor(d / 3600) + 'h ago';
+      if (d < 86400 * 7) return Math.floor(d / 86400) + 'd ago';
+      return new Date(iso).toLocaleDateString();
+    }
+
+    async function fetchFeedback() {
+      try {
+        const { data, error } = await db.from('platform_feedback')
+          .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at,is_public,updated_at')
+          .order('created_at', { ascending: false })
+          .order('id')                       // MR4: the sort above is not total on its own
+          .limit(500);
+        return { rows: data || [], _error: error ? error.message : null };
+      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed' }; }
+    }
+
+    function renderFeedback(m) {
+      m = m || {};
+      _fb.error = m._error || null;
+      _fb.rows = m.rows || [];
+      applyFeedbackView();
+    }
+
+    function applyFeedbackView() {
+      const list = document.getElementById('fb-list');
+      if (!list) return;
+
+      if (_fb.error) {
+        list.innerHTML = `<div class="mod-empty">Couldn't load feedback: ${e(_fb.error)}</div>`;
+        setCount('fb-count-badge', 0, '');
+        return;
+      }
+
+      // Counts are over ALL rows, never the filtered view — a tab badge that moved when you typed
+      // in the search box would make "3 new" unreadable as a workload.
+      const counts = { new: 0, triaged: 0, in_progress: 0, resolved: 0, all: _fb.rows.length };
+      _fb.rows.forEach(r => { if (counts[r.status] !== undefined) counts[r.status]++; });
+      Object.entries(counts).forEach(([k, v]) => {
+        const el = document.getElementById('fb-count-' + k);
+        if (el) el.textContent = v;
+      });
+      // The header badge counts what is WAITING (new + triaged + in progress), not the archive:
+      // this page exists to answer "is anything owed", and 500 resolved items is not owed.
+      const waiting = counts.new + counts.triaged + counts.in_progress;
+      setCount('fb-count-badge', waiting, counts.new > 0 ? 'fail' : (waiting > 0 ? 'warn' : ''));
+
+      let view = _fb.rows;
+      if (_fb.activeTab !== '*') view = view.filter(r => r.status === _fb.activeTab);
+      if (_fb.kindFilter !== '*') view = view.filter(r => r.kind === _fb.kindFilter);
+      if (_fb.searchTerm) {
+        const s = _fb.searchTerm.toLowerCase();
+        view = view.filter(r => (r.subject || '').toLowerCase().includes(s) || (r.body || '').toLowerCase().includes(s));
+      }
+
+      if (!view.length) {
+        const bare = (_fb.kindFilter !== '*' || _fb.searchTerm)
+          ? 'Nothing matches the current filters.'
+          : (_fb.activeTab === 'new'
+              ? 'Nothing new. Messages sent from the widget on any page land here in real time.'
+              : 'Nothing in this tab.');
+        list.innerHTML = `<div class="mod-empty">${e(emptyText(bare))}</div>`;
+        return;
+      }
+
+      list.innerHTML = view.slice(0, 100).map(r => {
+        const who = r.worker_name ? e(r.worker_name) : (r.hive_id ? e(r.hive_id.slice(0, 8)) : 'anonymous');
+        const stars = (r.kind === 'review' && r.rating)
+          ? `<span aria-label="${e(r.rating)} out of 5 stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>` : '';
+        return `<button class="fb-card" type="button" data-fb-id="${e(r.id)}"
+                  aria-label="Triage feedback: ${e((r.subject || '(no subject)').slice(0, 60))}">
+          <span class="fb-card-top">
+            <span class="fb-kind">${e(r.kind)}</span>
+            <span class="fb-status ${e(r.status)}">${e(String(r.status).replace('_', ' '))}</span>
+            <span>${e(fbTimeAgo(r.created_at))} · ${who}</span>${stars}
+            ${r.priority ? `<span class="fb-kind">${e(String(r.priority).toUpperCase())}</span>` : ''}
+          </span>
+          <span class="fb-subject">${e(r.subject || '(no subject)')}</span>
+          <span class="fb-snippet">${e((r.body || '').slice(0, 220))}</span>
+        </button>`;
+      }).join('') + (view.length > 100
+        ? `<div class="mod-empty" style="text-align:center">Showing the first 100 of ${view.length}. Narrow the filters to see more.</div>`
+        : '');
+    }
+
+    function openFeedbackDrawer(id, opener) {
+      const row = _fb.rows.find(r => r.id === id);
+      if (!row) return;
+      _fb.drawerId = id;
+      _fb.opener = opener || null;
+      _fb.openerIndex = opener
+        ? Array.prototype.indexOf.call(document.querySelectorAll('#fb-list .fb-card'), opener) : -1;
+      const body = document.getElementById('fb-drawer-body');
+      const stars = (row.kind === 'review' && row.rating)
+        ? `<div class="fb-meta">${'★'.repeat(row.rating)}${'☆'.repeat(5 - row.rating)}</div>` : '';
+
+      body.innerHTML = `
+        <div class="fb-meta">${e(new Date(row.created_at).toLocaleString())} · ${e(row.kind)}
+          · status: <strong>${e(row.status)}</strong>${row.priority ? ' · ' + e(String(row.priority).toUpperCase()) : ''}</div>
+        <div class="fb-subject" style="font-size:1rem;margin-top:.4rem">${e(row.subject || '(no subject)')}</div>
+        ${stars}
+        <div class="fb-body">${e(row.body || '')}</div>
+        <div class="fb-meta">
+          ${row.contact_email ? 'From: <strong>' + e(row.contact_email) + '</strong>' : 'Anonymous'}
+          ${row.worker_name ? ' · worker: ' + e(row.worker_name) : ''}
+          ${row.hive_id ? ' · hive: ' + e(row.hive_id.slice(0, 8)) : ''}
+          ${row.page_url ? '<br/>Sent from: ' + e(row.page_url) : ''}
+        </div>
+
+        <label for="fb-d-status">Status</label>
+        <select id="fb-d-status">
+          ${['new','triaged','in_progress','resolved','wontfix','duplicate']
+            .map(s => `<option value="${s}"${s === row.status ? ' selected' : ''}>${s}</option>`).join('')}
+        </select>
+
+        <label for="fb-d-priority">Priority</label>
+        <select id="fb-d-priority">
+          <option value="">(none)</option>
+          ${['p0','p1','p2','p3'].map(p => `<option value="${p}"${p === row.priority ? ' selected' : ''}>${p.toUpperCase()}</option>`).join('')}
+        </select>
+
+        <label for="fb-d-note">Admin note (internal)</label>
+        <textarea id="fb-d-note" placeholder="Triage notes for yourself…">${e(row.admin_note || '')}</textarea>
+
+        <label style="display:flex;align-items:center;gap:.5rem;margin-top:1rem;cursor:pointer;text-transform:none;letter-spacing:0;color:#fff">
+          <input type="checkbox" id="fb-d-public"${row.is_public ? ' checked' : ''} style="width:auto;min-height:0;cursor:pointer" />
+          <span>Show on the public roadmap (/feedback/)</span>
+        </label>
+        <div class="fb-meta" style="margin-top:.35rem">Anyone can read a public item and Google can index it.
+          Don't publish contact emails, worker names or internal notes.</div>
+
+        <div class="fb-drawer-actions">
+          <button type="button" class="mod-btn ok" id="fb-d-save">Save changes</button>
+          ${row.contact_email
+            ? `<a class="mod-btn" href="mailto:${encodeURIComponent(row.contact_email)}?subject=${encodeURIComponent('Re: ' + (row.subject || 'your WorkHive feedback'))}">Reply via email</a>`
+            : `<button type="button" class="mod-btn" disabled title="This person left no email">No email to reply to</button>`}
+        </div>`;
+
+      document.getElementById('fb-drawer').hidden = false;
+      document.getElementById('fb-drawer-backdrop').hidden = false;
+      setTimeout(() => document.getElementById('fb-d-status')?.focus(), 50);
+
+      // X2 interruption resilience: triage notes are typed prose, and a reload or a phone call would
+      // lose them. Keyed per feedback id so two open triages never overwrite each other.
+      _fbDraft = (typeof whAutoSaveDraft === 'function')
+        ? whAutoSaveDraft('fbtriage_' + id, ['fb-d-note'])
+        : { clear: function () {} };
+
+      document.getElementById('fb-d-save').onclick = () => saveFeedbackDrawer(id);
+    }
+
+    function closeFeedbackDrawer() {
+      document.getElementById('fb-drawer').hidden = true;
+      document.getElementById('fb-drawer-backdrop').hidden = true;
+      _fb.drawerId = null;
+
+      /* Return focus somewhere USABLE, not just to the opener. Restoring only the opening card is
+         the obvious version and it fails in the single most common case: a successful triage moves
+         the item out of the current tab, so the card is gone from the DOM and focus lands on <body>
+         — measured on the first live walk of this lift, right after I claimed it was handled. A
+         keyboard admin working a queue of ten would restart from the top of the page ten times.
+         Fall back down a chain that always terminates: the same card → whatever card now sits at
+         that position (the next item in the queue, which is where the work continues) → the last
+         card → the active tab button, which always exists. */
+      const opener = _fb.opener, idx = _fb.openerIndex;
+      _fb.opener = null; _fb.openerIndex = -1;
+      if (opener && document.body.contains(opener)) { opener.focus(); return; }
+      const cards = document.querySelectorAll('#fb-list .fb-card');
+      if (cards.length) { (cards[Math.min(idx, cards.length - 1)] || cards[0]).focus(); return; }
+      document.querySelector('.fb-tab[aria-selected="true"]')?.focus();
+    }
+
+    async function saveFeedbackDrawer(id) {
+      const status   = document.getElementById('fb-d-status').value;
+      const priority = document.getElementById('fb-d-priority').value || null;
+      const note     = document.getElementById('fb-d-note').value.trim() || null;
+      const isPublic = document.getElementById('fb-d-public')?.checked || false;
+      const btn      = document.getElementById('fb-d-save');
+      const row      = _fb.rows.find(r => r.id === id);
+      const wasPublic = !!row?.is_public;
+
+      /* WCAG 3.3.4 error protection: publishing is hard to reverse — once /feedback/ is indexed the
+         content can stay cached after un-publishing. Only the newly-public case is gated.
+         whConfirm, not native confirm(): the founder-console original used the browser dialog, which
+         is unstyled, unlocalisable, and blocks the whole tab. The shared modal is already on this
+         page for the listing-rejection reason, so using it costs nothing and keeps one dialog. */
+      if (isPublic && !wasPublic) {
+        if (typeof whConfirm !== 'function') {
+          showToast('Cannot confirm publishing right now. Reload and try again — nothing was saved.', 'error');
+          return;
+        }
+        const okToPublish = await whConfirm(
+          'Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be '
+        + 'indexed by Google. Make sure it contains nothing private (contact email, worker name, internal notes).',
+          { okLabel: 'Publish publicly', cancelLabel: 'Keep private' });
+        if (!okToPublish) return;
+      }
+
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try {
+        // Optimistic concurrency: two admins triaging the same item would otherwise clobber each
+        // other — including re-exposing a just-unpublished row. tg_touch_platform_feedback bumps
+        // updated_at on every write, so a stale snapshot matches 0 rows instead of overwriting.
+        const snap = row?.updated_at || null;
+        let q = db.from('platform_feedback')
+          .update({ status, priority, admin_note: note, is_public: isPublic }).eq('id', id);
+        if (snap) q = q.eq('updated_at', snap);
+        const { data: saved, error } = await q.select('id, updated_at');
+        if (error) throw error;
+        if (!saved || saved.length === 0) {
+          btn.textContent = 'Save changes'; btn.disabled = false;
+          showToast('Someone else changed this feedback. Reloading the latest — your note was not saved.', 'error');
+          closeFeedbackDrawer();
+          renderFeedback(await fetchFeedback());
+          return;
+        }
+        if (row) Object.assign(row, { status, priority, admin_note: note, is_public: isPublic,
+          updated_at: saved[0].updated_at,
+          resolved_at: ['resolved','wontfix','duplicate'].includes(status)
+            ? (row.resolved_at || new Date().toISOString()) : row.resolved_at });
+        applyFeedbackView();
+        closeFeedbackDrawer();
+        _fbDraft.clear();
+        showToast(isPublic && !wasPublic ? 'Saved, and now public on /feedback/' : 'Saved.', 'success');
+      } catch (err) {
+        console.error('feedback save failed:', err);
+        btn.textContent = 'Save changes'; btn.disabled = false;
+        const refusal = refusalMessage(err);
+        showToast(refusal
+          ? refusal
+          : (typeof whIsAuthFailure === 'function' && whIsAuthFailure(err))
+            ? 'Your admin session expired, so nothing was saved. Sign in again to keep triaging.'
+            : 'Save failed. Try again.', 'error');
+      }
+    }
+
+    // Realtime INSERTs only — updates flow through the local cache above, so a save does not race
+    // its own echo. Idempotent: re-entering is a no-op.
+    function subscribeFeedbackRealtime() {
+      if (_fb.channel) return;
+      _fb.channel = db.channel('platform_feedback_inserts')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'platform_feedback' }, payload => {
+          const row = payload.new;
+          if (!row || !row.id || _fb.rows.some(r => r.id === row.id)) return;
+          _fb.rows.unshift(row);
+          applyFeedbackView();
+          showToast('New ' + row.kind + ' from ' + (row.worker_name || row.contact_email || 'anonymous'));
+        })
+        .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+      window.addEventListener('pagehide', () => {
+        if (_fb.channel) { db.removeChannel(_fb.channel); _fb.channel = null; }
+      }, { once: true });
+    }
+
+    let _fbWired = false;
+    function wireFeedback() {
+      if (_fbWired) return; _fbWired = true;
+      document.querySelectorAll('.fb-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          _fb.activeTab = btn.dataset.status;
+          document.querySelectorAll('.fb-tab').forEach(b => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'));
+          applyFeedbackView();
+        });
+      });
+      document.getElementById('fb-filter-kind')?.addEventListener('change', ev => {
+        _fb.kindFilter = ev.target.value; applyFeedbackView();
+      });
+      document.getElementById('fb-filter-search')?.addEventListener('input', ev => {
+        _fb.searchTerm = ev.target.value.trim(); applyFeedbackView();
+      });
+      if (typeof whAutoRememberFilters === 'function') whAutoRememberFilters('fb-filters', ['fb-filter-search']);
+      // Delegated: the list is re-rendered on every filter keystroke, so per-card listeners would
+      // be re-bound hundreds of times a session.
+      document.getElementById('fb-list')?.addEventListener('click', ev => {
+        const card = ev.target.closest('button[data-fb-id]');
+        if (card) openFeedbackDrawer(card.dataset.fbId, card);
+      });
+      document.getElementById('fb-drawer-close')?.addEventListener('click', closeFeedbackDrawer);
+      document.getElementById('fb-drawer-backdrop')?.addEventListener('click', closeFeedbackDrawer);
+      document.addEventListener('keydown', ev => {
+        if (ev.key === 'Escape' && _fb.drawerId) closeFeedbackDrawer();
+      });
+      subscribeFeedbackRealtime();
+    }
+
     // ── Admin gate (localhost bypass for the founder's own machine; server RLS still gates writes) ──
     // Runs LAST so every function + `let` above is fully initialized before it fires.
     const IS_LOCAL_FOUNDER = ['127.0.0.1', 'localhost', '::1'].includes(location.hostname);
@@ -488,6 +883,7 @@
       if (typeof logPageView === 'function') logPageView(db, { page: 'platform-actions' });
       wireMktModeration();
       wireSvcTopups();
+      wireFeedback();
       await refreshQueues();
       document.getElementById('refresh-btn').addEventListener('click', refreshQueues);
       const _refreshTimer = setInterval(refreshQueues, 60000);

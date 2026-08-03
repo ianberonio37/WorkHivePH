@@ -7,9 +7,9 @@ as an HTML comment on the capture page.
 
 ## Summary
 
-- Capture fields discovered:  **262**
+- Capture fields discovered:  **264**
 - Framework names skipped:    **2** (submit, search, csrf, ...)
-- Alive (≥1 consumer):        **260** ✅
+- Alive (≥1 consumer):        **262** ✅
 - Phantom (0 consumers):      **0** ❌
 - Allowlisted (justified):    **0**
 
@@ -18,7 +18,7 @@ as an HTML comment on the capture page.
 _None — every capture has at least one downstream consumer. Schema discipline is currently good; the gate locks this in against future drift._
 
 
-## Low-usage candidates — `consumer_count == 1` (32)
+## Low-usage candidates — `consumer_count == 1` (26)
 
 Fields read in exactly one place. Likely fine (single-purpose),
 but worth a scan for vestigial half-wired fields.
@@ -28,9 +28,6 @@ but worth a scan for vestigial half-wired fields.
 | `a-scan-input` | logbook.html |
 | `cl-text` | resume.html |
 | `custom-item-freq` | pm-scheduler.html |
-| `fb-d-priority` | founder-console.html |
-| `fb-d-public` | founder-console.html |
-| `fb-filter-kind` | founder-console.html |
 | `filter-route` | agentic-rag-observability.html |
 | `filter-window` | agentic-rag-observability.html |
 | `ho-handover-to` | hive.html |
@@ -43,7 +40,6 @@ but worth a scan for vestigial half-wired fields.
 | `save-search-email` | marketplace.html |
 | `svc-hail-address` | marketplace.html |
 | `svc-pay-credits-amt-` | marketplace.html |
-| `svc-pay-ref-` | marketplace.html |
 | `svc-pay-why-` | marketplace.html |
 | `svc-prate-comment-` | marketplace-seller.html |
 | `svc-q-` | marketplace-seller.html |
@@ -51,8 +47,6 @@ but worth a scan for vestigial half-wired fields.
 | `svc-quote-budget` | marketplace.html |
 | `svc-rate-comment-` | marketplace.html |
 | `svc-reg-name` | marketplace-seller.html |
-| `svc-topup-amt-` | marketplace-seller.html |
-| `svc-topup-ref-` | marketplace-seller.html |
 | `svc-vcode-` | marketplace.html |
 | `vm-kind` | founder-console.html |
 | `vm-maxuses` | founder-console.html |

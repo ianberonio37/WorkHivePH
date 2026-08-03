@@ -69,6 +69,12 @@ CAPTURE_ID_RE = re.compile(
     re.IGNORECASE,
 )
 
+# An inline event handler ON THE CAPTURE'S OWN TAG. Such a handler is passed the element itself
+# (`onchange="svcReadTopupReceipt('p1', this)"`), so it reads the control without ever naming its
+# id — invisible to the by-name consumer scan below. See _collect_captures for the case that
+# proved it.
+INLINE_HANDLER_RE = re.compile(r"""\bon(?:change|input|click|submit|blur|focus|keyup|keydown)\s*=""", re.IGNORECASE)
+
 # `phantom-allow: <reason>` either inline near the capture or anywhere on
 # the page suppresses phantom flagging for that capture key.
 PHANTOM_ALLOW_RE = re.compile(
@@ -143,7 +149,19 @@ def _collect_captures() -> tuple[dict[str, list[dict]], set[str]]:
             tag_text = m.group(0)
             if 'name=' in tag_text.lower():
                 continue
-            captures[m.group(1)].append({"file": p.name, "kind": "id"})
+            captures[m.group(1)].append({
+                "file": p.name, "kind": "id",
+                # A capture is "phantom" when nothing downstream reads it. This audit finds readers
+                # BY NAME (`getElementById('X')`, `formData.get('X')`), which misses the case where
+                # the element hands ITSELF to its handler: `onchange="readReceipt(id, this)"`. The
+                # handler never mentions the id, so a live control scores zero consumers.
+                # Found on the GCash receipt-upload inputs: a hidden <input type=file> whose id
+                # exists so a visible <label for> can trigger it, and whose value reaches JS as
+                # `this.files[0]`. Deleting it as dead weight would have removed a working feature.
+                # Only an INLINE handler on the SAME tag counts — a labelled field with no reader
+                # at all is still correctly phantom, which is the case this gate exists for.
+                "self_consumed": bool(INLINE_HANDLER_RE.search(tag_text)),
+            })
 
     return captures, allowlisted
 
@@ -307,9 +325,12 @@ def main() -> int:
         # *additional* consumer beyond its own markup (cleaner report).
         consumer_files = [f for f in consumer_files if f not in origin_files] or consumer_files
 
+        # The element hands itself to an inline handler — a consumer the by-name scan cannot see.
+        self_consumed = any(s.get("self_consumed") for s in sites)
+
         status = "alive"
         if n_consumers == 0:
-            status = "phantom"
+            status = "alive" if self_consumed else "phantom"
         if name in allowlisted:
             status = "allowlisted"
 
@@ -320,6 +341,8 @@ def main() -> int:
             "consumer_count":  n_consumers,
             "consumer_files":  consumer_files[:8],  # truncate for report sanity
         }
+        if self_consumed and n_consumers == 0:
+            by_name[name]["alive_reason"] = "inline handler on the capture's own tag receives `this`"
         if status == "phantom":
             phantom_count += 1
         elif status == "alive":

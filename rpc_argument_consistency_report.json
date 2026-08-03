@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 169,
-    "total_calls": 85,
+    "files_scanned": 171,
+    "total_calls": 87,
     "total_drift": 0,
     "baseline": 0,
-    "rpcs_known": 273
+    "rpcs_known": 278
   },
   "per_file": [
     {
@@ -537,6 +537,14 @@
     },
     {
       "file": "supabase\\functions\\fmea-populator\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\gcash-receipt-inbound\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\gcash-receipt-ocr\\index.ts",
       "issues": []
     },
     {

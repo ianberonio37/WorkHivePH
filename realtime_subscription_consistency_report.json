@@ -330,6 +330,7 @@
         "v_marketplace_sellers_truth",
         "v_service_catalog_truth",
         "v_service_credit_ledger_truth",
+        "v_service_credit_topups_truth",
         "v_service_open_broadcasts",
         "v_service_provider_truth",
         "v_service_request_truth"

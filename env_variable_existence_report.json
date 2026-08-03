@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 187,
-    "total_refs": 353,
+    "files_scanned": 189,
+    "total_refs": 360,
     "total_missing": 0,
     "baseline": 0,
-    "env_names_known": 47
+    "env_names_known": 48
   },
   "per_file": [
     {
@@ -257,6 +257,14 @@
     },
     {
       "file": "supabase/functions/fmea-populator/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/gcash-receipt-inbound/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/gcash-receipt-ocr/index.ts",
       "missing": []
     },
     {
