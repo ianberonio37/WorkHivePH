@@ -9,7 +9,7 @@ differently (one trusts it; one re-gates on another field).
 - View/column pairs scanned: **336**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
-- Files scanned: **257**
+- Files scanned: **258**
 
 ## Smell legend
 

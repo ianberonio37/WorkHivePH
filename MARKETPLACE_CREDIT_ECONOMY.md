@@ -1,4 +1,4 @@
-# The credit economy — refining the listing-fee idea
+# The credit economy - refining the listing-fee idea  **[SUPERSEDED 2026-08-03 - see the final design at the end]**
 
 > **Ian, 2026-07-31:** *"when a service-provider lists a service they need to buy credits from me via GCash;
 > the credits needed to list is 5% of the total listing price. A consumer who avails/buys a service gets 1%
@@ -171,3 +171,79 @@ commission, voucher_grant, voucher_reimburse, adjustment, cashback), a `platform
 allows only provider and consumer), a payout queue with a 24-hour SLA clock, and reconciliation against the
 wallet statement. The ledger deliberately has **no representation for money the platform holds**, because the
 platform holds none.
+
+---
+
+## §14 · SUPERSEDED - the design that actually shipped (2026-08-03)
+
+Everything above is the July analysis of a **5% listing fee + 1% cashback**. Ian replaced it. The built
+design is different in kind, not degree, and this section is what the code implements.
+
+> **Ian, 2026-08-03:** *"the credits revolve that way. There is no revenue, there is no interest that will
+> make credits appreciate. 1 peso is equal to 1 credit. Then the credit supply will be 10 million, then the
+> credits in circulation are the credits bought."* Plus the mechanic: *"the provider wants to list an item,
+> needs credits first to match the listing 10%, so that 10% will be passed on to the buyer."*
+
+**Five rules, and everything else follows:** 1 credit = PHP1 fixed forever; supply capped at 10,000,000;
+in-circulation = credits bought; listing requires a 10% RESERVATION that passes to the buyer on sale; **no
+revenue** - the platform takes no commission and no spread.
+
+**A reservation is not the fee this document argued against.** §2 above rejected a listing fee on
+arithmetic: a 5% fee at 20% sell-through really costs 25%, because a fee is consumed whether or not the
+item sells. A reservation is **returned in full** on delist, so it costs locked working capital rather than
+revenue - which is precisely the "min-balance / skin in the game" instrument §2 recommended *instead* of a
+fee, refined to be per-listing.
+
+**Migrations 20260803000005-20260803000020.** Guards: supply cap (CHECK), listing reservation,
+return-on-delist, earn-or-spend exclusivity, spend cap, non-transferable, holding fee, Sybil-gated starter
+grant, new-seller listing cap. Gate: `tools/validate_credit_posture.py` (`credit-posture`).
+
+### What building it found that designing it did not
+
+Four defects, each invisible to the layer above it:
+
+| defect | why every existing check missed it |
+|---|---|
+| **the spend half had no door** | `reward_spend` had two careful guards and **nothing ever wrote one**. Buyers could earn credits and never spend them. Guards that work perfectly prove nothing about whether anything reaches them. |
+| **the spend destroyed the credits** | it wrote only the payer's leg. Each guard checks one side, so a *missing* counterparty violates none - and burnt credits leave the platform holding the cash that backed them, which is revenue arriving as an omission. Now two legs, with a per-job conservation assertion. |
+| **the 10% cap never bound** | it capped against `service_requests.budget`, which is **NULL on 7 of 7** jobs with a matched provider. A missing cap *permits* silently, unlike a wrong one which raises. |
+| **the guard messages never reached anyone** | `whWriteError` discarded the server's sentence, so a seller short PHP50 read "Save failed. Try again." - and retrying is exactly what cannot work. `whIsAuthFailure` also read any 42501 as a dead session, telling signed-in people to sign in. |
+
+The third and fourth share a root worth stating plainly: **a rule derived twice will disagree**, and the
+copy that drifts is always the one the user reads. `service_request_price()` now owns "what does this job
+cost", and both the guard and the confirm sheet ask it.
+
+### Open, and deliberately so
+
+With no commission, no spread and no appreciation, the platform's only economic position is the float. That
+is real but it is not revenue, so an income line will be needed eventually - paid featured placement is the
+natural one, and it is a fee a provider *chooses* when it pays for itself. Nothing here forecloses it.
+
+One thing for a PH lawyer before scale, not before building: credits are accepted by providers **other than
+the issuer**, which is the line between a single-merchant card and a multi-merchant scheme. There is no cash
+redemption, which is the prong that usually matters most, but it deserves a professional read once volume is
+real.
+
+### The claim, walked end to end
+
+Every other credit gate checks one rule in isolation. `tools/validate_credit_loop_closes.py`
+(`credit-loop-closes`) asks the question the design exists to answer, using the real triggers and the real
+RPC at each step:
+
+```
+ONE cash entry  ->  seller A tops up PHP5,000
+                    A drafts, an ADMIN publishes    -> PHP200 reserved
+                    the listing SELLS               -> PHP200 passes to the BUYER
+                    the buyer pays for a job in credits -> provider B RECEIVES PHP200
+                    B publishes a PHP2,000 listing  -> funded entirely by what B was paid
+                    circulation delta               -> 0.00
+```
+
+**Measured, not asserted in prose:** B listed on money nobody re-paid, and the ledger sum was identical at
+the start and the end. That last number is the one that matters — every step is a transfer between two
+wallets, so a non-zero delta means the circuit mints or burns. It is not a hypothetical failure: the spend
+shipped writing only the payer's leg, which destroyed the credits and left the platform holding the cash
+that backed them, while every per-side guard passed.
+
+Teeth: `--inject spend` (the buyer pays in pesos, so B is never funded) and `--inject reward` (the sale
+does not hand over its reservation, so the buyer has nothing to spend) each break the circuit.

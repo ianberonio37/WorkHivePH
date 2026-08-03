@@ -225,7 +225,11 @@ def _html_page(spec: dict) -> str:
 
     <section aria-labelledby="try">
       <h2 id="try">Run it on your own numbers</h2>
-      <p><a href="/workhive/#/tools/engineering-design" class="cta">Open the interactive {e(spec['title'])} in WorkHive</a> — free, no sign-up needed for the calculators.</p>
+      <!-- Root-absolute, NOT /workhive/. These pages are served from the site root in production,
+           where a committed /workhive/ prefix 404s; the local dev bridge adds the prefix itself for
+           <a href> links. Caught by validate_prod_path_leak after the calc-page generator shipped
+           the prefix into every page it would ever write. -->
+      <p><a href="/#/tools/engineering-design" class="cta">Open the interactive {e(spec['title'])} in WorkHive</a> — free, no sign-up needed for the calculators.</p>
     </section>
 
     <section aria-labelledby="related">

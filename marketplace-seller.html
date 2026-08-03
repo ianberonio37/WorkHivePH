@@ -264,7 +264,7 @@
         </div>
       </div>
       <p id="cw-note" style="font-size:0.72rem;opacity:0.8;margin:0.5rem 0 0;">
-        Publishing holds 10% of the price in credits. It is not a fee &mdash; it comes back in full if the
+        Publishing holds 10% of the price in credits. It is not a fee: it comes back in full if the
         listing does not sell, and goes to your buyer as their reward if it does.
       </p>
       <button type="button" id="cw-claim" onclick="claimStarter()" style="display:none;min-height:44px;width:100%;margin-top:0.5rem;padding:0 12px;border-radius:8px;border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;">
@@ -713,6 +713,11 @@
   }
 
   async function claimStarter() {
+    /* BEFORE the write, like every sibling on this page. A starter grant is once per person, ever, so a
+       claim that fires into a dead network is the worst case to leave silent: the provider does not know
+       whether they have used up their one grant, and the honest answer ("nothing was sent") is only
+       available before the attempt. */
+    if (typeof svcRequireOnline === 'function' && !svcRequireOnline('Claiming your starter credits')) return;
     const btn = document.getElementById('cw-claim');
     if (btn) { btn.disabled = true; btn.textContent = 'Claiming…'; }
     try {

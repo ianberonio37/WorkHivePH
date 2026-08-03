@@ -44,13 +44,24 @@ values ('5a000000-0000-4000-8000-0000000000f1','freelancer','TB SJ11 Provider',
 --   d1: past TTL and out of widening rounds  -> the sweep MUST expire it
 --   d2: TTL still in the future              -> the sweep MUST leave it alone (the non-vacuity half: a sweep
 --       that expired everything would pass a one-row test while destroying live hails)
+--
+-- broadcast_round is READ FROM THE KNOB, never hardcoded. It was pinned at 2 because
+-- broadcast_widen_rounds was 2, so a round of 2 meant "out of rounds". When the knob rose to 3 (the
+-- coverage sweep found 15km reached far too few providers, and the widening rounds matter more now that
+-- the radius is actually load-bearing), a round of 2 became "one widening still owed" -- so the sweep
+-- correctly WIDENED the stale hail instead of expiring it, and this probe reported the product broken.
+-- A fixture that encodes a knob's current value silently becomes a test of yesterday's configuration.
 insert into public.service_requests
   (id, client_auth_uid, status, mode, custom_scope, broadcast_round, offer_ttl_expires_at, broadcast_radius_m)
 values
   ('5a000000-0000-4000-8000-0000000000d1','5a000000-0000-4000-8000-00000000000a','broadcasting','instant',
-   'TB SJ11 stale hail', 2, now() - interval '10 minutes', 5000),
+   'TB SJ11 stale hail',
+   public.service_knob((select hive_id from public.service_requests limit 1),'broadcast_widen_rounds'),
+   now() - interval '10 minutes', 5000),
   ('5a000000-0000-4000-8000-0000000000d2','5a000000-0000-4000-8000-00000000000a','broadcasting','instant',
-   'TB SJ11 live hail',  2, now() + interval '30 minutes', 5000);
+   'TB SJ11 live hail',
+   public.service_knob((select hive_id from public.service_requests limit 1),'broadcast_widen_rounds'),
+   now() + interval '30 minutes', 5000);
 
 select set_config('request.jwt.claims',
   '{"sub":"5a000000-0000-4000-8000-00000000000a","role":"authenticated"}', true);

@@ -2,13 +2,13 @@
 name: view-v_credit_posture
 type: view
 source: db:pg_get_viewdef:v_credit_posture
-source_sha: c98f1374fc42cbc6
+source_sha: cdf5213b3e856eb5
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## view · `v_credit_posture`
 
-**security_invoker:** OFF ⚠  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
+**security_invoker:** on  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
 **Source tables:** `credit_treasury`, `pg_namespace`, `pg_proc`
 **Trust/identity cols exposed:** (none)  (each must be sourced from a CANONICAL/guarded base col, not a forgeable one — mig 009)
 

@@ -1,14 +1,14 @@
 {
   "_doc": "Display anchor -> upstream source resolution (Phase B). RESOLVED* = anchor traces to a formula contract / kpi_source metric / Read-VERIFIED element-id->source bind (verified_anchor_binds.json). EXCLUDED_CHROME = a UI control/label/counter with no data provenance (excluded from the data denominator). NEEDS_JS_PARSE = data anchor not yet bound. resolved_pct is over DATA anchors (total - chrome) so it is honest, never chrome-inflated.",
   "totals": {
-    "anchors": 104,
+    "anchors": 105,
     "chrome_excluded": 37,
-    "data_anchors": 67,
-    "resolved": 63,
-    "resolved_pct": 94.0,
-    "resolved_pct_of_all": 60.6,
+    "data_anchors": 68,
+    "resolved": 64,
+    "resolved_pct": 94.1,
+    "resolved_pct_of_all": 61.0,
     "resolved_by_formula_or_kpi": 0,
-    "resolved_by_js_heuristic": 5,
+    "resolved_by_js_heuristic": 6,
     "resolved_by_verified_bind": 58,
     "needs_js_parse": 4
   },
@@ -933,6 +933,19 @@
       "status": "EXCLUDED_CHROME",
       "source": {
         "via": "ui_chrome"
+      }
+    },
+    {
+      "page": "marketplace-seller.html",
+      "id": "cw-total",
+      "token": "total",
+      "bucket": "contracted",
+      "status": "RESOLVED_JS",
+      "source": {
+        "via": "js_parse_heuristic",
+        "source": "seller_credit_balance",
+        "source_kind": "rpc",
+        "confidence": "high"
       }
     },
     {

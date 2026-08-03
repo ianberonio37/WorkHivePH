@@ -1936,6 +1936,22 @@
         const topups = sum('topup'), earned = -sum('commission');
         const cashback = sum('cashback'), vouchers = sum('voucher_grant');
         const liability = topups + cashback + vouchers - earned;
+
+        /* THE FIXED SUPPLY, read from the treasury rather than computed here. Ian asked for these by
+           name: total WorkHive Credits, credits in circulation, and what remains. The cap is the whole
+           safety property of this economy - lifetime liability CANNOT exceed it - so the number a
+           founder looks at must come from the row the CHECK constraint guards, never from a sum that
+           could quietly disagree with it. */
+        let supply = null, issued = null;
+        try {
+          // v_credit_posture, NOT credit_treasury — the same rule the ledger half above follows. The view
+          // already publishes authorised_credits and issued_credits alongside the posture facts, so
+          // reading the base table added a second path to the same numbers and registered as canonical
+          // drift, exactly as reading service_credit_ledger raw did.
+          const { data: t } = await db.from('v_credit_posture')
+            .select('authorised_credits, issued_credits').maybeSingle();
+          if (t) { supply = Number(t.authorised_credits); issued = Number(t.issued_credits); }
+        } catch (_) { /* empty-catch-allow: the tile still shows the ledger half without the treasury */ }
         // Cover asks: if every credit were spent tomorrow, is it backed? Cash in is what providers
         // actually paid; there is no external cash figure here by design, because the platform holds
         // no third-party money (see MARKETPLACE_CREDIT_ECONOMY §8).
@@ -1965,6 +1981,27 @@
           + '<span class="l">Cashback minted</span>'
           + '<span class="sub">a discount on a future job</span></div>'
           + '</div>'
+          /* The supply row. Kept visually separate from the four money numbers because it answers a
+             different question: those say how the economy is DOING, this says how much of it can ever
+             exist. 1 credit = PHP1, fixed - there is deliberately no rate here to drift. */
+          + (supply === null ? ''
+              : '<div class="hero-stats" style="margin-top:0.6rem;">'
+                + '<div class="stat"><span><span class="n">'
+                + e(Number(supply).toLocaleString()) + '</span></span>'
+                + '<span class="l">Total WorkHive Credits</span>'
+                + '<span class="sub">the cap - lifetime liability cannot exceed it</span></div>'
+                + '<div class="stat"><span><span class="n">'
+                + e(Number(issued).toLocaleString()) + '</span></span>'
+                + '<span class="l">In circulation</span>'
+                + '<span class="sub">issued and not yet retired</span></div>'
+                + '<div class="stat"><span><span class="n">'
+                + e(Number(supply - issued).toLocaleString()) + '</span></span>'
+                + '<span class="l">Available to issue</span>'
+                + '<span class="sub">still unissued in the treasury</span></div>'
+                + '<div class="stat"><span><span class="n">1 credit = PHP1</span></span>'
+                + '<span class="l">Conversion rate</span>'
+                + '<span class="sub">fixed, and never moves</span></div>'
+                + '</div>')
           + (vouchers > earned
               ? '<div class="honest-empty">Vouchers granted (' + e(peso(vouchers)) + ') exceed everything '
                 + 'earned. Vouchers are the only credits backed by nothing.</div>'

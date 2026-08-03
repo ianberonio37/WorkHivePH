@@ -55,29 +55,63 @@ def main() -> int:
         "total_policies":          0,
     }
     anon_tables: set[str] = set()
+
+    # LAST DEFINITION WINS. This counted every CREATE POLICY it ever saw, so a permissive policy that a
+    # LATER migration correctly tightened stayed counted forever — the ratchet could only ever go UP, which
+    # means it punished exactly the fix it exists to encourage. Found when credit_treasury_read was narrowed
+    # from USING (true) to USING (id = 1) in 20260803000023: the live database then had no permissive policy
+    # anywhere, and this still reported the regression, because it reads migration TEXT rather than the
+    # catalogue. Migrations are an ordered LOG, not a set — replaying them means the last statement wins, so
+    # the miner has to replay them the same way. Keyed on (table, policy), which is what Postgres treats as
+    # one policy. Editing the original migration was not an option: it is committed, and rewriting a shipped
+    # migration makes a restore diverge from prod.
+    live: "dict[tuple[str, str], dict]" = {}
+    DROP_RE = re.compile(
+        r"DROP\s+POLICY\s+(?:IF\s+EXISTS\s+)?\"?(?P<name>[A-Za-z0-9_ ]+?)\"?\s+ON\s+"
+        r"(?:public\.)?\"?(?P<table>[A-Za-z0-9_]+)\"?",
+        re.IGNORECASE,
+    )
+
     for f in sorted(MIGRATIONS.glob("*.sql")):
         text = f.read_text(encoding="utf-8", errors="replace")
         # Strip comments to avoid false positives in commentary blocks.
         text_clean = re.sub(r"--[^\n]*", "", text)
+
+        # A DROP removes it; a CREATE later in the same file may put it back with a new predicate.
+        for d in DROP_RE.finditer(text_clean):
+            live.pop((d.group("table"), d.group("name").strip()), None)
+
         for m in POLICY_RE.finditer(text_clean):
             findings["total_policies"] += 1
             name  = m.group("name")
             table = m.group("table")
-            verb  = (m.group("verb") or "ALL").upper()
-            to    = (m.group("to") or "").strip().lower()
-            using = (m.group("using") or "").strip()
-            check = (m.group("check") or "").strip()
-            row = {"file": f.name, "policy": name, "table": table, "verb": verb, "to": to or "(default PUBLIC)"}
+            live[(table, name)] = {
+                "file": f.name, "policy": name, "table": table,
+                "verb": (m.group("verb") or "ALL").upper(),
+                # The RAW to-clause is kept separately from the display string. Folding "no TO clause" into
+                # the display text "(default PUBLIC)" and then testing for it lower-cased silently reported
+                # missing-TO as 195 -> 0: a total fix, delivered by a case mismatch. Keep the fact and the
+                # label apart.
+                "to": (m.group("to") or "").strip().lower() or "(default PUBLIC)",
+                "_to_raw": (m.group("to") or "").strip().lower(),
+                "_using": (m.group("using") or "").strip(),
+                "_check": (m.group("check") or "").strip(),
+            }
 
-            if re.search(r"^\s*true\s*$", using, re.IGNORECASE):
-                findings["permissive_using_true"].append(row)
-            if re.search(r"^\s*true\s*$", check, re.IGNORECASE):
-                findings["permissive_check_true"].append(row)
-            if not to:
-                findings["missing_to_clause"].append(row)
-            if "anon" in to and verb in ("SELECT", "ALL"):
-                anon_tables.add(table)
-                findings["anon_select_on_table"].append(row)
+    # total_policies stays a count of every CREATE ever written (a churn signal); the permissive lists below
+    # now describe the state a fresh replay would actually produce.
+    for row in live.values():
+        using, check = row.pop("_using"), row.pop("_check")
+        to, verb, table = row.pop("_to_raw"), row["verb"], row["table"]
+        if re.search(r"^\s*true\s*$", using, re.IGNORECASE):
+            findings["permissive_using_true"].append(row)
+        if re.search(r"^\s*true\s*$", check, re.IGNORECASE):
+            findings["permissive_check_true"].append(row)
+        if not to:
+            findings["missing_to_clause"].append(row)
+        if "anon" in to and verb in ("SELECT", "ALL"):
+            anon_tables.add(table)
+            findings["anon_select_on_table"].append(row)
 
     findings["unique_tables_with_anon_select"] = sorted(anon_tables)
 

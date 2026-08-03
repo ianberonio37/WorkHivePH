@@ -53,6 +53,7 @@ import os
 import re
 import sys
 import glob
+import subprocess
 from collections import defaultdict
 
 if sys.platform == "win32":
@@ -302,13 +303,54 @@ def check_fuel_anchor() -> dict:
         r"\s*'([a-z_][a-z0-9_]*)'\s*",
         re.IGNORECASE,
     )
+    # Registrations that COLLIDE on the primary key. canonical_sources' PK is (domain) alone, so two
+    # tuples in one migration that share a domain cannot both survive: the second is either an error or,
+    # with ON CONFLICT DO NOTHING, silently dropped. Found 2026-08-03 — a four-row INSERT filed all four
+    # credit-economy objects under domain 'credit_economy', psql reported `INSERT 0 1`, and this gate
+    # reported ANCHORED for all four because it reads the tuples rather than the table. The gate was wrong
+    # even on its own terms: a fresh replay of that migration registers exactly one row too.
+    collisions: list[str] = []
+
+    # ASK THE REGISTRY, do not re-simulate it. A declaration in a migration is not a registration: these
+    # INSERTs collide on canonical_sources' (domain) primary key, and 30 objects were declared-but-absent
+    # for months while this gate reported every one of them ANCHORED, because it read the tuples.
+    #
+    # Replaying the log by hand was tried first and is not sound — the outcome depends on each statement's
+    # conflict clause (DO NOTHING keeps the FIRST claim, DO UPDATE the LAST), so a hand-written replay is
+    # a second implementation of Postgres's semantics that will drift from the real one. The registry is
+    # the answer to "what is registered", so it is the thing to read. Skips cleanly when the stack is down,
+    # matching every other DB-touching gate here: an unavailable database must not manufacture findings.
+    declared_names: dict[str, tuple] = {}          # name -> (kind, first migration that declared it)
     for path in list_migrations():
         sql = read_file(path) or ""
         if "canonical_sources" not in sql:
             continue
         for m in TUPLE_RE.finditer(sql):
-            if m.group(2).lower() == "table":
-                registered_tables.add(m.group(3).lower())
+            kind, name = m.group(2).lower(), m.group(3).lower()
+            declared_names.setdefault(name, (kind, os.path.basename(path)))
+            if kind == "table":
+                registered_tables.add(name)
+
+    live_names: set[str] | None = None
+    try:
+        proc = subprocess.run(
+            ["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres",
+             "-tAc", "select source_name from public.canonical_sources;"],
+            capture_output=True, text=True, timeout=30,
+        )
+        if proc.returncode == 0:
+            live_names = {ln.strip().lower() for ln in proc.stdout.splitlines() if ln.strip()}
+    except Exception:
+        live_names = None
+
+    if live_names:
+        for name, (kind, mig) in sorted(declared_names.items()):
+            if name not in live_names:
+                collisions.append(
+                    f"{mig}: '{name}' is declared in canonical_sources but is NOT in the registry — its "
+                    f"INSERT collided on the (domain) primary key and the row was dropped in silence. "
+                    f"Give it its own domain (the convention is the object's own name)."
+                )
 
     # Build set of dropped tables (legacy retirees) — they shouldn't be
     # required to anchor since they no longer exist in production schema.
@@ -355,6 +397,12 @@ def check_fuel_anchor() -> dict:
                 "table":     table,
                 "migration": os.path.basename(path),
             })
+    # A collision is not a ratcheted count — it is a registration that CANNOT exist, so it is reported
+    # as an un-anchored item for each object the PK swallows. Anything else would let a migration claim
+    # an anchor the database will never hold.
+    for c in collisions:
+        unanchored.append({"table": "(pk collision)", "migration": c})
+
     return {
         "layer":           "fuel",
         "label":           "L1  Fuel anchor: every new table registered in canonical_sources",
@@ -362,6 +410,7 @@ def check_fuel_anchor() -> dict:
         "n_seen":          len(seen_tables),
         "n_unanchored":    len(unanchored),
         "unanchored":      unanchored,
+        "pk_collisions":   collisions,
     }
 
 

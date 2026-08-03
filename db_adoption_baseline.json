@@ -1,7 +1,7 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-08-02T19:20:01.888999+00:00",
-  "surfaces": 178,
+  "generated": "2026-08-03T04:25:59.612709+00:00",
+  "surfaces": 181,
   "rows": [
     {
       "id": "D1",
@@ -9,8 +9,8 @@
       "name": "RLS enabled on tenant tables",
       "satisfies": "tenant isolation floor",
       "mode": "measured",
-      "adopters_n": 107,
-      "need_n": 107,
+      "adopters_n": 108,
+      "need_n": 108,
       "pct": 100,
       "adopters": [
         "agent_episodic_memory",
@@ -51,6 +51,7 @@
         "companion_handoff",
         "consulting_engagements",
         "conversation_analytics",
+        "credit_reservations",
         "dialog_state",
         "drone_inspections",
         "embedding_outbox",
@@ -129,8 +130,8 @@
       "name": "hive-membership scoping policy",
       "satisfies": "multitenant isolation",
       "mode": "measured",
-      "adopters_n": 101,
-      "need_n": 103,
+      "adopters_n": 102,
+      "need_n": 104,
       "pct": 98,
       "adopters": [
         "agent_episodic_memory",
@@ -169,6 +170,7 @@
         "community_xp",
         "companion_handoff",
         "consulting_engagements",
+        "credit_reservations",
         "dialog_state",
         "drone_inspections",
         "embedding_outbox",
@@ -247,8 +249,8 @@
       "satisfies": "write attribution",
       "mode": "measured",
       "adopters_n": 31,
-      "need_n": 32,
-      "pct": 97,
+      "need_n": 33,
+      "pct": 94,
       "adopters": [
         "agent_memory",
         "ai_reply_feedback",
@@ -283,6 +285,7 @@
         "worker_profiles"
       ],
       "gap": [
+        "credit_starter_grants",
         "embedding_outbox"
       ]
     },
@@ -292,8 +295,8 @@
       "name": "security_invoker on views",
       "satisfies": "no owner-rights RLS bypass",
       "mode": "measured",
-      "adopters_n": 56,
-      "need_n": 61,
+      "adopters_n": 57,
+      "need_n": 62,
       "pct": 92,
       "adopters": [
         "v_achievement_xp_log",
@@ -309,6 +312,7 @@
         "v_community_posts_truth",
         "v_community_reputation_truth",
         "v_conversation_health",
+        "v_credit_posture",
         "v_dialog_state_current",
         "v_external_sync_truth",
         "v_fmea_truth",
@@ -388,9 +392,9 @@
     }
   ],
   "floors": {
-    "D1": 107,
-    "D2": 101,
+    "D1": 108,
+    "D2": 102,
     "D3": 31,
-    "D4": 56
+    "D4": 57
   }
 }

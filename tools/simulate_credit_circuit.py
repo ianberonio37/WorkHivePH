@@ -13,10 +13,13 @@ WHAT IT ASSERTS (each is a claim the design rests on, not a statistic):
   3. hoarding raises cash demand without stopping trade    measured +71% cash for the same sales
   4. the holding fee separates spam from slow selling      PHP8 honest vs PHP2,400 spam per year
   5. the supply cap binds where predicted                  ~20,000 active providers
+  6. credit starvation shows up as UNSERVED BUYERS         a provider problem is a demand-side problem
+  7. widening the broadcast radius moves fill              the largest single lever, and a knob we own
 
 TEETH. A simulator that cannot fail proves nothing, so `--inject` removes a lever and the run must go RED.
 The plan requires this explicitly: remove the cap, the grant, or the holding fee and the corresponding
-assertion has to break.
+assertion has to break. `fill` and `radius` remove a GATE from the matching chain rather than a lever --
+if assertion 6 survives with the credit gate gone, it was never measuring credit starvation at all.
 
 AND A GUARD AGAINST ITS OWN LAST BUG. An early version reported a catastrophic industrial jam that did not
 exist: with one listing per provider, `int(1 * 0.5)` rounds to zero, so nothing ever sold and reservations
@@ -118,6 +121,63 @@ def check(name, got, want, ok, detail=""):
     return ok
 
 
+class Matching:
+    """The other half of the design: whether a BUYER gets served.
+
+    The Circuit above only measures whether providers can LIST. That is not the question a buyer asks, and
+    the two halves meet here: the roadmap's §4f sweep found that credit starvation does not merely block
+    listings, it collapses the fill rate — 51% healthy, 30% at half the providers starved, 3.8% at 90%. A
+    provider inconvenience on one side is buyers not being served on the other, which is what makes the
+    starter grant a DEMAND-side intervention rather than a courtesy.
+
+    Walks the real chain in the real order, and a buyer is served only if some provider clears every gate:
+        category -> within radius -> certified (if the trade demands it) -> online -> holds credits
+    Deterministic: providers are placed on a fixed seed so a radius change is the ONLY thing that moves
+    between two runs being compared.
+
+    ONLY THE DELTAS ARE ASSERTED, never the absolute level. This model's baseline reads ~78% where the
+    roadmap's §4f sweep reported 51%, because the geography differs (that sweep used its own spatial
+    assumptions). Tuning these constants until the number matched the document would be fitting the
+    instrument to the answer it is supposed to test — the same error as chasing a metric until the output
+    degrades. What the design actually rests on is directional and holds under either geometry: starving
+    providers of credits costs the BUYER side double digits of fill, and widening the radius is the largest
+    single lever available. Those are what the assertions below pin.
+    """
+
+    def __init__(self, n_prov=200, radius_km=15, certified_frac=0.30, online_frac=0.60,
+                 starved_frac=0.0, n_buyers=2000, cert_required_frac=0.35, seed=17,
+                 ignore_credits=False, ignore_radius=False):
+        rng = random.Random(seed)
+        self.prov = []
+        for _ in range(n_prov):
+            self.prov.append({
+                # uniform over a 60km-radius service area, so distance is the binding gate at small radii
+                "dist":      60.0 * (rng.random() ** 0.5),
+                "cat":       rng.randrange(6),
+                "certified": rng.random() < certified_frac,
+                "online":    rng.random() < online_frac,
+                "credits":   rng.random() >= starved_frac,
+            })
+        self.radius = radius_km
+        # The two gates the fill-rate assertions are ABOUT. Disabling one is how the injection proves the
+        # assertion measures that gate and not something incidental.
+        self.ignore_credits, self.ignore_radius = ignore_credits, ignore_radius
+        self.buyers = [(rng.randrange(6), rng.random() < cert_required_frac) for _ in range(n_buyers)]
+
+    def fill_rate(self):
+        served = 0
+        for cat, needs_cert in self.buyers:
+            for p in self.prov:
+                if p["cat"] != cat:                      continue
+                if not self.ignore_radius and p["dist"] > self.radius:  continue
+                if needs_cert and not p["certified"]:    continue
+                if not p["online"]:                      continue
+                if not self.ignore_credits and not p["credits"]:        continue
+                served += 1
+                break
+        return served / max(1, len(self.buyers))
+
+
 def assertions(inject=None):
     """Each returns True/False. `inject` disables a lever so the run MUST go red."""
     cap = None if inject == "cap" else CAP_PER_LISTING
@@ -168,6 +228,34 @@ def assertions(inject=None):
         "supply cap binds at scale", f"{used:.0%} of supply", ">=95%", used >= 0.95,
         f"20,000 providers consumed PHP{big.cash_in:,.0f} of the PHP{SUPPLY:,} supply"))
 
+    # 6 | credit starvation is felt by BUYERS, not just by blocked listings
+    # This is the assertion that joins the two halves of the design. Without it the simulator can report a
+    # perfectly healthy set of credit knobs while nobody in the market is actually getting served.
+    # --inject grant starves the providers, because the starter grant is what keeps them solvent.
+    # --inject fill removes the CREDIT gate from the matching chain, so a starved provider still serves.
+    # If the assertion still passes with that gate gone, it was never measuring credit starvation.
+    no_cred = inject == "fill"
+    healthy_fill = Matching(starved_frac=0.0, ignore_credits=no_cred).fill_rate()
+    starved_fill = Matching(starved_frac=0.5, ignore_credits=no_cred).fill_rate()
+    drop = healthy_fill - starved_fill
+    results.append(check(
+        "credit starvation shows up as UNSERVED BUYERS", f"-{drop:.0%} fill", ">=15 pts", drop >= 0.15,
+        f"healthy {healthy_fill:.1%} -> half the providers credit-starved {starved_fill:.1%} "
+        f"(a provider inconvenience is a buyer not being served)"))
+
+    # 7 | the radius is the strongest single lever, and it is a knob we already own
+    # broadcast_radius_max_m was raised on the strength of this; a design justified by a measurement has to
+    # KEEP being measured or the justification quietly becomes folklore.
+    # --inject radius removes the DISTANCE gate, so widening cannot possibly help.
+    no_rad = inject == "radius"
+    narrow = Matching(radius_km=15, ignore_radius=no_rad).fill_rate()
+    wide   = Matching(radius_km=30, ignore_radius=no_rad).fill_rate()
+    gain   = wide - narrow
+    results.append(check(
+        "widening the radius 15km->30km moves fill", f"+{gain:.0%}", ">=20 pts", gain >= 0.20,
+        f"15km {narrow:.1%} -> 30km {wide:.1%}; the radius was INERT for months (UI hails carried no "
+        f"location, so st_dwithin was skipped), which is why it now has to be measured"))
+
     return results
 
 
@@ -184,7 +272,7 @@ def selftest():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--inject", choices=["cap", "grant", "fee"],
+    ap.add_argument("--inject", choices=["cap", "grant", "fee", "fill", "radius"],
                     help="disable a lever; the run MUST go red")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()

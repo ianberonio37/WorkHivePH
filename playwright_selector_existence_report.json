@@ -1,7 +1,7 @@
 {
   "summary": {
-    "specs_scanned": 51,
-    "total_lookups": 226,
+    "specs_scanned": 52,
+    "total_lookups": 232,
     "total_drift": 2,
     "baseline": 2
   },
@@ -386,6 +386,19 @@
       "spec": "marketplace-sim-comprehension.spec.ts",
       "targets": [
         "index.html",
+        "marketplace.html",
+        "marketplace.html",
+        "marketplace.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "marketplace-sim-credits.spec.ts",
+      "targets": [
+        "index.html",
+        "marketplace-seller.html",
+        "marketplace-seller.html",
+        "founder-console.html",
         "marketplace.html",
         "marketplace.html",
         "marketplace.html"

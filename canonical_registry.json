@@ -5915,7 +5915,14 @@
         "commission_pct",
         "listing_fee_pct",
         "cashback_pct",
-        "min_list_balance"
+        "min_list_balance",
+        "reward_pct",
+        "reward_spend_cap_pct",
+        "holding_fee_pct",
+        "reward_max_per_listing",
+        "reward_min_per_listing",
+        "starter_grant",
+        "first_listings_before_sale"
       ],
       "rls_enabled": true,
       "grants": {
@@ -5964,6 +5971,82 @@
       "written_by_surfaces": [
         "marketplace.html"
       ],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "credit_treasury": {
+      "defined_in": "20260803000005_credit_treasury_the_liability_cap.sql",
+      "columns": [
+        "id",
+        "authorised_credits",
+        "issued_credits",
+        "created_at",
+        "updated_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT"
+        ],
+        "anon": [
+          "SELECT"
+        ],
+        "service_role": [
+          "ALL"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "The credit supply: one row (id = 1) carrying authorised_credits (10,000,000, the liability cap) and ",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "credit_reservations": {
+      "defined_in": "20260803000007_listing_reservations.sql",
+      "columns": [
+        "id",
+        "listing_id",
+        "seller_name",
+        "hive_id",
+        "amount",
+        "state",
+        "released_at",
+        "created_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "authenticated": [
+          "SELECT"
+        ],
+        "service_role": [
+          "ALL"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "One live reservation per published listing: 10% of price, held in the seller wallet. RETURNED IN FULL ",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "credit_starter_grants": {
+      "defined_in": "20260803000010_holding_fee_and_starter_grant.sql",
+      "columns": [
+        "auth_uid",
+        "amount",
+        "granted_at"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "service_role": [
+          "ALL"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
     }
@@ -6971,6 +7054,14 @@
         "accepted_n",
         "note"
       ]
+    },
+    "v_credit_posture": {
+      "defined_in": "20260803000012_non_transferable_non_withdrawable.sql",
+      "read_by_surfaces": [
+        "founder-console.html"
+      ],
+      "read_by_edge_fns": [],
+      "columns": []
     }
   },
   "rpcs": {
@@ -9004,8 +9095,10 @@
       "defined_in": "20260731000007_d9_service_knobs.sql",
       "args": "p_hive uuid, p_key text",
       "security_definer": true,
-      "comment": "D9 knob resolver: the hive's setting, else the platform default. min_list_balance defaults to 200 - ",
-      "called_by_surfaces": [],
+      "comment": "Per-hive service knob with platform defaults. broadcast_radius_start_m is 15,000 and widen_rounds is 3, ",
+      "called_by_surfaces": [
+        "marketplace.html"
+      ],
       "called_by_edge_fns": []
     },
     "apply_hive_broadcast_radius": {
@@ -9020,7 +9113,7 @@
       "defined_in": "20260731000012_consumer_cashback.sql",
       "args": "p_request_id uuid",
       "security_definer": true,
-      "comment": "Mints the consumer cashback for a SETTLED service request as a service_credit_ledger entry (a liability ",
+      "comment": "Mints the consumer's earn side on a settled job, on amount_paid rather than the stated budget. Returns ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -9028,8 +9121,10 @@
       "defined_in": "20260731000013_service_knob_pct.sql",
       "args": "p_hive uuid, p_key text",
       "security_definer": true,
-      "comment": "Effective value of a DECIMAL D9 credit-policy knob for a hive (commission/listing-fee/cashback percent). ",
-      "called_by_surfaces": [],
+      "comment": "Per-hive percentage knobs, WHOLE PERCENTS (10.00 = 10%). reward_pct 10, spend cap 10, holding fee 2/mo. ",
+      "called_by_surfaces": [
+        "marketplace.html"
+      ],
       "called_by_edge_fns": []
     },
     "guard_settle_requires_payment": {
@@ -9094,6 +9189,144 @@
       "security_definer": true,
       "comment": "Frees providers marked on_job with no active job. availability was write-once via a transition ",
       "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "issue_credits": {
+      "defined_in": "20260803000005_credit_treasury_the_liability_cap.sql",
+      "args": "p_amount numeric",
+      "security_definer": true,
+      "comment": "The only path that creates credits. Refuses issuance beyond the authorised supply, with the remaining ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "retire_credits": {
+      "defined_in": "20260803000005_credit_treasury_the_liability_cap.sql",
+      "args": "p_amount numeric",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "seller_credit_balance": {
+      "defined_in": "20260803000007_listing_reservations.sql",
+      "args": "p_seller text",
+      "security_definer": true,
+      "comment": "Available / reserved / total credits for ONE seller. Party-checked inside the function because it is ",
+      "called_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "listing_reservation_amount": {
+      "defined_in": "20260803000007_listing_reservations.sql",
+      "args": "p_hive uuid, p_price numeric",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_listing_requires_reservation": {
+      "defined_in": "20260803000007_listing_reservations.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "release_reservation_on_delist": {
+      "defined_in": "20260803000007_listing_reservations.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_reward_exclusive": {
+      "defined_in": "20260803000008_reward_earn_or_spend.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "A job carries reward_earn OR reward_spend, never both, and never twice. At a 10% reward against a 10% ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_reward_spend_cap": {
+      "defined_in": "20260803000008_reward_earn_or_spend.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Caps a credit payment at reward_spend_cap_pct of the job price and at the payer's balance. The price ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "grant_listing_reward": {
+      "defined_in": "20260803000008_reward_earn_or_spend.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Owns the SOLD path end to end: reads the HELD reservation, writes both ledger legs, then marks it ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "sweep_listing_holding_fee": {
+      "defined_in": "20260803000010_holding_fee_and_starter_grant.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Monthly 2% fee on the RESERVED amount of live listings. A returned reservation costs a spammer PHP0, so ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "claim_starter_grant": {
+      "defined_in": "20260803000010_holding_fee_and_starter_grant.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "One starter grant per verified seller, ever. Gated on a marketplace_sellers profile because an ungated ",
+      "called_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "guard_credits_non_transferable": {
+      "defined_in": "20260803000012_non_transferable_non_withdrawable.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Refuses credit movements into a wallet that is not the caller's. Deliberately does NOT police the ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_first_listings_need_a_sale": {
+      "defined_in": "20260803000016_a_new_seller_proves_one_sale_before_flooding.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "Caps live listings for a seller who has never completed a sale. The 10% reservation does not deter a ",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "apply_credits_to_request": {
+      "defined_in": "20260803000017_the_spend_half_had_no_door.sql",
+      "args": "p_request uuid, p_amount numeric",
+      "security_definer": true,
+      "comment": "Moves credits from the buyer to the matched provider as part-payment for a job: TWO legs, because a ",
+      "called_by_surfaces": [
+        "marketplace.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "service_request_price": {
+      "defined_in": "20260803000020_one_definition_of_what_a_job_costs.sql",
+      "args": "p_request uuid",
+      "security_definer": true,
+      "comment": "The single answer to \"what does this job cost\": amount_paid, else the agreed base, else the stated ",
+      "called_by_surfaces": [
+        "marketplace.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "my_credit_balance": {
+      "defined_in": "20260803000021_a_balance_is_one_number_not_a_page_of_rows.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "The caller's own credit balance, as one number. Takes no argument so it cannot be aimed at another ",
+      "called_by_surfaces": [
+        "marketplace.html"
+      ],
       "called_by_edge_fns": []
     }
   },
@@ -9328,6 +9561,7 @@
         "service_credit_topups",
         "service_voucher_redemptions",
         "service_vouchers",
+        "v_credit_posture",
         "v_hive_readiness_truth",
         "v_marketplace_listings_truth",
         "v_marketplace_orders_truth",
@@ -9345,7 +9579,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 162.0
+      "size_kb": 164.7
     },
     "hive.html": {
       "tables_read": [
@@ -9575,12 +9809,14 @@
       ],
       "rpcs_called": [
         "accept_service_request",
+        "claim_starter_grant",
         "my_service_provider_ids",
         "provider_credit_balance",
+        "seller_credit_balance",
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 125.0
+      "size_kb": 131.9
     },
     "marketplace.html": {
       "tables_read": [
@@ -9616,20 +9852,25 @@
         "service_requests"
       ],
       "rpcs_called": [
+        "apply_credits_to_request",
         "get_community_reputation",
         "get_marketplace_parts_for_my_assets",
         "get_marketplace_price_comps",
         "get_marketplace_trust_badges",
         "get_saved_search_matches",
         "increment_listing_view",
+        "my_credit_balance",
         "redeem_service_voucher",
-        "select_quote"
+        "select_quote",
+        "service_knob",
+        "service_knob_pct",
+        "service_request_price"
       ],
       "edge_fns_invoked": [
         "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 243.4
+      "size_kb": 251.6
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -11531,6 +11772,21 @@
     {
       "kind": "dead_table",
       "table": "hive_service_settings",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "credit_treasury",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "credit_reservations",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "credit_starter_grants",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     }
   ]

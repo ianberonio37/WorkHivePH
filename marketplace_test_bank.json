@@ -5013,7 +5013,7 @@
         "file": "TB-A3-d9-knobs-configurable.sql",
         "expect": {
           "default_instant_ttl": "120",
-          "default_widen_rounds": "2",
+          "default_widen_rounds": "3",
           "tighten_gold": "100",
           "loosen_gold": "blocked",
           "tuned_hail_status": "broadcasting",
@@ -5268,7 +5268,7 @@
         "MK5",
         "U3"
       ],
-      "status": "banked",
+      "status": "quarantined",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5280,6 +5280,11 @@
       "note": "Fixing this cost three further defects, each caught by a cell in this same file and none of them visible from reading the code: (1) the poll hammered a dead network while offline and repainted the pane as an error every 15s; (2) it repainted the pane out from under an OPEN tracker map, destroying it; (3) whLivePoll evaluated its condition only at arm time, so a condition that became false never stopped the timer. The helper now re-checks every tick and yields to an open tracker, which owns the refresh while it is up.",
       "ufai_earned": {
         "U3": "the status chip keeps pace with the provider - it had shown a stale label beside a MOVING map"
+      },
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
       }
     },
     {

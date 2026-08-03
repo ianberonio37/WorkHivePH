@@ -1,26 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:495
-source_sha: 57542d84f78c003c
+source: dir:supabase/migrations:506
+source_sha: 3910405e7a17efea
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (495 migrations)
+## migration · catalog (506 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260711000006_marketplace_grid_trust_badges` — fns:get_marketplace_trust_badges
-- `20260711000007_backfill_inquiry_seller_name` — (misc DDL/DML)
-- `20260712000000_marketplace_partsflow_bridge` — tables:marketplace_listings
-- `20260712000001_marketplace_trust_integrity` — policies:mkt_reviews_delete,mkt_reviews_insert,mkt_reviews_read,mkt_reviews_update · fns:guard_marketplace_seller_trust_columns,update_seller_rating,update_seller_tier · triggers:trg_guard_seller_trust · tables:marketplace_reviews
-- `20260712000002_marketplace_storage_lockdown` — policies:Anon,Authed,Owner
-- `20260712000003_marketplace_price_comps` — fns:get_marketplace_price_comps
-- `20260712000004_marketplace_rate_limit_null_hive` — fns:check_listing_rate
-- `20260712000005_marketplace_parts_for_my_assets` — fns:get_marketplace_parts_for_my_assets
-- `20260712000006_marketplace_saved_search_matches` — fns:get_saved_search_matches
-- `20260712000007_register_community_marketplace_canonical_sources` — (misc DDL/DML)
-- `20260712000008_v_community_reputation_truth_contract` — (misc DDL/DML)
 - `20260712000009_v_project_truth_maintenance_nature` — (misc DDL/DML)
 - `20260712000010_logbook_loto_permit` — tables:logbook
 - `20260712000011_inventory_txn_hive_scope_write_guard` — policies:inventory_transactions_write · fns:inventory_sync_balance_from_ledger · tables:inventory_transactions
@@ -210,6 +199,17 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260803000013_one_trigger_owns_the_sale` — fns:grant_listing_reward,release_reservation_on_delist
 - `20260803000014_the_guard_that_blocked_its_own_cashback` — fns:guard_credits_non_transferable
 - `20260803000015_adjudication_is_a_platform_act` — fns:apply_dispute_adjustment
+- `20260803000016_a_new_seller_proves_one_sale_before_flooding` — fns:guard_first_listings_need_a_sale · triggers:trg_first_listings_need_a_sale · tables:hive_service_settings
+- `20260803000017_the_spend_half_had_no_door` — fns:apply_credits_to_request,mint_service_cashback
+- `20260803000018_a_spend_that_destroyed_the_credits` — fns:apply_credits_to_request
+- `20260803000019_the_ten_percent_cap_never_bound` — fns:guard_reward_spend_cap
+- `20260803000020_one_definition_of_what_a_job_costs` — fns:guard_reward_spend_cap,service_request_price
+- `20260803000021_a_balance_is_one_number_not_a_page_of_rows` — fns:my_credit_balance
+- `20260803000022_v_credit_posture_must_not_bypass_rls` — (misc DDL/DML)
+- `20260803000023_only_the_singleton_treasury_row_is_public` — policies:credit_treasury_read
+- `20260803000024_a_read_only_view_holding_write_verbs` — (misc DDL/DML)
+- `20260803000025_register_the_credit_economy_in_the_canonical_registry` — (misc DDL/DML)
+- `20260803000026_thirty_registrations_that_never_landed` — (misc DDL/DML)
 
 (showing last 200)
 

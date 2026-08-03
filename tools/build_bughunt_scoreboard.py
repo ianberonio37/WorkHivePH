@@ -55,6 +55,15 @@ def edge_fn_set() -> set[str]:
 # (auth_uid=auth.uid), worker_achievements (own OR same-hive worker_name). See scoreboard notes.
 BASE_RLS_VERIFIED = {
     "v_hives_truth", "v_skill_badges_truth", "v_worker_achievements_truth",
+    # v_credit_posture (2026-08-03) has NO TENANT DIMENSION to probe. It reads the pg_proc/pg_trigger
+    # catalogue plus credit_treasury's singleton row (id = 1) — there is no hive_id anywhere in it, so the
+    # hive_id read-isolation probe has nothing to vary. It is security_invoker (mig …022, so it does not
+    # read its base tables as the owner) and credit_treasury's SELECT policy is `id = 1` (mig …023), which
+    # publishes the PLATFORM supply cap deliberately — Ian asked for total credits and circulation to be
+    # displayed — while refusing any future per-tenant treasury row that nobody has revisited the policy
+    # for. Its posture is asserted instead by validate_credit_posture.py, which reads all five facts from
+    # the live catalogue and carries teeth on each.
+    "v_credit_posture",
 }
 
 def covered_views() -> set[str]:

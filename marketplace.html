@@ -279,6 +279,12 @@
       padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600;
       background: rgba(255,255,255,0.06); color: #9aa6b3; border: 1px solid rgba(255,255,255,0.08);
     }
+    /* Money coming BACK to the buyer, so it reads as a gain rather than another grey fact. Same chip
+       geometry as .cat-chip beside it — the colour is the whole difference, because a card with two
+       differently-shaped chips reads as two unrelated things. */
+    .cat-chip.credits-back {
+      background: rgba(74,222,128,0.12); color: var(--wh-green); border: 1px solid rgba(74,222,128,0.25);
+    }
     .cond-chip { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600; }
     .cond-chip.new   { background: rgba(74,222,128,0.1); color: var(--wh-green); border: 1px solid rgba(74,222,128,0.2); }
     .cond-chip.used  { background: rgba(255,255,255,0.06); color: #9aa6b3; border: 1px solid rgba(255,255,255,0.1); }
@@ -1162,6 +1168,40 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     return (typeof whFmtPeso === 'function') ? whFmtPeso(n, { decimals: 2 }) : 'PHP ' + n.toFixed(2); // FD1c canonical (₱)
   }
 
+  /* ── What the buyer gets back, on the card, before they click ───────────────────────────────────────
+     Walking 500 whole journeys put "credits unexplained" behind 4.7% of ALL failures — a first-time buyer
+     meeting the word "credits" for the first time on the payment screen, where a surprise is most
+     expensive. The number belongs where the price is.
+
+     This MIRRORS listing_reservation_amount() rather than calling it, because a card is rendered per
+     listing and an RPC per card is a page of round-trips. A mirror is a promise that can drift, so the
+     knobs are read from the same accessors the function reads, and a spec cell asserts this number equals
+     what the database computes for a real listing. The cap matters more than it looks: at a flat 10% a
+     ₱25,000 listing would advertise ₱2,500 back, and the DB would hand over ₱500. */
+  let _rewardKnobs = null;   /* { pct, max, min } — fetched once, never per card */
+
+  async function loadRewardKnobs() {
+    try {
+      const [pct, max, min] = await Promise.all([
+        db.rpc('service_knob_pct', { p_hive: null, p_key: 'reward_pct' }),
+        db.rpc('service_knob',     { p_hive: null, p_key: 'reward_max_per_listing' }),
+        db.rpc('service_knob',     { p_hive: null, p_key: 'reward_min_per_listing' })
+      ]);
+      if (pct.error || max.error || min.error) return;
+      _rewardKnobs = { pct: Number(pct.data), max: Number(max.data), min: Number(min.data) };
+    } catch (_) { /* empty-catch-allow: no knobs means no chip, never a wrong chip */ }
+  }
+
+  function creditsBack(price) {
+    if (!_rewardKnobs) return null;              // silence beats a number we cannot stand behind
+    const n = Number(price);
+    if (!n || n <= 0) return null;               // "Negotiable" has no 10% of anything
+    // service_knob_pct returns a WHOLE percent (10.00 = 10%), the same trap listing_reservation_amount
+    // documents: reading it as a fraction would promise ten times the price.
+    const raw = Math.round(n * _rewardKnobs.pct) / 100;
+    return Math.max(Math.min(raw, _rewardKnobs.max), _rewardKnobs.min);
+  }
+
   function tierOf(sales) {
     const n = Number(sales) || 0;
     if (n >= 51) return 'gold';
@@ -1870,6 +1910,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             ${item.location
               ? `<span class="cat-chip" style="display:inline-flex;align-items:center;gap:3px;"><span class="ic ic-location" aria-hidden="true"></span>${e(item.location)}</span>`
               : ''}
+            ${(() => { const cb = creditsBack(item.price); return cb
+              ? `<span class="cat-chip credits-back" title="You get ${e(fmtPrice(cb))} in WorkHive Credits when this job is done. 1 credit = ₱1, and you spend them on your next booking.">${e(fmtPrice(cb))} credits back</span>`
+              : ''; })()}
           </div>
           <div class="card-footer">
             <a class="seller-row seller-link" href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-decoration:none;color:inherit;" data-seller="${e(item.seller_name || '')}">
@@ -1929,12 +1972,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       !canPost ? 'GUEST' : mine === 0 ? 'NONE' : 'LISTED',
       canPost && mine > 0 ? 'green' : 'grey'
     );
-    setCard('section',
-      sectionLabel,
-      total === 0 ? `Currently viewing ${section}, no results` : `${total} live · avg ${whFmtPeso(avgPrice)}`,
-      'ACTIVE',
-      'green'
-    );
+    /* No setCard('section', …) here. That tile was removed on 2026-06-13 (it showed navigation state, not
+       information — the active section is already visible in the switcher), but this call outlived it and
+       kept writing to #mk-section-hero, an element that no longer exists. setCard() null-checks every
+       node, so it did nothing, silently, for seven weeks. A call that cannot fail is a call that cannot
+       tell you it stopped working. */
 
     let tone, label, sub;
     if (total === 0 && mine === 0) {
@@ -2032,6 +2074,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <span class="ic ic-search ic-xl" aria-hidden="true"></span>
           <h3>No listings match those filters</h3>
           <p style="max-width:420px;margin:0 auto;">Try a different search term or category, or clear the filters to see all ${escHtml(_section)} listings.</p>
+          <!-- THE REMEDY NEEDS A CONTROL. This copy told people to "clear the filters" and the page gave
+               them nothing to press: the only clear-ish affordance was the "All" category chip, measured
+               1,020px BELOW this message, and it resets the category while leaving the search term in
+               place. So the one instruction on the screen was not performable from where the person was
+               standing. Found on the first live-MCP walk of A-discovery/filtered0, whose oracle is
+               exactly "says so, AND offers a way back - never a blank grid". -->
+          <button type="button" id="mk-clear-filters" class="btn-view" style="margin-top:0.9rem;"
+                  data-i="clearfilters">Clear filters</button>
         </div>`;
         return;
       }
@@ -3196,9 +3246,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // The SAME RLS wall the RFQ path guards against above — WITH CHECK (buyer_name IN auth_worker_names()) —
     // and this path, its sibling, was left unguarded when that fix landed (2026-07-24). The field is
     // prefilled but editable, so a buyer who puts their nickname or company name got a raw 42501, which
-    // whIsAuthFailure classifies as an expired session: they were told to sign in again. That instruction
-    // is not merely unhelpful, it is false — the session is fine, the NAME is the problem, and no number of
-    // re-logins will ever deliver the message. Validate before writing, exactly as quote requests do.
+    // whIsAuthFailure USED TO classify as an expired session: they were told to sign in again. That
+    // instruction is not merely unhelpful, it is false — the session is fine, the NAME is the problem, and
+    // no number of re-logins will ever deliver the message. The ROOT is now fixed in utils.js (a bare
+    // 42501 no longer implies a dead session; only a Postgres-shaped denial or a 401/403 does), but this
+    // check stays: it names the FIELD and moves focus to it, which no generic classifier can do.
     if (WORKER_NAME && name !== WORKER_NAME) {
       showToast(`Send this under your WorkHive name (${WORKER_NAME}) so the seller can verify who is asking.`, 'error');
       document.getElementById('inq-name')?.focus();
@@ -3575,6 +3627,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           '<label data-i="payref" for="svc-pay-ref-' + id + '" style="font-size:0.72rem;opacity:0.85;">GCash reference (13 digits, optional)</label>' +
           '<input id="svc-pay-ref-' + id + '" type="text" inputmode="numeric" maxlength="13" placeholder="e.g. 1234567890123" style="' + _svcInputC + '">' +
         '</div>' +
+        /* THE SPEND HALF OF THE SWITCH. Filled in asynchronously and left empty when the buyer holds no
+           credits, so a wallet at zero never shows a field that can only refuse. The sheet itself stays
+           synchronous — the amount field is what people came here to type. */
+        '<div id="svc-pay-credits-' + id + '"></div>' +
         '<div id="svc-pay-whywrap-' + id + '" style="display:none;">' +
           '<label data-i="paywhy" for="svc-pay-why-' + id + '" style="font-size:0.72rem;opacity:0.85;">Why the difference?</label>' +
           '<input id="svc-pay-why-' + id + '" type="text" maxlength="140" placeholder="a smaller job, a discount, part paid in materials…" style="' + _svcInputC + '">' +
@@ -3588,8 +3644,59 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (typeof whI18nApply === 'function') whI18nApply(window.WH_FIL_PAGE || {});
     const amt = document.getElementById('svc-pay-amt-' + requestId);
     if (amt) amt.focus();
+    svcFillCreditsChoice(requestId);
   }
   window.svcConfirmPay = svcConfirmPay;
+
+  /* Ian's rule, at the moment it applies: "when a buyer buys a service, when he wants to spend 10% credit
+     … but the buyers choose to spend his credit on his own, those 10% credits will be retained on the
+     provider wallet." Earn or spend, never both — so this is where the buyer chooses, and choosing to
+     spend is what stops the cashback minting on the same job.
+
+     The cap is computed against BUDGET, because guard_reward_spend_cap caps against r.budget. Showing a
+     cap derived from the catalog rate would offer a number the database then refuses, which is worse than
+     offering nothing. */
+  async function svcFillCreditsChoice(requestId) {
+    const slot = document.getElementById('svc-pay-credits-' + requestId);
+    if (!slot || !_authUid) return;
+    try {
+      const [led, price, knob] = await Promise.all([
+        // ONE NUMBER, computed where the rows are. This used to select the caller's whole ledger and add
+        // it up here — unbounded by construction, and the tempting fix (a .limit) would have produced a
+        // quietly WRONG balance for exactly the users holding the most rows.
+        db.rpc('my_credit_balance'),
+        // THE SAME function guard_reward_spend_cap asks, never a second derivation. This block first
+        // computed the cap from service_requests.budget — which is NULL on every job with a matched
+        // provider — so it offered a maximum of zero and rendered nothing at all. The guard had the
+        // identical bug for the identical reason; one of them capping nothing and the other offering
+        // nothing is what a duplicated rule looks like from two sides.
+        db.rpc('service_request_price', { p_request: requestId }),
+        db.rpc('service_knob_pct', { p_hive: null, p_key: 'reward_spend_cap_pct' })
+      ]);
+      if (led.error || price.error) return;
+      const balance = Number(led.data || 0);
+      if (balance <= 0) return;                       // nothing to spend; say nothing
+      const pct = Number(knob.data);
+      if (!(pct > 0)) return;
+      const cap = Math.min(balance, Math.round(Number(price.data || 0) * pct) / 100);
+      if (!(cap > 0)) return;
+
+      const e = escHtml, id = e(requestId);
+      slot./* xss-allow: every interpolation is escHtml()'d or a Number */ innerHTML =
+        '<div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:0.5rem;padding-top:0.5rem;">' +
+          '<label for="svc-pay-credits-amt-' + id + '" style="font-size:0.72rem;opacity:0.85;">' +
+            'Use your WorkHive Credits (optional)</label>' +
+          '<div style="font-size:0.68rem;opacity:0.75;margin-bottom:0.25rem;">' +
+            'You hold ' + e(fmtPrice(balance)) + '. You can put up to ' + e(fmtPrice(cap)) + ' toward this ' +
+            'job. 1 credit = ₱1, so that is ' + e(fmtPrice(cap)) + ' less to pay. ' +
+            'Use credits here and you do not earn credits on this job.' +
+          '</div>' +
+          '<input id="svc-pay-credits-amt-' + id + '" type="number" min="0" step="0.01" ' +
+            'max="' + cap + '" inputmode="decimal" placeholder="0.00" style="' + _svcInputC + '">' +
+        '</div>';
+      if (typeof whI18nApply === 'function') whI18nApply(window.WH_FIL_PAGE || {});
+    } catch (_) { /* empty-catch-allow: no credits block beats a broken confirm sheet */ }
+  }
 
   function svcPayMethodChanged(requestId) {
     const m = document.getElementById('svc-pay-method-' + requestId);
@@ -3643,6 +3750,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // A payment already on file is not a failure: the settle below is the step that did not finish
         // last time, and the unique index is what makes retrying safe.
         if (!/duplicate|unique/i.test(pay.error.message)) { showToast(pay.error.message, 'error'); return; }
+      }
+
+      /* BEFORE THE SETTLE, and that ordering is the whole point. mint_service_cashback fires on the
+         transition into 'settled' and returns 0 only if a reward_spend already exists for the job —
+         apply the credits afterwards and the buyer earns AND spends on the same job, which is the
+         treadmill Ian's earn-or-spend rule exists to prevent. */
+      const credEl = document.getElementById('svc-pay-credits-amt-' + requestId);
+      const credits = credEl ? Number(credEl.value || 0) : 0;
+      if (credits > 0) {
+        const applied = await db.rpc('apply_credits_to_request',
+          { p_request: requestId, p_amount: credits });
+        if (applied.error) {
+          // The cap guard names the real figures ("Credits may cover at most 10% of a purchase (₱2,500
+          // here)"), so show it verbatim rather than replacing it with something vaguer.
+          showToast(applied.error.message, 'error');
+          credEl?.focus();
+          return;
+        }
       }
 
       const { data, error } = await db.from('service_requests')
@@ -3984,6 +4109,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // their writes (post/inquire/dispute) would 401 once Phase E flips
     // policies. Redirect them to re-signin. See PRODUCTION_FIXES.md #37.
     if (WORKER_NAME && !_authUid) { window.location.href = 'index.html?signin=1'; return; }
+
+    // AWAITED, and before anything renders a card. creditsBack() returns null until the knobs land, so
+    // firing this off unawaited would paint the first listings with no chip and only the later ones with
+    // one — the class of bug where calling the loader by hand looks perfect and a real page load does not.
+    await loadRewardKnobs();
+
     const _mkChip = document.getElementById('marketplace-source-chip');
     if (_mkChip && typeof renderSourceChip === 'function') {
       _mkChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
@@ -4076,6 +4207,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _query = ev.target.value.trim();
       clearTimeout(_searchTimer);
       _searchTimer = setTimeout(() => { Promise.resolve(loadListings()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); }); _mktSyncUrl(); }, 400); // G1 (FAMILY F3)
+    });
+
+    /* Clear filters — the control the filtered-empty state names.
+       DELEGATED on document, because the empty state is re-rendered on every load: a listener bound to
+       the button at boot would attach to a node that does not exist yet, and re-binding after each render
+       is how duplicate handlers accumulate. Resets BOTH halves — the category chip and the search term —
+       because the message says "the filters", and a button that clears only half of what it promises is
+       the same broken promise in a smaller box. */
+    document.addEventListener('click', ev => {
+      if (!ev.target.closest('#mk-clear-filters')) return;
+      _cat = 'All';
+      _query = '';
+      const box = document.getElementById('search-input');
+      if (box) box.value = '';
+      renderFilterChips();   // the real name — re-renders the chips so "All" shows as active
+      Promise.resolve(loadListings()).then(() => {
+        if (typeof whFreshnessFooter === 'function') whFreshnessFooter();
+      });
+      _mktSyncUrl();
+      box?.focus();          // put them back where they can type the next attempt
     });
 
     /* Price filter toggle */

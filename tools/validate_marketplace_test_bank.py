@@ -63,9 +63,26 @@ def psql_script(sql: str, timeout: int = 60, args: tuple = ()):
 
 
 def mint():
-    """service-role preamble — runs BEFORE any `set local role`, rolled back with the check."""
+    """service-role preamble — runs BEFORE any `set local role`, rolled back with the check.
+
+    ALSO FUNDS THE PROBE SELLER'S CREDIT WALLET, because publishing now costs working capital. The credit
+    economy (migs 20260803000005+) makes a listing hold 10% of its price in reserved credits, so the
+    `any -> published as admin-or-system` cell started FAILING against a freshly-minted seller who has
+    never held a credit — and the cell is about AUTHORITY, not solvency. An admin may still publish; the
+    seller must still be able to cover the reservation. Without this the bank silently stopped testing
+    what it says it tests and started reporting a legitimate economic precondition as an authority
+    regression ([[feedback_gates_lock_refusal_not_permission]]).
+
+    auth.uid() is NULL here (no JWT yet), which the ledger guards treat as a vetted backend write — the
+    same exemption every seeder uses. Rolled back with the rest of the probe.
+    """
     vals = ",".join(f"('{u}','tb-probe-{i}@gate.local')" for i, u in enumerate((C, P, X, A)))
-    return f"insert into auth.users(id, email) values {vals};\n"
+    return (
+        f"insert into auth.users(id, email) values {vals};\n"
+        # generous relative to any fixture price in this file (the dearest listing is PHP100 -> PHP10 held)
+        f"insert into public.service_credit_ledger"
+        f"(account_type, account_id, entry_type, amount, ref_kind, note) values "
+        f"('consumer','{C}','topup',1000,'probe','tb-probe reservation float');\n")
 
 
 def make_admin(uid: str, hive_pick: str = "order by id limit 1"):
@@ -230,8 +247,21 @@ def name_the_actors():
     ([[feedback_free_text_identity_is_a_claim]] — the name is the claim, this mapping is the proof)."""
     rows = ",".join(f"((select id from public.hives order by id limit 1),'{n}','worker','active','{u}')"
                     for u, n in WORKER_NAME.items())
+    # AND A REAL marketplace_sellers ROW for the seller identity, because a listing's seller is one.
+    # Without it the fixture planted listings under a name that no seller record backed, which was
+    # invisible until the credit economy landed: guard_listing_requires_reservation calls
+    # seller_credit_balance(seller_name), which resolves the wallet through marketplace_sellers.auth_uid
+    # and got NULL -- so the seller had a balance of zero no matter how the probe was funded, and the
+    # authorised `any -> published` transition began failing for a reason that had nothing to do with
+    # authority. Same shape as the wallet bug earlier in this arc, where the balance joined on
+    # display_name and matched nobody: a wallet is keyed to a PERSON, so the person has to exist.
+    sellers = ",".join(
+        f"('{WORKER_NAME[u]}','{u}',(select id from public.hives order by id limit 1))"
+        for u in (C, P))
     return ("insert into public.hive_members(hive_id, worker_name, role, status, auth_uid) values "
             f"{rows};\n"
+            "insert into public.marketplace_sellers(worker_name, auth_uid, hive_id) values "
+            f"{sellers};\n"
             "insert into public.marketplace_platform_admins(worker_name, granted_by) values "
             f"('{WORKER_NAME[A]}','tb-probe');\n")
 

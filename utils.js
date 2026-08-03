@@ -1320,20 +1320,43 @@ if (typeof window !== 'undefined') window.whCertBadgeEarned = whCertBadgeEarned;
 // again and re-save it" or "your message will go through" is giving better instructions than any
 // generic string, which is what the standard asks for, so the helper deliberately does not flatten
 // those. Sites with nothing specific to add use whWriteError below.
+// 42501 is AMBIGUOUS and treating it as proof of a dead session sends signed-in people to the sign-in page
+// for a rule they simply broke. Postgres raises 42501 for a genuine privilege/RLS refusal, AND it is the
+// errcode our own guards deliberately raise for policy refusals written for a human to read ("A credit
+// balance is only visible to its owner", "A new seller can keep 3 listings live until one of them sells",
+// "Only the client on this job can apply their credits to it"). The two are told apart by the MESSAGE:
+// Postgres's own are formulaic ("new row violates row-level security policy for table ..."), ours are
+// sentences. This was fixed once on the inquiry path, where a 42501 told a signed-in buyer their session
+// had expired; the shared helper kept the bug for every other path.
+var _WH_PG_DENIAL = /row-level security|permission denied|not authenticated|JWT|invalid token|session expired/i;
+
 function whIsAuthFailure(err) {
   if (!err) return false;
-  var code = err.code != null ? String(err.code) : '';
   var status = err.status != null ? String(err.status) : '';
   var msg = String(err.message || '');
-  return code === '42501' || status === '401' || status === '403'
-    || /row-level security|permission denied|not authenticated|JWT|invalid token|session expired/i.test(msg);
+  if (status === '401' || status === '403') return true;
+  return _WH_PG_DENIAL.test(msg);
 }
 if (typeof window !== 'undefined') window.whIsAuthFailure = whIsAuthFailure;
 
+// Raw Postgres shapes. These name a constraint or a table and mean nothing to the person reading them, so
+// they stay behind the caller's friendlier fallback.
+var _WH_RAW_PG = /violates .*constraint|duplicate key|syntax error|does not exist|out of range|invalid input value/i;
+
 function whWriteError(err, fallback) {
-  return whIsAuthFailure(err)
-    ? 'Your session expired, so nothing was saved. Sign in again and redo this step.'
-    : (fallback || 'That did not go through. Please try again.');
+  if (whIsAuthFailure(err)) {
+    return 'Your session expired, so nothing was saved. Sign in again and redo this step.';
+  }
+  // A GUARD THAT TOOK THE TROUBLE TO EXPLAIN ITSELF MUST NOT BE REPLACED BY "TRY AGAIN". The reservation
+  // guard says "Listing needs PHP50 credits held (10% of the price) and you have 0 available" — a seller
+  // who instead reads "Save failed. Try again." will retry forever, because retrying is precisely what
+  // cannot work. Deliberate refusals carry a policy errcode and a human sentence; anything Postgres-shaped
+  // falls through to the caller's wording.
+  var code = err && err.code != null ? String(err.code) : '';
+  var msg  = err && err.message ? String(err.message) : '';
+  var deliberate = code === '23514' || code === '42501' || code === 'P0001' || code === 'check_violation';
+  if (deliberate && msg && msg.length <= 300 && !_WH_RAW_PG.test(msg)) return msg;
+  return fallback || 'That did not go through. Please try again.';
 }
 if (typeof window !== 'undefined') window.whWriteError = whWriteError;
 // Central refresh-retry dedup guard (deepwalk D2, 2026-07-22). A NON-idempotent client write (a fresh-id

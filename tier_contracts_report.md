@@ -6,12 +6,12 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 
 | Tier | Registry file | Registered | Discovered | Pending |
 |---|---|---:|---:|---:|
-| F (Fuel) | `canonical/capture_contracts.json` | 494 | 259 | 40 |
+| F (Fuel) | `canonical/capture_contracts.json` | 494 | 260 | 41 |
 | E (Engine) | `canonical/formula_contracts.json` | 24 | 22 | 19 |
 | B (Brain) | `canonical/agent_contracts.json` | 7 | 99 | 14 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
-## Tier F (Fuel) — pending registrations (40)
+## Tier F (Fuel) — pending registrations (41)
 
 - `cl-text`
 - `f-loto`
@@ -32,6 +32,7 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `svc-hail-item`
 - `svc-hail-urgency`
 - `svc-pay-amt-`
+- `svc-pay-credits-amt-`
 - `svc-pay-method-`
 - `svc-pay-ref-`
 - `svc-pay-why-`

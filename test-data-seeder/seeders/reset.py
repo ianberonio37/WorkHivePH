@@ -27,6 +27,9 @@ RESET_TABLES = [
     # FK to service_requests, so it clears BEFORE its parent or the delete is refused.
     "service_payments",
     "service_requests",
+    # 2026-08-03 WorkHive Credits (migs 20260803000005-21) - children before parents.
+    # credit_reservations FKs marketplace_listings, so it must clear BEFORE its parent below.
+    "credit_reservations",            # 20260803000007 - one HELD row per live listing
     "service_credit_topups",
     "service_credit_ledger",
     "service_providers",
@@ -220,6 +223,17 @@ RESET_TABLES_NON_ID = {
     "wh_feature_flags":  ("hive_id", "00000000-0000-0000-0000-000000000000"),
     "wh_voice_presence": ("hive_id", "00000000-0000-0000-0000-000000000000"),
     # 2026-05-26 P1 substrate: 4 new tables, none have an `id` PK.
+    # 2026-08-03 credits: PK is auth_uid (one grant per person, ever), not `id`.
+    "credit_starter_grants": ("auth_uid", "00000000-0000-0000-0000-000000000000"),
+    # THE TREASURY SINGLETON SURVIVES A RESET, deliberately. Row id=1 carries authorised_credits =
+    # 10,000,000, which is the liability cap the whole economy rests on, and reset.py only ever DELETEs -
+    # nothing here re-inserts it. Clearing it would leave a local stack with no cap until someone
+    # re-applied the migrations, and the credit-posture gate would (correctly, loudly) fail meanwhile.
+    # The sentinel spares id=1 and clears anything else, so the table is genuinely covered.
+    # KNOWN, and worth stating rather than discovering: a reset empties service_credit_ledger while
+    # issued_credits stays as it was, so the two can disagree after a reset. Today both are 0. If credits
+    # are ever issued locally, this needs an explicit zeroing step, which reset.py has no shape for yet.
+    "credit_treasury":       ("id", 1),
     "ai_cache":             ("key", "__none__"),
     "ai_user_rate_limits":  ("user_id", "00000000-0000-0000-0000-000000000000"),
     "wh_traces":            ("trace_id", "__none__"),

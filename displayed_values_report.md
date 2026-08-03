@@ -7,8 +7,8 @@ each as contracted / uncontracted / raw / unknown.
 ## Summary
 
 - Pages scanned:           **29**
-- Display anchors found:   **104**
-- Contracted ✅:           **20** (anchor maps to a registered formula)
+- Display anchors found:   **105**
+- Contracted ✅:           **21** (anchor maps to a registered formula)
 - **Uncontracted ⚠️:**     **0** (domain-meaningful metric, no formula registered)
 - Raw (counts/dates):      **84** (no contract needed)
 - Unknown:                 **0** (couldn't classify from id alone)
@@ -28,7 +28,7 @@ each as contracted / uncontracted / raw / unknown.
 | `community.html` | 7 | 0 | 0 | 7 | 0 |
 | `public-feed.html` | 0 | 0 | 0 | 0 | 0 |
 | `marketplace.html` | 8 | 3 | 0 | 5 | 0 |
-| `marketplace-seller.html` | 1 | 0 | 0 | 1 | 0 |
+| `marketplace-seller.html` | 2 | 1 | 0 | 1 | 0 |
 | `dayplanner.html` | 4 | 0 | 0 | 4 | 0 |
 | `engineering-design.html` | 1 | 0 | 0 | 1 | 0 |
 | `assistant.html` | 1 | 0 | 0 | 1 | 0 |

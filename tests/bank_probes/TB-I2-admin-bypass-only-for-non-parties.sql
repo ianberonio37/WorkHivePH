@@ -52,6 +52,19 @@ values ('d1000000-0000-4000-8000-0000000000f2','TB I2 Other Hive','TBI2H2','tb-p
 insert into public.marketplace_platform_admins(worker_name, granted_by)
   values ('TB I2 Admin','tb-probe');
 
+-- Both sellers are REAL marketplace_sellers with credits, because publishing now costs working capital:
+-- guard_listing_requires_reservation holds 10% of a listing's price and resolves the wallet through
+-- marketplace_sellers.auth_uid. Without these rows the wallet resolves to NULL, the balance is zero, and
+-- the ADMIN'S MODERATION PUBLISH gets refused -- which this probe would report as the admin bypass being
+-- BROKEN. That reading would be exactly wrong: the authority is intact, the seller simply could not afford
+-- the reservation. A probe about WHO MAY ACT must not fail on WHAT THEY CAN AFFORD.
+insert into public.marketplace_sellers(worker_name, auth_uid, hive_id) values
+  ('TB I2 Admin','d1dddddd-0000-4000-8000-00000000000a',(select id from public.hives order by id limit 1)),
+  ('TB I2 Other','d1dddddd-0000-4000-8000-00000000000b',(select id from public.hives order by id limit 1));
+insert into public.service_credit_ledger(account_type, account_id, entry_type, amount, ref_kind, note) values
+  ('consumer','d1dddddd-0000-4000-8000-00000000000a','topup',1000,'probe','TB I2 reservation float'),
+  ('consumer','d1dddddd-0000-4000-8000-00000000000b','topup',1000,'probe','TB I2 reservation float');
+
 -- ---- listings: one owned by the admin, one owned by someone else ----------------------------------
 insert into public.marketplace_listings(id, hive_id, seller_name, section, title, category, price, status)
 values

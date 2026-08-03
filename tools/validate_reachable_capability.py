@@ -99,6 +99,15 @@ SERVER_FED_ALLOW = {
     # per-user limits and max uses. There is deliberately no client INSERT path: a redemption
     # a client could write directly is a discount they could mint themselves.
     "service_voucher_redemptions",
+    # Reviewed 2026-08-03 (WorkHive Credits). credit_treasury is the SUPPLY itself: one row (id = 1)
+    # holding authorised_credits = 10,000,000 and issued_credits, with a CHECK that issued never exceeds
+    # authorised. It is migration-seeded and moved ONLY by issue_credits()/retire_credits(), both of which
+    # have EXECUTE revoked from anon and authenticated. A client path that could INSERT here is a client
+    # path that could mint the money supply, so unwritable-from-the-client is the entire safety property —
+    # the same reason service_credit_ledger sits above. founder-console.html only READS it, to display the
+    # cap and what is in circulation, and shows figures rather than a queue: there is no empty state and so
+    # no promise of future arrivals. Verified: 0 client .insert/.upsert on the table across every page.
+    "credit_treasury",
 }
 
 # (page, table) pairs where the page's OWN empty-state copy explicitly says nothing can arrive, so
