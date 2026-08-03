@@ -4770,8 +4770,10 @@
    "state": "branch",
    "branch": "provider tops up by GCash, the founder verifies it, credits appear",
    "oracle": "wallet delta == the top-up amount, exactly one `topup` ledger row, and the provider's card shows it on a RELOAD rather than only after a hand-called refresh",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    "WALKED LIVE 2026-08-03 across the whole funding leg. The provider's wallet names itself ('Credit wallet · Pablo Aguilar Mechanical Works'), shows the pending receipt ('PHP300.00 · ref 1005556667770 · filed 7/29/2026') and states how much to send. The verify control is reachable and hit-tested on the live admin console. DEFECTS FOUND AND FIXED EN ROUTE: the queue existed only on an overlay-covered page so no credit could be minted at all; the form was bound to provs[0] on an UNORDERED query, so a multi-profile provider would have funded a HIVE-owned wallet; and top-ups landed in a ledger namespace that listing/accepting never read (mig 39)."
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-topup-queue-reachable",
@@ -4844,8 +4846,10 @@
    "state": "branch",
    "branch": "the buyer holds no credits and pays the job in full",
    "oracle": "the buyer's wallet gains exactly 10% of what they PAID, the provider's wallet falls by the same amount (funded, never minted), and circulation delta is 0. Resolved 2026-08-03 (mig 37): this was briefly logged as an open fork, wrongly — services now reserve at ACCEPTANCE exactly as a listing reserves at publication, so the funding always exists",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    "WALKED LIVE 2026-08-03 as davidvelasco holding EXACTLY 0 credits, on a PHP8,000 completed job. The confirm sheet states: 'Pay in full and you receive PHP800.00 back in credits. 1 credit = PHP1, and you can put them toward your next job here.' PHP800 is 10% and is the SAME figure the provider's hold reserved, because both call listing_reservation_amount(). DEFECT FOUND AND FIXED BY THIS WALK: the block was guarded by `if (balance <= 0) return;` so a buyer with no credits was told NOTHING about credits — the earn-or-spend rule appeared only as its negative and only to people who already had some. That is Ian's journey #3 missing from the one screen where it applies."
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-accept-needs-10pct",
@@ -4858,8 +4862,10 @@
    "state": "branch",
    "branch": "a provider without the 10% tries to take a job",
    "oracle": "acceptance is REFUSED and the message names both the amount needed and the amount held, so the provider can act on it — 'no credits, no listing' applies to services too",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    "WALKED LIVE 2026-08-03. The open-request row now reads 'Budget PHP4,000 · holds PHP400 in credits' BEFORE the Accept button, from service_knob_pct (server rate, not a hardcoded 10%). The refusal path is proven at the DB in the mig-37 and mig-39 probes: a provider without the 10% is refused by name with both the amount needed and the amount held."
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-earn-declined",
@@ -5004,8 +5010,10 @@
    "state": "branch",
    "branch": "the provider marks a job done",
    "oracle": "a push fires to the BUYER, and the row states the deadline AND the consequence -- the date shown must equal v_service_request_truth.objection_deadline, never a client-side +3 days",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    "WALKED LIVE 2026-08-03. The buyer's row reads 'Marked done by the provider. Confirm payment, or report a problem by Aug 6 (3 days left). After that it settles automatically.' The date comes from v_service_request_truth.objection_deadline — computed server-side from the same knob the sweep and the push read, so the screen cannot quote a date the sweep disagrees with."
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-window-objection",
@@ -5032,8 +5040,10 @@
    "state": "branch",
    "branch": "the buyer never responds and the window closes",
    "oracle": "the sweep settles it, the payment row carries auto_confirmed_at with confirmed_by NULL, and a job with NO agreed price is NOT settled but counted as unpriced. The buyer earns their 10% exactly as a manual confirm would pay it (mig 37)",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    "PROVEN BY THE REAL SCHEDULER, not a probe (2026-08-03). cron.job_run_details shows service-completion-sweep-hourly succeeded; the job completed 2026-07-28 settled today; service_payments carries 1 row with auto_confirmed_at set and confirmed_by NULL, so an assumed payment is distinguishable from an attested one. It drained exactly the one-job backlog mig 32 predicted. Teeth for the branches (unpriced not settled, disputed skipped) are in the mig-31 probe."
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-ufai-touched-surfaces",
