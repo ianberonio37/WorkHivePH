@@ -10960,8 +10960,21 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "null_semantics",
    "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "asserts": "NULL means the same thing on both sides of the trigger/view seam: service_knob(reward_max_per_listing) returns NULL meaning NO CAP, and the client must not read it through Number() (which yields 0 and inverts the rule).",
+    "value_checked": true,
+    "checked": "Read the knob live from the browser: reward_max_per_listing = null, Number(null) = 0, correct reading = Infinity. Swept every client site that reads a knob through Number(x.data): 3 sites. marketplace.html:1214/1216 read pct and min from service_knob_pct, which has a COALESCE fallback for EVERY key (verified live: reward_pct = 10.00, reward_spend_cap_pct = 10.00), so a NULL cannot arrive there. marketplace.html:3902 reads reward_spend_cap_pct, same function, same protection. The only NULL-meaningful knob is reward_max_per_listing via service_knob, whose function body says \"NO FALLBACK. NULL = no cap (mig 35, Ian rule)\" — one real site, fixed in e0a2f2ba, verified by 9 chips each rendering 10% of their OWN price.",
+    "depends_on": [
+     "marketplace.html",
+     "marketplace-seller.html"
+    ],
+    "sha": "ac22c5b218da9d7f",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AY-seam-seam_trigger_view-system-partial_write",
