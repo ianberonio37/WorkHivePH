@@ -2,13 +2,13 @@
 name: view-v_service_request_truth
 type: view
 source: db:pg_get_viewdef:v_service_request_truth
-source_sha: 8b4b936fc4bce122
+source_sha: 8a7993582404db3b
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## view · `v_service_request_truth`
 
-**security_invoker:** OFF ⚠  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
+**security_invoker:** on  (OFF = runs as owner, BYPASSES base-table RLS — cross-hive read-leak risk, mig 001)
 **Source tables:** `hive_members`, `service_catalog`, `service_offers`, `service_providers`
 **Trust/identity cols exposed:** (none)  (each must be sourced from a CANONICAL/guarded base col, not a forgeable one — mig 009)
 

@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:525
-source_sha: 3bd4ee51709599bd
+source: dir:supabase/migrations:527
+source_sha: a86e0009aab6c1ec
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (525 migrations)
+## migration · catalog (527 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260713000007_community_attribution_pin` — policies:anon,community_replies_delete,community_replies_insert,community_replies_modify,community_replies_write,so · fns:bind_community_reaction_submitter,bind_community_reply_submitter · triggers:trg_bind_submitter_community_reaction,trg_bind_submitter_community_reply
-- `20260713000008_inventory_restock_rpc` — fns:inventory_restock
 - `20260713000009_marketplace_listing_trust_from_canonical` — (misc DDL/DML)
 - `20260713000010_pm_attribution_pin` — fns:bind_pm_asset_submitter,bind_pm_completion_submitter · triggers:trg_bind_submitter_pm_asset,trg_bind_submitter_pm_completion
 - `20260713000011_post_inventory_attribution_pin` — fns:bind_community_post_submitter,bind_inventory_item_submitter · triggers:trg_bind_submitter_community_post,trg_bind_submitter_inventory_item
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260803000043_anon_could_delete_the_founders_receipt_queue` — (misc DDL/DML)
 - `20260803000044_register_the_receipt_intake_in_the_canonical_registry` — (misc DDL/DML)
 - `20260803000045_the_voucher_refusal_took_the_endpoint_down_instead` — fns:redeem_service_voucher
+- `20260803000046_restore_the_explicit_security_invoker_declaration` — (misc DDL/DML)
+- `20260804000047_the_platforms_money_position_was_world_readable` — policies:credit_treasury_read
 
 (showing last 200)
 

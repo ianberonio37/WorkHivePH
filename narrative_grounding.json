@@ -2,7 +2,7 @@
   "tool": "tools/validate_narrative_grounding.py",
   "subject": "page AI-prose cites only true platform numbers (no fabricated metric) \u2014 live",
   "surfaces_total": 1,
-  "surfaces_grounded": 1,
+  "surfaces_grounded": 0,
   "surfaces_skipped": 8,
   "baseline_caps": {
     "analytics": 0,
@@ -50,9 +50,11 @@
       "http": 200,
       "grounding_numbers": 39,
       "prose_strings": 1,
-      "substantive_nums_checked": 8,
-      "cited_grounded": 8,
-      "fabricated": [],
+      "substantive_nums_checked": 10,
+      "cited_grounded": 9,
+      "fabricated": [
+        "365"
+      ],
       "baseline_cap": 1,
       "new_drift": false
     },

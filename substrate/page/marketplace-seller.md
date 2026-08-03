@@ -2,13 +2,13 @@
 name: page-marketplace-seller
 type: page
 source: file:marketplace-seller.html
-source_sha: d9861dcac0fe2231
+source_sha: 9c51badcc42af0b2
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `marketplace-seller.html` — Seller Dashboard: WorkHive Marketplace
 
-Size: 151KB · 61 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 154KB · 61 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (11): `hive_audit_log.insert`, `marketplace_inquiries.update`, `marketplace_listings.delete`, `marketplace_listings.update`, `marketplace_reviews.insert`, `marketplace_sellers.upsert`, `push_subscriptions.upsert`, `service_credit_topups.insert`, `service_providers.insert`, `service_providers.update`, `service_requests.update`
 **RPC calls**: `accept_service_request`, `claim_starter_grant`, `listing_reservation_amount`, `my_service_provider_ids`, `provider_credit_balance`, `seller_credit_balance`, `service_knob`, `service_knob_pct`, `submit_service_quote`

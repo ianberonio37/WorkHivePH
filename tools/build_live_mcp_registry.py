@@ -92,12 +92,26 @@ CATEGORIES = {
     "D-service-hail": (
         "can a client raise a job and a provider take it, both knowing what state it is in?",
         ["market_svc"], ["buyer", "provider"], ["empty", "populated", "edge"]),
+    # `founder` -> `admin` across the four state-grids below (2026-08-04). The surface table above
+    # already said "point a scenario at `founder` only to assert the RETIREMENT itself", but these
+    # grids kept generating 30 populated/empty/edge/error scenarios against the retired console --
+    # the doctrine was written and the code did not obey it. Walking those rows can only do one of
+    # two things, and both are worthless: measure the "moved to Grafana" overlay, or reach THROUGH
+    # it by calling handlers directly, which is the exact false-green that kept 5 specs passing
+    # while the credit-minting top-up queue sat unreachable for two weeks.
+    # The founder's money job now lives on platform-actions.html (top-up queue, receipts, feedback
+    # triage and the credit position were all lifted there), so that is where these must be walked.
+    # One consequence is deliberate: LM-E-money-founder-admin-populated was GREEN on evidence
+    # reading "circulation 0 = issued_credits" -- measured while issued_credits was 0, which was
+    # the defect migration 42 corrected to 1,500. It passed by comparing the screen to the view
+    # while both read the same broken row: a tautological oracle. It drops out here and returns as
+    # an owed row against the live surface, which is the honest state for it.
     "E-money": (
         "at the moment money moves, does every screen agree on the number?",
-        ["market_svc", "seller", "founder"], ["buyer", "provider", "admin"], ["populated", "edge"]),
+        ["market_svc", "seller", "admin"], ["buyer", "provider", "admin"], ["populated", "edge"]),
     "F-credits": (
         "does a person understand what credits are, what they hold, and what they will get back?",
-        ["market", "seller", "founder"], ["anon", "buyer", "seller", "admin"], ["empty", "populated"]),
+        ["market", "seller", "admin"], ["anon", "buyer", "seller", "admin"], ["empty", "populated"]),
     "G-trust": (
         "is a trust signal earned, visible, and impossible to mint for yourself?",
         ["market", "profile"], ["anon", "buyer", "seller"], ["populated", "empty"]),
@@ -121,7 +135,7 @@ CATEGORIES = {
         ["market", "seller", "market_svc"], ["buyer", "seller"], ["populated", "empty"]),
     "N-continuity": (
         "does the page hold its shape while data arrives, and survive a reload mid-flow?",
-        ["market", "seller", "founder"], ["buyer", "seller", "admin"], ["populated"]),
+        ["market", "seller", "admin"], ["buyer", "seller", "admin"], ["populated"]),
     "O-empty-error": (
         "does an empty state promise only what the product can deliver?",
         ["market", "seller", "admin", "market_svc"], ["anon", "seller", "admin"], ["empty", "error"]),
@@ -134,7 +148,7 @@ CATEGORIES = {
         "money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and "
         "nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of "
         "payment two gcash accounts'. A buyer must see exactly ONE number.",
-        ["market_svc", "seller", "founder"], ["buyer", "provider", "admin"],
+        ["market_svc", "seller", "admin"], ["buyer", "provider", "admin"],
         ["populated", "empty", "edge", "error"]),
     "P-isolation": (
         "can one tenant see or touch another's rows, through any screen?",

@@ -26,11 +26,20 @@
  * Voice IDs and portrait filenames retained — see PERSONA_TO_VOICE in
  * tts-speak/index.ts and PORTRAIT_URLS in wh-persona.js.
  *
- * AI_ASSET_VERSION: 10
+ * AI_ASSET_VERSION: 11
  * C5 (Self-Improving Gate) — bump this integer whenever the persona tone,
  * examples, voice, or buildPersonaBlock contract changes. The
  * ai-asset-versioning validator FAILs if the file hash moves without this
  * bumping. Owner: AI Engineer.
+ *
+ * v11 (2026-08-04) — records a REMOVAL, not an authored change, and the gate was
+ * right to insist on it. Commit 2baa583e accidentally committed raw git conflict
+ * markers into this file ("<<<<<<< Updated upstream", "=======", ">>>>>>> Stashed
+ * changes") along with four duplicated few-shot exchanges; commit 10ed9d8c stripped
+ * them back out. Net content is correct, but the hash moved twice with the version
+ * frozen at 10, so ai-asset-versioning reported silent_change — which is exactly its
+ * job. Worth keeping in mind for next time: the few-shot examples ARE the persona's
+ * behaviour, so garbage between the markers was live prompt text, not dead comment.
  */
 
 export type PersonaKey = "hezekiah" | "zaniah";

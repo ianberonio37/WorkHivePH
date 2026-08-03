@@ -142,8 +142,7 @@
      "why_it_matters": "Fourth instrument error this session, and the most expensive if it had shipped. The rule it teaches: simulate the failure the CODE is written against. This page handles { data, error } from supabase-js, so the faithful probe is an HTTP error response, not a transport rejection.",
      "note": "The transport-rejection case is not unhandled in production: offline-banner.js is loaded on marketplace.html and shows 'You are offline. Some actions may not work.' via navigator.onLine + offline/online events, which is the real-world shape of a rejected fetch (a dropped signal)."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-A-discovery-market-buyer-populated",
@@ -762,11 +761,11 @@
    "findings": []
   },
   {
-   "id": "LM-E-money-founder-buyer-populated",
+   "id": "LM-E-money-admin-buyer-populated",
    "category": "E-money",
    "question": "at the moment money moves, does every screen agree on the number?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "buyer",
    "persona_note": "signed in, browsing and hiring",
    "state": "populated",
@@ -775,11 +774,11 @@
    "findings": []
   },
   {
-   "id": "LM-E-money-founder-buyer-edge",
+   "id": "LM-E-money-admin-buyer-edge",
    "category": "E-money",
    "question": "at the moment money moves, does every screen agree on the number?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "buyer",
    "persona_note": "signed in, browsing and hiring",
    "state": "edge",
@@ -788,11 +787,11 @@
    "findings": []
   },
   {
-   "id": "LM-E-money-founder-provider-populated",
+   "id": "LM-E-money-admin-provider-populated",
    "category": "E-money",
    "question": "at the moment money moves, does every screen agree on the number?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "provider",
    "persona_note": "signed in, taking service hails",
    "state": "populated",
@@ -801,11 +800,11 @@
    "findings": []
   },
   {
-   "id": "LM-E-money-founder-provider-edge",
+   "id": "LM-E-money-admin-provider-edge",
    "category": "E-money",
    "question": "at the moment money moves, does every screen agree on the number?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "provider",
    "persona_note": "signed in, taking service hails",
    "state": "edge",
@@ -814,38 +813,24 @@
    "findings": []
   },
   {
-   "id": "LM-E-money-founder-admin-populated",
+   "id": "LM-E-money-admin-admin-populated",
    "category": "E-money",
    "question": "at the moment money moves, does every screen agree on the number?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "green",
-   "findings": [
-    {
-     "severity": "pass",
-     "title": "every credit number on the founder console matches its source",
-     "measured": "shown supply 10,000,000 = v_credit_posture.authorised_credits; circulation 0 = issued_credits; available 10,000,000 = authorised - issued; '1 credit = PHP1' matches pesos_per_credit = 1."
-    },
-    {
-     "severity": "defect-fixed",
-     "title": "three KPI tiles rendered a raw auth error where the explanation belongs",
-     "measured": "live: '- ACTIVE TODAY / JWT issued at future', same for AI SPEND TODAY and ACTIVE HIVES. Five 401s in the console; the reads themselves were fine when retried, so it is a startup race (clock skew puts the JWT's iat in the future), not a permission problem.",
-     "why_it_matters": "The dash was RIGHT - the Calm Dashboard contract says show the gap, never fiction. What sat beside it was internal plumbing: 'JWT issued at future' tells a founder nothing and reads as a broken tile. And it was general - ANY read failure would have leaked its raw message.",
-     "fix": "statGapReason() maps the failure shape to something a person can act on (sign-in still settling / no connection / not permitted / unavailable), keeps the value as an honest '-', and preserves the raw text in a title for debugging.",
-     "verified": "the tiles SUCCEEDED on the verification load, so the error path did not run on its own - exercised directly instead: all four shapes translate, the sub reads 'sign-in still settling - reload', the title still holds 'JWT issued at future', and the value stays '-'."
-    }
-   ]
+   "status": "owed",
+   "findings": []
   },
   {
-   "id": "LM-E-money-founder-admin-edge",
+   "id": "LM-E-money-admin-admin-edge",
    "category": "E-money",
    "question": "at the moment money moves, does every screen agree on the number?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "edge",
@@ -871,8 +856,7 @@
      "measured": "Searched a term matching nothing while TRULY signed out. The grid rendered: 'No listings match those filters. Try a different search term or category, or clear the filters to see all parts listings.' with a 'Clear filters' BUTTON inside the grid itself. It names what is missing, why, and the way back, and promises nothing about supply.",
      "note": "This is the A-discovery defect re-checked for the anon persona: the original finding was that the same copy told people to 'clear the filters' while giving them NOTHING to press - the only clear-ish control was a category chip measured 1,020px away that reset the category and left the search term. The fix holds signed-out, which is the persona that finding was about (40% of simulated journey failures die at discovery)."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-F-credits-market-anon-populated",
@@ -892,8 +876,7 @@
      "measured": "Walked TRULY anonymous - signOut + cleared every wh_* key + RELOADED, because clearing keys without a reload leaves the prior signed-in DOM up and contaminates the read. Verified no session before measuring. Every tab badge matches its section: Parts 9 / Training 6 / Services 0 against published parts=9, training=6, services=0. The grid rendered exactly 9 children and the footer said 'Showing 9 listings · newest first. Sellers cannot pay for placement.' - a disclosure that is both true and the kind a marketplace usually omits.",
      "note": "An apparent 9-vs-21 mismatch was MY instrument: the page's total published is 21, split jobs=6 / parts=9 / training=6, and my first probe guessed three section names and missed 'jobs'. The page under-renders nothing. Also observed and NOT filed as a defect: anon sees zero credit copy. Credits are a signed-in concept and the page promises the stranger nothing it cannot keep - though the 10%-back earn line is arguably a selling point worth showing signed-out. That is a product call for Ian, not a correctness bug."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-F-credits-market-buyer-empty",
@@ -960,8 +943,7 @@
      "measured": "guard_listing_requires_reservation, asked directly with the review-gate bypassed so IT is what answers: 'Listing needs 500 credits held (10% of the price) and you have -200 available. The credits are not a fee...' The panel note now states the same rule and the same arithmetic BEFORE the seller hits it, instead of after. The two negative-balance messages on this page do not contradict: the credits panel names PUBLISHING (its surface) and the services wallet names ACCEPTING JOBS (its surface), and both are true because the credits are one pot gated by two guards.",
      "note": "Getting to that answer took THREE failed probes, each a different instrument error. (1) An UPDATE targeting Pablo's drafts matched ZERO rows - he has none - and my DO block reported 'allowed', which is the banked '0-row write is not an error' trap; the guard never ran. (2) Cloning a listing row failed on a generated column (search_vector), so the staged draft never existed. (3) The first successful publish attempt was refused by the SELF-PUBLISH gate rather than the reservation guard, which answers a different question. Only bypassing the review gate isolated the guard whose sentence the copy quotes. I nearly shipped user-facing copy on the strength of probe #1 saying 'allowed'."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-F-credits-market-admin-empty",
@@ -1094,11 +1076,11 @@
    "findings": []
   },
   {
-   "id": "LM-F-credits-founder-anon-empty",
+   "id": "LM-F-credits-admin-anon-empty",
    "category": "F-credits",
    "question": "does a person understand what credits are, what they hold, and what they will get back?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "anon",
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "empty",
@@ -1107,11 +1089,11 @@
    "findings": []
   },
   {
-   "id": "LM-F-credits-founder-anon-populated",
+   "id": "LM-F-credits-admin-anon-populated",
    "category": "F-credits",
    "question": "does a person understand what credits are, what they hold, and what they will get back?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "anon",
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "populated",
@@ -1120,11 +1102,11 @@
    "findings": []
   },
   {
-   "id": "LM-F-credits-founder-buyer-empty",
+   "id": "LM-F-credits-admin-buyer-empty",
    "category": "F-credits",
    "question": "does a person understand what credits are, what they hold, and what they will get back?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "buyer",
    "persona_note": "signed in, browsing and hiring",
    "state": "empty",
@@ -1133,11 +1115,11 @@
    "findings": []
   },
   {
-   "id": "LM-F-credits-founder-buyer-populated",
+   "id": "LM-F-credits-admin-buyer-populated",
    "category": "F-credits",
    "question": "does a person understand what credits are, what they hold, and what they will get back?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "buyer",
    "persona_note": "signed in, browsing and hiring",
    "state": "populated",
@@ -1146,11 +1128,11 @@
    "findings": []
   },
   {
-   "id": "LM-F-credits-founder-seller-empty",
+   "id": "LM-F-credits-admin-seller-empty",
    "category": "F-credits",
    "question": "does a person understand what credits are, what they hold, and what they will get back?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "seller",
    "persona_note": "signed in, listing and answering",
    "state": "empty",
@@ -1159,11 +1141,11 @@
    "findings": []
   },
   {
-   "id": "LM-F-credits-founder-seller-populated",
+   "id": "LM-F-credits-admin-seller-populated",
    "category": "F-credits",
    "question": "does a person understand what credits are, what they hold, and what they will get back?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "seller",
    "persona_note": "signed in, listing and answering",
    "state": "populated",
@@ -1172,11 +1154,11 @@
    "findings": []
   },
   {
-   "id": "LM-F-credits-founder-admin-empty",
+   "id": "LM-F-credits-admin-admin-empty",
    "category": "F-credits",
    "question": "does a person understand what credits are, what they hold, and what they will get back?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "empty",
@@ -1185,11 +1167,11 @@
    "findings": []
   },
   {
-   "id": "LM-F-credits-founder-admin-populated",
+   "id": "LM-F-credits-admin-admin-populated",
    "category": "F-credits",
    "question": "does a person understand what credits are, what they hold, and what they will get back?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "populated",
@@ -2508,11 +2490,11 @@
    "findings": []
   },
   {
-   "id": "LM-N-continuity-founder-buyer-populated",
+   "id": "LM-N-continuity-admin-buyer-populated",
    "category": "N-continuity",
    "question": "does the page hold its shape while data arrives, and survive a reload mid-flow?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "buyer",
    "persona_note": "signed in, browsing and hiring",
    "state": "populated",
@@ -2521,11 +2503,11 @@
    "findings": []
   },
   {
-   "id": "LM-N-continuity-founder-seller-populated",
+   "id": "LM-N-continuity-admin-seller-populated",
    "category": "N-continuity",
    "question": "does the page hold its shape while data arrives, and survive a reload mid-flow?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "seller",
    "persona_note": "signed in, listing and answering",
    "state": "populated",
@@ -2534,11 +2516,11 @@
    "findings": []
   },
   {
-   "id": "LM-N-continuity-founder-admin-populated",
+   "id": "LM-N-continuity-admin-admin-populated",
    "category": "N-continuity",
    "question": "does the page hold its shape while data arrives, and survive a reload mid-flow?",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "populated",
@@ -2904,8 +2886,7 @@
      "title": "the genuine empty state names what is missing AND the next action",
      "measured": "Observed live on the buyer's services pane with a successful read and zero requests: \"No requests yet. Hail your first service below - a nearby provider accepts and you track them here.\" It states the fact (no requests), the action (hail below), and what happens next (a provider accepts, you track them here) - and promises nothing it cannot keep: 'a nearby provider accepts' is conditional, not a guarantee of supply. Distinguished from the FAILED read in the same session, which now renders \"Couldn't load services\" + Retry instead of this copy."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-Q-payment-rails-market_svc-buyer-edge",
@@ -2940,8 +2921,7 @@
      "fix": "Check catRes.error / mineRes.error explicitly and throw, so the existing catch renders the honest state. Same defect the listings grid already fixed as P7 on 2026-07-24 ('load-failure rendered the first-run be-the-first-to-sell CTA'); the services pane was never swept for it.",
      "teeth": "With the read forced to fail: \"Couldn't load services / TypeError: probe: forced network failure / Retry\" -- saysError true, offersRetry true, stillInvites FALSE. With the read restored: the pane renders the buyer's 3 real requests, no error. An empty result and a failed read are now different facts on this surface."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-Q-payment-rails-market_svc-provider-populated",
@@ -3000,8 +2980,7 @@
      "measured": "Same class as the buyer pane, found by sweeping rather than by the next walk. loadServices checked provRes.error only; feedRes and jobsRes were consumed as `.data || []`, so a failure of the broadcast feed or the jobs read became an empty array. Verified live by failing ONLY the previously-unchecked feed read: before, the console painted an empty feed; after the fix it renders \"Couldn't load services\" with a Retry, and restoring the read renders the console normally.",
      "why_it_matters": "A provider told there are no open jobs stops refreshing and misses the broadcast window; one told they have no active work believes a job they already accepted has vanished. Neither is true - the read failed."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-Q-payment-rails-market_svc-admin-populated",
@@ -3268,11 +3247,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-buyer-populated",
+   "id": "LM-Q-payment-rails-admin-buyer-populated",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "buyer",
    "persona_note": "signed in, browsing and hiring",
    "state": "populated",
@@ -3281,11 +3260,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-buyer-empty",
+   "id": "LM-Q-payment-rails-admin-buyer-empty",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "buyer",
    "persona_note": "signed in, browsing and hiring",
    "state": "empty",
@@ -3294,11 +3273,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-buyer-edge",
+   "id": "LM-Q-payment-rails-admin-buyer-edge",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "buyer",
    "persona_note": "signed in, browsing and hiring",
    "state": "edge",
@@ -3307,11 +3286,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-buyer-error",
+   "id": "LM-Q-payment-rails-admin-buyer-error",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "buyer",
    "persona_note": "signed in, browsing and hiring",
    "state": "error",
@@ -3320,11 +3299,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-provider-populated",
+   "id": "LM-Q-payment-rails-admin-provider-populated",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "provider",
    "persona_note": "signed in, taking service hails",
    "state": "populated",
@@ -3333,11 +3312,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-provider-empty",
+   "id": "LM-Q-payment-rails-admin-provider-empty",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "provider",
    "persona_note": "signed in, taking service hails",
    "state": "empty",
@@ -3346,11 +3325,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-provider-edge",
+   "id": "LM-Q-payment-rails-admin-provider-edge",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "provider",
    "persona_note": "signed in, taking service hails",
    "state": "edge",
@@ -3359,11 +3338,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-provider-error",
+   "id": "LM-Q-payment-rails-admin-provider-error",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "provider",
    "persona_note": "signed in, taking service hails",
    "state": "error",
@@ -3372,11 +3351,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-admin-populated",
+   "id": "LM-Q-payment-rails-admin-admin-populated",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "populated",
@@ -3385,11 +3364,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-admin-empty",
+   "id": "LM-Q-payment-rails-admin-admin-empty",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "empty",
@@ -3398,11 +3377,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-admin-edge",
+   "id": "LM-Q-payment-rails-admin-admin-edge",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "edge",
@@ -3411,11 +3390,11 @@
    "findings": []
   },
   {
-   "id": "LM-Q-payment-rails-founder-admin-error",
+   "id": "LM-Q-payment-rails-admin-admin-error",
    "category": "Q-payment-rails",
    "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
-   "surface": "founder",
-   "url": "/workhive/founder-console.html",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "error",
@@ -3558,8 +3537,7 @@
      "why_it_matters": "The plan says two things that now pull against each other: 'No revenue. The platform takes no commission' and 'History is never rewritten: existing commission entries stay.' Both were right when written. The live consequence nobody had looked at is that the platform is still holding PHP360 taken under the repealed rule, and at least one provider is blocked from listing until they replace it.",
      "options": "(1) Leave it: the charge was valid when made and history stands. (2) Reverse it with COMPENSATING entries -- append-only, no history rewritten, exactly how apply_dispute_adjustment already undoes money -- which returns the PHP360 and unblocks the provider without deleting a single row. Option 2 is consistent with both plan rules simultaneously; it is a five-line migration. IAN'S CALL: this is his money, not a defect I should decide."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-S-adversarial-seller-spammer-edge",
@@ -3773,8 +3751,7 @@
      "title": "every badge and every row count on the admin surface matches its source of truth",
      "measured": "Canonical parity walked in-browser through the page's OWN client, so the comparison runs against the same database and the same RLS the page sees -- not a side-channel psql query, which would be a different reader answering a different question. Eight figures, eight exact matches: top-ups badge 1 / rows 1 vs v_service_credit_topups_truth pending=1; listings 3 / 3 vs draft=3; sellers 9 / 9 vs unverified=9; feedback 10 / 10 vs platform_feedback waiting (new+triaged+in_progress)=10. The feedback badge deliberately counts WAITING rather than total, and the DB query was written to match that definition -- a badge that counted everything would have read 10 here too, by coincidence, and hidden the difference."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-S-adversarial-admin-spammer-edge",
@@ -4981,8 +4958,7 @@
      "title": "the anti-self-deal guard fires live, and its sentence reaches the screen",
      "measured": "Rejecting a top-up belonging to the admin's OWN provider was refused with 23514 'Not allowed: top-up verification is founder/admin-only, and never on a top-up you are a party to', and platform-actions surfaced that exact sentence in the toast rather than the generic 'Action failed. Try again.' Rejecting a top-up for a provider the admin is not a party to succeeded: 'Rejected. No credits were minted.', status rejected, zero ledger rows referencing the reference."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-spend-chosen",
@@ -5010,8 +4986,7 @@
      "title": "all four halves of the spend oracle hold, end to end through apply_credits_to_request",
      "measured": "BEFORE buyer=340 provider=1000 circulation=1140 -> apply_credits_to_request(job, 80) -> AFTER buyer=260 provider=1080 circulation=1140. Legs: reward_spend -80 (buyer) and reward_fund +80 (provider), both consumer-namespace, so circulation delta is EXACTLY 0 -- a transfer, never a mint. Fourth half: inserting a reward_earn on that same job was REFUSED 23514 by guard_reward_exclusive. Earn or spend, never both."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-earn-no-credits",
@@ -5063,8 +5038,7 @@
      "title": "declining to spend is not the same as having nothing to spend -- the buyer still earns the full 10%",
      "measured": "Walked with a buyer HOLDING PHP340, so the spend field was genuinely offered, and left empty. On settle of an 800 job: reward_earn +80 to the buyer and reward_fund -80 from the provider's held reservation, which moved 'held' -> 'released_to_buyer'. Buyer 340 -> 420, exactly 10% of the job. Circulation delta 0 -- the earn is the provider's reservation PASSING to the buyer, never a mint. grant_service_reward suppresses the earn only when a reward_spend exists on that job, so the switch is driven by what happened, not by what the buyer could afford."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-spend-partial",
@@ -5084,8 +5058,7 @@
      "title": "holding less than 10% gives a SMALLER field, never a refusal",
      "measured": "The confirm sheet computes cap = Math.min(balance, price * reward_spend_cap_pct / 100) from my_credit_balance and service_request_price -- the same function guard_reward_spend_cap asks, never a second derivation. Walked with the buyer drained to PHP50 on an 800 job (10% cap = 80, UI offers min(50,80)=50): spending 50 was ACCEPTED; spending the full 80 cap she could not afford was REFUSED 23514. Depends on mig 41 -- before it my_credit_balance returned 0 and the field never rendered."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-dispute-returns-credits",
@@ -5105,8 +5078,7 @@
      "title": "a disputed job returns the spent credits in full when the provider still holds them",
      "measured": "Job with reward_spend -80 (buyer) / reward_fund +80 (provider), adjudicated by a platform admin. Result: {credits_returned_to_buyer: 80.00, credits_recovered_from_provider: 80.00, provider_shortfall: 0.00}. Buyer 260 -> 340, provider 1080 -> 1000. Two compensating ledger entries, never a rewrite -- the append-only discipline holds. A non-admin caller is refused: 'Only a platform admin may adjust a disputed job.'"
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-dispute-provider-spent",
@@ -5127,8 +5099,7 @@
      "measured": "Same job, but the provider drained to PHP30 against PHP80 owed. Result: {credits_returned_to_buyer: 80.00, credits_recovered_from_provider: 30.00, provider_shortfall: 50.00}. Buyer 260 -> 340 (made whole in FULL, not partially), provider floored at exactly 0 -- never forced negative. The shortfall is not silently dropped: it appears in the returned JSON and in the buyer's own ledger note, 'Credits you paid on this job, returned (50.00 could not be recovered from the provider and was absorbed by the platform)'.",
      "note": "This bound is one of the three readers mig 41 repointed. Before it, the recovery ceiling read only the consumer namespace, so a provider holding credits provider-side looked broke -- the platform would have absorbed a shortfall against a provider who could actually pay."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-supply-cap",
@@ -5151,8 +5122,7 @@
      "fix": "mig 20260803000042: the top-up mint now issues against the ceiling, exactly as the starter grant does, BEFORE the ledger insert -- so a refusal aborts the statement and the refusal and the mint can never disagree. issued_credits back-filled from the ledger (0.00 -> 1,500.00); a counter corrected to match the rows it summarises is not a history rewrite, and the append-only ledger was untouched. The migration RAISES if the two still disagree afterwards.",
      "teeth": "A: verifying a PHP500 top-up with only PHP100 unissued was REFUSED 23514, 0 ledger rows written, and the status stayed pending_verification so the founder can retry after a governance decision. B: a PHP100 top-up against exactly PHP100 remaining MINTED and drove remaining to 0.00. Screen half, walked live in platform-actions: the toast read the guard's own sentence verbatim -- 'Only 100 credits remain unissued; cannot issue 500. The supply is capped at 10,000,000 and that ceiling is what guarantees every credit in circulation is honourable.' -- not the generic 'Action failed. Try again.' All four credit gates green afterwards."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-negative-balance",
@@ -5255,8 +5225,7 @@
      "measured": "Two jobs staged completed 10 days ago, both past the 3-day objection deadline. The buyer objected to one: raise_service_objection returned {ok:true}, the job moved completed -> disputed, and the reason was journalled to service_job_events ('buyer raised a problem inside the objection window: The unit still leaks after the visit'). Then the sweep ran ONCE over both: {settled: 1, unpriced: 0} -- the objected job stayed disputed and the CONTROL settled, which is the non-vacuity proof that the sweep really executed rather than silently matching nothing. The control's payment carries auto_confirmed_at set and confirmed_by NULL, so an auto-settlement is never recorded as a person attesting to the amount. A second sweep in the same transaction returned {settled: 0} -- idempotent.",
      "note": "raise_service_objection also refuses a non-client caller ('Only the person who hailed this job can raise a problem with it'), a job that is not yet completed, and an empty reason. Observation, not a defect: every transition writes a note-less row via trg_journal_service_request (21 of 22 live events have a blank note) and the objection adds a second, enriched row -- so a disputed job shows two journal rows. Nothing renders service_job_events, so this is internal-only."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-window-autoconfirm",
@@ -5300,8 +5269,7 @@
      "measured": "The one remaining defect was F broken-internal-link on http://127.0.0.1:3001/d/workhive-founder-ops. Probed directly: root=302, dashboard=302, container UP (the API answers 401 Unauthorized, which only a running Grafana does). The link works; it redirects to Grafana's own login, which is what a PROTECTED resource is supposed to do. I had already written a reachability check and a degraded-link state before probing -- and reverted it, because it fixed a defect that did not exist. Annotated with ufai-link-allow and the measurement instead.",
      "why_it_matters": "Second instrument error this session (the first: an alpha-blind contrast helper that reported 1.00 for every tinted pill). Treating a 302-to-login as broken would make every authenticated destination on the platform a defect."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-adversarial-personas",
@@ -5323,8 +5291,7 @@
      "why_it_matters": "The 500-run simulation proved the ECONOMICS hold. It never proved the SCREEN refuses these people in words they can act on -- and a guard that blocks in silence cannot be told apart from a guard that is not firing at all. So each persona asserts two things, and a bare 'violates check constraint' fails the readability bar.",
      "note": "THE PROBE'S OWN THREE BUGS ARE WHY IT IS TRUSTWORTHY, and each is a banked class. (1) It read only stdout while every verdict line is a psql NOTICE on stderr -- all four reported 'no verdict line', a false red. (2) It probed the spam cap with NO JWT, and guard_first_listings_need_a_sale opens with `if auth.uid() is null return new` (the backend path seeders need), so all 8 listings published and it read as 'the cap does not work' when the probe was never a person -- the 'an RLS probe needs the ROLE, not just claims' lesson, applied to a trigger. (3) Even with an identity, TWO earlier guards fired first: self-publish is refused outright, then the reservation guard refused for want of credits -- so the cap was never consulted and a PASS proved only the outermost gate, the 'survivor masked by a sibling constraint' shape. It now funds the seller and selects one already AT the cap by the cap's own arithmetic, so the deepest layer is the one that answers. Registered in run_platform_checks as gate `adversarial-personas`."
     }
-   ],
-   "walked_at": "2026-08-03"
+   ]
   }
  ]
 }
