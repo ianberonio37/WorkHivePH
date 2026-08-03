@@ -3597,7 +3597,7 @@ function _openIntentModal(preset) {
 // ── MEMBERS ──
 async function loadMembers() {
   if (!HIVE_ID) return;   // guard: no active hive -> don't fire hive_id=eq."" queries (400 invalid-uuid). Matches loadReadiness/loadAdoption/etc.
-  let membersData, openJobsData, membersErr = null;
+  let membersData, openJobsData, membersErr = null, openJobsErr = null;
   if (_board) {
     membersData  = _board.members || [];
     openJobsData = _board.open_jobs_workers || [];
@@ -3617,6 +3617,13 @@ async function loadMembers() {
         .limit(2000)  // limit-as-count-allow: feeds per-worker open-WO tallies via forEach, NOT a .length KPI; stat-members is sourced from the separate hive_members read. L2 insurance cap (open WOs bounded-by-nature)
     ]);
     if (membersRes.error) { membersErr = membersRes.error; console.error('loadMembers:', membersRes.error.message); }
+    /* The OPEN-JOBS read was unchecked. supabase-js resolves with { data: null, error }, so a
+       failure made openJobsData [] -> every worker tallied 0 open jobs -> the workload badge
+       (which only renders when openJobs > 0) vanished for the whole roster. A supervisor scanning
+       it would read 'nobody is loaded' when the truth is that we could not count. The roster
+       itself is still valid, so this does NOT fail the whole card: it records the failure and the
+       render says workload is unavailable instead of implying zero. */
+    if (openJobsRes.error) { openJobsErr = openJobsRes.error; console.error('loadMembers openJobs:', openJobsRes.error.message); }
     membersData  = membersRes.data  || [];
     openJobsData = openJobsRes.data || [];
   }
@@ -3648,7 +3655,14 @@ async function loadMembers() {
     list.innerHTML = `<p class="text-[11px] text-white/80" style="padding:8px 2px;">${_t('No teammates yet. Share your hive code to invite them.', 'Wala pang katrabaho. Ibahagi ang hive code para mag-imbita.')}</p>`;
     return;
   }
-  list.innerHTML = membersData.map(m => {
+  /* Say the workload is UNKNOWN rather than letting its absence read as zero. The badge only
+     renders when openJobs > 0, so a failed count silently turns the whole roster green-by-omission.
+     One line above the list is proportionate: the roster is still true and useful, only the tally
+     is missing, and a supervisor who knows the number is unavailable will not plan against it. */
+  const _wlNote = openJobsErr
+    ? `<p class="text-[11px] text-white/80" style="padding:4px 2px;">${_t('Workload counts are unavailable right now, so no busy/heavy marks are shown.', 'Hindi available ang bilang ng workload ngayon, kaya walang abala/mabigat na marka.')}</p>`
+    : '';
+  list.innerHTML = _wlNote + membersData.map(m => {
     const isMe    = m.worker_name === WORKER_NAME;
     const isSup   = m.role === 'supervisor'; // role-check-allow: m.role is a per-member DB field (the listed member's role), not the ambient user role
     const canKick = HIVE_ROLE === 'supervisor' && !isMe;
@@ -3914,6 +3928,14 @@ function _openWorkerProfileDrawer(workerName) {
     db.from('hive_members').select('role, joined_at').eq('worker_name', workerName).eq('hive_id', HIVE_ID).maybeSingle(),
     db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).eq('worker_name', workerName).order('created_at', { ascending: false }).order('worker_name').limit(3),
   ]).then(([bRes, xRes, mRes, lRes]) => {
+    /* A FAILED READ IS NOT AN EMPTY RECORD. supabase-js resolves with { data: null, error } instead
+       of throwing, so an unchecked `.data || []` here would tell a supervisor this worker has NO
+       badges and "No recent logbook entries" when the truth is that the query failed. That is a
+       claim about a PERSON'S RECORD, made to the people who assess them, and it is the kind of
+       wrong that never looks like a bug -- an empty profile reads as a quiet worker.
+       The .catch below is new too: this chain had none, so a rejection also went unhandled. */
+    const _readErr = bRes.error || xRes.error || mRes.error || lRes.error;
+    if (_readErr) throw _readErr;
     const badges = (bRes.data || []).slice().sort((a, b) => (b.level || 0) - (a.level || 0));
     const top    = badges[0];
     const xp     = xRes.data?.xp_total || 0;
@@ -3954,6 +3976,19 @@ function _openWorkerProfileDrawer(workerName) {
             ).join('')
           : '<p style="font-size:.72rem; color:rgba(255,255,255,0.80); margin:0;">No recent logbook entries.</p>') +
       '</div>';
+    const sub = panel.querySelector('p:nth-of-type(1) + p');
+    if (sub) sub.style.display = 'none';
+  }).catch((err) => {
+    // Say we could not look, rather than showing an empty profile that reads as "this worker has
+    // done nothing". Logs as well as shows: a profile drawer failing for every supervisor would
+    // otherwise be invisible in observability (L-layer).
+    console.error('worker profile load failed:', err);
+    const body = document.getElementById('wh-wp-body');
+    if (body) {
+      body.innerHTML = '<p style="font-size:.72rem; color:rgba(255,255,255,0.80); margin:0;">'
+        + escHtml(_t("Couldn't load this profile. Close and try again.",
+                     'Hindi ma-load ang profile na ito. Isara at subukan muli.')) + '</p>';
+    }
     const sub = panel.querySelector('p:nth-of-type(1) + p');
     if (sub) sub.style.display = 'none';
   });
