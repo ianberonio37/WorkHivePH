@@ -101,14 +101,23 @@
     .page-header p { font-size: 0.8rem; color: #9aa6b3; margin-top: 0.2rem; }
 
     /* Section tabs */
+    /* THE MAIN NAVIGATION SPILLED ON A PHONE (found 2026-08-04, V-edge-content batch walk). Four
+       tabs with their counts need 494px; at a real 427px viewport the strip had 378px and
+       overflowed by 116px with overflow-x VISIBLE — so "Services" rendered outside its own
+       container, over whatever sat beside it, with no way to scroll to it. These are the tabs that
+       switch the entire marketplace between Parts / Training / Hiring / Services, so on a phone the
+       Services tab was the one falling off the edge.
+       Scroll instead of spill, and stop forcing equal-width tabs once they no longer fit. */
     .section-tabs {
       display: flex; gap: 0.5rem; margin-bottom: 1rem;
       background: rgba(22,32,50,0.6);
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 0.75rem; padding: 0.375rem;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
     }
+    .section-tabs::-webkit-scrollbar { display: none; }
     .section-tab {
-      flex: 1; min-height: 44px; padding: 0.6rem 0.75rem; border: none; border-radius: 0.5rem;
+      flex: 1 0 auto; min-height: 44px; padding: 0.6rem 0.75rem; border: none; border-radius: 0.5rem;
       background: transparent; color: #9aa6b3;
       font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
       cursor: pointer; transition: all 0.2s;
@@ -2737,6 +2746,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     document.getElementById('sheet-' + name)?.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
+
+  /* BACK LEFT THE PAGE SCROLL-LOCKED (found 2026-08-04, U-recovery back_nav walk on the live MCP
+     browser). openSheet sets body overflow:hidden and only closeSheet clears it — but a sheet here
+     does not push a history entry, so pressing Back navigates AWAY mid-sheet and the page is later
+     restored from the bfcache with the lock still applied and the sheet still open. Measured after
+     Back: bodyLocked true, one sheet open, on a page the person had returned to. Nothing intercepted
+     clicks, which is why this survived every click-based check — the page simply would not scroll.
+     `pageshow` with persisted=true is the bfcache restore; popstate covers same-document history
+     moves. Both release the lock and close anything left open. */
+  function _releaseSheets() {
+    document.querySelectorAll('.sheet.open, [id^="overlay-"].open').forEach(el => el.classList.remove('open'));
+    document.body.style.overflow = '';
+  }
+  window.addEventListener('pageshow', function (e) { if (e.persisted) _releaseSheets(); });
+  window.addEventListener('popstate', _releaseSheets);
 
   function closeSheet(name) {
     document.getElementById('overlay-' + name)?.classList.remove('open');

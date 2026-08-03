@@ -34,7 +34,12 @@ SURFACES = {
     "market":     "/workhive/marketplace.html",
     "market_svc": "/workhive/marketplace.html?section=services",
     "seller":     "/workhive/marketplace-seller.html",
-    "profile":    "/workhive/marketplace-seller-profile.html",
+    # ?worker= is REQUIRED, not decoration (marketplace-seller-profile.html:335 reads it and bails
+    # with "No seller specified" otherwise). Without it every probe against this surface measured an
+    # instruction card instead of the page, and the error/empty walks were judging a screen that had
+    # never issued a query. Found 2026-08-04 when the batch walker's error probe on this surface
+    # reported "indistinguishable from empty" — both readings were of the same bail-out message.
+    "profile":    "/workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
     # marketplace-admin.html is RETIRED - it renders "Marketplace Admin has moved" and carries zero action
     # controls. Pointing 12 H-moderation scenarios at it would have walked a dead surface and reported
     # confident nonsense about it, the same shape as a test pinned to a hive that no longer exists.

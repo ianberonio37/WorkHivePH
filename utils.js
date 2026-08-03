@@ -2961,15 +2961,27 @@ function getWorkerTier(topLevel) {
 function renderWorkerAvatar(workerName, topLevel, size) {
   const sz   = size || 32;
   const tier = getWorkerTier(topLevel || 0);
-  const init = escHtml(
-    String(workerName || '?').trim().split(/\s+/).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase()
-  );
+  /* TWO INITIALS DO NOT FIT A SMALL CIRCLE. Measured live: at sz=22 the content box is 18px after
+     the (now proportional) border, and "ES" needs 29px — 7 avatars spilled outside their circle on
+     one marketplace page. Scaling the border helped and was not enough, because the constraint is
+     the glyphs, not the ring. Below 26px show ONE initial; the circle stays legible instead of
+     leaking two letters into whatever sits beside it. */
+  const initials = String(workerName || '?').trim().split(/\s+/)
+    .map(function (w) { return w[0]; }).join('').toUpperCase();
+  const init = escHtml(initials.slice(0, sz >= 26 ? 2 : 1));
   const fs = sz >= 42 ? '0.95rem' : sz >= 32 ? '0.72rem' : sz >= 28 ? '0.65rem' : '0.55rem';
   const badge = (sz >= 32 && (topLevel || 0) > 0)
     ? '<span class="wh-avatar-lvl">' + (topLevel || 0) + '</span>'
     : '';
+  /* THE BORDER DID NOT SCALE WITH THE AVATAR (found 2026-08-04, V-edge-content batch walk). The
+     class sets `border:4px solid` with box-sizing:border-box, so a 22px avatar keeps only 14px of
+     content box while two initials need ~27px — measured live as scrollWidth 27 vs clientWidth 14 on
+     8 avatars at once. At 22px a 4px ring is 36% of the diameter; the font-size scale already steps
+     down for small sizes and the border never did. Proportional, floored at 1px so the tier colour
+     still reads at any size. */
+  const bw = Math.max(1, Math.min(4, Math.round(sz / 11)));
   return '<div class="wh-avatar wh-tier-' + tier.id + '" '
-    + 'style="width:' + sz + 'px;height:' + sz + 'px;font-size:' + fs + ';--tier-clr:' + tier.color + ';" '
+    + 'style="width:' + sz + 'px;height:' + sz + 'px;font-size:' + fs + ';border-width:' + bw + 'px;--tier-clr:' + tier.color + ';" '
     + 'title="' + escHtml(workerName) + ' - ' + tier.label + ' Lv.' + (topLevel || 0) + '">'
     + init + badge + '</div>';
 }
@@ -3001,7 +3013,7 @@ async function loadWorkerTiers(db, workerNames) {
   s.textContent = [
     /* Base avatar with border-box so all tiers render at the same outer size */
     /* regardless of border thickness/style. Metallic inset shadows give depth. */
-    '.wh-avatar{position:relative;border-radius:50%;flex-shrink:0;',
+    '.wh-avatar{position:relative;border-radius:50%;flex-shrink:0;overflow:hidden;',
     'box-sizing:border-box;',
     'background:linear-gradient(135deg,var(--wh-navy-mid, #1F2E45),var(--wh-navy-light, #2A3D58));',
     'display:flex;align-items:center;justify-content:center;',

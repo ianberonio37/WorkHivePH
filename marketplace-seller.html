@@ -47,14 +47,29 @@
       background: linear-gradient(145deg, rgba(42,61,88,0.6), rgba(31,46,69,0.8));
       border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem;
     }
-    .profile-top { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    /* A flex item will not shrink below its CONTENT width unless told to: min-width defaults to
+       auto, so a long unbroken business name pushed this header 15px past the viewport at a real
+       427px width (measured with a 123-char name in the live payload). `min-width:0` lets the text
+       column shrink and `overflow-wrap:anywhere` lets a long word break rather than shove the row.
+       Philippine business names run long ("... Manufacturing and Industrial Field Services
+       Corporation"), so this is ordinary content here, not a synthetic edge case. */
+    .profile-top { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .profile-top > * { min-width: 0; }
+    .profile-top h1, .profile-top h2, .profile-top .profile-name { overflow-wrap: anywhere; }
+    /* `white-space:nowrap` keeps the label on one line but does NOT stop a flex parent from
+       squeezing the box: at 427px "Browse" was crushed into 18px while needing 54, so the words ran
+       out of their own link. Refuse to shrink, and let the row wrap instead. */
+    .back-link, .profile-top .btn-primary { flex-shrink: 0; }
     .profile-avatar {
       width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
       background: linear-gradient(135deg, rgba(247,162,27,0.25), rgba(247,162,27,0.1));
       border: 2px solid rgba(247,162,27,0.35);
       display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; color: var(--wh-orange);
     }
-    .profile-info { flex: 1; min-width: 0; }
+    /* `flex: 1` means flex-basis 0, so once the row wraps this column collapsed to 33px and the
+       seller's name spilled out of a 33px box. A real basis lets it claim its own line at narrow
+       widths instead of being crushed between two non-shrinking links. */
+    .profile-info { flex: 1 1 14rem; min-width: 0; }
     .profile-name { font-size: 1.5rem; font-weight: 800; margin: 0; }  /* D1 U1: promoted div→h1 (page's semantic title); reset h1 default margin. Arc-W focal: ≥2.3× body (was 1.1rem/2.0×) */
     .profile-badges { display: flex; gap: 0.35rem; margin-top: 0.35rem; flex-wrap: wrap; }
     .badge-tier { padding: 0.2rem 0.5rem; border-radius: 999px; font-size: 0.62rem; font-weight: 700; font-family: 'Poppins', sans-serif; }
@@ -247,6 +262,16 @@
       <div class="pstat"><div class="pstat-num" id="ps-listings">-</div><div class="pstat-lbl">Listings</div></div>
       <div class="pstat"><div class="pstat-num" id="ps-sales">-</div><div class="pstat-lbl">Sales</div></div>
       <div class="pstat"><div class="pstat-num red" id="ps-pending-inq">-</div><div class="pstat-lbl">New Inquiries</div></div>
+    </div>
+    <!-- A DASH IS NOT A REASON. When a stat read fails the tiles fall back to an em-dash, which is
+         honest but silent: the seller cannot tell "nothing yet" from "we could not look". The toast
+         that fires alongside is transient and gone by the time they read the tiles, so the gap says
+         so itself, persistently, with a way to retry. -->
+    <div id="ps-gap-note" role="status" hidden
+         style="margin:0.35rem 0 0;font-size:0.75rem;color:var(--wh-danger,#d9534f);">
+      Couldn't load these numbers, so they're showing as &mdash; rather than as zero.
+      <button type="button" onclick="location.reload()"
+              style="background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">Retry</button>
     </div>
 
     <!-- CREDIT WALLET. A seller cannot publish without holding 10% of the price in credits, and being
@@ -585,7 +610,8 @@
     try {
       const { data } = await db.from('v_marketplace_sellers_truth').select('*').eq('worker_name', WORKER_NAME).maybeSingle();
       _seller = data;
-    } catch (_) { _seller = null; }
+      _readFailed.seller = false;
+    } catch (_) { _readFailed.seller = true; _seller = null; }
 
     const e = escHtml;
     if (badgesEl) {
@@ -640,6 +666,7 @@
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500); // limit-as-count-allow: list cap only; _listingsTotal head-count query below drives the badge
       if (error) throw error;
+      _readFailed.listings = false;
       _listings = data || [];
       // L2: accurate listing COUNT via head-only query (zero row egress) so the
       // badge/profile stat never undercounts if the list ever exceeds the cap.
@@ -648,7 +675,7 @@
         .select('id', { count: 'exact', head: true })
         .eq('seller_name', WORKER_NAME);
       _listingsTotal = Number(count || 0);
-    } catch (_) { _listings = []; if (typeof showToast === 'function') showToast("Couldn't load your listings . Check your connection and retry.", 'error'); } // dim-10: surface load failure, don't disguise as "no listings"
+    } catch (_) { _readFailed.listings = true; _listings = []; if (typeof showToast === 'function') showToast("Couldn't load your listings . Check your connection and retry.", 'error'); } // dim-10: surface load failure, don't disguise as "no listings"
     renderListings();
     updateBadges();
     updateProfileStats();
@@ -659,6 +686,14 @@
   // bug (2026-05-20).
   let _inquiriesTotal = 0;
   let _inquiriesPendingTotal = 0;
+  /* A FAILED READ RENDERED AS "0", NOT AS A GAP (found 2026-08-04, batch owed-walk `error` probe).
+     Under a 500 this header showed "0 Listings - 0 Sales - 0 New Inquiries": three confident,
+     false statements. A toast fired, but the toast is transient and the tiles are what a seller
+     reads. These start life as "-" in the markup for exactly this reason; the loaders just never
+     put them back. Same class as the empty-vs-error work elsewhere in this session, on the last
+     surface that still had it. */
+  const _readFailed = { listings: false, inquiries: false, seller: false };
+  const _statOrGap = (failed, value) => (failed ? '—' : String(value));
   let _listingsTotal  = 0;
 
   /* ── Load inquiries ─────────────────────────────────────────────────────── */
@@ -673,6 +708,7 @@
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(50); // limit-as-count-allow: list cap only; tile counts come from the head-count queries below
       if (error) throw error;
+      _readFailed.inquiries = false;
       _inquiries = data || [];
       // True counts for the badge (un-capped by the detail .limit()).
       try {
@@ -688,7 +724,7 @@
           .eq('status', 'pending');
         _inquiriesPendingTotal = Number(pendingCount || 0);
       } catch (_) { /* fall back to .length below */ /* empty-catch-allow: best-effort silent swallow */ }
-    } catch (_) { _inquiries = []; if (typeof showToast === 'function') showToast("Couldn't load inquiries . Check your connection and retry.", 'error'); } // dim-10: surface load failure, don't disguise as "no inquiries"
+    } catch (_) { _readFailed.inquiries = true; _inquiries = []; if (typeof showToast === 'function') showToast("Couldn't load inquiries . Check your connection and retry.", 'error'); } // dim-10: surface load failure, don't disguise as "no inquiries"
     renderInquiries();
     updateBadges();
   }
@@ -697,19 +733,21 @@
   function updateBadges() {
     const bl = document.getElementById('badge-listings');
     const bi = document.getElementById('badge-inquiries');
-    if (bl) bl.textContent = _listingsTotal || _listings.length;
+    if (bl) bl.textContent = _statOrGap(_readFailed.listings, _listingsTotal || _listings.length);
     // Pending inquiry badge uses the head-only count when available, else
     // falls back to the in-memory filter on the limited array.
-    if (bi) bi.textContent = _inquiriesPendingTotal || _inquiries.filter(i => i.status === 'pending').length;
+    if (bi) bi.textContent = _statOrGap(_readFailed.inquiries, _inquiriesPendingTotal || _inquiries.filter(i => i.status === 'pending').length);
   }
 
   function updateProfileStats() {
     const psl = document.getElementById('ps-listings');
     const pss = document.getElementById('ps-sales');
     const psi = document.getElementById('ps-pending-inq');
-    if (psl) psl.textContent = _listingsTotal || _listings.length;
-    if (pss) pss.textContent = _seller?.total_sales || 0;
-    if (psi) psi.textContent = _inquiries.filter(i => i.status === 'pending').length;
+    const gapNote = document.getElementById('ps-gap-note');
+    if (gapNote) gapNote.hidden = !(_readFailed.listings || _readFailed.inquiries || _readFailed.seller);
+    if (psl) psl.textContent = _statOrGap(_readFailed.listings, _listingsTotal || _listings.length);
+    if (pss) pss.textContent = _statOrGap(_readFailed.seller, _seller?.total_sales || 0);
+    if (psi) psi.textContent = _statOrGap(_readFailed.inquiries, _inquiries.filter(i => i.status === 'pending').length);
   }
 
   /* ── Credit wallet ──────────────────────────────────────────────────────────
@@ -1678,7 +1716,15 @@
       '<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.45rem;">' +
       '<input id="svc-topup-amt-' + e(provId) + '" type="number" min="1" step="50" placeholder="Amount ₱" aria-label="Top-up amount in pesos" style="width:8rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
       '<input id="svc-topup-ref-' + e(provId) + '" type="text" maxlength="20" placeholder="GCash reference no." aria-label="GCash reference number" style="width:12rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
-      '<button type="button" onclick="svcFileTopup(\'' + e(provId) + '\')" style="' + _svcBtnGhost + '">File top-up</button></div>' +
+      /* DOUBLE-TAP FILED IT TWICE (2026-08-04, U-recovery double_submit probe: two clicks
+         produced FOUR writes). This page has loaded button-lock.js all along and called it
+         nowhere - its own header says pages adopt it 'incrementally', and this one adopted
+         nothing. It matters most on the money-in door: a provider tapping twice on a slow
+         connection files the same GCash reference twice. The unique index refuses the
+         duplicate so no credits are double-minted, but they are then told 'That reference
+         number is already filed' about their OWN second tap, which reads as though someone
+         else claimed their payment. Lock the button while the write is in flight. */
+      '<button type="button" onclick="withButtonLock(this, function(){ return svcFileTopup(\'' + e(provId) + '\'); })" style="' + _svcBtnGhost + '">File top-up</button></div>' +
       /* UPLOAD THE SCREENSHOT (Ian: "they can just upload the receipt, for getting a credit").
          The provider already has the receipt in their gallery; reading 13 digits off it by eye is
          where a top-up becomes unmatchable later. Pasting the TEXT stays available too — some
@@ -2479,8 +2525,15 @@
     });
     document.getElementById('form-edit')?.addEventListener('submit', handleEditSubmit);
     wireEditImagePicker();
-    document.getElementById('btn-save-messenger')?.addEventListener('click', handleSaveMessenger);
-    document.getElementById('btn-save-certs')?.addEventListener('click', handleSaveCerts);
+    /* DOUBLE-TAP WROTE TWICE (2026-08-04, U-recovery double_submit probe, measured against a
+       one-click baseline: 3 writes for one press, 5 for two). button-lock.js has been loaded by
+       this page all along and called nowhere — its header says pages adopt it "incrementally" and
+       this one adopted nothing. These handlers are wired with addEventListener rather than an
+       onclick attribute, so the lock goes on at the wiring, which also means every future listener
+       added here inherits it. */
+    const _lockClick = fn => function (ev) { return withButtonLock(this, () => fn.call(this, ev)); };
+    document.getElementById('btn-save-messenger')?.addEventListener('click', _lockClick(handleSaveMessenger));
+    document.getElementById('btn-save-certs')?.addEventListener('click', _lockClick(handleSaveCerts));
 
     const urlParams = new URLSearchParams(window.location.search);
 
