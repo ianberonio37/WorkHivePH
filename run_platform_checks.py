@@ -5452,6 +5452,23 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # THE BANK'S OWN HONESTY GATE. The live-MCP registry read 343 green / 0 owed and Ian did not
+        # believe it; he was right. A green row carried no typed evidence, never expired, and a
+        # STRUCTURAL probe ("the page renders") was allowed to satisfy a BEHAVIOURAL oracle ("the
+        # number matches its source"). The credits-back chip settled the argument: the surface
+        # rendered perfectly while the one number a buyer needs had vanished from every listing.
+        # Under this gate the same bank reads 124 green / 240 owed. That is the real starting line.
+        "id":      "live_mcp_bank",
+        "script":  "tools/validate_live_mcp_bank.py",
+        "args":    [],
+        "label":   "Live-MCP bank honesty (every non-owed scenario carries typed evidence — kind/ref/"
+                   "asserts — and that evidence EXPIRES when a file it depends on changes; forward-only "
+                   "ratchet on green, with stale excluded so drift surfaces instead of being absorbed)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         # The READ-side sibling of client_write_grants, and it exists because three gates each asked
         # a neighbouring question and left this one uncovered. credit_treasury — one row holding the
         # platform's whole money position — was granted SELECT to anon AND authenticated under
