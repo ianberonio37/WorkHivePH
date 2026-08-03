@@ -2,7 +2,7 @@
 name: doc-MARKETPLACE_ITERATION_ROADMAP
 type: doc
 source: file:MARKETPLACE_ITERATION_ROADMAP.md
-source_sha: a959e2e47dd37e3c
+source_sha: e5d2aa543382b3ad
 last_verified: 2026-07-13
 supersedes: null
 ---

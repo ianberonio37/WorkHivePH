@@ -34,8 +34,8 @@ mechanism is a wish.
 | **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 18 | 160 | 10.1% |
 | **F2 · UFAI** (BB/BC/BD/BE) | 120 | 5 | 115 | 4.2% |
 | **F3 · UI** (BF/BG/BH) | 105 | 35 | 70 | 33.3% |
-| **F4 · UX** (BI/BJ/BK) | 110 | 0 | 110 | 0% |
-| **TOTAL** | **877** | **187** | **690** | **21.3%** |
+| **F4 · UX** (BI/BJ/BK) | 110 | 35 | 75 | 31.8% |
+| **TOTAL** | **877** | **222** | **655** | **25.3%** |
 
 **Rule 5 was tested and held.** The two fixes below touched `marketplace.html` and
 `platform-actions.html`, which expired **95 rows** on the spot and failed the ratchet with *"re-walk, do
@@ -122,13 +122,36 @@ NEXT: F3 BF-ui-layout CLOSED — 35/35, all seven surfaces at three VERIFIED wid
     · BA invariants: credits_conserved · cap_respected (breach attempted and refused)
     · AZ fail_null_field: found + fixed absent-vs-zero in whFmtPeso, swept the seller money renders
     · BE-ufai-I: bola · bfla · jwt_not_body · boundary_not_emptiness x2 (two real identities)
-  NOW (F4 UX is the lowest-green family at 0%, so the loop points there next):
-  1. BI-ux-comprehension what_is_this_number / reward_explained — the vanished-chip class, and the
-     one lens that would have caught it: a person must be able to say what the number means
-  2. BG-ui-state — the six component states per COMPONENT rather than per page
-  3. BC-ufai-F effect_in_db + money_matches_ledger — assert each surface's effect against psql
-  4. AZ fail_null_field on the REMAINING surfaces (only the seller surface is walked)
-  5. BH-ui-visual — WCAG *and* APCA, alpha-composited; focus visibility; reduced motion
+  DONE 2026-08-04 (BI walk) — BI-ux-comprehension CLOSED 35/35, all seven surfaces:
+    · 3 real defects, each one a thing the surface KNEW and did not say:
+      - the credits-back chip was on the browse card and absent from the DETAIL SHEET, so the
+        reward vanished at the exact moment the buyer decides. Both sites now render from ONE
+        helper, since two copies are what let them drift apart.
+      - credits never said they were not cash. On a PHP68,980.48 listing "PHP6,898.05 credits
+        back" reads like money coming back, and it is spend-only.
+      - the seller's refusal named a remedy the reader could not take: "Top up by PHP200 to clear
+        this" was a plain div, and the only top-up control lives in a tab the sentence never
+        mentions. The panel's own comment had already diagnosed this ("no explanation AND no
+        route") and the previous pass fixed only the explanation.
+      - and on the profile, the TIER was the one badge that did not explain itself, while its
+        neighbours all did. Now carries the real thresholds (silver 11, gold 51) and the fact
+        that WorkHive sets it, taken from the enforcing trigger rather than invented.
+    · VACUITY IS RECORDED, NOT COUNTED. public-feed renders ZERO numbers, so
+      what_is_this_number has no subject there and says so; the same for refusals on read-only
+      surfaces. A green over an empty denominator is the false pass this bank exists to stop.
+    · one refusal was exercised WITHOUT a money write: the admin's optimistic-lock message needs a
+      second press, and the first would mint real credits against a real GCash filing. The PATCH
+      was intercepted and never forwarded, and psql confirmed afterwards that nothing moved.
+
+  NOW (F1 architecture is now the lowest-green family at 10.1%):
+  1. BG-ui-state — the six component states per COMPONENT rather than per page
+  2. BC-ufai-F effect_in_db + money_matches_ledger — assert each surface's effect against psql
+  3. AZ fail_null_field on the REMAINING surfaces (only the seller surface is walked)
+  4. BH-ui-visual — WCAG *and* APCA, alpha-composited; focus visibility; reduced motion
+  5. BJ-ux-journey / BK-ux-recovery — including the two-sided walk, and the open question this
+     walk raised but did not settle: minting credits is irreversible and does not confirm. The
+     button names its effect ("Verify: mint credits") and the queue is worked at speed, so this
+     is a real design fork rather than a defect — it belongs to BK-recovery.
 ```
 
 ---

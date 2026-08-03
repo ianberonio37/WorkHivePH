@@ -1,10 +1,10 @@
 {
-  "scored_at": "2026-08-03T20:42:55+00:00",
+  "scored_at": "2026-08-03T23:18:40+00:00",
   "lenses": {
     "X": {
       "title": "Injection & XSS",
-      "pct": 75.0,
-      "passed": 3,
+      "pct": 100.0,
+      "passed": 4,
       "total": 4,
       "floor": 100,
       "cells": [
@@ -12,7 +12,7 @@
           "key": "xss_eschtml",
           "validator": "validate_xss",
           "owasp": "A03",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "escHtml coverage on render paths",
           "covered": true
         },
@@ -315,7 +315,7 @@
     },
     "A03": {
       "scanners": 6,
-      "clean": false,
+      "clean": true,
       "covered": true
     },
     "A04": {
@@ -354,12 +354,10 @@
       "covered": true
     }
   },
-  "floors_ok": false,
-  "regressions": [
-    "X: 75.0 < baseline 100.0"
-  ],
+  "floors_ok": true,
+  "regressions": [],
   "infra_errors": [],
   "baseline_error": false,
   "baseline_missing": false,
-  "exit_code": 1
+  "exit_code": 0
 }

@@ -507,7 +507,21 @@
       const ratingAvg   = Number(_seller?.rating_avg || 0);
       const isTopRated  = ratingAvg >= 4.5 && ratingCount >= 5;
       const isQuickReply = _avgResponseHours != null && _avgResponseHours < 4 && _replyCount >= 5;
-      const parts = [`<span class="badge-tier ${e(tier)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>`];
+      /* SAY WHAT THE TIER MEANS. Every other badge on this row explains itself -- the community one
+         carries "Earned by helping teammates in the WorkHive community forum" -- while the tier, the
+         FIRST badge a buyer reads and the one that sounds most like a ranking, said only "Bronze".
+         A buyer cannot tell from that whether bronze is good, bad, or the floor everyone starts on,
+         and the page never mentions that a ladder exists at all. The wording below is taken from the
+         real thresholds (tierOf: silver at 11 sales, gold at 51) and from the trigger that enforces
+         them ("KYB / certification / tier / rating / sales are set by WorkHive, not self-assigned"),
+         so it is a description of the system rather than a claim invented for the badge.
+         Found walking BI-ux-comprehension 2026-08-04. */
+      const _tierWhy = tier === 'gold'
+        ? 'Gold: 51 or more completed sales. Set by WorkHive from completed sales, not self-assigned.'
+        : tier === 'silver'
+        ? 'Silver: 11 or more completed sales. Gold at 51. Set by WorkHive from completed sales, not self-assigned.'
+        : 'Bronze: where every seller starts. Silver at 11 completed sales, Gold at 51. Set by WorkHive from completed sales, not self-assigned.';
+      const parts = [`<span class="badge-tier ${e(tier)}" title="${e(_tierWhy)}" aria-label="${e(_tierWhy)}">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>`];
       if (_seller?.kyb_verified) {
         parts.push(`<span class="badge-verified"><span class="ic ic-check" aria-hidden="true"></span>ID Verified</span>`);
       }
