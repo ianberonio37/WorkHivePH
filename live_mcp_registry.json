@@ -3692,8 +3692,15 @@
    "persona_note": "takes the job and the direct peso payment, never delivers. The platform holds no money and CANNOT claw it back - the completion window is the only lever",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the scam_provider: marking a job done does NOT settle it: the buyer gets a DATED deadline and an objection control that actually reaches `disputed` - the platform holds no money and cannot claw a peso payment back, so detection before settle is the only lever",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "the buyer is told a dated deadline, that silence settles it, and given a working objection",
+     "measured": "CONTAINMENT (probe, live DB): marking a job done does NOT settle it - deadline=2026-08-06, objection={ok:true}, resulting status=disputed. LEGIBILITY ON SCREEN, the half that matters most here because the platform holds no money and a peso payment can never be clawed back: injected the completed-with-window state into the live buyer pane and read it. The row renders 'Marked done by the provider. Confirm payment, or report a problem by Aug 7 (3 days left). After that it settles automatically.' with a working 'Report a problem' control alongside 'Confirm payment & release'. It states the deadline, the days remaining, AND that silence settles the job - which is the whole point, since before the window existed silence meant nothing happened. One apparent discrepancy chased to ground rather than waved off: I injected Aug 6 and the screen said Aug 7. Not a drift bug - svcWindowNotice reads r.objection_deadline from the view (server-computed from the same knob the sweep and the push read, so the screen cannot quote a date the sweep disagrees with) and renders it with toLocaleDateString('en-PH'). Aug 6 17:02 UTC is Aug 7 01:02 in Manila, so Aug 7 is the correct local date for the audience this is written for.",
+     "walked": "2026-08-04 · live MCP (Playwright) payload-mutation lane + tools/probe_adversarial_personas.py"
+    }
+   ]
   },
   {
    "id": "LM-S-adversarial-seller-scam_provider-edge",
@@ -3836,8 +3843,15 @@
    "persona_note": "takes the job and the direct peso payment, never delivers. The platform holds no money and CANNOT claw it back - the completion window is the only lever",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the scam_provider: marking a job done does NOT settle it: the buyer gets a DATED deadline and an objection control that actually reaches `disputed` - the platform holds no money and cannot claw a peso payment back, so detection before settle is the only lever",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "the buyer is told a dated deadline, that silence settles it, and given a working objection",
+     "measured": "CONTAINMENT (probe, live DB): marking a job done does NOT settle it - deadline=2026-08-06, objection={ok:true}, resulting status=disputed. LEGIBILITY ON SCREEN, the half that matters most here because the platform holds no money and a peso payment can never be clawed back: injected the completed-with-window state into the live buyer pane and read it. The row renders 'Marked done by the provider. Confirm payment, or report a problem by Aug 7 (3 days left). After that it settles automatically.' with a working 'Report a problem' control alongside 'Confirm payment & release'. It states the deadline, the days remaining, AND that silence settles the job - which is the whole point, since before the window existed silence meant nothing happened. One apparent discrepancy chased to ground rather than waved off: I injected Aug 6 and the screen said Aug 7. Not a drift bug - svcWindowNotice reads r.objection_deadline from the view (server-computed from the same knob the sweep and the push read, so the screen cannot quote a date the sweep disagrees with) and renders it with toLocaleDateString('en-PH'). Aug 6 17:02 UTC is Aug 7 01:02 in Manila, so Aug 7 is the correct local date for the audience this is written for.",
+     "walked": "2026-08-04 · live MCP (Playwright) payload-mutation lane + tools/probe_adversarial_personas.py"
+    }
+   ]
   },
   {
    "id": "LM-S-adversarial-market_svc-scam_provider-edge",
