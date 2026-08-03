@@ -794,8 +794,22 @@
    "persona_note": "platform moderator",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "pass",
+     "title": "every credit number on the founder console matches its source",
+     "measured": "shown supply 10,000,000 = v_credit_posture.authorised_credits; circulation 0 = issued_credits; available 10,000,000 = authorised - issued; '1 credit = PHP1' matches pesos_per_credit = 1."
+    },
+    {
+     "severity": "defect-fixed",
+     "title": "three KPI tiles rendered a raw auth error where the explanation belongs",
+     "measured": "live: '- ACTIVE TODAY / JWT issued at future', same for AI SPEND TODAY and ACTIVE HIVES. Five 401s in the console; the reads themselves were fine when retried, so it is a startup race (clock skew puts the JWT's iat in the future), not a permission problem.",
+     "why_it_matters": "The dash was RIGHT - the Calm Dashboard contract says show the gap, never fiction. What sat beside it was internal plumbing: 'JWT issued at future' tells a founder nothing and reads as a broken tile. And it was general - ANY read failure would have leaked its raw message.",
+     "fix": "statGapReason() maps the failure shape to something a person can act on (sign-in still settling / no connection / not permitted / unavailable), keeps the value as an honest '-', and preserves the raw text in a title for debugging.",
+     "verified": "the tiles SUCCEEDED on the verification load, so the error path did not run on its own - exercised directly instead: all four shapes translate, the sub reads 'sign-in still settling - reload', the title still holds 'JWT issued at future', and the value stays '-'."
+    }
+   ]
   },
   {
    "id": "LM-E-money-founder-admin-edge",
@@ -1604,8 +1618,16 @@
    "persona_note": "signed in, listing and answering",
    "state": "degraded",
    "oracle": "offline or failing, the write is REFUSED BEFORE it fires and the person is told nothing was sent",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "pass",
+     "title": "the offline guard refuses BEFORE the write and says nothing was sent",
+     "measured": "navigator.onLine forced false, network attempts counted: writeAttempts = 0, and the toast read 'You are offline. Claiming your starter credits needs a connection - nothing was sent, so nothing is half-done.'",
+     "why_this_oracle": "Counting ATTEMPTS rather than watching for a banner is what makes this non-vacuous: a page can show an offline banner and still fire the write. A starter grant is once per person ever, so a silent half-attempt is the worst possible outcome - the person cannot tell whether they have used their one claim.",
+     "note": "verifies the guard added earlier in this same session on claimStarter"
+    }
+   ]
   },
   {
    "id": "LM-J-degraded-market_svc-buyer-error",

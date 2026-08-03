@@ -1472,12 +1472,12 @@
       }
 
       // DAU chip
-      if (dau && dau._error) setStat('stat-dau', '-', '', dau._error);
+      if (dau && dau._error) setStatGap('stat-dau', dau._error);
       else setStat('stat-dau', String(dau && dau.count || 0), 'good',
         (dau && dau.n_events || 0) + ' page_view events');
 
       // AI cost chip
-      if (aicost && aicost._error) setStat('stat-aicost', '-', '', aicost._error);
+      if (aicost && aicost._error) setStatGap('stat-aicost', aicost._error);
       else {
         const usd = aicost && aicost.total_usd || 0;
         const tt = HEALTH_THRESHOLDS.ai_cost_daily_usd;
@@ -1487,8 +1487,28 @@
       }
 
       // Hives chip
-      if (hives && hives._error) setStat('stat-hives', '-', '', hives._error);
+      if (hives && hives._error) setStatGap('stat-hives', hives._error);
       else setStat('stat-hives', String(hives && hives.count || 0), 'good', 'last 30d activity');
+    }
+
+    /* A GAP IS HONEST; A RAW ERROR STRING IS NOT AN EXPLANATION. Three tiles rendered their failure
+       straight into the sub-label, so a founder read "- ACTIVE TODAY / JWT issued at future" - a
+       clock-skew auth message sitting where the provenance line belongs. The dash was right (the
+       Calm Dashboard contract says show the gap, never fiction); the sentence beside it was internal
+       plumbing. This keeps the gap, says something a person can act on, and preserves the raw text in
+       a title for whoever is actually debugging. Found on a live founder-console walk. */
+    function statGapReason(raw) {
+      const t = String(raw || '');
+      if (/JWT|issued at future|expired|401|Unauthorized/i.test(t)) return 'sign-in still settling - reload';
+      if (/Failed to fetch|NetworkError|ERR_|timeout/i.test(t))     return 'no connection to the API';
+      if (/permission denied|42501|row-level security/i.test(t))    return 'not permitted for this account';
+      return 'unavailable right now';
+    }
+
+    function setStatGap(id, raw) {
+      setStat(id, '-', '', statGapReason(raw));
+      const subEl = document.getElementById(id + '-sub');
+      if (subEl) subEl.title = String(raw || '');   // the detail stays reachable, just not shouted
     }
 
     function setStat(id, val, cls, sub) {
