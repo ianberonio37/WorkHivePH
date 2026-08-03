@@ -1,5 +1,5 @@
 {
-  "ran": "2026-08-03T12:35:16.342Z",
+  "ran": "2026-08-03T15:27:36.151Z",
   "role": "supervisor",
   "seeder": "http://127.0.0.1:5000",
   "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
@@ -250,7 +250,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=4989 title=\"Alert Hub | WorkHive\" loadErrors=0"
+          "bodyLen=4991 title=\"Alert Hub | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -370,7 +370,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2351 title=\"Achievements: WorkHive\" loadErrors=0"
+          "bodyLen=2354 title=\"Achievements: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1048,27 +1048,16 @@
       "page": "shift-brain.html",
       "ok": true,
       "P1": {
-        "score": 50,
+        "score": 100,
         "notes": [
-          "bodyLen=3239 title=\"Shift Brain | WorkHive\" loadErrors=1"
+          "bodyLen=3383 title=\"Shift Brain | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
-        "score": 25,
-        "consoleErrors": [
-          {
-            "t": "error",
-            "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
-          }
-        ],
+        "score": 100,
+        "consoleErrors": [],
         "consoleWarns": [],
-        "badNet": [
-          {
-            "url": "http://127.0.0.1:54321/functions/v1/analytics-orchestrator",
-            "status": 429,
-            "method": "POST"
-          }
-        ]
+        "badNet": []
       },
       "P4": {
         "score": 10,
@@ -1093,18 +1082,7 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": [
-        {
-          "phase": "P1",
-          "sev": 3,
-          "detail": "console error on load: Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
-        },
-        {
-          "phase": "P2",
-          "sev": 2,
-          "detail": "POST 429 http://127.0.0.1:54321/functions/v1/analytics-orchestrator"
-        }
-      ]
+      "findings": []
     },
     {
       "page": "audit-log.html",
@@ -1112,7 +1090,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3156 title=\"Audit Log | WorkHive\" loadErrors=0"
+          "bodyLen=3164 title=\"Audit Log | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1192,7 +1170,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=14674 title=\"WorkHive Founder Console\" loadErrors=0"
+          "bodyLen=14680 title=\"WorkHive Founder Console\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1312,7 +1290,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2421 title=\"Platform Actions · WorkHive\" loadErrors=0"
+          "bodyLen=2422 title=\"Platform Actions · WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1392,7 +1370,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=570 title=\"WorkHive Gateway — Status\" loadErrors=0"
+          "bodyLen=1246 title=\"WorkHive Gateway — Status\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1429,14 +1407,14 @@
   ],
   "summary": {
     "pages": 35,
-    "P1": 99,
-    "P2": 98,
+    "P1": 100,
+    "P2": 100,
     "P4": 36,
     "P8": 75,
     "P9": 90,
     "P12": 100,
-    "total_findings": 2,
-    "high_sev": 1,
+    "total_findings": 0,
+    "high_sev": 0,
     "unhandled_pages": [],
     "a11y_pages": []
   }

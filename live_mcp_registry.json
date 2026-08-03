@@ -2877,8 +2877,18 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "error",
       "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "defect-fixed",
+          "title": "a FAILED services read told the buyer they had no jobs",
+          "measured": "Forced the services read to reject and re-ran loadClientServices. The pane rendered the FIRST-RUN INVITATION -- 'No requests yet. Hail your first service below - a nearby provider accepts and you track them here.' saysError false, showsFirstRunInvite true. The error branch (\"Couldn't load services\" + Retry) existed at the bottom of the function and was never reached.",
+          "why_it_matters": "supabase-js does NOT throw on a query error; it resolves with { data: null, error }. So `catRes.data || []` and `mineRes.data || []` turned every failure into an empty array and the renderer painted the empty state. Telling someone they have no jobs when we simply could not look is worse than saying nothing: a buyer with a job in flight is told it does not exist, and the invitation actively encourages them to hail a SECOND provider for work already under way.",
+          "fix": "Check catRes.error / mineRes.error explicitly and throw, so the existing catch renders the honest state. Same defect the listings grid already fixed as P7 on 2026-07-24 ('load-failure rendered the first-run be-the-first-to-sell CTA'); the services pane was never swept for it.",
+          "teeth": "With the read forced to fail: \"Couldn't load services / TypeError: probe: forced network failure / Retry\" -- saysError true, offersRetry true, stillInvites FALSE. With the read restored: the pane renders the buyer's 3 real requests, no error. An empty result and a failed read are now different facts on this surface."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-Q-payment-rails-market_svc-provider-populated",

@@ -3390,6 +3390,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         _authUid ? db.from('v_service_request_truth').select('*').order('created_at', { ascending: false }).order('id', { ascending: false }).limit(20)  // MR4 tiebreaker: created_at alone is not a total order
                  : Promise.resolve({ data: [] })
       ]);
+      /* A FAILED READ IS NOT AN EMPTY ONE. supabase-js does NOT throw on a query error -- it
+         resolves with { data: null, error }. So `catRes.data || []` turned every failure into an
+         empty array, renderClientServices painted the FIRST-RUN INVITATION ("No requests yet. Hail
+         your first service below"), and the catch below never fired. Proven live by forcing the
+         services read to reject: saysError false, showsFirstRunInvite true.
+         Telling someone they have no jobs when we simply could not look is worse than saying
+         nothing -- a buyer with a job in flight is told it does not exist. Surface the error
+         explicitly so the existing branch renders "Couldn't load services" with its Retry button.
+         Same defect the listings grid already fixed (P7, 2026-07-24); this pane still had it. */
+      if (catRes.error)  throw catRes.error;
+      if (mineRes.error) throw mineRes.error;
       const cats = catRes.data || [];
       const mine = (mineRes.data || []).filter(r => r.client_auth_uid === _authUid);
       const badge = document.getElementById('count-services');

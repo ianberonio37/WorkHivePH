@@ -1,7 +1,7 @@
 {
- "generated": "2026-08-03T12:48:45+00:00",
- "coverage_pct": 97.2,
- "page_pct": 96.6,
+ "generated": "2026-08-03T15:32:10+00:00",
+ "coverage_pct": 100.0,
+ "page_pct": 100.0,
  "ai_surface_pct": 100.0,
  "surfaces": {
   "pages": 90,
@@ -42,9 +42,9 @@
  ],
  "cells_total": 2154,
  "state_counts": {
-  "✅": 1210,
+  "✅": 1245,
   "🟡": 0,
-  "⬜": 35,
+  "⬜": 0,
   "n/a": 909
  },
  "gate_floor": [
@@ -95,23 +95,10 @@
   "validate_supervisor_approval_backstop",
   "validate_sw_shell_membership"
  ],
- "gates_failed": [
-  "validate_error_capture"
- ],
- "regressed_cells": [
-  "validate_error_capture"
- ],
- "next_target": {
-  "surface": "agentic-rag-observability",
-  "kind": "page",
-  "dim": "D21F",
-  "dim_label": "L-frontend observability (whLogError error-capture backbone; no show-but-don't-log) [backend pages only]",
-  "surface_pct": 93.8,
-  "open_dims": [
-   "D21F"
-  ]
- },
- "drive_plan": "Playwright-walk `agentic-rag-observability.html` for D21F (L-frontend observability (whLogError error-capture backbone; no show-but-don't-log) [backend pages only]): operate the affordance live, assert at the DATA layer via mcp__postgres__query, flywheel any miss, then tag+lock a validator `# DEEPWALK-CELL: agentic-rag-observability D21F`.",
+ "gates_failed": [],
+ "regressed_cells": [],
+ "next_target": null,
+ "drive_plan": "grid DRY — nothing to drive",
  "orphan_oracles": [
   "ai_eval_gate",
   "audit_ai_prompt_standards",
@@ -382,40 +369,25 @@
  "surface_set_hash": "9f26fa121503",
  "oracle_set_hash": "58ef82d9dc70",
  "live_bonus": {
-  "live_cells": 26,
+  "live_cells": 11,
   "live_cell_ids": [
-   "H1/I",
-   "H1/U",
-   "H11/F",
    "H12/F",
-   "H13/F",
-   "H14/F",
    "H15/F",
-   "H2/A",
-   "H2/F",
-   "H2/I",
    "H2/U",
    "H3/A",
    "H3/F",
    "H3/U",
-   "H4/A",
    "H4/U",
-   "H5/A",
    "H5/F",
-   "H5/I",
    "H5/U",
-   "H6/A",
-   "H7/F",
-   "H7/U",
-   "H8/A",
-   "H8/I",
-   "H9/F"
+   "H8/F",
+   "H8/U"
   ],
   "breaches": 0,
   "fresh": true,
   "age_days": 0.1,
   "proven_ever": 32,
-  "this_run": 26
+  "this_run": 11
  },
  "cells": {
   "achievements|D1": {
@@ -499,10 +471,9 @@
    "locked": true
   },
   "achievements|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "achievements|D12P": {
    "state": "n/a"
@@ -595,10 +566,9 @@
    "locked": true
   },
   "agentic-rag-observability|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "agentic-rag-observability|D12P": {
    "state": "n/a"
@@ -691,10 +661,9 @@
    "locked": true
   },
   "ai-quality|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "ai-quality|D12P": {
    "state": "n/a"
@@ -789,10 +758,9 @@
    "locked": true
   },
   "alert-hub|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "alert-hub|D12P": {
    "state": "n/a"
@@ -887,10 +855,9 @@
    "locked": true
   },
   "analytics-report|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "analytics-report|D12P": {
    "state": "✅",
@@ -989,10 +956,9 @@
    "locked": true
   },
   "analytics|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "analytics|D12P": {
    "state": "✅",
@@ -1186,10 +1152,9 @@
    "locked": true
   },
   "asset-hub|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "asset-hub|D12P": {
    "state": "✅",
@@ -1292,10 +1257,9 @@
    "locked": true
   },
   "assistant|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "assistant|D12P": {
    "state": "✅",
@@ -1396,10 +1360,9 @@
    "locked": true
   },
   "audit-log|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "audit-log|D12P": {
    "state": "n/a"
@@ -1494,10 +1457,9 @@
    "locked": true
   },
   "community|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "community|D12P": {
    "state": "n/a"
@@ -1592,10 +1554,9 @@
    "locked": true
   },
   "dayplanner|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "dayplanner|D12P": {
    "state": "n/a"
@@ -1688,10 +1649,9 @@
    "locked": true
   },
   "design-system|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "design-system|D12P": {
    "state": "n/a"
@@ -1879,10 +1839,9 @@
    "locked": true
   },
   "founder-console|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "founder-console|D12P": {
    "state": "n/a"
@@ -1977,10 +1936,9 @@
    "locked": true
   },
   "hive|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "hive|D12P": {
    "state": "✅",
@@ -2083,10 +2041,9 @@
    "locked": true
   },
   "index|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "index|D12P": {
    "state": "n/a"
@@ -2181,10 +2138,9 @@
    "locked": true
   },
   "integrations|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "integrations|D12P": {
    "state": "n/a"
@@ -2281,10 +2237,9 @@
    "locked": true
   },
   "inventory|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "inventory|D12P": {
    "state": "n/a"
@@ -2474,10 +2429,9 @@
    "locked": true
   },
   "logbook|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "logbook|D12P": {
    "state": "✅",
@@ -2580,10 +2534,9 @@
    "locked": true
   },
   "marketplace-admin|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "marketplace-admin|D12P": {
    "state": "n/a"
@@ -2678,10 +2631,9 @@
    "locked": true
   },
   "marketplace-seller-profile|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "marketplace-seller-profile|D12P": {
    "state": "n/a"
@@ -2776,10 +2728,9 @@
    "locked": true
   },
   "marketplace-seller|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "marketplace-seller|D12P": {
    "state": "n/a"
@@ -2874,10 +2825,9 @@
    "locked": true
   },
   "marketplace|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "marketplace|D12P": {
    "state": "✅",
@@ -3073,10 +3023,9 @@
    "locked": true
   },
   "ph-intelligence|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "ph-intelligence|D12P": {
    "state": "n/a"
@@ -3171,10 +3120,9 @@
    "locked": true
   },
   "plant-connections|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "plant-connections|D12P": {
    "state": "n/a"
@@ -3269,10 +3217,9 @@
    "locked": true
   },
   "platform-actions|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "platform-actions|D12P": {
    "state": "n/a"
@@ -3367,10 +3314,9 @@
    "locked": true
   },
   "pm-scheduler|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "pm-scheduler|D12P": {
    "state": "n/a"
@@ -3467,10 +3413,9 @@
    "locked": true
   },
   "project-manager|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "project-manager|D12P": {
    "state": "✅",
@@ -3571,10 +3516,9 @@
    "locked": true
   },
   "project-report|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "project-report|D12P": {
    "state": "✅",
@@ -3861,10 +3805,9 @@
    "locked": true
   },
   "report-sender|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "report-sender|D12P": {
    "state": "✅",
@@ -3965,10 +3908,9 @@
    "locked": true
   },
   "resume|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "resume|D12P": {
    "state": "n/a"
@@ -4063,10 +4005,9 @@
    "locked": true
   },
   "shift-brain|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "shift-brain|D12P": {
    "state": "✅",
@@ -4169,10 +4110,9 @@
    "locked": true
   },
   "skillmatrix|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "skillmatrix|D12P": {
    "state": "n/a"
@@ -4265,10 +4205,9 @@
    "locked": true
   },
   "status|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "status|D12P": {
    "state": "n/a"
@@ -4454,10 +4393,9 @@
    "locked": true
   },
   "validator-catalog|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "validator-catalog|D12P": {
    "state": "n/a"
@@ -4552,10 +4490,9 @@
    "locked": true
   },
   "voice-journal|D21F": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_error_capture",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "voice-journal|D12P": {
    "state": "✅",
@@ -9412,7 +9349,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": 0.0,
+ "delta_vs_last": 2.8,
  "dry_streak": 0,
  "dry": false
 }
