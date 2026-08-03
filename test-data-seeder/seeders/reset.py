@@ -30,6 +30,12 @@ RESET_TABLES = [
     # 2026-08-03 WorkHive Credits (migs 20260803000005-21) - children before parents.
     # credit_reservations FKs marketplace_listings, so it must clear BEFORE its parent below.
     "credit_reservations",            # 20260803000007 - one HELD row per live listing
+    # 20260803000038 - forwarded GCash receipts. Clears BEFORE service_credit_topups: match_gcash_receipt()
+    # links a receipt to the filing it verified, so wiping the filings first would strand the receipts
+    # pointing at rows that no longer exist. Left out of the original mig-38 commit, which is how a reset
+    # would have carried yesterday receipts into a freshly reset database and auto-verified a top-up
+    # that happened to reuse a reference.
+    "gcash_inbound_receipts",
     "service_credit_topups",
     "service_credit_ledger",
     "service_providers",
