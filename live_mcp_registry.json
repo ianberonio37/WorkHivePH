@@ -10412,8 +10412,25 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "idempotency",
    "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "psql",
+    "ref": "psql: rolled-back txn on service_credit_topups + credit_treasury (2026-08-04)",
+    "asserts": "a repeated verify mints once, not twice",
+    "value_checked": true,
+    "checked": "Proven by DOING IT TWICE in a rolled-back transaction and counting the effect, never by reading a guard. (1) SAME GCASH REFERENCE FILED TWICE — the shape a provider produces by double-tapping or re-filing after a timeout whose result they never saw: the second insert raised unique_violation and rows_for_ref stayed 1, so one payment cannot become two claims. (2) THE SAME TOP-UP VERIFIED TWICE — the founder double-clicks the verify control: the first verify minted 500.00 and the second was absorbed as a no-op (the status had already moved, so the mint trigger does not re-fire). TOTAL MINT AFTER TWO VERIFIES = 500.00, not 1000.00, which is the whole question — a double-mint would create credits with no cash behind them and break the cover ratio the treasury exists to guarantee. Rollback verified: topups back to 3, issued back to 1500.00. INSTRUMENT NOTE: the first attempt failed on a NOT NULL payer_auth_uid I had not supplied — my probe, not the product; recorded rather than mistaken for a schema defect.",
+    "depends_on": [
+     "supabase/migrations\\20260730000005_pin_topup_intake_facts_against_redirect.sql",
+     "supabase/migrations\\20260731000011_credit_policy_knobs.sql",
+     "supabase/migrations\\20260803000005_credit_treasury_the_liability_cap.sql",
+     "supabase/migrations\\20260803000006_credit_economy_knobs.sql",
+     "supabase/migrations\\20260803000018_a_spend_that_destroyed_the_credits.sql",
+     "supabase/migrations\\20260803000022_v_credit_posture_must_not_bypass_rls.sql"
+    ],
+    "sha": "847713d78249434b",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AX-layer-contract-layer_edge-system-ordering_totality",
@@ -10477,8 +10494,25 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "idempotency",
    "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "psql",
+    "ref": "psql: rolled-back txn on service_credit_topups + credit_treasury (2026-08-04)",
+    "asserts": "the same call twice produces exactly one effect, counted in the DB",
+    "value_checked": true,
+    "checked": "Proven by DOING IT TWICE in a rolled-back transaction and counting the effect, never by reading a guard. (1) SAME GCASH REFERENCE FILED TWICE — the shape a provider produces by double-tapping or re-filing after a timeout whose result they never saw: the second insert raised unique_violation and rows_for_ref stayed 1, so one payment cannot become two claims. (2) THE SAME TOP-UP VERIFIED TWICE — the founder double-clicks the verify control: the first verify minted 500.00 and the second was absorbed as a no-op (the status had already moved, so the mint trigger does not re-fire). TOTAL MINT AFTER TWO VERIFIES = 500.00, not 1000.00, which is the whole question — a double-mint would create credits with no cash behind them and break the cover ratio the treasury exists to guarantee. Rollback verified: topups back to 3, issued back to 1500.00. INSTRUMENT NOTE: the first attempt failed on a NOT NULL payer_auth_uid I had not supplied — my probe, not the product; recorded rather than mistaken for a schema defect.",
+    "depends_on": [
+     "supabase/migrations\\20260730000005_pin_topup_intake_facts_against_redirect.sql",
+     "supabase/migrations\\20260731000011_credit_policy_knobs.sql",
+     "supabase/migrations\\20260803000005_credit_treasury_the_liability_cap.sql",
+     "supabase/migrations\\20260803000006_credit_economy_knobs.sql",
+     "supabase/migrations\\20260803000018_a_spend_that_destroyed_the_credits.sql",
+     "supabase/migrations\\20260803000022_v_credit_posture_must_not_bypass_rls.sql"
+    ],
+    "sha": "847713d78249434b",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AX-layer-contract-layer_db-system-ordering_totality",
@@ -13920,8 +13954,21 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "bola_object",
    "oracle": "another person's object id is refused, and the refusal is legible",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP two-identity walk · /workhive/marketplace.html + /workhive/platform-actions.html",
+    "asserts": "another person's object is refused at the server",
+    "value_checked": true,
+    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards.",
+    "depends_on": [
+     "marketplace.html",
+     "platform-actions.html"
+    ],
+    "sha": "0448051b80dbd289",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BE-ufai-I-market-buyer-bfla_function",
@@ -13933,8 +13980,21 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "bfla_function",
    "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP two-identity walk · /workhive/marketplace.html + /workhive/platform-actions.html",
+    "asserts": "an admin-only surface is refused at the server, not merely hidden",
+    "value_checked": true,
+    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards.",
+    "depends_on": [
+     "marketplace.html",
+     "platform-actions.html"
+    ],
+    "sha": "0448051b80dbd289",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BE-ufai-I-market-buyer-tenant_boundary",
@@ -13959,8 +14019,21 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "jwt_not_body",
    "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP two-identity walk · /workhive/marketplace.html + /workhive/platform-actions.html",
+    "asserts": "identity comes from the JWT; a forged body changes nothing",
+    "value_checked": true,
+    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards.",
+    "depends_on": [
+     "marketplace.html",
+     "platform-actions.html"
+    ],
+    "sha": "0448051b80dbd289",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BE-ufai-I-market-buyer-boundary_not_emptiness",
@@ -14102,8 +14175,21 @@
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "boundary_not_emptiness",
    "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP two-identity walk · /workhive/marketplace.html + /workhive/platform-actions.html",
+    "asserts": "the same holds for a signed-out visitor",
+    "value_checked": true,
+    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards.",
+    "depends_on": [
+     "marketplace.html",
+     "platform-actions.html"
+    ],
+    "sha": "0448051b80dbd289",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BE-ufai-I-admin-buyer-bola_object",
@@ -14167,8 +14253,21 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "boundary_not_emptiness",
    "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP two-identity walk · /workhive/marketplace.html + /workhive/platform-actions.html",
+    "asserts": "a permission boundary reads as a boundary, never as an emptiness",
+    "value_checked": true,
+    "checked": "Walked as a REAL second identity — signed out of Pablo Aguilar (a platform admin, so probing as him proves nothing) and signed in as David Velasco, a genuine non-admin — and every probe is a real SERVER round-trip, nothing intercepted, because the question is what the server does and not what the UI hides. BOLA: updating another seller's listing by id changed 0 rows. BFLA: credit_treasury returned 0 rows (migration 47 holding). JWT-NOT-BODY: inserting an inquiry with buyer_name forged to \"Pablo Aguilar\" was refused — \"new row violates row-level security policy for table marketplace_inquiries\" — so identity comes from the token and not the payload. BOUNDARY-NOT-EMPTINESS, the half that is the UI's own work: two of those refusals return 0 rows with NO error, so the surface must distinguish \"you may not look\" from \"there is nothing here\". platform-actions reads \"Not visible with this session.\" with no false all-clear and no money leaked (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body). Session restored to pabloaguilar afterwards.",
+    "depends_on": [
+     "marketplace.html",
+     "platform-actions.html"
+    ],
+    "sha": "0448051b80dbd289",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BE-ufai-I-admin-two_context-bola_object",

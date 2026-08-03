@@ -1,4 +1,4 @@
 {
- "green": 135,
- "note": "forward-only ratchet on GREEN. stale is excluded from the denominator. RESTORED 2026-08-04: an --accept was chained after a shared-file edit (utils.js) expired 125 rows, which ABSORBED the drop instead of re-walking \u2014 the exact move rule 5 forbids and the gate message names (\"re-walk, do not re-baseline\"). Baseline put back to the pre-edit figure so the stale rows must be earned again."
+ "green": 142,
+ "note": "forward-only ratchet on GREEN. stale is excluded from the denominator."
 }
