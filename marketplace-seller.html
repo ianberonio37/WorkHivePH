@@ -293,6 +293,19 @@
                and positive (fine), and rendered a bare "₱-200" for below-zero - the one state where
                the seller is BLOCKED and least able to guess why. Filled in by loadCreditWallet. -->
           <div id="cw-negative-note" style="display:none;font-size:0.68rem;line-height:1.4;margin-top:0.35rem;color:var(--wh-orange-text);"></div>
+          <!-- THE ROUTE, not just the reason. The comment above says the below-zero seller was shown
+               "no explanation AND no route", and the last pass fixed only the explanation: the note
+               tells a blocked provider to "Top up by PHP200 to clear this" and was a plain div with
+               nothing to press. The only top-up control on this page lives in the Services tab, which
+               the sentence never mentions, so the remedy was real but unreachable from the place it
+               is named - a refusal that names a way out the reader cannot take. Found walking
+               BI-ux-comprehension 2026-08-04. -->
+          <button type="button" id="cw-topup-route"
+                  style="display:none;margin-top:0.4rem;min-height:44px;padding:0 0.8rem;font-size:0.72rem;
+                         font-weight:700;border-radius:0.5rem;border:1px solid var(--wh-orange);
+                         background:transparent;color:var(--wh-orange-text);cursor:pointer;">
+            Go to top up
+          </button>
         </div>
         <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.55rem 0.7rem;">
           <div id="cw-reserved" style="font-size:1.05rem;font-weight:700;">-</div>
@@ -922,6 +935,10 @@
           neg.textContent = '';
         }
       }
+      // the route appears and disappears with the reason: a "Go to top up" button on a seller who is
+      // not blocked is an invitation to spend money they do not need to spend
+      const route = document.getElementById('cw-topup-route');
+      if (route) route.style.display = (avail < 0) ? '' : 'none';
 
       /* The starter grant offer only appears to someone who would actually be blocked without it, and
          only if they have never claimed. Showing it to a funded seller is noise; showing it twice is a
@@ -2513,6 +2530,14 @@
     if (!WORKER_NAME) return;
 
     document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+    // Wired HERE rather than as an inline onclick="switchTab('services')": switchTab lives in this
+    // closure and is not on window, so the inline attribute threw "switchTab is not defined" and the
+    // button did nothing at all. The static inline-handler gate could not catch it -- it finds
+    // `function switchTab` in the file and cannot see that the name never reaches global scope --
+    // which is exactly why this went to a live click instead of a passing gate. Same wiring the tab
+    // buttons above already use.
+    const _topupRoute = document.getElementById('cw-topup-route');
+    if (_topupRoute) _topupRoute.addEventListener('click', () => switchTab('services'));
 
     document.querySelectorAll('[data-status]').forEach(chip => {
       chip.addEventListener('click', () => {

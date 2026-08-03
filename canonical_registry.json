@@ -10012,7 +10012,7 @@
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 165.0
+      "size_kb": 168.1
     },
     "marketplace.html": {
       "tables_read": [
@@ -10068,7 +10068,7 @@
         "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 276.6
+      "size_kb": 278.9
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -10126,7 +10126,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 65.7
+      "size_kb": 67.6
     },
     "pm-scheduler.html": {
       "tables_read": [
