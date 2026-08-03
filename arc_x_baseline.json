@@ -352,6 +352,12 @@
       "id": "review-comment",
       "class": "NL_NOTE",
       "reason": "prose review of a completed purchase, not an entity identifier. The C1 rule fired on the word 'part' inside the QUESTION ('How was the part, and how did the seller handle it?') - there is nothing enumerable to pick, because the answer is an opinion. It already carries a persistent visible label ('What happened?', marketplace.html:2331), so the C2 recall concern does not apply either. New site from the MK13 review flow, triaged 2026-07-30."
+    },
+    {
+      "page": "marketplace.html",
+      "id": "svc-pay-why-' + id + '",
+      "class": "NL_NOTE",
+      "reason": "free-text explanation of a payment VARIANCE ('Why the difference?'), shown only when the amount paid differs from the agreed price. Nothing is recalled: the buyer describes what happened in their own words. C1 matched on the words 'job' and 'part' inside the PLACEHOLDER's example prose ('a smaller job, a discount, part paid in materials'), which are illustrations of reasons, not an entity to name. The field also carries a persistent visible <label data-i=\"paywhy\"> ('Why the difference?'), so it is not placeholder-as-label either. A picker is impossible here - the set of reasons a price moved is not enumerable."
     }
   ],
   "c3_status_on_record": {
