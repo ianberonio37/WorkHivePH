@@ -449,8 +449,11 @@
       try {
         const { data, error } = await db.from('v_gcash_receipts_needing_eyes')
           .select('reference, amount, sender_name, match_state, match_note, created_at').limit(20);
-        return { rows: data || [], _error: error ? error.message : null };
-      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed' }; }
+        // Carry the CODE, not just the message: the renderer distinguishes a permission boundary
+        // (42501, expected for anyone who is not a platform admin) from a genuine load failure, and
+        // a message string alone would force it to pattern-match English.
+        return { rows: data || [], _error: error ? error.message : null, _code: error ? error.code : null };
+      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null }; }
     }
 
     /* HIDDEN WHEN EMPTY, and that is deliberate: with the forwarder not yet configured this table is
@@ -463,6 +466,17 @@
       if (!card || !box) return;
       m = m || {};
       const rows = m.rows || [];
+      /* A PERMISSION REFUSAL IS NOT A LOAD FAILURE. mig 43 made this view security_invoker and took
+         the read from anon, so a signed-out visitor on the localhost bypass now gets 42501 instead
+         of an empty list. Painting "Couldn't load" for that would be false twice over: nothing is
+         broken, and retrying cannot help. It is the same boundary _sessionLimited already names for
+         every other queue on this page, so say that and keep the card hidden — there is nothing to
+         act on either way. */
+      if (m._error && (typeof whIsAuthFailure === 'function' ? whIsAuthFailure({ code: m._code, message: m._error })
+                                                             : /permission denied|42501/i.test(m._error))) {
+        card.hidden = true;
+        return;
+      }
       if (m._error) { card.hidden = false; box.innerHTML = `<div class="mod-empty">Couldn't load: ${e(m._error)}</div>`; return; }
       if (!rows.length) { card.hidden = true; return; }
       card.hidden = false;
