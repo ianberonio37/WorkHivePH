@@ -3054,6 +3054,22 @@
     // Flip from marketing wrap to personal dashboard. The DOMContentLoaded
     // handler that normally does this already fired before sign-in, so we
     // mirror its behaviour here for an instant transition without a reload.
+    /* TAKE THEM BACK TO WHAT THEY WERE DOING. A gate that explains itself and then strands you is only
+       half a gate: the marketplace sends people here mid-task (contacting a seller, posting a listing)
+       and before this they landed on the homepage with the listing lost. Same-origin and /workhive/-
+       scoped on purpose - a return destination read from storage is still untrusted input, and an
+       open redirect is exactly how that becomes a phishing hop. */
+    try {
+      const back = sessionStorage.getItem('wh_return_to');
+      if (back) {
+        sessionStorage.removeItem('wh_return_to');
+        if (/^\/workhive\/[A-Za-z0-9._~\-\/?=&%#]*$/.test(back) && !back.startsWith('//')) {
+          window.location.href = back;
+          return;
+        }
+      }
+    } catch (_) { /* empty-catch-allow: no return stored, fall through to the dashboard */ }
+
     const mkt = document.getElementById('mkt-wrap');
     const ops = document.getElementById('ops-home');
     if (mkt && ops) {

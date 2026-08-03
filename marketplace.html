@@ -2328,6 +2328,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const item = _listings.find(l => l.id === id);
     if (!item) return;
 
+    /* PUT THE LISTING IN THE URL. The detail is a sheet, so opening one never changed the address:
+       a listing could not be shared, bookmarked, or returned to after a sign-in, and the account gate
+       could only remember "the marketplace" rather than the thing the person was actually looking at.
+       replaceState, not pushState - the sheet has its own close affordance and hijacking Back to mean
+       "close the sheet" is the pattern that strands people who expected to leave the page. */
+    try {
+      const u = new URL(location.href);
+      u.searchParams.set('listing', id);
+      history.replaceState(null, '', u);
+    } catch (_) { /* empty-catch-allow: a URL that will not update must never block the sheet */ }
+
     /* Fire-and-forget: bump view counter for this listing (no await — never block UI on analytics) */
     db.rpc('increment_listing_view', { p_listing_id: id })
       .then(({ error }) => { if (error) console.warn('view inc:', error.message); });
@@ -2728,6 +2739,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     document.getElementById('overlay-' + name)?.classList.remove('open');
     document.getElementById('sheet-' + name)?.classList.remove('open');
     document.body.style.overflow = '';
+    /* and drop ?listing= when the detail closes, so a stale id is not carried into the next share,
+       bookmark or sign-in return. The param is written on open (see openDetailSheet); leaving it behind
+       would make the URL describe a sheet nobody is looking at. */
+    if (name === 'detail') {
+      try {
+        const u = new URL(location.href);
+        if (u.searchParams.has('listing')) {
+          u.searchParams.delete('listing');
+          history.replaceState(null, '', u);
+        }
+      } catch (_) { /* empty-catch-allow: the sheet still closes */ }
+    }
   }
 
   // A11y (2026-06-09): the dialog role sat on the EMPTY .sheet-overlay backdrop
@@ -2767,6 +2790,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try { session = (await db.auth.getSession())?.data?.session || null; } catch (_) { session = null; }
     if (session) return true;
     showToast(message, 'error');
+    /* REMEMBER WHERE THEY WERE GOING. The explanation was already here; the destination was not. A
+       stranger who searched the catalogue, opened a PHP68,980 listing and pressed Contact Seller was
+       sent to the generic homepage, and after signing in landed on marketing copy with no way back -
+       they had to find the listing again from scratch. Discovery is 40% of simulated journey failures,
+       so this threw away the one visitor who had already survived it AND formed intent.
+       sessionStorage rather than a query param: the destination is nobody else's business, it dies with
+       the tab, and it cannot be forged into an open redirect - index.html only honours a same-origin
+       path under /workhive/. */
+    try {
+      sessionStorage.setItem('wh_return_to', location.pathname + location.search + location.hash);
+    } catch (_) { /* empty-catch-allow: a private-mode tab just loses the return, never the sign-in */ }
     setTimeout(function () { window.location.href = 'index.html?signin=1'; }, 2200);
     return false;
   }
@@ -4377,6 +4411,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        pre-composed (SERVICE_HAILING_ROADMAP.md P4, industrial moat #1). */
     try {
       const _sp = new URLSearchParams(window.location.search);
+      /* A shared link, a bookmark, or the post-sign-in return lands on the LISTING, not just the
+         catalogue. Runs after loadListings() has populated _listings, because openDetailSheet reads
+         from it - deep-linking before the data arrives would silently open nothing. */
+      const _wantListing = _sp.get('listing');
+      if (_wantListing) {
+        Promise.resolve(loadListings()).then(() => {
+          if (_listings.some(l => l.id === _wantListing)) openDetailSheet(_wantListing);
+        });
+      }
       if (_sp.get('section') === 'services') {
         switchSection('services');
         const _scope = (_sp.get('scope') || '').slice(0, 500);

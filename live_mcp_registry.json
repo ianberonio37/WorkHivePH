@@ -333,8 +333,19 @@
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "defect-fixed",
+     "title": "the account gate explained itself and then stranded the person",
+     "measured": "anon opens a PHP68,980 listing -> Contact Seller -> redirected to index.html?signin=1. The gate DOES toast a good reason ('Contacting a seller needs a WorkHive account, so they know who is asking. Joining is free.'), but nothing was stored: no ?return=, no wh_return_to, and index.html had no return handling at all. After signing in they landed on the homepage's marketing copy and had to find the listing again from scratch.",
+     "why_it_matters": "Discovery is 40% of simulated journey failures. This threw away the one visitor who had already survived discovery AND formed intent - the most expensive person on the site to lose.",
+     "fix": "marketplace stores the destination in sessionStorage before redirecting; index.html honours it after sign-in, scoped to same-origin /workhive/ paths because a destination read from storage is still untrusted input and an open redirect is how that becomes a phishing hop.",
+     "second_half": "The destination was only ever 'the marketplace', because the detail is a SHEET and opening one never changed the URL - a listing could not be shared, bookmarked or returned to at all. openDetailSheet now writes ?listing=<id> (replaceState, so Back still leaves the page), closeSheet drops it, and boot honours it after the listings arrive.",
+     "verified_live": "gate stores /workhive/marketplace.html?listing=<id>; a cold load of that URL opens the Honeywell listing; closing clears the param. 18/18 marketplace journey + discovery specs green.",
+     "instrument_notes": "Two false readings caught: querySelector('[role=dialog],.modal') returned the first CLOSED overlay rather than the open sheet, and the toast probe matched the provenance chip because it carries role=status. Scoped to .sheet.open and read the source instead."
+    }
+   ]
   },
   {
    "id": "LM-C-inquiry-market-anon-error",
@@ -2391,8 +2402,16 @@
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "error",
    "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "pass",
+     "title": "a FAILED listings read renders an error, never the first-run invitation",
+     "measured": "fetch broken at the transport for listings only; 4 requests intercepted (the page RETRIES before declaring failure, so a short sleep would have measured the retry budget). Grid rendered \"Couldn't load listings - Something went wrong reaching the marketplace. Check your connection and try again.\" with a Retry button and NO 'be the first to sell' CTA.",
+     "why_it_matters": "A failed read and an empty result are identical to a row count and opposite to a person: telling a seller 'be the first to sell' when the query merely failed reads as *your listings are gone*.",
+     "non_vacuous": "intercepted=4 proves the failure path actually executed rather than the read succeeding quietly"
+    }
+   ]
   },
   {
    "id": "LM-O-empty-error-market-seller-empty",
