@@ -11405,8 +11405,21 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "value_survives",
    "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP storage round-trip · /workhive/platform-actions.html",
+    "asserts": "a file round-trips byte-identical through storage and back to the client",
+    "value_checked": true,
+    "checked": "A file is the one payload where \"the value survived\" means BYTES. Uploaded a known 67-byte 1x1 PNG from the LIVE browser as a signed-in seller, read it back through the public URL the client actually uses, and compared byte-for-byte: 67 sent, 67 back, identical, content-type image/png. Then deleted it and confirmed the removal. INSTRUMENT CORRECTION: the in-page check reported goneAfterDelete=false, which reads like a deleted listing photo still being served — a privacy defect if true. It was the browser CACHE holding the public URL. Verified from outside the browser instead: storage.objects has 0 rows matching seam-probe/%, and a fresh curl to that URL returns HTTP 400. The delete worked; the probe was reading its own cache. Storage container confirmed up and healthy first, because a stopped container has been mistaken for a ceiling on this project before.",
+    "depends_on": [
+     "marketplace-seller.html",
+     "marketplace.html"
+    ],
+    "sha": "143d2b3e078af42b",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AY-seam-seam_storage_client-system-name_survives",
@@ -11418,8 +11431,21 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "name_survives",
    "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP storage round-trip · /workhive/platform-actions.html",
+    "asserts": "the object path and content-type survive the round trip",
+    "value_checked": true,
+    "checked": "A file is the one payload where \"the value survived\" means BYTES. Uploaded a known 67-byte 1x1 PNG from the LIVE browser as a signed-in seller, read it back through the public URL the client actually uses, and compared byte-for-byte: 67 sent, 67 back, identical, content-type image/png. Then deleted it and confirmed the removal. INSTRUMENT CORRECTION: the in-page check reported goneAfterDelete=false, which reads like a deleted listing photo still being served — a privacy defect if true. It was the browser CACHE holding the public URL. Verified from outside the browser instead: storage.objects has 0 rows matching seam-probe/%, and a fresh curl to that URL returns HTTP 400. The delete worked; the probe was reading its own cache. Storage container confirmed up and healthy first, because a stopped container has been mistaken for a ceiling on this project before.",
+    "depends_on": [
+     "marketplace-seller.html",
+     "marketplace.html"
+    ],
+    "sha": "143d2b3e078af42b",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AY-seam-seam_storage_client-system-null_semantics",

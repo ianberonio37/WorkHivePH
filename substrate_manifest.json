@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T16:42:58.891059+00:00",
+  "generated_at": "2026-08-03T21:00:16.057784+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -134,7 +134,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 526,
+        "files_scanned": 527,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -194,7 +194,7 @@
       "present": true,
       "proposals": [],
       "summary": {
-        "files_scanned": 41,
+        "files_scanned": 42,
         "features_extracted": 16,
         "promotion_candidates": 0
       },
@@ -221,7 +221,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 621,
+        "files_scanned": 623,
         "features_extracted": 22,
         "promotion_candidates": 1
       },

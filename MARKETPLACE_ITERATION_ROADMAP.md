@@ -31,11 +31,11 @@ mechanism is a wish.
 | | scenarios | green | owed | green% |
 |---|---|---|---|---|
 | **Existing A–W bank** | 364 | 124 | 240 | 34.1% |
-| **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 12 | 166 | 6.7% |
+| **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 18 | 160 | 10.1% |
 | **F2 · UFAI** (BB/BC/BD/BE) | 120 | 5 | 115 | 4.2% |
 | **F3 · UI** (BF/BG/BH) | 105 | 0 | 105 | 0% |
 | **F4 · UX** (BI/BJ/BK) | 110 | 0 | 110 | 0% |
-| **TOTAL** | **877** | **142** | **735** | **16.2%** |
+| **TOTAL** | **877** | **148** | **729** | **16.9%** |
 
 **Why the number fell from 343 to 124.** 220 rows were re-opened because a structural probe had been
 answering a behavioural oracle. Each carries the reason in its findings. The 124 that survived cite psql or
@@ -82,22 +82,23 @@ Rules that keep the loop turning:
 ## §4 · NEXT
 
 ```
-NEXT: F1 architecture 12/178 · F2 UFAI 5/120. The seams and the money invariants keep paying.
-  DONE 2026-08-04 (live MCP + psql, all value-backed):
-    · AY-seam null_semantics · value_survives · name_survives
-    · AX status_body_agreement (edge + gateway, on the wire, BOTH paths)
-    · AX ordering_totality (with a forced-tie non-vacuity step)
-    · AX idempotency — same GCash ref refused (unique_violation, rows=1); the same top-up verified
-      TWICE mints 500.00 total, not 1000.00
-    · BA credits_conserved (issued 1500 == minting-only ledger; net 1140 == holder balances; the
-      360 gap IS the repealed commission) · cap_respected (breach attempted and refused)
-    · AZ fail_null_field — found + fixed the absent-vs-zero defect in whFmtPeso
-    · BE-ufai-I bola_object · bfla_function · jwt_not_body · boundary_not_emptiness x2
+NEXT: ALL SEVEN SEAMS WALKED. F1 18/178 · F2 5/120. The seam family is the one that keeps paying,
+      and it is now covered end to end.
+  DONE 2026-08-04 (live MCP + psql, every row value-backed):
+    · AY-seam ALL SEVEN: client<->gateway, gateway<->edge, edge<->DB, trigger<->view,
+      realtime<->client (subscribed in the browser, committed from psql, value + names + 20 columns
+      arrived), cron<->DB (sweep_service_completions wrote settled; the view returned settled to the
+      row's own client), storage<->client (67-byte PNG round-tripped byte-identical, then deleted)
+    · AX layer-contract: envelope/status-body (BOTH paths, on the wire) · ordering_totality
+      (forced-tie non-vacuity) · idempotency (two verifies mint 500.00, not 1000.00)
+    · BA invariants: credits_conserved · cap_respected (breach attempted and refused)
+    · AZ fail_null_field: found + fixed absent-vs-zero in whFmtPeso, swept the seller money renders
+    · BE-ufai-I: bola · bfla · jwt_not_body · boundary_not_emptiness x2 (two real identities)
   NOW:
-  1. AY-seam · seam_realtime_client / seam_cron_db / seam_storage_client — the three seams not yet walked
-  2. BC-ufai-F effect_in_db + money_matches_ledger — assert effects against psql per surface
-  3. BF-ui-layout w390/w641/w1280 — three VERIFIED widths across the 7 surfaces
-  4. BI-ux-comprehension what_is_this_number / reward_explained — the class the vanished chip was in
+  1. BC-ufai-F effect_in_db + money_matches_ledger — assert each surface's effect against psql
+  2. BF-ui-layout w390/w641/w1280 across the 7 surfaces — three VERIFIED widths, never the requested
+  3. BI-ux-comprehension what_is_this_number / reward_explained — the vanished-chip class
+  4. AZ fail_null_field on the REMAINING surfaces (only the seller surface is walked)
 ```
 
 ---
