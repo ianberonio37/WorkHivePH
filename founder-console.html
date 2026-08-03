@@ -1074,17 +1074,10 @@
             </div>
           </section>
 
-          <section class="panel" id="mkt-disputes-queue">
-            <div class="panel-hdr">
-              <span class="rag-dot" id="rag-mkt-disputes"></span>
-              <div style="flex:1">
-                <h2>Open disputes</h2>
-                <div class="panel-sub">Buyer/seller conflicts to resolve</div>
-              </div>
-              <span class="updated" id="mkt-disputes-updated">-</span>
-            </div>
-            <div class="panel-body"><div id="mkt-disputes-content"></div></div>
-          </section>
+          <!-- RETIRED 2026-08-03: the "Open disputes" queue read `marketplace_disputes`, a table with 0
+               rows and no client writer. It described custody the platform does not have. Service jobs
+               keep their own live dispute path (`service_requests.disputed` + apply_dispute_adjustment),
+               which is surfaced in the Marketplace pulse above. -->
         </div>
       </div>
 
@@ -1101,7 +1094,7 @@
               <span class="rag-dot" id="rag-marketplace"></span>
               <div style="flex:1">
                 <h2>Marketplace pulse</h2>
-                <div class="panel-sub">Sales, orders, disputes, trust score</div>
+                <div class="panel-sub">Listings, sellers, and service jobs</div>
               </div>
               <span class="updated" id="marketplace-updated">-</span>
             </div>
@@ -1583,11 +1576,14 @@
       const par = d.pareto;
       setRagDot('rag-pareto', par && !par._error && (par.top || []).length > 0 ? 'good' : '');
 
-      // Marketplace: green on activity, neutral on quiet, red on open disputes > 0
+      /* Marketplace: amber while drafts sit unreviewed (a queue only an admin can clear), green on
+         published, neutral on quiet. No dispute signal here — see fetchMarketplacePulse: every service
+         view is caller-scoped, so this console cannot count platform-wide disputes without inventing
+         a number. An absent signal beats a wrong one. */
       const mkt = d.mkt;
       if (!mkt || mkt._error) setRagDot('rag-marketplace', '');
-      else if ((mkt.open_disputes || 0) > 0) setRagDot('rag-marketplace', 'fail');
-      else if ((mkt.total_orders || 0) > 0) setRagDot('rag-marketplace', 'good');
+      else if ((mkt.awaiting_review || 0) > 0) setRagDot('rag-marketplace', 'warn');
+      else if ((mkt.published || 0) > 0) setRagDot('rag-marketplace', 'good');
       else setRagDot('rag-marketplace', '');
 
       // AI cost: green under threshold, amber under amber, red over
@@ -1658,10 +1654,9 @@
         else if (usd > t.green) watches.push(`AI spend $${usd.toFixed(2)} crossed the warn threshold`);
       }
 
-      // Marketplace disputes
-      const disp = d.mkt && d.mkt.open_disputes;
-      if (typeof disp === 'number' && disp > 0) {
-        watches.push(`${disp} open marketplace dispute${disp > 1 ? 's' : ''}: resolve in Marketplace moderation below`);
+      const rev = d.mkt && d.mkt.awaiting_review;
+      if (typeof rev === 'number' && rev > 0) {
+        watches.push(`${rev} listing${rev > 1 ? 's' : ''} awaiting review: nothing publishes until an admin passes it`);
       }
 
       // Maturity stuck
@@ -1672,7 +1667,7 @@
       if (watches.length) {
         watch.textContent = watches[0];  // surface the top one only, keep TL;DR a true 5-sec read
         watch.className = 'tldr-watch has-watch';
-        tldr.classList.add(sum.fail > 0 || (d.mkt && d.mkt.open_disputes > 0) ? 'fail' : 'warn');
+        tldr.classList.add(sum.fail > 0 ? 'fail' : 'warn');
       } else {
         watch.textContent = 'Nothing on fire. Skim sections below for trends.';
         watch.className = 'tldr-watch';
@@ -1903,28 +1898,37 @@
       } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
     }
 
+    /* THE PULSE STANDS ON LISTINGS, because that is the marketplace that exists (2026-08-03).
+       Until today this read `v_marketplace_orders_truth` + `marketplace_disputes` and reported GMV, order
+       counts and a trust score. Both tables have never held a row and NO client path can write one: the
+       order/escrow/dispute lifecycle describes a CUSTODIAL marketplace that was never built and, under the
+       no-custody rule, cannot be. So five chips reported a lifecycle with zero rows while the 27 listings
+       that do exist were invisible on this console — and `trust_score` computed 1 - 0/0 = a permanent
+       "100%" from no data at all, which is the most expensive shape of wrong a founder screen can carry.
+       Retired. The numbers below come from the two lifecycles that are live: listings and service jobs. */
     async function fetchMarketplacePulse() {
       try {
-        const since30 = new Date(); since30.setDate(since30.getDate() - 30);
-        const [ordersRes, disputesRes] = await Promise.all([
-          db.from('v_marketplace_orders_truth').select('id, status, price, created_at').limit(5000),
-          db.from('marketplace_disputes').select('id, status').limit(2000),
-        ]);
-        const orders = (ordersRes.data || []);
-        const disputes = (disputesRes.data || []);
-        const gmv30 = orders
-          .filter(o => o.created_at && new Date(o.created_at) >= since30)
-          .reduce((a, o) => a + Number(o.price || 0), 0);
-        const openOrders = orders.filter(o => o.status && /pending|escrow/i.test(o.status)).length;
-        const openDisputes = disputes.filter(d => d.status && /open|seller_responded/i.test(d.status)).length;
-        const trust = orders.length > 0 ? 1 - (disputes.length / orders.length) : 1;
+        /* Listings ONLY, and from the truth view. A "jobs settled / disputed" chip was drafted here and
+           REMOVED before shipping: both v_service_request_truth and service_requests are scoped to the
+           caller (`client_auth_uid = auth.uid()` OR your hive OR your own provider), so neither can
+           answer a PLATFORM-WIDE question. The chip would have shown the admin's OWN jobs under a
+           platform label — a wrong number, not merely an un-canonical one. Service-side totals need a
+           platform-scoped view before they can be reported here. */
+        const listRes = await db.from('v_marketplace_listings_truth')
+          .select('id, status, price, seller_name').limit(5000);
+        if (listRes.error) return { _error: listRes.error.message };
+        const listings = (listRes.data || []);
+        const by = (s) => listings.filter(l => l.status === s);
+        const published = by('published');
+        /* No sold-in-30d figure: there is no `sold_at` column, and `created_at`/`updated_at` answer a
+           different question. A window we cannot measure is not reported rather than approximated. */
         return {
-          gmv_30d_php: gmv30,
-          total_orders: orders.length,
-          open_orders: openOrders,
-          total_disputes: disputes.length,
-          open_disputes: openDisputes,
-          trust_score: trust,
+          published: published.length,
+          value_listed_php: published.reduce((a, l) => a + Number(l.price || 0), 0),
+          sold_total: by('sold').length,
+          awaiting_review: by('draft').length,
+          sellers: new Set(published.map(l => l.seller_name).filter(Boolean)).size,
+          total_listings: listings.length,
         };
       } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
     }
@@ -2177,20 +2181,18 @@
 
     async function fetchMktModeration() {
       try {
-        const [drafts, sellers, disputes] = await Promise.all([
+        // `marketplace_disputes` dropped 2026-08-03 — retired ghost table (0 rows, no client writer).
+        const [drafts, sellers] = await Promise.all([
           db.from('v_marketplace_listings_truth')
             .select('id,title,section,category,price,seller_name,created_at')
             .eq('status','draft').order('created_at',{ascending:true}).order('id').limit(50),
           db.from('v_marketplace_sellers_truth')
             .select('worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
             .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at',{ascending:false}).order('id').limit(50),
-          db.from('marketplace_disputes')
-            .select('id,order_id,listing_id,opened_by,seller_name,reason,status,created_at')
-            .in('status',['open','seller_responded']).order('created_at',{ascending:true}).order('id').limit(50),
         ]);
         return {
-          drafts: drafts.data||[], sellers: sellers.data||[], disputes: disputes.data||[],
-          _error: (drafts.error||sellers.error||disputes.error) ? (drafts.error||sellers.error||disputes.error).message : null,
+          drafts: drafts.data||[], sellers: sellers.data||[],
+          _error: (drafts.error||sellers.error) ? (drafts.error||sellers.error).message : null,
         };
       } catch (e) { return { _error: e && e.message || 'fetch failed' }; }
     }
@@ -2240,23 +2242,11 @@
       }
       setRagDot('rag-mkt-sellers', (m.sellers||[]).some(s=>!s.kyb_verified||(!s.cert_verified&&s.certifications)) ? 'warn' : 'good');
 
-      // Open disputes
-      const dc = document.getElementById('mkt-disputes-content');
-      setUpd('mkt-disputes-updated', 'marketplace_disputes');
-      if (dc) {
-        if (m._error) dc.innerHTML = `<div class="mod-empty">Couldn't load.</div>`;
-        else if (!(m.disputes||[]).length) dc.innerHTML = `<div class="mod-empty">No disputes to review, and none can arrive: WorkHive is contact-only, so there is no in-app way for a buyer to file one. A problem listing comes through the moderation queue instead.</div>`;
-        else dc.innerHTML = m.disputes.map(d => `
-          <div class="mod-row">
-            <div class="mod-main"><strong>${e((d.reason||'Dispute').slice(0,60))}</strong>
-              <span class="mod-sub">${e(d.opened_by||'buyer')} vs ${e(d.seller_name||'seller')} · ${e(d.status||'')}</span></div>
-            <div class="mod-actions">
-              <button class="mod-btn ok" data-mkt-act="dispute-buyer" data-id="${e(d.id)}">Refund buyer</button>
-              <button class="mod-btn no" data-mkt-act="dispute-seller" data-id="${e(d.id)}">Side seller</button>
-            </div>
-          </div>`).join('');
-      }
-      setRagDot('rag-mkt-disputes', (m.disputes||[]).length ? 'fail' : 'good');
+      /* The "Open disputes" renderer lived here and was RETIRED 2026-08-03 with its table. It offered
+         "Refund buyer" and "Side seller" on rows that could never exist — and a refund button is the
+         sharpest form of the MK13 defect, because the platform never holds a buyer's peso and so cannot
+         return one. Disputes that ARE real are service jobs; they surface in the Marketplace pulse and
+         are adjudicated through apply_dispute_adjustment, which returns spent credits (mig 29). */
     }
 
     // One delegated listener for all moderation action buttons (data-attrs = XSS-safe).
@@ -2309,22 +2299,10 @@
             if (error) throw error;
             if (typeof writeAuditLog === 'function') writeAuditLog(act === 'verify-kyb' ? 'verify_seller_kyb' : 'verify_seller_cert', 'marketplace_sellers', btn.dataset.name, btn.dataset.name, { verified: true });
             showToast((btn.dataset.name || 'Seller') + (act === 'verify-kyb' ? ' identity verified.' : ' certifications verified.'), 'success');
-          } else if (act === 'dispute-buyer' || act === 'dispute-seller') {
-            const decision = act === 'dispute-buyer' ? 'refund_buyer' : 'side_seller';
-            const nowIso = new Date().toISOString();
-            // P6-C1 optimistic lock (sibling): only resolve an UNresolved dispute so a concurrent
-            // admin action can't overwrite an already-recorded decision (refund_buyer vs side_seller).
-            const { data: dResolved, error } = await db.from('marketplace_disputes')
-              .update({ status: 'resolved', admin_decision: decision, admin_decided_at: nowIso, resolved_at: nowIso })
-              .eq('id', btn.dataset.id).neq('status', 'resolved').select('id');
-            if (error) throw error;
-            if (!dResolved || !dResolved.length) {
-              showToast('That dispute was already resolved by another admin.', 'error');
-            } else {
-              if (typeof writeAuditLog === 'function') writeAuditLog('resolve_dispute', 'marketplace_disputes', btn.dataset.id, btn.dataset.id, { decision });
-              showToast('Dispute resolved.', 'success');
-            }
           }
+          /* The 'dispute-buyer' / 'dispute-seller' branch was RETIRED 2026-08-03 with the ghost table.
+             Nothing emits those data-mkt-act values any more; leaving the writer behind would keep a
+             live path into a retired table that the MK13 gate could not see from the markup alone. */
           renderMktModeration(await fetchMktModeration());  // refresh the queues
         } catch (err) {
           console.error('founder-console action failed:', err);
@@ -2730,30 +2708,30 @@
     function renderMarketplace(m) {
       const el = document.getElementById('marketplace-content');
       const upd = document.getElementById('marketplace-updated');
-      upd.textContent = 'marketplace_orders + marketplace_disputes';
+      upd.textContent = 'v_marketplace_listings_truth';
       if (m && m._error) {
         el.innerHTML = honestEmpty('Marketplace data unavailable',
           escHtml(m._error), '');
         return;
       }
-      if (!m || m.total_orders === 0) {
-        el.innerHTML = honestEmpty('No marketplace transactions yet',
-          'Marketplace is pre-DTI; numbers populate once the first order ships.',
-          'See MARKETPLACE_GO_LIVE_ROADMAP.md (deferred at Phase 1: DTI registration).');
+      if (!m || m.total_listings === 0) {
+        el.innerHTML = honestEmpty('No listings yet',
+          'The marketplace is contact-only: sellers publish, buyers contact them directly. '
+          + 'Numbers appear once the first listing is published.',
+          'See MARKETPLACE_GO_LIVE_ROADMAP.md.');
         return;
       }
-      const gmv = m.gmv_30d_php.toLocaleString('en-PH', { style:'currency', currency:'PHP', maximumFractionDigits:0 });
-      const trust = (m.trust_score * 100).toFixed(1);
-      const trustCls = m.trust_score >= 0.95 ? 'good' : m.trust_score >= 0.85 ? 'warn' : 'bad';
+      const val = m.value_listed_php.toLocaleString('en-PH',
+        { style:'currency', currency:'PHP', maximumFractionDigits:0 });
       el.innerHTML = `
         <div class="mkt-grid">
-          <div class="mkt-chip"><span class="n" style="color:var(--gold)">${escHtml(gmv)}</span><span class="l">Sales 30d</span></div>
-          <div class="mkt-chip"><span class="n">${m.total_orders}</span><span class="l">Total orders</span></div>
-          <div class="mkt-chip"><span class="n" style="color:var(--blue)">${m.open_orders}</span><span class="l">Open (pending/escrow)</span></div>
-          <div class="mkt-chip"><span class="n" style="color:var(--red)">${m.open_disputes}</span><span class="l">Open disputes</span></div>
-          <div class="mkt-chip"><span class="n ${trustCls}" style="color:var(--${trustCls === 'good' ? 'green' : trustCls === 'warn' ? 'yellow' : 'red'})">${trust}%</span><span class="l">Trust score</span></div>
+          <div class="mkt-chip"><span class="n" style="color:var(--green)">${m.published}</span><span class="l">Published</span></div>
+          <div class="mkt-chip"><span class="n" style="color:var(--gold)">${escHtml(val)}</span><span class="l">Value listed</span></div>
+          <div class="mkt-chip"><span class="n">${m.sold_total}</span><span class="l">Sold</span></div>
+          <div class="mkt-chip"><span class="n"${m.awaiting_review > 0 ? ' style="color:var(--blue)"' : ''}>${m.awaiting_review}</span><span class="l">Awaiting review</span></div>
+          <div class="mkt-chip"><span class="n">${m.sellers}</span><span class="l">Active sellers</span></div>
         </div>
-        ${renderSourceChip({ freshness:'live', source:'marketplace_orders + marketplace_disputes', window:'all-time orders, 30d sales', notes:['Trust = 1 - dispute_rate'] })}
+        ${renderSourceChip({ freshness:'live', source:'v_marketplace_listings_truth', window:'all-time', notes:['Contact-only: the platform holds no buyer money, so there is no GMV to report','Value listed = sum of published prices, not sales','Service-job totals are not shown: every service view is caller-scoped, so no platform-wide count is available here'] })}
       `;
     }
 

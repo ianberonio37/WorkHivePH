@@ -2818,12 +2818,20 @@ async function isPlatformAdmin(db) {
   try {
     const { data: { session } } = await db.auth.getSession();
     if (!session) return false;
-    const { data: profile } = await db.from('v_worker_truth')
-      .select('worker_name').eq('auth_uid', session.user.id).maybeSingle();
-    if (!profile || !profile.worker_name) return false;
+    /* GRAIN, NOT IDENTITY (fixed 2026-08-03). v_worker_truth is worker×HIVE: a person who belongs to
+       two hives has TWO rows. `.maybeSingle()` demands exactly one and resolves NULL when it finds two,
+       so this returned FALSE for precisely the people most likely to be admins — measured live, the
+       platform admin had 2 rows / 1 distinct worker_name and was on the allowlist, and isPlatformAdmin()
+       still said no. That is the no-access gate on all 8 admin surfaces in production; only the
+       localhost bypass hid it locally. Ask whether ANY identity this person holds is on the allowlist,
+       rather than insisting they hold exactly one. Same class as the multi-hive sign-in bounce. */
+    const { data: profiles } = await db.from('v_worker_truth')
+      .select('worker_name').eq('auth_uid', session.user.id).limit(50);
+    const names = [...new Set((profiles || []).map(p => p && p.worker_name).filter(Boolean))];
+    if (!names.length) return false;
     const { data: admin } = await db.from('marketplace_platform_admins')
-      .select('worker_name').eq('worker_name', profile.worker_name).maybeSingle();
-    return !!admin;
+      .select('worker_name').in('worker_name', names).limit(1);
+    return !!(admin && admin.length);
   } catch (_) { return false; }
 }
 

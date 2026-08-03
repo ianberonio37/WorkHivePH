@@ -78,6 +78,22 @@
       <span id="last-sync" class="updated">—</span>
     </div>
 
+    <div id="local-bypass-note" role="status" hidden
+         style="margin:-0.4rem 0 1rem; padding:0.7rem 0.9rem; border-radius:0.6rem; font-size:0.82rem;
+                background:rgba(247,162,27,0.12); border:1px solid rgba(247,162,27,0.35); color:var(--gold);"></div>
+
+    <!-- LIFTED HERE 2026-08-03 from founder-console.html, which is retired behind #wh-retired-overlay.
+         This is the ONLY control that mints a credit, and it was sitting on a page whose entire surface
+         is covered by a "moved to Grafana" card — so providers could file GCash top-ups forever and no
+         reachable screen could approve one. Money could not enter the economy. It goes FIRST because a
+         provider is waiting on it. (founder-console keeps its copy: retired pages preserve content so
+         the static validators that scan them still pass — the same pattern as marketplace-admin.html.) -->
+    <div class="card" id="sec-svc-topups">
+      <div class="card-hdr"><h2>GCash top-ups awaiting verification</h2><span id="svc-topups-count" class="count">—</span></div>
+      <div class="sub" style="margin:-0.4rem 0 0.75rem;">Match the reference in your GCash app, then verify to mint the credits.</div>
+      <div id="svc-topups-content"><div class="mod-empty">Loading…</div></div>
+    </div>
+
     <div class="card" id="sec-mkt-mod">
       <div class="card-hdr"><h2>Listings awaiting review</h2><span id="mkt-listings-count" class="count">—</span></div>
       <div id="mkt-listings-content"><div class="mod-empty">Loading…</div></div>
@@ -86,10 +102,10 @@
       <div class="card-hdr"><h2>Sellers awaiting verification</h2><span id="mkt-sellers-count" class="count">—</span></div>
       <div id="mkt-sellers-content"><div class="mod-empty">Loading…</div></div>
     </div>
-    <div class="card">
-      <div class="card-hdr"><h2>Open disputes</h2><span id="mkt-disputes-count" class="count">—</span></div>
-      <div id="mkt-disputes-content"><div class="mod-empty">Loading…</div></div>
-    </div>
+    <!-- RETIRED 2026-08-03: an "Open disputes" card read `marketplace_disputes` — 0 rows, no client
+         writer, and it offered a "Refund buyer" button for money the platform never holds. Real disputes
+         are service jobs, adjudicated through apply_dispute_adjustment. The CARD WRAPPER goes with it:
+         an empty .card still paints a bordered box, which is the same dead-surface defect one level up. -->
   </div>
 
   <div id="toast"></div>
@@ -128,22 +144,99 @@
 
     async function fetchMktModeration() {
       try {
-        const [drafts, sellers, disputes] = await Promise.all([
+        // `marketplace_disputes` dropped 2026-08-03 — retired ghost table (0 rows, no client writer).
+        const [drafts, sellers] = await Promise.all([
           db.from('v_marketplace_listings_truth')
             .select('id,title,section,category,price,seller_name,created_at')
             .eq('status', 'draft').order('created_at', { ascending: true }).order('id').limit(50),
           db.from('v_marketplace_sellers_truth')
             .select('worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
             .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at', { ascending: false }).order('id').limit(50),
-          db.from('marketplace_disputes')
-            .select('id,order_id,listing_id,opened_by,seller_name,reason,status,created_at')
-            .in('status', ['open', 'seller_responded']).order('created_at', { ascending: true }).order('id').limit(50),
         ]);
         return {
-          drafts: drafts.data || [], sellers: sellers.data || [], disputes: disputes.data || [],
-          _error: (drafts.error || sellers.error || disputes.error) ? (drafts.error || sellers.error || disputes.error).message : null,
+          drafts: drafts.data || [], sellers: sellers.data || [],
+          _error: (drafts.error || sellers.error) ? (drafts.error || sellers.error).message : null,
         };
       } catch (err) { return { _error: err && err.message || 'fetch failed' }; }
+    }
+
+    /* GCash top-up verification — the founder-income intake. A provider sent GCash P2P to the platform
+       number and filed the reference; the founder checks the GCash app, then Verify (a DB trigger mints
+       the credits) or Reject. Every credit in the economy originates here, so this queue being reachable
+       is not cosmetic: while it lived only on the retired founder-console, no credit could be minted. */
+    async function fetchSvcTopups() {
+      try {
+        // Truth view, not the raw table: it folds in provider_display_name so the queue does not N+1
+        // the provider directory to name who is waiting.
+        const { data, error } = await db.from('v_service_credit_topups_truth')
+          .select('id, account_type, account_id, amount, gcash_ref, created_at, provider_display_name')
+          .eq('status', 'pending_verification')
+          .order('created_at', { ascending: true }).order('id').limit(50);
+        return { rows: data || [], _error: error ? error.message : null };
+      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed' }; }
+    }
+
+    function renderSvcTopups(m) {
+      const box = document.getElementById('svc-topups-content');
+      if (!box) return;
+      m = m || {};
+      if (m._error) {
+        box.innerHTML = `<div class="mod-empty">Couldn't load the queue: ${e(m._error)}</div>`;
+        setCount('svc-topups-count', 0, '');
+        return;
+      }
+      const rows = m.rows || [];
+      if (!rows.length) {
+        box.innerHTML = `<div class="mod-empty">No top-ups waiting. Filed references appear here for your GCash-app check.</div>`;
+      } else {
+        box.innerHTML = rows.map(r => `
+          <div class="mod-row">
+            <div class="mod-main"><strong>₱${Number(r.amount).toLocaleString()} · ref ${e(r.gcash_ref)}</strong>
+              <span class="mod-sub">${e(r.provider_display_name || r.account_type)} · filed ${e(new Date(r.created_at).toLocaleString())}</span></div>
+            <div class="mod-actions">
+              <button class="mod-btn ok" data-topup-act="verify" data-id="${e(r.id)}">Verify: mint credits</button>
+              <button class="mod-btn no" data-topup-act="reject" data-id="${e(r.id)}">Reject</button>
+            </div>
+          </div>`).join('');
+      }
+      setCount('svc-topups-count', rows.length, 'warn');
+    }
+
+    let _svcTopupWired = false;
+    function wireSvcTopups() {
+      if (_svcTopupWired) return; _svcTopupWired = true;
+      document.getElementById('sec-svc-topups').addEventListener('click', async (ev) => {
+        const btn = ev.target.closest('button[data-topup-act]');
+        if (!btn) return;
+        const verify = btn.dataset.topupAct === 'verify';
+        btn.disabled = true;
+        try {
+          /* Optimistic lock on the ORIGINATING status: the founder works this queue by hand at speed,
+             so a double-press is the expected human error, not an exotic one. Filtering on
+             pending_verification means the second press changes 0 rows and says so, rather than
+             re-deciding a row another admin already settled. */
+          const { data, error } = await db.from('service_credit_topups')
+            .update({ status: verify ? 'verified' : 'rejected' })
+            .eq('id', btn.dataset.id).eq('status', 'pending_verification').select('id');
+          if (error) throw error;
+          if (!data || !data.length) {
+            showToast('No change saved — that top-up was already decided.', 'error');
+          } else {
+            writeAuditLog(verify ? 'verify_topup' : 'reject_topup', 'service_credit_topups',
+              btn.dataset.id, btn.dataset.id, { verified: verify });
+            showToast(verify
+              ? 'Verified. Credits minted to the provider\'s wallet.'
+              : 'Rejected. No credits were minted.', verify ? 'success' : 'info');
+          }
+          await refreshQueues();
+        } catch (err) {
+          console.error('top-up decision failed:', err);
+          showToast(whIsAuthFailure(err)
+            ? 'Your admin session expired, so nothing was changed. Sign in again to continue.'
+            : 'Could not record that decision, and nothing was minted. Try again.', 'error');
+          btn.disabled = false;
+        }
+      });
     }
 
     function setCount(id, n, level) {
@@ -201,26 +294,15 @@
       }
       setCount('mkt-sellers-count', sellerCount, 'warn');
 
-      // Open disputes
-      const dc = document.getElementById('mkt-disputes-content');
-      if (dc) {
-        if (m._error) dc.innerHTML = `<div class="mod-empty">Couldn't load.</div>`;
-        else if (!(m.disputes || []).length) dc.innerHTML = `<div class="mod-empty">No disputes to review, and none can arrive: WorkHive is contact-only, so there is no in-app way for a buyer to file one. A problem listing comes through the moderation queue instead.</div>`;
-        else dc.innerHTML = m.disputes.map(d => `
-          <div class="mod-row">
-            <div class="mod-main"><strong>${e((d.reason || 'Dispute').slice(0, 60))}</strong>
-              <span class="mod-sub">${e(d.opened_by || 'buyer')} vs ${e(d.seller_name || 'seller')} · ${e(d.status || '')}</span></div>
-            <div class="mod-actions">
-              <button class="mod-btn ok" data-mkt-act="dispute-buyer" data-id="${e(d.id)}">Refund buyer</button>
-              <button class="mod-btn no" data-mkt-act="dispute-seller" data-id="${e(d.id)}">Side seller</button>
-            </div>
-          </div>`).join('');
-      }
-      setCount('mkt-disputes-count', (m.disputes || []).length, 'fail');
+      /* The "Open disputes" renderer was RETIRED 2026-08-03 with its table. Its honest-empty copy
+         ("none can arrive") was the right fix for a queue that had to stay; deleting the queue is the
+         better one. Its "Refund buyer" button promised money the platform never holds. */
     }
 
     async function refreshQueues() {
-      renderMktModeration(await fetchMktModeration());
+      const [mod, tops] = await Promise.all([fetchMktModeration(), fetchSvcTopups()]);
+      renderMktModeration(mod);
+      renderSvcTopups(tops);
       document.getElementById('last-sync').textContent = 'Updated ' + new Date().toLocaleTimeString();
     }
 
@@ -276,21 +358,10 @@
             if (error) throw error;
             writeAuditLog(act === 'verify-kyb' ? 'verify_seller_kyb' : 'verify_seller_cert', 'marketplace_sellers', btn.dataset.name, btn.dataset.name, { verified: true });
             showToast((btn.dataset.name || 'Seller') + (act === 'verify-kyb' ? ' identity verified.' : ' certifications verified.'), 'success');
-          } else if (act === 'dispute-buyer' || act === 'dispute-seller') {
-            const decision = act === 'dispute-buyer' ? 'refund_buyer' : 'side_seller';
-            const nowIso = new Date().toISOString();
-            // Optimistic lock: only resolve an UNresolved dispute so a concurrent admin can't overwrite a decision.
-            const { data: dResolved, error } = await db.from('marketplace_disputes')
-              .update({ status: 'resolved', admin_decision: decision, admin_decided_at: nowIso, resolved_at: nowIso })
-              .eq('id', btn.dataset.id).neq('status', 'resolved').select('id');
-            if (error) throw error;
-            if (!dResolved || !dResolved.length) {
-              showToast('That dispute was already resolved by another admin.', 'error');
-            } else {
-              writeAuditLog('resolve_dispute', 'marketplace_disputes', btn.dataset.id, btn.dataset.id, { decision });
-              showToast('Dispute resolved.', 'success');
-            }
           }
+          /* The 'dispute-buyer' / 'dispute-seller' writer was RETIRED 2026-08-03 with the ghost table.
+             Nothing emits those data-mkt-act values now, and leaving the writer would keep a live path
+             into a retired table that no markup scan could see. */
           await refreshQueues();
         } catch (err) {
           console.error('platform-actions action failed:', err);
@@ -310,12 +381,26 @@
     // Runs LAST so every function + `let` above is fully initialized before it fires.
     const IS_LOCAL_FOUNDER = ['127.0.0.1', 'localhost', '::1'].includes(location.hostname);
     (async () => {
-      const ok = IS_LOCAL_FOUNDER || (typeof isPlatformAdmin === 'function' && await isPlatformAdmin(db));
+      const realAdmin = (typeof isPlatformAdmin === 'function') && await isPlatformAdmin(db);
+      const ok = realAdmin || IS_LOCAL_FOUNDER;
       document.getElementById('checking-gate').hidden = true;
       if (!ok) { document.getElementById('no-access-gate').hidden = false; return; }
       document.getElementById('actions').hidden = false;
+      /* HONEST EMPTY, NOT A FALSE ALL-CLEAR (2026-08-03). The localhost bypass opens this console on the
+         founder's own machine, but RLS still answers to the JWT. Signed in as anyone who is not a
+         platform admin, EVERY queue below returns 0 rows with NO error — so a top-up queue with a real
+         provider waiting on ₱300 renders exactly like an empty one. Found live: the page said "No
+         top-ups waiting" while the row was there. On the queue that mints every credit in the economy,
+         a false all-clear is the most expensive empty state the platform can show. Name it instead. */
+      if (!realAdmin) {
+        const note = document.getElementById('local-bypass-note');
+        note.hidden = false;
+        note.textContent = 'Local bypass: you are not signed in as a platform admin, so every queue below '
+          + 'reads empty no matter what is actually waiting. Sign in as an admin to work them.';
+      }
       if (typeof logPageView === 'function') logPageView(db, { page: 'platform-actions' });
       wireMktModeration();
+      wireSvcTopups();
       await refreshQueues();
       document.getElementById('refresh-btn').addEventListener('click', refreshQueues);
       const _refreshTimer = setInterval(refreshQueues, 60000);

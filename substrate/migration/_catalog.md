@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:508
-source_sha: ef3b671a2b0ee1c6
+source: dir:supabase/migrations:510
+source_sha: e517d71d08c513cc
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (508 migrations)
+## migration · catalog (510 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260712000011_inventory_txn_hive_scope_write_guard` — policies:inventory_transactions_write · fns:inventory_sync_balance_from_ledger · tables:inventory_transactions
-- `20260712000012_pm_hive_scope_write_guard` — policies:pm_assets_write,pm_completions_write,pm_scope_items_write
 - `20260712000013_intelligence_write_guard` — policies:asset_nodes_write,asset_risk_scores_delete_locked,asset_risk_scores_hive_rw,asset_risk_scores_insert_locked,asset_risk_scores_read,asset_risk_scores_update_locked
 - `20260712000014_arm_intelligence_crons` — (misc DDL/DML)
 - `20260712000015_skill_profiles_bola_fix` — policies:before,skill_profiles_write
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260803000026_thirty_registrations_that_never_landed` — (misc DDL/DML)
 - `20260803000027_the_trust_signals_were_invisible_to_the_people_they_persuade` — policies:mkt_sellers_read_anon
 - `20260803000028_anon_could_truncate_140_tables` — (misc DDL/DML)
+- `20260803000029_a_disputed_job_kept_the_credits_the_buyer_paid` — fns:apply_dispute_adjustment
+- `20260803000030_no_revenue_means_the_rate_is_zero_in_all_three_places` — fns:mint_settlement_commission,service_knob_pct · tables:hive_service_settings
 
 (showing last 200)
 
