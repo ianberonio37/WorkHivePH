@@ -409,9 +409,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -494,9 +494,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -1446,9 +1446,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -1505,9 +1505,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -1564,9 +1564,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -2094,9 +2094,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -2153,9 +2153,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -2212,9 +2212,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -2271,9 +2271,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -3098,9 +3098,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -3896,9 +3896,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -3955,9 +3955,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -4014,9 +4014,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -4390,9 +4390,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -4423,9 +4423,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -4900,9 +4900,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -4933,9 +4933,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -4966,9 +4966,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -6130,9 +6130,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -6247,9 +6247,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -6376,9 +6376,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -6910,9 +6910,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -6943,9 +6943,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -7138,9 +7138,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -7203,9 +7203,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -7268,9 +7268,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -7333,9 +7333,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -7398,9 +7398,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -8292,9 +8292,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -8403,9 +8403,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {
@@ -11159,12 +11159,12 @@
     "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "NULL means the same thing on both sides of the trigger/view seam: service_knob(reward_max_per_listing) returns NULL meaning NO CAP, and the client must not read it through Number() (which yields 0 and inverts the rule).",
     "value_checked": true,
-    "checked": "Read the knob live from the browser: reward_max_per_listing = null, Number(null) = 0, correct reading = Infinity. Swept every client site that reads a knob through Number(x.data): 3 sites. marketplace.html:1214/1216 read pct and min from service_knob_pct, which has a COALESCE fallback for EVERY key (verified live: reward_pct = 10.00, reward_spend_cap_pct = 10.00), so a NULL cannot arrive there. marketplace.html:3902 reads reward_spend_cap_pct, same function, same protection. The only NULL-meaningful knob is reward_max_per_listing via service_knob, whose function body says \"NO FALLBACK. NULL = no cap (mig 35, Ian rule)\" — one real site, fixed in e0a2f2ba, verified by 9 chips each rendering 10% of their OWN price. RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface.",
+    "checked": "Read the knob live from the browser: reward_max_per_listing = null, Number(null) = 0, correct reading = Infinity. Swept every client site that reads a knob through Number(x.data): 3 sites. marketplace.html:1214/1216 read pct and min from service_knob_pct, which has a COALESCE fallback for EVERY key (verified live: reward_pct = 10.00, reward_spend_cap_pct = 10.00), so a NULL cannot arrive there. marketplace.html:3902 reads reward_spend_cap_pct, same function, same protection. The only NULL-meaningful knob is reward_max_per_listing via service_knob, whose function body says \"NO FALLBACK. NULL = no cap (mig 35, Ian rule)\" — one real site, fixed in e0a2f2ba, verified by 9 chips each rendering 10% of their OWN price. RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead.",
     "depends_on": [
      "marketplace.html",
      "marketplace-seller.html"
     ],
-    "sha": "1aae9fcc6fc848cf",
+    "sha": "143d2b3e078af42b",
     "walked_at": "2026-08-04"
    }
   },
@@ -11822,12 +11822,12 @@
     "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
     "asserts": "a NULL numeric renders as a stated gap, never as a fabricated 0",
     "value_checked": true,
-    "checked": "Nulled every numeric/money field in the live payload and read what the surface renders. BEFORE: no undefined/NaN/[object Object] (good) but THREE fabricated zeros — one true zero (cw-reserved, Pablo genuinely has 0 reservations, confirmed in psql) and two false: a ledger line reading \"commission +₱0\" (an entry that moved nothing) and a filed top-up reading \"₱0.00 · ref 1005556667770\" whose real amount is 300.00. Root cause in the SHARED formatter: whFmtPeso was written to stop \"₱NaN\" reaching the glass and chose ₱0 as the substitute, trading a visible defect for an invisible one — and Number(null) is 0 and finite, so a null slipped through the normal path entirely. Same family as the reward cap where NULL=\"no cap\" became a cap of zero. FIXED: whFmtPeso/whFmtNum now separate ABSENT from ZERO (a real 0 still prints ₱0; absent prints a gap, overridable via opts.gap), and the top-up pending line now routes through the helper instead of an ad-hoc '₱' + Number(...). VERIFIED BOTH DIRECTIONS live: normal renders \"₱300.00 · ref 1005556667770\" matching psql, nulled renders \"— · ref 1005556667770\", and normal operation is otherwise unchanged (wallet ₱-200, 2 Listings, no stray gaps). MEASURED AND NOT SWEPT: 19 further money renders on marketplace-seller.html still bypass whFmtPeso with ad-hoc string concatenation — recorded with its exact size rather than claimed as done.",
+    "checked": "Nulled every numeric/money field in the live payload and read what the surface renders. BEFORE: no undefined/NaN/[object Object] (good) but THREE fabricated zeros — one true zero (cw-reserved, Pablo genuinely has 0 reservations, confirmed in psql) and two false: a ledger line reading \"commission +₱0\" (an entry that moved nothing) and a filed top-up reading \"₱0.00 · ref 1005556667770\" whose real amount is 300.00. Root cause in the SHARED formatter: whFmtPeso was written to stop \"₱NaN\" reaching the glass and chose ₱0 as the substitute, trading a visible defect for an invisible one — and Number(null) is 0 and finite, so a null slipped through the normal path entirely. Same family as the reward cap where NULL=\"no cap\" became a cap of zero. FIXED: whFmtPeso/whFmtNum now separate ABSENT from ZERO (a real 0 still prints ₱0; absent prints a gap, overridable via opts.gap), and the top-up pending line now routes through the helper instead of an ad-hoc '₱' + Number(...). VERIFIED BOTH DIRECTIONS live: normal renders \"₱300.00 · ref 1005556667770\" matching psql, nulled renders \"— · ref 1005556667770\", and normal operation is otherwise unchanged (wallet ₱-200, 2 Listings, no stray gaps). MEASURED AND NOT SWEPT: 19 further money renders on marketplace-seller.html still bypass whFmtPeso with ad-hoc string concatenation — recorded with its exact size rather than claimed as done. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead.",
     "depends_on": [
      "utils.js",
      "marketplace-seller.html"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04"
    }
   },
@@ -17379,9 +17379,9 @@
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "fc0d314cb9bc7c75",
+    "sha": "aba0f72d6e84f4a9",
     "walked_at": "2026-08-04",
-    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED AGAIN 2026-08-04 after the marketplace-seller money-render sweep (the local _peso helper and the ledger line routed through whFmtPeso). All six states re-run live: 6/6 pass. Both directions re-verified on real data — wallet ₱-200, reserved ₱0 \"Held by live listings\" (a GENUINE zero still renders ₱0, which is the proof the fix did not over-correct), pending top-up ₱300.00 · ref 1005556667770 matching psql — and on nulled data: no fabricated zero on the ledger line or the top-up line, gaps shown instead."
    }
   },
   {

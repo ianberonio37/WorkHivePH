@@ -770,8 +770,12 @@
   let _holdSeq = 0, _holdTimer = null;
   let _holdState = { ok: false, reason: 'idle' };   // read by the save handler
 
-  const _peso = n => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2,
-                                                                   maximumFractionDigits: 2 });
+  /* whFmtPeso, not `Number(n || 0)`. The `|| 0` turned an ABSENT wallet figure into a confident
+     ₱0.00 — the same absent-vs-zero trap that printed a filed PHP300 top-up as ₱0.00 and a reward
+     cap of NULL ("no cap") as a cap of zero. A real 0 still renders ₱0.00; absent renders a gap. */
+  const _peso = n => (typeof whFmtPeso === 'function')
+    ? whFmtPeso(n, { decimals: 2 })
+    : '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   function _holdRow(label, value, opts) {
     const o = opts || {};
@@ -1683,7 +1687,11 @@
       (bal == null ? '-' : '₱' + bal.toLocaleString(undefined, { minimumFractionDigits: 2 })) + '</span></div>' +
       (bal != null && bal < 0 ? '<div style="font-size:0.75rem;color:var(--wh-orange-text);margin-top:0.2rem;">Negative balance: top up to keep accepting jobs.</div>' : '') +
       (lines.length ? '<div style="font-size:0.72rem;opacity:0.85;margin-top:0.4rem;">' +
-        lines.map(l => e(l.entry_type) + ' ' + (Number(l.amount) >= 0 ? '+' : '') + '₱' + Number(l.amount).toLocaleString()).join(' · ') + '</div>' : '') +
+        /* A ledger line whose amount did not arrive used to read "commission +₱0" — a statement that
+           the entry moved nothing, which is the most misleading thing a ledger can say. Absent now
+           shows a gap and carries no sign; a real 0 still shows ₱0. */
+        lines.map(l => e(l.entry_type) + ' ' + (l.amount == null ? '—'
+            : ((Number(l.amount) >= 0 ? '+' : '') + whFmtPeso(l.amount)))).join(' · ') + '</div>' : '') +
       /* MONEY YOU SENT MUST NOT VANISH. Filing a top-up said "Filed." and then showed nothing: no
          pending row, no amount, no time. The provider had sent real pesos to a personal GCash number
          and the product gave them no receipt and no way to tell whether it was stuck -- while the queue
