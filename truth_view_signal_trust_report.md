@@ -6,7 +6,7 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **336**
+- View/column pairs scanned: **335**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
 - Files scanned: **258**
@@ -216,12 +216,11 @@ re-deriving what the canonical view should expose:
 | `v_marketplace_listings_truth` | `section` | ✅ OK | 7 | direct |
 | `v_marketplace_listings_truth` | `seller_contact` | ✅ OK | 2 | direct |
 | `v_marketplace_listings_truth` | `seller_name` | ✅ OK | 5 | direct |
+| `v_marketplace_listings_truth` | `seller_tier` | ✅ OK | 1 | direct |
 | `v_marketplace_listings_truth` | `seller_verified` | ✅ OK | 2 | direct, mapped_enum |
-| `v_marketplace_listings_truth` | `status` | ✅ OK | 4 | direct |
+| `v_marketplace_listings_truth` | `status` | ✅ OK | 5 | direct |
 | `v_marketplace_listings_truth` | `title` | ✅ OK | 9 | direct |
 | `v_marketplace_listings_truth` | `view_count` | ✅ OK | 1 | direct |
-| `v_marketplace_orders_truth` | `price` | ✅ OK | 1 | direct |
-| `v_marketplace_orders_truth` | `status` | ✅ OK | 1 | direct |
 | `v_marketplace_sellers_truth` | `active_listings_count` | ✅ OK | 5 | direct |
 | `v_marketplace_sellers_truth` | `cert_verified` | ✅ OK | 5 | direct |
 | `v_marketplace_sellers_truth` | `cert_verified_at` | ✅ OK | 2 | direct |
@@ -334,11 +333,11 @@ re-deriving what the canonical view should expose:
 | `v_service_credit_ledger_truth` | `amount` | ✅ OK | 2 | direct |
 | `v_service_credit_ledger_truth` | `entry_type` | ✅ OK | 2 | direct |
 | `v_service_credit_ledger_truth` | `note` | ✅ OK | 1 | direct |
-| `v_service_credit_topups_truth` | `account_id` | ✅ OK | 1 | direct |
-| `v_service_credit_topups_truth` | `account_type` | ✅ OK | 1 | direct |
-| `v_service_credit_topups_truth` | `amount` | ✅ OK | 1 | direct |
-| `v_service_credit_topups_truth` | `gcash_ref` | ✅ OK | 1 | direct |
-| `v_service_credit_topups_truth` | `provider_display_name` | ✅ OK | 1 | direct |
+| `v_service_credit_topups_truth` | `account_id` | ✅ OK | 2 | direct |
+| `v_service_credit_topups_truth` | `account_type` | ✅ OK | 2 | direct |
+| `v_service_credit_topups_truth` | `amount` | ✅ OK | 2 | direct |
+| `v_service_credit_topups_truth` | `gcash_ref` | ✅ OK | 2 | direct |
+| `v_service_credit_topups_truth` | `provider_display_name` | ✅ OK | 2 | direct |
 | `v_service_provider_truth` | `completed_jobs` | ✅ OK | 2 | direct |
 | `v_service_provider_truth` | `display_name` | ✅ OK | 2 | direct |
 | `v_service_provider_truth` | `rating_avg` | ✅ OK | 2 | direct |

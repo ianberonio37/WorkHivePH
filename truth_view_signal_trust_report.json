@@ -1,6 +1,6 @@
 {
   "summary": {
-    "view_column_pairs": 336,
+    "view_column_pairs": 335,
     "at_risk": 0,
     "review": 9,
     "files_scanned": 258
@@ -3693,7 +3693,7 @@
         },
         {
           "file": "platform-actions.html",
-          "shape": "mapped_enum",
+          "shape": "direct",
           "smells": []
         }
       ],
@@ -4026,6 +4026,19 @@
     },
     {
       "view": "v_marketplace_listings_truth",
+      "column": "seller_tier",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
       "column": "seller_verified",
       "consumers": [
         {
@@ -4048,6 +4061,11 @@
       "consumers": [
         {
           "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "founder-console.html",
           "shape": "direct",
           "smells": []
         },
@@ -4129,32 +4147,6 @@
       "consumers": [
         {
           "file": "marketplace-seller.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_marketplace_orders_truth",
-      "column": "price",
-      "consumers": [
-        {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_marketplace_orders_truth",
-      "column": "status",
-      "consumers": [
-        {
-          "file": "founder-console.html",
           "shape": "direct",
           "smells": []
         }
@@ -6872,6 +6864,11 @@
           "file": "founder-console.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "platform-actions.html",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -6883,6 +6880,11 @@
       "consumers": [
         {
           "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "platform-actions.html",
           "shape": "direct",
           "smells": []
         }
@@ -6898,6 +6900,11 @@
           "file": "founder-console.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "platform-actions.html",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -6911,6 +6918,11 @@
           "file": "founder-console.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "platform-actions.html",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -6922,6 +6934,11 @@
       "consumers": [
         {
           "file": "founder-console.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "platform-actions.html",
           "shape": "direct",
           "smells": []
         }

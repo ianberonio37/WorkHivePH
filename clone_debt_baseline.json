@@ -1,6 +1,6 @@
 {
-  "clones": 56,
-  "duplicatedLines": 3773,
-  "percentage": 19.18,
+  "clones": 55,
+  "duplicatedLines": 3768,
+  "percentage": 18.89,
   "note": "forward-only ratchet on duplicatedLines (NOT clone count); tightened automatically on reduction; % informational"
 }

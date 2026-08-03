@@ -1,5 +1,5 @@
 {
-  "ran": "2026-08-03T04:03:48.536Z",
+  "ran": "2026-08-03T08:39:02.759Z",
   "role": "supervisor",
   "seeder": "http://127.0.0.1:5000",
   "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
@@ -8,14 +8,47 @@
       "page": "index.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1118 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=0"
+          "bodyLen=1118 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=8"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -42,20 +75,94 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "hive.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 25,
         "notes": [
-          "bodyLen=3299 title=\"Hive Live Board: WorkHive\" loadErrors=0"
+          "bodyLen=105 title=\"Hive Live Board: WorkHive\" loadErrors=8"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -82,20 +189,91 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "near-blank body (len=105)"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "logbook.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1126 title=\"Digital Maintenance Logbook: WorkHive\" loadErrors=0"
+          "bodyLen=1126 title=\"Digital Maintenance Logbook: WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -122,20 +300,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "inventory.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1886 title=\"Spare-Parts Inventory: WorkHive\" loadErrors=0"
+          "bodyLen=1886 title=\"Spare-Parts Inventory: WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -150,7 +384,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 384
       },
       "P9": {
         "score": 90,
@@ -162,20 +396,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "pm-scheduler.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=2417 title=\"PM Scheduler: WorkHive\" loadErrors=0"
+          "bodyLen=2417 title=\"PM Scheduler: WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -202,20 +492,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "asset-hub.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=3146 title=\"Asset Hub | WorkHive\" loadErrors=0"
+          "bodyLen=3148 title=\"Asset Hub | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -230,7 +576,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -242,20 +588,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "alert-hub.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=5018 title=\"Alert Hub | WorkHive\" loadErrors=0"
+          "bodyLen=4989 title=\"Alert Hub | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -282,20 +684,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "analytics.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=4017 title=\"Analytics Engine | WorkHive\" loadErrors=0"
+          "bodyLen=4017 title=\"Analytics Engine | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -322,20 +780,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "analytics-report.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=372 title=\"Analytics Report | WorkHive\" loadErrors=0"
+          "bodyLen=372 title=\"Analytics Report | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -362,20 +876,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "achievements.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=2349 title=\"Achievements: WorkHive\" loadErrors=0"
+          "bodyLen=2350 title=\"Achievements: WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -390,7 +960,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -402,20 +972,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "ai-quality.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=760 title=\"AI Quality + ROI | WorkHive\" loadErrors=0"
+          "bodyLen=760 title=\"AI Quality + ROI | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -442,20 +1068,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "skillmatrix.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1396 title=\"Skill Matrix | WorkHive\" loadErrors=0"
+          "bodyLen=1396 title=\"Skill Matrix | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -470,7 +1152,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -482,20 +1164,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "resume.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1817 title=\"Resume / CV Builder | WorkHive\" loadErrors=0"
+          "bodyLen=1817 title=\"Resume / CV Builder | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -510,7 +1248,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -522,20 +1260,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "community.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1882 title=\"Community: WorkHive\" loadErrors=0"
+          "bodyLen=1882 title=\"Community: WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -550,7 +1344,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -562,20 +1356,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "public-feed.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=2131 title=\"Public Feed: WorkHive\" loadErrors=0"
+          "bodyLen=2131 title=\"Public Feed: WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -590,7 +1440,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -602,20 +1452,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "marketplace.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=4138 title=\"Marketplace: WorkHive\" loadErrors=0"
+          "bodyLen=4138 title=\"Marketplace: WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -630,7 +1536,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -642,20 +1548,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "marketplace-seller.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1439 title=\"Seller Dashboard: WorkHive Marketplace\" loadErrors=0"
+          "bodyLen=1125 title=\"Seller Dashboard: WorkHive Marketplace\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -670,7 +1632,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -682,20 +1644,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "dayplanner.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=3966 title=\"Maintenance Day Planner: WorkHive\" loadErrors=0"
+          "bodyLen=3966 title=\"Maintenance Day Planner: WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -710,7 +1728,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -722,20 +1740,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "engineering-design.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1848 title=\"Engineering Design Calculator: WorkHive\" loadErrors=0"
+          "bodyLen=1848 title=\"Engineering Design Calculator: WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -750,7 +1824,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 384
       },
       "P9": {
         "score": 90,
@@ -762,20 +1836,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "assistant.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=628 title=\"AI Work Assistant: WorkHive\" loadErrors=0"
+          "bodyLen=628 title=\"AI Work Assistant: WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -802,20 +1932,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "report-sender.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1883 title=\"Report Sender | WorkHive\" loadErrors=0"
+          "bodyLen=1886 title=\"Report Sender | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -830,7 +2016,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -842,20 +2028,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "project-manager.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1529 title=\"Project Manager | WorkHive\" loadErrors=0"
+          "bodyLen=1529 title=\"Project Manager | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -870,7 +2112,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -882,20 +2124,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "project-report.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1172 title=\"Project Report | WorkHive\" loadErrors=0"
+          "bodyLen=1172 title=\"Project Report | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -922,20 +2220,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "integrations.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1802 title=\"CMMS Integration | WorkHive\" loadErrors=0"
+          "bodyLen=1802 title=\"CMMS Integration | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -950,7 +2304,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -962,20 +2316,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "ph-intelligence.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=795 title=\"Philippine Industrial Intelligence Report | WorkHive\" loadErrors=0"
+          "bodyLen=757 title=\"Philippine Industrial Intelligence Report | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -990,7 +2400,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -1002,20 +2412,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "plant-connections.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1064 title=\"Plant Connections | WorkHive\" loadErrors=0"
+          "bodyLen=1064 title=\"Plant Connections | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -1042,20 +2508,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "shift-brain.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=3273 title=\"Shift Brain | WorkHive\" loadErrors=0"
+          "bodyLen=3239 title=\"Shift Brain | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -1070,7 +2592,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -1082,20 +2604,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "audit-log.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=3153 title=\"Audit Log | WorkHive\" loadErrors=0"
+          "bodyLen=3154 title=\"Audit Log | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -1122,20 +2700,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "voice-journal.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=2097 title=\"Voice Journal: WorkHive\" loadErrors=0"
+          "bodyLen=1942 title=\"Voice Journal: WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -1162,7 +2796,38 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "founder-console.html",
@@ -1170,7 +2835,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=14851 title=\"WorkHive Founder Console\" loadErrors=0"
+          "bodyLen=14640 title=\"WorkHive Founder Console\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1208,14 +2873,39 @@
       "page": "marketplace-seller-profile.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=251 title=\"Seller Profile: WorkHive Marketplace\" loadErrors=0"
+          "bodyLen=251 title=\"Seller Profile: WorkHive Marketplace\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -1230,7 +2920,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -1242,20 +2932,76 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "marketplace-admin.html",
       "ok": true,
       "P1": {
-        "score": 100,
+        "score": 50,
         "notes": [
-          "bodyLen=1244 title=\"Marketplace Admin | WorkHive\" loadErrors=0"
+          "bodyLen=1244 title=\"Marketplace Admin | WorkHive\" loadErrors=6"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "[whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+          },
+          {
+            "t": "error",
+            "text": "PAGEERROR SyntaxError: Unexpected token '<<'"
+          }
+        ],
         "consoleWarns": [],
         "badNet": []
       },
@@ -1270,7 +3016,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -1282,7 +3028,38 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: [whLogError] uncaught-error SyntaxError: Unexpected token '<<'"
+        },
+        {
+          "phase": "P1",
+          "sev": 3,
+          "detail": "console error on load: PAGEERROR SyntaxError: Unexpected token '<<'"
+        }
+      ]
     },
     {
       "page": "platform-actions.html",
@@ -1290,7 +3067,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1237 title=\"Platform Actions · WorkHive\" loadErrors=0"
+          "bodyLen=1261 title=\"Platform Actions · WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1407,14 +3184,14 @@
   ],
   "summary": {
     "pages": 35,
-    "P1": 100,
-    "P2": 100,
+    "P1": 55,
+    "P2": 34,
     "P4": 34,
     "P8": 75,
     "P9": 90,
     "P12": 100,
-    "total_findings": 0,
-    "high_sev": 0,
+    "total_findings": 191,
+    "high_sev": 191,
     "unhandled_pages": [],
     "a11y_pages": []
   }

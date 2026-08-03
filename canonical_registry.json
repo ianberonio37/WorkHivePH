@@ -817,14 +817,10 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "founder-console.html",
-        "marketplace-admin.html",
-        "platform-actions.html"
+        "marketplace-admin.html"
       ],
       "written_by_surfaces": [
-        "founder-console.html",
-        "marketplace-admin.html",
-        "platform-actions.html"
+        "marketplace-admin.html"
       ],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
@@ -5700,11 +5696,13 @@
       "comment": "GCash P2P top-up intake: user sends to the founder's GCash number and files the reference no; the founder verifies against the GCash app. Verification (admin/GUC-only) mints the ledger entry.",
       "read_by_surfaces": [
         "founder-console.html",
-        "marketplace-seller.html"
+        "marketplace-seller.html",
+        "platform-actions.html"
       ],
       "written_by_surfaces": [
         "founder-console.html",
-        "marketplace-seller.html"
+        "marketplace-seller.html",
+        "platform-actions.html"
       ],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
@@ -5922,7 +5920,9 @@
         "reward_max_per_listing",
         "reward_min_per_listing",
         "starter_grant",
-        "first_listings_before_sale"
+        "first_listings_before_sale",
+        "completion_window_days",
+        "min_listing_price"
       ],
       "rls_enabled": true,
       "grants": {
@@ -5951,7 +5951,8 @@
         "confirmed_by",
         "paid_at",
         "created_at",
-        "variance_reason"
+        "variance_reason",
+        "auto_confirmed_at"
       ],
       "rls_enabled": true,
       "grants": {
@@ -6800,9 +6801,7 @@
     },
     "v_marketplace_orders_truth": {
       "defined_in": "20260520000023_v_marketplace_orders_truth.sql",
-      "read_by_surfaces": [
-        "founder-console.html"
-      ],
+      "read_by_surfaces": [],
       "read_by_edge_fns": [],
       "columns": [
         "id",
@@ -6965,7 +6964,44 @@
         "marketplace.html"
       ],
       "read_by_edge_fns": [],
-      "columns": []
+      "columns": [
+        "id",
+        "client_auth_uid",
+        "client_worker_name",
+        "hive_id",
+        "segment",
+        "mode",
+        "catalog_item_id",
+        "catalog_name",
+        "catalog_category",
+        "catalog_unit",
+        "catalog_rate",
+        "custom_scope",
+        "address",
+        "urgency",
+        "budget",
+        "status",
+        "matched_provider_id",
+        "provider_name",
+        "provider_contact",
+        "provider_availability",
+        "broadcast_radius_m",
+        "offer_ttl_expires_at",
+        "accepted_at",
+        "en_route_at",
+        "on_site_at",
+        "in_progress_at",
+        "completed_at",
+        "settled_at",
+        "cancelled_at",
+        "created_at",
+        "updated_at",
+        "pending_offers",
+        "_source_count",
+        "_freshness_ts",
+        "_canonical_version",
+        "objection_deadline"
+      ]
     },
     "v_service_open_broadcasts": {
       "defined_in": "20260728000040_service_hailing_engine.sql",
@@ -7012,7 +7048,8 @@
     "v_service_credit_topups_truth": {
       "defined_in": "20260729000000_service_money_truth_views.sql",
       "read_by_surfaces": [
-        "founder-console.html"
+        "founder-console.html",
+        "platform-actions.html"
       ],
       "read_by_edge_fns": [],
       "columns": []
@@ -8979,7 +9016,7 @@
       "defined_in": "20260728000047_client_settle_and_commission_mint.sql",
       "args": "",
       "security_definer": true,
-      "comment": "Debits the platform commission on the settled transition. Base price is the SELECTED OFFER, falling back ",
+      "comment": "Charges the hive's commission_pct on settlement. The platform default is 0 - WorkHive takes no ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -9121,7 +9158,7 @@
       "defined_in": "20260731000013_service_knob_pct.sql",
       "args": "p_hive uuid, p_key text",
       "security_definer": true,
-      "comment": "Per-hive percentage knobs, WHOLE PERCENTS (10.00 = 10%). reward_pct 10, spend cap 10, holding fee 2/mo. ",
+      "comment": "Per-hive percentage knobs with platform defaults. commission_pct and cashback_pct default to 0: the ",
       "called_by_surfaces": [
         "marketplace.html"
       ],
@@ -9155,7 +9192,7 @@
       "defined_in": "20260731000018_dispute_adjustment_never_deletion.sql",
       "args": "p_request_id uuid, p_reason text default null",
       "security_definer": true,
-      "comment": "Reverses the money on a disputed job with COMPENSATING ledger entries - never a DELETE, because the ",
+      "comment": "Unwinds a disputed job's money: commission reversed in full, cashback clawed back, and - since ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -9328,6 +9365,64 @@
         "marketplace.html"
       ],
       "called_by_edge_fns": []
+    },
+    "service_objection_deadline": {
+      "defined_in": "20260803000031_a_job_marked_done_waited_forever_for_a_buyer_who_never_came_back.sql",
+      "args": "p_request_id uuid",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "sweep_service_completions": {
+      "defined_in": "20260803000031_a_job_marked_done_waited_forever_for_a_buyer_who_never_came_back.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "enqueue_user_push": {
+      "defined_in": "20260803000033_a_silent_window_is_just_a_slower_way_to_lose.sql",
+      "args": "p_auth_uids uuid[], p_title text,\n                                                    p_body text, p_url text DEFAULT NULL",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "fanout_completion_push": {
+      "defined_in": "20260803000033_a_silent_window_is_just_a_slower_way_to_lose.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "raise_service_objection": {
+      "defined_in": "20260803000034_the_screen_and_the_sweep_must_quote_the_same_date.sql",
+      "args": "p_request_id uuid, p_reason text",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "marketplace.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "guard_vouchers_retired": {
+      "defined_in": "20260803000036_no_vouchers_and_a_floor_under_the_listing_price.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_listing_meets_minimum": {
+      "defined_in": "20260803000036_no_vouchers_and_a_floor_under_the_listing_price.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -9352,7 +9447,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 27.6
+      "size_kb": 28.1
     },
     "ai-quality.html": {
       "tables_read": [
@@ -9518,7 +9613,7 @@
         "set_community_best_answer"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 150.6
+      "size_kb": 151.1
     },
     "dayplanner.html": {
       "tables_read": [
@@ -9547,14 +9642,13 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 45.5
+      "size_kb": 46.1
     },
     "founder-console.html": {
       "tables_read": [
         "ai_cost_log",
         "analytics_events",
         "hive_audit_log",
-        "marketplace_disputes",
         "marketplace_listings",
         "marketplace_sellers",
         "platform_feedback",
@@ -9564,13 +9658,11 @@
         "v_credit_posture",
         "v_hive_readiness_truth",
         "v_marketplace_listings_truth",
-        "v_marketplace_orders_truth",
         "v_marketplace_sellers_truth",
         "v_service_credit_ledger_truth",
         "v_service_credit_topups_truth"
       ],
       "tables_written": [
-        "marketplace_disputes",
         "marketplace_listings",
         "marketplace_sellers",
         "platform_feedback",
@@ -9579,7 +9671,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 164.7
+      "size_kb": 166.0
     },
     "hive.html": {
       "tables_read": [
@@ -9624,7 +9716,7 @@
         "benchmark-compute",
         "supervisor-reset-password"
       ],
-      "size_kb": 335.6
+      "size_kb": 349.8
     },
     "index.html": {
       "tables_read": [],
@@ -9758,7 +9850,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 54.4
+      "size_kb": 54.9
     },
     "marketplace-seller-profile.html": {
       "tables_read": [
@@ -9773,7 +9865,7 @@
         "get_seller_community_reputation"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 46.7
+      "size_kb": 47.2
     },
     "marketplace-seller.html": {
       "tables_read": [
@@ -9816,7 +9908,7 @@
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 131.9
+      "size_kb": 132.4
     },
     "marketplace.html": {
       "tables_read": [
@@ -9860,6 +9952,7 @@
         "get_saved_search_matches",
         "increment_listing_view",
         "my_credit_balance",
+        "raise_service_objection",
         "redeem_service_voucher",
         "select_quote",
         "service_knob",
@@ -9870,7 +9963,7 @@
         "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 251.6
+      "size_kb": 262.8
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -9908,21 +10001,22 @@
     "platform-actions.html": {
       "tables_read": [
         "hive_audit_log",
-        "marketplace_disputes",
         "marketplace_listings",
         "marketplace_sellers",
+        "service_credit_topups",
         "v_marketplace_listings_truth",
-        "v_marketplace_sellers_truth"
+        "v_marketplace_sellers_truth",
+        "v_service_credit_topups_truth"
       ],
       "tables_written": [
         "hive_audit_log",
-        "marketplace_disputes",
         "marketplace_listings",
-        "marketplace_sellers"
+        "marketplace_sellers",
+        "service_credit_topups"
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 20.4
+      "size_kb": 25.4
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -10023,7 +10117,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 15.9
+      "size_kb": 16.4
     },
     "report-sender.html": {
       "tables_read": [
@@ -10053,7 +10147,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 136.2
+      "size_kb": 136.7
     },
     "shift-brain.html": {
       "tables_read": [
@@ -10483,7 +10577,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 301
+      "loc": 308
     },
     "_shared/provider-health.ts": {
       "tables_read": [],
@@ -11369,13 +11463,12 @@
       "surface_b": "platform-actions.html",
       "shared_tables": [
         "hive_audit_log",
-        "marketplace_disputes",
         "marketplace_listings",
         "marketplace_sellers",
         "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth"
       ],
-      "jaccard": 0.75
+      "jaccard": 0.5
     },
     {
       "kind": "near_duplicate_column",

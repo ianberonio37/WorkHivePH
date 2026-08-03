@@ -5282,7 +5282,7 @@
         "U3": "the status chip keeps pace with the provider - it had shown a stale label beside a MOVING map"
       },
       "quarantine": {
-        "count": 1,
+        "count": 2,
         "first_seen": "2026-07-29",
         "last_reason": "Timeout"
       }

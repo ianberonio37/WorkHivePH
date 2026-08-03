@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **175**
 - Views:         **64**
-- RPCs:          **266**
+- RPCs:          **273**
 - HTML surfaces: **61**
 - Edge fns:      **99**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -31,13 +31,13 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `inventory_items` | 21 | yes | no | integrations.html, inventory.html, logbook.html | integrations.html, inventory.html | cmms-webhook-receiver |
 | `pm_assets` | 12 | yes | no | integrations.html, logbook.html, pm-scheduler.html | integrations.html, pm-scheduler.html | — |
 | `integration_configs` | 17 | no | no | integrations.html, plant-connections.html | integrations.html | cmms-sync |
-| `marketplace_disputes` | 16 | yes | no | founder-console.html, marketplace-admin.html, platform-actions.html | founder-console.html, marketplace-admin.html, platform-actions.html | — |
 | `pm_scope_items` | 10 | yes | no | asset-hub.html, integrations.html, pm-scheduler.html | asset-hub.html, integrations.html, pm-scheduler.html | — |
 | `worker_profiles` | 8 | yes | no | resume.html, voice-journal.html | voice-journal.html | — |
 | `projects` | 19 | no | yes | inventory.html, logbook.html, pm-scheduler.html, project-manager.html | project-manager.html | — |
 | `ai_rate_limits` | 5 | yes | no | — | — | _shared/rate-limit.ts, agentic-rag-loop, temporal-rag-orchestrator |
 | `parts_staging_recommendations` | 14 | no | yes | alert-hub.html, asset-hub.html | asset-hub.html | parts-staging-recommender |
 | `voice_journal_entries` | 10 | yes | no | assistant.html, voice-journal.html | — | _shared/journal-recall.ts |
+| `service_credit_topups` | 11 | yes | no | founder-console.html, marketplace-seller.html, platform-actions.html | founder-console.html, marketplace-seller.html, platform-actions.html | — |
 | `marketplace_reviews` | 10 | yes | no | marketplace-seller-profile.html, marketplace-seller.html, marketplace.html | marketplace-seller.html, marketplace.html | — |
 | `network_benchmarks` | 9 | no | no | hive.html | — | benchmark-compute |
 | `ai_cost_log` | 17 | yes | no | ai-quality.html, founder-console.html, llm-observability.html | — | _shared/cost-log.ts |
@@ -52,7 +52,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `canonical_period_summaries` | 12 | yes | no | — | — | hierarchical-summarizer |
 | `service_providers` | 18 | yes | no | marketplace-seller.html, marketplace.html | marketplace-seller.html | — |
 | `service_requests` | 29 | yes | yes | marketplace-seller.html, marketplace.html | marketplace-seller.html, marketplace.html | — |
-| `service_credit_topups` | 11 | yes | no | founder-console.html, marketplace-seller.html | founder-console.html, marketplace-seller.html | — |
 | `push_subscriptions` | 8 | yes | no | marketplace-seller.html | marketplace-seller.html | notify-push |
 | `schedule_items` | 14 | yes | no | assistant.html, dayplanner.html | dayplanner.html | — |
 | `skill_profiles` | 6 | yes | no | resume.html, skillmatrix.html | skillmatrix.html | — |
@@ -73,6 +72,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `equipment_reading_templates` | 8 | no | no | asset-hub.html, logbook.html | — | — |
 | `hives` | 10 | yes | no | hive.html | hive.html | — |
 | `inventory_transactions` | 11 | yes | no | inventory.html | inventory.html | — |
+| `marketplace_disputes` | 16 | yes | no | marketplace-admin.html | marketplace-admin.html | — |
 | `marketplace_orders` | 17 | yes | no | marketplace-admin.html | marketplace-admin.html | — |
 | `marketplace_platform_admins` | 3 | yes | no | marketplace-admin.html, marketplace.html | — | — |
 | `marketplace_saved_searches` | 12 | yes | no | marketplace.html | marketplace.html | — |
@@ -103,7 +103,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `embedding_cache` | 6 | no | no | — | — | _shared/embedding-chain.ts |
 | `alert_dismissals` | 7 | yes | no | alert-hub.html | alert-hub.html | — |
 | `service_vouchers` | 10 | yes | no | founder-console.html | founder-console.html | — |
-| `service_payments` | 10 | yes | no | marketplace.html | marketplace.html | — |
+| `service_payments` | 11 | yes | no | marketplace.html | marketplace.html | — |
 | `skill_badges` | 8 | yes | no | resume.html | — | — |
 | `skill_exam_attempts` | 9 | yes | no | skillmatrix.html | — | — |
 | `achievement_xp_log` | 7 | yes | no | achievements.html | — | — |
@@ -188,7 +188,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `service_slo_targets` | 7 | no | no | — | — | — |
 | `embedding_outbox` | 12 | yes | no | — | — | — |
 | `embedding_registry` | 9 | yes | no | — | — | — |
-| `hive_service_settings` | 21 | yes | no | — | — | — |
+| `hive_service_settings` | 23 | yes | no | — | — | — |
 | `credit_treasury` | 5 | yes | no | — | — | — |
 | `credit_reservations` | 8 | yes | no | — | — | — |
 | `credit_starter_grants` | 3 | yes | no | — | — | — |
@@ -300,10 +300,12 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `enqueue_for_embedding` |  | yes | — | — |
 | `enqueue_service_push` | p_provider_ids uuid[],   p_title        text,   p_body       | yes | — | — |
 | `enqueue_service_push_uids` | p_auth_uids uuid[], p_title text, p_body text, p_url text DE | yes | — | — |
+| `enqueue_user_push` | p_auth_uids uuid[], p_title text,                            | yes | — | — |
 | `ensure_pm_asset_for_node` | p_node_id uuid | yes | asset-hub.html | — |
 | `expire_stale_parts_recommendations` |  | yes | — | — |
 | `export_hive_data` | p_hive_id uuid | yes | — | export-hive-data |
 | `fanout_broadcast_push` |  | yes | — | — |
+| `fanout_completion_push` |  | yes | — | — |
 | `fetch_active_alerts` | p_hive_id uuid | yes | — | — |
 | `fetch_dialog_state` | p_session_id text | yes | — | — |
 | `fetch_session_memory` | p_session_id text,   p_limit int default 10 | yes | — | — |
@@ -340,6 +342,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `guard_credits_non_transferable` |  | yes | — | — |
 | `guard_first_listings_need_a_sale` |  | yes | — | — |
 | `guard_lessons_learned_is_supervisor` |  | yes | — | — |
+| `guard_listing_meets_minimum` |  | yes | — | — |
 | `guard_listing_requires_reservation` |  | yes | — | — |
 | `guard_listing_sale_needs_counterparty` |  | yes | — | — |
 | `guard_marketplace_listing_status` |  | yes | — | — |
@@ -356,6 +359,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `guard_service_topup_status` |  | yes | — | — |
 | `guard_settle_requires_payment` |  | yes | — | — |
 | `guard_voucher_within_budget` |  | yes | — | — |
+| `guard_vouchers_retired` |  | yes | — | — |
 | `handle_community_post_xp` |  | yes | — | — |
 | `handle_community_reaction_xp` |  | yes | — | — |
 | `handle_community_reply_xp` |  | yes | — | — |
@@ -387,6 +391,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `provider_is_certified_for` | p_provider_id uuid, p_category text, p_min_level integer | yes | — | — |
 | `prune_embedding_cache` | p_max_age_days int DEFAULT 45 | yes | — | — |
 | `publish_service_showcase` | p_request_id uuid | yes | — | — |
+| `raise_service_objection` | p_request_id uuid, p_reason text | yes | marketplace.html | — |
 | `recompute_seller_sales_and_tier` | p_seller_name text | yes | — | — |
 | `reconcile_provider_availability` |  | yes | — | — |
 | `reconcile_service_outbox` |  | yes | — | — |
@@ -418,6 +423,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `service_agreed_base` | p_request_id uuid | yes | — | — |
 | `service_knob` | p_hive uuid, p_key text | yes | marketplace.html | — |
 | `service_knob_pct` | p_hive uuid, p_key text | yes | marketplace.html | — |
+| `service_objection_deadline` | p_request_id uuid | yes | — | — |
 | `service_request_price` | p_request uuid | yes | marketplace.html | — |
 | `set_community_best_answer` | p_reply_id uuid, p_accepted boolean | yes | community.html | — |
 | `set_project_budget` | p_project_id uuid,   p_budget_php numeric | yes | project-manager.html | — |
@@ -431,6 +437,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `sweep_listing_holding_fee` |  | yes | — | — |
 | `sweep_pm_auto_hail` |  | yes | — | — |
 | `sweep_service_broadcasts` |  | yes | — | — |
+| `sweep_service_completions` |  | yes | — | — |
 | `sync_asset_identity` | p_old_tag  text,   p_new_tag  text DEFAULT NULL,   p_new_nam | yes | logbook.html | — |
 | `sync_auth_uid_on_signup` |  | yes | — | — |
 | `sync_pm_asset_identity` | p_old_tag  text,   p_new_tag  text DEFAULT NULL,   p_new_nam | yes | — | — |
@@ -486,7 +493,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `design-system.html` | — | — | — | — |
 | `engineering-design.html` | — | — | — | — |
 | `findings.html` | — | — | — | — |
-| `founder-console.html` | ai_cost_log, analytics_events, hive_audit_log, marketplace_disputes ... | marketplace_disputes, marketplace_listings, marketplace_sellers ... | — | — |
+| `founder-console.html` | ai_cost_log, analytics_events, hive_audit_log, marketplace_listings ... | marketplace_listings, marketplace_sellers, platform_feedback ... | — | — |
 | `hive.html` | asset_nodes, community_xp, hive_audit_log, hive_benchmarks ... | hive_audit_log, hive_members, hives ... | compute_adoption_risk, compute_hive_readiness, find_hive_by_code | ai-gateway, ai-orchestrator, benchmark-compute |
 | `index.html` | — | — | — | — |
 | `integrations.html` | api_keys, asset_nodes, cmms_audit_log, external_sync ... | api_keys, asset_nodes, cmms_audit_log ... | — | cmms-sync |
@@ -502,7 +509,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `offline-fallback.html` | — | — | — | — |
 | `ph-intelligence.html` | hive_benchmarks, ph_intelligence_reports | — | — | intelligence-report |
 | `plant-connections.html` | gateway_audit_log, hive_retention_config, integration_configs, sensor_topic_map ... | — | — | — |
-| `platform-actions.html` | hive_audit_log, marketplace_disputes, marketplace_listings, marketplace_sellers ... | hive_audit_log, marketplace_disputes, marketplace_listings ... | — | — |
+| `platform-actions.html` | hive_audit_log, marketplace_listings, marketplace_sellers, service_credit_topups ... | hive_audit_log, marketplace_listings, marketplace_sellers ... | — | — |
 | `pm-scheduler.html` | asset_nodes, hive_audit_log, hive_members, logbook ... | hive_audit_log, logbook, pm_assets ... | get_pm_compliance_smrp, get_pm_ontime_delivery | — |
 | `poster-v1.html` | — | — | — | — |
 | `poster-v2.html` | — | — | — | — |
@@ -536,8 +543,8 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 | Surface A | Surface B | Shared tables | Jaccard |
 |---|---|---|---:|
-| `marketplace-admin.html` | `platform-actions.html` | hive_audit_log, marketplace_disputes, marketplace_listings, marketplace_sellers, v_marketplace_listings_truth, v_marketplace_sellers_truth | 0.75 |
 | `logbook.html` | `pm-scheduler.html` | asset_nodes, hive_audit_log, hive_members, logbook, pm_assets, pm_completions, project_links, projects, v_pm_scope_items_truth | 0.5 |
+| `marketplace-admin.html` | `platform-actions.html` | hive_audit_log, marketplace_listings, marketplace_sellers, v_marketplace_listings_truth, v_marketplace_sellers_truth | 0.5 |
 
 ### Near-duplicate column names within a table
 
