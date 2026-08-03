@@ -4847,8 +4847,23 @@
       "state": "branch",
       "branch": "the buyer chooses to pay part of a job in credits",
       "oracle": "buyer -X and provider +X, circulation delta EXACTLY 0, and no reward is also earned on that job -- earn or spend, never both",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "defect-fixed",
+          "title": "three more readers still split one person's wallet in two -- and it made EVERY credit payment impossible",
+          "measured": "mig 39 unified the wallet for three readers and missed three: guard_reward_spend_cap (the balance check behind every credit payment), my_credit_balance() (what the buyer's own confirm sheet reads), and apply_dispute_adjustment (the bound on what an adjudication recovers). Measured live: every credit in this economy sits in the PROVIDER namespace -- three provider accounts hold it, there is not one consumer row. On an 800 job (10% cap 80) with the person holding 340: 'the guard SEES 0' and spending 80 was REFUSED 23514 'Not enough credits: balance is PHP0, this would spend PHP80.'",
+          "why_it_matters": "This is not an edge case, it is the whole feature. With all credits provider-side, NO buyer could spend credits at all -- the spend half of the earn-or-spend switch had never been able to fire. And the refusal takes the cruellest shape a money error can: it tells someone holding PHP340 that their balance is zero. my_credit_balance() is the same bug one layer up, so the sheet offered no spend field and the buyer never even reached the refusal -- screen and guard agreed, and both were wrong. apply_dispute_adjustment is quieter but costs real money: it under-reads what a provider still holds, so the difference is silently booked as a shortfall the PLATFORM absorbs while the provider keeps credits the adjudication said to return.",
+          "fix": "mig 20260803000041 repoints all three at person_credit_balance(). No ledger row moves -- the ledger is append-only and its history is correct; only the readers change, exactly as mig 39 did. A namespace may go negative while the PERSON stays positive: a namespace is a bookkeeping location, not a wallet.",
+          "teeth": "A: the refused spend now ACCEPTED, person 340 -> 260. B: one peso over the 10% cap still REFUSED 23514. C: a person holding 0 across BOTH namespaces still REFUSED 23514. my_credit_balance() as the signed-in buyer returns 340.00 (was 0). All four credit gates green: solvency, loop-closes, guards-refuse, posture."
+        },
+        {
+          "severity": "verified-correct",
+          "title": "all four halves of the spend oracle hold, end to end through apply_credits_to_request",
+          "measured": "BEFORE buyer=340 provider=1000 circulation=1140 -> apply_credits_to_request(job, 80) -> AFTER buyer=260 provider=1080 circulation=1140. Legs: reward_spend -80 (buyer) and reward_fund +80 (provider), both consumer-namespace, so circulation delta is EXACTLY 0 -- a transfer, never a mint. Fourth half: inserting a reward_earn on that same job was REFUSED 23514 by guard_reward_exclusive. Earn or spend, never both."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-R-money-lifecycle-earn-no-credits",
@@ -4907,8 +4922,15 @@
       "state": "branch",
       "branch": "the buyer holds LESS than 10% of the price",
       "oracle": "the offered cap is min(balance, 10%) -- a smaller field, never a refusal",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "verified-correct",
+          "title": "holding less than 10% gives a SMALLER field, never a refusal",
+          "measured": "The confirm sheet computes cap = Math.min(balance, price * reward_spend_cap_pct / 100) from my_credit_balance and service_request_price -- the same function guard_reward_spend_cap asks, never a second derivation. Walked with the buyer drained to PHP50 on an 800 job (10% cap = 80, UI offers min(50,80)=50): spending 50 was ACCEPTED; spending the full 80 cap she could not afford was REFUSED 23514. Depends on mig 41 -- before it my_credit_balance returned 0 and the field never rendered."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-R-money-lifecycle-dispute-returns-credits",
