@@ -944,8 +944,18 @@
       "persona_note": "signed in, listing and answering",
       "state": "populated",
       "oracle": "the surface renders real rows and every visible number matches its source of truth",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "defect-fixed",
+          "title": "a NEGATIVE credit balance was a bare number with no explanation and no way out",
+          "measured": "Walked as a signed-in seller carrying -200 from a historical commission. The credits panel rendered 'WorkHive Credits PHP-200 / Available to list PHP-200 / Held by live listings PHP0' and said nothing else: no warning, no cause, no action. The starter-grant button below it is gated on total === 0, so a seller BELOW zero was shown no explanation AND no route - the panel handled zero and positive and left the one blocked state silent.",
+          "why_it_matters": "That is the failure this very panel was built to prevent - its own comment reads 'being blocked with no explanation is the cold-start failure the simulation put at 31% of providers, which lands on the BUYER side as fill rate dropping from 51% to 30%'. It covered the cold start and missed the cold stop.",
+          "fix": "loadCreditWallet now fills a note when available < 0: 'Below zero, so publishing is paused: a listing needs 10% of its price held in credits. Top up by PHP200 to clear this, plus the hold for whatever you list next.' It names the state, the rule, the exact amount, and that the amount is not the whole story.",
+          "teeth": "Proven CONDITIONAL end to end rather than by reading the branch: seeded a temporary +500 ledger row, reloaded -> available PHP300, note hidden and empty; deleted the row, reloaded -> available PHP-200, note visible. Ledger restored to 5 rows, zero probe residue."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-F-credits-market-admin-empty",

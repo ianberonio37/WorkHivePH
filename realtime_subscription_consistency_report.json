@@ -63,57 +63,57 @@
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 234307
+          "offset": 237153
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 234724
+          "offset": 237570
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 235849
+          "offset": 238695
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 236681
+          "offset": 239527
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 238143
+          "offset": 240989
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 266578
+          "offset": 269424
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 267033
+          "offset": 269879
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 268027
+          "offset": 270873
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 268490
+          "offset": 271336
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 269961
+          "offset": 272807
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 270374
+          "offset": 273220
         }
       ],
       "drift": []
@@ -416,17 +416,17 @@
         {
           "table": "projects",
           "allowed": false,
-          "offset": 175764
+          "offset": 176968
         },
         {
           "table": "project_items",
           "allowed": false,
-          "offset": 175908
+          "offset": 177112
         },
         {
           "table": "project_progress_logs",
           "allowed": false,
-          "offset": 176078
+          "offset": 177282
         }
       ],
       "drift": []

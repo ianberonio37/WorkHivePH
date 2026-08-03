@@ -264,6 +264,10 @@
         <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.55rem 0.7rem;">
           <div id="cw-available" style="font-size:1.05rem;font-weight:700;">-</div>
           <div style="font-size:0.7rem;opacity:0.75;">Available to list</div>
+          <!-- A NEGATIVE balance had no words at all. The panel handled zero (offer the starter grant)
+               and positive (fine), and rendered a bare "₱-200" for below-zero - the one state where
+               the seller is BLOCKED and least able to guess why. Filled in by loadCreditWallet. -->
+          <div id="cw-negative-note" style="display:none;font-size:0.68rem;line-height:1.4;margin-top:0.35rem;color:var(--wh-orange-text);"></div>
         </div>
         <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.55rem 0.7rem;">
           <div id="cw-reserved" style="font-size:1.05rem;font-weight:700;">-</div>
@@ -856,6 +860,26 @@
       if (a) a.textContent = peso(avail);
       if (r) r.textContent = peso(held);
       if (t) t.textContent = total > 0 ? peso(total) + ' total' : '';
+
+      /* SAY WHAT A NEGATIVE BALANCE MEANS. This panel exists because "being blocked with no
+         explanation is the cold-start failure the simulation put at 31% of providers" -- its own
+         comment says so -- and it covered zero (offer the grant) and positive (fine) while leaving
+         BELOW ZERO as a bare "₱-200". That is the state where the seller is actually blocked from
+         publishing and has the least chance of guessing why: the starter-grant offer below is gated
+         on total === 0, so a negative seller is shown no explanation AND no route.
+         Found walking F-credits as a signed-in seller carrying -200 from a historical commission. */
+      const neg = document.getElementById('cw-negative-note');
+      if (neg) {
+        if (avail < 0) {
+          neg.textContent = 'Below zero, so publishing is paused: a listing needs 10% of its price held '
+            + 'in credits. Top up by ' + peso(Math.abs(avail)) + ' to clear this, plus the hold for '
+            + 'whatever you list next.';
+          neg.style.display = '';
+        } else {
+          neg.style.display = 'none';
+          neg.textContent = '';
+        }
+      }
 
       /* The starter grant offer only appears to someone who would actually be blocked without it, and
          only if they have never claimed. Showing it to a funded seller is noise; showing it twice is a
