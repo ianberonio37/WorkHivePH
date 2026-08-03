@@ -160,7 +160,13 @@ CATEGORIES = {
     "S-adversarial": (
         "when a guard refuses someone, does the SCREEN teach them why - or just go quiet? The 500 "
         "simulations proved the economics hold; none of them looked at a page",
-        ["seller", "market_svc", "admin"], ["spammer", "sybil", "scam_provider", "scam_buyer"],
+        # `colluder` added 2026-08-04. It was defined in PERSONAS with the sharpest oracle of the set
+        # -- "EXACTLY 0 extracted, proven not assumed" -- and then never appeared in this list, so the
+        # adversary the entire non-withdrawable design exists to defeat had no scenario at all. Found
+        # while trying to bank a colluder walk and discovering the row did not exist. A persona
+        # described but never crossed is a hole shaped exactly like the thing nobody thought to test.
+        ["seller", "market_svc", "admin"],
+        ["spammer", "sybil", "scam_provider", "scam_buyer", "colluder"],
         ["populated", "edge"]),
     "T-two-context": (
         "buyer and provider signed in AT THE SAME TIME, acting on one job. Every walk so far has been "

@@ -53,7 +53,7 @@
   "scam_buyer": "receives the work then objects in bad faith to avoid settling",
   "colluder": "a paired account trading credits with itself to extract value - structurally impossible (every leg is a transfer, credits are non-withdrawable), so the oracle is EXACTLY 0 extracted, proven not assumed"
  },
- "total": 358,
+ "total": 364,
  "scenarios": [
   {
    "id": "LM-A-discovery-market-anon-populated",
@@ -3659,8 +3659,15 @@
    "persona_note": "farms starter grants across fresh accounts - only ID verification touches this, so the screen must not imply a remedy that does not exist",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the sybil: the second starter grant is refused with a reason a person can read, and the screen does NOT imply a remedy that does not exist (only ID verification touches this, so 'try again later' would be a lie)",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "the second starter grant is refused readably, and a 200-with-granted-false is not read as success",
+     "measured": "CONTAINMENT (probe, live DB): the second claim is refused as already_claimed. LEGIBILITY ON SCREEN: returned that exact payload to the live 'Claim your starter credits' control and read what the person sees - toast 'You have already claimed your starter credits.' (class 'show error'), no toast claiming success, wallet unchanged at PHP-200. The important detail is the payload SHAPE: claim_starter_grant refuses with HTTP 200 and {granted:false, reason:'already_claimed'} - NOT an error - so a handler that only checks `error` would read success and tell a sybil their credits had arrived. This one reads the payload. The refusal also does not imply a remedy that does not exist: only ID verification touches sybil farming, and the message does not suggest waiting or retrying will help. (First measurement of this reported falselyClaimsSuccess=true - that was my diff method, not the page: the toast is PREPENDED, so body.replace(before,'') left most of the page in the diff and matched a tick in the chrome. Re-measured the toast element directly.)",
+     "walked": "2026-08-04 · live MCP (Playwright) + tools/probe_adversarial_personas.py for containment"
+    }
+   ]
   },
   {
    "id": "LM-S-adversarial-seller-sybil-edge",
@@ -3724,6 +3731,39 @@
    "persona_note": "receives the work then objects in bad faith to avoid settling",
    "state": "edge",
    "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders -- AND, because this is the scam_buyer: a bad-faith objection is bounded - it must reach adjudication rather than auto-refunding, and the provider must be able to see and answer it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-S-adversarial-seller-colluder-populated",
+   "category": "S-adversarial",
+   "question": "when a guard refuses someone, does the SCREEN teach them why - or just go quiet? The 500 simulations proved the economics hold; none of them looked at a page",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "colluder",
+   "persona_note": "a paired account trading credits with itself to extract value - structurally impossible (every leg is a transfer, credits are non-withdrawable), so the oracle is EXACTLY 0 extracted, proven not assumed",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the colluder: EXACTLY 0 extracted, proven from the ledger rather than assumed: circulation delta is 0.00 across the pair, and the refusal explains that credits move only on a purchase",
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "no transfer affordance exists to abuse - the refusal is structural, not a message",
+     "measured": "CONTAINMENT (tools/probe_adversarial_personas.py, live DB): circulation 1140.00 -> 1140.00, delta EXACTLY 0.00 across the colluding pair - read from the ledger, not assumed. LEGIBILITY ON SCREEN: the honest finding is that there is NO screen to walk, and that is the design working rather than a gap. Grepped every page and edge function for a client path that moves credits between people (transfer/send/gift/move): zero hits, and the database backs it structurally with trg_credits_non_transferable. A colluding pair has no affordance to attempt, so the refusal is an absence rather than a message - every credit leg is bound to a purchase and credits are non-withdrawable, so no cycle can create value. This is the one adversarial row where 'the screen says nothing' is the correct answer and not a silent guard.",
+     "walked": "2026-08-04 · live MCP grep of every client surface + tools/probe_adversarial_personas.py"
+    }
+   ]
+  },
+  {
+   "id": "LM-S-adversarial-seller-colluder-edge",
+   "category": "S-adversarial",
+   "question": "when a guard refuses someone, does the SCREEN teach them why - or just go quiet? The 500 simulations proved the economics hold; none of them looked at a page",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "colluder",
+   "persona_note": "a paired account trading credits with itself to extract value - structurally impossible (every leg is a transfer, credits are non-withdrawable), so the oracle is EXACTLY 0 extracted, proven not assumed",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders -- AND, because this is the colluder: EXACTLY 0 extracted, proven from the ledger rather than assumed: circulation delta is 0.00 across the pair, and the refusal explains that credits move only on a purchase",
    "status": "owed",
    "findings": []
   },
@@ -3839,6 +3879,32 @@
    "findings": []
   },
   {
+   "id": "LM-S-adversarial-market_svc-colluder-populated",
+   "category": "S-adversarial",
+   "question": "when a guard refuses someone, does the SCREEN teach them why - or just go quiet? The 500 simulations proved the economics hold; none of them looked at a page",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "colluder",
+   "persona_note": "a paired account trading credits with itself to extract value - structurally impossible (every leg is a transfer, credits are non-withdrawable), so the oracle is EXACTLY 0 extracted, proven not assumed",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the colluder: EXACTLY 0 extracted, proven from the ledger rather than assumed: circulation delta is 0.00 across the pair, and the refusal explains that credits move only on a purchase",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-S-adversarial-market_svc-colluder-edge",
+   "category": "S-adversarial",
+   "question": "when a guard refuses someone, does the SCREEN teach them why - or just go quiet? The 500 simulations proved the economics hold; none of them looked at a page",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "colluder",
+   "persona_note": "a paired account trading credits with itself to extract value - structurally impossible (every leg is a transfer, credits are non-withdrawable), so the oracle is EXACTLY 0 extracted, proven not assumed",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders -- AND, because this is the colluder: EXACTLY 0 extracted, proven from the ledger rather than assumed: circulation delta is 0.00 across the pair, and the refusal explains that credits move only on a purchase",
+   "status": "owed",
+   "findings": []
+  },
+  {
    "id": "LM-S-adversarial-admin-spammer-populated",
    "category": "S-adversarial",
    "question": "when a guard refuses someone, does the SCREEN teach them why - or just go quiet? The 500 simulations proved the economics hold; none of them looked at a page",
@@ -3945,6 +4011,32 @@
    "persona_note": "receives the work then objects in bad faith to avoid settling",
    "state": "edge",
    "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders -- AND, because this is the scam_buyer: a bad-faith objection is bounded - it must reach adjudication rather than auto-refunding, and the provider must be able to see and answer it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-S-adversarial-admin-colluder-populated",
+   "category": "S-adversarial",
+   "question": "when a guard refuses someone, does the SCREEN teach them why - or just go quiet? The 500 simulations proved the economics hold; none of them looked at a page",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
+   "persona": "colluder",
+   "persona_note": "a paired account trading credits with itself to extract value - structurally impossible (every leg is a transfer, credits are non-withdrawable), so the oracle is EXACTLY 0 extracted, proven not assumed",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the colluder: EXACTLY 0 extracted, proven from the ledger rather than assumed: circulation delta is 0.00 across the pair, and the refusal explains that credits move only on a purchase",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-S-adversarial-admin-colluder-edge",
+   "category": "S-adversarial",
+   "question": "when a guard refuses someone, does the SCREEN teach them why - or just go quiet? The 500 simulations proved the economics hold; none of them looked at a page",
+   "surface": "admin",
+   "url": "/workhive/platform-actions.html",
+   "persona": "colluder",
+   "persona_note": "a paired account trading credits with itself to extract value - structurally impossible (every leg is a transfer, credits are non-withdrawable), so the oracle is EXACTLY 0 extracted, proven not assumed",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders -- AND, because this is the colluder: EXACTLY 0 extracted, proven from the ledger rather than assumed: circulation delta is 0.00 across the pair, and the refusal explains that credits move only on a purchase",
    "status": "owed",
    "findings": []
   },
