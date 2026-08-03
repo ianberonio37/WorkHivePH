@@ -3,7 +3,7 @@
     "view_column_pairs": 335,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 260
+    "files_scanned": 261
   },
   "pairs": [
     {
@@ -6820,6 +6820,11 @@
           "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
+        },
+        {
+          "file": "platform-actions.html",
+          "shape": "direct",
+          "smells": []
         }
       ],
       "smells": [],
@@ -6836,6 +6841,11 @@
         },
         {
           "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "platform-actions.html",
           "shape": "direct",
           "smells": []
         }

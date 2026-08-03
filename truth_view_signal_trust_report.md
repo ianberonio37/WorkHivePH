@@ -9,7 +9,7 @@ differently (one trusts it; one re-gates on another field).
 - View/column pairs scanned: **335**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
-- Files scanned: **260**
+- Files scanned: **261**
 
 ## Smell legend
 
@@ -330,8 +330,8 @@ re-deriving what the canonical view should expose:
 | `v_service_catalog_truth` | `category` | ✅ OK | 2 | direct |
 | `v_service_credit_ledger_truth` | `account_id` | ✅ OK | 1 | direct |
 | `v_service_credit_ledger_truth` | `account_type` | ✅ OK | 1 | direct |
-| `v_service_credit_ledger_truth` | `amount` | ✅ OK | 2 | direct |
-| `v_service_credit_ledger_truth` | `entry_type` | ✅ OK | 2 | direct |
+| `v_service_credit_ledger_truth` | `amount` | ✅ OK | 3 | direct |
+| `v_service_credit_ledger_truth` | `entry_type` | ✅ OK | 3 | direct |
 | `v_service_credit_ledger_truth` | `note` | ✅ OK | 1 | direct |
 | `v_service_credit_topups_truth` | `account_id` | ✅ OK | 2 | direct |
 | `v_service_credit_topups_truth` | `account_type` | ✅ OK | 2 | direct |

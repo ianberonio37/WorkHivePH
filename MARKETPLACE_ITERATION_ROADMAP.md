@@ -31,11 +31,11 @@ mechanism is a wish.
 | | scenarios | green | owed | green% |
 |---|---|---|---|---|
 | **Existing A–W bank** | 364 | 124 | 240 | 34.1% |
-| **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 0 | 178 | 0% |
+| **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 5 | 173 | 2.8% |
 | **F2 · UFAI** (BB/BC/BD/BE) | 120 | 0 | 120 | 0% |
 | **F3 · UI** (BF/BG/BH) | 105 | 0 | 105 | 0% |
 | **F4 · UX** (BI/BJ/BK) | 110 | 0 | 110 | 0% |
-| **TOTAL** | **877** | **124** | **753** | **14.1%** |
+| **TOTAL** | **877** | **129** | **748** | **14.7%** |
 
 **Why the number fell from 343 to 124.** 220 rows were re-opened because a structural probe had been
 answering a behavioural oracle. Each carries the reason in its findings. The 124 that survived cite psql or
@@ -82,15 +82,21 @@ Rules that keep the loop turning:
 ## §4 · NEXT
 
 ```
-NEXT: F1 architecture is the lowest-green family and the one whose seams already yielded four real
-      defects this month — start there.
-  1. AY-seam · seam_trigger_view · null_semantics  (LENS PROVEN LIVE 2026-08-04: reward_max_per_listing
-     is NULL = "no cap", Number(null) = 0 = the trap. One real site found and fixed; service_knob_pct
-     has a COALESCE fallback for every key so its two call sites are clear.)
-  2. AY-seam · seam_edge_db · value_survives — what an edge fn writes vs what the view returns
-  3. AX-layer-contract · layer_edge · status_body_agreement — 200-with-an-error-body, measured on the wire
-  4. BA-invariant · credits_conserved + cap_respected — assert from the ledger, in a rolled-back txn
-  5. then F2 BE-ufai-I (identity) — the two-identity pattern is already proven: signOut, sign in as
+NEXT: F1 architecture. Four rows banked live so far; the seams keep yielding.
+  DONE 2026-08-04 (live MCP, value-backed):
+    · AY-seam/seam_trigger_view/null_semantics  — NULL="no cap" vs Number(null)=0; 1 real site fixed,
+      2 sites cleared (service_knob_pct COALESCEs every key)
+    · AY-seam/seam_edge_db/value_survives + name_survives — base vs view compared value-to-value in
+      psql: 3 topups, treasury 10,000,000/1,500, ledger 1500 over 5 rows, all identical
+    · AX-layer-contract/layer_edge + layer_gateway/status_body_agreement — measured on the wire on
+      BOTH paths; 0 cases of 2xx-with-an-error or 4xx-with-data
+  NOW:
+  1. AX-layer-contract · idempotency — the same call twice, one effect, proven by a DB count
+  2. AX-layer-contract · ordering_totality — a paginated read whose ORDER is not total repeats or
+     skips a row between pages (this platform has been bitten: 4 of 12 rows changed rank)
+  3. BA-invariant · credits_conserved + cap_respected — assert from the ledger in a rolled-back txn
+  4. AZ-failure-injection · fail_null_field — the NULL-renders-as-0 class, per surface
+  5. then F2 BE-ufai-I (identity): two-identity pattern proven — signOut, sign in as
      davidvelasco/test1234, walk, restore pabloaguilar
 ```
 

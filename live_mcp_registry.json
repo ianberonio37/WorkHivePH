@@ -10180,8 +10180,21 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "status_body_agreement",
    "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "asserts": "the gateway does not convert a refusal into a 2xx, nor a failure into data",
+    "value_checked": true,
+    "checked": "Measured ON THE WIRE, both paths. HAPPY: 7 responses across 7 distinct endpoints, all 200, zero disagreements. FAILURE (real refusals, no interception): credit_treasury -> 200 (correct: this session IS a platform admin, so the read is permitted); marketplace_listings UPDATE on a nonexistent id -> 204 (PostgREST returns no-content for a 0-row write, the documented \"a 0-row write is not an error\" characteristic); rpc/redeem_service_voucher -> 404 PGRST202 with an error body; unknown table -> 404 PGRST205 with an error body. ZERO cases of 2xx-carrying-an-error or 4xx-carrying-data. INSTRUMENT CORRECTION recorded rather than filed as a defect: the PGRST202 initially looked like mig 45 regressing (a broken voucher signature once took that endpoint down). It was my probe - I called p_request; the function is (p_code text, p_request_id uuid) and marketplace.html:4073 calls it with exactly those names. Endpoint healthy, client correct.",
+    "depends_on": [
+     "platform-actions.html",
+     "marketplace.html"
+    ],
+    "sha": "0448051b80dbd289",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AX-layer-contract-layer_gateway-system-idempotency",
@@ -10245,8 +10258,21 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "status_body_agreement",
    "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "asserts": "the HTTP status and the body agree on both the happy and the refusal path",
+    "value_checked": true,
+    "checked": "Measured ON THE WIRE, both paths. HAPPY: 7 responses across 7 distinct endpoints, all 200, zero disagreements. FAILURE (real refusals, no interception): credit_treasury -> 200 (correct: this session IS a platform admin, so the read is permitted); marketplace_listings UPDATE on a nonexistent id -> 204 (PostgREST returns no-content for a 0-row write, the documented \"a 0-row write is not an error\" characteristic); rpc/redeem_service_voucher -> 404 PGRST202 with an error body; unknown table -> 404 PGRST205 with an error body. ZERO cases of 2xx-carrying-an-error or 4xx-carrying-data. INSTRUMENT CORRECTION recorded rather than filed as a defect: the PGRST202 initially looked like mig 45 regressing (a broken voucher signature once took that endpoint down). It was my probe - I called p_request; the function is (p_code text, p_request_id uuid) and marketplace.html:4073 calls it with exactly those names. Endpoint healthy, client correct.",
+    "depends_on": [
+     "platform-actions.html",
+     "marketplace.html"
+    ],
+    "sha": "0448051b80dbd289",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AX-layer-contract-layer_edge-system-idempotency",
@@ -10830,8 +10856,20 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "value_survives",
    "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "asserts": "what the base tables hold is what the views the admin surface reads return, value-to-value",
+    "value_checked": true,
+    "checked": "Compared BASE (docker exec psql) against VIEW (read live in the browser through the same client the page uses), never screen-to-screen. topups 2c00../2d30../5cde..: 500.00/verified/1009876543210, 300.00/pending_verification/1005556667770, 1000.00/verified/1001234567890 — all three identical on both sides including the GCash reference. credit_treasury authorised 10,000,000.00 == v_credit_posture.authorised_credits 10,000,000; issued 1,500.00 == 1,500. Ledger: base topup sum 1500.00 over 2 rows == view 1500; base total 5 rows == view 5 rows. Also surfaced from the ledger: commission -360.00 across 3 rows, which is the repealed-commission overhang awaiting Ian.",
+    "depends_on": [
+     "platform-actions.html"
+    ],
+    "sha": "b1c0f8a15da9eb85",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AY-seam-seam_edge_db-system-name_survives",
@@ -10843,8 +10881,20 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "name_survives",
    "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "asserts": "the fields keep their names and meaning across the edge/DB seam",
+    "value_checked": true,
+    "checked": "The view exposes amount, status and gcash_ref under the SAME names the base table uses, so a reader cannot silently bind to a renamed column and get null. Verified live for all three topup rows and for authorised_credits/issued_credits on v_credit_posture.",
+    "depends_on": [
+     "platform-actions.html"
+    ],
+    "sha": "b1c0f8a15da9eb85",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AY-seam-seam_edge_db-system-null_semantics",

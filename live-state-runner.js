@@ -51,7 +51,12 @@ async function rerun(ms) {
   document.dispatchEvent(new Event('DOMContentLoaded'));
   let ran = 0;
   for (const k of LOADERS) {
-    if (typeof window[k] === 'function') { ran++; try { await window[k](); } catch (e) {} }
+    if (typeof window[k] === 'function') {
+      ran++;
+      // empty-catch-allow: a page exposes several loaders and some throw when their pane is not
+      // open. The probe wants whichever ones DO run; a throw from one must not stop the others.
+      try { await window[k](); } catch (e) { /* empty-catch-allow: see above */ }
+    }
   }
   await new Promise(r => setTimeout(r, ms || 1700));
   return ran;

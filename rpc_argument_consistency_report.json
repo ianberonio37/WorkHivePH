@@ -1,6 +1,6 @@
 {
   "summary": {
-    "files_scanned": 171,
+    "files_scanned": 172,
     "total_calls": 87,
     "total_drift": 0,
     "baseline": 0,
@@ -177,6 +177,10 @@
     },
     {
       "file": "learn-link.js",
+      "issues": []
+    },
+    {
+      "file": "live-state-runner.js",
       "issues": []
     },
     {

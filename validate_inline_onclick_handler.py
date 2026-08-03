@@ -71,9 +71,15 @@ HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 def _load_shared_fns() -> set[str]:
     """Function names defined in the platform-wide shared JS modules."""
     names: set[str] = set()
+    # button-lock.js added 2026-08-04. marketplace-seller.html has loaded it since it was written and
+    # called it nowhere; wiring the GCash top-up submit through withButtonLock (a real double-submit
+    # defect: two taps, two writes) made this validator report the handler as an orphan. The function
+    # exists and the page loads it — the list of shared modules was simply incomplete. Teach the gate;
+    # do not bend the call site back to an unguarded one. offline-banner.js and oc-helper.js are on
+    # the same footing and are added now rather than the next time someone calls one from markup.
     for js_name in ("utils.js", "nav-hub.js", "companion-launcher.js",
                     "search-overlay.js", "wh-persona.js", "voice-handler.js",
-                    "wh-ga4.js"):
+                    "wh-ga4.js", "button-lock.js", "offline-banner.js", "oc-helper.js"):
         p = ROOT / js_name
         if not p.exists(): continue
         text = p.read_text(encoding="utf-8", errors="replace")
