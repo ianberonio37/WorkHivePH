@@ -1682,6 +1682,12 @@
         : 'Read your receipt, but those fields were already filled - left them as they are.');
     } catch (err) {
       // An unreadable image must SAY so and leave the manual path open, never fail silently.
+      // And it must LOG: the buyer-side twin of this handler was caught by the error-capture gate
+      // showing without logging, and this one had the identical hole -- invisible only because the
+      // gate counts per-page deltas and this page's baseline already stood at zero. Same fix, same
+      // reason: the toast keeps the provider moving, the log is how we learn the Azure-billed OCR
+      // endpoint is down or rejecting a format people actually use.
+      console.error('[svcReadTopupReceipt] receipt OCR failed:', err);
       showToast((err && err.message) || 'Could not read that receipt. Type the details instead.', 'error');
     } finally { if (input) input.value = ''; }
   }

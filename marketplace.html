@@ -3810,6 +3810,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         ? 'Read your receipt: ' + filled.join(' and ') + ' filled in. Check it before you confirm.'
         : 'Read your receipt, but those fields were already filled - left them as they are.');
     } catch (err) {
+      /* LOG IT AS WELL AS SAY IT. This showed the toast and swallowed the error, so every OCR
+         failure was invisible in telemetry -- and this path calls a metered, Azure-billed edge
+         function, so "receipt reading stopped working" would have been reported by users before it
+         was ever visible to us. The toast keeps the person moving; the log is how we find out the
+         endpoint is down, misconfigured, or rejecting a format people actually use. */
+      console.error('[svcReadPayReceipt] receipt OCR failed:', err);
       showToast((err && err.message) || 'Could not read that receipt. Type the details instead.', 'error');
     } finally { if (input) input.value = ''; }
   }
@@ -4151,6 +4157,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       showToast('Reported. This job won\'t settle automatically while it\'s being reviewed.');
       loadClientServices();
     } catch (err) {
+      /* Log as well as tell. This is the buyer's ONLY route to stop a job settling automatically at
+         the end of the objection window -- if it starts failing, the window closes silently and the
+         money is gone before anyone reports it. The toast is for the buyer; the log is how we find
+         out the objection path broke at all. */
+      console.error('[svcRaiseObjection] objection failed for request', requestId, err);
       showToast(whIsAuthFailure(err)
         ? 'Your session expired, so nothing was reported. Sign in again and try once more.'
         : 'Couldn\'t report the problem, and nothing was changed. Try again.');
