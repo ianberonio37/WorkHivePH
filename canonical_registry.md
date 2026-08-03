@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **176**
 - Views:         **65**
-- RPCs:          **277**
+- RPCs:          **278**
 - HTML surfaces: **61**
 - Edge fns:      **100**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -388,6 +388,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `my_credit_balance` |  | yes | marketplace.html | — |
 | `my_service_provider_ids` |  | yes | achievements.html, marketplace-seller.html | — |
 | `notify_service_cancellation` |  | yes | — | — |
+| `person_credit_balance` | p_uid uuid | yes | — | — |
 | `photo_attach_stats` |  | yes | — | — |
 | `platform_feedback_stamp_resolved` |  | yes | — | — |
 | `populate_asset_node_bridges` |  | yes | — | — |
@@ -427,7 +428,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `sensor_readings_set_external_key` |  | no | — | — |
 | `service_agreed_base` | p_request_id uuid | yes | — | — |
 | `service_knob` | p_hive uuid, p_key text | yes | marketplace-seller.html, marketplace.html | — |
-| `service_knob_pct` | p_hive uuid, p_key text | yes | marketplace.html | — |
+| `service_knob_pct` | p_hive uuid, p_key text | yes | marketplace-seller.html, marketplace.html | — |
 | `service_objection_deadline` | p_request_id uuid | yes | — | — |
 | `service_request_price` | p_request uuid | yes | marketplace.html | — |
 | `set_community_best_answer` | p_reply_id uuid, p_accepted boolean | yes | community.html | — |

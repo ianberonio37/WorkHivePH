@@ -1,6 +1,6 @@
 # SQL Migration Pattern Mining Report
 
-- Files scanned: **516**
+- Files scanned: **518**
 - Features extracted: **22**
 - Promotion threshold: >= 80% conformance, <= 8 outliers
 - Promotion candidates: **1**
@@ -15,25 +15,25 @@
 
 | Feature | Conformance | Positive / Total |
 |---|---:|---|
-| `filename_dated` | 100% | 516 / 516 |
-| `has_header_comment` | 99% | 515 / 516 |
-| `targets_public_schema` | 84% | 437 / 516 |
-| `uses_create_or_replace` | 52% | 269 / 516 |
-| `creates_function` | 45% | 234 / 516 |
-| `uses_security_definer` | 40% | 208 / 516 |
-| `sets_search_path` | 39% | 204 / 516 |
-| `drops_before_create` | 38% | 199 / 516 |
-| `uses_created_at_col` | 32% | 165 / 516 |
-| `wraps_in_transaction` | 25% | 131 / 516 |
-| `uses_create_if_not_exists` | 24% | 128 / 516 |
-| `creates_index` | 24% | 127 / 516 |
-| `creates_policy` | 22% | 115 / 516 |
-| `uses_updated_at_col` | 19% | 99 / 516 |
-| `creates_trigger` | 18% | 94 / 516 |
-| `declares_foreign_key` | 15% | 81 / 516 |
-| `enables_rls` | 15% | 80 / 516 |
-| `has_banner_header` | 15% | 78 / 516 |
-| `has_on_delete_clause` | 14% | 76 / 516 |
-| `uses_uuid_pk` | 12% | 64 / 516 |
-| `has_comment_on_table` | 7% | 39 / 516 |
-| `has_comment_on_column` | 7% | 39 / 516 |
+| `filename_dated` | 100% | 518 / 518 |
+| `has_header_comment` | 99% | 517 / 518 |
+| `targets_public_schema` | 84% | 439 / 518 |
+| `uses_create_or_replace` | 52% | 271 / 518 |
+| `creates_function` | 45% | 236 / 518 |
+| `uses_security_definer` | 40% | 210 / 518 |
+| `sets_search_path` | 39% | 206 / 518 |
+| `drops_before_create` | 38% | 201 / 518 |
+| `uses_created_at_col` | 32% | 166 / 518 |
+| `wraps_in_transaction` | 25% | 131 / 518 |
+| `uses_create_if_not_exists` | 24% | 129 / 518 |
+| `creates_index` | 24% | 129 / 518 |
+| `creates_policy` | 22% | 116 / 518 |
+| `uses_updated_at_col` | 19% | 99 / 518 |
+| `creates_trigger` | 18% | 96 / 518 |
+| `declares_foreign_key` | 16% | 83 / 518 |
+| `enables_rls` | 15% | 81 / 518 |
+| `has_banner_header` | 15% | 80 / 518 |
+| `has_on_delete_clause` | 15% | 78 / 518 |
+| `uses_uuid_pk` | 12% | 65 / 518 |
+| `has_comment_on_table` | 7% | 39 / 518 |
+| `has_comment_on_column` | 7% | 39 / 518 |

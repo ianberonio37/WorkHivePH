@@ -9209,6 +9209,7 @@
       "security_definer": true,
       "comment": "Per-hive percentage knobs with platform defaults. commission_pct and cashback_pct default to 0: the ",
       "called_by_surfaces": [
+        "marketplace-seller.html",
         "marketplace.html"
       ],
       "called_by_edge_fns": []
@@ -9504,6 +9505,14 @@
       "args": "",
       "security_definer": true,
       "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "person_credit_balance": {
+      "defined_in": "20260803000039_one_person_one_wallet.sql",
+      "args": "p_uid uuid",
+      "security_definer": true,
+      "comment": "The canonical answer to \"how many credits does this human have\". Sums the ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     }
@@ -9990,10 +9999,11 @@
         "provider_credit_balance",
         "seller_credit_balance",
         "service_knob",
+        "service_knob_pct",
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 145.0
+      "size_kb": 146.6
     },
     "marketplace.html": {
       "tables_read": [
