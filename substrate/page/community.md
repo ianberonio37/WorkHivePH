@@ -2,13 +2,13 @@
 name: page-community
 type: page
 source: file:community.html
-source_sha: ee784184274c470c
+source_sha: 9f1a3d5e7e6a7a28
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `community.html` — Community: WorkHive
 
-Size: 150KB · 77 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 151KB · 77 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (6): `community_posts.insert`, `community_posts.update`, `community_reactions.delete`, `community_reactions.insert`, `community_replies.insert`, `hive_audit_log.insert`
 **RPC calls**: `get_community_reputation`, `get_hive_trade_peers`, `set_community_best_answer`

@@ -18,6 +18,13 @@
   <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js" integrity="sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
+    /* Reserve the scrollbar gutter. This page carries a `position: fixed; inset: 0` decorative
+       layer, so when async data makes the content exceed the viewport, the scrollbar narrows the
+       layout viewport and every fixed layer re-lays-out - measured as 0.23 CLS on marketplace.html,
+       98% of it attributed to decorative blobs that cannot move on their own. This page does not
+       link components.css, where the canonical rule and the full measurement live. */
+    html { scrollbar-gutter: stable; }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Poppins', sans-serif;

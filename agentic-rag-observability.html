@@ -56,6 +56,13 @@
   <script src="offline-banner.js"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
+    /* Reserve the scrollbar gutter. This page carries a `position: fixed; inset: 0` decorative
+       layer, so when async data makes the content exceed the viewport, the scrollbar narrows the
+       layout viewport and every fixed layer re-lays-out - measured as 0.23 CLS on marketplace.html,
+       98% of it attributed to decorative blobs that cannot move on their own. This page does not
+       link components.css, where the canonical rule and the full measurement live. */
+    html { scrollbar-gutter: stable; }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;

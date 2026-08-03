@@ -2,7 +2,7 @@
 name: page-resume
 type: page
 source: file:resume.html
-source_sha: 5135926899e88c91
+source_sha: 85162a5124974451
 last_verified: 2026-07-13
 supersedes: null
 ---

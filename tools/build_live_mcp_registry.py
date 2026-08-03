@@ -35,7 +35,12 @@ SURFACES = {
     "market_svc": "/workhive/marketplace.html?section=services",
     "seller":     "/workhive/marketplace-seller.html",
     "profile":    "/workhive/marketplace-seller-profile.html",
-    "admin":      "/workhive/marketplace-admin.html",
+    # marketplace-admin.html is RETIRED - it renders "Marketplace Admin has moved" and carries zero action
+    # controls. Pointing 12 H-moderation scenarios at it would have walked a dead surface and reported
+    # confident nonsense about it, the same shape as a test pinned to a hive that no longer exists.
+    # Caught on the first H-moderation walk.
+    "admin":      "/workhive/platform-actions.html",
+    "admin_old":  "/workhive/marketplace-admin.html",
     "founder":    "/workhive/founder-console.html",
 }
 

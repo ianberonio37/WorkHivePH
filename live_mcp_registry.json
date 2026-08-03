@@ -27,7 +27,8 @@
   "market_svc": "/workhive/marketplace.html?section=services",
   "seller": "/workhive/marketplace-seller.html",
   "profile": "/workhive/marketplace-seller-profile.html",
-  "admin": "/workhive/marketplace-admin.html",
+  "admin": "/workhive/platform-actions.html",
+  "admin_old": "/workhive/marketplace-admin.html",
   "founder": "/workhive/founder-console.html"
  },
  "personas": {
@@ -177,8 +178,15 @@
    "persona_note": "signed in, listing and answering",
    "state": "empty",
    "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "pass",
+     "title": "the credit wallet paints on a COLD LOAD and the starter offer appears exactly when it applies",
+     "measured": "cold navigation as isidrosuarez: available PHP0, reserved PHP0, claim button visible. All four lifecycle states (draft/published/sold/removed) are named on the page, so a seller can see where a listing stands.",
+     "nearly_filed": "cw-total rendered EMPTY while the other two showed PHP0, which looks like a broken tile. It is deliberate - `total > 0 ? peso(total)+' total' : ''` - because 'PHP0 total' beside 'PHP0 available / PHP0 reserved' is noise. Reading the source settled it before it became a false finding."
+    }
+   ]
   },
   {
    "id": "LM-B-listing-lifecycle-seller-seller-populated",
@@ -250,7 +258,7 @@
    "category": "B-listing-lifecycle",
    "question": "can a seller get a listing from nothing to live, and know why when they cannot?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "seller",
    "persona_note": "signed in, listing and answering",
    "state": "empty",
@@ -263,7 +271,7 @@
    "category": "B-listing-lifecycle",
    "question": "can a seller get a listing from nothing to live, and know why when they cannot?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "seller",
    "persona_note": "signed in, listing and answering",
    "state": "populated",
@@ -276,7 +284,7 @@
    "category": "B-listing-lifecycle",
    "question": "can a seller get a listing from nothing to live, and know why when they cannot?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "seller",
    "persona_note": "signed in, listing and answering",
    "state": "edge",
@@ -289,7 +297,7 @@
    "category": "B-listing-lifecycle",
    "question": "can a seller get a listing from nothing to live, and know why when they cannot?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "empty",
@@ -302,7 +310,7 @@
    "category": "B-listing-lifecycle",
    "question": "can a seller get a listing from nothing to live, and know why when they cannot?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "populated",
@@ -315,7 +323,7 @@
    "category": "B-listing-lifecycle",
    "question": "can a seller get a listing from nothing to live, and know why when they cannot?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "edge",
@@ -1292,7 +1300,7 @@
    "category": "H-moderation",
    "question": "can an admin act, and is a non-admin visibly refused rather than silently ignored?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "populated",
@@ -1305,7 +1313,7 @@
    "category": "H-moderation",
    "question": "can an admin act, and is a non-admin visibly refused rather than silently ignored?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "empty",
@@ -1318,7 +1326,7 @@
    "category": "H-moderation",
    "question": "can an admin act, and is a non-admin visibly refused rather than silently ignored?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "seller",
    "persona_note": "signed in, listing and answering",
    "state": "populated",
@@ -1331,7 +1339,7 @@
    "category": "H-moderation",
    "question": "can an admin act, and is a non-admin visibly refused rather than silently ignored?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "seller",
    "persona_note": "signed in, listing and answering",
    "state": "empty",
@@ -1344,7 +1352,7 @@
    "category": "H-moderation",
    "question": "can an admin act, and is a non-admin visibly refused rather than silently ignored?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "anon",
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "populated",
@@ -1357,7 +1365,7 @@
    "category": "H-moderation",
    "question": "can an admin act, and is a non-admin visibly refused rather than silently ignored?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "anon",
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "empty",
@@ -2006,8 +2014,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-M-mobile-market-buyer-empty",
@@ -2029,8 +2036,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-M-mobile-market-seller-populated",
@@ -2052,8 +2058,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-M-mobile-market-seller-empty",
@@ -2075,8 +2080,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-M-mobile-seller-buyer-populated",
@@ -2098,8 +2102,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-M-mobile-seller-buyer-empty",
@@ -2121,8 +2124,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-M-mobile-seller-seller-populated",
@@ -2144,8 +2146,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-M-mobile-seller-seller-empty",
@@ -2167,8 +2168,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-M-mobile-market_svc-buyer-populated",
@@ -2190,8 +2190,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-M-mobile-market_svc-buyer-empty",
@@ -2213,8 +2212,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-M-mobile-market_svc-seller-populated",
@@ -2236,8 +2234,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-M-mobile-market_svc-seller-empty",
@@ -2259,8 +2256,7 @@
      "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
      "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
     }
-   ],
-   "lane": "spec"
+   ]
   },
   {
    "id": "LM-N-continuity-market-buyer-populated",
@@ -2272,8 +2268,18 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "defect-fixed",
+     "title": "CLS 0.2302 - and 98% of it was blamed on decoration that cannot move",
+     "measured": "PerformanceObserver(layout-shift, buffered): CLS 0.2302 ('needs improvement'; good is <=0.1), with 0.2251 attributed to .aurora-blob a2/a3.",
+     "diagnosis": "Those blobs are absolutely positioned inside a `position: fixed; inset: 0` layer, so they cannot shift on their own - they were the visible VICTIM. The cause is the scrollbar: listings arrive, content (3345px) exceeds the viewport (1266px), a 23px scrollbar appears and the LAYOUT VIEWPORT narrows 585 -> 562, so every viewport-sized fixed layer re-lays-out. Confirmed by measuring innerWidth vs documentElement.clientWidth, not by reasoning.",
+     "fix": "html { scrollbar-gutter: stable } - canonical in components.css (18 pages), plus the 9 pages that carry the same fixed-full-bleed shape and do not link it.",
+     "verified_live": "marketplace 0.2302 -> 0.0423 (GOOD); marketplace-seller 0.1909 -> 0.0663 (GOOD). 13/13 specs across the four edited marketplace pages green.",
+     "nearly_shipped_half": "After the shared-stylesheet edit, marketplace-seller still reported gutter:'auto' - it does not link components.css. Measuring a SECOND page is what caught a platform-wide claim that had reached one page."
+    }
+   ]
   },
   {
    "id": "LM-N-continuity-market-seller-populated",
@@ -2548,7 +2554,7 @@
    "category": "O-empty-error",
    "question": "does an empty state promise only what the product can deliver?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "anon",
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "empty",
@@ -2561,7 +2567,7 @@
    "category": "O-empty-error",
    "question": "does an empty state promise only what the product can deliver?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "anon",
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "error",
@@ -2574,7 +2580,7 @@
    "category": "O-empty-error",
    "question": "does an empty state promise only what the product can deliver?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "seller",
    "persona_note": "signed in, listing and answering",
    "state": "empty",
@@ -2587,7 +2593,7 @@
    "category": "O-empty-error",
    "question": "does an empty state promise only what the product can deliver?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "seller",
    "persona_note": "signed in, listing and answering",
    "state": "error",
@@ -2600,7 +2606,7 @@
    "category": "O-empty-error",
    "question": "does an empty state promise only what the product can deliver?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "empty",
@@ -2613,7 +2619,7 @@
    "category": "O-empty-error",
    "question": "does an empty state promise only what the product can deliver?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "admin",
    "persona_note": "platform moderator",
    "state": "error",
@@ -2789,7 +2795,7 @@
    "category": "P-isolation",
    "question": "can one tenant see or touch another's rows, through any screen?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "buyer",
    "persona_note": "signed in, browsing and hiring",
    "state": "populated",
@@ -2802,7 +2808,7 @@
    "category": "P-isolation",
    "question": "can one tenant see or touch another's rows, through any screen?",
    "surface": "admin",
-   "url": "/workhive/marketplace-admin.html",
+   "url": "/workhive/platform-actions.html",
    "persona": "seller",
    "persona_note": "signed in, listing and answering",
    "state": "populated",
@@ -2810,13 +2816,5 @@
    "status": "owed",
    "findings": []
   }
- ],
- "_harness_note": {
-  "severity": "harness",
-  "title": "browser_resize(390) yields innerWidth 585 - every M-mobile scenario walked via MCP is a FALSE reading",
-  "measured": "browser_resize(390x844) then echoing innerWidth returned 585. A tap-target sweep at that width reported 0 violations, which says nothing about 390.",
-  "why_it_matters": "M-mobile is 12 of the 197 scenarios and its whole question is 'at 390 CSS pixels'. Walking them through an instrument that silently renders 585 would bank 12 green cells for a viewport nobody uses - the most expensive kind of pass, because it retires the question.",
-  "resolution": "M-mobile scenarios are walked through the PLAYWRIGHT SPEC lane (node node_modules/@playwright/test/cli.js), which sets the viewport deterministically - the marketplace-sim specs already assert 44px targets at a real 390. MCP keeps the categories where it is sound: content, wiring, oracles, a11y tree, and cross-persona reachability.",
-  "rule": "ECHO THE VIEWPORT INSIDE THE PAGE before trusting any width-dependent measurement."
- }
+ ]
 }

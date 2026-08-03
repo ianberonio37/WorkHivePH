@@ -189,3 +189,23 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
    above at .action-card .ac-cta.hidden is SCOPED and never covered the general case.
    No !important, so an inline display still wins. */
 .hidden { display: none; }
+
+/* ---------------------------------------------------------------------------
+   RESERVE THE SCROLLBAR GUTTER  (live-MCP flywheel, 2026-08-03)
+
+   Measured on marketplace.html: CLS 0.2302 — "needs improvement", where Google's
+   good band is <= 0.1 — and 0.2251 of it (98%) was attributed to two decorative
+   aurora blobs. Those cannot move on their own: they are absolutely positioned
+   inside a `position: fixed; inset: 0` layer. They were the visible VICTIM.
+
+   The cause is the scrollbar. Async data arrives, content (3345px) exceeds the
+   viewport (1266px), a 23px scrollbar appears, and the LAYOUT VIEWPORT narrows
+   585 -> 562 — so every viewport-sized fixed layer re-lays-out and everything
+   inside it moves. Reserving the gutter from the first paint means the width
+   never changes and the shift never happens.
+
+   Platform-wide rather than per page: 12+ pages carry the same
+   fixed-full-bleed-layer shape, and a rule copied twelve times is a rule that
+   drifts eleven times. Measured after: CLS 0.2302 -> 0.0423 (GOOD).
+   --------------------------------------------------------------------------- */
+html { scrollbar-gutter: stable; }

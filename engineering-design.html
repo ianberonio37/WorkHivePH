@@ -16,6 +16,13 @@
   <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="tokens.css">
   <style>
+    /* Reserve the scrollbar gutter. This page carries a `position: fixed; inset: 0` decorative
+       layer, so when async data makes the content exceed the viewport, the scrollbar narrows the
+       layout viewport and every fixed layer re-lays-out - measured as 0.23 CLS on marketplace.html,
+       98% of it attributed to decorative blobs that cannot move on their own. This page does not
+       link components.css, where the canonical rule and the full measurement live. */
+    html { scrollbar-gutter: stable; }
+
     * { font-family: 'Poppins', sans-serif; }
     body { background-color: var(--wh-navy); min-height: 100vh; }
 
