@@ -85,8 +85,24 @@ CHECKS = [
      "P6-C1 sibling: staging accept/dismiss guard on acted_at (no double-act re-flip)"),
     ("project-manager.html", "sub", "eq('status', 'pending').select('id')", 2,
      "P6-C1 sibling: approveCO/rejectCO optimistic-lock (no reversal of an already-decided, cost-impacting change order)"),
-    ("founder-console.html", "sub", "neq('status', 'resolved').select('id')", 1,
-     "P6-C1 sibling: dispute-resolve optimistic-lock (no overwrite of an already-recorded admin decision)"),
+    # RETIRED 2026-08-03, and deliberately INVERTED rather than deleted.
+    #
+    # This asserted a dispute-resolve optimistic lock in founder-console.html. The marketplace dispute
+    # lifecycle was retired this session: `marketplace_disputes` held 0 rows, no client path ever
+    # created one, and its states (escrow_hold, refunded, resolved_refund) described custody the
+    # platform refuses to have. The console's queue and its writer are gone, so the lock has nothing
+    # left to lock and the marker could never be found again.
+    #
+    # Deleting the line would have made this gate greener by REMOVING AN OBLIGATION, which is the
+    # exact shape of the banked "coverage improved by deleting the obligations" defect -- and it
+    # would leave nothing to notice if the dispute writer were ever pasted back without its lock.
+    # So the obligation is kept and reversed: the console must not write that table AT ALL. If the
+    # feature is ever revived it fails here first, and whoever revives it re-adds the lock knowingly.
+    #
+    # Real service disputes are unaffected -- they live on service_requests.disputed and are
+    # adjudicated by apply_dispute_adjustment, which has its own coverage.
+    ("founder-console.html", "not", "from('marketplace_disputes')", 0,
+     "the retired marketplace dispute writer must not come back unguarded (queue retired 2026-08-03)"),
 ]
 
 

@@ -274,7 +274,7 @@
         Publishing holds 10% of the price in credits. It is not a fee: it comes back in full if the
         listing does not sell, and goes to your buyer as their reward if it does.
       </p>
-      <button type="button" id="cw-claim" onclick="claimStarter()" style="display:none;min-height:44px;width:100%;margin-top:0.5rem;padding:0 12px;border-radius:8px;border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;">
+      <button type="button" id="cw-claim" onclick="claimStarter()" style="display:none;min-height:44px;width:100%;margin-top:0.5rem;padding:0 12px;border-radius:var(--wh-radius-sm);border:1px solid rgba(74,222,128,0.4);background:rgba(74,222,128,0.12);color:rgb(74,222,128);font-weight:700;cursor:pointer;">
         Claim your starter credits
       </button>
     </div>
@@ -399,7 +399,7 @@
          role=status + aria-live so a screen-reader user hears the figure change when they type a price. -->
     <div class="form-group">
       <div id="li-hold" role="status" aria-live="polite"
-           style="border:1px solid var(--wh-border,rgba(255,255,255,.14)); border-radius:.6rem;
+           style="border:1px solid var(--wh-border,rgba(255,255,255,.14)); border-radius:var(--wh-radius-sm);
                   padding:.75rem .9rem; font-size:.82rem; background:rgba(255,255,255,.03);">
         <div id="li-hold-rows"></div>
         <div id="li-hold-note" style="opacity:.8; margin-top:.5rem; line-height:1.45;"></div>
@@ -779,7 +779,7 @@
     // 2. UNKNOWN. Offline or refused: show that we do not know, never a stale or invented number.
     if (err) {
       rowsEl.innerHTML = _holdRow('Credits held to publish', 'can’t check right now',
-                                  { color: 'var(--wh-orange,#f7a21b)' });
+                                  { color: 'var(--wh-orange)' });
       noteEl.textContent = 'Your wallet could not be read, so this figure is unknown rather than zero. '
                          + 'It will be checked again when you save.';
       _holdState = { ok: true, reason: 'unknown' };   // do not block on OUR failure to read
@@ -810,7 +810,7 @@
       _holdRow(after >= 0 ? 'Credits left after publishing' : 'Short by',
                after >= 0 ? _peso(after) : _peso(short),
                { rule: true, strong: true,
-                 color: after >= 0 ? 'var(--wh-green,#34d399)' : 'var(--wh-orange,#f7a21b)' });
+                 color: after >= 0 ? 'var(--wh-green,#34d399)' : 'var(--wh-orange)' });
 
     if (after >= 0) {
       noteEl.textContent = 'The credits are not a fee. They come back in full if the listing does not '
@@ -824,7 +824,7 @@
             + 'your buyer if it does. '
           : '')
         + 'Top up <strong>' + escHtml(_peso(short)) + '</strong> to publish this one. '
-        + '<a href="#credit-wallet" style="color:var(--wh-blue,#29b6d9);">Go to your wallet</a>';
+        + '<a href="#credit-wallet" style="color:var(--wh-blue);">Go to your wallet</a>';
       _holdState = { ok: false, reason: 'short', short: short };
     }
   }
@@ -1592,9 +1592,9 @@
          that decides it lives on a page they cannot open. A pending row is the smallest honest answer:
          what you sent, when, and that it is waiting on a human. */
       (pending.length
-        ? '<div style="margin-top:0.55rem;padding:0.5rem 0.6rem;border-radius:0.5rem;'
+        ? '<div style="margin-top:0.55rem;padding:0.5rem 0.6rem;border-radius:var(--wh-radius-sm);'
           + 'background:rgba(247,162,27,0.10);border:1px solid rgba(247,162,27,0.30);font-size:0.75rem;">'
-          + '<strong style="color:var(--wh-orange-text,#f7a21b);">Waiting for the founder to verify</strong>'
+          + '<strong style="color:var(--wh-orange-text);">Waiting for the founder to verify</strong>'
           + pending.map(t => '<div style="margin-top:0.25rem;opacity:0.95;">₱'
               + Number(t.amount).toLocaleString(undefined,{minimumFractionDigits:2})
               + ' · ref ' + e(t.gcash_ref || '-')
@@ -1609,7 +1609,7 @@
       (SVC_GCASH_NUMBER
         ? '<button type="button" onclick="svcCopyGcash(this)" data-num="' + e(SVC_GCASH_NUMBER) + '" ' +
           'aria-label="Copy the WorkHive GCash number ' + e(SVC_GCASH_NUMBER) + '" ' +
-          'style="font:inherit;font-weight:800;color:var(--wh-blue,#29b6d9);background:none;border:0;' +
+          'style="font:inherit;font-weight:800;color:var(--wh-blue);background:none;border:0;' +
           'padding:2px 4px;cursor:pointer;text-decoration:underline;min-height:44px;">' +
           e(SVC_GCASH_NUMBER) + ' &#10697;</button>'
         : 'the WorkHive GCash number (ask your platform admin)') +
@@ -1624,7 +1624,7 @@
          where a top-up becomes unmatchable later. Pasting the TEXT stays available too — some
          people copy, some screenshot, and both habits are real. */
       '<label for="svc-topup-img-' + e(provId) + '" style="display:inline-flex;align-items:center;' +
-      'gap:0.4rem;margin-top:0.5rem;font-size:0.75rem;cursor:pointer;color:var(--wh-blue,#29b6d9);' +
+      'gap:0.4rem;margin-top:0.5rem;font-size:0.75rem;cursor:pointer;color:var(--wh-blue);' +
       'min-height:44px;">&#128196; Upload your GCash receipt instead</label>' +
       '<input id="svc-topup-img-' + e(provId) + '" type="file" accept="image/*" ' +
       'onchange="svcReadTopupReceipt(\'' + e(provId) + '\', this)" ' +

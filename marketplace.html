@@ -3691,12 +3691,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         (function(){
           var to = _svcPayTo[requestId] || {};
           if (!to.contact) return '';
-          return '<div style="font-size:0.75rem;margin-bottom:0.5rem;padding:0.5rem 0.6rem;border-radius:0.5rem;'
+          return '<div style="font-size:0.75rem;margin-bottom:0.5rem;padding:0.5rem 0.6rem;border-radius:var(--wh-radius-sm);'
                + 'background:rgba(41,182,217,0.10);border:1px solid rgba(41,182,217,0.28);">'
                + 'Send to <strong>' + escHtml(to.name || 'your provider') + '</strong><br>'
                + '<button type="button" onclick="svcCopyPayee(this)" data-num="' + escHtml(to.contact) + '" '
                + 'aria-label="Copy ' + escHtml(to.name || 'the provider') + '’s GCash number ' + escHtml(to.contact) + '" '
-               + 'style="font:inherit;font-weight:800;color:var(--wh-blue,#29b6d9);background:none;border:0;'
+               + 'style="font:inherit;font-weight:800;color:var(--wh-blue);background:none;border:0;'
                + 'padding:4px 2px;cursor:pointer;text-decoration:underline;min-height:44px;">'
                + escHtml(to.contact) + ' ⧉</button>'
                + '</div>';
@@ -3721,7 +3721,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              this flow and a mistyped digit is what makes the payment unmatchable later. Paste stays
              available for people who copy text rather than screenshot. */
           '<label for="svc-pay-img-' + id + '" style="display:inline-flex;align-items:center;gap:0.4rem;' +
-          'margin-top:0.35rem;font-size:0.72rem;cursor:pointer;color:var(--wh-blue,#29b6d9);min-height:44px;">' +
+          'margin-top:0.35rem;font-size:0.72rem;cursor:pointer;color:var(--wh-blue);min-height:44px;">' +
           '&#128196; Upload your GCash receipt instead</label>' +
           '<input id="svc-pay-img-' + id + '" type="file" accept="image/*" ' +
           'onchange="svcReadPayReceipt(\'' + id + '\', this)" ' +
