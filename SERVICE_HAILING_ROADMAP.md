@@ -457,7 +457,7 @@ and the outbox is its transport.
 | D3 | Providers = freelancers AND hive-companies | Ian Q&A | LOCKED |
 | D4 | Hybrid matching (instant broadcast + quotes) | Ian Q&A | LOCKED |
 | D5 | Live provider map is in scope from the start | Ian mid-plan | LOCKED |
-| D6 | Founder income = prepaid credits + commission-in-credits; GCash personal number ONLY (**09950092416**, set in the wallet card 2026-07-29); manual founder verification; credits non-withdrawable | Ian (startup constraint) | LOCKED |
+| D6 | ~~Founder income = prepaid credits + commission-in-credits~~ → **SUPERSEDED 2026-08-03 by the credits economy: NO REVENUE.** The platform takes no commission and no spread; its only position is the float (cash held against circulating credits). `commission_pct` and `cashback_pct` now default to **0** and the rate comes from `service_knob_pct` alone (mig 20260803000030) — the trigger previously carried a hardcoded 10%/5%-by-segment fallback that fired for every hive, so the knob was decorative. GCash personal number ONLY (**09950092416**) and manual founder verification still stand; credits remain non-withdrawable. | Ian (startup constraint); revenue clause superseded by Ian 2026-08-03 | AMENDED |
 | D7 | Consumer registration free; vouchers/discount credits as acquisition | Ian | LOCKED |
 | D8 | Location privacy: live pin only during active job; idle = area presence | assumption | Ian may veto |
 | D9 | Opening commission: consumer ~10%, industrial ~5%; offer TTL ~90s; radius 3→6km→area | synthesis | Ian tunes |

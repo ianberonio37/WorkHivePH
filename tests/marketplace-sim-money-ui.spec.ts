@@ -177,9 +177,14 @@ test.describe('marketplace simulation — the money screen, through the UI', () 
       .select('entry_type,amount').eq('ref_id', REQ);
     const commission = (led || []).filter((r: any) => r.entry_type === 'commission');
     const cashback = (led || []).filter((r: any) => r.entry_type === 'cashback');
-    expect(commission.length, 'settling through the UI minted no commission').toBe(1);
-    expect(Math.abs(Number(commission[0].amount)), 'commission was billed against the BUDGET (2400) '
-      + 'rather than what was actually paid (2600)').toBeCloseTo(260, 2);
-    expect(cashback.length, 'the consumer never got the cashback they were promised').toBe(1);
+    /* THE MONEY MODEL CHANGED (2026-08-03, mig 20260803000030): the platform takes no commission and
+       cashback is retired, so settling through the UI moves nothing between the platform and either
+       party. What this cell still proves is the part that was always the point — pressing Confirm ONCE
+       records the payment and releases the job, in one press, with the amount the client actually typed
+       (2600, not the 2400 budget). That is asserted above and is unaffected. */
+    expect(commission.length, 'settling through the UI took ' + commission.length + ' commission rows '
+      + 'from the provider — the platform takes none').toBe(0);
+    expect(cashback.length, 'settling minted ' + cashback.length + ' cashback rows — retired when the '
+      + '10% reward replaced it').toBe(0);
   });
 });

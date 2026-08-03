@@ -763,6 +763,7 @@
         </div>
       </div>
 
+<<<<<<< Updated upstream
       <!-- Worker lead (U10, Hive Board PDDA 2026-07-10): a worker's board should lead with
            THEIR own open work + a one-tap way to act on it, not hive-wide stats. Worker-only
            (supervisors get the Supervisor Summary above); hidden for supervisors via the
@@ -797,6 +798,62 @@
            by the arrangeSupervisorDash IIFE below; #stat-open + #stat-members ids kept + visible,
            test-locked by journey-cross-page + kpi-parity). -->
       <div id="board-stats" class="grid grid-cols-2 gap-3 mb-4">
+=======
+      <!-- ─────────────────────────────────────────────────────────────────
+           Supervisor Plain-Read Summary (Layer D of UX Contract).
+           Verdict-first — anchors the page for supervisors before any
+           engineering card. Hidden for workers; populated by
+           loadSupervisorSummary() from data already loaded by
+           loadAdoptionCard() + loadMaturityStairway() + loadPMHealth +
+           the Open Work / Low Stock counters.
+           ───────────────────────────────────────────────────────────────── -->
+      <div id="supervisor-summary" class="hidden mb-5">
+        <div id="ss-verdict" class="verdict empty">
+          <span id="ss-verdict-icon" class="verdict-icon">·</span>
+          <div class="verdict-text"><span id="ss-verdict-label">Computing hive health...</span><small id="ss-verdict-sub">Rolling up adoption + PM compliance + open work + low stock.</small></div>
+        </div>
+        <div class="simple-row" id="ss-cards">
+          <div class="simple-card tag-grey" id="ss-card-stair">
+            <div class="sc-label">Maturity stair</div>
+            <div class="sc-hero" id="ss-stair-hero">&#8212;</div>
+            <div class="sc-sub" id="ss-stair-sub">Loading...</div>
+            <span class="sc-tag" id="ss-stair-tag">&#8212;</span>
+          </div>
+          <div class="simple-card tag-grey" id="ss-card-adoption">
+            <div class="sc-label">Adoption health</div>
+            <div class="sc-hero" id="ss-adoption-hero">&#8212;</div>
+            <div class="sc-sub" id="ss-adoption-sub">Loading...</div>
+            <span class="sc-tag" id="ss-adoption-tag">&#8212;</span>
+          </div>
+          <div class="simple-card tag-grey" id="ss-card-issues">
+            <div class="sc-label">Open issues</div>
+            <div class="sc-hero" id="ss-issues-hero">&#8212;</div>
+            <div class="sc-sub" id="ss-issues-sub">Loading...</div>
+            <span class="sc-tag" id="ss-issues-tag">&#8212;</span>
+          </div>
+        </div>
+        <div class="action-card" id="ss-action">
+          <div class="ac-label">What to do next</div>
+          <div class="ac-text" id="ss-action-text">Computing recommendation...</div>
+        </div>
+        <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="supervisor-summary-details">
+          Show details
+        </button>
+        <div id="supervisor-summary-details" role="region" aria-label="Hive health explainer">
+          <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+          <ul style="margin:0;padding-left:20px;">
+            <li><strong>Maturity stair</strong>: latest snapshot from <code>v_maturity_truth</code>. Hive must clear 5 dimension gates per stair (Reliability / Operations / Safety / People / Cost).</li>
+            <li><strong>Adoption health</strong>: <code>compute_adoption_risk</code> RPC. Healthy &lt; 35, At Risk 35-65, Critical &gt; 65.</li>
+            <li><strong>Open issues</strong>: sum of open work orders (<code>v_logbook_truth</code>, status = Open) + PM overdue (<code>v_pm_compliance_truth</code>, 30d) + low stock (<code>v_inventory_items_truth</code>, qty_on_hand &le; reorder_point).</li>
+            <li><strong>Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
+          </ul>
+          <p style="margin-top:8px;color:rgba(255,255,255,0.55);font-size:11px;">Full breakdown (top risk reasons, champion candidate, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+>>>>>>> Stashed changes
         <div class="wh-card p-4 text-center">
           <p class="text-2xl font-black text-white" id="stat-open" style="font-variant-numeric:tabular-nums;">&#8211;</p>
           <p class="text-[11px] text-white/80 mt-1" data-i="wo">Open Work Orders</p>
@@ -943,6 +1000,10 @@
         </div>
       </div>
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
       <!-- ─────────────────────────────────────────────────────────────────
            Onboarding card (Phase 3.3 of STRATEGIC_ROADMAP).
            Shows the role-specific path (worker 5-step / supervisor 7-step).
@@ -1166,19 +1227,31 @@
         </div>
       </div>
 
+<<<<<<< Updated upstream
       <!-- Reliability Coach (AI - Phase 1.3). Collapsed by default so a
+=======
+      <!-- Reliability Coach (AI — Phase 1.3). Collapsed by default so a
+>>>>>>> Stashed changes
            healthy hive's dashboard isn't dominated by an unused input;
            the supervisor expands it on demand. -->
       <div id="reliability-coach-panel" class="mb-5">
         <button id="coach-toggle-btn" type="button" aria-expanded="false" aria-controls="coach-body"
+<<<<<<< Updated upstream
           style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; background:rgba(167,139,250,0.06); color:var(--wh-violet); border:1px solid rgba(167,139,250,0.25); border-radius:12px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; min-height:44px;">
           <span style="display:flex; align-items:center; gap:8px;">
             <span style="font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; opacity:0.95;">AI</span>
             <span data-i="coach">Ask the Reliability Coach</span>
+=======
+          style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; background:rgba(167,139,250,0.06); color:#a78bfa; border:1px solid rgba(167,139,250,0.25); border-radius:12px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; min-height:44px;">
+          <span style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6;">AI</span>
+            Ask the Reliability Coach
+>>>>>>> Stashed changes
           </span>
           <span id="coach-toggle-icon" style="font-size:0.7rem; opacity:0.7;">&#9656;</span>
         </button>
         <div id="coach-body" class="wh-card p-4 mt-2" style="display:none;">
+<<<<<<< Updated upstream
           <p class="text-[11px] text-white/80 mb-3" data-i="coachintro">Ask about your maintenance priorities. Get a few actions, ranked by urgency.</p>
           <!-- Y6 silent-loop: a blank input left "what can I even ask?" invisible.
                Surface 3 tap-to-fill examples so the user sees what the coach answers. -->
@@ -1188,6 +1261,9 @@
                + data slices it reads, so the supervisor can audit the
                recommendations. Populated by askCoach() on each invocation. -->
           <p id="coach-source-chip" style="margin:0 0 8px;"></p>
+=======
+          <p class="text-[11px] text-white/40 mb-3">Ask about your plant's maintenance priorities. The coach analyzes failure history, PM status, inventory, and predictions to give you 3 specific actions.</p>
+>>>>>>> Stashed changes
           <div class="flex gap-2">
             <input aria-label="Your question for the coach" id="coach-input" type="text" placeholder="e.g. Why are we having so many pump failures?" class="wh-input flex-1" style="min-height:44px; font-size:16px;" />
             <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(167,139,250,0.15); color:var(--wh-violet); border:1px solid rgba(167,139,250,0.4); border-radius:12px; font-family:inherit; font-size:0.82rem; font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;" data-i="ask">Ask</button>
@@ -2916,12 +2992,61 @@ async function loadSupervisorSummary() {
   const riskScore = _lastAdoption && _lastAdoption.risk_score;
   const overdue   = _pmOverdueCount || 0;
 
+<<<<<<< Updated upstream
   // Open work order count — read from the KPI strip cell that loadFeed()
   // populates (canonical fuel: v_logbook_truth, status = Open). The
   // Promise.allSettled inside initBoard awaits loadFeed before invoking
   // loadSupervisorSummary, so the value is already painted by the time
   // we read it.
   const openWO = parseInt((document.getElementById('stat-open') || {}).textContent, 10) || 0;
+=======
+  // Read open work order count from the KPI strip (already populated by
+  // loadFeed via initBoard, since loadSupervisorSummary runs after the
+  // Promise.allSettled at initBoard). Canonical fuel: v_logbook_truth.
+  const openWO = parseInt((document.getElementById('stat-open') || {}).textContent, 10) || 0;
+
+  // Hive-wide low-stock count (canonical fuel: v_inventory_items_truth).
+  // One small extra query per supervisor render — cheap; the result rolls
+  // into Card 3 + the verdict.
+  let lowStock = 0;
+  try {
+    const { data: invRows } = await db.from('v_inventory_items_truth')
+      .select('qty_on_hand, min_qty')
+      .eq('hive_id', HIVE_ID)
+      .eq('status', 'approved');
+    (invRows || []).forEach(i => {
+      const q  = Number(i.qty_on_hand) || 0;
+      const mn = Number(i.min_qty)     || 0;
+      if (q <= 0 || (mn > 0 && q <= mn)) lowStock++;
+    });
+  } catch (e) { console.warn('low-stock count:', e); }
+
+  // Weakest stair dimension (so the verdict + action can call it out by
+  // name instead of just pointing to "the card below").
+  const dims = _lastReadiness ? {
+    Process:    _lastReadiness.process_maturity_score,
+    Data:       _lastReadiness.data_quality_score,
+    Resilience: _lastReadiness.infrastructure_resilience_score,
+    Leadership: _lastReadiness.leadership_engagement_score,
+    Culture:    _lastReadiness.cultural_adoption_score,
+  } : null;
+  let weakDim = null, weakVal = null;
+  if (dims) {
+    Object.keys(dims).forEach(k => {
+      const v = Number(dims[k]);
+      if (!Number.isFinite(v)) return;
+      if (weakVal == null || v < weakVal) { weakVal = v; weakDim = k; }
+    });
+  }
+
+  // Card 1 — Maturity Stair
+  setCard('stair',
+    stair != null ? `Stair ${stair}` : '—',
+    stair != null ? (stairLbl || `Composite ${composite || '—'}/100`) : 'No snapshot yet',
+    stair == null ? 'NO DATA' : stair >= 3 ? 'PREDICTIVE-READY' : stair >= 2 ? 'PROACTIVE' : 'BUILDING',
+    stair == null ? 'grey' : stair >= 3 ? 'green' : stair >= 2 ? 'amber' : 'amber'
+  );
+>>>>>>> Stashed changes
 
   // Hive-wide stock-issue count (canonical fuel: v_inventory_items_truth).
   // F5 stock-count UNIFY (Hive Board PDDA, 2026-07-10): a "stock issue" = LOW *or*
@@ -2945,6 +3070,7 @@ async function loadSupervisorSummary() {
     });
   } catch (e) { console.warn('stock-issue count:', e); }
 
+<<<<<<< Updated upstream
   // U8 first-run (Hive Board PDDA, 2026-07-10): a BRAND-NEW hive (Stair 0, no work / PMs /
   // stock yet) computes "critical adoption" only because nothing has happened yet — so BOTH
   // the verdict AND the adoption card should read "just getting started", not a red alarm.
@@ -3029,6 +3155,52 @@ async function loadSupervisorSummary() {
     if (tier === 'at_risk') {
       sub = `Adoption at risk · ${issueParts.length ? issueParts.join(' · ') : 'no other open issues'}.`;
     } else {
+=======
+  // Card 3 — Open Issues (true rollup: open WOs + overdue PMs + low stock).
+  // Closes the bug where the page declared 3 canonical fuels in the source
+  // chip but Card 3 only read 1 (PM overdue). All three header-strip
+  // anchors are now reflected in the renderer (Canonical Anchor L10).
+  const totalIssues = openWO + overdue + lowStock;
+  const issueParts = [];
+  if (openWO   > 0) issueParts.push(`${openWO} open WO${openWO === 1 ? '' : 's'}`);
+  if (overdue  > 0) issueParts.push(`${overdue} PM overdue`);
+  if (lowStock > 0) issueParts.push(`${lowStock} low stock`);
+  const issueSub = issueParts.length
+                   ? issueParts.join(' · ')
+                   : 'No open work, overdue PMs, or low stock';
+  // Tag tone = worst-of-three. Red if any "critical" signal (>5 PMs OR >=10 WOs),
+  // amber if any of the three has any count, green when all zero.
+  let issueTone, issueTag;
+  if (overdue > 5 || openWO >= 10)       { issueTone = 'red';   issueTag = 'STACKING UP'; }
+  else if (totalIssues > 0)              { issueTone = 'amber'; issueTag = 'WATCH'; }
+  else                                   { issueTone = 'green'; issueTag = 'CLEAR'; }
+  setCard('issues',
+    String(totalIssues),
+    issueSub,
+    issueTag,
+    issueTone
+  );
+
+  // Verdict — red if critical adoption OR > 5 PMs overdue OR >= 10 open WOs;
+  // amber if at_risk OR any non-zero issue signal; green when all clear.
+  let tone, label, sub;
+  const anyIssue = totalIssues > 0;
+  if (tier === 'critical' || overdue > 5 || openWO >= 10) {
+    tone = 'attn'; label = 'Hive needs your attention';
+    if (tier === 'critical') {
+      sub = 'Adoption signals are critical — open the Engagement Card breakdown below.';
+    } else if (overdue > 5) {
+      sub = `${overdue} PMs are overdue — open PM Scheduler to triage.`;
+    } else {
+      sub = `${openWO} open work orders piling up — open Logbook to clear them.`;
+    }
+  } else if (tier === 'at_risk' || anyIssue) {
+    tone = 'watch'; label = 'Hive is mostly healthy — a few things to watch';
+    if (tier === 'at_risk') {
+      sub = `Adoption at risk · ${issueParts.length ? issueParts.join(' · ') : 'no other open issues'}.`;
+    } else {
+      const dimNote = (weakDim && weakVal != null && weakVal < 80) ? ` · ${weakDim} ${weakVal} is your soft spot` : '';
+>>>>>>> Stashed changes
       sub = `${issueParts.join(' · ')}${dimNote}.`;
     }
   } else if (!tier && !stair) {
@@ -3036,7 +3208,12 @@ async function loadSupervisorSummary() {
     sub  = 'First snapshot will land within a day. Encourage workers to log entries to populate the picture.';
   } else {
     tone = 'healthy'; label = 'Hive looks healthy';
+<<<<<<< Updated upstream
     sub  = `Stair ${stair || '-'} · Adoption ${tierLabel.toLowerCase()} · 0 open issues${dimNote}.`;
+=======
+    const dimNote = (weakDim && weakVal != null && weakVal < 80) ? ` · ${weakDim} ${weakVal} is your soft spot` : '';
+    sub  = `Stair ${stair || '—'} · Adoption ${tierLabel.toLowerCase()} · 0 open issues${dimNote}.`;
+>>>>>>> Stashed changes
   }
   const vBox = document.getElementById('ss-verdict');
   if (vBox) {
@@ -3088,11 +3265,18 @@ async function loadSupervisorSummary() {
   const _cd = document.getElementById('ss-cards');     if (_cd) _cd.style.display  = isFirstRun ? 'none' : '';
   const _ac = document.getElementById('ss-action');    if (_ac) _ac.style.display  = isFirstRun ? 'none' : '';
 
+<<<<<<< Updated upstream
   // Action — single most-actionable next step from the data. Priority:
   // critical adoption > stacking PMs > stacking WOs > at-risk adoption >
   // 1-5 overdue PMs > 1-9 open WOs > low stock > weak stair dim > all-
   // clear maintenance message. Each branch names the surface to open so
   // the supervisor doesn't have to guess.
+=======
+  // Action — pick the single most-actionable next step from the data.
+  // Priority order: critical adoption > stacking PMs > stacking WOs > at-risk
+  // adoption > 1-5 overdue PMs > 1-9 open WOs > low stock > weak stair dim
+  // > all-clear maintenance message.
+>>>>>>> Stashed changes
   const actBox = document.getElementById('ss-action-text');
   if (actBox) {
     let text;
@@ -3109,17 +3293,24 @@ async function loadSupervisorSummary() {
       text = _isFil ? `Kritikal ang adoption. Ipares si ${_lastAdoption.champion_candidate || 'pinakaaktibong worker'} sa mga humihina.` : `Adoption critical. Pair ${_lastAdoption.champion_candidate || 'your top worker'} with whoever's slipping.`;
       cta = { label: _isFil ? 'Tingnan ang adoption signals →' : 'View adoption signals →', href: '#adoption-card' };
     } else if (overdue > 5) {
+<<<<<<< Updated upstream
       text = _isFil ? `${overdue} asset ang may lumipas na PM. I-bulk assign sa PM Scheduler ngayong linggo.` : `${overdue} asset${overdue === 1 ? '' : 's'} have overdue PMs. Bulk-assign them in PM Scheduler this week.`;
       cta = { label: _isFil ? `I-assign ang ${overdue} asset →` : `Assign ${overdue} asset${overdue === 1 ? '' : 's'} →`, href: 'pm-scheduler.html' };
     } else if (openWO >= 10) {
       text = _isFil ? `${openWO} work order ang bukas. Unahin ang pinakaluma sa Logbook.` : `${openWO} work orders open. Triage the oldest first in Logbook.`;
       cta = { label: _isFil ? `Ayusin ang ${openWO} bukas na work order →` : `Triage ${openWO} open work orders →`, href: 'logbook.html' };
+=======
+      text = `${overdue} PMs are overdue. Open PM Scheduler and bulk-assign them across this week's shifts — every overdue PM is a Stair Reliability dimension penalty.`;
+    } else if (openWO >= 10) {
+      text = `${openWO} work orders are open. Open Logbook → filter by status = Open and triage; anything > 48 hours old needs a status update or assignee.`;
+>>>>>>> Stashed changes
     } else if (tier === 'at_risk') {
       const r0 = _lastAdoption.top_reasons && _lastAdoption.top_reasons[0];
       text = r0 ? (_isFil ? `Nasa panganib ang adoption. Pangunahing signal: ${r0.label || r0.signal} (${r0.score}/100). Unahin ito.` : `Adoption at risk. Top signal: ${r0.label || r0.signal} (${r0.score}/100). Tackle it first.`)
                 : (_isFil ? 'Nasa panganib ang adoption. Buksan ang Engagement Card para sa pangunahing signal.' : 'Adoption at risk. Open the Engagement Card for the top signal.');
       cta = { label: _isFil ? 'Tingnan ang adoption signals →' : 'View adoption signals →', href: '#adoption-card' };
     } else if (overdue > 0) {
+<<<<<<< Updated upstream
       text = _isFil ? `${overdue} asset ang may lumipas na PM. Ayusin ngayong linggo para manatiling green ang Reliability.` : `${overdue} asset${overdue === 1 ? '' : 's'} have overdue PMs. Clear them this week to keep Reliability green.`;
       cta = { label: _isFil ? 'Buksan ang PM Scheduler →' : `Open PM Scheduler →`, href: 'pm-scheduler.html' };
     } else if (openWO > 0) {
@@ -3131,6 +3322,15 @@ async function loadSupervisorSummary() {
     } else if (weakDim && weakVal != null && weakVal < 80) {
       text = _isFil ? `Malinaw lahat ng trabaho. Pinakamahinang dimensyon: ${weakDim} (${weakVal}/100). Buksan ang Maturity Stairway para sa pinakamaliit na lift.` : `All work clear. Weakest dimension: ${weakDim} (${weakVal}/100). Open Maturity Stairway for the smallest lift.`;
       cta = { label: _isFil ? 'Buksan ang Maturity Stairway →' : 'Open Maturity Stairway →', href: '#maturity-stairway-card' };
+=======
+      text = `${overdue} PM task${overdue === 1 ? '' : 's'} overdue. Knock these out this week to keep your Reliability dimension green.`;
+    } else if (openWO > 0) {
+      text = `${openWO} open work order${openWO === 1 ? '' : 's'} to triage. Open Logbook → filter by status = Open and close out the oldest first.`;
+    } else if (lowStock > 0) {
+      text = `${lowStock} part${lowStock === 1 ? '' : 's'} at or below reorder point. Open Inventory to restock before the next PM cycle runs them out.`;
+    } else if (weakDim && weakVal != null && weakVal < 80) {
+      text = `All open work is clear. Your weakest Stair dimension is ${weakDim} (${weakVal}/100) — open the Maturity Stairway card below; the blocker line tells you the smallest move that lifts it.`;
+>>>>>>> Stashed changes
     } else if (stair != null && stair < 3) {
       text = _isFil ? `Stair ${stair} (${stairLbl}). Ang pinakamahina mong dimensyon ang susunod na gate. Buksan ang Maturity Stairway.` : `Stair ${stair} (${stairLbl}). Your weakest dimension is the next gate. Open Maturity Stairway.`;
       cta = { label: _isFil ? 'Buksan ang Maturity Stairway →' : 'Open Maturity Stairway →', href: '#maturity-stairway-card' };
@@ -3306,6 +3506,28 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
+    btn.addEventListener('click', () => {
+      const open = body.style.display === 'none' || body.style.display === '';
+      body.style.display = open ? 'block' : 'none';
+      btn.setAttribute('aria-expanded', String(open));
+      if (icon) icon.innerHTML = open ? '&#9662;' : '&#9656;';
+      if (open) {
+        const input = document.getElementById('coach-input');
+        if (input) setTimeout(() => input.focus(), 60);
+      }
+    });
+  });
+})();
+
+// Reliability Coach — collapsed by default; click the header button to
+// expand. Auto-focuses the input on expand so the supervisor can type
+// straight away.
+(function wireCoachToggle() {
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn  = document.getElementById('coach-toggle-btn');
+    const body = document.getElementById('coach-body');
+    const icon = document.getElementById('coach-toggle-icon');
+    if (!btn || !body) return;
     btn.addEventListener('click', () => {
       const open = body.style.display === 'none' || body.style.display === '';
       body.style.display = open ? 'block' : 'none';
@@ -4966,16 +5188,24 @@ async function loadTodaysBrief() {
   });
 
   // No bullets means no AI report has been generated yet. Stay hidden
+<<<<<<< Updated upstream
   // entirely — a placeholder block ("No AI analysis yet...") makes the
   // panel look broken and wastes vertical space. When the first report
   // lands, the panel appears with real content. Also evict any prior
   // cache so a poisoned entry from an earlier build can't resurrect.
   if (!bullets.length) {
     try { sessionStorage.removeItem(cacheKey); } catch { /* empty-catch-allow: best-effort silent swallow */ }
+=======
+  // entirely — a placeholder block ("No AI analysis yet…") just makes the
+  // panel look broken and competes for vertical space with real content.
+  // When the first report lands, the panel appears with bullets.
+  if (!bullets.length) {
+>>>>>>> Stashed changes
     panel.classList.add('hidden');
     return;
   }
 
+<<<<<<< Updated upstream
   // Source chip — anchors the bullets to ai_reports + the 3 report
    // types whose latest rows feed this panel.
   const chipEl = document.getElementById('todays-brief-source-chip');
@@ -4990,15 +5220,24 @@ async function loadTodaysBrief() {
     });
   }
 
+=======
+>>>>>>> Stashed changes
   const latest = results.find(r => r.status === 'fulfilled' && r.value.data)?.value.data;
   const ageText = latest ? timeAgo(latest.generated_at) : '';
   let html = bullets.slice(0, 3).map(b =>
     `<div class="flex items-start gap-2 py-1.5 border-b border-white/5 last:border-0">
       <div class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style="background:${b.color};"></div>
+<<<<<<< Updated upstream
       <p class="text-xs text-white/85 leading-relaxed">${b.text}</p>
     </div>`
   ).join('');
   if (ageText) html += `<p class="text-[10px] text-white/80 mt-2">Updated ${escHtml(ageText)}</p>`;
+=======
+      <p class="text-xs text-white/70 leading-relaxed">${b.text}</p>
+    </div>`
+  ).join('');
+  if (ageText) html += `<p class="text-[10px] text-white/20 mt-2">Updated ${escHtml(ageText)}</p>`;
+>>>>>>> Stashed changes
 
   el.innerHTML = html;
   try { sessionStorage.setItem(cacheKey, JSON.stringify({ html, ts: Date.now() })); } catch { /* empty-catch-allow: best-effort silent swallow */ }
@@ -5128,6 +5367,7 @@ async function loadBenchmarks() {
 
   try {
     // Fetch this hive's metrics and the network aggregate in parallel
+<<<<<<< Updated upstream
     let hiveData, networkData;
     if (_board && _board.benchmarks) {
       hiveData    = _board.benchmarks.hive    || [];
@@ -5149,6 +5389,22 @@ async function loadBenchmarks() {
       hiveData    = hiveRes.data    || [];
       networkData = networkRes.data || [];
     }
+=======
+    const [hiveRes, networkRes] = await Promise.all([
+      db.from('hive_benchmarks')
+        .select('equipment_category, mtbf_days, failure_count, sample_machines')
+        .eq('hive_id', HIVE_ID)
+        .order('failure_count', { ascending: false })
+        .limit(5),
+      db.from('network_benchmarks')
+        .select('equipment_category, avg_mtbf_days, p75_mtbf_days, sample_hives')
+        .order('sample_hives', { ascending: false })
+        .limit(10),
+    ]);
+
+    const hiveData    = hiveRes.data || [];
+    const networkData = networkRes.data || [];
+>>>>>>> Stashed changes
 
     // Build a lookup of network benchmarks by category.
     const netByCategory = {};
@@ -5163,6 +5419,24 @@ async function loadBenchmarks() {
       const net = netByCategory[h.equipment_category];
       return h.mtbf_days && net && net.avg_mtbf_days;
     });
+<<<<<<< Updated upstream
+=======
+
+    if (!comparable.length) {
+      panel.classList.add('hidden');
+      return;
+    }
+
+    let html = '';
+    comparable.forEach(h => {
+      const net = netByCategory[h.equipment_category];
+      const myMTBF = h.mtbf_days + 'd';
+      const netAvg = net.avg_mtbf_days + 'd';
+      const netTop = net.p75_mtbf_days ? net.p75_mtbf_days + 'd' : null;
+      const ratio  = h.mtbf_days / net.avg_mtbf_days;
+      const color  = ratio >= 0.9 ? 'var(--green)' : ratio >= 0.6 ? 'var(--yellow)' : 'var(--red)';
+      const label  = ratio >= 0.9 ? '✓ On par' : ratio >= 0.6 ? '↓ Below avg' : '⚠ Well below';
+>>>>>>> Stashed changes
 
     if (!comparable.length) {
       panel.classList.add('hidden');
@@ -5192,11 +5466,19 @@ async function loadBenchmarks() {
       html += '<div style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);">'
         + '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:5px;">'
         + '<p style="font-size:.78rem; font-weight:600; color:rgba(255,255,255,0.85);">' + escHtml(h.equipment_category) + '</p>'
+<<<<<<< Updated upstream
         + '<p style="font-size:.88rem; font-weight:800; color:' + color + '; font-variant-numeric:tabular-nums;">' + escHtml(myMTBF) + ' <span style="font-size:.62rem; font-weight:600;">' + label + '</span></p>'
         + '</div>'
         + '<div style="position:relative; height:6px; background:rgba(255,255,255,0.06); border-radius:3px;">'
         +   '<div style="position:absolute; left:0; top:0; height:100%; width:' + myPct.toFixed(1) + '%; background:' + color + '; border-radius:3px;"></div>'
         +   '<div title="Network average" style="position:absolute; left:' + avgPct.toFixed(1) + '%; top:-2px; width:2px; height:10px; background:rgba(255,255,255,0.85); border-radius:1px;"></div>'
+=======
+        + '<p style="font-size:.67rem; color:rgba(255,255,255,0.35); margin-top:1px;">Network avg: ' + escHtml(netAvg) + (netTop ? ' · Top 25%: ' + escHtml(netTop) : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' plants' : '') + '</p>'
+        + '</div>'
+        + '<div style="text-align:right;">'
+        + '<p style="font-size:.88rem; font-weight:800; color:' + color + ';">' + escHtml(myMTBF) + '</p>'
+        + '<p style="font-size:.62rem; color:' + color + '; font-weight:600;">' + label + '</p>'
+>>>>>>> Stashed changes
         + '</div>'
         + '<p style="font-size:.62rem; color:rgba(255,255,255,0.80); margin-top:4px; font-variant-numeric:tabular-nums;">' + _t('Network avg: ', 'Avg ng network: ') + escHtml(netAvg) + (netTop ? ' · ' + _t('Top 25%: ', 'Nangungunang 25%: ') + escHtml(netTop) : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' ' + _t('hives', 'hives') : '') + '</p>'
         + '</div>';

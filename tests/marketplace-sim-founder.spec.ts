@@ -170,20 +170,32 @@ test.describe('marketplace simulation — the founder decides whether money land
       rag: document.getElementById('rag-credit-economy')?.className || '',
     }));
 
-    // Liability is what the platform owes: every credit minted and not yet spent. Cover says whether
-    // earned revenue could honour it. Both must be present and both must be real numbers.
+    // Liability is what the platform owes: every credit minted and not yet spent. Cover says whether the
+    // cash taken in could honour it. Both must be present and both must be real numbers.
     for (const label of ['CREDIT LIABILITY', 'LIABILITY COVER']) {
       expect(shown.text.toUpperCase(), `the money tile is missing "${label}"`).toContain(label);
     }
+    /* AND THE TWO RETIRED TILES MUST BE GONE, not sitting at ₱0. The platform takes no commission and
+       cashback is retired (mig 20260803000030), so both would be frozen at zero forever — and a money
+       number that never moves reads as a dead feed, especially once the Calm Dashboard dims it. */
+    expect(shown.text.toUpperCase(), 'the "Earned revenue" tile is still rendered; with no commission it '
+      + 'can only ever show ₱0, which reads as broken rather than as by design').not.toContain('EARNED REVENUE');
+    expect(shown.text.toUpperCase(), 'the "Cashback minted" tile is still rendered after cashback was '
+      + 'retired').not.toContain('CASHBACK');
+
     expect(shown.rag, 'the liability RAG never resolved, so nothing signals when cover falls below 1.0')
       .toMatch(/green|amber|red/);
 
+    /* The tile must stand on the LEDGER. The first peso on it is now Credit liability (the earned tile
+       that used to be first is gone), so that is what gets checked against a ledger sum computed here
+       from the same definition the page uses: topups + cashback + vouchers − earned. */
     const admin = adminClient();
     const { data } = await admin.from('service_credit_ledger').select('entry_type,amount');
-    const earned = -(data || []).filter((r: any) => r.entry_type === 'commission')
+    const sum = (t: string) => (data || []).filter((r: any) => r.entry_type === t)
       .reduce((a: number, r: any) => a + Number(r.amount || 0), 0);
+    const liability = sum('topup') + sum('cashback') + sum('voucher_grant') - (-sum('commission'));
     const firstPeso = Number((shown.text.match(/₱\s*([\d,]+\.\d{2})/) || [])[1]?.replace(/,/g, '') ?? -1);
-    expect(firstPeso, `the tile reports ${firstPeso} earned but the ledger sums to ${earned} — a money `
-      + 'dashboard standing on something other than the ledger').toBeCloseTo(earned, 2);
+    expect(firstPeso, `the tile reports ${firstPeso} liability but the ledger sums to ${liability} — a `
+      + 'money dashboard standing on something other than the ledger').toBeCloseTo(liability, 2);
   });
 });

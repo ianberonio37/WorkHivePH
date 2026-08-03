@@ -2,7 +2,7 @@
 name: doc-SERVICE_HAILING_ROADMAP
 type: doc
 source: file:SERVICE_HAILING_ROADMAP.md
-source_sha: 04a457b7ab6811d2
+source_sha: b52251a986faabe3
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -71,8 +71,17 @@ def judge(topups, earned, cashback, vouchers, neg_consumers):
     """-> list of problems. Pure arithmetic so it is testable without touching a real ledger."""
     problems = []
     if vouchers > earned:
-        problems.append(f"unbacked credits ({vouchers:.2f} in vouchers) exceed everything ever EARNED "
-                        f"({earned:.2f} in commission) — acquisition is being funded out of prepayments")
+        # Since 2026-08-03 the platform takes NO commission, so `earned` is structurally 0 going forward
+        # and this rule gets STRICTER, not weaker: with no revenue there is nothing to fund a giveaway
+        # from, so any voucher at all is a credit minted against someone else's prepayment. Saying
+        # "backed by cash OR revenue" would describe a funding source that no longer exists.
+        problems.append(
+            f"unbacked credits ({vouchers:.2f} in vouchers) exceed everything ever EARNED "
+            f"({earned:.2f} in commission)"
+            + (" — and the platform now takes NO commission, so there is no revenue to fund a giveaway "
+               "from at all: every voucher is minted against someone else's prepayment"
+               if earned <= 0 else
+               " — acquisition is being funded out of prepayments"))
     if neg_consumers:
         problems.append(f"{neg_consumers} consumer account(s) hold a NEGATIVE balance — consumers only "
                         f"receive and spend cashback, so this means credits were spent that were never minted")
@@ -127,7 +136,12 @@ def main(argv):
         print(f"\n  {GREEN}PASS{RST} — no money has moved yet; the invariants hold vacuously and will bite "
               f"the moment it does")
         return 0
-    print(f"\n  {GREEN}PASS{RST} — every credit given away is backed by cash or by revenue earned")
+    if earned <= 0:
+        print(f"\n  {GREEN}PASS{RST} — every credit outstanding is backed by CASH. The platform takes no "
+              f"commission, so cash is the only backing there is, and nothing has been given away without it")
+    else:
+        print(f"\n  {GREEN}PASS{RST} — every credit given away is backed by cash or by revenue earned "
+              f"(historical commission: {earned:,.2f}; the rate is now 0)")
     return 0
 
 

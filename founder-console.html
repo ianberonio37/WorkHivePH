@@ -1324,7 +1324,8 @@
         // and still invisible when it mattered. I "verified" it originally by invoking the function by
         // hand, which proves the function works and says nothing about the wiring; the live walk that
         // just loaded the page cold is what caught it.
-        loadCreditEconomy(); // MARKETPLACE_CREDIT_SUSTAINABILITY §5: earned / liability / cover / cashback
+        loadCreditEconomy(); // liability / cover / supply — earned & cashback tiles removed 2026-08-03
+                             // when the platform went to no-revenue (both are permanently 0 now)
         loadSvcVouchers(); // SERVICE_HAILING J16: voucher campaigns - mint + tally (admin-only writes)
         renderAiCostDetail(aiprov);
         renderAudit(audit);
@@ -1985,21 +1986,25 @@
         // Reuses the page's OWN stat idiom (hero-stats / stat / n / l / sub) rather than inventing
         // kpi-* classes that exist nowhere — a repeated defect is one unadopted component, and the
         // CSS-existence gate would have caught the invention anyway.
+        /* TWO TILES REMOVED, NOT ZEROED (2026-08-03). "Earned revenue · commission on settled jobs" and
+           "Cashback minted" both became permanently ₱0 when the platform went to no-revenue: commission
+           and cashback now default to 0 (mig 20260803000030), which the credits plan decided and this
+           finally implements. A money number frozen at ₱0 does not read as "by design" — it reads as a
+           feed that died, and the Calm Dashboard contract DIMS zero tiles, which makes a dimmed ₱0
+           labelled "Earned revenue" look worse still. The honest answer to "what does WorkHive earn?" is
+           nothing, and the supply row below already says what it actually holds.
+
+           `earned` and `cashback` are still COMPUTED, because the historical entries are real and both
+           belong in the liability arithmetic — the ledger is append-only and history is not rewritten. */
         box.innerHTML =
           '<div class="hero-stats">'
-          + '<div class="stat"><span><span class="n">' + e(peso(earned)) + '</span></span>'
-          + '<span class="l">Earned revenue</span>'
-          + '<span class="sub">commission on settled jobs</span></div>'
           + '<div class="stat"><span><span class="n">' + e(peso(liability)) + '</span></span>'
           + '<span class="l">Credit liability</span>'
           + '<span class="sub">services owed, not profit</span></div>'
           + '<div class="stat"><span><span class="n">'
           + e(cover === null ? '-' : cover.toFixed(2) + 'x') + '</span></span>'
           + '<span class="l">Liability cover</span>'
-          + '<span class="sub">keep at or above 1.00</span></div>'
-          + '<div class="stat"><span><span class="n">' + e(peso(cashback)) + '</span></span>'
-          + '<span class="l">Cashback minted</span>'
-          + '<span class="sub">a discount on a future job</span></div>'
+          + '<span class="sub">cash in vs credits owed - keep at or above 1.00</span></div>'
           + '</div>'
           /* The supply row. Kept visually separate from the four money numbers because it answers a
              different question: those say how the economy is DOING, this says how much of it can ever

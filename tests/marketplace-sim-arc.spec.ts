@@ -219,17 +219,23 @@ test.describe('marketplace simulation — SJ-FULL, the whole arc in one session'
     }, REQ);
     const led = [...(await readLedger(P.page)), ...(await readLedger(C.page))];
     const of = (t: string) => led.filter((r: any) => r.entry_type === t);
-    expect(of('commission').length, 'settling minted ' + of('commission').length + ' commission rows; '
-      + 'exactly one is the whole idempotency contract').toBe(1);
+    /* THE MONEY MODEL CHANGED, so this cell changed with it (2026-08-03, mig 20260803000030).
+       It used to assert exactly one commission row and one cashback row. Both are now ZERO by decision,
+       not by accident: the credits plan says "No revenue. The platform takes no commission and no spread"
+       and "the existing 1% cashback is REPLACED by the 10% reward". A settled job therefore takes nothing
+       from the provider and mints nothing for the buyer.
+
+       What is still asserted is the part that matters most and did NOT change: settling is IDEMPOTENT.
+       Zero is only meaningful if a second release cannot make it one (cell 8 drives exactly that). */
+    expect(of('commission').length, 'settling took ' + of('commission').length + ' commission rows from '
+      + 'the provider — the platform takes no commission (mig 20260803000030)').toBe(0);
     expect(of('cashback').length, 'settling minted ' + of('cashback').length + ' cashback rows — the 1% '
-      + 'the consumer was promised must arrive once, and only once').toBe(1);
-    // Commission bills what was PAID, not the catalogue price — the reason service_payments exists.
-    expect(Math.abs(Number(of('commission')[0].amount)), 'commission was not billed against amount_paid')
-      .toBeCloseTo(PAID * COMMISSION_PCT, 2);
-    expect(Number(of('cashback')[0].amount), 'cashback was not 1% of what was paid')
-      .toBeCloseTo(PAID * CASHBACK_PCT, 2);
-    expect(of('cashback')[0].account_type, 'the cashback went somewhere other than the consumer')
-      .toBe('consumer');
+      + 'was retired when the 10% reward replaced it').toBe(0);
+    /* KNOWN OPEN QUESTION, deliberately not asserted here: with cashback retired, a SERVICE buyer now
+       earns nothing at all. On a LISTING the buyer's 10% is funded by the seller's reservation, but a
+       service job has no reservation to pass, so there is no funding source for a service-side reward.
+       Whether providers should reserve on services too is Ian's call, and this cell will assert the
+       earn once that is decided. Asserting a number now would freeze a policy nobody has chosen. */
   });
 
   test('8 · a double-tapped release mints nothing further', async () => {
@@ -248,10 +254,14 @@ test.describe('marketplace simulation — SJ-FULL, the whole arc in one session'
       commission: rows.filter((r: any) => r.entry_type === 'commission').length,
       cashback: rows.filter((r: any) => r.entry_type === 'cashback').length,
     };
-    expect(counts.commission, 'a re-pressed Release minted a SECOND commission — the provider is billed '
-      + 'twice for one job').toBe(1);
-    expect(counts.cashback, 'a re-pressed Release minted a SECOND cashback — free credits for a double '
-      + 'tap').toBe(1);
+    /* Both are 0 now that the platform takes no commission and cashback is retired — but this cell is
+       NOT redundant. Its question was never "is the count 1", it is "can a second press change the
+       count at all". Zero that a double-tap can turn into one is the same defect as one it can turn
+       into two, and it is the shape a future earn mechanic would reintroduce. */
+    expect(counts.commission, 'a re-pressed Release minted a commission — the platform takes none, so a '
+      + 'double tap conjured a charge that no single press makes').toBe(0);
+    expect(counts.cashback, 'a re-pressed Release minted a cashback — retired, so a double tap created '
+      + 'credits from a mechanic that no longer exists').toBe(0);
   });
 
   test('9 · a second payment for the same job is refused', async () => {

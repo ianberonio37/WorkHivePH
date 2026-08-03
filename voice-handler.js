@@ -847,7 +847,10 @@
           .select('asset_name, risk_score, risk_level')
           .eq('hive_id', hiveId)
           .order('risk_score', { ascending: false })
+<<<<<<< Updated upstream
           .order('asset_name')   // MR4 tiebreaker: DISTINCT ON (hive_id, asset_name) is the view's key
+=======
+>>>>>>> Stashed changes
           .limit(intent.limit || 3);
         if (error || !data || !data.length) return '';
         const lines = data.map(r => '  - ' + r.asset_name + ': ' + r.risk_level + ' (score ' + Number(r.risk_score).toFixed(2) + ')');
@@ -990,6 +993,7 @@
     }).filter(Boolean).join('\n\n---\n\n');
   }
 
+<<<<<<< Updated upstream
   // Phase 2: Store turn in agent_memory table (session-scoped, durable memory)
   async function _storeTurn(db, hiveId, workerName, transcript, response, intentKind, confidence, responseTimeMs) {
     if (!db || !hiveId || !workerName) return; // silent no-op for anon
@@ -6221,6 +6225,9 @@
   }
 
   function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, dialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary, kgContext, transcript) {
+=======
+  function _buildVoiceSystemPrompt(persona, workerName, hiveName, pageLabel, routingHint, memoryBlock, canonicalData) {
+>>>>>>> Stashed changes
     const personaBlock = (typeof window.getCompanionBlock === 'function')
       ? window.getCompanionBlock() : '';
     // Internal-only grounding. These facts help the model pick the right
@@ -6587,7 +6594,11 @@
     // v_*_truth view, we fetch it BEFORE the LLM call and inject it here.
     // Without this block, Hard Rule #2 (no inventing numbers) + Rule #9 (no
     // inventing UI) leaves the model only one legal answer ("check
+<<<<<<< Updated upstream
     // Analytics"). With it, Zaniah/Hezekiah paraphrase the real figure.
+=======
+    // Analytics"). With it, Rosa/James paraphrase the real figure.
+>>>>>>> Stashed changes
     const canonicalSection = canonicalData
       ? '\n═══════════════════════════════════════════════════════════════════\n' +
         'CANONICAL DATA — anchor verbatim on the figures below.\n' +
@@ -6596,6 +6607,7 @@
         'You MUST anchor your reply on these figures. Paraphrase naturally (it is being heard, not read) but never change the digits, the unit, or the window. If the worker asked something the data above does NOT cover, say so plainly and point to Analytics for the full breakdown.\n' +
         '═══════════════════════════════════════════════════════════════════\n'
       : '';
+<<<<<<< Updated upstream
 
     // Phase 1: Platform data (real-time KPI snapshots for status queries)
     const platformSection = platformData
@@ -6651,6 +6663,8 @@
     const directAnswerInstruction = hasData
       ? '- ANSWER FROM THE PLATFORM SNAPSHOT above. The ENTIRE platform has been scanned: KPIs (MTBF, MTTR, downtime, failures), equipment status, risk assets, PM compliance, inventory levels, recent logbook entries, anomalies, projects, your Day Planner today, your skill levels, hive activity, knowledge entries — all of it is in your context. SCAN the snapshot for the relevant section before answering. NEVER say "check [tool]" or "open Day Planner" or "your dashboard should have that" when the answer is sitting in the snapshot above. ONLY say "I don\'t have that data right now" if you scanned the snapshot and the specific thing is genuinely absent.\n'
       : '- If they asked a maintenance / work question, ANSWER IT directly with practical maintenance knowledge. If you don\'t have the data they\'re asking about, say so plainly.\n';
+=======
+>>>>>>> Stashed changes
 
     return personaBlock + '\n\n' +
       'You are answering a worker over voice. They will HEAR your reply, so:\n' +
@@ -6684,12 +6698,15 @@
       dialogSection +
       memorySection +
       canonicalSection +
+<<<<<<< Updated upstream
       platformSection +
       ragSection +
       crossHiveSection +
       standardsSection +
       kgSection +
       filipinoSection +
+=======
+>>>>>>> Stashed changes
       '\nIf the worker mixes Filipino / Cebuano / Tagalog in, that\'s fine — understand it, reply in English.\n\n' +
       '═══════════════════════════════════════════════════════════════════\n' +
       'HARD RULES — read these last; they override everything above.\n' +
@@ -6763,6 +6780,7 @@
     _setRecRowVisible(false);
     _renderReplyBubble(null, persona);
 
+<<<<<<< Updated upstream
     // Phase 4: Fetch dialog state (intent evolution + context slots)
     const sessionId = _getSessionId();
     const priorDialogStateRaw = await _fetchDialogState(db, sessionId).catch(() => null);
@@ -7721,6 +7739,21 @@
     }
 
     const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary, kgContext, transcript);
+=======
+    // Fetch recent turns BEFORE building the prompt so the model has the
+    // continuity context. Non-blocking on failure — empty memory falls
+    // through to a no-history reply.
+    // Canonical-data classifier runs in parallel: if the transcript is a
+    // MTBF / MTTR / downtime / risk question we fetch the actual figure
+    // from v_*_truth and inject it as DATA so Rosa/James can paraphrase
+    // the real number instead of falling back to "check Analytics".
+    const dataIntent = _classifyDataIntent(transcript);
+    const [memoryBlock, canonicalData] = await Promise.all([
+      _fetchRecentMemory(db, ctx.worker_name),
+      dataIntent ? _fetchCanonicalData(db, ctx.hive_id, dataIntent) : Promise.resolve(''),
+    ]);
+    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData);
+>>>>>>> Stashed changes
     const messages = [
       { role: 'system', content: system },
       { role: 'user',   content: transcript },

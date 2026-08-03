@@ -2336,6 +2336,7 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+<<<<<<< Updated upstream
         # 2026-05-19 Companion Streamline Step C/D hardening: prevents any
         # production JS file from re-introducing the legacy Cloudflare Worker
         # fetch pattern. Added after voice-handler.js was caught still calling
@@ -2363,6 +2364,8 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+=======
+>>>>>>> Stashed changes
         "id":      "voice-canonical-anchor",
         "script":  "validate_voice_canonical_anchor.py",
         "args":    [],
@@ -2372,6 +2375,7 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+<<<<<<< Updated upstream
         "id":      "voice-routing-unification",
         "script":  "validate_voice_routing_unification.py",
         "args":    [],
@@ -3054,6 +3058,8 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+=======
+>>>>>>> Stashed changes
         "id":      "tier-c-contracts",
         "script":  "validate_tier_c_contracts.py",
         "args":    [],
