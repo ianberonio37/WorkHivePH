@@ -10141,8 +10141,22 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "ordering_totality",
    "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "asserts": "the client never paginates on a partial order",
+    "value_checked": true,
+    "checked": "NON-VACUITY FIRST, because the naive version of this test passes for the wrong reason: the dataset has 27 listings with 27 DISTINCT created_at values, so ORDER BY created_at is total by accident and a live pagination probe proves nothing. Forced 4 real ties inside a rolled-back transaction (verified: tied_rows=4; rollback verified, 27 distinct again afterwards). With ties present, both the PARTIAL order (created_at) and the TOTAL order (created_at, id) returned overlap=0 between page 1 and page 2 — Postgres happened to be stable on 27 rows, which is a non-guarantee rather than a proof. So the claim rests on the CLIENT instead: every paginated read in the codebase carries a tiebreaker. One .range() paginator exists platform-wide and it orders by a tiebreaker; the public-feed cursor at public-feed.html:228 orders created_at DESC then id, with the reason written beside it (\"MR4 tiebreaker: the sort above is not total on its own\"). Zero partial-order paginators found.",
+    "depends_on": [
+     "public-feed.html",
+     "marketplace.html",
+     "platform-actions.html"
+    ],
+    "sha": "8532cdec498ab02c",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AX-layer-contract-layer_client-system-units_declared",
@@ -10362,8 +10376,22 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "ordering_totality",
    "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "asserts": "every paginated read uses a TOTAL order, so page 2 cannot repeat or skip a row from page 1",
+    "value_checked": true,
+    "checked": "NON-VACUITY FIRST, because the naive version of this test passes for the wrong reason: the dataset has 27 listings with 27 DISTINCT created_at values, so ORDER BY created_at is total by accident and a live pagination probe proves nothing. Forced 4 real ties inside a rolled-back transaction (verified: tied_rows=4; rollback verified, 27 distinct again afterwards). With ties present, both the PARTIAL order (created_at) and the TOTAL order (created_at, id) returned overlap=0 between page 1 and page 2 — Postgres happened to be stable on 27 rows, which is a non-guarantee rather than a proof. So the claim rests on the CLIENT instead: every paginated read in the codebase carries a tiebreaker. One .range() paginator exists platform-wide and it orders by a tiebreaker; the public-feed cursor at public-feed.html:228 orders created_at DESC then id, with the reason written beside it (\"MR4 tiebreaker: the sort above is not total on its own\"). Zero partial-order paginators found.",
+    "depends_on": [
+     "public-feed.html",
+     "marketplace.html",
+     "platform-actions.html"
+    ],
+    "sha": "8532cdec498ab02c",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AX-layer-contract-layer_db-system-units_declared",

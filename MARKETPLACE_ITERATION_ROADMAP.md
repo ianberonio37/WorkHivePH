@@ -31,11 +31,11 @@ mechanism is a wish.
 | | scenarios | green | owed | green% |
 |---|---|---|---|---|
 | **Existing A–W bank** | 364 | 124 | 240 | 34.1% |
-| **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 5 | 173 | 2.8% |
+| **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 7 | 171 | 3.9% |
 | **F2 · UFAI** (BB/BC/BD/BE) | 120 | 0 | 120 | 0% |
 | **F3 · UI** (BF/BG/BH) | 105 | 0 | 105 | 0% |
 | **F4 · UX** (BI/BJ/BK) | 110 | 0 | 110 | 0% |
-| **TOTAL** | **877** | **129** | **748** | **14.7%** |
+| **TOTAL** | **877** | **131** | **746** | **14.9%** |
 
 **Why the number fell from 343 to 124.** 220 rows were re-opened because a structural probe had been
 answering a behavioural oracle. Each carries the reason in its findings. The 124 that survived cite psql or
@@ -90,10 +90,13 @@ NEXT: F1 architecture. Four rows banked live so far; the seams keep yielding.
       psql: 3 topups, treasury 10,000,000/1,500, ledger 1500 over 5 rows, all identical
     · AX-layer-contract/layer_edge + layer_gateway/status_body_agreement — measured on the wire on
       BOTH paths; 0 cases of 2xx-with-an-error or 4xx-with-data
+    · AX-layer-contract/layer_db + layer_client/ordering_totality — with a NON-VACUITY step, because
+      the naive probe passes for the wrong reason: 27 listings had 27 distinct created_at, so the
+      order was total by accident. Forced 4 real ties in a rolled-back txn, then rested the claim on
+      the CLIENT: every paginated read carries a tiebreaker (1 .range site; public-feed.html:228
+      orders created_at DESC then id, with the reason written beside it). Zero partial paginators.
   NOW:
   1. AX-layer-contract · idempotency — the same call twice, one effect, proven by a DB count
-  2. AX-layer-contract · ordering_totality — a paginated read whose ORDER is not total repeats or
-     skips a row between pages (this platform has been bitten: 4 of 12 rows changed rank)
   3. BA-invariant · credits_conserved + cap_respected — assert from the ledger in a rolled-back txn
   4. AZ-failure-injection · fail_null_field — the NULL-renders-as-0 class, per surface
   5. then F2 BE-ufai-I (identity): two-identity pattern proven — signOut, sign in as
