@@ -2,7 +2,7 @@
   "tool": "tools/validate_narrative_grounding.py",
   "subject": "page AI-prose cites only true platform numbers (no fabricated metric) \u2014 live",
   "surfaces_total": 1,
-  "surfaces_grounded": 1,
+  "surfaces_grounded": 0,
   "surfaces_skipped": 8,
   "baseline_caps": {
     "analytics": 0,
@@ -50,16 +50,20 @@
       "http": 200,
       "grounding_numbers": 39,
       "prose_strings": 1,
-      "substantive_nums_checked": 7,
-      "cited_grounded": 7,
-      "fabricated": [],
+      "substantive_nums_checked": 14,
+      "cited_grounded": 11,
+      "fabricated": [
+        "365",
+        "365",
+        "180"
+      ],
       "baseline_cap": 1,
-      "new_drift": false
+      "new_drift": true
     },
     "asset-hub": {
       "http": 403,
       "skipped": "non-200 (service/transient/quota) \u2014 not a grounding signal"
     }
   },
-  "result": "PASS"
+  "result": "FAIL"
 }

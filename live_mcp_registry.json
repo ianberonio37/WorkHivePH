@@ -15377,8 +15377,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_loading",
       "oracle": "the component's loading state is distinguishable from its empty state",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html (grid + post sheet)",
+        "asserts": "the component's loading state is distinguishable from its empty state",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "The surface ships a first-paint loading state that is distinguishable from empty: marketplace.html:604 renders 'Loading marketplace...' with the sub-line 'Counting listings, your activity, and open inquiries.' -- a statement of what it is waiting for, not an invite to act, which is what an EMPTY surface says. LIMIT OF THE INDUCTION, recorded rather than hidden: delaying the reads and re-running the loaders cannot restore that state, because the page does not revert its verdict markup once rendered, so the re-run reports 0 skeleton nodes and no loading text. The evidence here is the first-paint markup plus the induced check that the waiting surface does NOT render the empty-state invite (looksEmptyInstead false)."
+      }
     },
     {
       "id": "LM-BG-ui-state-market-buyer-component_skeleton",
@@ -15390,8 +15403,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_skeleton",
       "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html (grid + post sheet)",
+        "asserts": "the skeleton reserves the space the content will take, so nothing jumps",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "NOT APPLICABLE on this surface and recorded as such rather than passed: the probe found no skeleton component at all, so there is nothing that could reserve space and nothing that could jump. The surface reserves its layout by other means -- the BF-ui-layout rows measured 0 overflow and 0 sideways scroll at verified 390 / 641 / 1280."
+      }
     },
     {
       "id": "LM-BG-ui-state-market-buyer-component_disabled",
@@ -15403,8 +15429,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_disabled",
       "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html (grid + post sheet)",
+        "asserts": "a disabled control looks disabled AND refuses activation - both, not either",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "NOT EXERCISED in the settled state: 0 disabled controls are present once the surface has loaded, so there is nothing to test and a pass would be vacuous. The one disabled state this surface does produce is the in-flight submit, and that is asserted by component_busy above (disabled = true while the write is held open). When a disabled control IS present the check clicks it for real, never with force: a forced click dispatches past the very guard under test."
+      }
     },
     {
       "id": "LM-BG-ui-state-market-buyer-component_busy",
@@ -15416,8 +15455,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_busy",
       "oracle": "an in-flight control is busy and cannot be re-fired",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html (grid + post sheet)",
+        "asserts": "an in-flight control is busy and cannot be re-fired",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "Proven IN FLIGHT, with a valid submission and no write. An empty form refuses at client-side validation before any request leaves, so the button never goes busy and a probe that stopped there would report a false negative -- which the first two attempts did. The form was filled (title, description, price, category, contact, location), the POST to marketplace_listings was intercepted and held 1.4s WITHOUT being forwarded, and the button was sampled mid-flight: disabled = true and the label had changed to 'Posting...'. Confirmed from psql afterwards that nothing was created: 0 probe listings, 27 listings total unchanged, issued 1500.00 and ledger net 1140.00 unchanged."
+      }
     },
     {
       "id": "LM-BG-ui-state-market-buyer-component_populated",
@@ -15429,8 +15481,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_populated",
       "oracle": "populated renders every field it promises, with no undefined/NaN",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html (grid + post sheet)",
+        "asserts": "populated renders every field it promises, with no undefined/NaN",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "2,244 characters rendered and ZERO of the four strings that mean a bug reached the eye (undefined / NaN / [object Object]). Every priced card carries its price and its credits-back chip, and the chips match 10% of their own listing."
+      }
     },
     {
       "id": "LM-BG-ui-state-market_svc-buyer-component_loading",

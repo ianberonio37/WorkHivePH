@@ -177,6 +177,137 @@ export async function run() {
   return out;
 }
 
+// ── F3 · BG-ui-state ─────────────────────────────────────────────────────────────────────────
+// The six states per COMPONENT, not per page. Four of them cannot be seen on a settled page at all
+// -- loading, skeleton and busy only exist while something is in flight, and a disabled control only
+// proves itself when you try to use it -- so they are INDUCED here rather than looked for.
+//
+// The disabled check is deliberately NOT a forced click. Playwright's force:true dispatches the event
+// past the very guard under test, which is how a disabled control once "passed" a probe it does not
+// actually survive. A real click on a real disabled button is a no-op, and that is the assertion.
+export async function states(opts) {
+  const wait = (opts && opts.settle) || 1500;
+  const orig = window.__lsrFetch || window.fetch;
+  window.__lsrFetch = orig;
+  const out = {};
+  const m = () => document.querySelector('main') || document.body;
+  const vis = el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden';
+
+  // POPULATED — every field it promises, and none of the four strings that mean a bug reached the eye
+  {
+    const t = (m().innerText || '');
+    const junk = t.match(/\bundefined\b|\bNaN\b|\[object Object\]/g) || [];
+    out.component_populated = { ok: junk.length === 0 && t.length > 120, junk, len: t.length };
+  }
+
+  // LOADING + SKELETON — hold every read open, then look at what the page shows while it waits. The
+  // response is DELAYED, not failed: a rejected promise leaves a stuck skeleton and proves something
+  // else entirely (the same rule the failure states inherit).
+  let heightsBefore = null;
+  {
+    // A BOUNDED DELAY, NOT AN OPEN HOLD. The first version parked every REST response in a promise
+    // that only resolved after the sample -- and then awaited the page's loaders, which await those
+    // same responses. That deadlocks: the release code sits after the await that can never finish,
+    // and the probe hung for half an hour before the harness killed it. A delay gives the same
+    // in-flight window to look at and always drains itself. The loaders are also fired WITHOUT being
+    // awaited here, for the same reason: this state is about what the page shows WHILE it waits.
+    const HOLD = 1100;
+    window.fetch = (i, x) => {
+      const u = typeof i === 'string' ? i : (i && i.url) || '';
+      if (!REST.test(u)) return orig(i, x);
+      return new Promise(res => setTimeout(() => res(orig(i, x)), HOLD));
+    };
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    for (const k of LOADERS) {
+      // deliberately NOT awaited: we sample mid-flight, and a throw must not stop the others
+      if (typeof window[k] === 'function') { try { window[k](); } catch (e) { /* empty-catch-allow: see above */ } }
+    }
+    await new Promise(r => setTimeout(r, Math.floor(HOLD / 2)));   // sample INSIDE the flight
+    const s = m();
+    const skel = [...s.querySelectorAll('[class*="skeleton"],[id*="skeleton"],.shimmer,[aria-busy="true"]')].filter(vis);
+    const txt = (s.innerText || '');
+    heightsBefore = skel.map(e => Math.round(e.getBoundingClientRect().height));
+    // "loading" must be distinguishable from "empty": an invite to act is what an EMPTY surface says,
+    // and a surface that is merely waiting must not say it
+    out.component_loading = {
+      ok: skel.length > 0 || /loading|loadingâ€¦|…/i.test(txt) || /\bloading\b/i.test(txt),
+      skeletonNodes: skel.length,
+      saysLoading: /\bloading\b/i.test(txt),
+      looksEmptyInstead: INVITE.test(txt),
+      distinguishableFromEmpty: !(INVITE.test(txt) && skel.length === 0),
+    };
+    out.component_skeleton = {
+      ok: skel.length === 0 ? null : heightsBefore.every(h => h > 0),
+      reservedHeights: heightsBefore,
+      note: skel.length === 0 ? 'no skeleton component on this surface - nothing to reserve space, recorded rather than passed' : null,
+    };
+    await new Promise(r => setTimeout(r, HOLD + wait));   // let the delayed reads land and settle
+  }
+
+  // DISABLED — looks disabled AND refuses activation. Both, not either.
+  {
+    const dis = [...document.querySelectorAll('button[disabled],[aria-disabled="true"],input[disabled],select[disabled]')].filter(vis);
+    const checked = dis.slice(0, 6).map(el => {
+      const cs = getComputedStyle(el);
+      const looks = Number(cs.opacity) < 0.9 || /not-allowed/.test(cs.cursor) || cs.pointerEvents === 'none';
+      let fired = false;
+      const mark = () => { fired = true; };
+      el.addEventListener('click', mark, { once: true });
+      el.click();                       // a REAL click, never force:true
+      el.removeEventListener('click', mark);
+      return { el: (el.tagName + (el.id ? '#' + el.id : '')).slice(0, 36),
+               looksDisabled: looks, refusedActivation: !fired, opacity: cs.opacity, cursor: cs.cursor };
+    });
+    out.component_disabled = {
+      ok: checked.length === 0 ? null : checked.every(c => c.looksDisabled && c.refusedActivation),
+      found: dis.length, checked,
+      note: dis.length === 0 ? 'no disabled control in this state - recorded rather than passed' : null,
+    };
+  }
+
+  // BUSY — an in-flight control must be busy and must not re-fire. Held open so the flight is real.
+  {
+    // A SUBMIT, not anything whose label happens to contain a verb. The first version matched
+    // /search/i and picked the "Searches" TAB -- a nav control that fires no write, cannot go busy,
+    // and therefore failed the check by construction. Require a real submit or a form-owned button,
+    // and exclude the tab/nav families explicitly.
+    const btn = [...document.querySelectorAll('button')].filter(vis).find(b =>
+      !b.disabled &&
+      !b.closest('[role="tablist"], nav, .section-tabs, .wh-hub-panel') &&
+      !/tab-btn|wh-hub|section-tab/.test(b.className || '') &&
+      // `button.type` reflects "submit" by DEFAULT on almost every button, form or not, so testing
+      // it alone matched everything and picked whichever button happened to come first (the
+      // Watchlist trust-bar control). The button has to actually belong to a form, or say plainly
+      // that it commits something.
+      ((b.type === 'submit' && b.closest('form')) ||
+       /^(save|file|submit|post|send|hail|confirm|top.?up)\b/i.test((b.textContent || '').trim())));
+    if (!btn) {
+      out.component_busy = { ok: null, note: 'no in-flight-capable control on this surface' };
+    } else {
+      const HOLD = 1100;                                  // bounded, for the same reason as above
+      window.fetch = (i, x) => {
+        const u = typeof i === 'string' ? i : (i && i.url) || '';
+        if (!REST.test(u)) return orig(i, x);
+        return new Promise(res => setTimeout(() => res(orig(i, x)), HOLD));
+      };
+      btn.click();
+      await new Promise(r => setTimeout(r, 450));          // sample INSIDE the flight
+      const cs = getComputedStyle(btn);
+      out.component_busy = {
+        ok: btn.disabled || btn.getAttribute('aria-busy') === 'true' || cs.pointerEvents === 'none',
+        control: (btn.textContent || '').trim().slice(0, 28),
+        disabledInFlight: btn.disabled,
+        ariaBusy: btn.getAttribute('aria-busy'),
+        pointerEvents: cs.pointerEvents,
+      };
+      await new Promise(r => setTimeout(r, HOLD + wait));
+    }
+  }
+
+  window.fetch = orig;
+  return out;
+}
+
 // ── F4 · BI-ux-comprehension ─────────────────────────────────────────────────────────────────
 // "Can a person say what this number means, what happens next, and what it costs?"
 //
