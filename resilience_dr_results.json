@@ -1,5 +1,5 @@
 {
-  "scored_at": "2026-08-03T10:35:05+00:00",
+  "scored_at": "2026-08-03T13:22:27+00:00",
   "lenses": {
     "F": {
       "title": "Failure-tolerance",
@@ -93,8 +93,8 @@
     },
     "C": {
       "title": "Consistency",
-      "pct": 80.0,
-      "passed": 4,
+      "pct": 100.0,
+      "passed": 5,
       "total": 5,
       "floor": 100,
       "cells": [
@@ -102,7 +102,7 @@
           "key": "idempotency_6layer",
           "validator": "validate_idempotency",
           "sublayer": "S3",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "6-layer webhook/upsert/external-API idempotency",
           "covered": true
         },
@@ -182,8 +182,6 @@
       ]
     }
   },
-  "floors_ok": false,
-  "regressions": [
-    "C: 80.0 < baseline 100.0"
-  ]
+  "floors_ok": true,
+  "regressions": []
 }

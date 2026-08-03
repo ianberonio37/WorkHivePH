@@ -517,5 +517,8 @@
   "20260803000036_no_vouchers_and_a_floor_under_the_listing_price.sql": "c86b549cfbc5fe17d79c9310b22b1aedfebaceb06759a0425843be3a26397c2c",
   "20260803000037_a_service_is_a_listing_too.sql": "a43f0ce47b2b6a0d3320845cd51a9ea9340690d2a4958553767839fc1a988872",
   "20260803000038_credits_that_appear_without_anyone_pressing_verify.sql": "60d573853df673dfbf9bdbab4f03456768710e229b1ca8f514f57e6c01849b43",
-  "20260803000039_one_person_one_wallet.sql": "2e45caa2098ce0216c4d3fcc178cf836b8eab14776701ad75b818b6c93d6ea09"
+  "20260803000039_one_person_one_wallet.sql": "2e45caa2098ce0216c4d3fcc178cf836b8eab14776701ad75b818b6c93d6ea09",
+  "20260803000040_a_rejected_topup_could_be_revived_and_minted.sql": "1c241cdd91d6455ec4cc2de9a80b5b5a20909b7dd08682fb44e3af9461aeecb7",
+  "20260803000041_the_other_three_readers_that_still_split_one_wallet.sql": "ab364a1f419e35e8c9b3ee7933f5fc84f0312ee73dfe163739ebd0a6d46fe099",
+  "20260803000042_the_supply_cap_did_not_watch_the_only_door_credits_use.sql": "1d4aec0aad91681353cb508335aa708da44e1d99981102ae6911d442494ac575"
 }

@@ -108,11 +108,47 @@ BEGIN
   PERFORM set_config('workhive.row_cap_system_write', 'on', true);
   SELECT id INTO v_client  FROM auth.users ORDER BY created_at LIMIT 1;
   SELECT id INTO v_client2 FROM auth.users ORDER BY created_at DESC LIMIT 1;
-  SELECT id, hive_id INTO v_prov, v_hive FROM public.service_providers LIMIT 1;
+  -- A PROVIDER WITH A REAL HIVE, CHOSEN DETERMINISTICALLY.
+  -- This was `SELECT id, hive_id ... FROM service_providers LIMIT 1` -- unordered, and 5 of the 7
+  -- seeded providers have a NULL hive_id. So the simulation ran all 2,000 lifecycles with
+  -- v_hive = NULL, every service_knob_pct() call fell through to its hardcoded default, and the gate
+  -- had NEVER exercised a per-hive setting. Proven by trying to make the teeth bite: setting
+  -- commission_pct = 5 on every hive changed nothing, because the hive under test was NULL.
+  -- Unordered LIMIT 1 is also non-deterministic across runs -- the same class as the banked
+  -- "resolving live is not enough, be deterministic". ORDER BY id makes the fixture stable, and
+  -- hive_id IS NOT NULL makes the knobs real.
+  SELECT id, hive_id INTO v_prov, v_hive
+    FROM public.service_providers WHERE hive_id IS NOT NULL ORDER BY id LIMIT 1;
   IF v_client IS NULL OR v_prov IS NULL THEN
-    RAISE NOTICE 'RESULT fatal=no_fixtures';
+    -- Named, not silent: a run against NULL-hive fixtures would pass while testing only defaults,
+    -- which is the "a skipped partition reads as a covered one" failure this suite exists to avoid.
+    RAISE NOTICE 'RESULT fatal=no_fixtures_with_hive';
     RETURN;
   END IF;
+
+  -- CAPITALISE THE PROVIDER, because accepting a job now COSTS something.
+  -- mig 20260803000037 made a service a listing too: guard_accept_requires_reservation holds 10% of
+  -- the agreed price when a provider accepts. This simulation runs every one of its 2,000 lifecycles
+  -- through ONE provider who was never funded, so it worked only while acceptance was free. The first
+  -- industrial job aborted the whole run with "You need PHP1,500 in credits to take a PHP15,004 job
+  -- (10%), and you have PHP950."
+  --
+  -- The guard is right and the simulation was out of date -- the gate reddened because the code
+  -- improved. Do NOT relax the guard to make the run green; fund the actor instead, which is what a
+  -- provider taking 2,000 jobs would actually have to do. The ceiling is generous on purpose: this
+  -- simulation exists to exercise the MONEY invariants (double-mint, negative balances, order
+  -- dependence) across many lifecycles, and a provider who goes broke on job 40 stops exercising them.
+  -- Reserve exhaustion has its own dedicated coverage in simulate_credit_reserve.py; duplicating it
+  -- here would cost this gate its actual subject.
+  --
+  -- Announced, not silent: this is a real ledger entry through the real trigger path, inside the same
+  -- rolled-back transaction as everything else. Nothing about the guards is bypassed.
+  PERFORM set_config('workhive.service_system_write', 'on', true);
+  INSERT INTO public.service_credit_ledger
+    (account_type, account_id, entry_type, amount, ref_kind, note)
+  VALUES ('provider', v_prov, 'topup', 50000000, 'topup',
+          'simulation: capitalise the provider so acceptance holds can be paid for 2,000 jobs');
+  PERFORM set_config('workhive.service_system_write', 'off', true);
 
   FOR i IN 1..v_runs LOOP
     -- Segment and price sampled to mirror the real mix rather than a uniform one: consumer jobs are
@@ -205,7 +241,20 @@ BEGIN
              count(*) FILTER (WHERE entry_type='cashback')
         INTO v_com, v_cash
         FROM public.service_credit_ledger WHERE ref_id = v_req;
-      IF v_com <> 1 OR v_cash <> 1 THEN v_dup := v_dup + 1; END IF;
+      -- EXACTLY-ONCE MEANS "EXACTLY AS MANY AS THE KNOB SAYS", not "exactly one".
+      -- This read `v_com <> 1 OR v_cash <> 1` and was correct under the July money model. The credits
+      -- plan then set commission_pct and cashback_pct to 0, so a settled job now correctly carries
+      -- ZERO of each -- and this line reported all 999 settled jobs as invariant violations while the
+      -- platform was behaving exactly as designed. That is the stale-invariant trap the plan named by
+      -- name: "a LOCKED line left contradicting live behaviour is how the next session re-introduces
+      -- commission believing it is restoring an invariant."
+      -- Derive the expectation from the LIVE knob so this gate keeps its teeth in both directions:
+      -- with the rate at 0 a job that somehow carries a commission FAILS, and if Ian ever sets a rate
+      -- again a job that carries none FAILS too. The rule being tested is "the ledger matches the
+      -- knob", which is true under every configuration.
+      IF v_com <> (CASE WHEN public.service_knob_pct(v_hive,'commission_pct') > 0 THEN 1 ELSE 0 END)
+         OR v_cash <> (CASE WHEN public.service_knob_pct(v_hive,'cashback_pct') > 0 THEN 1 ELSE 0 END)
+      THEN v_dup := v_dup + 1; END IF;
 
       SELECT -coalesce(sum(amount),0) INTO v_com  FROM public.service_credit_ledger
         WHERE ref_id=v_req AND entry_type='commission';
@@ -278,6 +327,10 @@ BEGIN
   RAISE NOTICE 'RESULT net_industrial_pct=%',
     CASE WHEN v_gmv_i > 0 THEN round(v_net_i / v_gmv_i * 100, 4) ELSE 0 END;
   RAISE NOTICE 'RESULT exactly_once_violations=%', v_dup;
+  -- Publish the knobs so the Python verdict judges the take against what the platform SAYS it
+  -- charges, rather than against a rate hardcoded when the gate was written.
+  RAISE NOTICE 'RESULT commission_pct=%', public.service_knob_pct(v_hive,'commission_pct');
+  RAISE NOTICE 'RESULT cashback_pct=%',   public.service_knob_pct(v_hive,'cashback_pct');
   RAISE NOTICE 'RESULT negative_consumer_samples=%', v_neg;
   RAISE NOTICE 'RESULT worst_cover=%', round(v_worst_cover, 4);
   RAISE NOTICE 'RESULT order_independent=%', (v_a = v_b);
@@ -301,18 +354,31 @@ def evaluate(res, runs):
 
     if settled == 0:
         problems.append("no job reached `settled` — the run proves nothing about the money path")
+    com_pct = float(res.get("commission_pct", 0) or 0)
+    cash_pct = float(res.get("cashback_pct", 0) or 0)
     if dup:
-        problems.append(f"exactly-once BROKEN on {dup} job(s): a settled job carried more or fewer than "
-                        f"one commission and one cashback")
+        expect = (f"{'one' if com_pct > 0 else 'no'} commission and "
+                  f"{'one' if cash_pct > 0 else 'no'} cashback")
+        problems.append(f"ledger does not match the knobs on {dup} settled job(s): with commission_pct="
+                        f"{com_pct:g}% and cashback_pct={cash_pct:g}% each job should carry {expect}")
     if neg:
         problems.append(f"solvency BROKEN: a consumer balance was negative at {neg} sample point(s) — "
                         f"credits were spent that were never minted")
     if res.get("order_independent") not in ("t", "true", True):
         problems.append("order-independence BROKEN: the same two top-ups in a different order reached "
                         "different balances")
-    # net take is checked against the knob-derived expectation, not a hardcoded 4
-    if settled and abs(net) < 0.0001:
-        problems.append("net take is 0% across settled jobs — the platform earned nothing")
+    # NET TAKE IS JUDGED AGAINST THE KNOBS, and "0% is a failure" was itself the bug.
+    # This asserted `abs(net) < 0.0001 -> the platform earned nothing`, which was a defect under the
+    # July model and is the DESIGN under the credits plan: "No revenue. The platform takes no
+    # commission and no spread." A gate that fails when the platform behaves as specified will,
+    # eventually, be silenced by someone restoring commission to make it green.
+    # The real invariant is that the take MATCHES what the platform says it charges -- so 0% is
+    # required while the knobs are 0, and a non-zero take becomes the failure.
+    expected_net = com_pct - cash_pct
+    if settled and abs(net - expected_net) > 0.05:
+        problems.append(f"net take {net:g}% does not match the knobs (commission_pct {com_pct:g}% "
+                        f"less cashback_pct {cash_pct:g}% = {expected_net:g}% expected) — the platform "
+                        f"is taking something it does not declare, or declaring something it does not take")
     if missing:
         problems.append(f"{len(missing)} of the 12 states were never reached ({', '.join(missing)}) — "
                         f"a partition that never ran reads exactly like a covered one")
@@ -322,25 +388,41 @@ def evaluate(res, runs):
 def selftest():
     print("  selftest: the verdicts must catch each broken invariant and accept a healthy run")
     ok = True
-    healthy = {"settled": "100", "gmv": "200000", "net_take_pct": "4.0", "exactly_once_violations": "0",
-               "negative_consumer_samples": "0", "order_independent": "t",
-               "reached_states": ",".join(STATES)}
-    p, _ = evaluate(healthy, 100)
-    if p:
-        print(f"  {R}FAIL{X} — a healthy run was flagged: {p}"); ok = False
-    for key, val, label in [("exactly_once_violations", "3", "double mint"),
-                            ("negative_consumer_samples", "2", "negative consumer"),
-                            ("order_independent", "f", "order dependence"),
-                            ("settled", "0", "nothing settled")]:
-        broken = dict(healthy); broken[key] = val
+    # TWO healthy fixtures, because the verdicts are now knob-driven and a single fixture would only
+    # ever prove one configuration. The no-revenue one is TODAY's platform; the charging one is what
+    # the same code must still judge correctly if Ian ever sets a rate again.
+    no_revenue = {"settled": "100", "gmv": "200000", "net_take_pct": "0", "exactly_once_violations": "0",
+                  "commission_pct": "0", "cashback_pct": "0",
+                  "negative_consumer_samples": "0", "order_independent": "t",
+                  "reached_states": ",".join(STATES)}
+    charging = dict(no_revenue, net_take_pct="4.0", commission_pct="5", cashback_pct="1")
+    for fixture, label in [(no_revenue, "no-revenue (today)"), (charging, "charging 5% less 1%")]:
+        p, _ = evaluate(fixture, 100)
+        if p:
+            print(f"  {R}FAIL{X} — a healthy {label} run was flagged: {p}"); ok = False
+
+    for base, key, val, label in [
+            (no_revenue, "exactly_once_violations", "3", "ledger disagreeing with the knobs"),
+            (no_revenue, "negative_consumer_samples", "2", "negative consumer"),
+            (no_revenue, "order_independent", "f", "order dependence"),
+            (no_revenue, "settled", "0", "nothing settled"),
+            # THE INVERSION, and the reason this gate was rewritten: with the rates at 0 the platform
+            # must take NOTHING. A run that reports a take is now the failure — the exact shape that
+            # would appear if commission were quietly re-introduced.
+            (no_revenue, "net_take_pct", "4.0", "a take the knobs do not declare"),
+            # And the other direction still bites: declared rates that produce no take.
+            (charging, "net_take_pct", "0", "declared rates producing nothing")]:
+        broken = dict(base); broken[key] = val
         if not evaluate(broken, 100)[0]:
             print(f"  {R}FAIL{X} — {label} was not caught"); ok = False
-    partial = dict(healthy); partial["reached_states"] = "requested,settled"
+
+    partial = dict(no_revenue); partial["reached_states"] = "requested,settled"
     if not evaluate(partial, 100)[0]:
         print(f"  {R}FAIL{X} — unreached states were not reported"); ok = False
     if ok:
-        print(f"  {G}PASS{X} — catches double-mint, negative balances, order dependence, an empty run "
-              f"and unreached states")
+        print(f"  {G}PASS{X} — catches a ledger that disagrees with the knobs (both directions), a take "
+              f"the knobs do not declare, negative balances, order dependence, an empty run and "
+              f"unreached states — under BOTH a no-revenue and a charging configuration")
     return 0 if ok else 1
 
 
@@ -372,10 +454,17 @@ def main(argv):
     print(f"  {D}settled {m['settled']} of {a.runs} generated jobs · GMV {m['gmv']:,.2f}{X}")
     print(f"  {D}commission {float(res.get('commission',0)):,.2f} · "
           f"cashback {float(res.get('cashback',0)):,.2f}{X}")
+    # The rates come from the LIVE knobs. This line used to read "(10%/5% commission less 1%
+    # cashback — THESE are the stable numbers)", which stopped being true the moment the credits plan
+    # zeroed both. Printing a repealed rate as "the stable number" is how the next reader concludes
+    # the platform still charges it.
+    _com, _cash = float(res.get("commission_pct", 0) or 0), float(res.get("cashback_pct", 0) or 0)
+    _rates = (f"commission {_com:g}% less cashback {_cash:g}% — THESE are the stable numbers"
+              if (_com or _cash) else
+              "no revenue by design: commission and cashback are both 0, so a take here would be a defect")
     print(f"  {B}net take {m['net']}%{X}  {D}blended — a property of the job MIX, not a platform rate{X}")
     print(f"  {D}  by segment: consumer {res.get('net_consumer_pct','?')}% · "
-          f"industrial {res.get('net_industrial_pct','?')}%  "
-          f"(10%/5% commission less 1% cashback — THESE are the stable numbers){X}")
+          f"industrial {res.get('net_industrial_pct','?')}%  ({_rates}){X}")
     print(f"  {D}worst liability cover seen {res.get('worst_cover','?')} · "
           f"exactly-once violations {res.get('exactly_once_violations','?')}{X}")
     reached = len(m["reached"] & set(STATES))

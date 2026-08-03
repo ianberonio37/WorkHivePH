@@ -4382,10 +4382,12 @@
       "realtime_published": true,
       "comment": "Universal feedback inbox: reviews, bugs, ideas, questions, praise, other.\n   Polymorphic table \u2014 `kind` discriminator + optional `rating` for reviews.\n   Accepts anon submissions; admin triage in Founder Console (sec-feel section).",
       "read_by_surfaces": [
-        "founder-console.html"
+        "founder-console.html",
+        "platform-actions.html"
       ],
       "written_by_surfaces": [
-        "founder-console.html"
+        "founder-console.html",
+        "platform-actions.html"
       ],
       "read_by_edge_fns": [],
       "written_by_edge_fns": []
@@ -7082,6 +7084,7 @@
       "defined_in": "20260729000000_service_money_truth_views.sql",
       "read_by_surfaces": [
         "founder-console.html",
+        "marketplace-seller.html",
         "platform-actions.html"
       ],
       "read_by_edge_fns": [],
@@ -7135,7 +7138,9 @@
     },
     "v_gcash_receipts_needing_eyes": {
       "defined_in": "20260803000038_credits_that_appear_without_anyone_pressing_verify.sql",
-      "read_by_surfaces": [],
+      "read_by_surfaces": [
+        "platform-actions.html"
+      ],
       "read_by_edge_fns": [],
       "columns": [
         "id",
@@ -8991,7 +8996,7 @@
       "defined_in": "20260728000039_service_hailing_foundation.sql",
       "args": "",
       "security_definer": true,
-      "comment": "",
+      "comment": "Top-up state machine, anti-self-deal gate, and the issuance point for every credit that enters ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -9242,7 +9247,7 @@
       "defined_in": "20260731000018_dispute_adjustment_never_deletion.sql",
       "args": "p_request_id uuid, p_reason text default null",
       "security_definer": true,
-      "comment": "Unwinds a disputed job's money: commission reversed in full, cashback clawed back, and - since ",
+      "comment": "Adjudicates a disputed job with compensating ledger entries (never a rewrite). Recovery is bounded ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -9310,7 +9315,8 @@
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [
-        "marketplace-seller.html"
+        "marketplace-seller.html",
+        "marketplace.html"
       ],
       "called_by_edge_fns": []
     },
@@ -9342,7 +9348,7 @@
       "defined_in": "20260803000008_reward_earn_or_spend.sql",
       "args": "",
       "security_definer": true,
-      "comment": "Caps a credit payment at reward_spend_cap_pct of the job price and at the payer's balance. The price ",
+      "comment": "Bounds a reward_spend by the hive cap (10% of the job price) AND by what the PERSON holds across ",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
     },
@@ -9412,7 +9418,7 @@
       "defined_in": "20260803000021_a_balance_is_one_number_not_a_page_of_rows.sql",
       "args": "",
       "security_definer": true,
-      "comment": "The caller's own credit balance, as one number. Takes no argument so it cannot be aimed at another ",
+      "comment": "The signed-in person's spendable credits across BOTH ledger namespaces (mig 41). Backed by ",
       "called_by_surfaces": [
         "marketplace.html"
       ],
@@ -9976,6 +9982,7 @@
         "v_marketplace_sellers_truth",
         "v_service_catalog_truth",
         "v_service_credit_ledger_truth",
+        "v_service_credit_topups_truth",
         "v_service_open_broadcasts",
         "v_service_provider_truth",
         "v_service_request_truth"
@@ -10003,7 +10010,7 @@
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 146.6
+      "size_kb": 151.3
     },
     "marketplace.html": {
       "tables_read": [
@@ -10046,6 +10053,7 @@
         "get_marketplace_trust_badges",
         "get_saved_search_matches",
         "increment_listing_view",
+        "listing_reservation_amount",
         "my_credit_balance",
         "raise_service_objection",
         "redeem_service_voucher",
@@ -10058,7 +10066,7 @@
         "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 262.8
+      "size_kb": 271.0
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -10098,7 +10106,9 @@
         "hive_audit_log",
         "marketplace_listings",
         "marketplace_sellers",
+        "platform_feedback",
         "service_credit_topups",
+        "v_gcash_receipts_needing_eyes",
         "v_marketplace_listings_truth",
         "v_marketplace_sellers_truth",
         "v_service_credit_topups_truth"
@@ -10107,11 +10117,12 @@
         "hive_audit_log",
         "marketplace_listings",
         "marketplace_sellers",
+        "platform_feedback",
         "service_credit_topups"
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 27.5
+      "size_kb": 56.8
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -11127,7 +11138,14 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 130
+      "loc": 151
+    },
+    "gcash-receipt-ocr": {
+      "tables_read": [],
+      "tables_written": [],
+      "rpcs_called": [],
+      "edge_fns_invoked": [],
+      "loc": 132
     },
     "hierarchical-summarizer": {
       "tables_read": [
@@ -11548,6 +11566,22 @@
   "duplicate_signals": [
     {
       "kind": "surface_overlap",
+      "surface_a": "founder-console.html",
+      "surface_b": "platform-actions.html",
+      "shared_tables": [
+        "hive_audit_log",
+        "marketplace_listings",
+        "marketplace_sellers",
+        "platform_feedback",
+        "service_credit_topups",
+        "v_marketplace_listings_truth",
+        "v_marketplace_sellers_truth",
+        "v_service_credit_topups_truth"
+      ],
+      "jaccard": 0.5
+    },
+    {
+      "kind": "surface_overlap",
       "surface_a": "logbook.html",
       "surface_b": "pm-scheduler.html",
       "shared_tables": [
@@ -11560,19 +11594,6 @@
         "project_links",
         "projects",
         "v_pm_scope_items_truth"
-      ],
-      "jaccard": 0.5
-    },
-    {
-      "kind": "surface_overlap",
-      "surface_a": "marketplace-admin.html",
-      "surface_b": "platform-actions.html",
-      "shared_tables": [
-        "hive_audit_log",
-        "marketplace_listings",
-        "marketplace_sellers",
-        "v_marketplace_listings_truth",
-        "v_marketplace_sellers_truth"
       ],
       "jaccard": 0.5
     },

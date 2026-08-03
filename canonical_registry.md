@@ -9,7 +9,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 - Views:         **65**
 - RPCs:          **278**
 - HTML surfaces: **61**
-- Edge fns:      **100**
+- Edge fns:      **101**
 - Phantom tables (referenced in code, not in migrations): **0**
 - Duplicate signals: **82**
 
@@ -49,6 +49,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `shift_plans` | 13 | yes | yes | shift-brain.html | shift-brain.html | shift-planner-orchestrator |
 | `rcm_fmea_modes` | 20 | yes | yes | asset-hub.html | asset-hub.html | fmea-populator |
 | `amc_briefings` | 14 | yes | yes | alert-hub.html | alert-hub.html | amc-orchestrator |
+| `platform_feedback` | 21 | yes | yes | founder-console.html, platform-actions.html | founder-console.html, platform-actions.html | — |
 | `canonical_period_summaries` | 12 | yes | no | — | — | hierarchical-summarizer |
 | `service_providers` | 18 | yes | no | marketplace-seller.html, marketplace.html | marketplace-seller.html | — |
 | `service_requests` | 29 | yes | yes | marketplace-seller.html, marketplace.html | marketplace-seller.html, marketplace.html | — |
@@ -92,7 +93,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `sensor_readings` | 14 | yes | yes | — | — | sensor-readings-ingest |
 | `anomaly_signals` | 22 | yes | yes | alert-hub.html | alert-hub.html | — |
 | `knowledge_graph_facts` | 18 | yes | yes | — | — | semantic-fact-extractor |
-| `platform_feedback` | 21 | yes | yes | founder-console.html | founder-console.html | — |
 | `agent_episodic_memory` | 14 | yes | no | — | — | _shared/episodic-memory.ts |
 | `unified_events` | 12 | yes | no | — | — | data-fabric-normalizer |
 | `ai_cache` | 8 | yes | no | — | — | _shared/cache.ts |
@@ -379,7 +379,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `join_hive_by_code` | p_code text, p_worker_name text | yes | hive.html | — |
 | `journal_service_request` |  | yes | — | — |
 | `land_accepted_job_on_dayplan` |  | yes | — | — |
-| `listing_reservation_amount` | p_hive uuid, p_price numeric | yes | marketplace-seller.html | — |
+| `listing_reservation_amount` | p_hive uuid, p_price numeric | yes | marketplace-seller.html, marketplace.html | — |
 | `match_gcash_receipt` |  | yes | — | — |
 | `match_persona_knowledge` | query_embedding vector(384),   scopes          text[],   mat | no | — | _shared/persona-knowledge.ts |
 | `match_procedural_memories` | p_query_embedding  vector,   p_hive_id          uuid,   p_wo | yes | — | _shared/episodic-memory.ts, _shared/skill-library.ts |
@@ -515,7 +515,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `offline-fallback.html` | — | — | — | — |
 | `ph-intelligence.html` | hive_benchmarks, ph_intelligence_reports | — | — | intelligence-report |
 | `plant-connections.html` | gateway_audit_log, hive_retention_config, integration_configs, sensor_topic_map ... | — | — | — |
-| `platform-actions.html` | hive_audit_log, marketplace_listings, marketplace_sellers, service_credit_topups ... | hive_audit_log, marketplace_listings, marketplace_sellers ... | — | — |
+| `platform-actions.html` | hive_audit_log, marketplace_listings, marketplace_sellers, platform_feedback ... | hive_audit_log, marketplace_listings, marketplace_sellers ... | — | — |
 | `pm-scheduler.html` | asset_nodes, hive_audit_log, hive_members, logbook ... | hive_audit_log, logbook, pm_assets ... | get_pm_compliance_smrp, get_pm_ontime_delivery | — |
 | `poster-v1.html` | — | — | — | — |
 | `poster-v2.html` | — | — | — | — |
@@ -549,8 +549,8 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 | Surface A | Surface B | Shared tables | Jaccard |
 |---|---|---|---:|
+| `founder-console.html` | `platform-actions.html` | hive_audit_log, marketplace_listings, marketplace_sellers, platform_feedback, service_credit_topups, v_marketplace_listings_truth, v_marketplace_sellers_truth, v_service_credit_topups_truth | 0.5 |
 | `logbook.html` | `pm-scheduler.html` | asset_nodes, hive_audit_log, hive_members, logbook, pm_assets, pm_completions, project_links, projects, v_pm_scope_items_truth | 0.5 |
-| `marketplace-admin.html` | `platform-actions.html` | hive_audit_log, marketplace_listings, marketplace_sellers, v_marketplace_listings_truth, v_marketplace_sellers_truth | 0.5 |
 
 ### Near-duplicate column names within a table
 

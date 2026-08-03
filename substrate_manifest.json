@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T11:50:12.361465+00:00",
+  "generated_at": "2026-08-03T13:28:38.425987+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -10,12 +10,12 @@
       "present": true,
       "proposals": [
         {
-          "feature": "imports_cors_shared",
+          "feature": "imports_supabase_esm",
           "anti_pattern": false,
           "conformance": 0.983,
           "outlier_count": 1,
           "outliers": [
-            "gcash-receipt-inbound"
+            "gcash-receipt-ocr"
           ]
         },
         {
@@ -28,15 +28,6 @@
           ]
         },
         {
-          "feature": "uses_error_envelope",
-          "anti_pattern": false,
-          "conformance": 0.983,
-          "outlier_count": 1,
-          "outliers": [
-            "notify-push"
-          ]
-        },
-        {
           "feature": "sets_content_type_json",
           "anti_pattern": false,
           "conformance": 0.983,
@@ -46,31 +37,62 @@
           ]
         },
         {
-          "feature": "createclient_in_handler",
-          "anti_pattern": true,
+          "feature": "reads_supabase_url_env",
+          "anti_pattern": false,
           "conformance": 0.983,
           "outlier_count": 1,
           "outliers": [
-            "gcash-receipt-inbound"
+            "gcash-receipt-ocr"
+          ]
+        },
+        {
+          "feature": "reads_service_role_env",
+          "anti_pattern": false,
+          "conformance": 0.983,
+          "outlier_count": 1,
+          "outliers": [
+            "gcash-receipt-ocr"
+          ]
+        },
+        {
+          "feature": "imports_cors_shared",
+          "anti_pattern": false,
+          "conformance": 0.967,
+          "outlier_count": 2,
+          "outliers": [
+            "gcash-receipt-inbound",
+            "gcash-receipt-ocr"
           ]
         },
         {
           "feature": "uses_get_cors_headers",
           "anti_pattern": false,
-          "conformance": 0.966,
-          "outlier_count": 2,
+          "conformance": 0.95,
+          "outlier_count": 3,
           "outliers": [
             "gcash-receipt-inbound",
+            "gcash-receipt-ocr",
             "visual-defect-capture"
+          ]
+        },
+        {
+          "feature": "uses_error_envelope",
+          "anti_pattern": false,
+          "conformance": 0.95,
+          "outlier_count": 3,
+          "outliers": [
+            "gcash-receipt-inbound",
+            "gcash-receipt-ocr",
+            "notify-push"
           ]
         }
       ],
       "summary": {
-        "fns_scanned": 59,
+        "fns_scanned": 60,
         "features_extracted": 35,
-        "promotion_candidates": 6
+        "promotion_candidates": 8
       },
-      "proposal_count": 6
+      "proposal_count": 8
     },
     {
       "label": "HTML patterns",
@@ -122,7 +144,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 518,
+        "files_scanned": 522,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -209,7 +231,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 620,
+        "files_scanned": 621,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -222,7 +244,7 @@
       "summary": {
         "rules_evaluated": 57,
         "rules_with_errors": 0,
-        "promotion_candidates": 19,
+        "promotion_candidates": 21,
         "critical_violations": 9,
         "rules_by_source": {
           "skill_md:designer": 2,

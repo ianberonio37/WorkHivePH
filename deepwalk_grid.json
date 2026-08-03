@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-03T09:53:15+00:00",
+ "generated": "2026-08-03T12:48:45+00:00",
  "coverage_pct": 97.2,
  "page_pct": 96.6,
  "ai_surface_pct": 100.0,
@@ -384,9 +384,7 @@
  "live_bonus": {
   "live_cells": 26,
   "live_cell_ids": [
-   "H1/F",
    "H1/I",
-   "H1/M",
    "H1/U",
    "H11/F",
    "H12/F",
@@ -394,6 +392,7 @@
    "H14/F",
    "H15/F",
    "H2/A",
+   "H2/F",
    "H2/I",
    "H2/U",
    "H3/A",
@@ -409,11 +408,12 @@
    "H7/F",
    "H7/U",
    "H8/A",
-   "H8/I"
+   "H8/I",
+   "H9/F"
   ],
   "breaches": 0,
   "fresh": true,
-  "age_days": 0.2,
+  "age_days": 0.1,
   "proven_ever": 32,
   "this_run": 26
  },
