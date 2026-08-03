@@ -696,7 +696,13 @@ async function syncItemToSupabase(item) {
         showToast('Network issue: saved offline, will retry automatically.');
         return;
       }
-      console.warn('Schedule sync failed:', error.message); showToast('Save failed: check your connection', 'error');
+      // The network branch above already claimed anything connection-shaped, so "check your
+      // connection" was actively misleading here: what reaches this line is a REFUSAL. Guarded call
+      // because utils.js loads at the BOTTOM of this page (see the note at the top of this block).
+      console.warn('Schedule sync failed:', error.message);
+      showToast(typeof whWriteError === 'function'
+        ? whWriteError(error, 'Save failed: check your connection')
+        : 'Save failed: check your connection', 'error');
     }
   } catch(e) {
     console.warn('Schedule sync error:', e);
@@ -707,7 +713,9 @@ async function syncItemToSupabase(item) {
         return;
       } catch (_) { /* empty-catch-allow: fall through to the honest failure toast */ }
     }
-    showToast('Save failed: check your connection', 'error');
+    showToast(typeof whWriteError === 'function'
+      ? whWriteError(e, 'Save failed: check your connection')
+      : 'Save failed: check your connection', 'error');
   }
 }
 
@@ -726,10 +734,17 @@ async function deleteItemFromSupabase(id) {
   }
   try {
     const { error } = await db.from('schedule_items').delete().eq('id', id).eq('worker_name', WORKER_NAME);
-    if (error) { console.warn('Schedule delete failed:', error.message); showToast('Delete failed: check your connection', 'error'); }
+    if (error) {
+      console.warn('Schedule delete failed:', error.message);
+      showToast(typeof whWriteError === 'function'
+        ? whWriteError(error, 'Delete failed: check your connection')
+        : 'Delete failed: check your connection', 'error');
+    }
   } catch(e) {
     console.warn('Schedule delete error:', e);
-    showToast('Delete failed: check your connection', 'error');
+    showToast(typeof whWriteError === 'function'
+      ? whWriteError(e, 'Delete failed: check your connection')
+      : 'Delete failed: check your connection', 'error');
   }
 }
 

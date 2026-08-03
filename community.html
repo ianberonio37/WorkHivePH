@@ -1943,7 +1943,9 @@
         await _queueOfflinePost('Network issue: saved offline, will post automatically.');
         return;
       }
-      showToast('Could not post. Try again.', 'error'); return;
+      // Network errors were already routed to the offline queue above, so anything reaching here is
+      // a REFUSAL - exactly where a guard's own sentence belongs instead of "Try again."
+      showToast(whWriteError(error, 'Could not post. Try again.'), 'error'); return;
     }
 
     _lastPostTs = Date.now(); // start cooldown only after a confirmed insert
@@ -2515,7 +2517,7 @@
     btn.disabled = false;
     btn.textContent = 'Send Report';
 
-    if (error) { showToast('Could not send report. Try again.', 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'Could not send report. Try again.'), 'error'); return; }
 
     await writeAuditLog('report_post', _reportingPostId, { reason, details });
 

@@ -289,6 +289,39 @@ BRANCH_CATEGORIES = {
         ]),
 }
 
+# ── ADVERSARIAL ORACLES (2026-08-04) ────────────────────────────────────────────────────────────────
+# Found while trying to bank S-adversarial rows against the persona probe: the rows did not ask the
+# question the category exists to ask. `oracle` is keyed by STATE alone (ORACLES[state]), so all 24
+# S-adversarial scenarios inherited "the surface renders real rows and every visible number matches
+# its source of truth" -- a RENDERING oracle. The category was created because "the 500 simulations
+# proved the ECONOMICS hold; nothing has yet proved the SCREEN refuses them legibly", and that intent
+# was written down in PERSONAS right above and then never reached the success criterion.
+#
+# The tell was concrete: tools/probe_adversarial_personas.py passes all four personas (spam cap holds
+# with an actionable sentence, second starter grant refused, circulation delta EXACTLY 0, scam
+# provider's job yields a dated deadline plus a working objection) -- and none of that evidence could
+# honestly be banked, because it answers containment while the row asked about layout. An oracle that
+# does not match the claim makes a green row that proves nothing, which is worse than an owed one.
+#
+# So an adversarial persona now CONTRIBUTES to the oracle rather than being decoration on it. Both
+# halves are kept: the state still governs what the surface must render, and the persona adds what
+# the platform must refuse, and how legibly.
+ADVERSARIAL_ORACLES = {
+    "spammer":       "the 3-live-listing cap HOLDS, and the refusal names both the limit and the way "
+                     "out ('sell one, or take one down to make room') - never a bare 'Save failed'",
+    "sybil":         "the second starter grant is refused with a reason a person can read, and the "
+                     "screen does NOT imply a remedy that does not exist (only ID verification touches "
+                     "this, so 'try again later' would be a lie)",
+    "scam_provider": "marking a job done does NOT settle it: the buyer gets a DATED deadline and an "
+                     "objection control that actually reaches `disputed` - the platform holds no money "
+                     "and cannot claw a peso payment back, so detection before settle is the only lever",
+    "scam_buyer":    "a bad-faith objection is bounded - it must reach adjudication rather than "
+                     "auto-refunding, and the provider must be able to see and answer it",
+    "colluder":      "EXACTLY 0 extracted, proven from the ledger rather than assumed: circulation "
+                     "delta is 0.00 across the pair, and the refusal explains that credits move only "
+                     "on a purchase",
+}
+
 # The oracle families. Every scenario gets exactly one, so a finding is always actionable.
 ORACLES = {
     "populated": "the surface renders real rows and every visible number matches its source of truth",
@@ -353,7 +386,12 @@ def build():
                         # STRICT, not .get(...) with a fallback: a new state whose oracle nobody wrote
                         # would otherwise inherit "populated" silently, and every scenario in it would
                         # be walked against the wrong success criterion while looking perfectly fine.
-                        "oracle": ORACLES[state],
+                        # An adversarial persona ADDS its containment clause rather than replacing the
+                        # state's rendering clause -- both axes stay meaningful, and the row finally
+                        # asks the question its category was created to ask.
+                        "oracle": (ORACLES[state] + " -- AND, because this is the " + persona +
+                                   ": " + ADVERSARIAL_ORACLES[persona]
+                                   if persona in ADVERSARIAL_ORACLES else ORACLES[state]),
                         # walked live via the Playwright MCP; findings are appended by the flywheel
                         "status": "owed",
                         "findings": [],

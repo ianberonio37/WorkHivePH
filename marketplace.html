@@ -3284,7 +3284,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       await loadCounts();
     } catch (err) {
       console.error(err);
-      showToast('Failed to post listing. Try again.', 'error');
+      /* THE GUARD WROTE A SENTENCE AND THIS PATH THREW IT AWAY (found 2026-08-04, S-adversarial
+         spammer walk). guard_first_listings_need_a_sale refuses with "A new seller can keep 3
+         listings live until one of them sells. You have 3 - sell one, or take one down to make
+         room. This is not about trust; it keeps the front page useful." Measured live by returning
+         that exact 42501 to the form: the screen rendered "Failed to post listing. Try again."
+         instead - guardSentenceOnScreen=false. "Try again" is a remedy that can NEVER work here,
+         because retrying is exactly what the cap forbids; the seller retries forever and concludes
+         the site is broken. whWriteError already exists for precisely this and its own comment says
+         so; this path just never called it. Same half-applied-guard shape as the 42501 that told a
+         signed-in buyer their session had expired. */
+      showToast(whWriteError(err, 'Failed to post listing. Try again.'), 'error');
     } finally {
       if (btn) { btn.disabled = false; btn.textContent = 'Post Listing'; }
     }
