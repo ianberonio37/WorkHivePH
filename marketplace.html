@@ -3430,7 +3430,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           (['en_route', 'on_site', 'in_progress'].includes(r.status)
             ? '<div id="svc-track-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcTrack(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;">Track provider</button>' : '') +
           (r.status === 'completed'
-            ? '<div id="svc-pay-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcConfirmPay(\'' + e(r.id) + '\',' + Number(r.catalog_rate || r.budget || 0) + ')" style="' + _svcBtnC + 'margin-right:0.4rem;">Confirm payment &amp; release</button>' : '') +
+            ? '<div style="font-size:0.75rem;margin:0.1rem 0 0.5rem;opacity:0.92;">' + e(svcWindowNotice(r)) + '</div>' +
+              '<div id="svc-pay-' + e(r.id) + '" style="margin:0.3rem 0;"></div>' +
+              '<button type="button" onclick="svcConfirmPay(\'' + e(r.id) + '\',' + Number(r.catalog_rate || r.budget || 0) + ')" style="' + _svcBtnC + 'margin-right:0.4rem;">Confirm payment &amp; release</button>' +
+              '<button type="button" onclick="svcRaiseObjection(\'' + e(r.id) + '\')" aria-label="Report a problem with ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="' + _svcGhostC + 'margin-right:0.4rem;">Report a problem</button>' : '') +
           (['completed', 'settled'].includes(r.status)
             ? '<div id="svc-rate-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcRateProvider(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;">Rate provider</button>' +
               '<span style="display:inline-flex;gap:0.3rem;align-items:center;flex-wrap:wrap;"><input id="svc-vcode-' + e(r.id) + '" type="text" maxlength="24" placeholder="Voucher code" aria-label="Voucher code for ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="width:9rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;"><button type="button" onclick="svcApplyVoucher(\'' + e(r.id) + '\')" aria-label="Apply voucher to ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="' + _svcGhostC + '">Apply</button></span>' : '') +
@@ -3979,6 +3982,57 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   window.svcLoadPresence = svcLoadPresence;
   window.svcRateProvider = svcRateProvider;
   window.svcPickStar = svcPickStar;
+
+  /* THE BUYER MUST BE TOLD THAT SILENCE IS AN ANSWER. Before the completion window existed, a
+     `completed` job simply waited for the buyer forever, so "Marked done" carried no urgency and
+     none was needed. Now silence SETTLES the job — so a row that says only "Marked done" would be
+     actively misleading: it reads as "nothing happens until you act", which is precisely backwards.
+     The deadline comes from the view's objection_deadline, computed server-side from the same knob
+     the sweep and the push read, so the screen can never quote a date the sweep disagrees with. */
+  function svcWindowNotice(r) {
+    const fallback = 'Marked done by the provider.';
+    if (!r || !r.objection_deadline) return fallback;
+    const d = new Date(r.objection_deadline);
+    if (isNaN(d.getTime())) return fallback;
+    const msLeft = d.getTime() - Date.now();
+    // Past the deadline the sweep may not have run yet (hourly). Say what is true — it is settling —
+    // rather than printing a negative countdown.
+    if (msLeft <= 0) return 'Marked done. This job settles automatically now unless you report a problem.';
+    const days = Math.ceil(msLeft / 86400000);
+    const when = d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+    return 'Marked done by the provider. Confirm payment, or report a problem by ' + when
+         + ' (' + days + ' day' + (days === 1 ? '' : 's') + ' left). After that it settles automatically.';
+  }
+
+  /* The buyer's stop button. Without it the window is one-sided — a countdown they can watch and
+     cannot halt. Routes to `disputed`, which is the LIVE dispute path (apply_dispute_adjustment),
+     and since mig 29 that returns any credits the buyer spent on the job. */
+  async function svcRaiseObjection(requestId) {
+    if (!svcRequireOnline('Reporting a problem')) return;
+    if (typeof whPrompt !== 'function') {
+      showToast('Can\'t collect a reason right now. Reload and try again.'); return;
+    }
+    let reason = await whPrompt('What went wrong with this job?',
+      { okLabel: 'Report problem', cancelLabel: 'Never mind', inputLabel: 'Tell us what went wrong' });
+    if (reason === null) return;                       // cancelled
+    reason = String(reason).trim();
+    if (!reason) { showToast('Tell us what went wrong, so it can be reviewed.'); return; }
+    try {
+      const { data, error } = await db.rpc('raise_service_objection',
+        { p_request_id: requestId, p_reason: reason });
+      if (error) throw error;
+      // The RPC answers with its OWN reason string for every refusal (not the party, already
+      // settled, no reason given). Surfacing that beats a generic failure the buyer can't act on.
+      if (!data || !data.ok) { showToast((data && data.reason) || 'Couldn\'t report the problem.'); return; }
+      showToast('Reported. This job won\'t settle automatically while it\'s being reviewed.');
+      loadClientServices();
+    } catch (err) {
+      showToast(whIsAuthFailure(err)
+        ? 'Your session expired, so nothing was reported. Sign in again and try once more.'
+        : 'Couldn\'t report the problem, and nothing was changed. Try again.');
+    }
+  }
+  window.svcRaiseObjection = svcRaiseObjection;
 
   async function svcClientCancel(requestId) {
     if (!svcRequireOnline('Cancelling a request')) return;
