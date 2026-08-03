@@ -4966,8 +4966,10 @@
    "state": "branch",
    "branch": "a job settles now that the platform takes no commission",
    "oracle": "no `commission` ledger row is written AND the founder console shows no 'Earned revenue' tile -- gone, not sitting at zero",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    "WALKED 2026-08-03, both halves of the oracle. LEDGER: 3 commission rows survive as HISTORY (the ledger is append-only and mig 30 was forward-only), and ZERO commission rows on any job settled today; service_knob_pct(commission_pct) reads 0.00. UI: the 'Earned revenue' tile is GONE from the founder console, not sitting at PHP0 — verified live in the DOM, which is the half that matters, because a permanently-zero money tile reads as a dead feed rather than as design."
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-cashback-zero",
@@ -4980,8 +4982,10 @@
    "state": "branch",
    "branch": "cashback is retired",
    "oracle": "no `cashback` row AND the word 'cashback' appears nowhere user-facing; a buyer meets exactly ONE reward number",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    "WALKED 2026-08-03, both halves. LEDGER: ZERO cashback rows have EVER been written and service_knob_pct(cashback_pct) reads 0.00. UI: 'cashback' appears nowhere user-facing across marketplace.html and marketplace-seller.html — the only two hits are source COMMENTS explaining the retired mechanic, which no buyer can read. So a buyer now meets exactly ONE reward idea, the 10% credits-back, which was the point: two reward rates was the comprehension failure the simulation measured at 4.7% of journey failures."
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-ghost-retired",
