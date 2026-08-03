@@ -1898,8 +1898,17 @@
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "defect-fixed",
+     "title": "9 listing cards carried data-i=\"view\" with no dictionary entry",
+     "measured": "50 marked elements, 47 dictionary keys, 9 unresolved - all of them the card's primary action. An UNRESOLVED marker is a BROKEN translation, not a missing one: whI18nApply leaves the English in place while the page around it turns Filipino, so a Filipino reader gets a half-translated page and the one button they need stays in the other language.",
+     "fix": "added view: 'Tingnan' and clearfilters: 'I-clear ang filter' (the button added earlier in this same walk would have shipped with the identical defect).",
+     "verified_live": "with WH_LANG='fil': View -> Tingnan, and 0 marked elements remain untranslated",
+     "instrument_note": "The first check said the translation still did not land. That was the probe, not the page: whI18nApply returns early unless WH_LANG === 'fil', and the page was in English. Adding a key made the COUNT go green while proving nothing - the count is not the correctness."
+    }
+   ]
   },
   {
    "id": "LM-L-comprehension-market-buyer-populated",
@@ -2681,8 +2690,15 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "pass",
+     "title": "the widened anon read is genuinely scoped, not a blanket open",
+     "measured": "anon sees 11 of 13 sellers; the 2 with no published listing (e.g. Jericho Bonifacio) return 0 rows. Private columns auth_uid and kyb_verified_at both refuse with 42501.",
+     "why_checked": "I had just widened this read myself. A fix that opens more than it claims is worse than the defect it replaced, so the scope was measured rather than asserted."
+    }
+   ]
   },
   {
    "id": "LM-P-isolation-market-seller-populated",

@@ -4416,6 +4416,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
   window.WH_FIL_PAGE = {
     pagetitle:     'Marketplace',
+    /* An UNRESOLVED data-i marker is a BROKEN translation, not a missing one: whI18nApply leaves
+       the English in place while the page around it turns Filipino, so the result reads as a
+       half-translated page rather than an English one. Found live - 9 listing cards carried
+       data-i="view" with no entry here, so every card's primary action stayed English. */
+    view:          'Tingnan',
+    clearfilters:  'I-clear ang filter',
+
     /* The money screen, in Filipino. These are the words someone agrees to a peso figure in, so they are
        written the way people actually speak rather than translated literally: "release" and "settle" have
        no natural everyday equivalent, and inventing one would be less clear than the Taglish a PH user
