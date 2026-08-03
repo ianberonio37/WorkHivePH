@@ -69,9 +69,9 @@ insert into public.service_credit_ledger(account_type, account_id, entry_type, a
 insert into public.marketplace_listings(id, hive_id, seller_name, section, title, category, price, status)
 values
   ('d1ffffff-0000-4000-8000-00000000000a',(select id from public.hives order by id limit 1),
-   'TB I2 Admin','parts','TB I2 own listing','Tools',100,'draft'),
+   'TB I2 Admin','parts','TB I2 own listing','Tools',600,'draft'),
   ('d1ffffff-0000-4000-8000-00000000000b',(select id from public.hives order by id limit 1),
-   'TB I2 Other','parts','TB I2 other listing','Tools',100,'draft');
+   'TB I2 Other','parts','TB I2 other listing','Tools',600,'draft');
 
 -- ---- orders: one where the admin is the seller, one between two other people ----------------------
 insert into public.marketplace_orders(id, hive_id, buyer_name, seller_name, price, status) values

@@ -28,7 +28,7 @@ begin;
 -- a realistic BULK IMPORT: one transaction => one now() => six listings sharing an identical created_at
 insert into public.marketplace_listings(id, seller_name, title, description, section, category, price, location, status)
 select ('b1000000-0000-4000-8000-0000000000'||lpad(g::text,2,'0'))::uuid,
-       'MR4 Seller','MR4 Listing '||g,'desc '||g,'parts','tools',100+g,'Baguio','published'
+       'MR4 Seller','MR4 Listing '||g,'desc '||g,'parts','tools',1000+g,'Baguio','published'
 from generate_series(1,6) g;
 
 do $probe$

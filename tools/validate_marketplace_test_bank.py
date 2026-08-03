@@ -79,7 +79,8 @@ def mint():
     vals = ",".join(f"('{u}','tb-probe-{i}@gate.local')" for i, u in enumerate((C, P, X, A)))
     return (
         f"insert into auth.users(id, email) values {vals};\n"
-        # generous relative to any fixture price in this file (the dearest listing is PHP100 -> PHP10 held)
+        # generous relative to any fixture price here. Fixtures list at PHP600 (-> PHP60 held): they must
+        # clear the PHP500 minimum listing price (mig 36), which refuses publication below it.
         f"insert into public.service_credit_ledger"
         f"(account_type, account_id, entry_type, amount, ref_kind, note) values "
         f"('consumer','{C}','topup',1000,'probe','tb-probe reservation float');\n")
@@ -275,7 +276,7 @@ DENY_FIXTURES = {
             "(id, hive_id, seller_name, section, title, category, price, status) values "
             "('d1ffffff-0000-4000-8000-0000000000f1',"
             "(select id from public.hives order by id limit 1),"
-            f"'{WORKER_NAME[C]}','parts','TB deny probe','Tools',100,'{st}');\n"),
+            f"'{WORKER_NAME[C]}','parts','TB deny probe','Tools',600,'{st}');\n"),
         "pre": "draft", "id": "d1ffffff-0000-4000-8000-0000000000f1"},
     "marketplace_orders": {
         "plant": lambda st: (
@@ -420,7 +421,7 @@ BIRTH_FIXTURES = {
             "(id, hive_id, seller_name, section, title, category, price, status) values "
             "('d1ffffff-0000-4000-8000-0000000000b1',"
             "(select id from public.hives order by id limit 1),"
-            f"'{WORKER_NAME[C]}','parts','TB birth probe','Tools',100,'{st}');\n"),
+            f"'{WORKER_NAME[C]}','parts','TB birth probe','Tools',600,'{st}');\n"),
     },
 }
 
