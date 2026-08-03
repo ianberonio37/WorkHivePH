@@ -50,6 +50,11 @@ LIVE_PAGES = [
     "shift-brain.html",
     "alert-hub.html",
     "founder-console.html",  # 2026-05-19: subscribes to platform_feedback INSERTs
+    # 2026-08-03: the SAME platform_feedback INSERT subscription, lifted here when the triage UI moved
+    # off the retired founder-console. The capability moved and its observability obligation did not
+    # follow it -- a live channel on a page this gate does not know about is a channel whose failures
+    # nobody is watching. Registering the destination is part of a lift, not a follow-up.
+    "platform-actions.html",
 ]
 
 CRITICAL_SAVES = [

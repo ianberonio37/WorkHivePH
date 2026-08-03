@@ -851,6 +851,16 @@
           showToast('New ' + row.kind + ' from ' + (row.worker_name || row.contact_email || 'anonymous'));
         })
         .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
+
+      /* BOTH events, because neither is sufficient alone and the channel is a server-side resource.
+         `beforeunload` is the platform convention (every other channel page uses it, and the
+         observability gate asserts it) but mobile Safari frequently never fires it, so a founder
+         closing the tab on a phone would leak the subscription. `pagehide` covers that and the
+         bfcache path. The teardown is idempotent -- it nulls _fb.channel -- so whichever fires
+         first wins and the second is a no-op; `once` on each keeps the listeners from accumulating. */
+      window.addEventListener('beforeunload', () => {
+        if (_fb.channel) { db.removeChannel(_fb.channel); _fb.channel = null; }
+      }, { once: true });
       window.addEventListener('pagehide', () => {
         if (_fb.channel) { db.removeChannel(_fb.channel); _fb.channel = null; }
       }, { once: true });
