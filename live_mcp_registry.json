@@ -5137,8 +5137,23 @@
       "state": "branch",
       "branch": "the UFAI lens over every surface this arc touched",
       "oracle": "contrast, tap targets, focus, SR names, i18n markers and CLS clean on the confirm sheet, the seller wallet and the admin queues -- mobile rows walked in the SPEC lane, never MCP (browser_resize(390) renders at 585 here)",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "defect-fixed",
+          "title": "ten UFAI defects across the three money surfaces, found by RUNNING the battery instead of hand-rolling probes",
+          "measured": "ufai_battery.js v1.6.2 (axe WCAG2.2AA + CWV + focus-visible + true-dpr geometry + link destination) run live on all three surfaces the money work touched. platform-actions 6 defects (2 Major) -> 1; marketplace-seller 5/5 clean, 0 defects, CLS 0.044; marketplace ?section=services 6 defects -> 0, 5/5 clean.",
+          "fix": "(1) axe color-contrast, 11 nodes: --red on its own 18% tint measures 4.35:1, under the 4.5 AA floor for text that small. The gold pair already clears at 5.41:1, so only the red needed lifting -- #fca5a5 on the same tint is 6.35:1. Lifted the text rather than darkening the tint, because the tint is what makes a red pill READ as red. (2) Six hail/quote fields plus two feedback filters sat at 13.3px/12.8px; below 16px iOS Safari zooms on focus and never zooms back, so a buyer tapping 'address' mid-hail is thrown into a magnified horizontally-scrolling page. Fixed on the SHARED _svcInputC constant so a seventh field inherits the fix instead of re-introducing the bug. (3) CLS 0.468 ('poor', budget 0.1) on platform-actions: four queues each painted a one-line 'Loading...' then grew, shoving every card below them down -- the founder could press Reject on a row that had just become a different row. Now the queues fill while #actions is still hidden and the layout lands once, with a finally{} so a failed fetch still reveals the page.",
+          "teeth": "Re-run after each fix: axe violations 1 -> 0; inputs under16 2 -> 0 (platform-actions) and 6 -> 0 of 21 checked (marketplace); tap targets 0 under 44 on all three. CLS re-measured INDEPENDENTLY of the battery with a buffered PerformanceObserver, signed in and with 23 rows rendered (1 top-up + 3 listings + 9 sellers + 10 feedback): 0 shift entries, CLS 0.0000."
+        },
+        {
+          "severity": "instrument-false-positive",
+          "title": "the battery called a live Grafana link 'both-404' -- a 302 to a login page is not a broken link",
+          "measured": "The one remaining defect was F broken-internal-link on http://127.0.0.1:3001/d/workhive-founder-ops. Probed directly: root=302, dashboard=302, container UP (the API answers 401 Unauthorized, which only a running Grafana does). The link works; it redirects to Grafana's own login, which is what a PROTECTED resource is supposed to do. I had already written a reachability check and a degraded-link state before probing -- and reverted it, because it fixed a defect that did not exist. Annotated with ufai-link-allow and the measurement instead.",
+          "why_it_matters": "Second instrument error this session (the first: an alpha-blind contrast helper that reported 1.00 for every tinted pill). Treating a 302-to-login as broken would make every authenticated destination on the platform a defect."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-R-money-lifecycle-adversarial-personas",

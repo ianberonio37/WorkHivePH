@@ -3370,7 +3370,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      it — which is exactly what happened: min-height:44px vanished and the button rendered 40px, under
      the tap-target floor, with no error anywhere. The button inherits the page font perfectly well. */
   const _svcBtnGhostC = 'padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-size:0.8rem;font-weight:600;cursor:pointer;min-height:44px;';
-  const _svcInputC = 'display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;';
+  /* font-size:16px is LOAD-BEARING, not styling. These fields inherited the page's 13.3px, and below
+     16px iOS Safari zooms the viewport on focus and never zooms back — so a buyer tapping "address"
+     to hail a provider gets thrown into a magnified, horizontally-scrolling page mid-form. Measured
+     by the UFAI battery across all six hail/quote fields (#svc-hail-item, -address, -urgency,
+     #svc-quote-scope, -budget, -address) at 13.3px. Fixed on the SHARED constant so a seventh field
+     added later inherits the fix instead of re-introducing the bug. */
+  const _svcInputC = 'display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;font-size:16px;';
   const SVC_OPEN = ['requested', 'broadcasting', 'accepted', 'en_route', 'on_site', 'in_progress'];
   const SVC_CHIP = { requested: 'Draft', broadcasting: 'Finding a provider…', accepted: 'Provider accepted', en_route: 'Provider on the way', on_site: 'Provider on site', in_progress: 'Work in progress', completed: 'Completed', settled: 'Settled', cancelled_by_client: 'You cancelled', cancelled_by_provider: 'Provider cancelled', expired: 'No provider found', disputed: 'In dispute' };
 

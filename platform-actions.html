@@ -25,7 +25,11 @@
     .card-hdr h2 { font-size:1rem; font-weight:700; margin:0; }
     .count { font-size:0.75rem; font-weight:700; padding:0.15rem 0.55rem; border-radius:999px; background:rgba(255,255,255,0.08); color:var(--muted); }
     .count.warn { background:rgba(247,162,27,0.18); color:var(--gold); }
-    .count.fail { background:rgba(248,113,113,0.18); color:var(--red); }
+    /* --red on its own 18% tint measures 4.35:1 -- under the 4.5 AA floor for text this small, and
+       axe flagged 11 nodes across the count badges and status pills. The gold pair already clears it
+       at 5.41:1, so only the red needed lifting: #fca5a5 on the same tint measures 6.35:1. Chosen
+       over darkening the tint because the tint is what makes a red pill READ as red at a glance. */
+    .count.fail { background:rgba(248,113,113,0.18); color:#fca5a5; }
     .mod-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; padding:0.6rem 0;
                border-top:1px solid var(--border); flex-wrap:wrap; }
     .mod-row:first-child { border-top:0; }
@@ -60,8 +64,11 @@
               background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--muted); min-height:44px; }
     .fb-tab[aria-selected="true"] { background:rgba(41,182,217,0.14); color:var(--blue); border-color:rgba(41,182,217,0.35); }
     .fb-filters { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.6rem; }
+    /* 16px, not 0.8rem. Below 16px iOS Safari ZOOMS the page on focus and does not zoom back, so a
+       founder triaging on a phone gets thrown into a magnified, horizontally-scrolling layout by
+       tapping the search box. The battery measured these two at 12.8px. */
     .fb-filter { padding:0.5rem 0.7rem; border-radius:0.5rem; background:rgba(255,255,255,0.05); color:#fff;
-                 border:1px solid var(--border); font-size:0.8rem; min-height:44px; }
+                 border:1px solid var(--border); font-size:16px; min-height:44px; }
     .fb-filter::placeholder { color:rgba(255,255,255,0.5); }
     .fb-card { display:block; width:100%; text-align:left; cursor:pointer; padding:0.65rem 0.15rem;
                background:none; border:0; border-top:1px solid var(--border); color:#fff; min-height:44px; }
@@ -71,7 +78,7 @@
     .fb-card-top { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; font-size:0.72rem; color:var(--muted); }
     .fb-kind, .fb-status { padding:0.1rem 0.45rem; border-radius:999px; font-weight:700; font-size:0.68rem;
                            background:rgba(255,255,255,0.08); }
-    .fb-status.new { background:rgba(248,113,113,0.18); color:var(--red); }
+    .fb-status.new { background:rgba(248,113,113,0.18); color:#fca5a5; }   /* 6.35:1; --red measured 4.35:1 */
     .fb-status.triaged, .fb-status.in_progress { background:rgba(247,162,27,0.18); color:var(--gold); }
     .fb-status.resolved, .fb-status.wontfix, .fb-status.duplicate { background:rgba(52,211,153,0.16); color:var(--green); }
     .fb-subject { font-weight:700; font-size:0.88rem; margin-top:0.2rem; }
@@ -113,6 +120,10 @@
         <h1>Platform Actions</h1>
         <div class="sub">Governance actions only: approve/verify/resolve. Every metric (health, usage, growth, marketplace volumes) lives in Grafana. Open this page only when a queue has something waiting.</div>
       </div>
+      <!-- ufai-link-allow: Grafana 302s to its own login for every URL including the root, which the
+           battery's link check scores as "both-404". Measured 2026-08-03: root=302, dashboard=302,
+           and the container is up. A redirect to a login page is what a PROTECTED resource is
+           supposed to do; treating it as broken would make every authenticated destination a defect. -->
       <a class="to-grafana" href="http://127.0.0.1:3001/d/workhive-founder-ops" target="_blank" rel="noopener noreferrer">📊 Founder Ops dashboard →</a>
     </div>
 
@@ -864,9 +875,11 @@
     (async () => {
       const realAdmin = (typeof isPlatformAdmin === 'function') && await isPlatformAdmin(db);
       const ok = realAdmin || IS_LOCAL_FOUNDER;
-      document.getElementById('checking-gate').hidden = true;
-      if (!ok) { document.getElementById('no-access-gate').hidden = false; return; }
-      document.getElementById('actions').hidden = false;
+      if (!ok) {
+        document.getElementById('checking-gate').hidden = true;
+        document.getElementById('no-access-gate').hidden = false;
+        return;
+      }
       /* HONEST EMPTY, NOT A FALSE ALL-CLEAR (2026-08-03). The localhost bypass opens this console on the
          founder's own machine, but RLS still answers to the JWT. Signed in as anyone who is not a
          platform admin, EVERY queue below returns 0 rows with NO error — so a top-up queue with a real
@@ -884,7 +897,24 @@
       wireMktModeration();
       wireSvcTopups();
       wireFeedback();
-      await refreshQueues();
+
+      /* FILL FIRST, THEN REVEAL. Every card here paints a one-line "Loading…" and then grows to
+         however many rows the queue holds -- four queues doing that in sequence measured CLS 0.468,
+         which the battery rates "poor" (the budget is 0.1). Each card that grows shoves every card
+         below it down the page, so the founder can press Reject on a row that just became a
+         different row. Reserving a fixed min-height would trade one lie for another: it wastes a
+         screen of whitespace when the queues are empty, which is the state this page is SUPPOSED to
+         be in most of the time.
+         The queues are already populated into #actions while it is still hidden, so revealing after
+         the first fetch costs one extra beat behind an "access" gate the page already shows, and the
+         layout lands once. The finally{} guarantees the reveal even if a queue throws -- a page that
+         stayed on "Checking access…" because one fetch failed would be a worse bug than the shift. */
+      try {
+        await refreshQueues();
+      } finally {
+        document.getElementById('checking-gate').hidden = true;
+        document.getElementById('actions').hidden = false;
+      }
       document.getElementById('refresh-btn').addEventListener('click', refreshQueues);
       const _refreshTimer = setInterval(refreshQueues, 60000);
       window.addEventListener('pagehide', () => clearInterval(_refreshTimer), { once: true }); // stop polling when the page is backgrounded/navigated (no leaked interval)
