@@ -28,7 +28,12 @@
  *   { "reference": "1234567890123", "amount": 500, "sender_name": "JUAN D" }
  * The raw text is ALWAYS stored, so a parse that gets it wrong stays recoverable.
  */
+import { serveObserved } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
+import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
+
+const FN_NAME = "gcash-receipt-inbound";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -77,31 +82,49 @@ export function parseGcashText(text: string): { reference: string | null; amount
   };
 }
 
-Deno.serve(async (req: Request) => {
+/* serveObserved, not a bare Deno.serve: an unhandled throw here leaks and is INVISIBLE to the SLO
+   alerting — on the endpoint that decides whether credits get minted, silence is the worst failure
+   mode available. /health answers "is the intake actually armed" without reading logs: with no
+   shared secret it reports NOT ok, which is also the resting state until Ian sets one. */
+serveObserved(FN_NAME, async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  if (req.method !== "POST") return json({ error: "POST only" }, 405);
+
+  const healthResp = await handleHealth(req, FN_NAME, async () => ({
+    deps: [
+      { name: "inbound_secret", ok: Boolean(Deno.env.get("GCASH_INBOUND_SECRET")) },
+      { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
+    ],
+  }));
+  if (healthResp) return healthResp;
+
+  /* The platform response contract: every reply carries ok/data or ok/code/message plus
+     a trace id, so a caller (and the SLO dashboard) can correlate one request across
+     function, logs and DB. I hand-rolled JSON here and skipped it. */
+  const ctx = beginRequest(req, { route: FN_NAME });
+
+  if (req.method !== "POST") return fail(ctx, "method_not_allowed", "POST only", { status: 405 });
 
   const secret = Deno.env.get("GCASH_INBOUND_SECRET") || "";
   // FAIL CLOSED. An intake with no shared secret cannot authenticate its caller, and
   // this one can cause credits to be minted. Refuse rather than accept unsigned.
-  if (!secret) return json({ error: "Inbound receipts are not configured", code: "no_secret" }, 401);
+  if (!secret) return fail(ctx, "no_secret", "Inbound receipts are not configured", { status: 401 });
 
   const raw = await req.text();
-  if (raw.length > 100_000) return json({ error: "Payload too large", code: "too_large" }, 413);
+  if (raw.length > 100_000) return fail(ctx, "too_large", "Payload too large", { status: 413 });
 
   const sig = req.headers.get("X-WorkHive-Signature") || "";
   const ts  = req.headers.get("X-WorkHive-Timestamp") || "";
   const tsNum = Number(ts);
-  if (!ts || !isFinite(tsNum)) return json({ error: "Missing timestamp" }, 401);
+  if (!ts || !isFinite(tsNum)) return fail(ctx, "missing_timestamp", "Missing timestamp", { status: 401 });
   // Replay window: a captured (sig, ts, body) triple must not work forever.
   if (Math.abs(Date.now() - tsNum) > 10 * 60 * 1000) {
-    return json({ error: "Timestamp outside the accepted window", code: "stale" }, 401);
+    return fail(ctx, "stale", "Timestamp outside the accepted window", { status: 401 });
   }
   const expect = await hmacHex(secret, `${ts}.${raw}`);
-  if (!safeEqual(expect, sig.toLowerCase())) return json({ error: "Invalid signature" }, 401);
+  if (!safeEqual(expect, sig.toLowerCase())) return fail(ctx, "bad_signature", "Invalid signature", { status: 401 });
 
   let body: { text?: string; reference?: string; amount?: number; sender_name?: string; source?: string };
-  try { body = JSON.parse(raw); } catch { return json({ error: "Body is not JSON" }, 400); }
+  try { body = JSON.parse(raw); } catch { return fail(ctx, "bad_json", "Body is not JSON", { status: 400 }); }
 
   const parsed = body.text ? parseGcashText(body.text) : { reference: null, amount: null, sender: null };
   const reference = String(body.reference || parsed.reference || "").trim();
@@ -111,12 +134,14 @@ Deno.serve(async (req: Request) => {
   // A receipt we cannot read is NOT discarded silently — it is refused loudly, so the
   // founder learns the format drifted instead of wondering why credits stopped.
   if (!/^\d{13}$/.test(reference) || !isFinite(amount) || amount <= 0) {
-    return json({
-      error: "Could not read a 13-digit reference and an amount from this notification",
-      code: "unparsed",
-      got: { reference: reference || null, amount: isFinite(amount) ? amount : null },
-      hint: "Send { reference, amount } explicitly if the notification wording has changed.",
-    }, 422);
+    return fail(ctx, "unparsed",
+      "Could not read a 13-digit reference and an amount from this notification", {
+        status: 422,
+        detail: {
+          got: { reference: reference || null, amount: isFinite(amount) ? amount : null },
+          hint: "Send { reference, amount } explicitly if the notification wording has changed.",
+        },
+      });
   }
 
   const db = createClient(
@@ -136,10 +161,10 @@ Deno.serve(async (req: Request) => {
     // the unique index is what makes replay harmless. Report it as accepted-already,
     // not as a failure, or a retrying forwarder will keep retrying.
     if (/duplicate|unique/i.test(error.message)) {
-      return json({ ok: true, duplicate: true, note: "This reference was already recorded." }, 200);
+      return ok(ctx, { duplicate: true, note: "This reference was already recorded." });
     }
-    return json({ error: error.message }, 500);
+    return fail(ctx, "insert_failed", error.message, { status: 500 });
   }
 
-  return json({ ok: true, receipt: data });
+  return ok(ctx, { receipt: data });
 });

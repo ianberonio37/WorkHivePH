@@ -28,6 +28,12 @@
  *   3. parse the text with the SAME regexes utils.js and the inbound receipt
  *      endpoint use — three readers of one format must not disagree
  */
+import { serveObserved } from "../_shared/observability.ts";
+import { handleHealth } from "../_shared/health.ts";
+import { beginRequest, ok, fail } from "../_shared/envelope.ts";
+
+const FN_NAME = "gcash-receipt-ocr";
+
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -67,22 +73,38 @@ function decodeDataUrl(dataUrl: string): { bytes: Uint8Array; mime: string } {
   return { bytes, mime };
 }
 
-Deno.serve(async (req: Request) => {
+/* serveObserved, not a bare Deno.serve: an unhandled throw in a bare serve() leaks and is INVISIBLE
+   to the SLO alerting, which is how an edge function fails quietly for a week. /health reports
+   whether the OCR backend is actually configured, so "uploads stopped working" is answerable
+   without reading logs. Both were missed when this shipped — the platform's edge conventions are a
+   checklist and I wrote two functions without running it. */
+serveObserved(FN_NAME, async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  if (req.method !== "POST") return json({ error: "POST only" }, 405);
+
+  const healthResp = await handleHealth(req, FN_NAME, async () => ({
+    deps: [{ name: "azure_doc_intelligence", ok: Boolean(AZURE_ENDPOINT && AZURE_KEY) }],
+  }));
+  if (healthResp) return healthResp;
+
+  /* The platform response contract: every reply carries ok/data or ok/code/message plus
+     a trace id, so a caller (and the SLO dashboard) can correlate one request across
+     function, logs and DB. I hand-rolled JSON here and skipped it. */
+  const ctx = beginRequest(req, { route: FN_NAME });
+
+  if (req.method !== "POST") return fail(ctx, "method_not_allowed", "POST only", { status: 405 });
 
   let body: { image_data_url?: string };
-  try { body = await req.json(); } catch { return json({ error: "Body is not JSON" }, 400); }
+  try { body = await req.json(); } catch { return fail(ctx, "bad_json", "Body is not JSON", { status: 400 }); }
 
   let img: { bytes: Uint8Array; mime: string };
   try { img = decodeDataUrl(String(body.image_data_url || "")); }
-  catch (e) { return json({ error: (e as Error).message }, 400); }
+  catch (e) { return fail(ctx, "bad_image", (e as Error).message, { status: 400 }); }
 
   // HONEST DEGRADE. With no OCR backend configured the answer is "we could not
   // read it", never a guessed reference — a wrong 13-digit number is worse than
   // no number, because it files a claim that can never match.
   if (!AZURE_ENDPOINT || !AZURE_KEY) {
-    return json({
+    return ok(ctx, {
       azure_unavailable: true,
       parsed: { reference: null, amount: null },
       note: "Receipt reading is not configured on this deployment. Type the amount and reference, "
@@ -95,10 +117,10 @@ Deno.serve(async (req: Request) => {
       `${AZURE_ENDPOINT.replace(/\/$/, "")}/documentintelligence/documentModels/prebuilt-read:analyze?api-version=2024-02-29-preview`,
       { method: "POST", headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY, "Content-Type": img.mime },
         body: img.bytes });
-    if (!submit.ok) return json({ error: `OCR service refused the image (${submit.status})` }, 502);
+    if (!submit.ok) return fail(ctx, "ocr_refused", `OCR service refused the image (${submit.status})`, { status: 502 });
 
     const op = submit.headers.get("operation-location");
-    if (!op) return json({ error: "OCR service did not return an operation to poll" }, 502);
+    if (!op) return fail(ctx, "ocr_no_operation", "OCR service did not return an operation to poll", { status: 502 });
 
     let text = "";
     for (let i = 0; i < 12; i++) {
@@ -106,12 +128,12 @@ Deno.serve(async (req: Request) => {
       const poll = await fetch(op, { headers: { "Ocp-Apim-Subscription-Key": AZURE_KEY } });
       const data = await poll.json();
       if (data.status === "succeeded") { text = data?.analyzeResult?.content || ""; break; }
-      if (data.status === "failed") return json({ error: "OCR could not read that image" }, 422);
+      if (data.status === "failed") return fail(ctx, "ocr_unreadable", "OCR could not read that image", { status: 422 });
     }
-    if (!text) return json({ error: "OCR timed out on that image" }, 504);
+    if (!text) return fail(ctx, "ocr_timeout", "OCR timed out on that image", { status: 504 });
 
     const parsed = parseGcashText(text);
-    return json({
+    return ok(ctx, {
       parsed,
       ocr_chars: text.length,
       // Say when the image was read but the FIELDS were not found — a blank result
@@ -122,6 +144,6 @@ Deno.serve(async (req: Request) => {
         : undefined,
     });
   } catch (e) {
-    return json({ error: `Could not read the receipt: ${(e as Error).message}` }, 500);
+    return fail(ctx, "ocr_failed", `Could not read the receipt: ${(e as Error).message}`, { status: 500 });
   }
 });

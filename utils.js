@@ -1318,9 +1318,15 @@ async function whGcashReadReceipt(db, file) {
   });
   const { data, error } = await db.functions.invoke('gcash-receipt-ocr', { body: { image_data_url: dataUrl } });
   if (error) throw new Error('Could not read the receipt. Type the details, or paste the receipt text.');
-  if (data && data.azure_unavailable) throw new Error(data.note || 'Receipt reading is not available here.');
-  if (data && data.error) throw new Error(data.error);
-  const parsed = (data && data.parsed) || {};
+  /* The function speaks the platform ENVELOPE: { ok, data } on success, { ok:false, code, message }
+     on refusal. This read `data.parsed` directly and would have silently found undefined the moment
+     the function adopted the contract — a shape change on one side and a stale reader on the other.
+     Unwrap defensively so either shape works rather than pinning to today's. */
+  const payload = (data && typeof data === 'object' && 'ok' in data && data.data) ? data.data : data;
+  if (data && data.ok === false) throw new Error(data.message || 'Could not read the receipt.');
+  if (payload && payload.azure_unavailable) throw new Error(payload.note || 'Receipt reading is not available here.');
+  if (payload && payload.error) throw new Error(payload.error);
+  const parsed = (payload && payload.parsed) || {};
   if (!parsed.reference && parsed.amount == null) {
     throw new Error((data && data.note) || 'No reference or amount found in that image.');
   }
