@@ -2560,8 +2560,15 @@
    "persona_note": "platform moderator",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "the page holds its shape while data arrives, and a reload mid-flow returns it clean",
+     "measured": "CLS 0.0000 read from the browser's own PerformanceObserver with buffered:true (so shifts since load are included, not just those after the probe attached); zero individual shift entries. #actions measured 2753px before and 2753px after a full refreshQueues() cycle - data is replaced in place, which is what the fill-then-reveal sequence is for. Reload mid-flow: opened a feedback triage drawer (focus lands INSIDE it, on the status select), reloaded, and the page came back with drawer and backdrop hidden (hidden attr + display:none, 0x0, elementFromPoint clear so nothing intercepts clicks) and every queue repopulated: top-ups 1, listings 3, feedback 10, credit PHP1,140. Two instrument traps here: '.fb-drawer-backdrop' also matches a [class*=\"fb-drawer\"] selector and has no text, which first read as 'the drawer opens empty'; and both nodes are STATIC markup, so existence is not visibility - checked computed display and rect instead of presence.",
+     "walked": "2026-08-04 · live MCP (Playwright) on platform-actions.html as a platform admin"
+    }
+   ]
   },
   {
    "id": "LM-O-empty-error-market-anon-empty",
@@ -3567,8 +3574,15 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "a non-admin sees a permission boundary on every queue, never data and never a false all-clear",
+     "measured": "Walked with a REAL second identity, not a simulated one: signed out of Pablo Aguilar (who is a platform admin, so measuring isolation as him would have proven nothing) and signed in as David Velasco, a genuine non-admin, then loaded platform-actions.html. Every queue renders 'Not visible with this session. Sign in as a platform admin to see what is waiting.' - the credit position, the top-up queue AND the feedback list. Two negative assertions carry the actual weight: leaksMoneyNumbers=false (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body) and claimsAllClear=false - the page never tells a non-admin 'No top-ups waiting' or 'all clear', which would be the same false-empty defect this session has been sweeping, in its most dangerous location: a queue that mints money reading as done when it is merely invisible. RLS returns 0 rows with NO error to a non-admin, so this distinction is entirely the page's own work.",
+     "walked": "2026-08-04 · live MCP (Playwright), two identities (Pablo Aguilar admin -> David Velasco non-admin)"
+    }
+   ]
   },
   {
    "id": "LM-P-isolation-admin-seller-populated",
@@ -3580,8 +3594,15 @@
    "persona_note": "signed in, listing and answering",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "a non-admin sees a permission boundary on every queue, never data and never a false all-clear",
+     "measured": "Walked with a REAL second identity, not a simulated one: signed out of Pablo Aguilar (who is a platform admin, so measuring isolation as him would have proven nothing) and signed in as David Velasco, a genuine non-admin, then loaded platform-actions.html. Every queue renders 'Not visible with this session. Sign in as a platform admin to see what is waiting.' - the credit position, the top-up queue AND the feedback list. Two negative assertions carry the actual weight: leaksMoneyNumbers=false (none of 1,140 / 1,500 / 10,000,000 / 9,998,500 appears anywhere in the body) and claimsAllClear=false - the page never tells a non-admin 'No top-ups waiting' or 'all clear', which would be the same false-empty defect this session has been sweeping, in its most dangerous location: a queue that mints money reading as done when it is merely invisible. RLS returns 0 rows with NO error to a non-admin, so this distinction is entirely the page's own work.",
+     "walked": "2026-08-04 · live MCP (Playwright), two identities (Pablo Aguilar admin -> David Velasco non-admin)"
+    }
+   ]
   },
   {
    "id": "LM-S-adversarial-seller-spammer-populated",
