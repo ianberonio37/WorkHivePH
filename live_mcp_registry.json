@@ -4993,8 +4993,18 @@
       "state": "branch",
       "branch": "the 10,000,000 supply cap is reached mid-top-up",
       "oracle": "the provider is told in a sentence they can act on, not a raw constraint error",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "defect-fixed",
+          "title": "the 10,000,000 supply cap did not watch the only door credits actually use",
+          "measured": "issue_credits() is the ceiling -- it takes authorised - issued FOR UPDATE, refuses when the remainder is too small, and increments issued_credits. Exactly ONE function called it: claim_starter_grant. The other mint, in guard_service_topup_status on every verified GCash top-up, inserted its ledger row directly and never touched the treasury. Live: credit_treasury issued = 0.00 while the ledger held topup = 1,500.00 across 2 rows (starter_grant = 0 rows). Every credit that exists came through the door nobody was counting.",
+          "why_it_matters": "Two consequences. (1) The cap was UNENFORCED on the primary mint path: issued_credits never grew, so authorised - issued was always the full 10,000,000 and no top-up could ever be refused for exhausting supply -- the ceiling that 'guarantees every credit in circulation is honourable' guarded a door credits do not use. (2) The founder console reads authorised_credits and issued_credits from v_credit_posture to state the platform's own position, and showed 0 issued while PHP1,500 circulated. A money figure that is confidently wrong is worse than one that is missing.",
+          "fix": "mig 20260803000042: the top-up mint now issues against the ceiling, exactly as the starter grant does, BEFORE the ledger insert -- so a refusal aborts the statement and the refusal and the mint can never disagree. issued_credits back-filled from the ledger (0.00 -> 1,500.00); a counter corrected to match the rows it summarises is not a history rewrite, and the append-only ledger was untouched. The migration RAISES if the two still disagree afterwards.",
+          "teeth": "A: verifying a PHP500 top-up with only PHP100 unissued was REFUSED 23514, 0 ledger rows written, and the status stayed pending_verification so the founder can retry after a governance decision. B: a PHP100 top-up against exactly PHP100 remaining MINTED and drove remaining to 0.00. Screen half, walked live in platform-actions: the toast read the guard's own sentence verbatim -- 'Only 100 credits remain unissued; cannot issue 500. The supply is capped at 10,000,000 and that ceiling is what guarantees every credit in circulation is honourable.' -- not the generic 'Action failed. Try again.' All four credit gates green afterwards."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-R-money-lifecycle-negative-balance",
@@ -5089,8 +5099,16 @@
       "state": "branch",
       "branch": "the buyer reports a problem inside the window",
       "oracle": "the job reaches `disputed` not `settled`, the reason is journalled, and a LATER sweep run leaves it alone -- prove the sweep RAN by settling a control job in the same pass",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "verified-correct",
+          "title": "an objection inside the window reaches disputed, and the sweep provably steps over it",
+          "measured": "Two jobs staged completed 10 days ago, both past the 3-day objection deadline. The buyer objected to one: raise_service_objection returned {ok:true}, the job moved completed -> disputed, and the reason was journalled to service_job_events ('buyer raised a problem inside the objection window: The unit still leaks after the visit'). Then the sweep ran ONCE over both: {settled: 1, unpriced: 0} -- the objected job stayed disputed and the CONTROL settled, which is the non-vacuity proof that the sweep really executed rather than silently matching nothing. The control's payment carries auto_confirmed_at set and confirmed_by NULL, so an auto-settlement is never recorded as a person attesting to the amount. A second sweep in the same transaction returned {settled: 0} -- idempotent.",
+          "note": "raise_service_objection also refuses a non-client caller ('Only the person who hailed this job can raise a problem with it'), a job that is not yet completed, and an empty reason. Observation, not a defect: every transition writes a note-less row via trg_journal_service_request (21 of 22 live events have a blank note) and the objection adds a second, enriched row -- so a disputed job shows two journal rows. Nothing renders service_job_events, so this is internal-only."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-R-money-lifecycle-window-autoconfirm",
