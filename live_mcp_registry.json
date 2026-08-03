@@ -4908,8 +4908,15 @@
       "state": "branch",
       "branch": "the buyer HAS credits and declines to spend them",
       "oracle": "the spend field was offered and left empty, and the buyer earns the full 10% — declining to spend is not the same as having nothing to spend",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "verified-correct",
+          "title": "declining to spend is not the same as having nothing to spend -- the buyer still earns the full 10%",
+          "measured": "Walked with a buyer HOLDING PHP340, so the spend field was genuinely offered, and left empty. On settle of an 800 job: reward_earn +80 to the buyer and reward_fund -80 from the provider's held reservation, which moved 'held' -> 'released_to_buyer'. Buyer 340 -> 420, exactly 10% of the job. Circulation delta 0 -- the earn is the provider's reservation PASSING to the buyer, never a mint. grant_service_reward suppresses the earn only when a reward_spend exists on that job, so the switch is driven by what happened, not by what the buyer could afford."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-R-money-lifecycle-spend-partial",
@@ -4943,8 +4950,15 @@
       "state": "branch",
       "branch": "a job is disputed AFTER the buyer spent credits on it",
       "oracle": "the spent credits return to the buyer (mig 29), bounded by what the provider still holds",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "verified-correct",
+          "title": "a disputed job returns the spent credits in full when the provider still holds them",
+          "measured": "Job with reward_spend -80 (buyer) / reward_fund +80 (provider), adjudicated by a platform admin. Result: {credits_returned_to_buyer: 80.00, credits_recovered_from_provider: 80.00, provider_shortfall: 0.00}. Buyer 260 -> 340, provider 1080 -> 1000. Two compensating ledger entries, never a rewrite -- the append-only discipline holds. A non-admin caller is refused: 'Only a platform admin may adjust a disputed job.'"
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-R-money-lifecycle-dispute-provider-spent",
@@ -4957,8 +4971,16 @@
       "state": "branch",
       "branch": "the provider already spent what they received before the dispute",
       "oracle": "the buyer is still made whole, the provider floors at 0, and the shortfall is recorded as absorbed rather than silently dropped",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "verified-correct",
+          "title": "when the provider already spent it, the buyer is still made whole and the shortfall is NAMED",
+          "measured": "Same job, but the provider drained to PHP30 against PHP80 owed. Result: {credits_returned_to_buyer: 80.00, credits_recovered_from_provider: 30.00, provider_shortfall: 50.00}. Buyer 260 -> 340 (made whole in FULL, not partially), provider floored at exactly 0 -- never forced negative. The shortfall is not silently dropped: it appears in the returned JSON and in the buyer's own ledger note, 'Credits you paid on this job, returned (50.00 could not be recovered from the provider and was absorbed by the platform)'.",
+          "note": "This bound is one of the three readers mig 41 repointed. Before it, the recovery ceiling read only the consumer namespace, so a provider holding credits provider-side looked broke -- the platform would have absorbed a shortfall against a provider who could actually pay."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-R-money-lifecycle-supply-cap",
