@@ -1,7 +1,9 @@
 {
-  "undeployed": 2,
+  "undeployed": 3,
   "fns": [
+    "gcash-receipt-ocr",
     "login",
     "supervisor-reset-password"
-  ]
+  ],
+  "_why": "All three are deliberately NOT in deploy-functions.ps1 and are deployed SEPARATELY per PRODUCTION_DEPLOY_RUNBOOK.md, because every line in that script forces --no-verify-jwt: login is config verify_jwt=false (public auth entry, so the flag is harmless but it is deployed with the pair); supervisor-reset-password is verify_jwt=TRUE and the blanket flag would break its supervisor auth; gcash-receipt-ocr is verify_jwt=TRUE and the blanket flag would open an Azure-BILLED endpoint to the internet. This baseline was briefly written as 1 by a run whose signal was wrong: the miner substring-matched the whole deploy script INCLUDING COMMENTS, so a comment saying gcash-receipt-ocr is NOT in the script marked it deployed. Miner fixed to ignore comment lines; baseline restored to the measured truth."
 }

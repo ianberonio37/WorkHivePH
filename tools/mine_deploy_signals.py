@@ -41,7 +41,17 @@ def main() -> int:
     registered = set(re.findall(r"\[functions\.([a-z0-9\-]+)\]", cfg))
 
     dep = DEPLOY.read_text(encoding="utf-8", errors="replace") if DEPLOY.exists() else ""
-    deployed = {f for f in fns_on_disk if f in dep}
+    # ONLY REAL DEPLOY LINES COUNT, not every mention of the name.
+    # This was a plain `f in dep` over the whole file, comments included — so writing
+    #   # NOTE: gcash-receipt-ocr is deliberately NOT in this script (it needs verify_jwt)
+    # marked that function DEPLOYED and silenced the "ships stale" warning for it. Found 2026-08-03
+    # after I added exactly that comment: the frontend calls gcash-receipt-ocr, so the one function
+    # whose absence would break receipt upload in prod was the one the gate stopped reporting.
+    # A comment explaining why something is NOT deployed must never read as deploying it.
+    _dep_lines = "\n".join(
+        ln for ln in dep.splitlines() if not ln.lstrip().startswith("#")
+    )
+    deployed = {f for f in fns_on_disk if f in _dep_lines}
 
     unregistered = [f for f in fns_on_disk if f not in registered]
     undeployed = [f for f in fns_on_disk if f not in deployed]
