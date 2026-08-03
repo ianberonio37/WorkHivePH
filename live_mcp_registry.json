@@ -849,8 +849,16 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "empty",
       "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "verified-correct",
+          "title": "the filtered-empty state names the gap AND gives the stranger something to press",
+          "measured": "Searched a term matching nothing while TRULY signed out. The grid rendered: 'No listings match those filters. Try a different search term or category, or clear the filters to see all parts listings.' with a 'Clear filters' BUTTON inside the grid itself. It names what is missing, why, and the way back, and promises nothing about supply.",
+          "note": "This is the A-discovery defect re-checked for the anon persona: the original finding was that the same copy told people to 'clear the filters' while giving them NOTHING to press - the only clear-ish control was a category chip measured 1,020px away that reset the category and left the search term. The fix holds signed-out, which is the persona that finding was about (40% of simulated journey failures die at discovery)."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-F-credits-market-anon-populated",
