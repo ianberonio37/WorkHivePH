@@ -119,6 +119,20 @@ def check_migration_index_idempotency():
             context = content[m.start():m.start() + 120]
             if re.search(r'IF\s+NOT\s+EXISTS', context, re.IGNORECASE):
                 continue
+            # DROP INDEX IF EXISTS <name>; CREATE INDEX <name> ... is EQUALLY re-runnable, and it is
+            # the idiom you need when the index definition itself may change (a partial index whose
+            # WHERE clause moves — IF NOT EXISTS would silently keep the OLD definition, which is
+            # worse than the failure this check exists to prevent). The invariant is "re-running the
+            # migration does not error", not "the literal words IF NOT EXISTS appear".
+            # Deliberately narrow: the DROP must name the SAME index, and must be within the few
+            # lines before. A DROP of some other index proves nothing about this one.
+            name_m = re.match(r'([A-Za-z_][\w]*)', content[m.end():].lstrip())
+            if name_m:
+                idx_name = name_m.group(1)
+                before = content[max(0, m.start() - 300):m.start()]
+                if re.search(r'\bDROP\s+INDEX\s+IF\s+EXISTS\s+' + re.escape(idx_name) + r'\b',
+                             before, re.IGNORECASE):
+                    continue
             issues.append({
                 "check": "migration_index_idempotency",
                 "source": fname,

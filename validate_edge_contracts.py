@@ -92,6 +92,12 @@ ALL_FUNCTIONS = [
     "data-fabric-normalizer",
     "cold-archive-query",
     "semantic-fact-extractor",
+    # The GCash money rails (2026-08-03). Registered here so their CORS, error shape and
+    # auth posture are covered like every other function — a new function that is not in
+    # this list is not merely unlisted, it is UNCHECKED, which is how both of these shipped
+    # with a hand-rolled envelope and a bare Deno.serve.
+    "gcash-receipt-inbound",       # forwarded GCash notification -> auto-verifies a filed top-up
+    "gcash-receipt-ocr",           # reads a receipt screenshot so nobody types 13 digits
 ]
 
 REQUIRED_FIELDS = {

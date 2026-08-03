@@ -217,6 +217,22 @@ def check_url_param_injection(pages):
             if not re.search(r"searchParams\.get|URLSearchParams|location\.search|location\.hash", line):
                 continue
             window = "\n".join(lines[i:min(len(lines), i + 10)])
+            # STRIP COMMENTS BEFORE JUDGING. A comment cannot write hive context, and the comments
+            # that MENTION these keys are overwhelmingly the ones explaining why the code does NOT
+            # trust them. Live false positive this removes: marketplace.html:2805 writes
+            # sessionStorage 'wh_return_to' (a return PATH, deliberately not a query param so it
+            # cannot be forged), and the window caught the prose 10 lines below it — "The first
+            # version of this guard accepted HIVE_ID, and wh_hive_id SURVIVES sign-out" — which is
+            # the warning, not the offence. validate_idempotency strips comments before its DDL scan
+            # for exactly this reason; same discipline here. A security gate that cries wolf on its
+            # own documentation is a gate people learn to skim.
+            window = re.sub(r"/\*[\s\S]*?\*/", "", window)
+            # A block comment that OPENS inside the window and closes past its end has no terminator
+            # to match, so the rule above leaves it whole — which is exactly the marketplace.html case:
+            # the offending prose begins on the window's last lines. Drop from an unclosed `/*` to the
+            # end of the window.
+            window = re.sub(r"/\*[\s\S]*$", "", window)
+            window = re.sub(r"(?m)^\s*//.*$", "", window)
             if any(k in window for k in HIVE_LOCAL_KEYS) or re.search(r"\bHIVE_ID\s*=", window):
                 issues.append({"check": "url_param_injection", "page": page, "line": i + 1,
                                "reason": f"{page}:{i+1} URL parameter read followed by hive context write — attacker can set hive context via URL: `{line.strip()[:70]}`"})
