@@ -94,6 +94,18 @@
       <div id="svc-topups-content"><div class="mod-empty">Loading…</div></div>
     </div>
 
+    <!-- WHAT THE AUTOMATION COULD NOT SETTLE. mig 38 verifies a top-up automatically when a forwarded
+         GCash receipt agrees with the provider's filing on reference AND amount. Everything else —
+         a receipt with no filing yet, an amount that disagrees, a reference already decided — is left
+         for a human ON PURPOSE. Automation that fails SILENTLY is worse than the manual queue it
+         replaced, so the leftovers need a screen. v_gcash_receipts_needing_eyes existed for a whole
+         commit without one, which is the same built-but-never-called defect this arc keeps finding. -->
+    <div class="card" id="sec-gcash-receipts" hidden>
+      <div class="card-hdr"><h2>GCash receipts needing your eyes</h2><span id="gcash-receipts-count" class="count">—</span></div>
+      <div class="sub" style="margin:-0.4rem 0 0.75rem;">Forwarded receipts the automatic match could not settle. Each says why.</div>
+      <div id="gcash-receipts-content"><div class="mod-empty">Loading…</div></div>
+    </div>
+
     <div class="card" id="sec-mkt-mod">
       <div class="card-hdr"><h2>Listings awaiting review</h2><span id="mkt-listings-count" class="count">—</span></div>
       <div id="mkt-listings-content"><div class="mod-empty">Loading…</div></div>
@@ -329,10 +341,51 @@
          better one. Its "Refund buyer" button promised money the platform never holds. */
     }
 
+    /* The leftovers of automatic verification. Read separately so a failure here costs this card and
+       never the top-up queue above it — the queue that mints credits must not go dark because a
+       reporting view had a bad day. */
+    async function fetchGcashLeftovers() {
+      try {
+        const { data, error } = await db.from('v_gcash_receipts_needing_eyes')
+          .select('reference, amount, sender_name, match_state, match_note, created_at').limit(20);
+        return { rows: data || [], _error: error ? error.message : null };
+      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed' }; }
+    }
+
+    /* HIDDEN WHEN EMPTY, and that is deliberate: with the forwarder not yet configured this table is
+       empty forever, and a permanently-empty card reads as a dead feed — the same reason the "Earned
+       revenue" tile was deleted rather than left at zero. It appears the moment there is something
+       to act on. */
+    function renderGcashLeftovers(m) {
+      const card = document.getElementById('sec-gcash-receipts');
+      const box = document.getElementById('gcash-receipts-content');
+      if (!card || !box) return;
+      m = m || {};
+      const rows = m.rows || [];
+      if (m._error) { card.hidden = false; box.innerHTML = `<div class="mod-empty">Couldn't load: ${e(m._error)}</div>`; return; }
+      if (!rows.length) { card.hidden = true; return; }
+      card.hidden = false;
+      const WHY = {
+        unmatched:       'No filing yet',
+        ambiguous:       'Several filings share this reference',
+        amount_mismatch: 'Amount disagrees',
+        already_decided: 'Already decided',
+      };
+      box.innerHTML = rows.map(r => `
+        <div class="mod-row">
+          <div class="mod-main"><strong>₱${Number(r.amount).toLocaleString()} · ref ${e(r.reference)}</strong>
+            <span class="mod-sub">${e(WHY[r.match_state] || r.match_state)}${r.sender_name ? ' · from ' + e(r.sender_name) : ''} · ${e(new Date(r.created_at).toLocaleString())}</span>
+            <span class="mod-sub">${e(r.match_note || '')}</span></div>
+        </div>`).join('');
+      setCount('gcash-receipts-count', rows.length, 'warn');
+    }
+
     async function refreshQueues() {
-      const [mod, tops] = await Promise.all([fetchMktModeration(), fetchSvcTopups()]);
+      const [mod, tops, gcash] = await Promise.all([
+        fetchMktModeration(), fetchSvcTopups(), fetchGcashLeftovers()]);
       renderMktModeration(mod);
       renderSvcTopups(tops);
+      renderGcashLeftovers(gcash);
       document.getElementById('last-sync').textContent = 'Updated ' + new Date().toLocaleTimeString();
     }
 
