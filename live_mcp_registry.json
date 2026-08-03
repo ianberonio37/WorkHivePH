@@ -128,8 +128,22 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "error",
       "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "verified-correct",
+          "title": "the P7 load-failure grid state holds for a signed-out stranger",
+          "measured": "Walked signed-out with a realistic backend failure - a 500 RESPONSE on v_marketplace_listings_truth - triggered through the real user path (clicking a section tab, since loadListings is module-scoped and not reachable from window). The grid rendered: \"Couldn't load listings. Something went wrong reaching the marketplace. Check your connection and try again.\" with a working Retry button. No stuck skeleton, and critically NOT the first-run 'be the first to sell' CTA, which is the P7 defect this state exists to prevent."
+        },
+        {
+          "severity": "instrument-false-positive",
+          "title": "a REJECTED fetch is not a backend error, and reporting it as one would have been a false bug",
+          "measured": "My first three probes rejected the fetch promise instead of returning a 500. That left the grid on a STUCK SKELETON (gridHTMLLen 4067, textContent empty) with no unhandled rejection surfacing - supabase-js does not translate a rejected fetch into { data: null, error } the way it does an HTTP error, so the page's own error path never ran. I was one step from filing 'the marketplace hangs on skeletons' and 'fixing' a working error state.",
+          "why_it_matters": "Fourth instrument error this session, and the most expensive if it had shipped. The rule it teaches: simulate the failure the CODE is written against. This page handles { data, error } from supabase-js, so the faithful probe is an HTTP error response, not a transport rejection.",
+          "note": "The transport-rejection case is not unhandled in production: offline-banner.js is loaded on marketplace.html and shows 'You are offline. Some actions may not work.' via navigator.onLine + offline/online events, which is the real-world shape of a rejected fetch (a dropped signal)."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-A-discovery-market-buyer-populated",
