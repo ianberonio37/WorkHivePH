@@ -1282,6 +1282,99 @@ if (typeof window !== 'undefined') window.whParseQty = whParseQty;
 // write class, on 2 surfaces — METHOD LAW: one helper). Price differs from QTY: blank => negotiable (null),
 // 0 => free (allowed), fractional (2 dp) allowed. Returns {ok, value:(number|null), error}. Default sane
 // cap ₱10,000,000 (override via opts.max), well under numeric(14,2)'s ceiling.
+/* ─────────────────────────────────────────────
+   whGcashParse / whGcashPasteWire — stop making people transcribe 13 digits
+   ─────────────────────────────────────────────
+   Ian, 2026-08-03: "your goal make it convenient for them in UI and UX."
+
+   The single friction shared by all three parties is the same: a 13-digit GCash
+   reference, copied by hand from one app into another. The provider does it to file a
+   top-up, the buyer does it to confirm a job payment, and the founder used to compare
+   two of them by eye. Nobody enjoys it and every one of them ALREADY HAS the receipt —
+   it is sitting in their notification shade or their GCash history.
+
+   So: paste the receipt, and the fields fill themselves. Amount and reference are read
+   out of the text; the person checks rather than transcribes.
+
+   ONE PARSER. The same shape the gcash-receipt-inbound edge function uses, deliberately:
+   if the client extracted a different reference from the same text than the server did,
+   the provider's filing and the founder's receipt would stop matching and auto-verify
+   would silently stall. Tolerant about wording, STRICT about the 13-digit shape, because
+   that shape is what the two sides join on.
+*/
+/* whGcashReadReceipt — upload the screenshot, let the fields fill themselves.
+   The other half of whGcashPasteWire: some people copy the receipt TEXT, some screenshot it,
+   and both should work. Returns {reference, amount} or throws with a message meant to be shown.
+   Never invents a value: an unreadable image says so, because a wrong 13-digit reference files
+   a claim that can never match and is worse than no reference at all. */
+async function whGcashReadReceipt(db, file) {
+  if (!file) throw new Error('No image selected');
+  if (file.size > 5 * 1024 * 1024) throw new Error('That image is larger than 5 MB');
+  const dataUrl = await new Promise(function (res, rej) {
+    const fr = new FileReader();
+    fr.onload = function () { res(fr.result); };
+    fr.onerror = function () { rej(new Error('Could not read that file')); };
+    fr.readAsDataURL(file);
+  });
+  const { data, error } = await db.functions.invoke('gcash-receipt-ocr', { body: { image_data_url: dataUrl } });
+  if (error) throw new Error('Could not read the receipt. Type the details, or paste the receipt text.');
+  if (data && data.azure_unavailable) throw new Error(data.note || 'Receipt reading is not available here.');
+  if (data && data.error) throw new Error(data.error);
+  const parsed = (data && data.parsed) || {};
+  if (!parsed.reference && parsed.amount == null) {
+    throw new Error((data && data.note) || 'No reference or amount found in that image.');
+  }
+  return parsed;
+}
+if (typeof window !== 'undefined') { window.whGcashReadReceipt = whGcashReadReceipt; }
+
+function whGcashParse(text) {
+  var t = String(text == null ? '' : text).replace(/ /g, ' ');
+  var refM = t.match(/(?:ref(?:erence)?\.?\s*(?:no\.?|number)?\s*[:\-]?\s*)(\d{13})/i)
+          || t.match(/(?:^|[^\d])(\d{13})(?![\d])/);
+  var amtM = t.match(/(?:php|₱|p)\s*([\d,]+(?:\.\d{1,2})?)/i);
+  var amount = amtM ? Number(String(amtM[1]).replace(/,/g, '')) : null;
+  return {
+    reference: refM ? refM[refM.length - 1] : null,
+    amount: (amount != null && isFinite(amount) && amount > 0) ? amount : null
+  };
+}
+
+/* Wire a paste anywhere in a form to fill its amount + reference fields.
+   Non-destructive: a field the person already filled is never overwritten, because
+   silently replacing a number someone typed is worse than not helping at all. Returns
+   what it filled so the caller can say so out loud — a form that changes under you
+   without a word is unsettling on a money screen. */
+function whGcashPasteWire(opts) {
+  var amtEl = typeof opts.amount === 'string' ? document.getElementById(opts.amount) : opts.amount;
+  var refEl = typeof opts.reference === 'string' ? document.getElementById(opts.reference) : opts.reference;
+  var onFill = opts.onFill || function () {};
+  var host = opts.host || (refEl && refEl.form) || document;
+  if (!refEl && !amtEl) return;
+  host.addEventListener('paste', function (ev) {
+    var text = (ev.clipboardData || window.clipboardData);
+    text = text ? text.getData('text') : '';
+    if (!text || text.length < 12) return;             // a bare ref paste needs no help
+    var got = whGcashParse(text);
+    if (!got.reference && got.amount == null) return;  // not a receipt; leave the paste alone
+    var filled = [];
+    if (got.reference && refEl && !String(refEl.value || '').trim()) {
+      refEl.value = got.reference; filled.push('reference');
+    }
+    if (got.amount != null && amtEl && !String(amtEl.value || '').trim()) {
+      amtEl.value = got.amount; filled.push('amount');
+    }
+    if (filled.length) {
+      ev.preventDefault();                              // we consumed the receipt
+      [refEl, amtEl].forEach(function (el) {
+        if (el) el.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      onFill(got, filled);
+    }
+  });
+}
+if (typeof window !== 'undefined') { window.whGcashParse = whGcashParse; window.whGcashPasteWire = whGcashPasteWire; }
+
 function whParsePrice(inputEl, opts) {
   opts = opts || {};
   var raw = (inputEl && inputEl.value != null) ? String(inputEl.value).trim() : '';

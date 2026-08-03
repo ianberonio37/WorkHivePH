@@ -1413,7 +1413,7 @@
       const _own = provs.filter(p => p.auth_uid && _authUid && p.auth_uid === _authUid)
                         .sort((a, b) => String(a.id).localeCompare(String(b.id)));
       const _walletProv = _own[0] || provs.slice().sort((a, b) => String(a.id).localeCompare(String(b.id)))[0];
-      if (_walletProv) { svcWalletHtml(_walletProv.id, _walletProv.display_name).then(w => { const slot = document.getElementById('svc-wallet-slot'); if (slot) slot.outerHTML = w; }); }
+      if (_walletProv) { svcWalletHtml(_walletProv.id, _walletProv.display_name).then(w => { const slot = document.getElementById('svc-wallet-slot'); if (slot) slot.outerHTML = w; svcWireTopupPaste(_walletProv.id); }); }
       svcGeoSync(jobs.filter(j => ['en_route', 'on_site', 'in_progress'].includes(j.status)), _svcMyIds);
       svcJobPollSync(jobs, provs);
     } catch (err) {
@@ -1596,19 +1596,89 @@
           + '<div style="margin-top:0.3rem;opacity:0.8;">Credits appear here the moment it is verified. '
           + 'Nothing is lost while it waits.</div></div>'
         : '') +
+      /* TAP THE NUMBER INSTEAD OF MEMORISING IT. Reading 11 digits off one screen to type into
+         another app is where a top-up goes to the wrong person entirely. */
       '<div style="font-size:0.75rem;opacity:0.85;margin-top:0.5rem;">Top up: send via GCash to ' +
-      (SVC_GCASH_NUMBER ? '<strong>' + e(SVC_GCASH_NUMBER) + '</strong>' : 'the WorkHive GCash number (ask your platform admin)') +
-      ', then file the reference number below. Credits appear once the founder verifies.</div>' +
+      (SVC_GCASH_NUMBER
+        ? '<button type="button" onclick="svcCopyGcash(this)" data-num="' + e(SVC_GCASH_NUMBER) + '" ' +
+          'aria-label="Copy the WorkHive GCash number ' + e(SVC_GCASH_NUMBER) + '" ' +
+          'style="font:inherit;font-weight:800;color:var(--wh-blue,#29b6d9);background:none;border:0;' +
+          'padding:2px 4px;cursor:pointer;text-decoration:underline;min-height:44px;">' +
+          e(SVC_GCASH_NUMBER) + ' &#10697;</button>'
+        : 'the WorkHive GCash number (ask your platform admin)') +
+      ', then file it below. <strong>Paste your receipt</strong> into either box, or upload the ' +
+      'screenshot, and the amount and reference fill themselves.</div>' +
       '<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.45rem;">' +
       '<input id="svc-topup-amt-' + e(provId) + '" type="number" min="1" step="50" placeholder="Amount ₱" aria-label="Top-up amount in pesos" style="width:8rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
       '<input id="svc-topup-ref-' + e(provId) + '" type="text" maxlength="20" placeholder="GCash reference no." aria-label="GCash reference number" style="width:12rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
       '<button type="button" onclick="svcFileTopup(\'' + e(provId) + '\')" style="' + _svcBtnGhost + '">File top-up</button></div>' +
+      /* UPLOAD THE SCREENSHOT (Ian: "they can just upload the receipt, for getting a credit").
+         The provider already has the receipt in their gallery; reading 13 digits off it by eye is
+         where a top-up becomes unmatchable later. Pasting the TEXT stays available too — some
+         people copy, some screenshot, and both habits are real. */
+      '<label for="svc-topup-img-' + e(provId) + '" style="display:inline-flex;align-items:center;' +
+      'gap:0.4rem;margin-top:0.5rem;font-size:0.75rem;cursor:pointer;color:var(--wh-blue,#29b6d9);' +
+      'min-height:44px;">&#128196; Upload your GCash receipt instead</label>' +
+      '<input id="svc-topup-img-' + e(provId) + '" type="file" accept="image/*" ' +
+      'onchange="svcReadTopupReceipt(\'' + e(provId) + '\', this)" ' +
+      'aria-label="Upload a screenshot of your GCash receipt" style="display:none;">' +
       /* HOW MUCH? The form asked for an amount and gave no way to arrive at one -- a provider had to
          work out 10% of listings they have not made yet. State the rule in the units they think in. */
       '<div style="font-size:0.72rem;opacity:0.78;margin-top:0.45rem;line-height:1.45;">' +
       'How much: you hold 10% of a listing price, so ₱1,000 of credits covers ₱10,000 of ' +
       'listings at once. It comes back when a listing sells or is taken down.</div></div>';
   }
+
+  /* Clipboard first; if the browser refuses (older WebView, insecure context) SELECT the text so the
+     person can still copy it by hand, rather than being told nothing happened. */
+  async function svcCopyGcash(btn) {
+    const num = btn && btn.dataset ? btn.dataset.num : '';
+    if (!num) return;
+    try {
+      await navigator.clipboard.writeText(num);
+      showToast('GCash number copied. Send the amount, then bring the receipt back here.');
+    } catch (_) {
+      const rng = document.createRange(); rng.selectNodeContents(btn);
+      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(rng);
+      showToast('Copy the highlighted number, then send it in GCash.');
+    }
+  }
+  window.svcCopyGcash = svcCopyGcash;
+
+  /* Pasting the receipt TEXT — the other half of uploading the screenshot. */
+  function svcWireTopupPaste(provId) {
+    if (typeof whGcashPasteWire !== 'function') return;
+    const amtEl = document.getElementById('svc-topup-amt-' + provId);
+    whGcashPasteWire({
+      amount: 'svc-topup-amt-' + provId,
+      reference: 'svc-topup-ref-' + provId,
+      host: (amtEl && amtEl.closest('.simple-card')) || document,
+      onFill: (got, filled) => showToast('Read your receipt: ' + filled.join(' and ')
+                                         + ' filled in. Check it, then file.'),
+    });
+  }
+
+  async function svcReadTopupReceipt(provId, input) {
+    const f = input && input.files && input.files[0];
+    if (!f) return;
+    showToast('Reading your receipt...');
+    try {
+      const got = await whGcashReadReceipt(db, f);
+      const a = document.getElementById('svc-topup-amt-' + provId);
+      const r = document.getElementById('svc-topup-ref-' + provId);
+      const filled = [];
+      // Never overwrite what the person already typed — their number beats our reading of it.
+      if (got.amount != null && a && !String(a.value || '').trim()) { a.value = got.amount; filled.push('amount'); }
+      if (got.reference && r && !String(r.value || '').trim()) { r.value = got.reference; filled.push('reference'); }
+      showToast(filled.length
+        ? 'Read your receipt: ' + filled.join(' and ') + ' filled in. Check it, then file.'
+        : 'Read your receipt, but those fields were already filled - left them as they are.');
+    } catch (err) {
+      // An unreadable image must SAY so and leave the manual path open, never fail silently.
+      showToast((err && err.message) || 'Could not read that receipt. Type the details instead.', 'error');
+    } finally { if (input) input.value = ''; }
+  }
+  window.svcReadTopupReceipt = svcReadTopupReceipt;
 
   async function svcFileTopup(provId) {
     if (!svcRequireOnline('Filing a top-up')) return;
