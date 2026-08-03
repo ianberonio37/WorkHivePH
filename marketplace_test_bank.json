@@ -4435,7 +4435,7 @@
       "walked": "2026-07-29, PASSED via the real page watchPosition path (not the db fallback)",
       "note": "The tracker POLLS v_service_job_tracking every 10s (marketplace.html ~3584); it is not a Realtime channel. The cell asserts the repaint, which is the user-visible claim, whichever mechanism carries it.",
       "quarantine": {
-        "count": 4,
+        "count": 5,
         "first_seen": "2026-07-29",
         "last_reason": "Timeout"
       }

@@ -33,8 +33,16 @@
     .mod-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; padding:0.6rem 0;
                border-top:1px solid var(--border); flex-wrap:wrap; }
     .mod-row:first-child { border-top:0; }
-    .mod-main { min-width:0; flex:1; }
-    .mod-main strong { display:block; font-size:0.9rem; }
+    /* flex:1 means flex-basis:0, so this column has no size to defend: the row is flex-wrap:wrap
+       but never DECIDES to wrap, because a zero-basis item just keeps shrinking beside the action
+       buttons. At 390px that squeezed the pending-top-up line to 67px and pushed its content 41px
+       past the edge — and the content is "PHP300 · ref 1005556667770", the 13-digit GCash reference
+       an admin has to read off the screen and match in the GCash app before releasing real credits.
+       A basis wide enough to be worth a line makes the row wrap the buttons underneath instead;
+       min-width:0 stays so that once wrapped it may still shrink, and anywhere-wrapping lets the
+       reference break rather than spill if the line is narrower still. */
+    .mod-main { min-width:0; flex:1 1 14rem; }
+    .mod-main strong { display:block; font-size:0.9rem; overflow-wrap:anywhere; }
     .mod-sub { display:block; color:var(--muted); font-size:0.78rem; margin-top:0.15rem; }
     .mod-actions { display:flex; gap:0.4rem; flex-wrap:wrap; }
     .mod-btn { padding:0.5rem 0.8rem; border-radius:0.5rem; font-weight:700; font-size:0.8rem; cursor:pointer;

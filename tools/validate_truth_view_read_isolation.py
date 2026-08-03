@@ -65,6 +65,25 @@ PARTY_SCOPED = {
 }
 STRANGER = "d5aaaaaa-0000-4000-8000-000000000009"
 
+# ADMIN-scoped: not hive-shaped and not party-shaped either — nobody is a "party" to an inbound GCash
+# receipt except the platform. gcash_inbound_receipts holds a reference number, an amount and a real
+# sender name for money that arrived before anyone claimed it, and v_gcash_receipts_needing_eyes is
+# the admin queue over it. Its base policy DOES check the caller (is_platform_admin()), which is the
+# right shape; it simply had no gate holding it there, so a later migration could drop
+# security_invoker or widen the policy and nothing would notice. Found 2026-08-04 as the single GAP
+# on the per-page bughunt scoreboard.
+#
+# The probe SEEDS a row first. The table is empty in a fresh environment, and a view over an empty
+# table isolates perfectly and proves nothing — the zero has to be a refusal, not an absence.
+ADMIN_ONLY = {
+    "v_gcash_receipts_needing_eyes": "an unclaimed GCash payment: reference, amount, sender name",
+}
+ADMIN_ONLY_SEED = (
+    "INSERT INTO public.gcash_inbound_receipts (reference, amount, sender_name, received_at, "
+    "match_state, raw_text) VALUES ('9999888877776', 750.00, 'Gate Probe Sender', now(), "
+    "'unmatched', 'read-isolation gate probe');"
+)
+
 
 def _psql(sql):
     try:
@@ -141,10 +160,18 @@ def main():
     # ── PARTY-scoped family: a signed-in STRANGER must read 0 ──────────────────────────────────
     party = [f"BEGIN;",
              f"INSERT INTO auth.users(id, email) VALUES ('{STRANGER}','tv-stranger@gate.local');",
+             # seeded as postgres, BEFORE the role switch, and counted here so the stranger's later
+             # zero can be read as a refusal rather than an empty table
+             ADMIN_ONLY_SEED,
+             "DO $$ DECLARE n int; BEGIN "
+             "  SELECT count(*) INTO n FROM public.gcash_inbound_receipts WHERE match_state <> 'matched'; "
+             "  RAISE NOTICE 'RESULT __admin_seed=%', n; END $$;",
              "SET LOCAL ROLE authenticated;",
              "SET LOCAL request.jwt.claims TO '{\"sub\":\"%s\",\"role\":\"authenticated\"}';" % STRANGER,
              "DO $$", "DECLARE n int;", "BEGIN"]
     for v in PARTY_SCOPED:
+        party.append(f"  SELECT count(*) INTO n FROM public.{v}; RAISE NOTICE 'RESULT {v}=%', n;")
+    for v in ADMIN_ONLY:
         party.append(f"  SELECT count(*) INTO n FROM public.{v}; RAISE NOTICE 'RESULT {v}=%', n;")
     # The catalog is asserted the other way round: it MUST be readable, or the marketplace has no
     # price list. A gate that only ever asserts zeroes would call a dead product perfectly secure.
@@ -170,6 +197,27 @@ def main():
                 fails += 1
                 print(f"  {RED}FAIL{RESET}  {v}: a stranger read {got} row(s) — {why} is visible to a "
                       f"non-party")
+        # ADMIN-scoped, judged against the seed: the row demonstrably existed inside this transaction
+        # (__admin_seed), so a stranger's 0 is a refusal. If the seed itself did not land, the probe
+        # says so rather than reporting a pass it did not earn.
+        seeded = pr.get("__admin_seed")
+        print(f"\n  {BOLD}Admin-scoped (nobody is a party to an unclaimed payment){RESET}")
+        for v, why in ADMIN_ONLY.items():
+            got = pr.get(v)
+            if seeded is None or seeded == "0":
+                print(f"  {YELLOW}SKIP{RESET}  {v}: the probe row did not land, so a 0 here would "
+                      f"mean an empty table rather than a refusal")
+            elif got == "0":
+                print(f"  {GREEN}PASS{RESET}  {v}: {seeded} row(s) present, a signed-in stranger "
+                      f"reads 0  ({why})")
+                results[v] = "0"
+            elif got is None:
+                print(f"  {YELLOW}SKIP{RESET}  {v}: no result")
+            else:
+                fails += 1
+                print(f"  {RED}FAIL{RESET}  {v}: a stranger read {got} row(s) — {why} is visible to "
+                      f"a non-admin")
+
         cat = pr.get("v_service_catalog_truth")
         if cat is not None and cat != "0":
             print(f"  {GREEN}PASS{RESET}  v_service_catalog_truth: public by design and READABLE "

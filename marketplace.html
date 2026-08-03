@@ -371,7 +371,14 @@
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 101;
       background: linear-gradient(160deg, var(--wh-navy-mid) 0%, var(--wh-navy) 100%);
       border-radius: 1rem 1.25rem 0 0; border-top: 1px solid rgba(255,255,255,0.1);
-      padding: 1.25rem 1.25rem 2rem;
+      /* The bottom padding clears the home indicator. marketplace-seller.html's .sheet — the same
+         rule, on the other side of the same marketplace — has always read
+         calc(2rem + env(safe-area-inset-bottom)); this one read a flat 2rem, so on a notched phone
+         the last thing in the sheet sat under the indicator. That last thing is the action: "Save
+         Search" in the saved-searches sheet, the submit in the detail sheet. Both pages resolve to
+         32px on a desktop browser because env() is 0 there, which is why a screenshot could never
+         show this and only the two declarations side by side could. */
+      padding: 1.25rem 1.25rem calc(2rem + env(safe-area-inset-bottom));
       transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
       max-height: 92vh; overflow-y: auto;
     }
@@ -630,6 +637,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <li><strong>My listings</strong>: listings where the seller name matches your name, across all sections.</li>
       <li><strong>Current tab</strong>: count of listings in the active section, with average price for orientation.</li>
       <li><strong>Verdict</strong>: green when listings &gt; 0; empty when no listings exist in the current section yet.</li>
+      <!-- CREDITS BACK. Every priced card shows a "credits back" chip, and the chip explains itself
+           in a title and an aria-label - which a sighted person on a phone can reach through
+           neither. The bare words left on screen are "PHP6,898.05 credits back", and on a
+           PHP68,980.48 listing that reads like money coming back. It is not: credits are spend-only.
+           That is the single fact both the tooltip and the aria text omitted, and it is the one a
+           buyer would most reasonably get wrong. Stated here in visible body text, in the explainer
+           the page already has, rather than in a second explainer of its own. -->
+      <li><strong>Credits back</strong>: priced listings show 10% of that listing's price as WorkHive
+        Credits, paid when the job is done. 1 credit is worth 1 peso and you spend them on your next
+        booking. Credits are not cash and cannot be withdrawn or transferred.</li>
     </ul>
     <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Use the trust bar buttons (Watchlist, Searches) to track listings you care about. Open inquiries land in your inbox.</p>
   </div>
@@ -1226,6 +1243,31 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // documents: reading it as a fraction would promise ten times the price.
     const raw = Math.round(n * _rewardKnobs.pct) / 100;
     return Math.max(Math.min(raw, _rewardKnobs.max), _rewardKnobs.min);
+  }
+
+  /* ONE chip, rendered in two places. The browse card advertised "credits back" and the detail sheet
+     -- the screen where a buyer actually decides and taps Contact Seller -- said nothing about it at
+     all: no chip, no text, not even a title attribute. The incentive vanished exactly at the moment
+     of commitment, which is the moment the oracle asks about ("cost, hold and reward are stated
+     before commitment, not after"). Found on a live comprehension walk 2026-08-04.
+     Two copies of this markup would drift the same way again, so both sites call this. */
+  function creditsBackChipHtml(price, style) {
+    const cb = creditsBack(price);
+    if (!cb) return '';
+    const amount = escHtml(fmtPrice(cb));
+    const sentence = amount + ' in WorkHive Credits back when this job is done. 1 credit equals 1 ' +
+                     'peso, and you spend them on your next booking. Credits are not cash and cannot ' +
+                     'be withdrawn.';
+    /* aria-label AS WELL AS title. The explanation shipped in a title= only, which is not reliably
+       announced by a screen reader and does not exist at all on touch - there is no hover on a
+       phone. So the one place credits were explained on the discovery surface was visible to desktop
+       mouse users and nobody else, which is a strange way to fix the 4.7% of simulated journeys that
+       died on "credits unexplained". The visible text carries the fact; the label carries the
+       sentence. */
+    return '<span class="cat-chip credits-back" role="note"' +
+           (style ? ' style="' + style + '"' : '') +
+           ' aria-label="' + sentence + '"' +
+           ' title="You get ' + sentence + '">' + amount + ' credits back</span>';
   }
 
   function tierOf(sales) {
@@ -1944,17 +1986,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             ${item.location
               ? `<span class="cat-chip" style="display:inline-flex;align-items:center;gap:3px;"><span class="ic ic-location" aria-hidden="true"></span>${e(item.location)}</span>`
               : ''}
-            ${(() => { const cb = creditsBack(item.price); return cb
-              /* aria-label AS WELL AS title. The explanation shipped in a title= only, which is not
-                 reliably announced by a screen reader and does not exist at all on touch - there is no
-                 hover on a phone. So the one place credits were explained on the discovery surface was
-                 visible to desktop mouse users and nobody else, which is a strange way to fix the 4.7%
-                 of simulated journeys that died on "credits unexplained". The visible text carries the
-                 fact; the label carries the sentence. */
-              ? `<span class="cat-chip credits-back" role="note"
-                       aria-label="${e(fmtPrice(cb))} in WorkHive Credits back when this job is done. 1 credit equals 1 peso, and you spend them on your next booking."
-                       title="You get ${e(fmtPrice(cb))} in WorkHive Credits when this job is done. 1 credit = ₱1, and you spend them on your next booking.">${e(fmtPrice(cb))} credits back</span>`
-              : ''; })()}
+            ${creditsBackChipHtml(item.price)}
           </div>
           <div class="card-footer">
             <a class="seller-row seller-link" href="marketplace-seller-profile.html?worker=${encodeURIComponent(item.seller_name || '')}" style="text-decoration:none;color:inherit;" data-seller="${e(item.seller_name || '')}">
@@ -2489,6 +2521,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           : `<span class="ic ic-image ic-xl" aria-hidden="true"></span>`}
       </div>
       <div class="detail-price">${e(fmtPrice(item.price))}</div>
+      ${creditsBackChipHtml(item.price, 'margin-bottom:0.5rem;')}
       <div class="detail-title">${e(item.title)}</div>
 
       <div class="detail-section">

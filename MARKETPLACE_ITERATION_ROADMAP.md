@@ -26,16 +26,23 @@ mechanism is a wish.
 
 ---
 
-## §1 · SCOREBOARD (measured 2026-08-04)
+## §1 · SCOREBOARD (measured 2026-08-04, after the BF walk)
 
 | | scenarios | green | owed | green% |
 |---|---|---|---|---|
-| **Existing A–W bank** | 364 | 124 | 240 | 34.1% |
+| **Existing A–W bank** | 364 | 129 | 235 | 35.4% |
 | **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 18 | 160 | 10.1% |
 | **F2 · UFAI** (BB/BC/BD/BE) | 120 | 5 | 115 | 4.2% |
-| **F3 · UI** (BF/BG/BH) | 105 | 0 | 105 | 0% |
+| **F3 · UI** (BF/BG/BH) | 105 | 35 | 70 | 33.3% |
 | **F4 · UX** (BI/BJ/BK) | 110 | 0 | 110 | 0% |
-| **TOTAL** | **877** | **148** | **729** | **16.9%** |
+| **TOTAL** | **877** | **187** | **690** | **21.3%** |
+
+**Rule 5 was tested and held.** The two fixes below touched `marketplace.html` and
+`platform-actions.html`, which expired **95 rows** on the spot and failed the ratchet with *"re-walk, do
+not re-baseline"*. They were re-walked, not absorbed: every affected surface re-loaded in the live MCP
+browser with all six states re-run, and each of the 11 layer/seam rows re-proved with its own probe
+(base-vs-view from psql + browser, status/body on the wire under an authenticated token, a realtime
+commit observed from a subscribed browser, a byte-identical storage round-trip). Then 152 → 187.
 
 **Why the number fell from 343 to 124.** 220 rows were re-opened because a structural probe had been
 answering a behavioural oracle. Each carries the reason in its findings. The 124 that survived cite psql or
@@ -82,8 +89,29 @@ Rules that keep the loop turning:
 ## §4 · NEXT
 
 ```
-NEXT: ALL SEVEN SEAMS WALKED. F1 18/178 · F2 5/120. The seam family is the one that keeps paying,
-      and it is now covered end to end.
+NEXT: F3 BF-ui-layout CLOSED — 35/35, all seven surfaces at three VERIFIED widths.
+  DONE 2026-08-04 (BF walk):
+    · BF-ui-layout 35/35: w390 / w641 / w1280 x 7 surfaces, plus tap-target and safe-area.
+      Every width SOLVED FOR, never requested: browser_resize reported 390 while innerWidth read
+      585 (dpr 0.667), so the target was reached by requesting target x dpr and re-read from the
+      page. A row whose verifiedWidth misses its target is not evidence for that target.
+    · 2 real defects found and fixed (both invisible to a desktop screenshot):
+      - marketplace.html .sheet padded a flat 2rem while its own seller twin used
+        calc(2rem + env(safe-area-inset-bottom)) -> on a notched phone the last control in the
+        buyer's sheets ("Save Search", the submit) sat under the home indicator
+      - platform-actions.html .mod-main was flex:1 (basis 0), so a flex-wrap:wrap row never
+        DECIDED to wrap and the pending-top-up line collapsed to 67px, pushing
+        "PHP300 · ref 1005556667770" 41px off screen -- the 13-digit GCash reference an admin
+        must match before releasing real credits
+    · 2 instruments corrected mid-walk rather than believed:
+      - the safe-area probe read inline style only; getComputedStyle RESOLVES env() to 0 on
+        desktop, so a guarded and an unguarded sheet both compute to 32px. It reads the CSSOM now.
+      - live-state-runner's edge/script_name passed on overflow alone, so a page whose loader
+        could not be re-run scored a clean pass for a boundary it had never rendered. They now
+        REQUIRE the induced payload to have landed and report `inconclusive` otherwise --
+        public-feed was a false green under the old rule, and is a real one under the new.
+        Its keyset cursor also defeated the re-run (loadInitial paginated past the end, 0 rows);
+        the runner now drops the cursor filter from the request so the re-run asks for page one.
   DONE 2026-08-04 (live MCP + psql, every row value-backed):
     · AY-seam ALL SEVEN: client<->gateway, gateway<->edge, edge<->DB, trigger<->view,
       realtime<->client (subscribed in the browser, committed from psql, value + names + 20 columns
@@ -94,11 +122,13 @@ NEXT: ALL SEVEN SEAMS WALKED. F1 18/178 · F2 5/120. The seam family is the one 
     · BA invariants: credits_conserved · cap_respected (breach attempted and refused)
     · AZ fail_null_field: found + fixed absent-vs-zero in whFmtPeso, swept the seller money renders
     · BE-ufai-I: bola · bfla · jwt_not_body · boundary_not_emptiness x2 (two real identities)
-  NOW:
-  1. BC-ufai-F effect_in_db + money_matches_ledger — assert each surface's effect against psql
-  2. BF-ui-layout w390/w641/w1280 across the 7 surfaces — three VERIFIED widths, never the requested
-  3. BI-ux-comprehension what_is_this_number / reward_explained — the vanished-chip class
+  NOW (F4 UX is the lowest-green family at 0%, so the loop points there next):
+  1. BI-ux-comprehension what_is_this_number / reward_explained — the vanished-chip class, and the
+     one lens that would have caught it: a person must be able to say what the number means
+  2. BG-ui-state — the six component states per COMPONENT rather than per page
+  3. BC-ufai-F effect_in_db + money_matches_ledger — assert each surface's effect against psql
   4. AZ fail_null_field on the REMAINING surfaces (only the seller surface is walked)
+  5. BH-ui-visual — WCAG *and* APCA, alpha-composited; focus visibility; reduced motion
 ```
 
 ---
