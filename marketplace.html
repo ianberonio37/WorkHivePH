@@ -1200,7 +1200,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         db.rpc('service_knob',     { p_hive: null, p_key: 'reward_min_per_listing' })
       ]);
       if (pct.error || max.error || min.error) return;
-      _rewardKnobs = { pct: Number(pct.data), max: Number(max.data), min: Number(min.data) };
+      /* NULL MEANS **NO CAP**, AND Number(null) IS 0 (found 2026-08-04 on the live MCP walk). The
+         knob function says so in its own comment — "reward_max_per_listing: NO FALLBACK. NULL = no
+         cap (mig 35, Ian's rule)" — because the economy is a flat 10% with no ceiling. Reading that
+         NULL through Number() inverted the rule into a cap of ZERO, so Math.min(raw, 0) returned 0,
+         creditsBack() returned falsy, and the credits-back chip silently disappeared from EVERY
+         priced listing. That chip is the only place a buyer meets the 10% reward on the discovery
+         surface, and "credits unexplained" was already 4.7% of simulated journey failures.
+         The registry's stale finding ("the chip reads PHP500 on every listing") is the fossil of the
+         era when a 500 cap existed; removing the cap did not restore the chip, it deleted it. */
+      const capRaw = max.data;
+      _rewardKnobs = {
+        pct: Number(pct.data),
+        max: (capRaw === null || capRaw === undefined) ? Infinity : Number(capRaw),
+        min: Number(min.data),
+      };
     } catch (_) { /* empty-catch-allow: no knobs means no chip, never a wrong chip */ }
   }
 
