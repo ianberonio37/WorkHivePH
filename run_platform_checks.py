@@ -5427,6 +5427,23 @@ VALIDATORS = [
         "report":  None,
     },
     {
+        # The SIBLING of reachable_capability, and it exists because that one could not see this.
+        # MK13 asks whether an EMPTY STATE promises a capability nothing can produce. It cannot see a
+        # REAL control that a full-screen retirement overlay has made unreachable — founder-console.html
+        # hid the GCash top-up verify queue, the single control that mints every credit, for ~2 weeks
+        # while 5 specs stayed green by calling its handler by hand and ~35 static validators kept
+        # passing over its deliberately-preserved markup. Money could not enter the system.
+        "id":      "retired_page_sole_control",
+        "script":  "tools/validate_retired_page_sole_control.py",
+        "args":    [],
+        "label":   "Retired-page sole control (retiring a PAGE must not silently delete a capability: "
+                   "every write/RPC on an overlay-retired page must also be reachable from a live one; "
+                   "forward-only, 2 known strandings printed loudly rather than allowlisted)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "post_action_coherence",
         "script":  "tools/validate_post_action_coherence.py",
         "args":    [],
