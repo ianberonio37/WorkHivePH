@@ -330,8 +330,15 @@
    "persona_note": "platform moderator",
    "state": "empty",
    "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "'No listings waiting: all clear.' only when the read succeeded",
+     "measured": "Measured as a CONTRAST on the same surface, seconds apart. FAILED READ: the credit card renders \"Couldn't load the credit position: induced failure\" with creditShowsFakeZero=false, and the top-up queue reports an error with topupsClaimsEmpty=false. ZERO ROWS: 'No top-ups waiting', 'No listings waiting: all clear.', feedback 0. On this surface that distinction is the whole point - 'No top-ups waiting' rendered from a FAILED read would mean a provider's money sits unminted while the founder is told there is nothing to do.",
+     "walked": "2026-08-04 · live MCP (Playwright) on platform-actions.html as a platform admin + docker exec psql for truth"
+    }
+   ]
   },
   {
    "id": "LM-B-listing-lifecycle-admin-admin-populated",
@@ -343,8 +350,15 @@
    "persona_note": "platform moderator",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "the review queue count equals the draft count in the truth view",
+     "measured": "Every count checked against the page's OWN predicate, not a guess at it - the first pass queried status='pending' and found 0 against a rendered 1, and queried is_verified and got a column error. Both were my vocabulary, not the page's: the real status is 'pending_verification' and the real column is kyb_verified. Measured correctly: top-ups awaiting verification 1 == 1 row pending_verification; listings awaiting review 3 == 3 drafts in v_marketplace_listings_truth; sellers 9 == 9 rows in v_marketplace_sellers_truth matching the page's own filter (kyb_verified=false OR cert_verified=false, NOT 13 total); feedback 10 == 10 rows. Credit position: liability PHP1,140.00, cover 1.63x, cap 10,000,000, issued 1,500, available 9,998,500 - all matching v_credit_posture and the ledger truth view.",
+     "walked": "2026-08-04 · live MCP (Playwright) on platform-actions.html as a platform admin + docker exec psql for truth"
+    }
+   ]
   },
   {
    "id": "LM-B-listing-lifecycle-admin-admin-edge",
@@ -822,8 +836,15 @@
    "persona_note": "platform moderator",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "every screen agrees on the number, checked against the DB",
+     "measured": "Every count checked against the page's OWN predicate, not a guess at it - the first pass queried status='pending' and found 0 against a rendered 1, and queried is_verified and got a column error. Both were my vocabulary, not the page's: the real status is 'pending_verification' and the real column is kyb_verified. Measured correctly: top-ups awaiting verification 1 == 1 row pending_verification; listings awaiting review 3 == 3 drafts in v_marketplace_listings_truth; sellers 9 == 9 rows in v_marketplace_sellers_truth matching the page's own filter (kyb_verified=false OR cert_verified=false, NOT 13 total); feedback 10 == 10 rows. Credit position: liability PHP1,140.00, cover 1.63x, cap 10,000,000, issued 1,500, available 9,998,500 - all matching v_credit_posture and the ledger truth view.",
+     "walked": "2026-08-04 · live MCP (Playwright) on platform-actions.html as a platform admin + docker exec psql for truth"
+    }
+   ]
   },
   {
    "id": "LM-E-money-admin-admin-edge",
@@ -1176,8 +1197,15 @@
    "persona_note": "platform moderator",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "the credit position explains what each number means",
+     "measured": "The credit position states what each number MEANS, not just its value: 'Credit liability - services owed, not profit', 'Liability cover - cash in vs credits owed; keep at or above 1.00', 'Total WorkHive Credits - the cap; lifetime liability cannot exceed it', 'Issued - minted into circulation so far', 'Available to issue - still unissued in the treasury', '1 credit = PHP1 Fixed, and never moves'. A founder can read what the platform owes and whether it is covered without knowing the schema. Reads v_credit_posture, never credit_treasury raw - and since mig 47 the raw table refuses non-admins outright.",
+     "walked": "2026-08-04 · live MCP (Playwright) on platform-actions.html as a platform admin + docker exec psql for truth"
+    }
+   ]
   },
   {
    "id": "LM-G-trust-market-anon-populated",
@@ -1381,8 +1409,15 @@
    "persona_note": "platform moderator",
    "state": "empty",
    "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "the moderation queue's empty state is a fact, not a failure",
+     "measured": "Measured as a CONTRAST on the same surface, seconds apart. FAILED READ: the credit card renders \"Couldn't load the credit position: induced failure\" with creditShowsFakeZero=false, and the top-up queue reports an error with topupsClaimsEmpty=false. ZERO ROWS: 'No top-ups waiting', 'No listings waiting: all clear.', feedback 0. On this surface that distinction is the whole point - 'No top-ups waiting' rendered from a FAILED read would mean a provider's money sits unminted while the founder is told there is nothing to do.",
+     "walked": "2026-08-04 · live MCP (Playwright) on platform-actions.html as a platform admin + docker exec psql for truth"
+    }
+   ]
   },
   {
    "id": "LM-H-moderation-admin-seller-populated",
@@ -2754,8 +2789,15 @@
    "persona_note": "platform moderator",
    "state": "empty",
    "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "every queue's zero state names the gap plainly",
+     "measured": "Measured as a CONTRAST on the same surface, seconds apart. FAILED READ: the credit card renders \"Couldn't load the credit position: induced failure\" with creditShowsFakeZero=false, and the top-up queue reports an error with topupsClaimsEmpty=false. ZERO ROWS: 'No top-ups waiting', 'No listings waiting: all clear.', feedback 0. On this surface that distinction is the whole point - 'No top-ups waiting' rendered from a FAILED read would mean a provider's money sits unminted while the founder is told there is nothing to do.",
+     "walked": "2026-08-04 · live MCP (Playwright) on platform-actions.html as a platform admin + docker exec psql for truth"
+    }
+   ]
   },
   {
    "id": "LM-O-empty-error-admin-admin-error",
@@ -2767,8 +2809,15 @@
    "persona_note": "platform moderator",
    "state": "error",
    "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "a failed read says so on every queue, including the money card",
+     "measured": "Measured as a CONTRAST on the same surface, seconds apart. FAILED READ: the credit card renders \"Couldn't load the credit position: induced failure\" with creditShowsFakeZero=false, and the top-up queue reports an error with topupsClaimsEmpty=false. ZERO ROWS: 'No top-ups waiting', 'No listings waiting: all clear.', feedback 0. On this surface that distinction is the whole point - 'No top-ups waiting' rendered from a FAILED read would mean a provider's money sits unminted while the founder is told there is nothing to do.",
+     "walked": "2026-08-04 · live MCP (Playwright) on platform-actions.html as a platform admin + docker exec psql for truth"
+    }
+   ]
   },
   {
    "id": "LM-O-empty-error-market_svc-anon-empty",
@@ -3360,8 +3409,15 @@
    "persona_note": "platform moderator",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "the payment queues render real rows matching their source",
+     "measured": "Every count checked against the page's OWN predicate, not a guess at it - the first pass queried status='pending' and found 0 against a rendered 1, and queried is_verified and got a column error. Both were my vocabulary, not the page's: the real status is 'pending_verification' and the real column is kyb_verified. Measured correctly: top-ups awaiting verification 1 == 1 row pending_verification; listings awaiting review 3 == 3 drafts in v_marketplace_listings_truth; sellers 9 == 9 rows in v_marketplace_sellers_truth matching the page's own filter (kyb_verified=false OR cert_verified=false, NOT 13 total); feedback 10 == 10 rows. Credit position: liability PHP1,140.00, cover 1.63x, cap 10,000,000, issued 1,500, available 9,998,500 - all matching v_credit_posture and the ledger truth view.",
+     "walked": "2026-08-04 · live MCP (Playwright) on platform-actions.html as a platform admin + docker exec psql for truth"
+    }
+   ]
   },
   {
    "id": "LM-Q-payment-rails-admin-admin-empty",
@@ -3373,8 +3429,15 @@
    "persona_note": "platform moderator",
    "state": "empty",
    "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "zero rows reads as 'nothing waiting', distinct from a failure",
+     "measured": "Measured as a CONTRAST on the same surface, seconds apart. FAILED READ: the credit card renders \"Couldn't load the credit position: induced failure\" with creditShowsFakeZero=false, and the top-up queue reports an error with topupsClaimsEmpty=false. ZERO ROWS: 'No top-ups waiting', 'No listings waiting: all clear.', feedback 0. On this surface that distinction is the whole point - 'No top-ups waiting' rendered from a FAILED read would mean a provider's money sits unminted while the founder is told there is nothing to do.",
+     "walked": "2026-08-04 · live MCP (Playwright) on platform-actions.html as a platform admin + docker exec psql for truth"
+    }
+   ]
   },
   {
    "id": "LM-Q-payment-rails-admin-admin-edge",
@@ -3399,8 +3462,15 @@
    "persona_note": "platform moderator",
    "state": "error",
    "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "verified",
+     "title": "a failed read never renders as an empty queue",
+     "measured": "Measured as a CONTRAST on the same surface, seconds apart. FAILED READ: the credit card renders \"Couldn't load the credit position: induced failure\" with creditShowsFakeZero=false, and the top-up queue reports an error with topupsClaimsEmpty=false. ZERO ROWS: 'No top-ups waiting', 'No listings waiting: all clear.', feedback 0. On this surface that distinction is the whole point - 'No top-ups waiting' rendered from a FAILED read would mean a provider's money sits unminted while the founder is told there is nothing to do.",
+     "walked": "2026-08-04 · live MCP (Playwright) on platform-actions.html as a platform admin + docker exec psql for truth"
+    }
+   ]
   },
   {
    "id": "LM-P-isolation-market-buyer-populated",
