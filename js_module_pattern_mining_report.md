@@ -1,6 +1,6 @@
 # JS Shared Module Pattern Mining Report
 
-- Files scanned: **41** (1 excluded: ['sw.js'])
+- Files scanned: **42** (1 excluded: ['sw.js'])
 - Features extracted: **16**
 - Promotion threshold (small cluster): >= 85% conformance, <= 3 outliers
 - Promotion candidates: **0**
@@ -14,19 +14,19 @@
 
 | Feature | Conformance | Positive / Total |
 |---|---:|---|
-| `exports_via_window` | 82% | 34 / 41 |
-| `wraps_in_iife` | 78% | 32 / 41 |
-| `has_try_catch` | 75% | 31 / 41 |
-| `uses_wh_namespace` | 63% | 26 / 41 |
-| `has_jsdoc_header` | 56% | 23 / 41 |
-| `uses_strict_mode` | 56% | 23 / 41 |
-| `has_idempotent_guard` | 43% | 18 / 41 |
-| `uses_localstorage` | 39% | 16 / 41 |
-| `listens_dom_ready` | 31% | 13 / 41 |
-| `has_any_console_log` | 26% | 11 / 41 |
-| `has_capability_tag` | 22% | 9 / 41 |
-| `uses_get_db` | 17% | 7 / 41 |
-| `injects_script_tag` | 12% | 5 / 41 |
-| `logs_with_module_prefix` | 12% | 5 / 41 |
-| `uses_eschtml` | 9% | 4 / 41 |
-| `calls_create_client` | 7% | 3 / 41 |
+| `exports_via_window` | 83% | 35 / 42 |
+| `wraps_in_iife` | 76% | 32 / 42 |
+| `has_try_catch` | 76% | 32 / 42 |
+| `uses_wh_namespace` | 61% | 26 / 42 |
+| `has_jsdoc_header` | 54% | 23 / 42 |
+| `uses_strict_mode` | 54% | 23 / 42 |
+| `has_idempotent_guard` | 42% | 18 / 42 |
+| `uses_localstorage` | 38% | 16 / 42 |
+| `listens_dom_ready` | 33% | 14 / 42 |
+| `has_any_console_log` | 26% | 11 / 42 |
+| `has_capability_tag` | 21% | 9 / 42 |
+| `uses_get_db` | 16% | 7 / 42 |
+| `injects_script_tag` | 11% | 5 / 42 |
+| `logs_with_module_prefix` | 11% | 5 / 42 |
+| `uses_eschtml` | 9% | 4 / 42 |
+| `calls_create_client` | 7% | 3 / 42 |

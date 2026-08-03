@@ -11701,8 +11701,21 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "fail_null_field",
    "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "asserts": "a NULL numeric renders as a stated gap, never as a fabricated 0",
+    "value_checked": true,
+    "checked": "Nulled every numeric/money field in the live payload and read what the surface renders. BEFORE: no undefined/NaN/[object Object] (good) but THREE fabricated zeros — one true zero (cw-reserved, Pablo genuinely has 0 reservations, confirmed in psql) and two false: a ledger line reading \"commission +₱0\" (an entry that moved nothing) and a filed top-up reading \"₱0.00 · ref 1005556667770\" whose real amount is 300.00. Root cause in the SHARED formatter: whFmtPeso was written to stop \"₱NaN\" reaching the glass and chose ₱0 as the substitute, trading a visible defect for an invisible one — and Number(null) is 0 and finite, so a null slipped through the normal path entirely. Same family as the reward cap where NULL=\"no cap\" became a cap of zero. FIXED: whFmtPeso/whFmtNum now separate ABSENT from ZERO (a real 0 still prints ₱0; absent prints a gap, overridable via opts.gap), and the top-up pending line now routes through the helper instead of an ad-hoc '₱' + Number(...). VERIFIED BOTH DIRECTIONS live: normal renders \"₱300.00 · ref 1005556667770\" matching psql, nulled renders \"— · ref 1005556667770\", and normal operation is otherwise unchanged (wallet ₱-200, 2 Listings, no stray gaps). MEASURED AND NOT SWEPT: 19 further money renders on marketplace-seller.html still bypass whFmtPeso with ad-hoc string concatenation — recorded with its exact size rather than claimed as done.",
+    "depends_on": [
+     "utils.js",
+     "marketplace-seller.html"
+    ],
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AZ-failure-injection-admin-system-fail_500",
@@ -11987,8 +12000,25 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "credits_conserved",
    "oracle": "sum of the ledger equals issued_credits, and no path creates value - proven from the ledger, not from a tile",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "psql",
+    "ref": "psql: rolled-back txn on credit_treasury + service_credit_ledger (2026-08-04)",
+    "asserts": "credits are conserved: issued equals what was minted, and every credit in circulation is held by someone",
+    "value_checked": true,
+    "checked": "Asserted from the LEDGER, not from a tile. issued_credits = 1500.00 and the minting-only ledger sum (topup + starter_grant + voucher_grant + cashback) = 1500.00 — equal, which is the correct form of this invariant: issued tracks what was MINTED, not the net. Separately, ledger net = 1140.00 and the sum of every holder balance = 1140.00 — equal, so there is no orphan leg. The 360.00 difference between issued and net is exactly the repealed commission (-360.00 across 3 rows), which is a real and explainable gap rather than a leak, and it is the overhang awaiting Ian's decision. Naively asserting issued == ledger-net would have reported a false break.",
+    "depends_on": [
+     "supabase/migrations\\20260731000011_credit_policy_knobs.sql",
+     "supabase/migrations\\20260803000005_credit_treasury_the_liability_cap.sql",
+     "supabase/migrations\\20260803000006_credit_economy_knobs.sql",
+     "supabase/migrations\\20260803000018_a_spend_that_destroyed_the_credits.sql",
+     "supabase/migrations\\20260803000022_v_credit_posture_must_not_bypass_rls.sql",
+     "supabase/migrations\\20260803000025_register_the_credit_economy_in_the_canonical_registry.sql"
+    ],
+    "sha": "ee4483a327335e3d",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BA-invariant-layer_db-system-reservation_matches_listing",
@@ -12039,8 +12069,25 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "cap_respected",
    "oracle": "issued can never exceed authorised; the guard is proven by attempting to exceed it in a rolled-back transaction",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "psql",
+    "ref": "psql: rolled-back txn on credit_treasury + service_credit_ledger (2026-08-04)",
+    "asserts": "issued can never exceed authorised, proven by attempting to exceed it",
+    "value_checked": true,
+    "checked": "Proven by ATTEMPTING THE BREACH inside a rolled-back transaction, never by reading the number. issue_credits(20,000,000) against a 10,000,000 ceiling: the guard refused and said why, in a sentence a person can act on — \"Only 9,998,500 credits remain unissued; cannot issue 20,000,000. The supply is capped at 10,000,000 and that ceiling is what guarantees every credit in circulation is honourable.\" issued stayed 1500.00 during the attempt and after rollback.",
+    "depends_on": [
+     "supabase/migrations\\20260731000011_credit_policy_knobs.sql",
+     "supabase/migrations\\20260803000005_credit_treasury_the_liability_cap.sql",
+     "supabase/migrations\\20260803000006_credit_economy_knobs.sql",
+     "supabase/migrations\\20260803000018_a_spend_that_destroyed_the_credits.sql",
+     "supabase/migrations\\20260803000022_v_credit_posture_must_not_bypass_rls.sql",
+     "supabase/migrations\\20260803000025_register_the_credit_economy_in_the_canonical_registry.sql"
+    ],
+    "sha": "ee4483a327335e3d",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BA-invariant-layer_db-system-terminal_states_frozen",
@@ -12169,8 +12216,25 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "cap_respected",
    "oracle": "issued can never exceed authorised; the guard is proven by attempting to exceed it in a rolled-back transaction",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "psql",
+    "ref": "psql: rolled-back txn on credit_treasury + service_credit_ledger (2026-08-04)",
+    "asserts": "the cap holds at the edge layer too, refused with a readable reason",
+    "value_checked": true,
+    "checked": "Proven by ATTEMPTING THE BREACH inside a rolled-back transaction, never by reading the number. issue_credits(20,000,000) against a 10,000,000 ceiling: the guard refused and said why, in a sentence a person can act on — \"Only 9,998,500 credits remain unissued; cannot issue 20,000,000. The supply is capped at 10,000,000 and that ceiling is what guarantees every credit in circulation is honourable.\" issued stayed 1500.00 during the attempt and after rollback.",
+    "depends_on": [
+     "supabase/migrations\\20260731000011_credit_policy_knobs.sql",
+     "supabase/migrations\\20260803000005_credit_treasury_the_liability_cap.sql",
+     "supabase/migrations\\20260803000006_credit_economy_knobs.sql",
+     "supabase/migrations\\20260803000018_a_spend_that_destroyed_the_credits.sql",
+     "supabase/migrations\\20260803000022_v_credit_posture_must_not_bypass_rls.sql",
+     "supabase/migrations\\20260803000025_register_the_credit_economy_in_the_canonical_registry.sql"
+    ],
+    "sha": "ee4483a327335e3d",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BA-invariant-layer_edge-system-terminal_states_frozen",

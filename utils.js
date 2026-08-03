@@ -1239,15 +1239,29 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-method-css')
 // "₱NaN" / "Invalid Date" on the glass). Guarded by validate_user_facing_jargon
 // sibling lint + the E6 formatter skill rule.
 function whFmtPeso(n, opts) {
-  var v = Number(n);
-  if (!isFinite(v)) return '₱0';
   opts = opts || {};
+  /* ABSENT IS NOT ZERO (found 2026-08-04, AZ-failure-injection/fail_null_field walk). This helper
+     was written to stop "₱NaN" reaching the glass and chose ₱0 as the substitute — trading a
+     VISIBLE defect for an INVISIBLE one. Number(null) is 0 and finite, so a null amount slipped
+     straight through as a confident "₱0.00": a filed top-up of PHP300 rendered as PHP0.00, and a
+     ledger line of unknown value rendered as "+₱0", which says the entry moved nothing. Same family
+     as the reward cap, where NULL meaning "no cap" arrived as a cap of zero.
+     A real zero is the number 0 and still prints ₱0. An ABSENT value now prints a gap, because a
+     person can act on "we do not know" and cannot act on a wrong number. Pass opts.gap to override.
+     NOTE the base tables are NOT NULL, so today this is defensive: the views report the columns as
+     nullable (Postgres does not propagate NOT NULL through a view), which is exactly the door a
+     future LEFT JOIN or filter would come through. */
+  if (n === null || n === undefined || n === '') return (opts.gap != null) ? opts.gap : '—';
+  var v = Number(n);
+  if (!isFinite(v)) return (opts.gap != null) ? opts.gap : '—';
   var dp = (opts.decimals != null) ? opts.decimals : (v % 1 === 0 ? 0 : 2);
   return '₱' + v.toLocaleString('en-PH', { minimumFractionDigits: dp, maximumFractionDigits: dp });
 }
 function whFmtNum(n, dp) {
+  // same rule as whFmtPeso: an absent count is a gap, a real zero is 0
+  if (n === null || n === undefined || n === '') return '—';
   var v = Number(n);
-  if (!isFinite(v)) return '0';
+  if (!isFinite(v)) return '—';
   return v.toLocaleString('en-PH', (dp != null) ? { minimumFractionDigits: dp, maximumFractionDigits: dp } : undefined);
 }
 // Central quantity parser (deepwalk D5, 2026-07-22). Modal write paths (inventory Use/Restock) submit

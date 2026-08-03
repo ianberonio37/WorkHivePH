@@ -1693,8 +1693,13 @@
         ? '<div style="margin-top:0.55rem;padding:0.5rem 0.6rem;border-radius:var(--wh-radius-sm);'
           + 'background:rgba(247,162,27,0.10);border:1px solid rgba(247,162,27,0.30);font-size:0.75rem;">'
           + '<strong style="color:var(--wh-orange-text);">Waiting for the founder to verify</strong>'
-          + pending.map(t => '<div style="margin-top:0.25rem;opacity:0.95;">₱'
-              + Number(t.amount).toLocaleString(undefined,{minimumFractionDigits:2})
+          /* whFmtPeso, not an ad-hoc '₱' + Number(...). Number(null) is 0, so an amount that failed
+             to arrive rendered as "₱0.00 · ref 100555…" — telling a provider their filed top-up was
+             for zero pesos. The shared helper now distinguishes ABSENT from ZERO and prints a gap.
+             (Found 2026-08-04 on the AZ fail_null_field walk. The base column is NOT NULL so this is
+             defensive today; the VIEW reports it nullable, which is the door it would come through.) */
+          + pending.map(t => '<div style="margin-top:0.25rem;opacity:0.95;">'
+              + e(whFmtPeso(t.amount, { decimals: 2 }))
               + ' · ref ' + e(t.gcash_ref || '-')
               + ' · filed ' + e(new Date(t.created_at).toLocaleString())
               + '</div>').join('')
