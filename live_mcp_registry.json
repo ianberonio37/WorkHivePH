@@ -53,7 +53,7 @@
   "scam_buyer": "receives the work then objects in bad faith to avoid settling",
   "colluder": "a paired account trading credits with itself to extract value - structurally impossible (every leg is a transfer, credits are non-withdrawable), so the oracle is EXACTLY 0 extracted, proven not assumed"
  },
- "total": 357,
+ "total": 358,
  "scenarios": [
   {
    "id": "LM-A-discovery-market-anon-populated",
@@ -4838,8 +4838,22 @@
    "persona": "buyer",
    "persona_note": "signed in, browsing and hiring",
    "state": "branch",
-   "branch": "the buyer holds no credits and pays in full",
-   "oracle": "OPEN FORK (2026-08-03): listings fund the 10% from the seller's reservation and services have no reservation, so a services buyer currently earns NOTHING. This branch cannot be walked to a verdict until Ian rules; walking it now would bank whichever behaviour the code happens to have",
+   "branch": "the buyer holds no credits and pays the job in full",
+   "oracle": "the buyer's wallet gains exactly 10% of what they PAID, the provider's wallet falls by the same amount (funded, never minted), and circulation delta is 0. Resolved 2026-08-03 (mig 37): this was briefly logged as an open fork, wrongly — services now reserve at ACCEPTANCE exactly as a listing reserves at publication, so the funding always exists",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-R-money-lifecycle-accept-needs-10pct",
+   "category": "R-money-lifecycle",
+   "question": "does a peso that enters this system arrive where the ledger says it does, on EVERY branch?",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "branch",
+   "branch": "a provider without the 10% tries to take a job",
+   "oracle": "acceptance is REFUSED and the message names both the amount needed and the amount held, so the provider can act on it — 'no credits, no listing' applies to services too",
    "status": "owed",
    "findings": []
   },
@@ -4853,7 +4867,7 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "branch",
    "branch": "the buyer HAS credits and declines to spend them",
-   "oracle": "the spend field was offered and left empty, and the outcome matches the earn-no-credits ruling once it exists",
+   "oracle": "the spend field was offered and left empty, and the buyer earns the full 10% — declining to spend is not the same as having nothing to spend",
    "status": "owed",
    "findings": []
   },
@@ -5007,7 +5021,7 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "branch",
    "branch": "the buyer never responds and the window closes",
-   "oracle": "the sweep settles it, the payment row carries auto_confirmed_at with confirmed_by NULL, and a job with NO agreed price is NOT settled but counted as unpriced. What the buyer EARNS here depends on the earn-no-credits fork above",
+   "oracle": "the sweep settles it, the payment row carries auto_confirmed_at with confirmed_by NULL, and a job with NO agreed price is NOT settled but counted as unpriced. The buyer earns their 10% exactly as a manual confirm would pay it (mig 37)",
    "status": "owed",
    "findings": []
   },

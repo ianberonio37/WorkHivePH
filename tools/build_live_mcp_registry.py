@@ -208,15 +208,19 @@ BRANCH_CATEGORIES = {
              "buyer -X and provider +X, circulation delta EXACTLY 0, and no reward is also earned on "
              "that job -- earn or spend, never both"),
             ("earn-no-credits", "market_svc", "buyer",
-             "the buyer holds no credits and pays in full",
-             "OPEN FORK (2026-08-03): listings fund the 10% from the seller's reservation and services "
-             "have no reservation, so a services buyer currently earns NOTHING. This branch cannot be "
-             "walked to a verdict until Ian rules; walking it now would bank whichever behaviour the "
-             "code happens to have"),
+             "the buyer holds no credits and pays the job in full",
+             "the buyer's wallet gains exactly 10% of what they PAID, the provider's wallet falls by the "
+             "same amount (funded, never minted), and circulation delta is 0. Resolved 2026-08-03 (mig "
+             "37): this was briefly logged as an open fork, wrongly — services now reserve at ACCEPTANCE "
+             "exactly as a listing reserves at publication, so the funding always exists"),
+            ("accept-needs-10pct", "market_svc", "provider",
+             "a provider without the 10% tries to take a job",
+             "acceptance is REFUSED and the message names both the amount needed and the amount held, so "
+             "the provider can act on it — 'no credits, no listing' applies to services too"),
             ("earn-declined", "market_svc", "buyer",
              "the buyer HAS credits and declines to spend them",
-             "the spend field was offered and left empty, and the outcome matches the earn-no-credits "
-             "ruling once it exists"),
+             "the spend field was offered and left empty, and the buyer earns the full 10% — declining to "
+             "spend is not the same as having nothing to spend"),
             ("spend-partial", "market_svc", "buyer",
              "the buyer holds LESS than 10% of the price",
              "the offered cap is min(balance, 10%) -- a smaller field, never a refusal"),
@@ -256,8 +260,8 @@ BRANCH_CATEGORIES = {
             ("window-autoconfirm", "market_svc", "buyer",
              "the buyer never responds and the window closes",
              "the sweep settles it, the payment row carries auto_confirmed_at with confirmed_by NULL, "
-             "and a job with NO agreed price is NOT settled but counted as unpriced. What the buyer "
-             "EARNS here depends on the earn-no-credits fork above"),
+             "and a job with NO agreed price is NOT settled but counted as unpriced. The buyer earns "
+             "their 10% exactly as a manual confirm would pay it (mig 37)"),
             ("ufai-touched-surfaces", "market_svc", "buyer",
              "the UFAI lens over every surface this arc touched",
              "contrast, tap targets, focus, SR names, i18n markers and CLS clean on the confirm sheet, "
