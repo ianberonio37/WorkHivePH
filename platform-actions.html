@@ -140,6 +140,24 @@
          style="margin:-0.4rem 0 1rem; padding:0.7rem 0.9rem; border-radius:var(--wh-radius-sm); font-size:0.82rem;
                 background:rgba(247,162,27,0.12); border:1px solid rgba(247,162,27,0.35); color:var(--gold);"></div>
 
+    <!-- LIFTED HERE 2026-08-03, the THIRD capability found stranded on the retired founder-console
+         (after the top-up queue and the feedback triage) and the one that matters most to the money
+         model. The credit treasury was readable on NO reachable screen: grep for issued_credits /
+         v_credit_posture returns founder-console.html alone, and that page is covered by
+         #wh-retired-overlay. So the founder could not see how much of the 10,000,000 has been issued,
+         what is outstanding, or whether it is covered -- on a platform whose entire design is "cash
+         enters once and never leaves".
+         The retired-page sole-control gate did not catch this because it hunts stranded WRITES and
+         RPCs; a read-only dashboard is invisible to it. Worth remembering: a stranded READ is just
+         as dead as a stranded control, and nothing was watching for it.
+         mig 42 made this urgent -- it corrected issued_credits from 0 to the PHP1,500 actually minted,
+         and that correction was landing somewhere no one could look. -->
+    <div class="card" id="sec-credit-position">
+      <div class="card-hdr"><h2>Credit position</h2><span id="cp-cover" class="count">—</span></div>
+      <div class="sub" style="margin:-0.4rem 0 0.75rem;">What the platform holds and owes. Cash enters once, as a top-up, and never leaves.</div>
+      <div id="cp-content"><div class="mod-empty">Loading…</div></div>
+    </div>
+
     <!-- LIFTED HERE 2026-08-03 from founder-console.html, which is retired behind #wh-retired-overlay.
          This is the ONLY control that mints a credit, and it was sitting on a page whose entire surface
          is covered by a "moved to Grafana" card — so providers could file GCash top-ups forever and no
@@ -495,6 +513,72 @@
       setCount('gcash-receipts-count', rows.length, 'warn');
     }
 
+    /* THE PLATFORM'S OWN MONEY POSITION. Both halves come from v_credit_posture, never from
+       credit_treasury or service_credit_ledger raw: the cap is guarded by a CHECK constraint on that
+       row, so the number a founder acts on must come from the view that publishes it, not from a sum
+       here that could quietly disagree. That is the same canonical rule the drift ratchet enforces,
+       and reading the base table is what tripped it earlier today. */
+    async function fetchCreditPosition() {
+      try {
+        const [posture, ledger] = await Promise.all([
+          db.from('v_credit_posture').select('authorised_credits, issued_credits').maybeSingle(),
+          db.from('v_service_credit_ledger_truth').select('entry_type, amount').limit(2000),
+        ]);
+        if (posture.error) throw posture.error;
+        if (ledger.error)  throw ledger.error;      // a failed read is not an empty ledger
+        return { posture: posture.data, rows: ledger.data || [], _error: null };
+      } catch (err) {
+        return { posture: null, rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null };
+      }
+    }
+
+    function renderCreditPosition(m) {
+      const box = document.getElementById('cp-content');
+      if (!box) return;
+      m = m || {};
+      if (m._error) {
+        // A permission boundary is not a fault: a non-admin simply may not see the platform's books.
+        const boundary = m._code === '42501' || /permission denied/i.test(m._error);
+        box.innerHTML = `<div class="mod-empty">${e(boundary
+          ? emptyText('Not visible with this session - sign in as a platform admin to see the credit position.')
+          : "Couldn't load the credit position: " + m._error)}</div>`;
+        setCount('cp-cover', 0, '');
+        return;
+      }
+      const sum = t => (m.rows || []).filter(r => r.entry_type === t)
+                                     .reduce((a, r) => a + Number(r.amount || 0), 0);
+      const topups   = sum('topup') + sum('starter_grant');
+      const earned   = -sum('commission');          // historical only; the rate is 0 now
+      const vouchers = sum('voucher_grant');        // retired mechanic, kept for historical rows
+      const liability = topups + sum('cashback') + vouchers - earned;
+      const cover = liability > 0 ? (topups + earned) / liability : null;
+      const supply = m.posture ? Number(m.posture.authorised_credits) : null;
+      const issued = m.posture ? Number(m.posture.issued_credits) : null;
+      const peso = n => '₱' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
+      const num  = n => Number(n || 0).toLocaleString();
+
+      setCount('cp-cover', cover === null ? 0 : Number(cover.toFixed(2)),
+               cover === null ? '' : (cover >= 1 ? '' : (cover >= 0.8 ? 'warn' : 'fail')));
+
+      box.innerHTML =
+        `<div class="mod-row"><div class="mod-main"><strong>${e(peso(liability))}</strong>
+           <span class="mod-sub">Credit liability — services owed, not profit</span></div></div>`
+      + `<div class="mod-row"><div class="mod-main"><strong>${e(cover === null ? '—' : cover.toFixed(2) + 'x')}</strong>
+           <span class="mod-sub">Liability cover — cash in vs credits owed; keep at or above 1.00</span></div></div>`
+      + (supply === null ? '' :
+          `<div class="mod-row"><div class="mod-main"><strong>${e(num(supply))}</strong>
+             <span class="mod-sub">Total WorkHive Credits — the cap; lifetime liability cannot exceed it</span></div></div>`
+        + `<div class="mod-row"><div class="mod-main"><strong>${e(num(issued))}</strong>
+             <span class="mod-sub">Issued — minted into circulation so far</span></div></div>`
+        + `<div class="mod-row"><div class="mod-main"><strong>${e(num(supply - issued))}</strong>
+             <span class="mod-sub">Available to issue — still unissued in the treasury</span></div></div>`
+        + `<div class="mod-row"><div class="mod-main"><strong>1 credit = ₱1</strong>
+             <span class="mod-sub">Fixed, and never moves</span></div></div>`)
+      + (liability <= 0
+          ? `<div class="mod-empty">No credits are outstanding yet. These figures start moving on the first verified top-up.</div>`
+          : '');
+    }
+
     async function refreshQueues() {
       /* The 60-second poll must NOT refetch feedback while a triage drawer is open. Swapping
          _fb.rows under an open editor replaces the updated_at snapshot the optimistic-concurrency
@@ -502,13 +586,15 @@
          to catch, and the typed note would be judged against a row the admin never saw. The realtime
          channel still delivers new arrivals; only the reload is deferred. */
       const wantFeedback = !_fb.drawerId;
-      const [mod, tops, gcash, fb] = await Promise.all([
+      const [mod, tops, gcash, fb, cp] = await Promise.all([
         fetchMktModeration(), fetchSvcTopups(), fetchGcashLeftovers(),
-        wantFeedback ? fetchFeedback() : Promise.resolve(null)]);
+        wantFeedback ? fetchFeedback() : Promise.resolve(null),
+        fetchCreditPosition()]);
       renderMktModeration(mod);
       renderSvcTopups(tops);
       renderGcashLeftovers(gcash);
       if (fb) renderFeedback(fb);
+      renderCreditPosition(cp);
       document.getElementById('last-sync').textContent = 'Updated ' + new Date().toLocaleTimeString();
     }
 
