@@ -1,4 +1,5 @@
 {
   "leak_risk_surfaces": 0,
-  "realtime_surfaces": 13
+  "realtime_surfaces": 14,
+  "_note_realtime_surfaces": "14 since 2026-08-03: platform-actions.html gained the platform_feedback INSERT channel when the feedback-triage UI was lifted off the retired founder-console. ONE channel, admin-gated (2 rows in marketplace_platform_admins), teardown on beforeunload AND pagehide. Peak contribution ~2 concurrent channels vs the CAPACITY_PLAN comfortable ceiling of 500. leak-risk stays 0."
 }

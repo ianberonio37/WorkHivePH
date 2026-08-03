@@ -10,8 +10,12 @@
     "inventory.html",
     "logbook.html",
     "marketplace.html",
+    "platform-actions.html",
     "pm-scheduler.html",
     "project-manager.html",
     "utils.js"
-  ]
+  ],
+  "_notes": {
+    "platform-actions.html": "Registered 2026-08-03 when the feedback-triage UI was lifted here off the retired founder-console. Opens exactly ONE channel (platform_feedback INSERTs) - the same channel founder-console already had, so this is a MOVE, not a new load. Admin-gated: 2 rows in marketplace_platform_admins can open it, so peak contribution is ~2 concurrent channels against the CAPACITY_PLAN comfortable ceiling of 500. Teardown on both beforeunload and pagehide, so it does not add leak risk (leak-risk surfaces stay 0)."
+  }
 }
