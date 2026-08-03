@@ -11277,8 +11277,20 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "value_survives",
    "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP + psql two-system walk · /workhive/platform-actions.html",
+    "asserts": "a committed DB change reaches the browser with the same value and name",
+    "value_checked": true,
+    "checked": "Two systems, one probe. Subscribed to platform_feedback in the LIVE MCP browser, then committed a change from psql (admin_note = SEAM-PROBE-VALUE-4711) and read what actually arrived: 1 event, value identical, under the SAME column name, 20 columns delivered. A realtime seam that carries a different value or drops a column is invisible from either side alone, which is why this is walked from both. Probe write reverted immediately: admin_note back to NULL, 0 probe rows left.",
+    "depends_on": [
+     "platform-actions.html"
+    ],
+    "sha": "b1c0f8a15da9eb85",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AY-seam-seam_realtime_client-system-name_survives",
@@ -11290,8 +11302,20 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "name_survives",
    "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP + psql two-system walk · /workhive/platform-actions.html",
+    "asserts": "the realtime payload keeps the column names the client binds to",
+    "value_checked": true,
+    "checked": "Two systems, one probe. Subscribed to platform_feedback in the LIVE MCP browser, then committed a change from psql (admin_note = SEAM-PROBE-VALUE-4711) and read what actually arrived: 1 event, value identical, under the SAME column name, 20 columns delivered. A realtime seam that carries a different value or drops a column is invisible from either side alone, which is why this is walked from both. Probe write reverted immediately: admin_note back to NULL, 0 probe rows left.",
+    "depends_on": [
+     "platform-actions.html"
+    ],
+    "sha": "b1c0f8a15da9eb85",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AY-seam-seam_realtime_client-system-null_semantics",
@@ -11485,8 +11509,23 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "value_survives",
    "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "psql",
+    "ref": "psql: rolled-back txn, sweep_service_completions (2026-08-04)",
+    "asserts": "what a scheduled sweep writes is what the UI view returns",
+    "value_checked": true,
+    "checked": "Staged a job the completion sweep must act on (completed, window elapsed 10 days) inside a rolled-back txn, ran sweep_service_completions(), and followed the value across the seam. The cron wrote status=settled and the view the UI reads returned settled, with 8 rows visible to that client. All three money crons exist and resolve to real functions (listing-holding-fee-monthly, service-broadcast-sweep-1min, service-completion-sweep-hourly). INSTRUMENT CORRECTION, recorded because it nearly became a false defect: the first run reported \"SEAM FAIL: the cron wrote settled and the UI view shows NULL\". v_service_request_truth filters on auth.uid(), and a psql session has NO JWT — so the view returned 0 of 12 rows to me regardless of status. Re-ran with set_config(request.jwt.claims) AND role=authenticated for the row's actual client; the seam was intact all along. An RLS-filtered view needs the ROLE and the CLAIMS, not just a query.",
+    "depends_on": [
+     "supabase/migrations\\20260607000004_definer_revoke_service_role_only.sql",
+     "supabase/migrations\\20260607000006_export_hive_data_service_role_only.sql",
+     "supabase/migrations\\20260728000039_service_hailing_foundation.sql",
+     "supabase/migrations\\20260728000040_service_hailing_engine.sql"
+    ],
+    "sha": "c3144032fd9b9f28",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AY-seam-seam_cron_db-system-name_survives",
@@ -11498,8 +11537,23 @@
    "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
    "state": "name_survives",
    "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "psql",
+    "ref": "psql: rolled-back txn, sweep_service_completions (2026-08-04)",
+    "asserts": "the swept field keeps its name across cron -> base -> view",
+    "value_checked": true,
+    "checked": "Staged a job the completion sweep must act on (completed, window elapsed 10 days) inside a rolled-back txn, ran sweep_service_completions(), and followed the value across the seam. The cron wrote status=settled and the view the UI reads returned settled, with 8 rows visible to that client. All three money crons exist and resolve to real functions (listing-holding-fee-monthly, service-broadcast-sweep-1min, service-completion-sweep-hourly). INSTRUMENT CORRECTION, recorded because it nearly became a false defect: the first run reported \"SEAM FAIL: the cron wrote settled and the UI view shows NULL\". v_service_request_truth filters on auth.uid(), and a psql session has NO JWT — so the view returned 0 of 12 rows to me regardless of status. Re-ran with set_config(request.jwt.claims) AND role=authenticated for the row's actual client; the seam was intact all along. An RLS-filtered view needs the ROLE and the CLAIMS, not just a query.",
+    "depends_on": [
+     "supabase/migrations\\20260607000004_definer_revoke_service_role_only.sql",
+     "supabase/migrations\\20260607000006_export_hive_data_service_role_only.sql",
+     "supabase/migrations\\20260728000039_service_hailing_foundation.sql",
+     "supabase/migrations\\20260728000040_service_hailing_engine.sql"
+    ],
+    "sha": "c3144032fd9b9f28",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-AY-seam-seam_cron_db-system-null_semantics",
