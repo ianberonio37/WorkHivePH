@@ -5166,8 +5166,17 @@
       "state": "branch",
       "branch": "the §3b personas walked as people, not arithmetic",
       "oracle": "the spammer is capped with a reason they can act on, the sybil is refused a second starter grant, a collusive pair extracts EXACTLY 0, and a scam provider's job cannot pass the window unnoticed",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "structure-built",
+          "title": "tools/probe_adversarial_personas.py -- the four personas walked as PEOPLE, each asserting containment AND a readable refusal",
+          "measured": "All four contained, every refusal legible, exit 0, ledger byte-identical before and after (5 rows / PHP1,140) with zero residue. spammer: capped at 3 live listings -- 'A new seller can keep 3 listings live until one of them sells. You have 3 - sell one, or take one down to make room. This is not about the credits.' sybil: second claim returns {\"reason\": \"already_claimed\", \"granted\": false}. collusive pair: a naked user-to-user transfer REFUSED with 'Credits cannot be moved between people. They are earned on a purchase and spent on a purchase' and circulation delta exactly 0.00. scam provider: the buyer gets a dated deadline (2026-08-06) and raise_service_objection returns {ok:true}, moving the job to disputed.",
+          "why_it_matters": "The 500-run simulation proved the ECONOMICS hold. It never proved the SCREEN refuses these people in words they can act on -- and a guard that blocks in silence cannot be told apart from a guard that is not firing at all. So each persona asserts two things, and a bare 'violates check constraint' fails the readability bar.",
+          "note": "THE PROBE'S OWN THREE BUGS ARE WHY IT IS TRUSTWORTHY, and each is a banked class. (1) It read only stdout while every verdict line is a psql NOTICE on stderr -- all four reported 'no verdict line', a false red. (2) It probed the spam cap with NO JWT, and guard_first_listings_need_a_sale opens with `if auth.uid() is null return new` (the backend path seeders need), so all 8 listings published and it read as 'the cap does not work' when the probe was never a person -- the 'an RLS probe needs the ROLE, not just claims' lesson, applied to a trigger. (3) Even with an identity, TWO earlier guards fired first: self-publish is refused outright, then the reservation guard refused for want of credits -- so the cap was never consulted and a PASS proved only the outermost gate, the 'survivor masked by a sibling constraint' shape. It now funds the seller and selects one already AT the cap by the cap's own arithmetic, so the deepest layer is the one that answers. Registered in run_platform_checks as gate `adversarial-personas`."
+        }
+      ],
+      "walked_at": "2026-08-03"
     }
   ]
 }

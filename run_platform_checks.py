@@ -559,6 +559,14 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "adversarial-personas",
+        "script":  "tools/probe_adversarial_personas.py",
+        "args":    [],
+        "label":   "ADVERSARIAL PERSONAS REFUSED LEGIBLY - the 500-run simulation proved the ECONOMICS hold (a collusive pair extracts PHP0, the spam cap blocks 274,428 listings, sybil is bounded only by ID strength). It never proved the SCREEN refuses these people in words they can act on, and a guard that blocks in silence cannot be told apart from a guard that is not firing. So each of the four personas asserts TWO things: the attack is contained, AND the refusal is a sentence a human could act on rather than a constraint name (a bare 'violates check constraint' fails the bar). Spammer: capped at 3 live listings with 'sell one, or take one down to make room'. Sybil: the second starter grant returns already_claimed. Collusive pair: a naked user-to-user transfer is refused AND circulation delta is exactly 0. Scam provider: the buyer gets a dated objection deadline and raise_service_objection moves the job to disputed. THE PROBE'S OWN THREE BUGS ARE THE REASON IT IS TRUSTWORTHY, and each is a banked class: (1) it read only stdout while every verdict line is a psql NOTICE on stderr, so all four personas reported 'no verdict' - a false red; (2) it probed the spam cap with NO JWT, and guard_first_listings_need_a_sale opens with `if auth.uid() is null return new` (the backend path seeders need), so all 8 listings published and it read as 'the cap does not work' when the probe was never a person; (3) even with an identity, TWO earlier guards fired first - self-publish is refused outright, and then the reservation guard refused for want of credits - so the cap was never consulted and a PASS proved only the outermost gate (the 'survivor masked by a sibling constraint' shape). It now funds the seller and picks one already AT the cap by the cap's own arithmetic, so the deepest layer is the one that answers. Every persona runs inside BEGIN/ROLLBACK because docker exec psql is AUTOCOMMIT; verified to leave the ledger byte-identical and zero residue.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
         "id":      "credit-loop-closes",
         "script":  "tools/validate_credit_loop_closes.py",
         "args":    [],
