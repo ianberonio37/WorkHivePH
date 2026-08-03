@@ -1,4 +1,37 @@
-# Production Deploy Runbook — release `26fcf57` (2026-07-24, same-day hotfixes) ← CURRENT
+# Production Deploy Runbook — credits economy + GCash intake (2026-08-03) ← PENDING, NOT DEPLOYED
+
+> **⏳ BUILT AND VERIFIED LOCALLY. NOT PUSHED, NOT DEPLOYED — Ian's gate.** Recorded here so the
+> steps exist before they are needed, not after. Nothing below has run against prod.
+>
+> **Leg A — DB.** Migrations `20260803000016` … `20260803000042`. The last three were each found by
+> walking a live scenario rather than by review, and each is a money defect:
+> - `…040` a **rejected** top-up could be revived and minted in two statements (₱777 from a refused
+>   payment). Terminal states are now terminal.
+> - `…041` three readers still split one person's wallet, so **no buyer could spend credits at all** —
+>   the guard saw ₱0 for someone holding ₱340.
+> - `…042` the 10,000,000 supply cap never watched the top-up mint: treasury `issued = 0` while
+>   ₱1,500 circulated. Back-filled from the ledger; the migration RAISES if the two still disagree.
+>
+> **Leg B — Edge.** Two NEW functions, neither ever deployed:
+> ```powershell
+> # in the script (blanket --no-verify-jwt is CORRECT here — a forwarder has no session and
+> # authenticates by HMAC over the raw body):
+> npx supabase functions deploy gcash-receipt-inbound --no-verify-jwt
+> # NOT in the script — config.toml verify_jwt=TRUE. Called from the browser by a signed-in
+> # provider/buyer uploading their own receipt, so the session IS the gate. The blanket flag would
+> # open an Azure-BILLED endpoint to the internet:
+> npx supabase functions deploy gcash-receipt-ocr
+> ```
+>
+> **Secrets.** `GCASH_INBOUND_SECRET` (the webhook fails CLOSED without it — that is the intended
+> degrade, and it costs only the automation; the manual queue in `platform-actions.html` still
+> verifies every top-up by hand) and `AZURE_DOC_INTELLIGENCE_ENDPOINT` / `_KEY` for the OCR path.
+>
+> **🔴 Do first, independent of this release:** the exposed prod **service-role key still needs
+> rotating**. Also outstanding: 3 `storage.*` TRUNCATE grants that need a Supabase-side superuser —
+> no migration this project writes can revoke them.
+
+# Production Deploy Runbook — release `26fcf57` (2026-07-24, same-day hotfixes) ← history
 
 > **✅ DEPLOYED 2026-07-24 (Claude, Ian: "be proactive, do what's needed").** Two same-day hotfix pushes AFTER `fb81fde`:
 > - **`8ca641d` + `da36c5d` — AI prescriptive parroting fix.** analytics-orchestrator + ai-orchestrator (+ scheduled-agents) prompts named FABRICATED example asset codes (David Velasco / P-103 / GEN-003) that a free-tier LLM parroted into EVERY hive's brief → looked hardcoded. Replaced with `<placeholder>` tokens + anti-parrot directives. **Leg B:** redeployed analytics-orchestrator, ai-orchestrator, scheduled-agents. **Leg C:** git push. Empirically verified (2 distinct hives → own assets, 0 parroting).

@@ -1235,7 +1235,7 @@
        below the floor is still allowed -- the rule is about publication, not about typing. */
     if (_holdState && _holdState.reason === 'below_floor') {
       showToast('The lowest price WorkHive lists is ' + _peso(_holdState.floor)
-                + '. This one is ' + _peso(_holdState.price) + ' — raise it, or bundle it with something.',
+                + '. This one is ' + _peso(_holdState.price) + '. Raise it, or bundle it with something.',
                 'error');
       document.getElementById('edit-price')?.focus();
       return;

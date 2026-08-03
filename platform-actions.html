@@ -129,7 +129,7 @@
 
     <div class="row-controls">
       <button id="refresh-btn" class="refresh-btn">↻ Refresh queues</button>
-      <span id="last-sync" class="updated">—</span>
+      <span id="last-sync" class="updated">-</span>
     </div>
 
     <div id="local-bypass-note" role="status" hidden
@@ -143,7 +143,7 @@
          provider is waiting on it. (founder-console keeps its copy: retired pages preserve content so
          the static validators that scan them still pass — the same pattern as marketplace-admin.html.) -->
     <div class="card" id="sec-svc-topups">
-      <div class="card-hdr"><h2>GCash top-ups awaiting verification</h2><span id="svc-topups-count" class="count">—</span></div>
+      <div class="card-hdr"><h2>GCash top-ups awaiting verification</h2><span id="svc-topups-count" class="count">-</span></div>
       <div class="sub" style="margin:-0.4rem 0 0.75rem;">Match the reference in your GCash app, then verify to mint the credits.</div>
       <div id="svc-topups-content"><div class="mod-empty">Loading…</div></div>
     </div>
@@ -155,17 +155,17 @@
          replaced, so the leftovers need a screen. v_gcash_receipts_needing_eyes existed for a whole
          commit without one, which is the same built-but-never-called defect this arc keeps finding. -->
     <div class="card" id="sec-gcash-receipts" hidden>
-      <div class="card-hdr"><h2>GCash receipts needing your eyes</h2><span id="gcash-receipts-count" class="count">—</span></div>
+      <div class="card-hdr"><h2>GCash receipts needing your eyes</h2><span id="gcash-receipts-count" class="count">-</span></div>
       <div class="sub" style="margin:-0.4rem 0 0.75rem;">Forwarded receipts the automatic match could not settle. Each says why.</div>
       <div id="gcash-receipts-content"><div class="mod-empty">Loading…</div></div>
     </div>
 
     <div class="card" id="sec-mkt-mod">
-      <div class="card-hdr"><h2>Listings awaiting review</h2><span id="mkt-listings-count" class="count">—</span></div>
+      <div class="card-hdr"><h2>Listings awaiting review</h2><span id="mkt-listings-count" class="count">-</span></div>
       <div id="mkt-listings-content"><div class="mod-empty">Loading…</div></div>
     </div>
     <div class="card">
-      <div class="card-hdr"><h2>Sellers awaiting verification</h2><span id="mkt-sellers-count" class="count">—</span></div>
+      <div class="card-hdr"><h2>Sellers awaiting verification</h2><span id="mkt-sellers-count" class="count">-</span></div>
       <div id="mkt-sellers-content"><div class="mod-empty">Loading…</div></div>
     </div>
     <!-- RETIRED 2026-08-03: an "Open disputes" card read `marketplace_disputes` — 0 rows, no client
@@ -181,7 +181,7 @@
          (founder-console keeps its copy — retired pages preserve content so the static validators that
          scan them still pass, the same pattern as marketplace-admin.html.) -->
     <div class="card" id="sec-feedback">
-      <div class="card-hdr"><h2>Feedback from users</h2><span id="fb-count-badge" class="count">—</span></div>
+      <div class="card-hdr"><h2>Feedback from users</h2><span id="fb-count-badge" class="count">-</span></div>
       <div class="sub" style="margin:-0.4rem 0 0.75rem;">Bugs, ideas, questions, reviews and praise sent from the widget on any page. Open one to triage, note or reply.</div>
       <div class="fb-tabs" role="tablist" aria-label="Filter feedback by status">
         <button class="fb-tab" type="button" data-status="new"         role="tab" aria-selected="true">New <span id="fb-count-new">0</span></button>
@@ -276,7 +276,7 @@
     let _sessionLimited = false;
     function emptyText(allClear) {
       return _sessionLimited
-        ? 'Not visible with this session — sign in as a platform admin to see what is waiting.'
+        ? 'Not visible with this session. Sign in as a platform admin to see what is waiting.'
         : allClear;
     }
 
@@ -358,7 +358,7 @@
             .eq('id', btn.dataset.id).eq('status', 'pending_verification').select('id');
           if (error) throw error;
           if (!data || !data.length) {
-            showToast('No change saved — that top-up was already decided.', 'error');
+            showToast('No change saved: that top-up was already decided.', 'error');
           } else {
             writeAuditLog(verify ? 'verify_topup' : 'reject_topup', 'service_credit_topups',
               btn.dataset.id, btn.dataset.id, { verified: verify });
@@ -772,7 +772,7 @@
          page for the listing-rejection reason, so using it costs nothing and keeps one dialog. */
       if (isPublic && !wasPublic) {
         if (typeof whConfirm !== 'function') {
-          showToast('Cannot confirm publishing right now. Reload and try again — nothing was saved.', 'error');
+          showToast('Cannot confirm publishing right now. Nothing was saved, so reload and try again.', 'error');
           return;
         }
         const okToPublish = await whConfirm(
@@ -795,7 +795,7 @@
         if (error) throw error;
         if (!saved || saved.length === 0) {
           btn.textContent = 'Save changes'; btn.disabled = false;
-          showToast('Someone else changed this feedback. Reloading the latest — your note was not saved.', 'error');
+          showToast('Someone else changed this feedback. Your note was not saved, so reloading the latest.', 'error');
           closeFeedbackDrawer();
           renderFeedback(await fetchFeedback());
           return;

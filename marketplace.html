@@ -3714,7 +3714,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           '<option value="cash" data-i="paycash">Cash</option><option value="gcash">GCash</option>' +
           '<option value="bank" data-i="paybank">Bank transfer</option><option value="other" data-i="payother">Other</option></select>' +
         '<div id="svc-pay-refwrap-' + id + '" style="display:none;">' +
-          '<label data-i="payref" for="svc-pay-ref-' + id + '" style="font-size:0.72rem;opacity:0.85;">GCash reference (13 digits, optional) — or paste your receipt</label>' +
+          '<label data-i="payref" for="svc-pay-ref-' + id + '" style="font-size:0.72rem;opacity:0.85;">GCash reference (13 digits, optional), or paste your receipt</label>' +
           '<input id="svc-pay-ref-' + id + '" type="text" inputmode="numeric" maxlength="13" placeholder="e.g. 1234567890123" style="' + _svcInputC + '">' +
           /* UPLOAD THE SCREENSHOT, same as the provider's top-up form. The buyer has just paid in
              GCash and is holding the receipt; reading 13 digits off it by eye is the worst moment in
@@ -3877,7 +3877,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             'You hold ' + e(fmtPrice(balance)) + '. You can put up to ' + e(fmtPrice(cap)) + ' toward this ' +
             'job. 1 credit = ₱1, so that is ' + e(fmtPrice(cap)) + ' less to pay. ' +
             'Use credits here and you do not earn credits on this job' +
-            (earn > 0 ? ' — paying in full instead would earn you ' + e(fmtPrice(earn)) + '.' : '.') +
+            (earn > 0 ? '. Paying in full instead would earn you ' + e(fmtPrice(earn)) + '.' : '.') +
           '</div>' +
           '<input id="svc-pay-credits-amt-' + id + '" type="number" min="0" step="0.01" ' +
             'max="' + cap + '" inputmode="decimal" placeholder="0.00" style="' + _svcInputC + '">' +
@@ -4662,7 +4662,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     payother:      'Iba pa',
     /* Kept in step with the English label: the dictionary WINS at whI18nApply time, so changing
        the markup alone silently reverted the paste hint for every Filipino reader. */
-    payref:        'GCash reference (13 digits, opsyonal) — o i-paste ang resibo mo',
+    payref:        'GCash reference (13 digits, opsyonal), o i-paste ang resibo mo',
     paywhy:        'Bakit may pagkakaiba?',
     payconfirmgo:  'Kumpirmahin ang bayad',
     showdetails:   'Ipakita ang detalye',

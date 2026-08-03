@@ -54,3 +54,20 @@ npx supabase functions deploy resume-polish --no-verify-jwt
 npx supabase functions deploy voice-embeddings --no-verify-jwt
 npx supabase functions deploy voice-model-call --no-verify-jwt
 npx supabase functions deploy voice-semantic-rag --no-verify-jwt
+
+# GCash receipt intake (mig 38). Registered in config.toml and validate_edge_contracts.py the day it
+# shipped, but NOT here - so a deploy would have skipped it and the automatic top-up verification
+# would have been live in the schema with no endpoint behind it.
+#
+# verify_jwt = false is CORRECT for this one: an SMS/email forwarder has no Supabase session. It
+# authenticates by signing the raw body with GCASH_INBOUND_SECRET (HMAC-SHA256), and the handler
+# fails CLOSED when that secret is unset. Deploying it WITH jwt verification would lock the forwarder
+# out entirely, and the automation would look broken with nothing in the logs to say why.
+npx supabase functions deploy gcash-receipt-inbound --no-verify-jwt
+
+# NOTE: gcash-receipt-ocr is deliberately NOT in this script. Every line here forces
+# --no-verify-jwt, and that function is config.toml verify_jwt = TRUE - it is called from the browser
+# by a signed-in provider or buyer uploading their own receipt, so the session IS the gate, and
+# deploying it with --no-verify-jwt would open an Azure-billed endpoint to the internet. It follows
+# the same separate-deploy rule the runbook already applies to supervisor-reset-password. See
+# PRODUCTION_DEPLOY_RUNBOOK.md.
