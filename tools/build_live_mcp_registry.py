@@ -99,6 +99,17 @@ CATEGORIES = {
     "O-empty-error": (
         "does an empty state promise only what the product can deliver?",
         ["market", "seller", "admin", "market_svc"], ["anon", "seller", "admin"], ["empty", "error"]),
+    "Q-payment-rails": (
+        "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal "
+        "0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business "
+        "registration and therefore no merchant account, so every rail is a personal number: a buyer pays "
+        "the PROVIDER directly and the platform never touches it, while a provider tops up credits by "
+        "paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job "
+        "money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and "
+        "nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of "
+        "payment two gcash accounts'. A buyer must see exactly ONE number.",
+        ["market_svc", "seller", "founder"], ["buyer", "provider", "admin"],
+        ["populated", "empty", "edge", "error"]),
     "P-isolation": (
         "can one tenant see or touch another's rows, through any screen?",
         ["market", "seller", "profile", "admin"], ["buyer", "seller"], ["populated"]),

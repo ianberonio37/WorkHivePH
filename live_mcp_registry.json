@@ -20,6 +20,7 @@
   "M-mobile": "at 390 CSS pixels, is every control reachable and every target big enough?",
   "N-continuity": "does the page hold its shape while data arrives, and survive a reload mid-flow?",
   "O-empty-error": "does an empty state promise only what the product can deliver?",
+  "Q-payment-rails": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
   "P-isolation": "can one tenant see or touch another's rows, through any screen?"
  },
  "surfaces": {
@@ -38,7 +39,7 @@
   "provider": "signed in, taking service hails",
   "admin": "platform moderator"
  },
- "total": 197,
+ "total": 233,
  "scenarios": [
   {
    "id": "LM-A-discovery-market-anon-populated",
@@ -1361,8 +1362,7 @@
      "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
      "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
     }
-   ],
-   "lane": "spec-nonloopback"
+   ]
   },
   {
    "id": "LM-H-moderation-admin-seller-empty",
@@ -1384,8 +1384,7 @@
      "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
      "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
     }
-   ],
-   "lane": "spec-nonloopback"
+   ]
   },
   {
    "id": "LM-H-moderation-admin-anon-populated",
@@ -1407,8 +1406,7 @@
      "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
      "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
     }
-   ],
-   "lane": "spec-nonloopback"
+   ]
   },
   {
    "id": "LM-H-moderation-admin-anon-empty",
@@ -1430,8 +1428,7 @@
      "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
      "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
     }
-   ],
-   "lane": "spec-nonloopback"
+   ]
   },
   {
    "id": "LM-H-moderation-seller-admin-populated",
@@ -1479,8 +1476,7 @@
      "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
      "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
     }
-   ],
-   "lane": "spec-nonloopback"
+   ]
   },
   {
    "id": "LM-H-moderation-seller-seller-empty",
@@ -1502,8 +1498,7 @@
      "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
      "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
     }
-   ],
-   "lane": "spec-nonloopback"
+   ]
   },
   {
    "id": "LM-H-moderation-seller-anon-populated",
@@ -1525,8 +1520,7 @@
      "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
      "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
     }
-   ],
-   "lane": "spec-nonloopback"
+   ]
   },
   {
    "id": "LM-H-moderation-seller-anon-empty",
@@ -1548,8 +1542,7 @@
      "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
      "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
     }
-   ],
-   "lane": "spec-nonloopback"
+   ]
   },
   {
    "id": "LM-I-map-market_svc-buyer-populated",
@@ -2814,6 +2807,482 @@
    "findings": []
   },
   {
+   "id": "LM-Q-payment-rails-market_svc-buyer-populated",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth",
+   "status": "green",
+   "findings": [
+    {
+     "severity": "pass",
+     "title": "at the moment of paying, the buyer sees exactly ONE number - the provider's",
+     "measured": "job 'Pump Overhaul (site)': the confirm-payment step scoped to that job row contains exactly one GCash number, 09170222222 (the provider's). The founder's 0995 009 2416 is absent. The step says WorkHive never holds your money and names the provider as payee.",
+     "why_this_oracle": "Ian's requirement in his own words: 'hassle free ... like the hassle of payment two gcash accounts'. Counting the numbers VISIBLE IN THE JOB BEING PAID is the literal test of that sentence - the pane as a whole shows three, one per job, which is correct and not what the buyer is reading when they pay.",
+     "instrument_note": "The first scoped attempt returned an empty row and 'one number only' - a VACUOUS pass. svcConfirmPay TOGGLES, so a second click had closed the sheet. Re-opened and measured in a single pass; the row now resolves to a real job title, which is what makes the count meaningful."
+    }
+   ]
+  },
+  {
+   "id": "LM-Q-payment-rails-market_svc-buyer-empty",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "empty",
+   "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-market_svc-buyer-edge",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-market_svc-buyer-error",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "error",
+   "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-market_svc-provider-populated",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-market_svc-provider-empty",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "empty",
+   "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-market_svc-provider-edge",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-market_svc-provider-error",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "error",
+   "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-market_svc-admin-populated",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-market_svc-admin-empty",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "empty",
+   "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-market_svc-admin-edge",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-market_svc-admin-error",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "market_svc",
+   "url": "/workhive/marketplace.html?section=services",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "error",
+   "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-buyer-populated",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-buyer-empty",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "empty",
+   "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-buyer-edge",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-buyer-error",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "error",
+   "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-provider-populated",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-provider-empty",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "empty",
+   "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-provider-edge",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-provider-error",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "error",
+   "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-admin-populated",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-admin-empty",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "empty",
+   "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-admin-edge",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-seller-admin-error",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "seller",
+   "url": "/workhive/marketplace-seller.html",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "error",
+   "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-buyer-populated",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-buyer-empty",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "empty",
+   "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-buyer-edge",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-buyer-error",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "buyer",
+   "persona_note": "signed in, browsing and hiring",
+   "state": "error",
+   "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-provider-populated",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-provider-empty",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "empty",
+   "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-provider-edge",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-provider-error",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "provider",
+   "persona_note": "signed in, taking service hails",
+   "state": "error",
+   "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-admin-populated",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "populated",
+   "oracle": "the surface renders real rows and every visible number matches its source of truth",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-admin-empty",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "empty",
+   "oracle": "the empty state names what is missing AND what the person can do, promising nothing the product cannot produce",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-admin-edge",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "edge",
+   "oracle": "the boundary case (longest name, zero price, 200% zoom, the last item) still renders",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "LM-Q-payment-rails-founder-admin-error",
+   "category": "Q-payment-rails",
+   "question": "THREE GCash accounts meet here - the buyer's, the provider's, and the founder's personal 0995 009 2416 - and only one of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a personal number: a buyer pays the PROVIDER directly and the platform never touches it, while a provider tops up credits by paying the FOUNDER. Put the founder's number on a buyer's payment step and the buyer sends job money to someone who is not party to the job, cannot fulfil it, and cannot reconcile it - and nothing errors. This is also the friction Ian named by hand: 'hassle free ... like the hassle of payment two gcash accounts'. A buyer must see exactly ONE number.",
+   "surface": "founder",
+   "url": "/workhive/founder-console.html",
+   "persona": "admin",
+   "persona_note": "platform moderator",
+   "state": "error",
+   "oracle": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
+   "status": "owed",
+   "findings": []
+  },
+  {
    "id": "LM-P-isolation-market-buyer-populated",
    "category": "P-isolation",
    "question": "can one tenant see or touch another's rows, through any screen?",
@@ -2924,13 +3393,5 @@
    "status": "owed",
    "findings": []
   }
- ],
- "_harness_note_2": {
-  "severity": "harness",
-  "title": "the 'a non-admin is visibly refused' oracle CANNOT be walked on localhost",
-  "measured": "as isidrosuarez (is_marketplace_admin = false, isPlatformAdmin = false) the Platform Actions page rendered 9 'Verify ID' controls and no refusal. The gate is `IS_LOCAL_FOUNDER || isPlatformAdmin(db)`, and IS_LOCAL_FOUNDER is ['127.0.0.1','localhost','::1'].includes(location.hostname) - so every LOCAL walk takes the bypass, whoever is signed in.",
-  "not_a_defect": "In production the hostname check is false and the gate falls through to isPlatformAdmin, which correctly returned FALSE here. Recording this rather than filing 'a non-admin can reach the governance console' would have been a confident, false report about production - the same shape as blaming a page for a dead fixture.",
-  "resolution": "These cells need a lane that can control the hostname (a spec with a non-loopback host, or a prod-like preview). Marked so the flywheel does not keep re-walking a question localhost cannot answer, and so nobody later 'discovers' a bypass that is not one.",
-  "also_true": "The DATA boundary held regardless: service_credit_topups returned 0 rows to the non-admin. Only seller verification status was readable, and that is a public trust signal by design."
- }
+ ]
 }

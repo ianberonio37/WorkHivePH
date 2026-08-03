@@ -535,6 +535,14 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "payment-rails",
+        "script":  "tools/validate_payment_rails.py",
+        "args":    [],
+        "label":   "PAYMENT RAILS - three GCash accounts meet in this product and only ONE of them may ever be on a given screen. WorkHive has no business registration and therefore no merchant account, so every rail is a PERSONAL number: a buyer pays the PROVIDER's own GCash directly and the platform never touches it; a provider tops up credits by paying the FOUNDER's personal 0995 009 2416; a credits spend moves no GCash at all, being a ledger transfer between two wallets. THE INVARIANT: the founder's number may appear ONLY on the provider's top-up card. Put it on a buyer-facing payment step and the buyer sends job money to a person who is not party to the job, cannot fulfil it, and cannot reconcile it against any request - and NOTHING ERRORS. The money is not lost to a bug but to a stranger's honest reading of the screen, which is worse, because nobody finds out until the provider asks where their payment is. This is also the exact friction Ian named by hand ('I want it hassle free for my users, like the hassle of payment two gcash accounts'): a buyer must see exactly one number, the provider's. Four assertions: every occurrence of the founder number sits on an allowed surface; no buyer-facing payment surface contains it in ANY spacing or punctuation (the regex tolerates '0995 009 2416', '0995-009-2416' and '09950092416' as one number); the buyer's confirm step states that WorkHive holds no money, which is the sentence a wary first-timer actually decides on; and that step names the PROVIDER as payee so 'who do I pay' has one answer where it is asked. Comments and doc blocks are stripped before matching - only RENDERED strings can mislead a person. Teeth: planting the founder's number on marketplace.html's payment step makes this FAIL naming that surface and that consequence; selftest proves all four failures are caught and a correct topology passes. Static, fast, no DB.",
+        "group":   "Security",
+        "severity": "fail",
+    },
+    {
         "id":      "no-client-truncate",
         "script":  "tools/validate_no_client_truncate.py",
         "args":    [],
