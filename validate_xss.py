@@ -371,6 +371,14 @@ def check_utils_load_order():
 
 # ── Layer 6: LIKE injection guard ─────────────────────────────────────────────
 
+# A single-quoted, double-quoted or backticked run, honouring backslash escapes so that the
+# `\'` inside an emitted onclick= attribute does not end the literal early. Applied per LINE
+# (never across lines), so an unbalanced quote leaves the line untouched rather than eating it.
+_STRING_LITERAL_RE = re.compile(
+    r"""'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|`(?:\\.|[^`\\])*`"""
+)
+
+
 def check_esc_html_shorthand_undeclared():
     r"""Catch the bug class found in the 2026-05-13 walkthrough:
     a renderer references the `e(...)` shorthand without declaring
@@ -447,9 +455,18 @@ def check_esc_html_shorthand_undeclared():
             # asset-hub.html's citation renderer, which had in fact run correctly in the browser
             # minutes earlier. Same class as the "grep matched the COMMENT, not the code" lesson:
             # a line-based scanner must strip comments before it believes what it matched.
+            # STRING LITERALS ARE STRIPPED TOO, for the same reason and by the same argument:
+            # a scope boundary cannot live inside a quoted string. marketplace-seller.html emits
+            # `onclick="withButtonLock(this, function(){ return svcFileTopup(...) })"` as part of an
+            # HTML string, and `function(` inside that literal was read as the enclosing function's
+            # opening — so the `const e = escHtml` at the real top of svcWalletHtml() was ruled out
+            # of scope and three correct callsites were reported as ReferenceErrors. The header
+            # above already anticipated "string literal" for the typeof-guard shape; a literal that
+            # contains a genuine inline function expression is the same shape wearing arguments.
+            # Reported 2026-08-04 after the GCash top-up double-submit fix introduced the handler.
             scope_start = 0
             for j in range(i - 1, -1, -1):
-                probe = re.sub(r"//.*$", "", lines[j])
+                probe = _STRING_LITERAL_RE.sub("''", re.sub(r"//.*$", "", lines[j]))
                 stripped = probe.strip()
                 if stripped.startswith("*") or stripped.startswith("/*"):
                     continue

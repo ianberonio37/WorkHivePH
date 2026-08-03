@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:642-files
-source_sha: 1b568f12c9c112ec
+source: memory-curated:645-files
+source_sha: b87551ab8aa4df97
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (642 durable topic files)
+## memory · curated auto-memory (645 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=263 · project=290 · reference=89
+**By type:** feedback=266 · project=290 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -27,11 +27,13 @@ Entries (name · type · sha):
 - `feedback_a_metamorphic_relation_needs_a_non_vacuity_check` · feedback · 3ef9b3ad98824df5
 - `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 2a14bd543da8cc63
 - `feedback_a_new_guard_breaks_the_triggers_that_already_write` · feedback · d3dfa188021986ae
+- `feedback_a_predicate_that_never_checks_a_caller_is_not_an_access_rule` · feedback · 0e224662e0ecf3a7
 - `feedback_a_promise_that_never_settles_is_invisible` · feedback · 2513be62fb16874c
 - `feedback_a_proxy_oracle_reports_success_while_the_payoff_is_missing` · feedback · 61078c461656a546
 - `feedback_a_ratchet_that_turns_both_ways` · feedback · 59d0483a7b3cc459
 - `feedback_a_silently_failed_edit_becomes_a_false_report` · feedback · 7975acad3596a373
 - `feedback_a_skipped_partition_reads_as_a_covered_one` · feedback · 7ed63cc64e09df23
+- `feedback_a_stranded_read_is_invisible_to_a_write_gate` · feedback · b077adcb12adc6cb
 - `feedback_a_test_asserting_a_state_it_does_not_control` · feedback · 1699da8f8a49120f
 - `feedback_a_timeout_that_does_not_kill_the_tree` · feedback · ad28cde6ddd29e48
 - `feedback_a_walked_cell_is_not_a_banked_cell` · feedback · 5998c3c3aa4126a2
@@ -43,6 +45,7 @@ Entries (name · type · sha):
 - `feedback_ai_provider` · feedback · b197e3dd063d1acc
 - `feedback_ai_write_accountability_ai6` · feedback · 0e9f455eea85a173
 - `feedback_an_impossibly_good_result_is_the_defect` · feedback · acda77061b9e8527
+- `feedback_an_oracle_that_does_not_match_the_claim` · feedback · cf7b1d3644a24309
 - `feedback_analytics_engine_ufai_chart_truths` · feedback · 46b99242f6940bd6
 - `feedback_analytics_orchestrator_local_edge_cpu_and_b3_guard` · feedback · 82a690177f3b49f5
 - `feedback_anti_seesaw_lineage_discipline` · feedback · 8cd491bab51b8c5e
@@ -513,9 +516,6 @@ Entries (name · type · sha):
 - `project_report_sender_validator` · project · 12607f6643ad9edd
 - `project_resume_builder_2026_06_03` · project · 8284803cbb2a98bb
 - `project_resume_builder_deep_arc` · project · bfedf9b5a757ae0a
-- `project_retired_pages` · project · aee0dd352c2004f0
-- `project_rigorous_companion_flywheel_2026_05_26` · project · 8dc8c64554a7b2b9
-- `project_rls_decision` · project · cc16dc52616e9cfe
-- … +142 more (all included in the fingerprint)
+- … +145 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

@@ -13371,8 +13371,20 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "count_matches_source",
    "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP + psql per-figure check · /workhive/marketplace-seller.html",
+    "asserts": "every count equals the count its own predicate returns, including the geo-filtered one",
+    "value_checked": true,
+    "checked": "Harvested all 12 numeric figures the seller surface renders and checked each against psql from ITS OWN source. All 12 agree: Listings 2 == 2 published; Sales 0 == 0 sold; New Inquiries 0 == 0 pending; wallet ₱-200 == person_credit_balance(-200.00); Held by live listings ₱0 == 0 open reservations (a GENUINE zero, correctly rendered as ₱0 rather than a gap); Credit wallet ₱-200.00; My active jobs 0 == 0 in accepted/en_route/on_site/in_progress; Recently finished 2 == 2 in completed/settled. ONE needed care rather than a verdict: \"Open requests near you 0\" against 1 broadcasting request platform-wide. Read as a mismatch it would be a defect; read correctly it is the point of the phrase. v_service_open_broadcasts filters on st_distance(request.location, provider.base_location) against the broadcast radius, and queried AS PABLO (jwt claims + role) it returns 0. The screen and the source agree; the one open request is simply outside his service area.",
+    "depends_on": [
+     "marketplace-seller.html"
+    ],
+    "sha": "f2b999f3ef450ac1",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BC-ufai-F-seller-buyer-money_matches_ledger",
@@ -13384,8 +13396,20 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "money_matches_ledger",
    "oracle": "every peso and credit figure equals the canonical view, to the centavo",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [],
+   "evidence": {
+    "kind": "live-walk",
+    "ref": "2026-08-04 live MCP + psql per-figure check · /workhive/marketplace-seller.html",
+    "asserts": "every money figure on the seller surface equals its own source",
+    "value_checked": true,
+    "checked": "Harvested all 12 numeric figures the seller surface renders and checked each against psql from ITS OWN source. All 12 agree: Listings 2 == 2 published; Sales 0 == 0 sold; New Inquiries 0 == 0 pending; wallet ₱-200 == person_credit_balance(-200.00); Held by live listings ₱0 == 0 open reservations (a GENUINE zero, correctly rendered as ₱0 rather than a gap); Credit wallet ₱-200.00; My active jobs 0 == 0 in accepted/en_route/on_site/in_progress; Recently finished 2 == 2 in completed/settled. ONE needed care rather than a verdict: \"Open requests near you 0\" against 1 broadcasting request platform-wide. Read as a mismatch it would be a defect; read correctly it is the point of the phrase. v_service_open_broadcasts filters on st_distance(request.location, provider.base_location) against the broadcast radius, and queried AS PABLO (jwt claims + role) it returns 0. The screen and the source agree; the one open request is simply outside his service area.",
+    "depends_on": [
+     "marketplace-seller.html"
+    ],
+    "sha": "f2b999f3ef450ac1",
+    "walked_at": "2026-08-04"
+   }
   },
   {
    "id": "LM-BC-ufai-F-seller-buyer-idempotent_repeat",

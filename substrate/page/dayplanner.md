@@ -2,13 +2,13 @@
 name: page-dayplanner
 type: page
 source: file:dayplanner.html
-source_sha: b4c2e2196367f143
+source_sha: fd833fd0f451773a
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `dayplanner.html` — Maintenance Day Planner: WorkHive
 
-Size: 101KB · 46 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 102KB · 46 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (3): `logbook.update`, `schedule_items.delete`, `schedule_items.upsert`
 **RPC calls**: (none)

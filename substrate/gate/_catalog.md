@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 6194793adf6721ae
+source_sha: e965b787aa9ac18d
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (731) — the 'what's already gated' brain
+## gate · registered validators (732) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -228,7 +228,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (516)
+### Platform (517)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -514,6 +514,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `lifecycle-state-reachability` [fail] — LIFECYCLE STATE REACHABILITY (§10 MK4) — every state in a `status` CHECK must be both SURFACED and REACHABLE. A CHECK vocabulary is a promise about what the pro
 - `like-escape` ⚡ [fail] — SQL LIKE Escape (.ilike/.like templates escape % and _; tracks file-wide escape-helper vars; forward-only ratchet)
 - `link-target-existence` ⚡ [fail] — Link Target Existence (every <a href>/location.href to a .html target must exist on disk; forward-only ratchet)
+- `live_mcp_bank` [fail] — Live-MCP bank honesty (every non-owed scenario carries typed evidence — kind/ref/asserts — and that evidence EXPIRES when a file it depends on changes; forward-
 - `loading-state` ⚡ [fail] — Loading State Coverage (4-layer: async-no-loading + submit-no-preventDefault + mechanism distribution + async density)
 - `loads-utils-js` ⚡ [fail] — Loads-Utils-JS (3-layer: required + allowlist-freshness + census)
 - `local-triggers-dont-call-prod` ⚡ [fail] — LOCAL TRIGGERS MUST NOT CALL PRODUCTION — found 2026-07-31 while extending the S9-knowledge layer. THREE AFTER-INSERT triggers on the LOCAL database (embed-logb
