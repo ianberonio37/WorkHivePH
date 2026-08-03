@@ -4,7 +4,7 @@
     "persisted_fields_analyzed": 101,
     "dead_end_fields": 5,
     "fields_with_causal_cascade": 38,
-    "avg_display_fanout": 3.24,
+    "avg_display_fanout": 3.14,
     "max_display_fanout": 8
   },
   "per_page": {
@@ -54,7 +54,7 @@
       "fields": 29,
       "persisted": 19,
       "dead_end": 0,
-      "fanout_sum": 91,
+      "fanout_sum": 81,
       "max_depth": 3
     },
     "pm-scheduler": {
@@ -2932,12 +2932,10 @@
       "surface": "marketplace",
       "field": "dispute-description",
       "terminus": "marketplace_disputes",
-      "display_fanout": 3,
+      "display_fanout": 1,
       "display_depth": 2,
       "displayed_on_pages": [
-        "founder-console",
-        "marketplace-admin",
-        "platform-actions"
+        "marketplace-admin"
       ],
       "displayed_via_views": [],
       "read_by_edge_fns": [],
@@ -2948,12 +2946,10 @@
       "surface": "marketplace",
       "field": "dispute-listing-id",
       "terminus": "marketplace_disputes",
-      "display_fanout": 3,
+      "display_fanout": 1,
       "display_depth": 2,
       "displayed_on_pages": [
-        "founder-console",
-        "marketplace-admin",
-        "platform-actions"
+        "marketplace-admin"
       ],
       "displayed_via_views": [],
       "read_by_edge_fns": [],
@@ -2964,12 +2960,10 @@
       "surface": "marketplace",
       "field": "dispute-order-id",
       "terminus": "marketplace_disputes",
-      "display_fanout": 3,
+      "display_fanout": 1,
       "display_depth": 2,
       "displayed_on_pages": [
-        "founder-console",
-        "marketplace-admin",
-        "platform-actions"
+        "marketplace-admin"
       ],
       "displayed_via_views": [],
       "read_by_edge_fns": [],
@@ -2980,12 +2974,10 @@
       "surface": "marketplace",
       "field": "dispute-reason",
       "terminus": "marketplace_disputes",
-      "display_fanout": 3,
+      "display_fanout": 1,
       "display_depth": 2,
       "displayed_on_pages": [
-        "founder-console",
-        "marketplace-admin",
-        "platform-actions"
+        "marketplace-admin"
       ],
       "displayed_via_views": [],
       "read_by_edge_fns": [],
@@ -2996,12 +2988,10 @@
       "surface": "marketplace",
       "field": "dispute-seller-name",
       "terminus": "marketplace_disputes",
-      "display_fanout": 3,
+      "display_fanout": 1,
       "display_depth": 2,
       "displayed_on_pages": [
-        "founder-console",
-        "marketplace-admin",
-        "platform-actions"
+        "marketplace-admin"
       ],
       "displayed_via_views": [],
       "read_by_edge_fns": [],

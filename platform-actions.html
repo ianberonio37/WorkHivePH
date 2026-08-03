@@ -142,6 +142,35 @@
       } catch (_) { /* empty-catch-allow: best-effort, never block the action on the audit write */ }
     }
 
+    /* SESSION-LIMITED, NOT ALL CLEAR. When the localhost bypass opened the console for someone who is
+       not a platform admin, RLS returns 0 rows with no error — so every queue below is empty for a
+       reason that has nothing to do with the work. The amber banner says so, but an empty state that
+       still reads "all clear" contradicts it in the same viewport, and "all clear" is the affirmative
+       claim: it asserts there is nothing waiting, which is exactly what we cannot know here. Found on
+       a live walk with 4 drafts pending and the queue reporting all clear. */
+    /* WHEN THE DATABASE REFUSES ON PURPOSE, SAY WHAT IT SAID. Our guards raise deliberate,
+       person-shaped messages ("The lowest price WorkHive lists is PHP500. This one is PHP120 — bundle
+       it with something, or raise the price"), and this page was throwing every one of them away
+       behind "Action failed. Try again." — which is also FALSE, because retrying a rule violation
+       fails identically forever. Found on a live walk of the new PHP500 floor: the guard was perfect
+       and the screen was useless.
+       23514 = check_violation, P0001 = a bare RAISE. Both mean a rule we wrote, deliberately, with a
+       message meant to be read. Anything else (a network fault, a constraint we did not author) keeps
+       the generic text, because a raw Postgres string is not an instruction. */
+    function refusalMessage(err) {
+      const code = String(err && (err.code || err.errcode) || '');
+      const msg = String(err && err.message || '').trim();
+      if ((code === '23514' || code === 'P0001') && msg && msg.length < 300) return msg;
+      return null;
+    }
+
+    let _sessionLimited = false;
+    function emptyText(allClear) {
+      return _sessionLimited
+        ? 'Not visible with this session — sign in as a platform admin to see what is waiting.'
+        : allClear;
+    }
+
     async function fetchMktModeration() {
       try {
         // `marketplace_disputes` dropped 2026-08-03 — retired ghost table (0 rows, no client writer).
@@ -187,7 +216,7 @@
       }
       const rows = m.rows || [];
       if (!rows.length) {
-        box.innerHTML = `<div class="mod-empty">No top-ups waiting. Filed references appear here for your GCash-app check.</div>`;
+        box.innerHTML = `<div class="mod-empty">${e(emptyText('No top-ups waiting. Filed references appear here for your GCash-app check.'))}</div>`;
       } else {
         box.innerHTML = rows.map(r => `
           <div class="mod-row">
@@ -231,9 +260,10 @@
           await refreshQueues();
         } catch (err) {
           console.error('top-up decision failed:', err);
-          showToast(whIsAuthFailure(err)
-            ? 'Your admin session expired, so nothing was changed. Sign in again to continue.'
-            : 'Could not record that decision, and nothing was minted. Try again.', 'error');
+          showToast(refusalMessage(err)
+            || (whIsAuthFailure(err)
+                ? 'Your admin session expired, so nothing was changed. Sign in again to continue.'
+                : 'Could not record that decision, and nothing was minted. Try again.'), 'error');
           btn.disabled = false;
         }
       });
@@ -257,7 +287,7 @@
       const lc = document.getElementById('mkt-listings-content');
       if (lc) {
         if (m._error) lc.innerHTML = `<div class="mod-empty">Couldn't load: ${e(m._error)}</div>`;
-        else if (!(m.drafts || []).length) lc.innerHTML = `<div class="mod-empty">No listings waiting: all clear.</div>`;
+        else if (!(m.drafts || []).length) lc.innerHTML = `<div class="mod-empty">${e(emptyText('No listings waiting: all clear.'))}</div>`;
         else lc.innerHTML = m.drafts.map(l => `
           <div class="mod-row">
             <div class="mod-main"><strong>${e(l.title || 'Untitled')}</strong>
@@ -289,7 +319,7 @@
               <div class="mod-actions">${parts.join('')}</div>
             </div>`;
           }).join('');
-          sc.innerHTML = rows || `<div class="mod-empty">Every seller is verified.</div>`;
+          sc.innerHTML = rows || `<div class="mod-empty">${e(emptyText('Every seller is verified.'))}</div>`;
         }
       }
       setCount('mkt-sellers-count', sellerCount, 'warn');
@@ -368,10 +398,13 @@
           // Same rule as the marketplace inquiry step: only say "try again" when trying again could
           // actually work. A 42501/401 here means the admin session expired or the role no longer
           // resolves, and retrying will fail identically until they sign in again.
+          const _refusal = refusalMessage(err);
           const _authFail = whIsAuthFailure(err);
-          showToast(_authFail
-            ? 'Your admin session expired, so nothing was changed. Sign in again to continue moderating.'
-            : 'Action failed. Try again.', 'error');
+          showToast(_refusal
+            ? _refusal
+            : _authFail
+              ? 'Your admin session expired, so nothing was changed. Sign in again to continue moderating.'
+              : 'Action failed. Try again.', 'error');
           btn.disabled = false;
         }
       });
@@ -392,6 +425,7 @@
          provider waiting on ₱300 renders exactly like an empty one. Found live: the page said "No
          top-ups waiting" while the row was there. On the queue that mints every credit in the economy,
          a false all-clear is the most expensive empty state the platform can show. Name it instead. */
+      _sessionLimited = !realAdmin;
       if (!realAdmin) {
         const note = document.getElementById('local-bypass-note');
         note.hidden = false;

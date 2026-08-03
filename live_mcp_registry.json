@@ -4784,8 +4784,10 @@
    "state": "branch",
    "branch": "the verify queue is reachable by a real click, not merely present in the DOM",
    "oracle": "the Verify button is >=44px AND document.elementFromPoint at its centre returns the button itself (scroll it into view first) -- this queue mints every credit in the economy and lived on a fully-covered page until 2026-08-03, while five specs passed by calling its handler",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    "WALKED LIVE 2026-08-03 (platform-actions.html, signed in as the platform admin). Against a REAL pending row (PHP300, ref 1005556667770, Pablo Aguilar Mechanical Works): button height 44px, elementFromPoint at its centre returns the button itself, above the fold, accessible name 'Verify: mint credits' distinct from its sibling. FOUND+FIXED en route: this queue existed ONLY on founder-console.html, which is covered by #wh-retired-overlay (inset:0, z-index:100000) that nothing removes -- so no reachable screen could mint a credit. Lifted to platform-actions."
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-topup-false-allclear",
@@ -4798,8 +4800,10 @@
    "state": "branch",
    "branch": "a non-admin opens the console via the localhost bypass",
    "oracle": "the page states that the queues read empty because of the session, rather than rendering 'No top-ups waiting' while a real provider's money sits pending",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    "WALKED LIVE 2026-08-03, both branches. Signed in as a NON-admin the localhost bypass opens the console while RLS returns 0 rows with no error, so the queue rendered 'No top-ups waiting' while that PHP300 sat pending -- a false all-clear on the queue that mints every credit. Fixed: an amber note now states the queues read empty because of the session. Verified hidden for a real admin (count 1, row visible) and shown when signed out."
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-topup-rejected",
@@ -4938,8 +4942,12 @@
    "state": "branch",
    "branch": "a provider with a negative balance tries to list",
    "oracle": "the listing is blocked WITH the reason and the amount needed -- never a bare 'Save failed'",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    "WALKED LIVE 2026-08-03 (platform-actions.html, real admin, REAL button clicks). Approving a PHP600 listing whose seller held 0 credits refused with: 'Listing needs 60 credits held (10% of the price) and you have 0 available. The credits are not a fee - they come back in full if it does not sell, and go to your buyer if it does.' Then funded the seller and the same click approved: status published, reservation held at exactly PHP60. Probe rows deleted.",
+    "DEFECT FOUND AND FIXED BY THIS WALK: the page discarded every deliberate refusal behind 'Action failed. Try again.' -- which is also false, since retrying a rule violation fails identically. Two carefully-worded guard messages were invisible (this one, and the new PHP500 floor: 'The lowest price WorkHive lists is PHP500. This one is PHP120 - bundle it with something, or raise the price'). refusalMessage() now surfaces 23514/P0001 verbatim; anything else keeps the generic text, because a raw Postgres string is not an instruction.",
+    "SECOND DEFECT: with 4 drafts pending, a non-admin session rendered 'No listings waiting: all clear' -- the amber bypass banner said the queues read empty regardless, and the queue contradicted it in the same viewport. Empty states are now session-aware ('Not visible with this session')."
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-commission-zero",
@@ -4980,8 +4988,10 @@
    "state": "branch",
    "branch": "the order/escrow/listing-dispute lifecycle is gone",
    "oracle": "no console renders an order/escrow/listing-dispute queue, no orphaned loader survives, and MK13 stays at 0 -- assert the RETIREMENT, since this surface is overlay-covered",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    "WALKED LIVE 2026-08-03 (founder-console DOM after a real reload). No order/escrow/listing-dispute queue renders on either console; mkt-disputes-content is absent; body text contains none of 'Open disputes' / 'Total orders' / 'Trust score' / 'escrow' / 'Sales 30d'. MK13 0 findings. The pulse now reads the truth view: 21 published, PHP1,667,408 listed, 3 sold, 3 awaiting review, 11 sellers. No orphaned loader survived -- the resolve-writer and the empty .card wrapper went too."
+   ]
   },
   {
    "id": "LM-R-money-lifecycle-window-buyer-told",
