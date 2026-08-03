@@ -2,7 +2,7 @@
 name: table-rls-marketplace_sellers
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_sellers
-source_sha: 9728b0cd9fb7bad0
+source_sha: 89332daf5c4a9597
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -18,6 +18,7 @@ Policies:
 - `mkt_sellers_insert` [INSERT · roles=public] USING=`∅` CHECK=`(auth_uid = auth.uid())`
 - `marketplace_sellers_grafana_read` [SELECT · roles=grafana_reader] USING=`true` CHECK=`∅`
 - `mkt_sellers_read` [SELECT · roles=public] USING=`(auth.uid() IS NOT NULL)` CHECK=`∅`
+- `mkt_sellers_read_anon` [SELECT · roles=anon] USING=`(EXISTS ( SELECT 1 FROM marketplace_listings l WHERE ((l.seller_name = marketplace_sellers.worker_name) AND (l.status = ` CHECK=`∅`
 - `mkt_sellers_update` [UPDATE · roles=public] USING=`((auth_uid = auth.uid()) OR is_marketplace_admin())` CHECK=`((auth_uid = auth.uid()) OR is_marketplace_admin())`
 
 Guard triggers: `trg_guard_seller_trust`, `trg_text_caps_mkt_sellers`

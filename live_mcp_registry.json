@@ -1113,8 +1113,25 @@
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "critical-fixed",
+     "title": "an anonymous visitor could TRUNCATE 140 tables - RLS is never consulted for TRUNCATE",
+     "measured": "as anon, rolled back: `truncate table public.marketplace_sellers cascade` SUCCEEDED, table read 0 rows. 140 tables anon-truncatable, 142 for authenticated, ~104,000 rows.",
+     "why_gates_missed_it": "validate_unprotected_write_grant requires RLS behind any write grant - correct for INSERT/UPDATE/DELETE, INERT for TRUNCATE. marketplace_sellers has RLS on and passed cleanly.",
+     "fix": "mig 20260803000028 revokes schema-wide + ALTER DEFAULT PRIVILEGES; gate `no-client-truncate` locks it. storage.* TRACKED (postgres is not superuser and cannot assume supabase_storage_admin) and printed every run.",
+     "found_via": "G-trust walk -> badges all wrong -> read policy signed-in-only -> audit the writes"
+    },
+    {
+     "severity": "defect-fixed",
+     "title": "every seller trust signal was invisible to anonymous visitors",
+     "measured": "Bryan Garcia is verified=true, sales=1 in the DB; anon saw verified=false, sales=0, tier=null. 0 Verified badges and 9 Bronze on the page, while the page's own source chip promises 'ID-verified sellers only in results'.",
+     "cause": "v_marketplace_listings_truth is security_invoker, so its join to marketplace_sellers runs as the caller, and mkt_sellers_read is USING (auth.uid() IS NOT NULL). COALESCE turned the NULLs into a confident false and a confident 0 - not an error, just plausible wrong signals.",
+     "fix": "anon row policy scoped to sellers WITH a published listing (not USING(true), which would have regressed the RLS ratchet), plus a column grant limited to the public signals after revoking the table-level SELECT - a column grant is a no-op while a table grant stands. The card now renders the STORED tier instead of recomputing 11/51 in JavaScript, which duplicated a per-hive knob.",
+     "verified_live": "verified badges 0 -> 3; 9 of 9 cards agree with the DB on tier and verification"
+    }
+   ]
   },
   {
    "id": "LM-G-trust-market-anon-empty",
@@ -1633,8 +1650,22 @@
    "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
    "state": "populated",
    "oracle": "the surface renders real rows and every visible number matches its source of truth",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "defect-fixed",
+     "title": "the credits explanation shipped in a title= only - invisible on touch, unreliable for a screen reader",
+     "measured": "chip had title= and NO aria-label (onlyTitle: true). There is no hover on a phone.",
+     "why_it_matters": "This chip was added TODAY specifically because 'credits unexplained' was 4.7% of all simulated journey failures. Explaining them only to desktop mouse users is a strange way to fix that - and it is the mirror of the aria-label-only trap already banked in this codebase: one channel is not coverage.",
+     "fix": "aria-label carries the sentence, role=note, title kept for hover, and the VISIBLE text keeps the fact ('PHP500.00 credits back') so no channel is load-bearing alone.",
+     "verified_live": "aria-label present and read back from the rendered chip; visible text still carries the amount"
+    },
+    {
+     "severity": "pass",
+     "title": "focus is visible on every sampled control",
+     "measured": "40 of 89 focusable elements sampled; 0 without an outline or box-shadow on focus"
+    }
+   ]
   },
   {
    "id": "LM-K-a11y-market-anon-empty",

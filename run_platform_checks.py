@@ -535,6 +535,14 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "no-client-truncate",
+        "script":  "tools/validate_no_client_truncate.py",
+        "args":    [],
+        "label":   "NO CLIENT TRUNCATE - RLS IS NEVER CONSULTED FOR TRUNCATE, so the grant is the only control. FOUND 2026-08-03 by the live-MCP flywheel, three steps from where it started: walking G-trust as an anonymous visitor showed every seller as an unverified Bronze; the read policy turned out to be signed-in-only; widening the READ meant auditing the WRITES; and the write privileges included TRUNCATE. Proven as `anon` in a rolled-back transaction - `truncate table public.marketplace_sellers cascade` SUCCEEDED and the table read 0 rows afterwards. Every seller on the platform, removed by someone who never signed in. Blast radius measured at the time: 140 tables anon-truncatable, 142 for authenticated, ~104,000 rows. WHY EVERY EXISTING GATE MISSED IT: validate_unprotected_write_grant holds 'a base table may grant an end-user write verb ONLY IF row-level security is enabled on it', which is correct for INSERT/UPDATE/DELETE and INERT for TRUNCATE, because RLS is not consulted for it at all - marketplace_sellers has RLS enabled with a full policy set, so it passed that gate cleanly while an anon TRUNCATE emptied it. The July sweep had even flagged the shape in its own notes (an anon TRUNCATE on marketplace_listings failed only with 0A000 'referenced in a foreign key constraint', a coincidence of the schema rather than a control) - marketplace_sellers had no such FK, so nothing stood there. Closed by migration 20260803000028 for the public schema plus ALTER DEFAULT PRIVILEGES so new tables cannot re-open it. The storage.* grants are TRACKED rather than enforced and printed every run: they are owned by supabase_storage_admin, postgres is not superuser in this stack and cannot `set role` to it, so no migration this project writes can revoke them - closing those needs a Supabase-side superuser action. Teeth: re-granting TRUNCATE on any public table makes this FAIL naming that exact table; selftest proves it enforces the public schema, tracks the vendor residual rather than hiding it, and stays quiet when clean.",
+        "group":   "Security",
+        "severity": "fail",
+    },
+    {
         "id":      "credit-guards-refuse",
         "script":  "tools/validate_credit_guards_refuse.py",
         "args":    [],

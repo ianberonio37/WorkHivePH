@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:640-files
-source_sha: 674ae989ce92a40b
+source: memory-curated:641-files
+source_sha: 3a5f3d5a313d17ba
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (640 durable topic files)
+## memory · curated auto-memory (641 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=261 · project=290 · reference=89
+**By type:** feedback=262 · project=290 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -221,6 +221,7 @@ Entries (name · type · sha):
 - `feedback_retrieve_first_no_workflow_for_known_knowledge` · feedback · b758fa87ccfc4bc2
 - `feedback_reveal_then_sweep` · feedback · 5d8bd29f948c0657
 - `feedback_review_ripple_first` · feedback · 1aef70243094cd25
+- `feedback_rls_is_never_consulted_for_truncate` · feedback · ae4c456466239ca3
 - `feedback_rls_probe_needs_the_role_not_just_claims` · feedback · 927d71b637b841bb
 - `feedback_roadmap_percent_is_the_anti_drift_compass` · feedback · fabf57776225b1bb
 - `feedback_rpc_overload_pgrst203_kills_endpoint` · feedback · d5e03cfb65d06cdc
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_rigorous_companion_flywheel_2026_05_26` · project · 8dc8c64554a7b2b9
 - `project_rls_decision` · project · cc16dc52616e9cfe
 - `project_schema_coverage_validator` · project · 29f0119607107118
-- `project_screenshot_alignment_grounding_2026_07_05` · project · 216b4922cbbaa691
-- … +140 more (all included in the fingerprint)
+- … +141 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

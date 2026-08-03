@@ -1870,7 +1870,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   ============================================================ */
   function cardHtml(item) {
     const e   = escHtml;
-    const tier = tierOf(item.completed_sales);
+    /* THE STORED tier, not a recomputed one. tierOf() hardcodes 11/51 in JavaScript while the
+       thresholds are PER-HIVE knobs (tier_silver_sales / tier_gold_sales) with floors, and a hive
+       may make its own sellers work HARDER, never easier. So the moment any hive raises a
+       threshold this card would award gold at 51 while the database says silver - on the
+       marketplace's headline trust signal, computed from constants that duplicate a governed
+       value. They agree today only because every seller is bronze and no hive has moved a knob
+       (both measured). The truth view already publishes ms.tier as seller_tier; it simply was
+       never selected. tierOf() stays as the fallback for a payload that lacks it. */
+    const tier = String(item.seller_tier || tierOf(item.completed_sales)).toLowerCase();
     const hasImg   = !!item.image_url;
     const hasPrice = item.price != null && Number(item.price) > 0;
 
@@ -1911,7 +1919,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               ? `<span class="cat-chip" style="display:inline-flex;align-items:center;gap:3px;"><span class="ic ic-location" aria-hidden="true"></span>${e(item.location)}</span>`
               : ''}
             ${(() => { const cb = creditsBack(item.price); return cb
-              ? `<span class="cat-chip credits-back" title="You get ${e(fmtPrice(cb))} in WorkHive Credits when this job is done. 1 credit = ₱1, and you spend them on your next booking.">${e(fmtPrice(cb))} credits back</span>`
+              /* aria-label AS WELL AS title. The explanation shipped in a title= only, which is not
+                 reliably announced by a screen reader and does not exist at all on touch - there is no
+                 hover on a phone. So the one place credits were explained on the discovery surface was
+                 visible to desktop mouse users and nobody else, which is a strange way to fix the 4.7%
+                 of simulated journeys that died on "credits unexplained". The visible text carries the
+                 fact; the label carries the sentence. */
+              ? `<span class="cat-chip credits-back" role="note"
+                       aria-label="${e(fmtPrice(cb))} in WorkHive Credits back when this job is done. 1 credit equals 1 peso, and you spend them on your next booking."
+                       title="You get ${e(fmtPrice(cb))} in WorkHive Credits when this job is done. 1 credit = ₱1, and you spend them on your next booking.">${e(fmtPrice(cb))} credits back</span>`
               : ''; })()}
           </div>
           <div class="card-footer">
@@ -2191,7 +2207,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try {
       let q = db
         .from('v_marketplace_listings_truth')
-        .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number,status')
+        .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
         .eq('status', 'published')
         .eq('section', _section)
         .order('created_at', { ascending: false })
@@ -2317,7 +2333,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       .then(({ error }) => { if (error) console.warn('view inc:', error.message); });
 
     const e    = escHtml;
-    const tier = tierOf(item.completed_sales);
+    /* THE STORED tier, not a recomputed one. tierOf() hardcodes 11/51 in JavaScript while the
+       thresholds are PER-HIVE knobs (tier_silver_sales / tier_gold_sales) with floors, and a hive
+       may make its own sellers work HARDER, never easier. So the moment any hive raises a
+       threshold this card would award gold at 51 while the database says silver - on the
+       marketplace's headline trust signal, computed from constants that duplicate a governed
+       value. They agree today only because every seller is bronze and no hive has moved a knob
+       (both measured). The truth view already publishes ms.tier as seller_tier; it simply was
+       never selected. tierOf() stays as the fallback for a payload that lacks it. */
+    const tier = String(item.seller_tier || tierOf(item.completed_sales)).toLowerCase();
     const titleEl = document.getElementById('title-sheet-detail');
     if (titleEl) titleEl.textContent = item.section.charAt(0).toUpperCase() + item.section.slice(1) + ' Listing';
 
@@ -4067,7 +4091,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         try {
           const { data } = await db
             .from('v_marketplace_listings_truth')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number,status')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
             .eq('id', payload.new.id)
             .eq('status', 'published')
             .eq('section', _section)
@@ -4276,7 +4300,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!_listings.some(l => l.id === lid)) {
         try {
           const { data: one } = await db.from('v_marketplace_listings_truth')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number,status')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
             .eq('id', lid).eq('status', 'published').maybeSingle();
           if (one) _listings.push(one);
         } catch (_) { /* empty-catch-allow: best-effort stage; detail may still render from cache */ }
@@ -4324,7 +4348,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (!_listings.some(l => l.id === deepListing)) {
           const { data: one } = await db
             .from('v_marketplace_listings_truth')
-            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,rating_avg,image_url,created_at,part_number,status')
+            .select('id,title,description,section,category,condition,price,location,seller_name,seller_verified,completed_sales,seller_tier,rating_avg,image_url,created_at,part_number,status')
             .eq('id', deepListing)
             .eq('status', 'published')
             .maybeSingle();

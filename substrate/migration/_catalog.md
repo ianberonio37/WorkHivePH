@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:506
-source_sha: 3910405e7a17efea
+source: dir:supabase/migrations:508
+source_sha: ef3b671a2b0ee1c6
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (506 migrations)
+## migration · catalog (508 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260712000009_v_project_truth_maintenance_nature` — (misc DDL/DML)
-- `20260712000010_logbook_loto_permit` — tables:logbook
 - `20260712000011_inventory_txn_hive_scope_write_guard` — policies:inventory_transactions_write · fns:inventory_sync_balance_from_ledger · tables:inventory_transactions
 - `20260712000012_pm_hive_scope_write_guard` — policies:pm_assets_write,pm_completions_write,pm_scope_items_write
 - `20260712000013_intelligence_write_guard` — policies:asset_nodes_write,asset_risk_scores_delete_locked,asset_risk_scores_hive_rw,asset_risk_scores_insert_locked,asset_risk_scores_read,asset_risk_scores_update_locked
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260803000024_a_read_only_view_holding_write_verbs` — (misc DDL/DML)
 - `20260803000025_register_the_credit_economy_in_the_canonical_registry` — (misc DDL/DML)
 - `20260803000026_thirty_registrations_that_never_landed` — (misc DDL/DML)
+- `20260803000027_the_trust_signals_were_invisible_to_the_people_they_persuade` — policies:mkt_sellers_read_anon
+- `20260803000028_anon_could_truncate_140_tables` — (misc DDL/DML)
 
 (showing last 200)
 
