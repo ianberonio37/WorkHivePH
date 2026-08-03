@@ -120,15 +120,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -225,15 +226,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "a FAILED read renders an error, never the first-run invitation (a failed read and an empty result are the same thing to a row count, and opposite things to a person)",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -257,15 +259,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -399,15 +402,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -483,15 +487,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -567,15 +572,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -663,15 +669,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -731,15 +738,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -789,15 +797,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -847,15 +856,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -905,15 +915,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "d717d1e340ec36c6",
-    "walked_at": "2026-08-04"
+    "sha": "fcfd98fefff56ec7",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -963,15 +974,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "d717d1e340ec36c6",
-    "walked_at": "2026-08-04"
+    "sha": "fcfd98fefff56ec7",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1021,15 +1033,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "d717d1e340ec36c6",
-    "walked_at": "2026-08-04"
+    "sha": "fcfd98fefff56ec7",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1105,15 +1118,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1189,15 +1203,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1247,15 +1262,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1305,15 +1321,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1363,15 +1380,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1421,15 +1439,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1479,15 +1498,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1537,15 +1557,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1595,15 +1616,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1653,15 +1675,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1717,15 +1740,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1813,15 +1837,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1871,15 +1896,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -1943,15 +1969,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2001,15 +2028,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2059,15 +2087,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2117,15 +2146,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2175,15 +2205,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2233,15 +2264,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2291,15 +2323,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2349,15 +2382,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2407,15 +2441,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2471,15 +2506,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2519,15 +2555,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2577,15 +2614,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2635,15 +2673,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2693,15 +2732,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "d717d1e340ec36c6",
-    "walked_at": "2026-08-04"
+    "sha": "fcfd98fefff56ec7",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2751,15 +2791,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "d717d1e340ec36c6",
-    "walked_at": "2026-08-04"
+    "sha": "fcfd98fefff56ec7",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2809,15 +2850,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "d717d1e340ec36c6",
-    "walked_at": "2026-08-04"
+    "sha": "fcfd98fefff56ec7",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -2872,15 +2914,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -3048,15 +3091,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -3218,15 +3262,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -3276,15 +3321,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -3666,15 +3712,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -3724,15 +3771,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -3782,15 +3830,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -3840,15 +3889,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -3898,15 +3948,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -3956,15 +4007,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4014,15 +4066,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4072,15 +4125,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4130,15 +4184,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4196,15 +4251,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4228,15 +4284,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4260,15 +4317,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4292,15 +4350,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4324,15 +4383,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4356,15 +4416,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4733,15 +4794,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4765,15 +4827,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4797,15 +4860,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4829,15 +4893,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4861,15 +4926,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4893,15 +4959,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4925,15 +4992,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4957,15 +5025,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -4995,15 +5064,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -5677,15 +5747,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -5800,15 +5871,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -5922,15 +5994,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6050,15 +6123,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6166,15 +6240,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6294,15 +6369,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6404,15 +6480,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6514,15 +6591,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6630,15 +6708,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6758,15 +6837,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6790,15 +6870,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6822,15 +6903,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6854,15 +6936,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6886,15 +6969,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "d717d1e340ec36c6",
-    "walked_at": "2026-08-04"
+    "sha": "fcfd98fefff56ec7",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6918,15 +7002,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "d717d1e340ec36c6",
-    "walked_at": "2026-08-04"
+    "sha": "fcfd98fefff56ec7",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6956,15 +7041,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -6994,15 +7080,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7044,15 +7131,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the spammer: the 3-live-listing cap HOLDS, and the refusal names both the limit and the way out ('sell one, or take one down to make room') - never a bare 'Save failed'",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7108,15 +7196,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the sybil: the second starter grant is refused with a reason a person can read, and the screen does NOT imply a remedy that does not exist (only ID verification touches this, so 'try again late",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7172,15 +7261,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the scam_provider: marking a job done does NOT settle it: the buyer gets a DATED deadline and an objection control that actually reaches `disputed` - the platform holds no money and cannot claw",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7236,15 +7326,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the scam_buyer: a bad-faith objection is bounded - it must reach adjudication rather than auto-refunding, and the provider must be able to see and answer it",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7300,15 +7391,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the colluder: EXACTLY 0 extracted, proven from the ledger rather than assumed: circulation delta is 0.00 across the pair, and the refusal explains that credits move only on a purchase",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7364,15 +7456,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the spammer: the 3-live-listing cap HOLDS, and the refusal names both the limit and the way out ('sell one, or take one down to make room') - never a bare 'Save failed'",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7422,15 +7515,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the sybil: the second starter grant is refused with a reason a person can read, and the screen does NOT imply a remedy that does not exist (only ID verification touches this, so 'try again late",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7486,15 +7580,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the scam_provider: marking a job done does NOT settle it: the buyer gets a DATED deadline and an objection control that actually reaches `disputed` - the platform holds no money and cannot claw",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7550,15 +7645,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the scam_buyer: a bad-faith objection is bounded - it must reach adjudication rather than auto-refunding, and the provider must be able to see and answer it",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7608,15 +7704,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the colluder: EXACTLY 0 extracted, proven from the ledger rather than assumed: circulation delta is 0.00 across the pair, and the refusal explains that credits move only on a purchase",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7671,15 +7768,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the spammer: the 3-live-listing cap HOLDS, and the refusal names both the limit and the way out ('sell one, or take one down to make room') - never a bare 'Save failed'",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7729,15 +7827,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the sybil: the second starter grant is refused with a reason a person can read, and the screen does NOT imply a remedy that does not exist (only ID verification touches this, so 'try again late",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7787,15 +7886,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the scam_provider: marking a job done does NOT settle it: the buyer gets a DATED deadline and an objection control that actually reaches `disputed` - the platform holds no money and cannot claw",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7845,15 +7945,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the scam_buyer: a bad-faith objection is bounded - it must reach adjudication rather than auto-refunding, and the provider must be able to see and answer it",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7903,15 +8004,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth -- AND, because this is the colluder: EXACTLY 0 extracted, proven from the ledger rather than assumed: circulation delta is 0.00 across the pair, and the refusal explains that credits move only on a purchase",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -7961,15 +8063,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -8071,15 +8174,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -8181,15 +8285,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -8291,15 +8396,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -9441,15 +9547,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/community.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/community.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "community.html",
      "utils.js"
     ],
-    "sha": "ce65194b72751585",
-    "walked_at": "2026-08-04"
+    "sha": "4aa3236afcdcb320",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -9525,15 +9632,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/community.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/community.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "community.html",
      "utils.js"
     ],
-    "sha": "ce65194b72751585",
-    "walked_at": "2026-08-04"
+    "sha": "4aa3236afcdcb320",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -9609,15 +9717,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/achievements.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/achievements.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "achievements.html",
      "utils.js"
     ],
-    "sha": "b8f8ce892b0795d4",
-    "walked_at": "2026-08-04"
+    "sha": "640c5647606339db",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -9693,15 +9802,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/achievements.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/achievements.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "achievements.html",
      "utils.js"
     ],
-    "sha": "b8f8ce892b0795d4",
-    "walked_at": "2026-08-04"
+    "sha": "640c5647606339db",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -9777,15 +9887,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/public-feed.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/public-feed.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "public-feed.html",
      "utils.js"
     ],
-    "sha": "ad5623051c098271",
-    "walked_at": "2026-08-04"
+    "sha": "8f063aa1f1a2ab53",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -9861,15 +9972,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/public-feed.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/public-feed.html",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "public-feed.html",
      "utils.js"
     ],
-    "sha": "ad5623051c098271",
-    "walked_at": "2026-08-04"
+    "sha": "8f063aa1f1a2ab53",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -9945,15 +10057,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "d717d1e340ec36c6",
-    "walked_at": "2026-08-04"
+    "sha": "fcfd98fefff56ec7",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -10029,15 +10142,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
     "asserts": "the surface renders real rows and every visible number matches its source of truth",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller-profile.html",
      "utils.js"
     ],
-    "sha": "d717d1e340ec36c6",
-    "walked_at": "2026-08-04"
+    "sha": "fcfd98fefff56ec7",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -11042,15 +11156,15 @@
    "findings": [],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "NULL means the same thing on both sides of the trigger/view seam: service_knob(reward_max_per_listing) returns NULL meaning NO CAP, and the client must not read it through Number() (which yields 0 and inverts the rule).",
     "value_checked": true,
-    "checked": "Read the knob live from the browser: reward_max_per_listing = null, Number(null) = 0, correct reading = Infinity. Swept every client site that reads a knob through Number(x.data): 3 sites. marketplace.html:1214/1216 read pct and min from service_knob_pct, which has a COALESCE fallback for EVERY key (verified live: reward_pct = 10.00, reward_spend_cap_pct = 10.00), so a NULL cannot arrive there. marketplace.html:3902 reads reward_spend_cap_pct, same function, same protection. The only NULL-meaningful knob is reward_max_per_listing via service_knob, whose function body says \"NO FALLBACK. NULL = no cap (mig 35, Ian rule)\" — one real site, fixed in e0a2f2ba, verified by 9 chips each rendering 10% of their OWN price.",
+    "checked": "Read the knob live from the browser: reward_max_per_listing = null, Number(null) = 0, correct reading = Infinity. Swept every client site that reads a knob through Number(x.data): 3 sites. marketplace.html:1214/1216 read pct and min from service_knob_pct, which has a COALESCE fallback for EVERY key (verified live: reward_pct = 10.00, reward_spend_cap_pct = 10.00), so a NULL cannot arrive there. marketplace.html:3902 reads reward_spend_cap_pct, same function, same protection. The only NULL-meaningful knob is reward_max_per_listing via service_knob, whose function body says \"NO FALLBACK. NULL = no cap (mig 35, Ian rule)\" — one real site, fixed in e0a2f2ba, verified by 9 chips each rendering 10% of their OWN price. RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface.",
     "depends_on": [
      "marketplace.html",
      "marketplace-seller.html"
     ],
-    "sha": "ac22c5b218da9d7f",
+    "sha": "1aae9fcc6fc848cf",
     "walked_at": "2026-08-04"
    }
   },
@@ -16933,15 +17047,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "wallet delta == the top-up amount, exactly one `topup` ledger row, and the provider's card shows it on a RELOAD rather than only after a hand-called refresh",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -17017,15 +17132,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/platform-actions.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/platform-actions.html",
     "asserts": "no credits minted, and it cannot later be flipped to verified",
     "value_checked": true,
     "depends_on": [
      "platform-actions.html",
      "utils.js"
     ],
-    "sha": "1145518c7253faee",
-    "walked_at": "2026-08-04"
+    "sha": "331e80cece3b8502",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -17101,15 +17217,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "acceptance is REFUSED and the message names both the amount needed and the amount held, so the provider can act on it — 'no credits, no listing' applies to services too",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -17185,15 +17302,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the spent credits return to the buyer (mig 29), bounded by what the provider still holds",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -17218,15 +17336,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the buyer is still made whole, the provider floors at 0, and the shortfall is recorded as absorbed rather than silently dropped",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -17253,15 +17372,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace-seller.html",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace-seller.html",
     "asserts": "the provider is told in a sentence they can act on, not a raw constraint error",
     "value_checked": true,
     "depends_on": [
      "marketplace-seller.html",
      "utils.js"
     ],
-    "sha": "88dd2a66f82bb25a",
-    "walked_at": "2026-08-04"
+    "sha": "fc0d314cb9bc7c75",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -17305,15 +17425,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "no `commission` ledger row is written AND the founder console shows no 'Earned revenue' tile -- gone, not sitting at zero",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -17333,15 +17454,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "no `cashback` row AND the word 'cashback' appears nowhere user-facing; a buyer meets exactly ONE reward number",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -17383,15 +17505,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "a push fires to the BUYER, and the row states the deadline AND the consequence -- the date shown must equal v_service_request_truth.objection_deadline, never a client-side +3 days",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   },
   {
@@ -17500,15 +17623,16 @@
    ],
    "evidence": {
     "kind": "live-walk",
-    "ref": "2026-08-04 live MCP session · /workhive/marketplace.html?section=services",
+    "ref": "2026-08-04 live MCP re-walk · /workhive/marketplace.html?section=services",
     "asserts": "the spammer is capped with a reason they can act on, the sybil is refused a second starter grant, a collusive pair extracts EXACTLY 0, and a scam provider's job cannot pass the window unnoticed",
     "value_checked": true,
     "depends_on": [
      "marketplace.html",
      "utils.js"
     ],
-    "sha": "125d263dac22c90f",
-    "walked_at": "2026-08-04"
+    "sha": "70af583f180eb471",
+    "walked_at": "2026-08-04",
+    "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
    }
   }
  ]
