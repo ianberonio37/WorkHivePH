@@ -391,6 +391,20 @@
         <input class="wh-input" type="text" id="edit-location" placeholder="City, Province" />
       </div>
     </div>
+
+    <!-- WHAT THIS LISTING HOLDS — the seller's half of the credit rule, at the moment they set the price.
+         Before this, a seller learned the 10% only when an ADMIN pressed Approve days later and a guard
+         fired: the person who has to act on the rule was the last to hear it. The buyer already gets this
+         treatment on the confirm-payment sheet; this is the same courtesy on the selling side.
+         role=status + aria-live so a screen-reader user hears the figure change when they type a price. -->
+    <div class="form-group">
+      <div id="li-hold" role="status" aria-live="polite"
+           style="border:1px solid var(--wh-border,rgba(255,255,255,.14)); border-radius:.6rem;
+                  padding:.75rem .9rem; font-size:.82rem; background:rgba(255,255,255,.03);">
+        <div id="li-hold-rows"></div>
+        <div id="li-hold-note" style="opacity:.8; margin-top:.5rem; line-height:1.45;"></div>
+      </div>
+    </div>
     <div class="form-group">
       <label class="form-label" for="edit-contact">Contact</label>
       <input class="wh-input" type="text" id="edit-contact" autocomplete="tel" placeholder="Phone or email" />
@@ -690,6 +704,132 @@
      computed by seller_credit_balance(). A stored "available" column would drift from the reservations
      the moment one is returned, and this platform has been bitten by trust numbers standing on nothing
      often enough that the rule is now automatic. */
+  /* ── LIVE CREDIT MATH ON THE LISTING FORM ──────────────────────────────────────────────────────
+     Ian, 2026-08-03: "when you list the price then automatically there will be equivalent credits
+     needed, then at the bottom the total, the same manner as the buyers'."
+
+     THE NUMBERS COME FROM THE DATABASE, not from a 10% written here. listing_reservation_amount() and
+     service_knob('min_listing_price') are the SAME functions the publish guard calls, so the form
+     cannot quote a figure the guard then disagrees with — the mistake that let commission live in
+     three places and charge from the one nobody was reading. Debounced, so typing a price costs at
+     most one round-trip per pause, not one per keystroke.
+
+     The states below are the ones a seller is actually in. Each says what is true AND what to do;
+     a panel that only reports a shortfall leaves them stuck on their own form. */
+  let _holdSeq = 0, _holdTimer = null;
+  let _holdState = { ok: false, reason: 'idle' };   // read by the save handler
+
+  const _peso = n => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2,
+                                                                   maximumFractionDigits: 2 });
+
+  function _holdRow(label, value, opts) {
+    const o = opts || {};
+    return '<div style="display:flex; justify-content:space-between; gap:1rem;'
+         + (o.rule ? 'border-top:1px solid rgba(255,255,255,.16); margin-top:.4rem; padding-top:.4rem;' : '')
+         + (o.strong ? 'font-weight:800;' : '') + '">'
+         + '<span>' + escHtml(label) + '</span>'
+         + '<span style="font-variant-numeric:tabular-nums;' + (o.color ? 'color:' + o.color + ';' : '') + '">'
+         + escHtml(value) + '</span></div>';
+  }
+
+  async function updateListingHold() {
+    const rowsEl = document.getElementById('li-hold-rows');
+    const noteEl = document.getElementById('li-hold-note');
+    if (!rowsEl || !noteEl) return;
+    const seq = ++_holdSeq;
+
+    const raw = (document.getElementById('edit-price')?.value || '').trim();
+    const price = raw === '' ? null : Number(raw);
+
+    // 1. NEGOTIABLE. No price means no percentage of it — say the rule rather than a number, and do
+    //    not block: a negotiable listing is legitimate, it just cannot be priced yet.
+    if (price === null || !isFinite(price)) {
+      rowsEl.innerHTML = _holdRow('Credits held to publish', 'set a price to see it', { color: 'var(--wh-text-dim,#9aa4b2)' });
+      noteEl.textContent = 'Publishing holds 10% of the price in credits. A negotiable listing has no '
+                         + 'price yet, so the hold is worked out once you set one.';
+      _holdState = { ok: true, reason: 'negotiable' };
+      return;
+    }
+
+    let floor = 500, hold = null, bal = null, err = null;
+    try {
+      const [floorRes, holdRes, balRes] = await Promise.all([
+        db.rpc('service_knob', { p_hive: whHiveId ? whHiveId() : null, p_key: 'min_listing_price' }),
+        db.rpc('listing_reservation_amount', { p_hive: whHiveId ? whHiveId() : null, p_price: price }),
+        db.rpc('seller_credit_balance', { p_seller: WORKER_NAME }),
+      ]);
+      if (floorRes.error || holdRes.error || balRes.error) throw (floorRes.error || holdRes.error || balRes.error);
+      floor = Number(floorRes.data ?? 500);
+      hold  = Number(holdRes.data ?? 0);
+      const row = Array.isArray(balRes.data) ? balRes.data[0] : balRes.data;
+      bal = Number(row?.available || 0);
+    } catch (e) { err = e; }
+
+    if (seq !== _holdSeq) return;   // a newer keystroke already won; do not paint a stale figure
+
+    // 2. UNKNOWN. Offline or refused: show that we do not know, never a stale or invented number.
+    if (err) {
+      rowsEl.innerHTML = _holdRow('Credits held to publish', 'can’t check right now',
+                                  { color: 'var(--wh-orange,#f7a21b)' });
+      noteEl.textContent = 'Your wallet could not be read, so this figure is unknown rather than zero. '
+                         + 'It will be checked again when you save.';
+      _holdState = { ok: true, reason: 'unknown' };   // do not block on OUR failure to read
+      return;
+    }
+
+    // 3. BELOW THE FLOOR. Refuse here, on the form, with the number — not days later on an admin's screen.
+    if (price < floor) {
+      rowsEl.innerHTML =
+        _holdRow('Your price', _peso(price)) +
+        _holdRow('Lowest price WorkHive lists', _peso(floor), { rule: true, strong: true,
+                                                               color: 'var(--wh-red,#f87171)' });
+      noteEl.innerHTML = '<strong>This cannot be published yet.</strong> Raise the price to '
+                       + escHtml(_peso(floor)) + ' or more, or bundle it with something. You can still '
+                       + 'save it as a draft.';
+      _holdState = { ok: false, reason: 'below_floor', floor: floor, price: price };
+      return;
+    }
+
+    const after = bal - hold;
+    const short = hold - bal;
+
+    // 4/5. THE TOTAL Ian asked for: price, the hold, and what the wallet looks like afterwards.
+    rowsEl.innerHTML =
+      _holdRow('Your price', _peso(price)) +
+      _holdRow('Credits held (10%)', '− ' + _peso(hold)) +
+      _holdRow('Your credits now', _peso(bal)) +
+      _holdRow(after >= 0 ? 'Credits left after publishing' : 'Short by',
+               after >= 0 ? _peso(after) : _peso(short),
+               { rule: true, strong: true,
+                 color: after >= 0 ? 'var(--wh-green,#34d399)' : 'var(--wh-orange,#f7a21b)' });
+
+    if (after >= 0) {
+      noteEl.textContent = 'The credits are not a fee. They come back in full if the listing does not '
+                         + 'sell, and go to your buyer if it does.';
+      _holdState = { ok: true, reason: 'funded' };
+    } else {
+      // 6. FIRST LISTING (wallet empty) needs the whole model, not just the shortfall.
+      noteEl.innerHTML = (bal <= 0
+          ? 'To list, you hold 10% of the price in credits. You buy credits from WorkHive by GCash, '
+            + 'and they are not spent: they come back in full if the listing does not sell, and go to '
+            + 'your buyer if it does. '
+          : '')
+        + 'Top up <strong>' + escHtml(_peso(short)) + '</strong> to publish this one. '
+        + '<a href="#credit-wallet" style="color:var(--wh-blue,#29b6d9);">Go to your wallet</a>';
+      _holdState = { ok: false, reason: 'short', short: short };
+    }
+  }
+
+  function scheduleListingHold() {
+    clearTimeout(_holdTimer);
+    _holdTimer = setTimeout(updateListingHold, 300);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('edit-price');
+    if (el) { el.addEventListener('input', scheduleListingHold); el.addEventListener('change', scheduleListingHold); }
+  });
+
   async function loadCreditWallet() {
     if (!WORKER_NAME) return;
     try {
@@ -1038,6 +1178,8 @@
     if (titleInput) titleInput.value      = item.title || '';
     if (descInput)  descInput.value       = ''; /* will set below after select render */
     if (priceInput) priceInput.value      = item.price || '';
+    // the panel must reflect THIS listing's price the moment the sheet opens, not the previous one's
+    updateListingHold();
     if (locInput)   locInput.value        = item.location || '';
     if (conInput)   conInput.value        = item.seller_contact || '';
     if (condWrap)   condWrap.style.display = item.section === 'parts' ? '' : 'none';
@@ -1079,6 +1221,16 @@
 
     if (!title || !desc) { showToast('Title and description are required.', 'error'); return; }
     if (!_priceRes.ok) { showToast(_priceRes.error, 'error'); document.getElementById('edit-price')?.focus(); return; }
+    /* The form already computed whether this can publish, from the same functions the guard uses. Saying
+       it HERE beats letting the seller submit and learn days later from an admin's rejection. A draft
+       below the floor is still allowed -- the rule is about publication, not about typing. */
+    if (_holdState && _holdState.reason === 'below_floor') {
+      showToast('The lowest price WorkHive lists is ' + _peso(_holdState.floor)
+                + '. This one is ' + _peso(_holdState.price) + ' — raise it, or bundle it with something.',
+                'error');
+      document.getElementById('edit-price')?.focus();
+      return;
+    }
 
     const btn = document.getElementById('btn-save-edit');
     if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
