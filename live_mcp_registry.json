@@ -4312,8 +4312,15 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "session_expiry",
    "oracle": "the session dies BETWEEN typing and submitting: the write is refused, the person is told their session expired and that NOTHING was sent, and 'try again' is not offered when retrying would fail identically",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "defect-fixed",
+     "title": "the money-in door showed \"JWT expired\" and never said whether the money reference was recorded",
+     "measured": "Killed the session BETWEEN typing and submitting on the money-in door: filled the GCash top-up form (PHP500, ref 9876543210123) and returned a 401 'JWT expired' to the insert. BEFORE: the provider read the raw string 'JWT expired' - meaningless to someone filing a GCash transfer, and it never said whether the reference had been recorded. On a money action that ambiguity IS the damage: they either re-file and create a duplicate, or assume it landed and wait for credits that are not coming. AFTER: 'Your session expired, so nothing was saved. Sign in again and redo this step.' - saysSessionExpired and saysNothingSaved both true, no raw JWT on screen, and the typed amount and reference are still in the fields so nothing has to be retyped. The duplicate branch was kept as-is: 'That reference number is already filed' is more specific than anything generic. Same half-applied-helper shape as the guard-sentence defect - whWriteError existed and this path did not call it. MEASURED AND NOT SWEPT: 115 further sites across 8 pages still pass a raw .message to showToast (project-manager 26, asset-hub 22, logbook 17, marketplace 13, marketplace-seller 13, hive 10, integrations 9, inventory 5). Those are internal CMMS surfaces where a technical string is less harmful and sometimes useful; recorded as a known class rather than claimed as fixed.",
+     "walked": "2026-08-04 · live MCP (Playwright), 401 injected between typing and submitting"
+    }
+   ]
   },
   {
    "id": "LM-U-recovery-market_svc-buyer-double_submit",
@@ -4377,8 +4384,15 @@
    "persona_note": "signed in, taking service hails",
    "state": "session_expiry",
    "oracle": "the session dies BETWEEN typing and submitting: the write is refused, the person is told their session expired and that NOTHING was sent, and 'try again' is not offered when retrying would fail identically",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "defect-fixed",
+     "title": "the money-in door showed \"JWT expired\" and never said whether the money reference was recorded",
+     "measured": "Killed the session BETWEEN typing and submitting on the money-in door: filled the GCash top-up form (PHP500, ref 9876543210123) and returned a 401 'JWT expired' to the insert. BEFORE: the provider read the raw string 'JWT expired' - meaningless to someone filing a GCash transfer, and it never said whether the reference had been recorded. On a money action that ambiguity IS the damage: they either re-file and create a duplicate, or assume it landed and wait for credits that are not coming. AFTER: 'Your session expired, so nothing was saved. Sign in again and redo this step.' - saysSessionExpired and saysNothingSaved both true, no raw JWT on screen, and the typed amount and reference are still in the fields so nothing has to be retyped. The duplicate branch was kept as-is: 'That reference number is already filed' is more specific than anything generic. Same half-applied-helper shape as the guard-sentence defect - whWriteError existed and this path did not call it. MEASURED AND NOT SWEPT: 115 further sites across 8 pages still pass a raw .message to showToast (project-manager 26, asset-hub 22, logbook 17, marketplace 13, marketplace-seller 13, hive 10, integrations 9, inventory 5). Those are internal CMMS surfaces where a technical string is less harmful and sometimes useful; recorded as a known class rather than claimed as fixed.",
+     "walked": "2026-08-04 · live MCP (Playwright), 401 injected between typing and submitting"
+    }
+   ]
   },
   {
    "id": "LM-U-recovery-market_svc-provider-double_submit",
@@ -4442,8 +4456,15 @@
    "persona_note": "signed in, browsing and hiring",
    "state": "session_expiry",
    "oracle": "the session dies BETWEEN typing and submitting: the write is refused, the person is told their session expired and that NOTHING was sent, and 'try again' is not offered when retrying would fail identically",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "defect-fixed",
+     "title": "the money-in door showed \"JWT expired\" and never said whether the money reference was recorded",
+     "measured": "Killed the session BETWEEN typing and submitting on the money-in door: filled the GCash top-up form (PHP500, ref 9876543210123) and returned a 401 'JWT expired' to the insert. BEFORE: the provider read the raw string 'JWT expired' - meaningless to someone filing a GCash transfer, and it never said whether the reference had been recorded. On a money action that ambiguity IS the damage: they either re-file and create a duplicate, or assume it landed and wait for credits that are not coming. AFTER: 'Your session expired, so nothing was saved. Sign in again and redo this step.' - saysSessionExpired and saysNothingSaved both true, no raw JWT on screen, and the typed amount and reference are still in the fields so nothing has to be retyped. The duplicate branch was kept as-is: 'That reference number is already filed' is more specific than anything generic. Same half-applied-helper shape as the guard-sentence defect - whWriteError existed and this path did not call it. MEASURED AND NOT SWEPT: 115 further sites across 8 pages still pass a raw .message to showToast (project-manager 26, asset-hub 22, logbook 17, marketplace 13, marketplace-seller 13, hive 10, integrations 9, inventory 5). Those are internal CMMS surfaces where a technical string is less harmful and sometimes useful; recorded as a known class rather than claimed as fixed.",
+     "walked": "2026-08-04 · live MCP (Playwright), 401 injected between typing and submitting"
+    }
+   ]
   },
   {
    "id": "LM-U-recovery-seller-buyer-double_submit",
@@ -4507,8 +4528,15 @@
    "persona_note": "signed in, taking service hails",
    "state": "session_expiry",
    "oracle": "the session dies BETWEEN typing and submitting: the write is refused, the person is told their session expired and that NOTHING was sent, and 'try again' is not offered when retrying would fail identically",
-   "status": "owed",
-   "findings": []
+   "status": "green",
+   "findings": [
+    {
+     "severity": "defect-fixed",
+     "title": "the money-in door showed \"JWT expired\" and never said whether the money reference was recorded",
+     "measured": "Killed the session BETWEEN typing and submitting on the money-in door: filled the GCash top-up form (PHP500, ref 9876543210123) and returned a 401 'JWT expired' to the insert. BEFORE: the provider read the raw string 'JWT expired' - meaningless to someone filing a GCash transfer, and it never said whether the reference had been recorded. On a money action that ambiguity IS the damage: they either re-file and create a duplicate, or assume it landed and wait for credits that are not coming. AFTER: 'Your session expired, so nothing was saved. Sign in again and redo this step.' - saysSessionExpired and saysNothingSaved both true, no raw JWT on screen, and the typed amount and reference are still in the fields so nothing has to be retyped. The duplicate branch was kept as-is: 'That reference number is already filed' is more specific than anything generic. Same half-applied-helper shape as the guard-sentence defect - whWriteError existed and this path did not call it. MEASURED AND NOT SWEPT: 115 further sites across 8 pages still pass a raw .message to showToast (project-manager 26, asset-hub 22, logbook 17, marketplace 13, marketplace-seller 13, hive 10, integrations 9, inventory 5). Those are internal CMMS surfaces where a technical string is less harmful and sometimes useful; recorded as a known class rather than claimed as fixed.",
+     "walked": "2026-08-04 · live MCP (Playwright), 401 injected between typing and submitting"
+    }
+   ]
   },
   {
    "id": "LM-U-recovery-seller-provider-double_submit",

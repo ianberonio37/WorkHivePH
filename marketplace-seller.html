@@ -1762,7 +1762,21 @@
     const { data, error } = await db.from('service_credit_topups').insert({
       account_type: 'provider', account_id: provId, payer_auth_uid: _authUid, amount: amt, gcash_ref: ref
     }).select('id');
-    if (error) { showToast(/duplicate|unique/i.test(error.message) ? 'That reference number is already filed' : error.message, 'error'); return; }
+    /* RAW `error.message` REACHED THE PROVIDER ON THE MONEY-IN DOOR (found 2026-08-04, U-recovery
+       session_expiry walk). Killing the session between typing and submitting made this print
+       "JWT expired" — meaningless to someone filing a PHP500 GCash transfer, and worse, it never
+       said whether the reference had been recorded. On a money action that ambiguity IS the damage:
+       they either re-file and create a duplicate, or assume it landed and wait for credits that are
+       not coming. whWriteError's auth branch says the one thing that matters — "Your session
+       expired, so NOTHING was saved. Sign in again and redo this step." The duplicate branch stays,
+       because "That reference number is already filed" is more specific than anything generic. */
+    if (error) {
+      showToast(/duplicate|unique/i.test(error.message)
+        ? 'That reference number is already filed'
+        : whWriteError(error, "Couldn't file the top-up. Nothing was sent — check your connection and try again."),
+        'error');
+      return;
+    }
     if (!data || !data.length) { showToast('Couldn\'t file the top-up. Try again.', 'error'); return; }
     showToast('Filed. Your credits appear once the founder verifies the transfer.');
     loadServices();
