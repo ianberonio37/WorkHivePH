@@ -1382,6 +1382,7 @@
         db.from('v_service_request_truth').select('*').in('status', SVC_ACTIVE.concat(SVC_FINISHED)).order('updated_at', { ascending: false }).order('id').limit(60)
       ]);
       if (provRes.error) throw provRes.error;
+      await svcRewardPct();   // warm the rate so the first paint already carries the hold
       const provs = provRes.data || [];
       const feed = feedRes.data || [];
       const mine = (jobsRes.data || []).filter(j => _svcMyIds.includes(j.matched_provider_id));
@@ -1521,6 +1522,32 @@
      P2P GCash + the 13-digit ref filed here; the founder verifies and a trigger mints.
      Blank number = the card still takes refs and points to the platform admin. */
   const SVC_GCASH_NUMBER = '0995 009 2416'; // founder-supplied (D6, Ian 2026-07-29)
+
+  /* WHAT TAKING THIS JOB COSTS, before the provider commits to it. Since mig 37 accepting a job
+     LOCKS 10% of its price in credits, exactly as publishing a listing does — and the Accept button
+     said nothing about that. The provider found out only when the guard refused them.
+     The RATE comes from the server (service_knob_pct), never a 10% written here, so it cannot drift
+     from what the guard charges. Fetched ONCE per load rather than per row: a 30-row feed does not
+     need 30 round-trips to render the same percentage. */
+  let _svcRewardPct = null;
+  async function svcRewardPct() {
+    if (_svcRewardPct != null) return _svcRewardPct;
+    try {
+      const { data } = await db.rpc('service_knob_pct',
+        { p_hive: (typeof whHiveId === 'function' ? whHiveId() : null), p_key: 'reward_pct' });
+      _svcRewardPct = Number(data);
+      if (!isFinite(_svcRewardPct)) _svcRewardPct = null;
+    } catch (_) { _svcRewardPct = null; /* unknown beats a guessed rate */ }
+    return _svcRewardPct;
+  }
+  function svcHoldHint(price) {
+    // Silent when the rate is unknown or the job has no price yet: a hold we cannot compute is not
+    // a hold we should invent, and "holds ₱0" would read as free.
+    if (_svcRewardPct == null || !(Number(price) > 0)) return '';
+    const hold = Math.round(Number(price) * _svcRewardPct) / 100;
+    if (!(hold > 0)) return '';
+    return ' · holds ' + _svcPeso(hold) + ' in credits';
+  }
   async function svcWalletHtml(provId, provName) {
     const e = escHtml;
     let bal = null, lines = [];
@@ -1674,7 +1701,8 @@
           '<div style="font-size:0.75rem;opacity:0.8;margin:0.2rem 0 0.5rem;">' +
           (f.catalog_category ? e(f.catalog_category) + ' · ' : '') + e(f.urgency || 'normal') + ' priority' +
           (f.distance_km != null ? ' · ' + Number(f.distance_km).toFixed(1) + ' km away' : '') +
-          (f.area_hint ? ' · ' + e(f.area_hint) : '') + ' · ' + rate + '</div>' +
+          (f.area_hint ? ' · ' + e(f.area_hint) : '') + ' · ' + rate +
+          e(svcHoldHint(f.catalog_rate != null ? f.catalog_rate : f.budget)) + '</div>' +
           (f.already_responded
             ? '<span style="font-size:0.8rem;opacity:0.75;">Responded. Waiting for the client</span>'
             : (f.mode === 'instant'
