@@ -277,8 +277,18 @@ def _read_single_baseline(name: str) -> int | None:
 
 
 def _baseline_to_validator(name: str) -> Path | None:
-    cand = ROOT / f"validate_{name}.py"
-    return cand if cand.exists() else None
+    """Validators live in BOTH places in this repo: the older ones at the root, the newer ones under
+    tools/. Looking only at the root meant a tools/ validator could never be re-run, so its rise was
+    filed as `unknown` and scored as rot on the conservative branch. live_mcp_bank tripped exactly
+    that on 2026-08-04: its baseline is a GREEN FLOOR, so 129 -> 192 is 63 more walked-and-evidenced
+    rows -- an improvement reported as a regression, which is the "a gate reddened because the code
+    improved" shape. With the path found, the existing machinery does the right thing on its own: the
+    re-run exits 0 and the rise classifies as adoption-ratchet. Nothing is loosened -- a validator
+    that actually FAILS at the new count still classifies `real` and still scores."""
+    for cand in (ROOT / f"validate_{name}.py", ROOT / "tools" / f"validate_{name}.py"):
+        if cand.exists():
+            return cand
+    return None
 
 
 def env_probe() -> bool:

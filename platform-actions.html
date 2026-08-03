@@ -430,7 +430,7 @@
         else lc.innerHTML = m.drafts.map(l => `
           <div class="mod-row">
             <div class="mod-main"><strong>${e(l.title || 'Untitled')}</strong>
-              <span class="mod-sub">${e(l.section || '')}${l.category ? ' · ' + e(l.category) : ''} · ${l.price != null ? '₱' + Number(l.price).toLocaleString() : 'price n/a'} · ${e(l.seller_name || '—')}</span></div>
+              <span class="mod-sub">${e(l.section || '')}${l.category ? ' · ' + e(l.category) : ''} · ${l.price != null ? '₱' + Number(l.price).toLocaleString() : 'price n/a'} · ${e(l.seller_name || '\u2014')}</span></div>
             <div class="mod-actions">
               <button class="mod-btn ok" data-mkt-act="approve-listing" data-id="${e(l.id)}">Approve</button>
               <button class="mod-btn no" data-mkt-act="reject-listing" data-id="${e(l.id)}">Reject</button>
@@ -595,16 +595,16 @@
 
       box.innerHTML =
         `<div class="mod-row"><div class="mod-main"><strong>${e(peso(liability))}</strong>
-           <span class="mod-sub">Credit liability — services owed, not profit</span></div></div>`
-      + `<div class="mod-row"><div class="mod-main"><strong>${e(cover === null ? '—' : cover.toFixed(2) + 'x')}</strong>
-           <span class="mod-sub">Liability cover — cash in vs credits owed; keep at or above 1.00</span></div></div>`
+           <span class="mod-sub">Credit liability: services owed, not profit</span></div></div>`
+      + `<div class="mod-row"><div class="mod-main"><strong>${e(cover === null ? '\u2014' : cover.toFixed(2) + 'x')}</strong>
+           <span class="mod-sub">Liability cover: cash in vs credits owed; keep at or above 1.00</span></div></div>`
       + (supply === null ? '' :
           `<div class="mod-row"><div class="mod-main"><strong>${e(num(supply))}</strong>
-             <span class="mod-sub">Total WorkHive Credits — the cap; lifetime liability cannot exceed it</span></div></div>`
+             <span class="mod-sub">Total WorkHive Credits: the cap; lifetime liability cannot exceed it</span></div></div>`
         + `<div class="mod-row"><div class="mod-main"><strong>${e(num(issued))}</strong>
-             <span class="mod-sub">Issued — minted into circulation so far</span></div></div>`
+             <span class="mod-sub">Issued: minted into circulation so far</span></div></div>`
         + `<div class="mod-row"><div class="mod-main"><strong>${e(num(supply - issued))}</strong>
-             <span class="mod-sub">Available to issue — still unissued in the treasury</span></div></div>`
+             <span class="mod-sub">Available to issue: still unissued in the treasury</span></div></div>`
         + `<div class="mod-row"><div class="mod-main"><strong>1 credit = ₱1</strong>
              <span class="mod-sub">Fixed, and never moves</span></div></div>`)
       + (liability <= 0

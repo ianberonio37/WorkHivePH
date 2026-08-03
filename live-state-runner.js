@@ -74,7 +74,7 @@ export async function run() {
     out.populated = {
       ok: s.len > 120 && s.doc <= 0 && s.junk === 0 && !ERR.test(s.t),
       len: s.len, docOverflow: s.doc, junk: s.junk, unclipped: s.over,
-      note: 'structural half only — number-vs-source-of-truth is checked by the psql-backed rows',
+      note: 'structural half only: number-vs-source-of-truth is checked by the psql-backed rows',
     };
   }
 

@@ -269,7 +269,7 @@
          so itself, persistently, with a way to retry. -->
     <div id="ps-gap-note" role="status" hidden
          style="margin:0.35rem 0 0;font-size:0.75rem;color:var(--wh-danger,#d9534f);">
-      Couldn't load these numbers, so they're showing as &mdash; rather than as zero.
+      Couldn't load these numbers, so they're showing as a dash rather than as zero.
       <button type="button" onclick="location.reload()"
               style="background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">Retry</button>
     </div>
@@ -693,7 +693,7 @@
      put them back. Same class as the empty-vs-error work elsewhere in this session, on the last
      surface that still had it. */
   const _readFailed = { listings: false, inquiries: false, seller: false };
-  const _statOrGap = (failed, value) => (failed ? '—' : String(value));
+  const _statOrGap = (failed, value) => (failed ? '\u2014' : String(value));
   let _listingsTotal  = 0;
 
   /* ── Load inquiries ─────────────────────────────────────────────────────── */
@@ -1435,7 +1435,7 @@
   /* The closed states were missing here as well as from the buckets, so even once a row rendered it
      would have printed the raw enum (`|| j.status`) — "cancelled_by_client" is not a sentence. */
   const SVC_STATUS_LABEL = { accepted: 'Accepted: head over', en_route: 'On the way', on_site: 'On site',
-    in_progress: 'Work in progress', completed: 'Marked done — waiting on the client',
+    in_progress: 'Work in progress', completed: 'Marked done, waiting on the client',
     settled: 'Settled', disputed: 'The client reported a problem',
     cancelled_by_client: 'The client cancelled', cancelled_by_provider: 'You cancelled this job',
     expired: 'Expired before anyone accepted' };
@@ -1690,7 +1690,7 @@
         /* A ledger line whose amount did not arrive used to read "commission +₱0" — a statement that
            the entry moved nothing, which is the most misleading thing a ledger can say. Absent now
            shows a gap and carries no sign; a real 0 still shows ₱0. */
-        lines.map(l => e(l.entry_type) + ' ' + (l.amount == null ? '—'
+        lines.map(l => e(l.entry_type) + ' ' + (l.amount == null ? '\u2014'
             : ((Number(l.amount) >= 0 ? '+' : '') + whFmtPeso(l.amount)))).join(' · ') + '</div>' : '') +
       /* MONEY YOU SENT MUST NOT VANISH. Filing a top-up said "Filed." and then showed nothing: no
          pending row, no amount, no time. The provider had sent real pesos to a personal GCash number
@@ -1832,7 +1832,7 @@
     if (error) {
       showToast(/duplicate|unique/i.test(error.message)
         ? 'That reference number is already filed'
-        : whWriteError(error, "Couldn't file the top-up. Nothing was sent — check your connection and try again."),
+        : whWriteError(error, "Couldn't file the top-up. Nothing was sent. Check your connection and try again."),
         'error');
       return;
     }
@@ -1890,7 +1890,7 @@
           + e(j.address || 'Site not given')
           + (j.client_worker_name ? ' · Client: ' + e(j.client_worker_name) : '')
           + '</div>'
-          + '<div style="font-size:0.75rem;opacity:0.9;">Talk to the client directly — that settles '
+          + '<div style="font-size:0.75rem;opacity:0.9;">Talk to the client directly, and that settles '
           + 'most of these faster than a review does.</div>'
           + '</div>';
       });
