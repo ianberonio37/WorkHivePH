@@ -1,5 +1,5 @@
 {
-  "scored_at": "2026-08-03T13:21:44+00:00",
+  "scored_at": "2026-08-03T15:14:53+00:00",
   "lenses": {
     "X": {
       "title": "Injection & XSS",
@@ -44,8 +44,8 @@
     },
     "Z": {
       "title": "AuthZ / Access",
-      "pct": 94.1,
-      "passed": 16,
+      "pct": 100.0,
+      "passed": 17,
       "total": 17,
       "floor": 100,
       "cells": [
@@ -53,7 +53,7 @@
           "key": "gateway_bypass",
           "validator": "validate_gateway_bypass",
           "owasp": "A01",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "gateway tenancy not bypassable",
           "covered": true
         },
@@ -189,8 +189,8 @@
     },
     "S": {
       "title": "Secrets & Supply-chain",
-      "pct": 88.9,
-      "passed": 8,
+      "pct": 100.0,
+      "passed": 9,
       "total": 9,
       "floor": 95,
       "cells": [
@@ -198,7 +198,7 @@
           "key": "integration_security",
           "validator": "validate_integration_security",
           "owasp": "A02",
-          "status": "FINDINGS",
+          "status": "PASS",
           "note": "key-format, CORS, webhook",
           "covered": true
         },
@@ -305,12 +305,12 @@
   "owasp_top10": {
     "A01": {
       "scanners": 14,
-      "clean": false,
+      "clean": true,
       "covered": true
     },
     "A02": {
       "scanners": 3,
-      "clean": false,
+      "clean": true,
       "covered": true
     },
     "A03": {
@@ -354,13 +354,10 @@
       "covered": true
     }
   },
-  "floors_ok": false,
-  "regressions": [
-    "Z: 94.1 < baseline 100.0",
-    "S: 88.9 < baseline 100.0"
-  ],
+  "floors_ok": true,
+  "regressions": [],
   "infra_errors": [],
   "baseline_error": false,
   "baseline_missing": false,
-  "exit_code": 1
+  "exit_code": 0
 }

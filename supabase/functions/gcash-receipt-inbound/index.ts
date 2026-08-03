@@ -33,6 +33,7 @@ import { handleHealth } from "../_shared/health.ts";
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log, logRequestStart } from "../_shared/logger.ts";
 
 const FN_NAME = "gcash-receipt-inbound";
 
@@ -96,6 +97,11 @@ export function parseGcashText(text: string): { reference: string | null; amount
 serveObserved(FN_NAME, async (req: Request) => {
   const cors = inboundCors(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  /* Structured ndjson log line per request. This endpoint DECIDES WHETHER CREDITS MINT, so it is
+     the last place on the platform that should be silent: a forwarder that starts sending a
+     changed payload, or an attacker probing signatures, is invisible without a per-request record.
+     serveObserved nets an unhandled throw; this nets the ordinary traffic around it. */
+  logRequestStart(req, FN_NAME);
 
   const healthResp = await handleHealth(req, FN_NAME, async () => ({
     deps: [
@@ -129,7 +135,14 @@ serveObserved(FN_NAME, async (req: Request) => {
     return fail(ctx, "stale", "Timestamp outside the accepted window", { status: 401 });
   }
   const expect = await hmacHex(secret, `${ts}.${raw}`);
-  if (!safeEqual(expect, sig.toLowerCase())) return fail(ctx, "bad_signature", "Invalid signature", { status: 401 });
+  if (!safeEqual(expect, sig.toLowerCase())) {
+    /* A REJECTED SIGNATURE IS THE SECURITY EVENT ON THIS ENDPOINT. Someone is POSTing receipts
+       that do not verify -- a misconfigured forwarder, or a probe. Either way it must be visible
+       WITHOUT reading raw logs. Deliberately records neither the signature nor the body: the first
+       would hand an attacker an oracle, the second would put payment text in the log. */
+    log.warn(ctx, "gcash_inbound_bad_signature", { body_bytes: raw.length, ts_skew_ms: Math.abs(Date.now() - tsNum) });
+    return fail(ctx, "bad_signature", "Invalid signature", { status: 401 });
+  }
 
   let body: { text?: string; reference?: string; amount?: number; sender_name?: string; source?: string };
   try { body = JSON.parse(raw); } catch { return fail(ctx, "bad_json", "Body is not JSON", { status: 400 }); }

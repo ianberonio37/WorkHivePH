@@ -32,6 +32,7 @@ import { serveObserved } from "../_shared/observability.ts";
 import { handleHealth } from "../_shared/health.ts";
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { log, logRequestStart } from "../_shared/logger.ts";
 
 const FN_NAME = "gcash-receipt-ocr";
 
@@ -79,6 +80,11 @@ serveObserved(FN_NAME, async (req: Request) => {
      out of the deploy script and its secret undeclared. */
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  /* Structured ndjson log line per request. serveObserved catches an unhandled THROW; this is the
+     other half -- the ordinary "who called, when, how" record that makes a degradation visible
+     before it becomes an outage. Both GCash functions shipped without it, and they were the only
+     two edge functions on the platform that did not even IMPORT the logger. */
+  logRequestStart(req, FN_NAME);
 
   const healthResp = await handleHealth(req, FN_NAME, async () => ({
     deps: [{ name: "azure_doc_intelligence", ok: Boolean(AZURE_ENDPOINT && AZURE_KEY) }],
@@ -103,6 +109,10 @@ serveObserved(FN_NAME, async (req: Request) => {
   // read it", never a guessed reference — a wrong 13-digit number is worse than
   // no number, because it files a claim that can never match.
   if (!AZURE_ENDPOINT || !AZURE_KEY) {
+    /* The degrade returns 200, so to the SLO this looks like success while every upload silently
+       fails to fill anything. Log it: "receipt reading does nothing" is a CONFIGURATION fact, and
+       without a line here the only symptom is users retyping digits. */
+    log.warn(ctx, "gcash_ocr_not_configured", { has_endpoint: Boolean(AZURE_ENDPOINT), has_key: Boolean(AZURE_KEY) });
     return ok(ctx, {
       azure_unavailable: true,
       parsed: { reference: null, amount: null },
