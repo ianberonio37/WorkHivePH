@@ -1,19 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:491
-source_sha: e8debd18140686e9
+source: dir:supabase/migrations:495
+source_sha: 57542d84f78c003c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (491 migrations)
+## migration · catalog (495 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260711000002_community_marketplace_category` — tables:community_posts
-- `20260711000003_community_best_answer` — fns:set_community_best_answer · tables:community_replies
-- `20260711000004_community_xp_auth_uid` — fns:get_community_reputation_by_auth,increment_community_xp · tables:community_xp
-- `20260711000005_community_trade_peers` — fns:get_hive_trade_peers
 - `20260711000006_marketplace_grid_trust_badges` — fns:get_marketplace_trust_badges
 - `20260711000007_backfill_inquiry_seller_name` — (misc DDL/DML)
 - `20260712000000_marketplace_partsflow_bridge` — tables:marketplace_listings
@@ -210,6 +206,10 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260803000009_reward_fund_is_not_a_spend` — fns:grant_listing_reward · tables:service_credit_ledger
 - `20260803000010_holding_fee_and_starter_grant` — fns:claim_starter_grant,sweep_listing_holding_fee · tables:credit_starter_grants
 - `20260803000011_a_wallet_is_nobody_elses_business` — fns:seller_credit_balance
+- `20260803000012_non_transferable_non_withdrawable` — fns:grant_listing_reward,guard_credits_non_transferable · triggers:trg_credits_non_transferable
+- `20260803000013_one_trigger_owns_the_sale` — fns:grant_listing_reward,release_reservation_on_delist
+- `20260803000014_the_guard_that_blocked_its_own_cashback` — fns:guard_credits_non_transferable
+- `20260803000015_adjudication_is_a_platform_act` — fns:apply_dispute_adjustment
 
 (showing last 200)
 
