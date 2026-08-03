@@ -1381,7 +1381,17 @@
         db.from('v_service_open_broadcasts').select('*').order('created_at', { ascending: false }).order('request_id').limit(30),
         db.from('v_service_request_truth').select('*').in('status', SVC_ACTIVE.concat(SVC_FINISHED)).order('updated_at', { ascending: false }).order('id').limit(60)
       ]);
+      /* ALL THREE, not just the first. Only provRes was checked, so a failure of the BROADCAST FEED
+         or the JOBS read resolved with { data: null, error } and became an empty array -- the
+         provider would see "no open jobs" and "no active work" when the truth is that we could not
+         look. On this surface that is worse than on most: a provider who believes there is no work
+         stops refreshing and misses the broadcast window, and one who believes they have no active
+         jobs thinks a job they accepted has vanished.
+         Same class as the buyer-side services pane fixed minutes ago; found by sweeping for it
+         rather than waiting for the next walk to trip over it. */
       if (provRes.error) throw provRes.error;
+      if (feedRes.error) throw feedRes.error;
+      if (jobsRes.error) throw jobsRes.error;
       await svcRewardPct();   // warm the rate so the first paint already carries the hold
       const provs = provRes.data || [];
       const feed = feedRes.data || [];
