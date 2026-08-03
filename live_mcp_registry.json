@@ -3417,8 +3417,22 @@
       "persona_note": "floods listings to occupy the grid - capped at 3 live until one sells, plus a 2%/month holding fee; the question is whether the cap explains itself",
       "state": "populated",
       "oracle": "the surface renders real rows and every visible number matches its source of truth",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "verified-correct",
+          "title": "every visible number on the seller surface matches its source of truth",
+          "measured": "Canonical parity walked in-browser against the page's OWN client (window db + RPC), not a side-channel query. Signed in as Pablo Aguilar: screen listings=2 vs v_marketplace_listings_truth published=2; sales=0 vs sold=0; WorkHive Credits -200 and 'Available to list' -200 vs seller_credit_balance available=-200; 'Held by live listings' 0 vs reserved=0. Six rendered figures, six exact matches, including a NEGATIVE balance rendered honestly rather than clamped to zero."
+        },
+        {
+          "severity": "open-for-ian",
+          "title": "a provider is blocked from listing by a commission the platform has REPEALED",
+          "measured": "service_knob_pct(commission_pct) is now 0.00 -- the plan's decision landed. But three historical commission rows totalling -PHP360 remain, and Pablo Aguilar Mechanical Works sits at exactly -200.00 from a single entry: 'commission -200.00 | 5% commission - Laser Shaft Alignment PHP4,000 | 2026-07-28'. The seller surface tells them 'Negative balance: top up to keep accepting jobs.' So they must send real pesos to clear a charge levied under a rule the platform has since renounced.",
+          "why_it_matters": "The plan says two things that now pull against each other: 'No revenue. The platform takes no commission' and 'History is never rewritten: existing commission entries stay.' Both were right when written. The live consequence nobody had looked at is that the platform is still holding PHP360 taken under the repealed rule, and at least one provider is blocked from listing until they replace it.",
+          "options": "(1) Leave it: the charge was valid when made and history stands. (2) Reverse it with COMPENSATING entries -- append-only, no history rewritten, exactly how apply_dispute_adjustment already undoes money -- which returns the PHP360 and unblocks the provider without deleting a single row. Option 2 is consistent with both plan rules simultaneously; it is a five-line migration. IAN'S CALL: this is his money, not a defect I should decide."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-S-adversarial-seller-spammer-edge",
@@ -3625,8 +3639,15 @@
       "persona_note": "floods listings to occupy the grid - capped at 3 live until one sells, plus a 2%/month holding fee; the question is whether the cap explains itself",
       "state": "populated",
       "oracle": "the surface renders real rows and every visible number matches its source of truth",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [
+        {
+          "severity": "verified-correct",
+          "title": "every badge and every row count on the admin surface matches its source of truth",
+          "measured": "Canonical parity walked in-browser through the page's OWN client, so the comparison runs against the same database and the same RLS the page sees -- not a side-channel psql query, which would be a different reader answering a different question. Eight figures, eight exact matches: top-ups badge 1 / rows 1 vs v_service_credit_topups_truth pending=1; listings 3 / 3 vs draft=3; sellers 9 / 9 vs unverified=9; feedback 10 / 10 vs platform_feedback waiting (new+triaged+in_progress)=10. The feedback badge deliberately counts WAITING rather than total, and the DB query was written to match that definition -- a badge that counted everything would have read 10 here too, by coincidence, and hidden the difference."
+        }
+      ],
+      "walked_at": "2026-08-03"
     },
     {
       "id": "LM-S-adversarial-admin-spammer-edge",
