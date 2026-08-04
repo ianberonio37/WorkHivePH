@@ -157,6 +157,19 @@ export const RemotionRoot: React.FC = () => {
       width={1280}
       height={720}
     />
+    {/* NATIVE 9:16. Not a blurred-fill re-frame of the 16:9 master - that
+        wasted ~55% of a phone screen on background blur. The same beats
+        compose here because every component sizes off the normalized unit
+        (useU), and the mascot poster this design comes from is portrait to
+        begin with, so the vertical is arguably its natural shape. */}
+    <Composition
+      id="WorkHiveDemoReelVertical"
+      component={DemoReel}
+      durationInFrames={DEMO_DURATION}
+      fps={30}
+      width={1080}
+      height={1920}
+    />
     </>
   );
 };

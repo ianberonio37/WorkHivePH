@@ -99,6 +99,17 @@ export const DEMO_BEATS: Beat[] = [
 
 export const DEMO_DURATION = DEMO_BEATS.reduce((a, b) => a + b.frames, 0);
 
+// ── one layout unit for BOTH aspects ────────────────────────────────────
+// Everything below sizes off `height`. In a 9:16 frame a raw height of 1920
+// makes 0.17*height type 326px - absurd. So each component shadows `height`
+// with U: the height of the largest 16:9 frame that fits the current width.
+// The result is one set of beats that composes correctly in both aspects,
+// rather than a second hand-tuned vertical edit that would drift.
+const useU = () => {
+  const {width, height} = useVideoConfig();
+  return Math.min(height, width * 9 / 16);
+};
+
 // ── the poster's world ──────────────────────────────────────────────────
 
 // The poster's hexagon field - drawn, not an image, so it stays crisp at any
@@ -164,7 +175,7 @@ const Mascot: React.FC<{
 // sample's smeared-entry read (its "Filing" arrives as a motion trail).
 const Word: React.FC<{text: string; accent?: boolean; frames: number}> = ({text, accent, frames}) => {
   const f = useCurrentFrame();
-  const {height} = useVideoConfig();
+  const height = useU();
   // traced grammar kept: LOCKED, then a short blur ERUPTION out.
   const ERUPT = 6;
   const k = Math.max(0, f - (frames - ERUPT)) / ERUPT;
@@ -189,7 +200,8 @@ const Word: React.FC<{text: string; accent?: boolean; frames: number}> = ({text,
 
 const Logo: React.FC<{frames: number}> = ({frames}) => {
   const f = useCurrentFrame();
-  const {fps, height} = useVideoConfig();
+  const {fps} = useVideoConfig();
+  const height = useU();
   const s = spring({frame: f, fps, config: {damping: 15, stiffness: 120}});
   const out = interpolate(f, [frames - 6, frames], [1, 0], {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -214,7 +226,8 @@ const Logo: React.FC<{frames: number}> = ({frames}) => {
 const Title: React.FC<{lines: string[]; frames: number; side?: 'left' | 'right'}> =
 ({lines, frames, side = 'right'}) => {
   const f = useCurrentFrame();
-  const {fps, height} = useVideoConfig();
+  const {fps} = useVideoConfig();
+  const height = useU();
   const s0 = spring({frame: f * 1.9, fps, config: {damping: 16, stiffness: 200, mass: 0.5}});
   const out = interpolate(f, [frames - 8, frames], [1, 0],
     {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -269,7 +282,8 @@ const Title: React.FC<{lines: string[]; frames: number; side?: 'left' | 'right'}
 // Same rhythm as the sample's reveal, zero fake geometry to give it away.
 const DeviceReveal: React.FC<{seg: number; frames: number}> = ({seg, frames}) => {
   const f = useCurrentFrame();
-  const {fps, width, height} = useVideoConfig();
+  const {fps, width} = useVideoConfig();
+  const height = useU();
   const rise = spring({frame: f * 1.5, fps,
                        config: {damping: 24, stiffness: 70, mass: 0.9}});
   const ty = interpolate(rise, [0, 1], [height * 0.9, 0]);
@@ -350,7 +364,8 @@ const PhoneReveal: React.FC<{frames: number}> = ({frames}) => {
 // shadow, slow settle — on PALE like the sample, not on the dark page navy.
 const CaptionBar: React.FC<{seg: number}> = ({seg}) => {
   const f = useCurrentFrame();
-  const {fps, width, height} = useVideoConfig();
+  const {fps, width} = useVideoConfig();
+  const height = useU();
   const t = f / fps;
   const list = CAPTIONS[seg] ?? [];
   const cur = list.find((c) => t >= c.t && t <= c.t + c.d);
@@ -385,7 +400,8 @@ const CaptionBar: React.FC<{seg: number}> = ({seg}) => {
 
 const Section: React.FC<{seg: number; frames: number}> = ({seg, frames}) => {
   const f = useCurrentFrame();
-  const {fps, width, height} = useVideoConfig();
+  const {fps, width} = useVideoConfig();
+  const height = useU();
   const sIn = spring({frame: f, fps, config: {damping: 16, stiffness: 80}});
   const out = interpolate(f, [frames - 5, frames], [1, 0], {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -410,7 +426,7 @@ const Section: React.FC<{seg: number; frames: number}> = ({seg, frames}) => {
                           justifyContent: 'center'}}>
       <HexField opacity={0.35} />
       <div style={{
-        width: width * 0.935, height: height * 0.94,
+        width: width * 0.94, height: width * 0.94 * 9 / 16,
         borderRadius: 12, overflow: 'hidden',
         boxShadow: '0 18px 55px rgba(22,32,47,.28)',
         transform: `scale(${0.97 + 0.03 * sIn})`,
@@ -430,7 +446,7 @@ const Section: React.FC<{seg: number; frames: number}> = ({seg, frames}) => {
 // PySceneDetect) - fast directional smears between blocks. Mine had none.
 const Whip: React.FC<{frames: number}> = ({frames}) => {
   const f = useCurrentFrame();
-  const {height} = useVideoConfig();
+  const height = useU();
   const k = f / Math.max(1, frames - 1);
   // three sub-phases, hard-edged: white pop (2f) -> dark smear sweep -> gone.
   const flash = f < 2 ? 1 : 0;
@@ -455,7 +471,8 @@ const Whip: React.FC<{frames: number}> = ({frames}) => {
 // construction and lands on the exact frame of the action it describes.
 const End: React.FC = () => {
   const f = useCurrentFrame();
-  const {fps, height} = useVideoConfig();
+  const {fps} = useVideoConfig();
+  const height = useU();
   const s0 = spring({frame: f, fps, config: {damping: 15, stiffness: 90}});
   return (
     <AbsoluteFill style={{background: CLOUD}}>
