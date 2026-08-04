@@ -13732,7 +13732,13 @@
       "state": "offline_refusal",
       "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "offline write fires instead of being refused; the widget promised it was queued",
+          "measured": "WALKED LIVE 2026-08-04 and the surface does NOT refuse before firing. Offline (navigator.onLine forced false + the offline event the platform's own banner listens for), the seller's Save issued TWO writes -- POST marketplace_sellers?on_conflict=worker_name and POST hive_audit_log. They were intercepted by the probe and never forwarded, so nothing was written, but they LEFT the page: there is no pre-flight guard.\nAND THE PLATFORM WAS TELLING THE READER THE OPPOSITE. The shared connectivity widget promised, on every page, that 'Pending writes save to this device and drain automatically when the connection returns. You can keep working offline.' That is true on the six pages that register a queue (asset-hub, community, dayplanner, inventory, logbook, project-manager). It was false on all four marketplace surfaces, which register NO queue -- and three of them LOAD offline-queue.js without ever calling it. whGetQueueDepth() returns {total:0, perSurface:{}} on the seller. So on exactly the screens where money moves, a provider was told their work was safe while an offline Save fired into a dead network and was lost.\nFIXED, the honest half: the widget now computes its own sentence from whether THIS page registered a queue, and says 'This page does not save work offline. Anything you submit without a connection will not be sent, so wait until you are back online.' Proven both ways -- the seller (perSurface {}) shows the warning, community (perSurface {community:0}) still shows the original promise, so the fix did not simply swap one false sentence for another.\nSTILL OPEN, and the reason this row is owed rather than green: the BEHAVIOUR is unchanged. The write still fires offline and is still lost; only the copy is now truthful. Closing this row means either a pre-flight refusal on the marketplace writes or real queue adoption on those four surfaces -- the per-page queue integration that PHASE 2 already recorded as a deferred follow-on. Queueing a GCash top-up FILING offline is not a trivial call either: a filing that drains later can arrive after the provider has given up and re-filed, which is the duplicate the unique index exists to refuse."
+        }
+      ]
     },
     {
       "id": "LM-BD-ufai-A-market-buyer-retry_path",
@@ -13797,7 +13803,13 @@
       "state": "offline_refusal",
       "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "offline write fires instead of being refused; the widget promised it was queued",
+          "measured": "WALKED LIVE 2026-08-04 and the surface does NOT refuse before firing. Offline (navigator.onLine forced false + the offline event the platform's own banner listens for), the seller's Save issued TWO writes -- POST marketplace_sellers?on_conflict=worker_name and POST hive_audit_log. They were intercepted by the probe and never forwarded, so nothing was written, but they LEFT the page: there is no pre-flight guard.\nAND THE PLATFORM WAS TELLING THE READER THE OPPOSITE. The shared connectivity widget promised, on every page, that 'Pending writes save to this device and drain automatically when the connection returns. You can keep working offline.' That is true on the six pages that register a queue (asset-hub, community, dayplanner, inventory, logbook, project-manager). It was false on all four marketplace surfaces, which register NO queue -- and three of them LOAD offline-queue.js without ever calling it. whGetQueueDepth() returns {total:0, perSurface:{}} on the seller. So on exactly the screens where money moves, a provider was told their work was safe while an offline Save fired into a dead network and was lost.\nFIXED, the honest half: the widget now computes its own sentence from whether THIS page registered a queue, and says 'This page does not save work offline. Anything you submit without a connection will not be sent, so wait until you are back online.' Proven both ways -- the seller (perSurface {}) shows the warning, community (perSurface {community:0}) still shows the original promise, so the fix did not simply swap one false sentence for another.\nSTILL OPEN, and the reason this row is owed rather than green: the BEHAVIOUR is unchanged. The write still fires offline and is still lost; only the copy is now truthful. Closing this row means either a pre-flight refusal on the marketplace writes or real queue adoption on those four surfaces -- the per-page queue integration that PHASE 2 already recorded as a deferred follow-on. Queueing a GCash top-up FILING offline is not a trivial call either: a filing that drains later can arrive after the provider has given up and re-filed, which is the duplicate the unique index exists to refuse."
+        }
+      ]
     },
     {
       "id": "LM-BD-ufai-A-market_svc-buyer-retry_path",
@@ -13862,7 +13874,13 @@
       "state": "offline_refusal",
       "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "offline write fires instead of being refused; the widget promised it was queued",
+          "measured": "WALKED LIVE 2026-08-04 and the surface does NOT refuse before firing. Offline (navigator.onLine forced false + the offline event the platform's own banner listens for), the seller's Save issued TWO writes -- POST marketplace_sellers?on_conflict=worker_name and POST hive_audit_log. They were intercepted by the probe and never forwarded, so nothing was written, but they LEFT the page: there is no pre-flight guard.\nAND THE PLATFORM WAS TELLING THE READER THE OPPOSITE. The shared connectivity widget promised, on every page, that 'Pending writes save to this device and drain automatically when the connection returns. You can keep working offline.' That is true on the six pages that register a queue (asset-hub, community, dayplanner, inventory, logbook, project-manager). It was false on all four marketplace surfaces, which register NO queue -- and three of them LOAD offline-queue.js without ever calling it. whGetQueueDepth() returns {total:0, perSurface:{}} on the seller. So on exactly the screens where money moves, a provider was told their work was safe while an offline Save fired into a dead network and was lost.\nFIXED, the honest half: the widget now computes its own sentence from whether THIS page registered a queue, and says 'This page does not save work offline. Anything you submit without a connection will not be sent, so wait until you are back online.' Proven both ways -- the seller (perSurface {}) shows the warning, community (perSurface {community:0}) still shows the original promise, so the fix did not simply swap one false sentence for another.\nSTILL OPEN, and the reason this row is owed rather than green: the BEHAVIOUR is unchanged. The write still fires offline and is still lost; only the copy is now truthful. Closing this row means either a pre-flight refusal on the marketplace writes or real queue adoption on those four surfaces -- the per-page queue integration that PHASE 2 already recorded as a deferred follow-on. Queueing a GCash top-up FILING offline is not a trivial call either: a filing that drains later can arrive after the provider has given up and re-filed, which is the duplicate the unique index exists to refuse."
+        }
+      ]
     },
     {
       "id": "LM-BD-ufai-A-seller-buyer-retry_path",
@@ -13927,7 +13945,13 @@
       "state": "offline_refusal",
       "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "offline write fires instead of being refused; the widget promised it was queued",
+          "measured": "WALKED LIVE 2026-08-04 and the surface does NOT refuse before firing. Offline (navigator.onLine forced false + the offline event the platform's own banner listens for), the seller's Save issued TWO writes -- POST marketplace_sellers?on_conflict=worker_name and POST hive_audit_log. They were intercepted by the probe and never forwarded, so nothing was written, but they LEFT the page: there is no pre-flight guard.\nAND THE PLATFORM WAS TELLING THE READER THE OPPOSITE. The shared connectivity widget promised, on every page, that 'Pending writes save to this device and drain automatically when the connection returns. You can keep working offline.' That is true on the six pages that register a queue (asset-hub, community, dayplanner, inventory, logbook, project-manager). It was false on all four marketplace surfaces, which register NO queue -- and three of them LOAD offline-queue.js without ever calling it. whGetQueueDepth() returns {total:0, perSurface:{}} on the seller. So on exactly the screens where money moves, a provider was told their work was safe while an offline Save fired into a dead network and was lost.\nFIXED, the honest half: the widget now computes its own sentence from whether THIS page registered a queue, and says 'This page does not save work offline. Anything you submit without a connection will not be sent, so wait until you are back online.' Proven both ways -- the seller (perSurface {}) shows the warning, community (perSurface {community:0}) still shows the original promise, so the fix did not simply swap one false sentence for another.\nSTILL OPEN, and the reason this row is owed rather than green: the BEHAVIOUR is unchanged. The write still fires offline and is still lost; only the copy is now truthful. Closing this row means either a pre-flight refusal on the marketplace writes or real queue adoption on those four surfaces -- the per-page queue integration that PHASE 2 already recorded as a deferred follow-on. Queueing a GCash top-up FILING offline is not a trivial call either: a filing that drains later can arrive after the provider has given up and re-filed, which is the duplicate the unique index exists to refuse."
+        }
+      ]
     },
     {
       "id": "LM-BD-ufai-A-admin-buyer-retry_path",
@@ -13992,7 +14016,13 @@
       "state": "offline_refusal",
       "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "offline write fires instead of being refused; the widget promised it was queued",
+          "measured": "WALKED LIVE 2026-08-04 and the surface does NOT refuse before firing. Offline (navigator.onLine forced false + the offline event the platform's own banner listens for), the seller's Save issued TWO writes -- POST marketplace_sellers?on_conflict=worker_name and POST hive_audit_log. They were intercepted by the probe and never forwarded, so nothing was written, but they LEFT the page: there is no pre-flight guard.\nAND THE PLATFORM WAS TELLING THE READER THE OPPOSITE. The shared connectivity widget promised, on every page, that 'Pending writes save to this device and drain automatically when the connection returns. You can keep working offline.' That is true on the six pages that register a queue (asset-hub, community, dayplanner, inventory, logbook, project-manager). It was false on all four marketplace surfaces, which register NO queue -- and three of them LOAD offline-queue.js without ever calling it. whGetQueueDepth() returns {total:0, perSurface:{}} on the seller. So on exactly the screens where money moves, a provider was told their work was safe while an offline Save fired into a dead network and was lost.\nFIXED, the honest half: the widget now computes its own sentence from whether THIS page registered a queue, and says 'This page does not save work offline. Anything you submit without a connection will not be sent, so wait until you are back online.' Proven both ways -- the seller (perSurface {}) shows the warning, community (perSurface {community:0}) still shows the original promise, so the fix did not simply swap one false sentence for another.\nSTILL OPEN, and the reason this row is owed rather than green: the BEHAVIOUR is unchanged. The write still fires offline and is still lost; only the copy is now truthful. Closing this row means either a pre-flight refusal on the marketplace writes or real queue adoption on those four surfaces -- the per-page queue integration that PHASE 2 already recorded as a deferred follow-on. Queueing a GCash top-up FILING offline is not a trivial call either: a filing that drains later can arrive after the provider has given up and re-filed, which is the duplicate the unique index exists to refuse."
+        }
+      ]
     },
     {
       "id": "LM-BD-ufai-A-profile-buyer-retry_path",

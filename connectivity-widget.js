@@ -231,7 +231,17 @@
       <div class="wh-conn-row"><span class="wh-conn-label">Status</span><span id="wh-conn-status" class="wh-conn-value">Online</span></div>
       <div class="wh-conn-row"><span class="wh-conn-label">Network</span><span id="wh-conn-net" class="wh-conn-value">unknown</span></div>
       <div class="wh-conn-row"><span class="wh-conn-label">Pending writes</span><span id="wh-conn-queue" class="wh-conn-value">0</span></div>
-      <div class="wh-conn-help">Pending writes save to this device and drain automatically when the connection returns. You can keep working offline.</div>
+      <!-- Filled by refresh(), because the sentence is only TRUE on a page that registers a queue.
+           This widget ships on every page and used to promise, everywhere, that "pending writes save
+           to this device and drain automatically ... you can keep working offline." Six pages earn
+           that (asset-hub, community, dayplanner, inventory, logbook, project-manager). The four
+           marketplace surfaces do NOT register a queue at all -- and three of them load
+           offline-queue.js without ever calling it -- so on exactly the screens where money moves,
+           the widget was telling a provider their work was safe while an offline Save fired into a
+           dead network and was lost. Proven live 2026-08-04: offline, the seller's Save issued
+           POST marketplace_sellers and POST hive_audit_log, whGetQueueDepth() stayed
+           {total:0, perSurface:{}}, and the banner still said "you can keep working offline". -->
+      <div class="wh-conn-help" id="wh-conn-help"></div>
     `;
 
     document.body.appendChild(chip);
@@ -292,12 +302,26 @@
     const online = navigator.onLine;
     const net    = bandwidthClass();
     let depth = 0;
+    let queuesOnThisPage = 0;
     try {
       if (typeof window.whGetQueueDepth === 'function') {
         const d = await window.whGetQueueDepth();
         depth = d.total || 0;
+        // perSurface is keyed by whatever this PAGE registered. Empty means nothing on this screen
+        // is queued, whatever offline-queue.js being loaded might suggest.
+        queuesOnThisPage = Object.keys(d.perSurface || {}).length;
       }
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+
+    // Say the true thing for THIS page. A promise of safety is worse than no promise on a screen
+    // that does not keep it: it is the difference between a provider retrying and a provider
+    // walking away believing their top-up was filed.
+    const helpEl = document.getElementById('wh-conn-help');
+    if (helpEl) {
+      helpEl.textContent = queuesOnThisPage > 0
+        ? 'Pending writes save to this device and drain automatically when the connection returns. You can keep working offline.'
+        : 'This page does not save work offline. Anything you submit without a connection will not be sent, so wait until you are back online.';
+    }
 
     const backendOk = online ? await pingBackend() : false;
     if (!online) {
