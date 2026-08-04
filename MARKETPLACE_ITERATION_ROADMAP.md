@@ -31,11 +31,24 @@ mechanism is a wish.
 | | scenarios | green | owed | green% |
 |---|---|---|---|---|
 | **Existing A–W bank** | 364 | 123 | 241 | 33.8% |
-| **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 19 | 159 | 10.7% |
-| **F2 · UFAI** (BB/BC/BD/BE) | 120 | 9 | 111 | 7.5% |
+| **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 32 | 146 | 18.0% |
+| **F2 · UFAI** (BB/BC/BD/BE) | 120 | 18 | 102 | 15.0% |
 | **F3 · UI** (BF/BG/BH) | 105 | 91 | 14 | **86.7%** |
 | **F4 · UX** (BI/BJ/BK) | 110 | 35 | 75 | 31.8% |
-| **TOTAL** | **877** | **278** | **599** | **31.7%** |
+| **TOTAL** | **877** | **300** | **577** | **34.2%** |
+
+**The AZ null-field lens is the highest-yield probe built so far — three defects on three surfaces:**
+the seller's wallet rendering **₱0** for a balance it could not read (and a second reader that would
+have told them they were *short* on that same phantom zero); the admin's solvency badge showing
+**0** at the moment it knew nothing, where 0 reads as *insolvent*; and the marketplace card showing
+**nothing at all** where a price belongs, when the platform already had "Negotiable" and used it on
+the seller profile.
+
+**And the lens taught the discipline it needed.** On three of five surfaces the induction did not
+land on the first try — `DOMContentLoaded` re-dispatch touches nothing, and every loader on
+marketplace.html and community.html is closure-scoped. Each of those non-landings produced a
+*clean-looking* reading that would have banked as a pass. `community/fail_null_field` is left
+**owed** for exactly that reason.
 
 **The 14 open F3 rows are one question, not fourteen.** `BH contrast_wcag` (7) and
 `BH contrast_apca` (7) are both blocked on the same decision — see §5.
@@ -158,15 +171,25 @@ NEXT: F3 BF-ui-layout CLOSED — 35/35, all seven surfaces at three VERIFIED wid
       refusing to call a single-state scan an all-clear. sweepAll found 3 defects on the seller and
       2 on community that the default state never showed.
 
-  NOW (F2 UFAI is the lowest-green family at 7.5%, F1 next at 10.7%):
-  1. BC-ufai-F effect_in_db + money_matches_ledger — assert each surface's effect against psql
-  2. BB-ufai-U one_vocabulary · BD-ufai-A offline_refusal — both at 0%
-  3. AZ fail_null_field on the REMAINING surfaces (only the seller surface is walked)
-  4. BJ-ux-journey / BK-ux-recovery — including the two-sided walk, and the open question this
-     walk raised but did not settle: minting credits is irreversible and does not confirm. The
-     button names its effect ("Verify: mint credits") and the queue is worked at speed, so this
-     is a real design fork rather than a defect — it belongs to BK-recovery.
-  5. Triage the battery's un-triaged finds: 1 defect on admin, the seller's Analytics-tab
+  DONE 2026-08-04 (the null-field sweep): AZ fail_null_field on 5 surfaces, 3 real defects fixed
+    (seller wallet + hold preview, admin cover badge, marketplace price pill). Plus AZ fail_401 /
+    fail_partial / fail_timeout on seller and admin, BC money_matches_ledger + effect_in_db proven
+    against psql in a rolled-back transaction, BB no_raw_enum 6/6 with the enum planted to prove
+    the scanner works, and the BE identity rows RE-PROVED (the first jwt_not_body attempt refused
+    on a SIGNATURE mismatch, which says nothing about auth).
+
+  NOW (F2 at 15.0% and F1 at 18.0% are the two lowest):
+  1. community/fail_null_field — find that page's own route back to the network and land the
+     induction; the current clean reading is vacuous
+  2. BD retry_path · fallback_engaged · rate_limit_legible · slow_honest (offline_refusal is
+     answered and OPEN in §5)
+  3. BB one_vocabulary · source_chip_true — the cross-surface vocabulary check
+  4. AX / AY / BA on the remaining surfaces
+  5. BJ-ux-journey / BK-ux-recovery — including the two-sided walk, and the question this walk
+     raised but did not settle: minting credits is irreversible and does not confirm. The button
+     names its effect ("Verify: mint credits") and the queue is worked at speed, so it is a design
+     fork rather than a defect — it belongs to BK-recovery.
+  6. Triage the battery's un-triaged finds: 1 defect on admin, the seller's Analytics-tab
      axe:color-contrast, and whether edit-image-file (a FILE picker at 13.3px) is a real iOS
      auto-zoom risk or a battery false positive.
   DEFERRED to arc close (Ian, 2026-08-04: reserve the full gate until the walk is done):

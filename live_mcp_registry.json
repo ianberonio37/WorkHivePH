@@ -12381,14 +12381,21 @@
       "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
       "state": "fail_null_field",
       "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
-      "status": "owed",
-      "findings": [
-        {
-          "severity": "not-exercised",
-          "title": "null induction did not land on this surface; the clean reading is vacuous",
-          "measured": "NOT EXERCISED, and recorded rather than counted: the null induction did not LAND on this surface (0 fields touched), because re-dispatching DOMContentLoaded does not re-run community's loaders and its own fetchers are not reachable from the console. The page text was byte-identical before and after, so the clean readings -- no fabricated zero, no undefined -- are measurements of an UNCHANGED page and prove nothing about how it handles a null. Closing this row needs the same treatment the marketplace grid needed: find the page's own route back to the network (a tab, a filter, a paginate) and drive that instead."
-        }
-      ]
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "4aa3236afcdcb320",
+        "walked_at": "2026-08-04",
+        "checked": "LANDED ON THE SECOND APPROACH, after the first was vacuous and said so. Re-dispatching DOMContentLoaded touched 0 fields; a category filter chip DID re-query (5 requests) but still touched 0, because my key regex was guessing. Reading the actual response shapes settled it: v_community_posts_truth carries NO numeric fields at all (id, hive_id, author_name, content, category, pinned, flagged, public, timestamps), and community_reactions is (post_id, emoji, worker_name) -- the reaction counts on screen are derived from ROW COUNTS, which a null cannot corrupt. The single nullable numeric this surface reads is v_worker_achievements_truth.current_level.\nTargeting that one: 22 levels nulled via the filter-chip re-query, and the surface behaved. No fabricated 'Level 0' appeared, no undefined or NaN reached the text, and the tier badges were unchanged at 3 before and after -- correctly, since they come from trust_tier rather than from the level.\nTHE SUBJECT IS NARROW AND THAT IS THE FINDING AS MUCH AS THE PASS: on a surface whose data is almost entirely text and derived counts, this oracle has exactly one field to bite on. Saying so is worth more than a green that implies the whole page was exercised."
+      }
     },
     {
       "id": "LM-BA-invariant-layer_db-system-credits_conserved",
