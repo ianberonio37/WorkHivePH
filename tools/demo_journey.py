@@ -95,7 +95,7 @@ def authed_context(browser, record_dir: Path | None):
     # whoever eventually watches the video.
     needed = ("wh_last_worker", "wh_hives")
     state = None
-    for attempt in range(1, 5):
+    for attempt in range(1, 9):
         cand = ur._authed_storage_state(browser, username, display, hive, log=_log)
         keys = {i["name"] for o in (cand or {}).get("origins", [])
                 for i in o.get("localStorage", [])}
@@ -112,10 +112,14 @@ def authed_context(browser, record_dir: Path | None):
         # the client takes to persist it - slower in headed mode, and slower
         # still when the edge runtime is authenticating concurrently. Hammering
         # immediately just reproduces the same race.
-        time.sleep(2.0 * attempt)
+        # Capped backoff: wh_hives is the LAST key the app persists and on a
+        # cold/loaded stack it can trail the token by >10s. Four attempts
+        # (max 8s wait) was tuned on a warm stack and now under-waits; the
+        # DB and auth are verifiably healthy when this fires.
+        time.sleep(min(6.0, 1.5 * attempt))
     if state is None:
         raise RuntimeError(
-            "could not capture a COMPLETE authed session after 4 attempts; "
+            "could not capture a COMPLETE authed session after 8 attempts; "
             "recording now would just film the sign-in page")
 
     kwargs = {"viewport": VIEWPORT, "storage_state": state}
@@ -321,20 +325,38 @@ def act2_logbook(page, rep):
 
     # Type the lesson, but DO NOT submit. logbook addEntry is non-idempotent and
     # this runs against the shared local DB - a demo must not leave rows behind.
-    sel = first_visible(page, ["textarea:visible", "#entry-notes", "#what-happened",
-                               "input[placeholder*='happen' i]"])
-    if sel:
+    # The real entry is a TWO-field story: the problem, then the action. The
+    # old single-"textarea:visible" guess matched nothing and the journey
+    # silently skipped the most important beat in the whole demo.
+    for sel, text, cap in [
+        ("#f-problem", "Drive belt worn and slipping under load.",
+         "Say what went wrong, in plain words"),
+        ("#f-action", "Replaced the belt and realigned the pulley.",
+         "Say what you did to fix it"),
+    ]:
+        if first_visible(page, [sel]):
+            try:
+                type_into(page, sel, text, per_char_ms=42)
+                rep.add("2-logbook", "type", sel, True, "not submitted",
+                        xy=_xy_of(page, sel), caption=cap)
+                dwell(page, READ)
+            except Exception as e:
+                rep.add("2-logbook", "type", sel, False, type(e).__name__)
+        else:
+            rep.add("2-logbook", "type", sel, False, "field not visible")
+
+    # the knowledge field is what makes it a LESSON, not just a record
+    if first_visible(page, ["#f-knowledge"]):
         try:
-            type_into(page, sel, "Replaced the worn drive belt and realigned the pulley.",
-                      per_char_ms=48)
-            rep.add("2-logbook", "type", sel, True, "the lesson, in plain words (not submitted)",
-                    xy=_xy_of(page, sel),
-                    caption="Write the fix in plain words - that is the whole entry")
+            type_into(page, "#f-knowledge",
+                      "Check pulley alignment whenever a belt wears early.",
+                      per_char_ms=40)
+            rep.add("2-logbook", "type", "#f-knowledge", True, "not submitted",
+                    xy=_xy_of(page, "#f-knowledge"),
+                    caption="Add the lesson - this is what your AI remembers")
+            dwell(page, READ)
         except Exception as e:
-            rep.add("2-logbook", "type", sel, False, type(e).__name__)
-    else:
-        rep.add("2-logbook", "type", "textarea", False, "no description field visible")
-    dwell(page, READ)
+            rep.add("2-logbook", "type", "#f-knowledge", False, type(e).__name__)
 
     # The connectivity beat: the same page shows the whole team's entries.
     try_click(page, rep, "2-logbook", ["#btn-view-team"], note="the team's feed",
@@ -465,10 +487,10 @@ def act6_inventory(page, rep):
     """COMPLETE inventory journey: see the shortage -> filter to it -> open the
     part -> read its detail. The story is 'you know what you are out of'."""
     from demo_cursor import scroll as wh_scroll
-    goto(page, "inventory.html")
+    if not goto(page, rep, "6-inventory", "inventory.html"):
+        return
     dwell(page, 1100)
-    rep.add("6-inventory", "open", "inventory.html", True,
-            caption="Spare-parts inventory - every part you stock")
+    rep.add("6-inventory", "read", "page", True, caption="Spare-parts inventory - every part you stock")
 
     wh_scroll(page, 320, 900, rep, "6-inventory",
               caption="Low stock and out-of-stock, counted for you")
@@ -513,10 +535,10 @@ def act7_pm(page, rep):
     """COMPLETE PM journey: the schedule -> pick an asset -> its task list ->
     tick a task done. The story is 'PMs stop slipping'."""
     from demo_cursor import scroll as wh_scroll
-    goto(page, "pm-scheduler.html")
+    if not goto(page, rep, "7-pm", "pm-scheduler.html"):
+        return
     dwell(page, 1200)
-    rep.add("7-pm", "open", "pm-scheduler.html", True,
-            caption="PM scheduler - what is due, per machine")
+    rep.add("7-pm", "read", "page", True, caption="PM scheduler - what is due, per machine")
 
     wh_scroll(page, 300, 850, rep, "7-pm",
               caption="Every asset with its PM status")
@@ -555,10 +577,10 @@ def act8_dayplanner(page, rep):
     """COMPLETE day-planner journey: the verdict -> today's load -> the
     calendar -> open a job. The story is 'you know what today looks like'."""
     from demo_cursor import scroll as wh_scroll
-    goto(page, "dayplanner.html")
+    if not goto(page, rep, "8-dayplanner", "dayplanner.html"):
+        return
     dwell(page, 1300)
-    rep.add("8-dayplanner", "open", "dayplanner.html", True,
-            caption="Day planner - your whole day, decided")
+    rep.add("8-dayplanner", "read", "page", True, caption="Day planner - your whole day, decided")
 
     # the verdict card is the page's headline answer
     if page.query_selector("#dp-verdict"):
