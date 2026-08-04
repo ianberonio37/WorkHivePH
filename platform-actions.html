@@ -344,7 +344,17 @@
       } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed' }; }
     }
 
-    function renderSvcTopups(m) {
+      /* A TOP-UP AMOUNT NOBODY COULD READ WAS RENDERING AS PHP0. `Number(null)` is 0, so an unreadable
+       amount printed "PHP0 · ref 1005556667770" on the queue where an admin matches a filed GCash
+       reference against a real payment BEFORE releasing credits. That is the worst place on the
+       platform for a fabricated zero: it invites either dismissing a real payment as nothing, or
+       releasing credits against a figure the screen never actually had. Say the amount is unreadable
+       and let the admin go look at the reference. */
+    const _amtOrGap = (v) => (v === null || v === undefined || v === '' || !isFinite(Number(v)))
+      ? 'amount unreadable'
+      : '₱' + Number(v).toLocaleString();
+
+  function renderSvcTopups(m) {
       const box = document.getElementById('svc-topups-content');
       if (!box) return;
       m = m || {};
@@ -359,7 +369,7 @@
       } else {
         box.innerHTML = rows.map(r => `
           <div class="mod-row">
-            <div class="mod-main"><strong>₱${Number(r.amount).toLocaleString()} · ref ${e(r.gcash_ref)}</strong>
+            <div class="mod-main"><strong>${_amtOrGap(r.amount)} · ref ${e(r.gcash_ref)}</strong>
               <span class="mod-sub">${e(r.provider_display_name || r.account_type)} · filed ${e(new Date(r.created_at).toLocaleString())}</span></div>
             <div class="mod-actions">
               <button class="mod-btn ok" data-topup-act="verify" data-id="${e(r.id)}">Verify: mint credits</button>
@@ -514,7 +524,7 @@
       };
       box.innerHTML = rows.map(r => `
         <div class="mod-row">
-          <div class="mod-main"><strong>₱${Number(r.amount).toLocaleString()} · ref ${e(r.reference)}</strong>
+          <div class="mod-main"><strong>${_amtOrGap(r.amount)} · ref ${e(r.reference)}</strong>
             <span class="mod-sub">${e(WHY[r.match_state] || r.match_state)}${r.sender_name ? ' · from ' + e(r.sender_name) : ''} · ${e(new Date(r.created_at).toLocaleString())}</span>
             <span class="mod-sub">${e(r.match_note || '')}</span></div>
         </div>`).join('');
