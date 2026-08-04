@@ -345,6 +345,13 @@
     .empty-state h3 { font-size: 1rem; font-weight: 700; color: var(--wh-cloud); margin-bottom: 0.4rem; }
     .empty-state p { font-size: 0.8rem; }
     .btn-post-first {
+      /* 39px at 390 CSS px, measured 2026-08-05 — under the 44px minimum, on the ONE control the
+         empty state offers. A person on a phone looking at an empty marketplace has exactly one way
+         out of it, and it was the smallest target on the page. The populated grid measured 0
+         undersized targets at the same width, so this was specific to the empty state's CTA, which is
+         precisely where a miss costs the most: the person concludes the button does not work and
+         leaves a marketplace that has nothing in it yet. */
+      min-height: 44px;
       margin-top: 1.25rem; display: inline-flex; align-items: center; gap: 0.4rem;
       padding: 0.6rem 1.25rem;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: var(--wh-radius-sm);

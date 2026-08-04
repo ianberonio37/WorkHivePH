@@ -155,7 +155,11 @@
     .empty-state svg { opacity: 0.25; margin-bottom: 0.75rem; }
     .empty-state h3 { font-size: 0.95rem; font-weight: 700; color: var(--wh-cloud); margin-bottom: 0.35rem; }
     .empty-state p { font-size: 0.78rem; }
-    .btn-post-now { margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 0.625rem; color: #0f1923; font-size: 0.82rem; font-weight: 700; font-family: 'Poppins', sans-serif; cursor: pointer; text-decoration: none; }
+    /* min-height: the same 44px floor its twin on marketplace.html was missing. Identical padding and
+       font-size, so identical 39px result — the empty state's only control, on the surface a seller
+       reaches when they have nothing listed yet. Fixed by class rather than by instance, because the
+       measurement was taken on one page and the shape lives on two. */
+    .btn-post-now { min-height: 44px; margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 0.625rem; color: #0f1923; font-size: 0.82rem; font-weight: 700; font-family: 'Poppins', sans-serif; cursor: pointer; text-decoration: none; }
 
     /* Skeleton */
     .skel { background: rgba(255,255,255,0.04); border-radius: 0.5rem; }
