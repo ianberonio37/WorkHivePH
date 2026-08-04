@@ -14745,8 +14745,21 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "tenant_boundary",
       "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated cross-hive probe",
+        "asserts": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "77345aae9c635a5f",
+        "walked_at": "2026-08-04",
+        "checked": "A foreign hive's rows are invisible, proven with the caller's PREMISE VERIFIED FIRST -- which is the whole story of this row.\nThe first run looked like a serious breach: the caller saw 42 private posts, the 8-person member roster and the XP table of a hive I had labelled 'foreign', and successfully INSERTED a post into it. Every one of those was legitimate. My probe ASSERTED in its own echo line that the caller was 'a member of Lucena only' and never checked; Pablo Aguilar is an active member of BOTH Lucena (supervisor) and Manila (worker). The alarming reading was an unverified premise in the instrument, not a defect in the product -- and a false red here would have been expensive.\nRe-run with Bryan Garcia, whose single active membership was COUNTED before the probe ran (1) and who is not a platform admin, acting under SET LOCAL ROLE authenticated with his own JWT:\n  own hive (Baguio) posts visible ....... 24\n  foreign (Manila) private posts ........  0\n  foreign (Lucena) private posts ........  0\n  foreign member roster .................  0\n  foreign XP rows .......................  0\n  foreign reactions .....................  0\n  UPDATE foreign posts .................. UPDATE 0\n  INSERT into the foreign hive .......... ERROR, violates RLS policy\n  DELETE foreign posts .................. DELETE 0\n  CONTROL, insert into his OWN hive ..... 1 row  <- non-vacuity: the same statement works when it should, so the zeros above are refusals rather than a broken probe.\ncommunity_posts_read is (public AND NOT flagged) OR hive_id IN (my active memberships), and community_posts_insert's CHECK repeats the membership test, so the boundary is the membership set rather than a client-supplied hive_id. The multi-hive case is a real shape here, not a hypothetical."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-anon-jwt_not_body",
@@ -14851,8 +14864,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "tenant_boundary",
       "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated cross-hive probe",
+        "asserts": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "77345aae9c635a5f",
+        "walked_at": "2026-08-04",
+        "checked": "A foreign hive's rows are invisible, proven with the caller's PREMISE VERIFIED FIRST -- which is the whole story of this row.\nThe first run looked like a serious breach: the caller saw 42 private posts, the 8-person member roster and the XP table of a hive I had labelled 'foreign', and successfully INSERTED a post into it. Every one of those was legitimate. My probe ASSERTED in its own echo line that the caller was 'a member of Lucena only' and never checked; Pablo Aguilar is an active member of BOTH Lucena (supervisor) and Manila (worker). The alarming reading was an unverified premise in the instrument, not a defect in the product -- and a false red here would have been expensive.\nRe-run with Bryan Garcia, whose single active membership was COUNTED before the probe ran (1) and who is not a platform admin, acting under SET LOCAL ROLE authenticated with his own JWT:\n  own hive (Baguio) posts visible ....... 24\n  foreign (Manila) private posts ........  0\n  foreign (Lucena) private posts ........  0\n  foreign member roster .................  0\n  foreign XP rows .......................  0\n  foreign reactions .....................  0\n  UPDATE foreign posts .................. UPDATE 0\n  INSERT into the foreign hive .......... ERROR, violates RLS policy\n  DELETE foreign posts .................. DELETE 0\n  CONTROL, insert into his OWN hive ..... 1 row  <- non-vacuity: the same statement works when it should, so the zeros above are refusals rather than a broken probe.\ncommunity_posts_read is (public AND NOT flagged) OR hive_id IN (my active memberships), and community_posts_insert's CHECK repeats the membership test, so the boundary is the membership set rather than a client-supplied hive_id. The multi-hive case is a real shape here, not a hypothetical."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-buyer-jwt_not_body",
@@ -14957,8 +14983,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "tenant_boundary",
       "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated cross-hive probe",
+        "asserts": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "77345aae9c635a5f",
+        "walked_at": "2026-08-04",
+        "checked": "A foreign hive's rows are invisible, proven with the caller's PREMISE VERIFIED FIRST -- which is the whole story of this row.\nThe first run looked like a serious breach: the caller saw 42 private posts, the 8-person member roster and the XP table of a hive I had labelled 'foreign', and successfully INSERTED a post into it. Every one of those was legitimate. My probe ASSERTED in its own echo line that the caller was 'a member of Lucena only' and never checked; Pablo Aguilar is an active member of BOTH Lucena (supervisor) and Manila (worker). The alarming reading was an unverified premise in the instrument, not a defect in the product -- and a false red here would have been expensive.\nRe-run with Bryan Garcia, whose single active membership was COUNTED before the probe ran (1) and who is not a platform admin, acting under SET LOCAL ROLE authenticated with his own JWT:\n  own hive (Baguio) posts visible ....... 24\n  foreign (Manila) private posts ........  0\n  foreign (Lucena) private posts ........  0\n  foreign member roster .................  0\n  foreign XP rows .......................  0\n  foreign reactions .....................  0\n  UPDATE foreign posts .................. UPDATE 0\n  INSERT into the foreign hive .......... ERROR, violates RLS policy\n  DELETE foreign posts .................. DELETE 0\n  CONTROL, insert into his OWN hive ..... 1 row  <- non-vacuity: the same statement works when it should, so the zeros above are refusals rather than a broken probe.\ncommunity_posts_read is (public AND NOT flagged) OR hive_id IN (my active memberships), and community_posts_insert's CHECK repeats the membership test, so the boundary is the membership set rather than a client-supplied hive_id. The multi-hive case is a real shape here, not a hypothetical."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-two_context-jwt_not_body",
@@ -15065,8 +15104,21 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "tenant_boundary",
       "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated cross-hive probe",
+        "asserts": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "77345aae9c635a5f",
+        "walked_at": "2026-08-04",
+        "checked": "A foreign hive's rows are invisible, proven with the caller's PREMISE VERIFIED FIRST -- which is the whole story of this row.\nThe first run looked like a serious breach: the caller saw 42 private posts, the 8-person member roster and the XP table of a hive I had labelled 'foreign', and successfully INSERTED a post into it. Every one of those was legitimate. My probe ASSERTED in its own echo line that the caller was 'a member of Lucena only' and never checked; Pablo Aguilar is an active member of BOTH Lucena (supervisor) and Manila (worker). The alarming reading was an unverified premise in the instrument, not a defect in the product -- and a false red here would have been expensive.\nRe-run with Bryan Garcia, whose single active membership was COUNTED before the probe ran (1) and who is not a platform admin, acting under SET LOCAL ROLE authenticated with his own JWT:\n  own hive (Baguio) posts visible ....... 24\n  foreign (Manila) private posts ........  0\n  foreign (Lucena) private posts ........  0\n  foreign member roster .................  0\n  foreign XP rows .......................  0\n  foreign reactions .....................  0\n  UPDATE foreign posts .................. UPDATE 0\n  INSERT into the foreign hive .......... ERROR, violates RLS policy\n  DELETE foreign posts .................. DELETE 0\n  CONTROL, insert into his OWN hive ..... 1 row  <- non-vacuity: the same statement works when it should, so the zeros above are refusals rather than a broken probe.\ncommunity_posts_read is (public AND NOT flagged) OR hive_id IN (my active memberships), and community_posts_insert's CHECK repeats the membership test, so the boundary is the membership set rather than a client-supplied hive_id. The multi-hive case is a real shape here, not a hypothetical."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-anon-jwt_not_body",
@@ -15186,8 +15238,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "tenant_boundary",
       "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated cross-hive probe",
+        "asserts": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "77345aae9c635a5f",
+        "walked_at": "2026-08-04",
+        "checked": "A foreign hive's rows are invisible, proven with the caller's PREMISE VERIFIED FIRST -- which is the whole story of this row.\nThe first run looked like a serious breach: the caller saw 42 private posts, the 8-person member roster and the XP table of a hive I had labelled 'foreign', and successfully INSERTED a post into it. Every one of those was legitimate. My probe ASSERTED in its own echo line that the caller was 'a member of Lucena only' and never checked; Pablo Aguilar is an active member of BOTH Lucena (supervisor) and Manila (worker). The alarming reading was an unverified premise in the instrument, not a defect in the product -- and a false red here would have been expensive.\nRe-run with Bryan Garcia, whose single active membership was COUNTED before the probe ran (1) and who is not a platform admin, acting under SET LOCAL ROLE authenticated with his own JWT:\n  own hive (Baguio) posts visible ....... 24\n  foreign (Manila) private posts ........  0\n  foreign (Lucena) private posts ........  0\n  foreign member roster .................  0\n  foreign XP rows .......................  0\n  foreign reactions .....................  0\n  UPDATE foreign posts .................. UPDATE 0\n  INSERT into the foreign hive .......... ERROR, violates RLS policy\n  DELETE foreign posts .................. DELETE 0\n  CONTROL, insert into his OWN hive ..... 1 row  <- non-vacuity: the same statement works when it should, so the zeros above are refusals rather than a broken probe.\ncommunity_posts_read is (public AND NOT flagged) OR hive_id IN (my active memberships), and community_posts_insert's CHECK repeats the membership test, so the boundary is the membership set rather than a client-supplied hive_id. The multi-hive case is a real shape here, not a hypothetical."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-buyer-jwt_not_body",
@@ -15307,8 +15372,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "tenant_boundary",
       "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated cross-hive probe",
+        "asserts": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "77345aae9c635a5f",
+        "walked_at": "2026-08-04",
+        "checked": "A foreign hive's rows are invisible, proven with the caller's PREMISE VERIFIED FIRST -- which is the whole story of this row.\nThe first run looked like a serious breach: the caller saw 42 private posts, the 8-person member roster and the XP table of a hive I had labelled 'foreign', and successfully INSERTED a post into it. Every one of those was legitimate. My probe ASSERTED in its own echo line that the caller was 'a member of Lucena only' and never checked; Pablo Aguilar is an active member of BOTH Lucena (supervisor) and Manila (worker). The alarming reading was an unverified premise in the instrument, not a defect in the product -- and a false red here would have been expensive.\nRe-run with Bryan Garcia, whose single active membership was COUNTED before the probe ran (1) and who is not a platform admin, acting under SET LOCAL ROLE authenticated with his own JWT:\n  own hive (Baguio) posts visible ....... 24\n  foreign (Manila) private posts ........  0\n  foreign (Lucena) private posts ........  0\n  foreign member roster .................  0\n  foreign XP rows .......................  0\n  foreign reactions .....................  0\n  UPDATE foreign posts .................. UPDATE 0\n  INSERT into the foreign hive .......... ERROR, violates RLS policy\n  DELETE foreign posts .................. DELETE 0\n  CONTROL, insert into his OWN hive ..... 1 row  <- non-vacuity: the same statement works when it should, so the zeros above are refusals rather than a broken probe.\ncommunity_posts_read is (public AND NOT flagged) OR hive_id IN (my active memberships), and community_posts_insert's CHECK repeats the membership test, so the boundary is the membership set rather than a client-supplied hive_id. The multi-hive case is a real shape here, not a hypothetical."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-two_context-jwt_not_body",
