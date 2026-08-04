@@ -16462,9 +16462,9 @@
         "depends_on": [
           "platform-actions.html"
         ],
-        "sha": "703528db0a4136ff",
+        "sha": "c1c70de8563dacf1",
         "walked_at": "2026-08-04",
-        "checked": "The waiting surface stays distinguishable from an empty one. LIMIT OF THE INDUCTION, recorded rather than hidden: delaying the reads and re-running the loaders cannot restore a first-paint state, because the page does not revert its rendered markup. What the induced pass DOES establish is that the waiting surface does not fall back to the empty-state invite (looksEmptyInstead false). RE-WALKED 2026-08-04 (8) after the cover-badge gap fix: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 and the repaired pending-top-up row still fitting, component_busy re-proven on 'Verify: mint credits' with the PATCH BLOCKED, and status/body re-checked on the wire (200 with rows / 400 error body / anon-on-treasury 401)."
+        "checked": "The waiting surface stays distinguishable from an empty one. LIMIT OF THE INDUCTION, recorded rather than hidden: delaying the reads and re-running the loaders cannot restore a first-paint state, because the page does not revert its rendered markup. What the induced pass DOES establish is that the waiting surface does not fall back to the empty-state invite (looksEmptyInstead false). RE-WALKED 2026-08-04 (8) after the cover-badge gap fix: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 and the repaired pending-top-up row still fitting, component_busy re-proven on 'Verify: mint credits' with the PATCH BLOCKED, and status/body re-checked on the wire (200 with rows / 400 error body / anon-on-treasury 401). | RE-WALKED 2026-08-04 ON A CLEAN LOAD, and the lens's red was WITHDRAWN. availability()/states() reported no loading state here; measured standalone with the queue reads held ~11s and sampled at 3s, 6s and 9s, the surface says 'Checking access...' at every sample and NEVER renders an empty-state invitation. Loading is plainly distinguishable from empty, which is the oracle.\nThe earlier red came from measuring after three other inductions had already mutated the page -- the same state-inheritance trap that produced two other false reds today, and the reason no lens verdict is filed here without a fresh-load re-check."
       }
     },
     {
@@ -16487,9 +16487,9 @@
         "depends_on": [
           "platform-actions.html"
         ],
-        "sha": "703528db0a4136ff",
+        "sha": "c1c70de8563dacf1",
         "walked_at": "2026-08-04",
-        "checked": "NOT APPLICABLE: no skeleton component on this surface. Recorded rather than passed. RE-WALKED 2026-08-04 (8) after the cover-badge gap fix: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 and the repaired pending-top-up row still fitting, component_busy re-proven on 'Verify: mint credits' with the PATCH BLOCKED, and status/body re-checked on the wire (200 with rows / 400 error body / anon-on-treasury 401)."
+        "checked": "NOT APPLICABLE: no skeleton component on this surface. Recorded rather than passed. RE-WALKED 2026-08-04 (8) after the cover-badge gap fix: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 and the repaired pending-top-up row still fitting, component_busy re-proven on 'Verify: mint credits' with the PATCH BLOCKED, and status/body re-checked on the wire (200 with rows / 400 error body / anon-on-treasury 401). | RE-WALKED 2026-08-04 on a clean load with the reads held ~11s: 0 skeleton elements at 3s, 6s and 9s. This surface does not use placeholders -- it holds a TEXT state ('Checking access...') until the gate resolves, so there is no skeleton whose reserved height could be measured. Recorded as measured-and-absent rather than passed, the same way the other surfaces record a component they do not have. Nothing jumps because nothing is reserved and then replaced; the queues render once."
       }
     },
     {
