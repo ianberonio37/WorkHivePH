@@ -206,8 +206,19 @@ def main(argv):
     # The exception is narrow and auditable: a decrease is allowed ONLY when every missing green is
     # accounted for by a row that is now owed AND carries a `false-green-withdrawn` finding saying
     # why. Anything else -- an expired sha, a deleted row, a silently flipped status -- still FAILs.
+    #
+    # A RATCHET THAT TURNS BOTH WAYS IS NOT A RATCHET (found 2026-08-04). This compared a CUMULATIVE
+    # pool of withdrawn rows against an INCREMENTAL drop, so every past withdrawal stayed in the pool
+    # and kept authorising future drops. It fired for real: an edit to marketplace.html expired rows
+    # into `stale`, the drop was covered by withdrawals audited in EARLIER runs, and the baseline
+    # lowered itself 317 -> 312 while printing "not by absorbing drift" -- which is precisely what it
+    # had done. Nothing had been withdrawn that run.
+    # A withdrawal may only pay for a drop ONCE. The ids that bought a decrease are recorded in the
+    # baseline and are not counted again.
+    spent = set(base.get("withdrawn_ids") or [])
     withdrawn = [s for s in rows
                  if s.get("status") == "owed"
+                 and s.get("id") not in spent
                  # findings are dicts in the newer rows and bare strings in the older ones
                  and any(isinstance(f, dict) and f.get("severity") == "false-green-withdrawn"
                          for f in (s.get("findings") or []))]
@@ -222,7 +233,9 @@ def main(argv):
             print(f"    · {s['id']}\n        {title}")
         with open(BASELINE, "w", encoding="utf-8") as f:
             json.dump({"green": len(buckets["green"]),
-                       "note": "lowered by an audited false-green withdrawal, not by absorbing drift"},
+                       "note": "lowered by an audited false-green withdrawal, not by absorbing drift",
+                       # the ids that bought this decrease; they cannot buy another one
+                       "withdrawn_ids": sorted(spent | {s["id"] for s in withdrawn})},
                       f, indent=1)
         return 0
     if len(buckets["green"]) < prev:
