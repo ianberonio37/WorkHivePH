@@ -922,9 +922,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -981,9 +981,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -1040,9 +1040,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -2739,9 +2739,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -2798,9 +2798,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -2857,9 +2857,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -6976,9 +6976,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -7009,9 +7009,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -10064,9 +10064,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -10149,9 +10149,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -12226,7 +12226,13 @@
       "state": "fail_timeout",
       "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "false-green-withdrawn",
+          "title": "a hung dependency never resolves into a stated timeout",
+          "measured": "MEASURED FAILURE, recorded rather than skipped: under a hung dependency this surface does not end in a STATED timeout. Sampled mid-hang with every read held ~9s, the page does not say it timed out, is taking longer, or is slow -- it simply waits. A hang that never resolves into words leaves a visitor unable to tell a slow network from a broken page, and on a public profile the visitor is someone deciding whether to contact this seller at all. The other three failure states on this surface (401, partial, null-field) pass, so this is a specific gap in the timeout path rather than a missing error posture."
+        }
+      ]
     },
     {
       "id": "LM-AZ-failure-injection-profile-system-fail_partial",
@@ -12288,9 +12294,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": "Induction LANDED (9 fields nulled across the profile's reads) and the surface behaved: the 4.7 star rating DISAPPEARED rather than becoming a fabricated 0.0, no PHP0.00 was invented anywhere, and no undefined or NaN reached the text. That is the right shape for a trust surface -- a 0.0-star seller is a claim about a person, and inventing it from a failed read would be a reputational lie rather than a display bug. Avg Response already renders a dash when there is no data, which is the same discipline stated visibly."
+        "checked": "Induction LANDED (9 fields nulled across the profile's reads) and the surface behaved: the 4.7 star rating DISAPPEARED rather than becoming a fabricated 0.0, no PHP0.00 was invented anywhere, and no undefined or NaN reached the text. That is the right shape for a trust surface -- a 0.0-star seller is a claim about a person, and inventing it from a failed read would be a reputational lie rather than a display bug. Avg Response already renders a dash when there is no data, which is the same discipline stated visibly. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (failures(): no fabricated zero, no undefined/NaN -- and the tile seeds plus the catch that used to ASSIGN a '0' on failure were both fixed this session)."
       }
     },
     {
@@ -14399,6 +14405,11 @@
           "severity": "defect-open",
           "title": "offline write fires instead of being refused; the widget promised it was queued",
           "measured": "WALKED LIVE 2026-08-04 and the surface does NOT refuse before firing. Offline (navigator.onLine forced false + the offline event the platform's own banner listens for), the seller's Save issued TWO writes -- POST marketplace_sellers?on_conflict=worker_name and POST hive_audit_log. They were intercepted by the probe and never forwarded, so nothing was written, but they LEFT the page: there is no pre-flight guard.\nAND THE PLATFORM WAS TELLING THE READER THE OPPOSITE. The shared connectivity widget promised, on every page, that 'Pending writes save to this device and drain automatically when the connection returns. You can keep working offline.' That is true on the six pages that register a queue (asset-hub, community, dayplanner, inventory, logbook, project-manager). It was false on all four marketplace surfaces, which register NO queue -- and three of them LOAD offline-queue.js without ever calling it. whGetQueueDepth() returns {total:0, perSurface:{}} on the seller. So on exactly the screens where money moves, a provider was told their work was safe while an offline Save fired into a dead network and was lost.\nFIXED, the honest half: the widget now computes its own sentence from whether THIS page registered a queue, and says 'This page does not save work offline. Anything you submit without a connection will not be sent, so wait until you are back online.' Proven both ways -- the seller (perSurface {}) shows the warning, community (perSurface {community:0}) still shows the original promise, so the fix did not simply swap one false sentence for another.\nSTILL OPEN, and the reason this row is owed rather than green: the BEHAVIOUR is unchanged. The write still fires offline and is still lost; only the copy is now truthful. Closing this row means either a pre-flight refusal on the marketplace writes or real queue adoption on those four surfaces -- the per-page queue integration that PHASE 2 already recorded as a deferred follow-on. Queueing a GCash top-up FILING offline is not a trivial call either: a filing that drains later can arrive after the provider has given up and re-filed, which is the duplicate the unique index exists to refuse."
+        },
+        {
+          "severity": "not-exercised",
+          "title": "a profile is a read surface; no write affordance to refuse",
+          "measured": "INCONCLUSIVE, and recorded rather than counted as a pass. Offline, the banner appears and zero writes are attempted -- but a seller PROFILE is a read surface: there is no commit control in reach, so nothing asked to write and the clean reading proves nothing about how a write would be refused. The equivalent claim IS proven on the seller console, where the lens reached 'Go to top up' offline and it refused before firing."
         }
       ]
     },
@@ -14412,8 +14423,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "retry_path",
       "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "492b28930e5eb5fe",
+        "walked_at": "2026-08-04",
+        "checked": "PASSES with the induction landed (9 reads): the failure offers a Retry, clicking it re-attempts, and with the cause removed the surface comes back carrying no failure text."
+      }
     },
     {
       "id": "LM-BD-ufai-A-profile-buyer-rate_limit_legible",
@@ -14425,8 +14449,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "rate_limit_legible",
       "oracle": "a rate limit states what was limited and when it clears - never a bare error",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "a rate limit states what was limited and when it clears - never a bare error",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "492b28930e5eb5fe",
+        "walked_at": "2026-08-04",
+        "checked": "FOUND AND FIXED TWO THINGS IN ONE CATCH. The failure path ran `stat-listings.textContent = '0'` -- it did not fall back to a zero, it ASSIGNED one, so a seller whose listings could not be read was published to the world as having none, on the page a buyer uses to decide whether to trust them. And every cause got the same sentence, though a 429 clears with TIME and a 401 clears by signing in.\nVerified on fresh loads with the listings read served each status: 429 gives 'Too many requests... wait about 1 minute', 401 gives 'Your session expired... sign in again', 503 keeps the connection advice where it is right, the tile reads a gap in ALL THREE, and the healthy load reads 2.\nMY FIRST VERIFICATION OF THE 503 WAS WRONG AND IS RECORDED AS SUCH: the sweep read document.querySelector('main') while this page's listings grid sits OUTSIDE main, so it reported no message where there was one. Re-checked against document.body: the copy is present."
+      }
     },
     {
       "id": "LM-BD-ufai-A-profile-buyer-fallback_engaged",
@@ -14438,8 +14475,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "fallback_engaged",
       "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "492b28930e5eb5fe",
+        "walked_at": "2026-08-04",
+        "checked": "PASSES: with the primary down nothing survives above the measured chrome floor and the surface names the failure rather than showing stale numbers as current (induction landed 8 reads for the empty floor, 12 for primary-down)."
+      }
     },
     {
       "id": "LM-BD-ufai-A-profile-buyer-slow_honest",
@@ -14451,8 +14501,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "slow_honest",
       "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "492b28930e5eb5fe",
+        "walked_at": "2026-08-04",
+        "checked": "PASSES, and the lens's own RED was withdrawn to say so. availability() reported a premature empty-state here; a faithful fresh-load slow test (every read delayed 9s from first paint, sampled at 2.6s) found NO empty-state invitation at all, 7 skeletons and 'Loading...' present. The lens runs its slow state after three earlier inductions have mutated the page, so it inherited an empty-state left behind by the EMPTY induction. A state measured after another state is not that state.\nTHE SAME FAITHFUL TEST FOUND A REAL ONE BESIDE IT: mid-load the row read 'Active Listings 0 - Inquiries Replied 0' beside two tiles correctly showing a dash -- two tiles claiming a count before the page had looked. On a PUBLIC profile that is a reputational claim about a person: a seller with nothing to sell who does not answer. Seeded with the gap now; mid-load all three read '-', and the healthy load reads 2 / 0 / - where that 0 is a real measured zero and is kept."
+      }
     },
     {
       "id": "LM-BD-ufai-A-community-buyer-offline_refusal",
@@ -16404,21 +16467,14 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_loading",
       "oracle": "the component's loading state is distinguishable from its empty state",
-      "status": "green",
-      "findings": [],
-      "evidence": {
-        "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
-        "asserts": "the component's loading state is distinguishable from its empty state",
-        "value_checked": true,
-        "depends_on": [
-          "marketplace-seller-profile.html",
-          "utils.js"
-        ],
-        "sha": "230ded069a08dcbd",
-        "walked_at": "2026-08-04",
-        "checked": "GENUINELY INDUCED, not inferred: with every read delayed, the surface showed 7 skeleton nodes and did NOT fall back to an empty-state invite. Loading is distinguishable from empty on this surface by construction."
-      }
+      "status": "owed",
+      "findings": [
+        {
+          "severity": "false-green-withdrawn",
+          "title": "component loading fails on this surface, measured",
+          "measured": "MEASURED FAILURE: with 4 requests genuinely in flight the surface shows no loading state the lens can see -- no skeleton, no aria-busy, no 'loading' in the text at the sampled moment. The induction LANDED (4 reads), so this is the page and not a vacuum. A visitor waiting on a profile cannot tell a slow read from a finished one, which is the same class as the un-stated timeout recorded on this surface."
+        }
+      ]
     },
     {
       "id": "LM-BG-ui-state-profile-buyer-component_skeleton",
@@ -16441,9 +16497,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": "The skeleton RESERVES the space the content will take: measured heights 312, 44, 44, 44, 44, 44, 44 while the reads were held open -- a hero block and six rows, all non-zero, so nothing collapses to zero height and jumps when the content lands."
+        "checked": "The skeleton RESERVES the space the content will take: measured heights 312, 44, 44, 44, 44, 44, 44 while the reads were held open -- a hero block and six rows, all non-zero, so nothing collapses to zero height and jumps when the content lands. | RE-WALKED 2026-08-04 on the seller profile (states(): no skeleton rendered in the sampled window on this surface, recorded rather than passed)."
       }
     },
     {
@@ -16467,9 +16523,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": "NOT EXERCISED: this is a read-only public profile with 0 disabled controls. Recorded rather than passed."
+        "checked": "NOT EXERCISED: this is a read-only public profile with 0 disabled controls. Recorded rather than passed. | RE-WALKED 2026-08-04 on the seller profile (states(): 0 disabled controls in the settled state, recorded rather than passed)."
       }
     },
     {
@@ -16493,9 +16549,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": "NOT APPLICABLE: a read-only public profile has no control that commits anything, so there is no in-flight state to observe. Recorded rather than passed."
+        "checked": "NOT APPLICABLE: a read-only public profile has no control that commits anything, so there is no in-flight state to observe. Recorded rather than passed. | RE-WALKED 2026-08-04 on the seller profile (states(): INCONCLUSIVE and recorded as such -- this is a read surface, so the lens reached no commit control and nothing was in flight to be busy about. The equivalent claim is proven on the seller console, where a filled form was really submitted with the write held)."
       }
     },
     {
@@ -16519,9 +16575,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": "1,178 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object])."
+        "checked": "1,178 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object]). | RE-WALKED 2026-08-04 on the seller profile (states(): populated ok, 0 junk strings)."
       }
     },
     {
@@ -17306,9 +17362,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": "prefers-reduced-motion is HONOURED: 12 element(s) carry a live animation or transition on this surface and the stylesheet declares an @media (prefers-reduced-motion) rule that turns them off. Measured by walking the CSSOM for the guard rather than by trusting the browser's current setting -- the UFAI battery reports this as 'OS-off' because the session is not emulating the preference, which is a statement about the harness, not about the page."
+        "checked": "prefers-reduced-motion is HONOURED: 12 element(s) carry a live animation or transition on this surface and the stylesheet declares an @media (prefers-reduced-motion) rule that turns them off. Measured by walking the CSSOM for the guard rather than by trusting the browser's current setting -- the UFAI battery reports this as 'OS-off' because the session is not emulating the preference, which is a statement about the harness, not about the page. | RE-WALKED 2026-08-04 on the seller profile (visual(): a prefers-reduced-motion rule is present in the CSSOM to turn the page's animation off, read from the stylesheet rather than from a media-query match the walking browser is not emulating)."
       }
     },
     {
@@ -18086,9 +18142,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": "6 numbers, 0 without an explanation within reach, and the stats block names its own source (Stats per WorkHive Marketplace Seller Score, platform-internal composite) rather than presenting a bare score. Avg Response correctly shows a dash, not 0, when there is no data."
+        "checked": "6 numbers, 0 without an explanation within reach, and the stats block names its own source (Stats per WorkHive Marketplace Seller Score, platform-internal composite) rather than presenting a bare score. Avg Response correctly shows a dash, not 0, when there is no data. | RE-WALKED 2026-08-04 on the seller profile (comprehension(): 6 numbers on the surface, 0 of them unexplained)."
       }
     },
     {
@@ -18101,21 +18157,14 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "what_happens_next",
       "oracle": "after an action, the surface says what happens next and when",
-      "status": "green",
-      "findings": [],
-      "evidence": {
-        "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
-        "asserts": "after an action, the surface says what happens next and when",
-        "value_checked": true,
-        "depends_on": [
-          "marketplace-seller-profile.html",
-          "utils.js"
-        ],
-        "sha": "230ded069a08dcbd",
-        "walked_at": "2026-08-04",
-        "checked": "The profile's next step is the contact route, and the help text names it (use the contact button to message them). Listings link through to the listing surface where the commitment lives."
-      }
+      "status": "owed",
+      "findings": [
+        {
+          "severity": "false-green-withdrawn",
+          "title": "what happens next fails on this surface, measured",
+          "measured": "MEASURED FAILURE, and the same shape as the seller console's: the profile never says what follows an action. comprehension() finds 6 numbers with 0 unexplained and saysWhatNext false -- the surface explains its figures and not its consequences. A buyer pressing Contact is not told what happens next, how the seller is reached, or how long a reply typically takes, on the page whose entire job is deciding whether to make contact."
+        }
+      ]
     },
     {
       "id": "LM-BI-ux-comprehension-profile-buyer-what_does_it_cost",
@@ -18127,21 +18176,14 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "what_does_it_cost",
       "oracle": "cost, hold and reward are stated before commitment, not after",
-      "status": "green",
-      "findings": [],
-      "evidence": {
-        "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
-        "asserts": "cost, hold and reward are stated before commitment, not after",
-        "value_checked": true,
-        "depends_on": [
-          "marketplace-seller-profile.html",
-          "utils.js"
-        ],
-        "sha": "230ded069a08dcbd",
-        "walked_at": "2026-08-04",
-        "checked": "How this page works states it plainly once opened: this is a seller's public profile, badges show identity checks and community trust, use the contact button to message them, there are no fees. Read with the disclosure OPEN. A closed <details> returns only its summary, which is how the probe first mistook this for an empty explainer."
-      }
+      "status": "owed",
+      "findings": [
+        {
+          "severity": "false-green-withdrawn",
+          "title": "what does it cost fails on this surface, measured",
+          "measured": "MEASURED FAILURE: the surface states neither a cost nor that contact is free (statesFree and statesFee both false, statesReward false). On the marketplace grid 'Free, contact-only: no platform fees' is said plainly; a visitor who arrives directly at a seller profile -- which is a shareable, indexable URL -- never sees it, and has to assume."
+        }
+      ]
     },
     {
       "id": "LM-BI-ux-comprehension-profile-buyer-why_refused",
