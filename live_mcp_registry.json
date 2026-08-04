@@ -14719,8 +14719,21 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "bfla_function",
       "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a function above this role is refused at the server, not merely hidden in the UI",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "platform-actions.html"
+        ],
+        "sha": "01c5a2a01a91a2db",
+        "walked_at": "2026-08-04",
+        "checked": "The admin entry point on the marketplace is BOTH hidden and refused, which is the answer to 'why isn't it invisible in the first place' -- it already is, and that was never the security boundary. updateAdminLink() sets display:none FIRST and reveals only on a positive marketplace_platform_admins match, with the catch also failing closed, so a stale sync-cache identity on a shared device cannot leave the link wrongly shown. Measured live as an admin: display flex, visible, labelled 'Admin'. For a non-admin the lookup returns no row (proven by psql as the real role) so the link stays at its default display:none. Hiding is the courtesy; the server refusal measured in the bfla_function rows is the actual control, which is why hiding alone would never have been enough."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-anon-tenant_boundary",
@@ -14918,8 +14931,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "bfla_function",
       "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a function above this role is refused at the server, not merely hidden in the UI",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "platform-actions.html"
+        ],
+        "sha": "01c5a2a01a91a2db",
+        "walked_at": "2026-08-04",
+        "checked": "The admin entry point on the marketplace is BOTH hidden and refused, which is the answer to 'why isn't it invisible in the first place' -- it already is, and that was never the security boundary. updateAdminLink() sets display:none FIRST and reveals only on a positive marketplace_platform_admins match, with the catch also failing closed, so a stale sync-cache identity on a shared device cannot leave the link wrongly shown. Measured live as an admin: display flex, visible, labelled 'Admin'. For a non-admin the lookup returns no row (proven by psql as the real role) so the link stays at its default display:none. Hiding is the courtesy; the server refusal measured in the bfla_function rows is the actual control, which is why hiding alone would never have been enough."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-two_context-tenant_boundary",
@@ -14985,8 +15011,21 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "bola_object",
       "oracle": "another person's object id is refused, and the refusal is legible",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "another person's object id is refused, and the refusal is legible",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "platform-actions.html"
+        ],
+        "sha": "01c5a2a01a91a2db",
+        "walked_at": "2026-08-04",
+        "checked": "Another person's admin row is refused, and the refusal is legible. Non-admin: 0 rows on read, INSERT refused by RLS, UPDATE 0, DELETE 0 (all rolled back, all as the real authenticated role). Admin: 2 rows -- so the boundary discriminates rather than being uniformly empty. The legible half is the restricted-surface copy on platform-actions naming the rule and the remedy, rather than a bare error or a blank page."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-anon-bfla_function",
@@ -15093,8 +15132,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "bola_object",
       "oracle": "another person's object id is refused, and the refusal is legible",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "another person's object id is refused, and the refusal is legible",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "platform-actions.html"
+        ],
+        "sha": "01c5a2a01a91a2db",
+        "walked_at": "2026-08-04",
+        "checked": "Another person's admin row is refused, and the refusal is legible. Non-admin: 0 rows on read, INSERT refused by RLS, UPDATE 0, DELETE 0 (all rolled back, all as the real authenticated role). Admin: 2 rows -- so the boundary discriminates rather than being uniformly empty. The legible half is the restricted-surface copy on platform-actions naming the rule and the remedy, rather than a bare error or a blank page."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-buyer-bfla_function",
@@ -15201,8 +15253,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "bola_object",
       "oracle": "another person's object id is refused, and the refusal is legible",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "another person's object id is refused, and the refusal is legible",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "platform-actions.html"
+        ],
+        "sha": "01c5a2a01a91a2db",
+        "walked_at": "2026-08-04",
+        "checked": "Another person's admin row is refused, and the refusal is legible. Non-admin: 0 rows on read, INSERT refused by RLS, UPDATE 0, DELETE 0 (all rolled back, all as the real authenticated role). Admin: 2 rows -- so the boundary discriminates rather than being uniformly empty. The legible half is the restricted-surface copy on platform-actions naming the rule and the remedy, rather than a bare error or a blank page."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-two_context-bfla_function",
@@ -15283,8 +15348,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "boundary_not_emptiness",
       "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "platform-actions.html"
+        ],
+        "sha": "01c5a2a01a91a2db",
+        "walked_at": "2026-08-04",
+        "checked": "A permission boundary reads as a boundary, not as emptiness -- measured on both sides of it.\n  As a NON-admin (psql, real role + JWT): the roster returns 0 rows. Both policies miss -- the self-read policy matches only the caller's own display_name, and the ALL policy needs is_marketplace_admin() -- so there is nothing to leak.\n  As an ADMIN (live browser, Pablo Aguilar): the same query returns 2 rows, Pablo Aguilar and Leandro Marquez. That is the ALL policy granting an admin sight of the roster, and it is what proves the 0 above is a real refusal rather than an empty table.\nThe restricted surface itself does not present as 'nothing here': platform-actions states 'This surface is restricted to platform admins. If you should have access, ask the current admin to grant you via marketplace_platform_admins' -- it names the rule AND the way out."
+      }
     },
     {
       "id": "LM-BF-ui-layout-market-buyer-w390_overflow",
