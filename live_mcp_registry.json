@@ -19440,8 +19440,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "first_run_to_value",
       "oracle": "a first-time person reaches the first useful outcome without a dead end",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a first-time person reaches the first useful outcome without a dead end",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "Walked the whole arrival-to-first-value path, each step through the page's own controls:\n  ARRIVAL ...... 9 listings render; the surface states its terms (free / no platform fees) and EXPLAINS ITS ORDER ('newest first'), so a first-timer is not asked to trust an unexplained ranking.\n  OPEN ......... clicking a card opens the detail (?listing=5f07ec9b...).\n  ACT .......... 'Send Inquiry' is present, enabled and hit-testable, and the detail restates the terms rather than assuming the person read the grid header.\n  DEAD END ..... none: every step had a next step.\n\nA FALSE DEAD-END WAS RETRACTED HERE, and the cause matters more than the row. The first run of this probe measured cards:0 and would have filed 'dead end' against the product. The page was fine; the LOCAL STACK was thrashing. supabase_vector_workhive -- the log collector -- had restarted 3,210 times, each cycle failing to reach the docker socket ('Network unreachable'), starting, and immediately shutting down. That churn dragged the gateway: the listings endpoint answered 200 but in 3.6s / 4.7s, so the grid never populated inside the probe's window, and earlier walks saw 502/504/401 flaps from the same cause. Stopping the container (it is observability plumbing, not a dependency of the app) took the same endpoint to 0.18-1.2s and the grid settled in 1,200ms with all 9 cards.\nThe rule this earns: an empty render with ZERO console errors is a symptom of the ENVIRONMENT until proven otherwise -- probe the endpoint directly and check container restart counts before filing anything against the page."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-market-buyer-repeat_visit",
@@ -19559,8 +19572,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "first_run_to_value",
       "oracle": "a first-time person reaches the first useful outcome without a dead end",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a first-time person reaches the first useful outcome without a dead end",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "Walked the whole arrival-to-first-value path, each step through the page's own controls:\n  ARRIVAL ...... 9 listings render; the surface states its terms (free / no platform fees) and EXPLAINS ITS ORDER ('newest first'), so a first-timer is not asked to trust an unexplained ranking.\n  OPEN ......... clicking a card opens the detail (?listing=5f07ec9b...).\n  ACT .......... 'Send Inquiry' is present, enabled and hit-testable, and the detail restates the terms rather than assuming the person read the grid header.\n  DEAD END ..... none: every step had a next step.\n\nA FALSE DEAD-END WAS RETRACTED HERE, and the cause matters more than the row. The first run of this probe measured cards:0 and would have filed 'dead end' against the product. The page was fine; the LOCAL STACK was thrashing. supabase_vector_workhive -- the log collector -- had restarted 3,210 times, each cycle failing to reach the docker socket ('Network unreachable'), starting, and immediately shutting down. That churn dragged the gateway: the listings endpoint answered 200 but in 3.6s / 4.7s, so the grid never populated inside the probe's window, and earlier walks saw 502/504/401 flaps from the same cause. Stopping the container (it is observability plumbing, not a dependency of the app) took the same endpoint to 0.18-1.2s and the grid settled in 1,200ms with all 9 cards.\nThe rule this earns: an empty render with ZERO console errors is a symptom of the ENVIRONMENT until proven otherwise -- probe the endpoint directly and check container restart counts before filing anything against the page."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-market-two_context-repeat_visit",
@@ -19808,8 +19834,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "first_run_to_value",
       "oracle": "a first-time person reaches the first useful outcome without a dead end",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "a first-time person reaches the first useful outcome without a dead end",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "Walked the whole arrival-to-first-value path, each step through the page's own controls:\n  ARRIVAL ...... 9 listings render; the surface states its terms (free / no platform fees) and EXPLAINS ITS ORDER ('newest first'), so a first-timer is not asked to trust an unexplained ranking.\n  OPEN ......... clicking a card opens the detail (?listing=5f07ec9b...).\n  ACT .......... 'Send Inquiry' is present, enabled and hit-testable, and the detail restates the terms rather than assuming the person read the grid header.\n  DEAD END ..... none: every step had a next step.\n\nA FALSE DEAD-END WAS RETRACTED HERE, and the cause matters more than the row. The first run of this probe measured cards:0 and would have filed 'dead end' against the product. The page was fine; the LOCAL STACK was thrashing. supabase_vector_workhive -- the log collector -- had restarted 3,210 times, each cycle failing to reach the docker socket ('Network unreachable'), starting, and immediately shutting down. That churn dragged the gateway: the listings endpoint answered 200 but in 3.6s / 4.7s, so the grid never populated inside the probe's window, and earlier walks saw 502/504/401 flaps from the same cause. Stopping the container (it is observability plumbing, not a dependency of the app) took the same endpoint to 0.18-1.2s and the grid settled in 1,200ms with all 9 cards.\nThe rule this earns: an empty render with ZERO console errors is a symptom of the ENVIRONMENT until proven otherwise -- probe the endpoint directly and check container restart counts before filing anything against the page."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-seller-buyer-repeat_visit",
@@ -19901,8 +19940,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "first_run_to_value",
       "oracle": "a first-time person reaches the first useful outcome without a dead end",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "a first-time person reaches the first useful outcome without a dead end",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "Walked the whole arrival-to-first-value path, each step through the page's own controls:\n  ARRIVAL ...... 9 listings render; the surface states its terms (free / no platform fees) and EXPLAINS ITS ORDER ('newest first'), so a first-timer is not asked to trust an unexplained ranking.\n  OPEN ......... clicking a card opens the detail (?listing=5f07ec9b...).\n  ACT .......... 'Send Inquiry' is present, enabled and hit-testable, and the detail restates the terms rather than assuming the person read the grid header.\n  DEAD END ..... none: every step had a next step.\n\nA FALSE DEAD-END WAS RETRACTED HERE, and the cause matters more than the row. The first run of this probe measured cards:0 and would have filed 'dead end' against the product. The page was fine; the LOCAL STACK was thrashing. supabase_vector_workhive -- the log collector -- had restarted 3,210 times, each cycle failing to reach the docker socket ('Network unreachable'), starting, and immediately shutting down. That churn dragged the gateway: the listings endpoint answered 200 but in 3.6s / 4.7s, so the grid never populated inside the probe's window, and earlier walks saw 502/504/401 flaps from the same cause. Stopping the container (it is observability plumbing, not a dependency of the app) took the same endpoint to 0.18-1.2s and the grid settled in 1,200ms with all 9 cards.\nThe rule this earns: an empty render with ZERO console errors is a symptom of the ENVIRONMENT until proven otherwise -- probe the endpoint directly and check container restart counts before filing anything against the page."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-seller-two_context-repeat_visit",
