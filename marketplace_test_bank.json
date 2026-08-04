@@ -4416,7 +4416,7 @@
       "source": "authored",
       "kind": "journey",
       "lane": "journey",
-      "status": "quarantined",
+      "status": "banked",
       "authority": "member",
       "state": "populated",
       "path": "happy",
@@ -4433,12 +4433,7 @@
         "TEETH: WH_TB_FREEZE=1 parks the publisher and the watcher assertion goes RED - proven, not assumed"
       ],
       "walked": "2026-07-29, PASSED via the real page watchPosition path (not the db fallback)",
-      "note": "The tracker POLLS v_service_job_tracking every 10s (marketplace.html ~3584); it is not a Realtime channel. The cell asserts the repaint, which is the user-visible claim, whichever mechanism carries it.",
-      "quarantine": {
-        "count": 6,
-        "first_seen": "2026-07-29",
-        "last_reason": "Timeout"
-      }
+      "note": "The tracker POLLS v_service_job_tracking every 10s (marketplace.html ~3584); it is not a Realtime channel. The cell asserts the repaint, which is the user-visible claim, whichever mechanism carries it."
     },
     {
       "id": "TB-S5-edge-push-delivery-roundtrip",
@@ -5348,7 +5343,7 @@
         "MK1",
         "MK5"
       ],
-      "status": "banked",
+      "status": "quarantined",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5363,6 +5358,11 @@
       "note": "No poll was added here, deliberately. svcLoadPresence runs once and the design says why: the hint is ADDITIVE and 'silence is golden' - it renders nothing rather than a discouraging '0 providers' the client can do nothing about. Adding a third timer would have been inventing a requirement the design explicitly rejected; the assertable claim is that the number is TRUE when shown, not that it live-updates.",
       "ufai_earned": {
         "F2": "the rendered count EQUALS the view's total - a liquidity number that overstates would tell someone to wait for help that is not there"
+      },
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
       }
     },
     {

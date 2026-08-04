@@ -15507,8 +15507,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_loading",
       "oracle": "the component's loading state is distinguishable from its empty state",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "the component's loading state is distinguishable from its empty state",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "The waiting surface stays distinguishable from an empty one. LIMIT OF THE INDUCTION, recorded rather than hidden: delaying the reads and re-running the loaders cannot restore a first-paint state, because the page does not revert its rendered markup. What the induced pass DOES establish is that the waiting surface does not fall back to the empty-state invite (looksEmptyInstead false)."
+      }
     },
     {
       "id": "LM-BG-ui-state-market_svc-buyer-component_skeleton",
@@ -15520,8 +15533,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_skeleton",
       "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "the skeleton reserves the space the content will take, so nothing jumps",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "NOT APPLICABLE: no skeleton component on the services pane. Recorded rather than passed."
+      }
     },
     {
       "id": "LM-BG-ui-state-market_svc-buyer-component_disabled",
@@ -15533,8 +15559,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_disabled",
       "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "a disabled control looks disabled AND refuses activation - both, not either",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "NOT EXERCISED: 0 disabled controls in the settled state."
+      }
     },
     {
       "id": "LM-BG-ui-state-market_svc-buyer-component_busy",
@@ -15546,8 +15585,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_busy",
       "oracle": "an in-flight control is busy and cannot be re-fired",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "an in-flight control is busy and cannot be re-fired",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "NOT EXERCISED, and the reason is recorded rather than scored as a failure: the control the lens reached was the post-listing submit, and an EMPTY form refuses at client-side validation before any request leaves, so nothing is ever in flight and 0 writes were even attempted. The pane's own commit control is 'Hail now', which requires a filled service request; that path is covered by the D-service-hail rows rather than claimed here."
+      }
     },
     {
       "id": "LM-BG-ui-state-market_svc-buyer-component_populated",
@@ -15559,8 +15611,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_populated",
       "oracle": "populated renders every field it promises, with no undefined/NaN",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "populated renders every field it promises, with no undefined/NaN",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "2,183 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object])."
+      }
     },
     {
       "id": "LM-BG-ui-state-seller-buyer-component_loading",
@@ -15572,8 +15637,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_loading",
       "oracle": "the component's loading state is distinguishable from its empty state",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "the component's loading state is distinguishable from its empty state",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "9ab7aa7d5d9a8727",
+        "walked_at": "2026-08-04",
+        "checked": "The waiting surface stays distinguishable from an empty one. LIMIT OF THE INDUCTION, recorded rather than hidden: delaying the reads and re-running the loaders cannot restore a first-paint state, because the page does not revert its rendered markup. What the induced pass DOES establish is that the waiting surface does not fall back to the empty-state invite (looksEmptyInstead false)."
+      }
     },
     {
       "id": "LM-BG-ui-state-seller-buyer-component_skeleton",
@@ -15585,8 +15663,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_skeleton",
       "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "the skeleton reserves the space the content will take, so nothing jumps",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "9ab7aa7d5d9a8727",
+        "walked_at": "2026-08-04",
+        "checked": "NOT APPLICABLE and recorded as such rather than passed: no skeleton component exists on this surface, so nothing can reserve space and nothing can jump."
+      }
     },
     {
       "id": "LM-BG-ui-state-seller-buyer-component_disabled",
@@ -15598,8 +15689,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_disabled",
       "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "a disabled control looks disabled AND refuses activation - both, not either",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "9ab7aa7d5d9a8727",
+        "walked_at": "2026-08-04",
+        "checked": "NOT EXERCISED in the settled state: 0 disabled controls once loaded, so a pass would be vacuous. The disabled state this surface does produce is the in-flight Save, asserted by component_busy above. When a disabled control IS present the check clicks it for real, never with force -- a forced click dispatches past the very guard under test."
+      }
     },
     {
       "id": "LM-BG-ui-state-seller-buyer-component_busy",
@@ -15611,8 +15715,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_busy",
       "oracle": "an in-flight control is busy and cannot be re-fired",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "an in-flight control is busy and cannot be re-fired",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "9ab7aa7d5d9a8727",
+        "walked_at": "2026-08-04",
+        "checked": "Proven IN FLIGHT with the write BLOCKED. Pressing Save put the control into disabled = true with the label changed to 'Saving...'. Two mutating requests were intercepted and never forwarded: POST marketplace_sellers?on_conflict=worker_name and POST hive_audit_log. THIS CHECK CAUGHT ITSELF FIRST: an earlier version only DELAYED the request before forwarding it, and that run actually moved marketplace_sellers.updated_at for Pablo Aguilar (01:10:25). The lens now answers every POST/PATCH/PUT/DELETE synthetically. Re-run with a valid session afterwards and updated_at was byte-identical before and after."
+      }
     },
     {
       "id": "LM-BG-ui-state-seller-buyer-component_populated",
@@ -15624,8 +15741,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_populated",
       "oracle": "populated renders every field it promises, with no undefined/NaN",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "populated renders every field it promises, with no undefined/NaN",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "9ab7aa7d5d9a8727",
+        "walked_at": "2026-08-04",
+        "checked": "1,293 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object])."
+      }
     },
     {
       "id": "LM-BG-ui-state-admin-buyer-component_loading",
@@ -15637,8 +15767,20 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_loading",
       "oracle": "the component's loading state is distinguishable from its empty state",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "the component's loading state is distinguishable from its empty state",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html"
+        ],
+        "sha": "b33bcc485cadd886",
+        "walked_at": "2026-08-04",
+        "checked": "The waiting surface stays distinguishable from an empty one. LIMIT OF THE INDUCTION, recorded rather than hidden: delaying the reads and re-running the loaders cannot restore a first-paint state, because the page does not revert its rendered markup. What the induced pass DOES establish is that the waiting surface does not fall back to the empty-state invite (looksEmptyInstead false)."
+      }
     },
     {
       "id": "LM-BG-ui-state-admin-buyer-component_skeleton",
@@ -15650,8 +15792,20 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_skeleton",
       "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "the skeleton reserves the space the content will take, so nothing jumps",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html"
+        ],
+        "sha": "b33bcc485cadd886",
+        "walked_at": "2026-08-04",
+        "checked": "NOT APPLICABLE: no skeleton component on this surface. Recorded rather than passed."
+      }
     },
     {
       "id": "LM-BG-ui-state-admin-buyer-component_disabled",
@@ -15663,8 +15817,20 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_disabled",
       "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "a disabled control looks disabled AND refuses activation - both, not either",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html"
+        ],
+        "sha": "b33bcc485cadd886",
+        "walked_at": "2026-08-04",
+        "checked": "NOT EXERCISED: 0 disabled controls in the settled state. The in-flight disable of 'Verify: mint credits' is asserted by component_busy above."
+      }
     },
     {
       "id": "LM-BG-ui-state-admin-buyer-component_busy",
@@ -15676,8 +15842,20 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_busy",
       "oracle": "an in-flight control is busy and cannot be re-fired",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "an in-flight control is busy and cannot be re-fired",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html"
+        ],
+        "sha": "b33bcc485cadd886",
+        "walked_at": "2026-08-04",
+        "checked": "The money control itself, proven in flight with the write BLOCKED. 'Verify: mint credits' goes disabled = true while the request is held, and the PATCH service_credit_topups?id=eq.2d302380...&status=eq.pending_verification was intercepted and never forwarded. psql confirmed after: the PHP300 top-up still pending_verification, issued still 1500.00, ledger net still 1140.00, Pablo still -200.00. The selector had to be widened to reach it -- the admin commits money with 'Verify' / 'Approve' / 'Reject', which no submit-shaped test would ever find -- and that widening is only safe BECAUSE mutating verbs are blocked."
+      }
     },
     {
       "id": "LM-BG-ui-state-admin-buyer-component_populated",
@@ -15689,8 +15867,20 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_populated",
       "oracle": "populated renders every field it promises, with no undefined/NaN",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "populated renders every field it promises, with no undefined/NaN",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html"
+        ],
+        "sha": "b33bcc485cadd886",
+        "walked_at": "2026-08-04",
+        "checked": "2,872 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object])."
+      }
     },
     {
       "id": "LM-BG-ui-state-profile-buyer-component_loading",
@@ -15702,8 +15892,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_loading",
       "oracle": "the component's loading state is distinguishable from its empty state",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "the component's loading state is distinguishable from its empty state",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "230ded069a08dcbd",
+        "walked_at": "2026-08-04",
+        "checked": "GENUINELY INDUCED, not inferred: with every read delayed, the surface showed 7 skeleton nodes and did NOT fall back to an empty-state invite. Loading is distinguishable from empty on this surface by construction."
+      }
     },
     {
       "id": "LM-BG-ui-state-profile-buyer-component_skeleton",
@@ -15715,8 +15918,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_skeleton",
       "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "the skeleton reserves the space the content will take, so nothing jumps",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "230ded069a08dcbd",
+        "walked_at": "2026-08-04",
+        "checked": "The skeleton RESERVES the space the content will take: measured heights 312, 44, 44, 44, 44, 44, 44 while the reads were held open -- a hero block and six rows, all non-zero, so nothing collapses to zero height and jumps when the content lands."
+      }
     },
     {
       "id": "LM-BG-ui-state-profile-buyer-component_disabled",
@@ -15728,8 +15944,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_disabled",
       "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "a disabled control looks disabled AND refuses activation - both, not either",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "230ded069a08dcbd",
+        "walked_at": "2026-08-04",
+        "checked": "NOT EXERCISED: this is a read-only public profile with 0 disabled controls. Recorded rather than passed."
+      }
     },
     {
       "id": "LM-BG-ui-state-profile-buyer-component_busy",
@@ -15741,8 +15970,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_busy",
       "oracle": "an in-flight control is busy and cannot be re-fired",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "an in-flight control is busy and cannot be re-fired",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "230ded069a08dcbd",
+        "walked_at": "2026-08-04",
+        "checked": "NOT APPLICABLE: a read-only public profile has no control that commits anything, so there is no in-flight state to observe. Recorded rather than passed."
+      }
     },
     {
       "id": "LM-BG-ui-state-profile-buyer-component_populated",
@@ -15754,8 +15996,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_populated",
       "oracle": "populated renders every field it promises, with no undefined/NaN",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "populated renders every field it promises, with no undefined/NaN",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "230ded069a08dcbd",
+        "walked_at": "2026-08-04",
+        "checked": "1,178 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object])."
+      }
     },
     {
       "id": "LM-BG-ui-state-community-buyer-component_loading",
@@ -15767,8 +16022,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_loading",
       "oracle": "the component's loading state is distinguishable from its empty state",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "the component's loading state is distinguishable from its empty state",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "4aa3236afcdcb320",
+        "walked_at": "2026-08-04",
+        "checked": "GENUINELY INDUCED: 5 skeleton nodes shown while the reads were held open, and no fallback to an empty-state invite."
+      }
     },
     {
       "id": "LM-BG-ui-state-community-buyer-component_skeleton",
@@ -15780,8 +16048,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_skeleton",
       "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "the skeleton reserves the space the content will take, so nothing jumps",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "4aa3236afcdcb320",
+        "walked_at": "2026-08-04",
+        "checked": "Reserves real space: measured heights 156, 156, 44, 44, 44 during the held reads -- two post cards and three rows, none zero-height."
+      }
     },
     {
       "id": "LM-BG-ui-state-community-buyer-component_disabled",
@@ -15793,8 +16074,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_disabled",
       "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "a disabled control looks disabled AND refuses activation - both, not either",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "4aa3236afcdcb320",
+        "walked_at": "2026-08-04",
+        "checked": "NOT EXERCISED: 0 disabled controls in the settled state. Recorded rather than passed."
+      }
     },
     {
       "id": "LM-BG-ui-state-community-buyer-component_busy",
@@ -15806,8 +16100,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_busy",
       "oracle": "an in-flight control is busy and cannot be re-fired",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "an in-flight control is busy and cannot be re-fired",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "4aa3236afcdcb320",
+        "walked_at": "2026-08-04",
+        "checked": "NOT EXERCISED in this walk: the board's commit control is the composer, which is not open in the default state. Recorded rather than passed rather than counted from a control that was never pressed."
+      }
     },
     {
       "id": "LM-BG-ui-state-community-buyer-component_populated",
@@ -15819,8 +16126,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_populated",
       "oracle": "populated renders every field it promises, with no undefined/NaN",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "populated renders every field it promises, with no undefined/NaN",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "4aa3236afcdcb320",
+        "walked_at": "2026-08-04",
+        "checked": "1,842 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object])."
+      }
     },
     {
       "id": "LM-BG-ui-state-public_feed-buyer-component_loading",
@@ -15832,8 +16152,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_loading",
       "oracle": "the component's loading state is distinguishable from its empty state",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html",
+        "asserts": "the component's loading state is distinguishable from its empty state",
+        "value_checked": true,
+        "depends_on": [
+          "public-feed.html",
+          "utils.js"
+        ],
+        "sha": "8f063aa1f1a2ab53",
+        "walked_at": "2026-08-04",
+        "checked": "The surface SHIPS a first-paint skeleton -- public-feed.html:165 renders #feed-skeleton with three .skeleton-card divs, and the code comment at :242 says exactly what they are for ('static .skeleton-card divs stay in markup only as the pre-JS first-paint reserve'). The induced re-run reports 0 nodes because the page hides the skeleton once loaded and does not restore it. LIMIT OF THE INDUCTION, recorded rather than hidden: delaying the reads and re-running the loaders cannot restore a first-paint state, because the page does not revert its rendered markup. What the induced pass DOES establish is that the waiting surface does not fall back to the empty-state invite (looksEmptyInstead false)."
+      }
     },
     {
       "id": "LM-BG-ui-state-public_feed-buyer-component_skeleton",
@@ -15845,8 +16178,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_skeleton",
       "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html",
+        "asserts": "the skeleton reserves the space the content will take, so nothing jumps",
+        "value_checked": true,
+        "depends_on": [
+          "public-feed.html",
+          "utils.js"
+        ],
+        "sha": "8f063aa1f1a2ab53",
+        "walked_at": "2026-08-04",
+        "checked": "Reserves space by declaration: .skeleton-card is height 90px (public-feed.html:114), three of them, so the feed's first paint holds 270px rather than collapsing and jumping when posts land. Source-verified for the reason given under component_loading."
+      }
     },
     {
       "id": "LM-BG-ui-state-public_feed-buyer-component_disabled",
@@ -15858,8 +16204,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_disabled",
       "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html",
+        "asserts": "a disabled control looks disabled AND refuses activation - both, not either",
+        "value_checked": true,
+        "depends_on": [
+          "public-feed.html",
+          "utils.js"
+        ],
+        "sha": "8f063aa1f1a2ab53",
+        "walked_at": "2026-08-04",
+        "checked": "NOT APPLICABLE: an anonymous read-only feed offers no disabled control. Recorded rather than passed."
+      }
     },
     {
       "id": "LM-BG-ui-state-public_feed-buyer-component_busy",
@@ -15871,8 +16230,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_busy",
       "oracle": "an in-flight control is busy and cannot be re-fired",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html",
+        "asserts": "an in-flight control is busy and cannot be re-fired",
+        "value_checked": true,
+        "depends_on": [
+          "public-feed.html",
+          "utils.js"
+        ],
+        "sha": "8f063aa1f1a2ab53",
+        "walked_at": "2026-08-04",
+        "checked": "NOT APPLICABLE: the surface has no control that commits anything -- its two controls are 'Sign in to post' and 'Hail a service', both navigations. Recorded rather than passed."
+      }
     },
     {
       "id": "LM-BG-ui-state-public_feed-buyer-component_populated",
@@ -15884,8 +16256,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "component_populated",
       "oracle": "populated renders every field it promises, with no undefined/NaN",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html",
+        "asserts": "populated renders every field it promises, with no undefined/NaN",
+        "value_checked": true,
+        "depends_on": [
+          "public-feed.html",
+          "utils.js"
+        ],
+        "sha": "8f063aa1f1a2ab53",
+        "walked_at": "2026-08-04",
+        "checked": "1,976 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object])."
+      }
     },
     {
       "id": "LM-BH-ui-visual-market-buyer-contrast_wcag",

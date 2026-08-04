@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-03T23:11:23+00:00",
+ "generated": "2026-08-04T00:20:31+00:00",
  "coverage_pct": 100.0,
  "page_pct": 100.0,
  "ai_surface_pct": 100.0,
@@ -373,9 +373,9 @@
  "live_bonus": {
   "live_cells": 26,
   "live_cell_ids": [
-   "H1/F",
    "H1/I",
    "H1/M",
+   "H1/U",
    "H11/F",
    "H12/F",
    "H13/F",
@@ -400,9 +400,9 @@
    "H8/I",
    "H9/F"
   ],
-  "breaches": 1,
+  "breaches": 0,
   "fresh": true,
-  "age_days": 0.1,
+  "age_days": 0.0,
   "proven_ever": 32,
   "this_run": 26
  },
@@ -9367,6 +9367,6 @@
   "coverage_pct": 100.0
  },
  "delta_vs_last": 0.0,
- "dry_streak": 4,
+ "dry_streak": 5,
  "dry": true
 }

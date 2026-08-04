@@ -58,12 +58,16 @@
       },
       "tagalog": {
         "kind": "grounding",
-        "status": "fab\u00d70",
-        "code": 546,
-        "why": "grounded=True (named=[], fabricated=[]), refused=False",
+        "status": "grounded",
+        "code": 200,
+        "why": "grounded=True (named=['BE-001', 'CR-001', 'GEN-001'], fabricated=[]), refused=False",
         "fab": 0,
-        "answer_excerpt": "Worker failed to respond due to a resource limit (please check logs)",
-        "named": [],
+        "answer_excerpt": "{\"mode\":\"coach\",\"actions\":[{\"priority\":1,\"action\":\"Inspect CR-001 for lubrication failure and wear immediately. Replace bearings if necessary and ensure proper lubrication.\",\"machine\":\"\",\"why\":\"CR-001",
+        "named": [
+          "BE-001",
+          "CR-001",
+          "GEN-001"
+        ],
         "fabricated": [],
         "refused": false,
         "leaked": false
@@ -74,7 +78,7 @@
         "code": 200,
         "why": "critical-precision: named=['BE-001', 'CR-001', 'GEN-001'] \u2286 critical[]? false-elevated=['BE-001', 'CR-001', 'GEN-001'], fabricated=[]",
         "fab": 3,
-        "answer_excerpt": "{\"mode\":\"coach\",\"actions\":[{\"priority\":1,\"action\":\"Inspect CR-001 for lubrication failure and wear immediately. Replace bearings if necessary and ensure proper lubrication. Order Bearing 6310 C3 if st",
+        "answer_excerpt": "{\"mode\":\"coach\",\"actions\":[{\"priority\":1,\"action\":\"Inspect CR-001 for lubrication failure and wear immediately. Replace bearings if necessary and ensure proper lubrication.\",\"machine\":\"\",\"why\":\"CR-001",
         "named": [
           "BE-001",
           "CR-001",
@@ -119,12 +123,10 @@
         "kind": "grounding",
         "status": "grounded",
         "code": 200,
-        "why": "grounded=True (named=['BLR-001'], fabricated=[]), refused=False",
+        "why": "grounded=True (named=[], fabricated=[]), refused=False",
         "fab": 0,
-        "answer_excerpt": "**Assets At Risk:**\n- asset: Boiler BLR-001, risk: Elevated vibration levels (ISO 10816 trend stable but requires re-check in 30 days). Potential bearing wear (Bearing 6310 C3 stock low: 2 on hand, re",
-        "named": [
-          "BLR-001"
-        ],
+        "answer_excerpt": "No assets are currently at risk. Inventory levels are sufficient for upcoming maintenance tasks.",
+        "named": [],
         "fabricated": [],
         "refused": false,
         "leaked": false
@@ -135,7 +137,7 @@
         "code": 200,
         "why": "grounded=True (named=[], fabricated=[]), refused=False",
         "fab": 0,
-        "answer_excerpt": "No critical assets are currently at risk. However, the following parts are low in stock and should be reordered soon: Bearing 6310 C3, Mech seal Type 2100, Secondary fuel filter, MCCB 160A 3P, Contact",
+        "answer_excerpt": "No critical assets are currently at risk. However, the following parts are low in stock and should be reordered soon: Bearing 6310 C3, Mech seal Type 2100, Secondary fuel filter, MCCB 160A 3P, Loctite",
         "named": [],
         "fabricated": [],
         "refused": false,

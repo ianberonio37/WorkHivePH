@@ -214,7 +214,15 @@ export async function states(opts) {
     const HOLD = 1100;
     window.fetch = (i, x) => {
       const u = typeof i === 'string' ? i : (i && i.url) || '';
+      const method = ((x && x.method) || (i && i.method) || 'GET');
       if (!REST.test(u)) return orig(i, x);
+      // same rule as the busy check: a mutating verb is answered, never forwarded. The loaders this
+      // re-runs are reads, but "should only be reads" is an assumption and the cost of being wrong
+      // is a write to the shared database.
+      if (/^(POST|PATCH|PUT|DELETE)$/i.test(method)) {
+        return new Promise(res => setTimeout(() => res(
+          new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } })), HOLD));
+      }
       return new Promise(res => setTimeout(() => res(orig(i, x)), HOLD));
     };
     document.dispatchEvent(new Event('DOMContentLoaded'));
@@ -280,16 +288,36 @@ export async function states(opts) {
       // Watchlist trust-bar control). The button has to actually belong to a form, or say plainly
       // that it commits something.
       ((b.type === 'submit' && b.closest('form')) ||
-       /^(save|file|submit|post|send|hail|confirm|top.?up)\b/i.test((b.textContent || '').trim())));
+       // decision controls count too: the admin queues commit money with "Verify: mint credits" /
+       // "Approve" / "Reject", which no submit-shaped test would ever find. Safe to press only
+       // because the mutating verbs above are answered and never forwarded -- this list must not
+       // grow beyond what that guard covers.
+       /^(save|file|submit|post|send|hail|confirm|top.?up|verify|approve|reject|decide)\b/i
+         .test((b.textContent || '').trim())));
     if (!btn) {
       out.component_busy = { ok: null, note: 'no in-flight-capable control on this surface' };
     } else {
-      const HOLD = 1100;                                  // bounded, for the same reason as above
+      // THE WRITE MUST NEVER LAND. This check CLICKS a real commit control, and the first version
+      // only DELAYED the request before forwarding it -- so on marketplace-seller.html it pressed
+      // Save and the profile row's updated_at actually moved. A probe that mutates the shared
+      // database is the one thing this bank is not allowed to do, and "it was only a timestamp" is
+      // not the standard. Mutating verbs are now answered synthetically and NEVER forwarded; reads
+      // are merely delayed, which is all the in-flight window needs.
+      const HOLD = 1100;
+      const MUTATING = /^(POST|PATCH|PUT|DELETE)$/i;
+      const blocked = [];
       window.fetch = (i, x) => {
         const u = typeof i === 'string' ? i : (i && i.url) || '';
+        const method = ((x && x.method) || (i && i.method) || 'GET');
         if (!REST.test(u)) return orig(i, x);
+        if (MUTATING.test(method)) {
+          blocked.push(method + ' ' + u.split('/rest/v1/')[1]);
+          return new Promise(res => setTimeout(() => res(
+            new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } })), HOLD));
+        }
         return new Promise(res => setTimeout(() => res(orig(i, x)), HOLD));
       };
+      out._writesBlocked = blocked;
       btn.click();
       await new Promise(r => setTimeout(r, 450));          // sample INSIDE the flight
       const cs = getComputedStyle(btn);
