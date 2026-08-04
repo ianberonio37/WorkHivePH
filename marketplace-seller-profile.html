@@ -271,8 +271,14 @@
 
   <!-- Stats grid -->
   <div class="stats-grid">
-    <div class="stat-cell"><div class="stat-num" id="stat-listings">0</div><div class="stat-lbl">Active Listings</div></div>
-    <div class="stat-cell"><div class="stat-num blue" id="stat-replies">0</div><div class="stat-lbl">Inquiries Replied</div></div>
+    <!-- SEED THE GAP, NOT A ZERO. Measured mid-load on a deliberately slow backend: this row read
+         "Listings 0 · Active Listings 0 · Inquiries Replied - · Avg Response -" -- two tiles claiming a
+         count before anything had been read, beside two that correctly admitted they did not know. On a
+         seller's public profile a 0 is not neutral: "0 Active Listings" and "0 Inquiries Replied" read
+         as a seller with nothing to sell who does not answer, which is a reputational claim made about
+         a person by a page that had not yet looked. Same rule the rest of the platform now follows. -->
+    <div class="stat-cell"><div class="stat-num" id="stat-listings">-</div><div class="stat-lbl">Active Listings</div></div>
+    <div class="stat-cell"><div class="stat-num blue" id="stat-replies">-</div><div class="stat-lbl">Inquiries Replied</div></div>
     <div class="stat-cell"><div class="stat-num green" id="stat-response">-</div><div class="stat-lbl">Avg Response</div></div>
     <div class="stat-cell"><div class="stat-num" id="stat-rating">-</div><div class="stat-lbl" title="WorkHive Marketplace Seller Score input: overall buyer rating">Rating</div></div>
   </div>
