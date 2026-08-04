@@ -1048,7 +1048,7 @@
        available before the attempt. */
     if (typeof svcRequireOnline === 'function' && !svcRequireOnline('Claiming your starter credits')) return;
     const btn = document.getElementById('cw-claim');
-    if (btn) { btn.disabled = true; btn.textContent = 'Claiming…'; }
+    if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Claiming…'; }
     try {
       const { data, error, status } = await db.rpc('claim_starter_grant');
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
@@ -1069,7 +1069,7 @@
     } catch (e) {
       showToast(whWriteError(e, 'Could not claim starter credits.'), 'error');
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Claim your starter credits'; }
+      if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Claim your starter credits'; }
     }
   }
   window.claimStarter = claimStarter;
@@ -1544,7 +1544,7 @@
     }
 
     const btn = document.getElementById('btn-save-edit');
-    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Saving…'; }
     const _wasPublished = _editItem && _editItem.status === 'published';
 
     try {
@@ -1573,7 +1573,7 @@
     } catch (_err) {
       showToast(whWriteError(_err, 'Save failed. Try again.'), 'error');
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Save Changes'; }
+      if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Save Changes'; }
     }
   }
 
@@ -1604,7 +1604,7 @@
     const replyText = (textarea?.value || '').trim();
     const now = new Date().toISOString();
     const btn = document.querySelector(`[data-action="reply"][data-id="${inqId}"]`);
-    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Saving…'; }
 
     try {
       const { error } = await db
@@ -1616,7 +1616,7 @@
       await loadInquiries();
     } catch (_err) {
       showToast(whWriteError(_err, 'Failed. Try again.'), 'error');
-      if (btn) { btn.disabled = false; btn.textContent = 'Send Reply + Mark Replied'; }
+      if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Send Reply + Mark Replied'; }
     }
   }
 
@@ -2763,7 +2763,7 @@
       return;
     }
 
-    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Saving…'; }
 
     try {
       const { error } = await db.from('marketplace_sellers').upsert({
@@ -2793,7 +2793,7 @@
     } catch (_err) {
       showToast(whWriteError(_err, 'Save failed. Try again.'), 'error');
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
+      if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Save'; }
     }
   }
 
@@ -2813,7 +2813,7 @@
     }
     const normalized = lines.join('\n') || null;
 
-    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Saving…'; }
     try {
       /* Setting cert_verified=false here invalidates any previous admin verification
          when the seller edits their cert list — admin must re-review on changes. */
@@ -2852,7 +2852,7 @@
     } catch (_err) {
       showToast(whWriteError(_err, 'Save failed. Try again.'), 'error');
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Save certifications'; }
+      if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Save certifications'; }
     }
   }
 
