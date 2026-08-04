@@ -1,4 +1,4 @@
 {
- "green": 349,
+ "green": 424,
  "note": "forward-only ratchet on GREEN. stale is excluded from the denominator."
 }
