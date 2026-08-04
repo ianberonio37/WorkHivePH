@@ -19453,8 +19453,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "repeat_visit",
       "oracle": "a returning person resumes where it matters, without redoing setup",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a returning person resumes where it matters, without redoing setup",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "REPEAT VISIT. Walked the actual abandonment through the page's OWN controls -- #fab-post to open, the sheet's own close affordance to leave -- not by calling functions. That mattered again: openPostSheet is page-scoped and `typeof window.openPostSheet` is 'undefined' from an evaluate, the same trap that already made an error probe and a watchlist probe silently no-op today.\n  marketplace_listings before ...... 27\n  after abandoning mid-compose ..... 27   <- nothing half-applied; the row count is the oracle, not the absence of a toast\n  on reopening ..................... the typed title is restored EXACTLY\nBoth halves point opposite ways and both are right: nothing reached the database, and nothing the person typed was discarded. A flow that threw the text away would satisfy 'no half-applied state' just as well and be a worse product, which is why this is measured on the row count AND the restored field rather than either alone.\nState left as found: the probe's draft was removed from localStorage and verified gone.\nThe setup that is NOT redone is the part that actually costs a person effort: what they had already written. Returning presents their own words, not an empty form."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-market-buyer-cross_surface_handoff",
@@ -19507,8 +19520,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "abandon_resume",
       "oracle": "abandoning midway and returning leaves no half-applied state",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "abandoning midway and returning leaves no half-applied state",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "ABANDON/RESUME. Walked the actual abandonment through the page's OWN controls -- #fab-post to open, the sheet's own close affordance to leave -- not by calling functions. That mattered again: openPostSheet is page-scoped and `typeof window.openPostSheet` is 'undefined' from an evaluate, the same trap that already made an error probe and a watchlist probe silently no-op today.\n  marketplace_listings before ...... 27\n  after abandoning mid-compose ..... 27   <- nothing half-applied; the row count is the oracle, not the absence of a toast\n  on reopening ..................... the typed title is restored EXACTLY\nBoth halves point opposite ways and both are right: nothing reached the database, and nothing the person typed was discarded. A flow that threw the text away would satisfy 'no half-applied state' just as well and be a worse product, which is why this is measured on the row count AND the restored field rather than either alone.\nState left as found: the probe's draft was removed from localStorage and verified gone."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-market-two_context-first_run_to_value",
@@ -19533,8 +19559,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "repeat_visit",
       "oracle": "a returning person resumes where it matters, without redoing setup",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a returning person resumes where it matters, without redoing setup",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "REPEAT VISIT. Walked the actual abandonment through the page's OWN controls -- #fab-post to open, the sheet's own close affordance to leave -- not by calling functions. That mattered again: openPostSheet is page-scoped and `typeof window.openPostSheet` is 'undefined' from an evaluate, the same trap that already made an error probe and a watchlist probe silently no-op today.\n  marketplace_listings before ...... 27\n  after abandoning mid-compose ..... 27   <- nothing half-applied; the row count is the oracle, not the absence of a toast\n  on reopening ..................... the typed title is restored EXACTLY\nBoth halves point opposite ways and both are right: nothing reached the database, and nothing the person typed was discarded. A flow that threw the text away would satisfy 'no half-applied state' just as well and be a worse product, which is why this is measured on the row count AND the restored field rather than either alone.\nState left as found: the probe's draft was removed from localStorage and verified gone.\nThe setup that is NOT redone is the part that actually costs a person effort: what they had already written. Returning presents their own words, not an empty form."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-market-two_context-cross_surface_handoff",
@@ -19587,8 +19626,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "abandon_resume",
       "oracle": "abandoning midway and returning leaves no half-applied state",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "abandoning midway and returning leaves no half-applied state",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "ABANDON/RESUME. Walked the actual abandonment through the page's OWN controls -- #fab-post to open, the sheet's own close affordance to leave -- not by calling functions. That mattered again: openPostSheet is page-scoped and `typeof window.openPostSheet` is 'undefined' from an evaluate, the same trap that already made an error probe and a watchlist probe silently no-op today.\n  marketplace_listings before ...... 27\n  after abandoning mid-compose ..... 27   <- nothing half-applied; the row count is the oracle, not the absence of a toast\n  on reopening ..................... the typed title is restored EXACTLY\nBoth halves point opposite ways and both are right: nothing reached the database, and nothing the person typed was discarded. A flow that threw the text away would satisfy 'no half-applied state' just as well and be a worse product, which is why this is measured on the row count AND the restored field rather than either alone.\nState left as found: the probe's draft was removed from localStorage and verified gone."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-market_svc-buyer-first_run_to_value",
