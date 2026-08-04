@@ -12838,8 +12838,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "no_raw_enum",
       "oracle": "no lowercase_with_underscores status reaches a person",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "no lowercase_with_underscores status reaches a person",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "0 raw enums reaching a person, scanned across 5 states: the Parts / Training / Hiring / Services section tabs and the listing DETAIL SHEET, where a listing's own status is most likely to leak. The check looks for lowercase_with_underscores tokens in VISIBLE text only -- leaf nodes, excluding <code>/<pre> and anything that is a filename -- so a class name or an id cannot produce a false hit.\nNON-VACUITY PROVEN, because a scanner that finds nothing is worthless until you know it can find something: with the surface reading 0, the exact forbidden shape was planted in the live DOM ('Status: pending_verification'), the scan caught it, and removing it returned the count to 0. The zero is a measurement, not a silence.\nThis is the state that would have surfaced 'cancelled_by_client' on the seller console -- the page's own comment records that the raw enum WOULD have printed there without its label map. The mapping holds on every surface walked."
+      }
     },
     {
       "id": "LM-BB-ufai-U-market-buyer-number_explained",
@@ -12903,8 +12916,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "no_raw_enum",
       "oracle": "no lowercase_with_underscores status reaches a person",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "no lowercase_with_underscores status reaches a person",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "0 raw enums reaching a person, scanned across the services pane, including 'My service requests' where each hail's state is rendered in words ('Provider cancelled', 'No provider found', 'You cancelled'). The check looks for lowercase_with_underscores tokens in VISIBLE text only -- leaf nodes, excluding <code>/<pre> and anything that is a filename -- so a class name or an id cannot produce a false hit.\nNON-VACUITY PROVEN, because a scanner that finds nothing is worthless until you know it can find something: with the surface reading 0, the exact forbidden shape was planted in the live DOM ('Status: pending_verification'), the scan caught it, and removing it returned the count to 0. The zero is a measurement, not a silence.\nThis is the state that would have surfaced 'cancelled_by_client' on the seller console -- the page's own comment records that the raw enum WOULD have printed there without its label map. The mapping holds on every surface walked."
+      }
     },
     {
       "id": "LM-BB-ufai-U-market_svc-buyer-number_explained",
@@ -12968,8 +12994,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "no_raw_enum",
       "oracle": "no lowercase_with_underscores status reaches a person",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "no lowercase_with_underscores status reaches a person",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "9ab7aa7d5d9a8727",
+        "walked_at": "2026-08-04",
+        "checked": "0 raw enums reaching a person, scanned across 4 tabs: Listings, Inquiries, Analytics and Services -- the job-state surface, where cancelled_by_client and its siblings would surface if they were unmapped. The check looks for lowercase_with_underscores tokens in VISIBLE text only -- leaf nodes, excluding <code>/<pre> and anything that is a filename -- so a class name or an id cannot produce a false hit.\nNON-VACUITY PROVEN, because a scanner that finds nothing is worthless until you know it can find something: with the surface reading 0, the exact forbidden shape was planted in the live DOM ('Status: pending_verification'), the scan caught it, and removing it returned the count to 0. The zero is a measurement, not a silence.\nThis is the state that would have surfaced 'cancelled_by_client' on the seller console -- the page's own comment records that the raw enum WOULD have printed there without its label map. The mapping holds on every surface walked."
+      }
     },
     {
       "id": "LM-BB-ufai-U-seller-buyer-number_explained",
@@ -13033,8 +13072,20 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "no_raw_enum",
       "oracle": "no lowercase_with_underscores status reaches a person",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "no lowercase_with_underscores status reaches a person",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html"
+        ],
+        "sha": "b33bcc485cadd886",
+        "walked_at": "2026-08-04",
+        "checked": "0 raw enums reaching a person, scanned across the moderation and money queues, where topup states (pending_verification, verified, rejected) are the most likely leak on the platform. The check looks for lowercase_with_underscores tokens in VISIBLE text only -- leaf nodes, excluding <code>/<pre> and anything that is a filename -- so a class name or an id cannot produce a false hit.\nNON-VACUITY PROVEN, because a scanner that finds nothing is worthless until you know it can find something: with the surface reading 0, the exact forbidden shape was planted in the live DOM ('Status: pending_verification'), the scan caught it, and removing it returned the count to 0. The zero is a measurement, not a silence.\nThis is the state that would have surfaced 'cancelled_by_client' on the seller console -- the page's own comment records that the raw enum WOULD have printed there without its label map. The mapping holds on every surface walked."
+      }
     },
     {
       "id": "LM-BB-ufai-U-admin-buyer-number_explained",
@@ -13098,8 +13149,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "no_raw_enum",
       "oracle": "no lowercase_with_underscores status reaches a person",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "no lowercase_with_underscores status reaches a person",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "230ded069a08dcbd",
+        "walked_at": "2026-08-04",
+        "checked": "0 raw enums reaching a person, scanned across the default view plus the Parts / Training / Jobs filter chips. The check looks for lowercase_with_underscores tokens in VISIBLE text only -- leaf nodes, excluding <code>/<pre> and anything that is a filename -- so a class name or an id cannot produce a false hit.\nNON-VACUITY PROVEN, because a scanner that finds nothing is worthless until you know it can find something: with the surface reading 0, the exact forbidden shape was planted in the live DOM ('Status: pending_verification'), the scan caught it, and removing it returned the count to 0. The zero is a measurement, not a silence.\nThis is the state that would have surfaced 'cancelled_by_client' on the seller console -- the page's own comment records that the raw enum WOULD have printed there without its label map. The mapping holds on every surface walked."
+      }
     },
     {
       "id": "LM-BB-ufai-U-profile-buyer-number_explained",
@@ -13163,8 +13227,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "no_raw_enum",
       "oracle": "no lowercase_with_underscores status reaches a person",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "no lowercase_with_underscores status reaches a person",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "4aa3236afcdcb320",
+        "walked_at": "2026-08-04",
+        "checked": "0 raw enums reaching a person, scanned across the discussion board with its post categories and trust tiers. The check looks for lowercase_with_underscores tokens in VISIBLE text only -- leaf nodes, excluding <code>/<pre> and anything that is a filename -- so a class name or an id cannot produce a false hit.\nNON-VACUITY PROVEN, because a scanner that finds nothing is worthless until you know it can find something: with the surface reading 0, the exact forbidden shape was planted in the live DOM ('Status: pending_verification'), the scan caught it, and removing it returned the count to 0. The zero is a measurement, not a silence.\nThis is the state that would have surfaced 'cancelled_by_client' on the seller console -- the page's own comment records that the raw enum WOULD have printed there without its label map. The mapping holds on every surface walked."
+      }
     },
     {
       "id": "LM-BB-ufai-U-community-buyer-number_explained",
