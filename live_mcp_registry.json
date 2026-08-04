@@ -13561,8 +13561,22 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "cross_surface_agreement",
       "oracle": "the same fact reads the same on every surface that shows it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "the same fact reads the same on every surface that shows it",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "marketplace-seller-profile.html",
+          "marketplace-seller.html"
+        ],
+        "sha": "fcd61e408acc1982",
+        "walked_at": "2026-08-04",
+        "checked": "The 10% reward reads the same everywhere it appears, checked as RENDERED text on each surface rather than in source:\n  marketplace grid  : the chip on every card, 'PHP6,898.05 credits back', measured at exactly 10.000% of that card's own price on all 9 cards.\n  seller profile    : 'Every listing here also earns you 10% of its price back in WorkHive credits when you buy.'\n  services pane     : 'When the job settles you get 10% of it in credits back...'\nSame rate, same direction, same NAME -- 'credits back' -- so a buyer meets one concept rather than three dialects.\nThe walk also surfaced a distinction worth stating, because two different facts on this platform are both '10%': the buyer EARNS 10% back, and the seller has 10% HELD when publishing. They are opposite in direction and the seller console words its one differently and explicitly -- 'Publishing holds 10% of the price in credits', 'HELD from the credits below, not spent'. That is the correct outcome for this oracle: the same fact reads the same everywhere, and a DIFFERENT fact is deliberately worded differently instead of being collapsed into the same sentence. A person who is both buyer and seller can tell which 10% they are looking at."
+      }
     },
     {
       "id": "LM-BC-ufai-F-market_svc-buyer-effect_in_db",
@@ -13652,8 +13666,22 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "cross_surface_agreement",
       "oracle": "the same fact reads the same on every surface that shows it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "the same fact reads the same on every surface that shows it",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "marketplace-seller-profile.html",
+          "marketplace-seller.html"
+        ],
+        "sha": "fcd61e408acc1982",
+        "walked_at": "2026-08-04",
+        "checked": "The 10% reward reads the same everywhere it appears, checked as RENDERED text on each surface rather than in source:\n  marketplace grid  : the chip on every card, 'PHP6,898.05 credits back', measured at exactly 10.000% of that card's own price on all 9 cards.\n  seller profile    : 'Every listing here also earns you 10% of its price back in WorkHive credits when you buy.'\n  services pane     : 'When the job settles you get 10% of it in credits back...'\nSame rate, same direction, same NAME -- 'credits back' -- so a buyer meets one concept rather than three dialects.\nThe walk also surfaced a distinction worth stating, because two different facts on this platform are both '10%': the buyer EARNS 10% back, and the seller has 10% HELD when publishing. They are opposite in direction and the seller console words its one differently and explicitly -- 'Publishing holds 10% of the price in credits', 'HELD from the credits below, not spent'. That is the correct outcome for this oracle: the same fact reads the same everywhere, and a DIFFERENT fact is deliberately worded differently instead of being collapsed into the same sentence. A person who is both buyer and seller can tell which 10% they are looking at."
+      }
     },
     {
       "id": "LM-BC-ufai-F-seller-buyer-effect_in_db",
@@ -13877,8 +13905,22 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "cross_surface_agreement",
       "oracle": "the same fact reads the same on every surface that shows it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "the same fact reads the same on every surface that shows it",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "marketplace-seller-profile.html",
+          "marketplace-seller.html"
+        ],
+        "sha": "fcd61e408acc1982",
+        "walked_at": "2026-08-04",
+        "checked": "The 10% reward reads the same everywhere it appears, checked as RENDERED text on each surface rather than in source:\n  marketplace grid  : the chip on every card, 'PHP6,898.05 credits back', measured at exactly 10.000% of that card's own price on all 9 cards.\n  seller profile    : 'Every listing here also earns you 10% of its price back in WorkHive credits when you buy.'\n  services pane     : 'When the job settles you get 10% of it in credits back...'\nSame rate, same direction, same NAME -- 'credits back' -- so a buyer meets one concept rather than three dialects.\nThe walk also surfaced a distinction worth stating, because two different facts on this platform are both '10%': the buyer EARNS 10% back, and the seller has 10% HELD when publishing. They are opposite in direction and the seller console words its one differently and explicitly -- 'Publishing holds 10% of the price in credits', 'HELD from the credits below, not spent'. That is the correct outcome for this oracle: the same fact reads the same everywhere, and a DIFFERENT fact is deliberately worded differently instead of being collapsed into the same sentence. A person who is both buyer and seller can tell which 10% they are looking at."
+      }
     },
     {
       "id": "LM-BC-ufai-F-profile-buyer-effect_in_db",
