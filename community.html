@@ -1049,6 +1049,16 @@
     if (btn)    { btn.disabled = false; btn.textContent = 'Load more posts'; }
   }
 
+  /* RETRY MEANS RETRY WHAT FAILED, AND ON A SHARED SURFACE THAT IS THE SURFACE. Measured 2026-08-04:
+     with both panels erroring, pressing one Retry recovered its own half and left the other half's
+     "Couldn't load..." sitting on screen, so the page still read as broken to the person who had just
+     fixed it. The listings grid and the services pane each learned this already (svcRetryAll); the
+     community feed and its leaderboard had two independent retries. One control, both reads. */
+  function communityRetryAll() {
+    Promise.resolve(loadPosts()).catch(() => {});
+    Promise.resolve(loadLeaderboard()).catch(() => {});
+  }
+
   // ── Leaderboard (top XP earners in this hive) ────────────────────────────────
   async function loadLeaderboard() {
     const el = document.getElementById('leaderboard-list');
@@ -1075,7 +1085,7 @@
                    + escHtml(msg) + '</p>'
                    + '<div style="text-align:center;"><button type="button" id="lb-retry" style="font-size:0.75rem;padding:0.4rem 0.9rem;min-height:44px;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;">Retry</button></div>';
       const rb = document.getElementById('lb-retry');
-      if (rb) rb.addEventListener('click', loadLeaderboard);
+      if (rb) rb.addEventListener('click', () => communityRetryAll());
       return;
     }
     if (!data || data.length === 0) {
@@ -1280,7 +1290,7 @@
       }
       // E2 consistent states: inline error + Retry (shared whListError) beside the toast.
       if (typeof whListError === 'function') {
-        whListError(document.getElementById('feed-list'), _inline, () => loadPosts());
+        whListError(document.getElementById('feed-list'), _inline, () => communityRetryAll());
       }
       showToast(_toast, 'error');
       return;
