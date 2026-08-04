@@ -689,9 +689,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- Trust bar -->
   <div class="trust-bar">
+    <!-- "ID-Verified Sellers" as a bare banner heading reads as a property of the RESULTS -- that the
+         sellers below are verified -- which is the same false claim the source chip made until today:
+         3 of 9 published parts listings belong to a verified seller. It is a real feature and it is
+         shown per card, so the label says where to look rather than implying a guarantee. -->
     <div class="trust-item">
       <span class="ic ic-verified" aria-hidden="true"></span>
-      ID-Verified Sellers
+      ID-Verified badge per seller
     </div>
     <div class="trust-item hide-sm">
       <span class="ic ic-secure" aria-hidden="true"></span>
@@ -4659,7 +4663,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       source:    'marketplace_listings + v_marketplace_sellers_truth',
       notes:     [
         'Tabs: Parts / Training / Jobs',
-        'ID-verified sellers only in results by default',
+        /* THE CHIP CLAIMED A FILTER THAT DOES NOT EXIST. It read "ID-verified sellers only in results
+           by default" -- the strongest trust claim on the discovery surface -- and loadListings()
+           filters on status and section, nothing else. Measured 2026-08-04: 9 published parts
+           listings on screen, and only 3 of them belong to a seller with kyb_verified. Six of nine
+           came from sellers the buyer had been told were screened.
+           Verification IS surfaced, per card, as the "Verified" badge, which is the honest design for
+           a marketplace this size -- filtering it down to 3 of 9 would hide most of the inventory and
+           still not make the old sentence true. So the note now describes what the surface actually
+           does. A trust claim that a query does not enforce is worse than no claim: it is the one a
+           buyer relies on when deciding to hand over money off-platform. */
+        'Every seller card shows whether that seller is ID-verified',
         'Free, contact-only: no platform fees',
       ],
     });
