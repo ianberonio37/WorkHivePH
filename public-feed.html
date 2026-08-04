@@ -238,6 +238,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   async function loadInitial() {
+    /* INITIAL MEANS INITIAL, and it did not. fetchPage applies _lastCreatedAt as a keyset cursor
+       unconditionally, and this function never cleared it — so the FIRST load set the cursor to the
+       oldest post on screen and every load after asked for posts OLDER THAN THAT. Zero rows, and the
+       page rendered "No public posts yet. Be the first hive to share with the world!" on a feed that
+       plainly has posts.
+       Measured 2026-08-05: populated (Jericho Bonifacio, Romeo Beltran) -> induce a 500 -> the error
+       state with its Retry -> press Retry with the network restored -> the EMPTY state. Retry is the
+       moment a person is already unsure whether the page works; answering it with "nobody has posted"
+       is a worse lie than the error was.
+       The marketplace grid has the same cursor and guards it with `if (append && _lastCreatedAt)`,
+       which is the correct shape; this page simply never grew the guard. Reset here, where a fresh
+       first page is the whole intent; loadMore keeps the cursor, because advancing it IS its job. */
+    _lastCreatedAt = null;
+    _hasMore = false;
     // G1 (FF1) converge: canonical skeleton takes over the wait state once JS runs; the
     // static .skeleton-card divs stay in markup only as the pre-JS first-paint reserve.
     const _fsk = document.getElementById('feed-skeleton');
