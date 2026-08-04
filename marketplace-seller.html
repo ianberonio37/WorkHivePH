@@ -1748,7 +1748,9 @@
         } catch (_) { /* empty-catch-allow: the rate control degrades to shown; the guard still refuses a duplicate */ }
       }
       const badge = document.getElementById('badge-services');
-      if (badge) badge.textContent = String(feed.length);
+      // distinct JOBS, matching the list below it: the feed carries one row per (request x provider
+      // identity), so a person with two qualifying identities had the tab badge counting one hail twice
+      if (badge) badge.textContent = String(new Set(feed.map(f => f.request_id)).size);
       renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed, closed);
       /* A quote price is WORK, not a keystroke: the provider adds up materials, travel and hours
          before typing it. Measured 2026-08-05 -- typed 3750, reloaded, and the box came back empty,
@@ -2214,11 +2216,30 @@
       });
     }
 
-    html += '<h2 style="font-size:0.95rem;margin:1.1rem 0 0.5rem;">Open requests near you <span class="tab-count">' + feed.length + '</span></h2>';
-    if (!feed.length) {
+    /* ONE CARD PER JOB, NOT PER IDENTITY. v_service_open_broadcasts joins each request against every
+       provider profile the person can act for, so a provider whose PERSONAL profile and whose HIVE's
+       profile both cover the trade saw the SAME job listed twice, and a count of 2 for one job.
+       Measured 2026-08-05 in a genuine two-context walk: David Velasco (freelancer, Electrical) also
+       supervises Lucena Pharmaceutical Mfg. Field Services (Electrical), and one VFD hail came back
+       as two identical rows from his own authenticated feed.
+       The server chooses which identity takes it -- accept_service_request is given only the request
+       id -- so a second row is not a second choice, it is noise on a console whose whole job is "how
+       much work is waiting". Grouped by request_id; a job counts as already answered if ANY of the
+       person's identities answered it, since the accept is one per request either way. */
+    const _byJob = [];
+    const _seenJob = new Map();
+    feed.forEach(f => {
+      const k = f.request_id;
+      if (_seenJob.has(k)) { const prev = _seenJob.get(k); prev.already_responded = prev.already_responded || f.already_responded; return; }
+      const row = Object.assign({}, f);
+      _seenJob.set(k, row);
+      _byJob.push(row);
+    });
+    html += '<h2 style="font-size:0.95rem;margin:1.1rem 0 0.5rem;">Open requests near you <span class="tab-count">' + _byJob.length + '</span></h2>';
+    if (!_byJob.length) {
       html += '<div class="empty-state" style="padding:1rem;"><p>No open requests in your service area right now. Stay Online and new hails appear here live.</p></div>';
     } else {
-      feed.forEach(f => {
+      _byJob.forEach(f => {
         const rate = f.catalog_rate != null ? _svcPeso(f.catalog_rate) + (f.catalog_unit === 'per_hour' ? '/hr' : '/visit') : (f.budget != null ? 'Budget ' + _svcPeso(f.budget) : 'Quote it');
         html +=
           '<div class="simple-card" style="margin-bottom:0.6rem;padding:0.9rem 1rem;">' +
