@@ -17052,14 +17052,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "focus_visible",
       "oracle": "keyboard focus is visible on every interactive element, including custom ones",
-      "status": "owed",
-      "findings": [
-        {
-          "severity": "false-green-withdrawn",
-          "title": "4 of 21 controls take focus invisibly",
-          "measured": "4 of 21 focusable controls show NO visible focus indicator. Measured one at a time -- focus the element, read its computed style, blur, read again -- and four changed nothing: no outline, no ring, no border or background shift. A control that takes focus invisibly is a keyboard dead end: the person cannot tell where they are, and on a surface whose controls publish listings and save a profile that is not cosmetic. The other 17 are fine, so this is a gap in specific controls rather than a missing global rule -- they need naming and fixing individually."
-        }
-      ]
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "keyboard focus is visible on every interactive element, including custom ones",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "4768076c343eea4b",
+        "walked_at": "2026-08-04",
+        "checked": "RE-WALKED 2026-08-04 and the earlier RED WAS MINE, withdrawn. A first pass reported '4 of 21 controls take focus invisibly' and I opened the row on it. Re-measured twice on CLEAN loads: 19 focusable controls, ZERO missing an indicator, and a :focus rule confirmed present in the CSSOM.\nThe four came from measuring on a page the availability lens had left MID-INDUCTION -- controls sitting disabled or mid-transition during the offline and slow probes compare identically focused and blurred, so they looked like dead ends and were not. The lesson is the one this session kept relearning from the other direction: a lens leaves the page in a state, and the next measurement inherits it. Focus checks run on a fresh load now, not after an induction.\nMEASUREMENT: each control focused ONE AT A TIME, computed style captured, blurred, captured again, and counted as covered only if an outline, a ring, or a border/background change actually appeared."
+      }
     },
     {
       "id": "LM-BH-ui-visual-seller-buyer-reduced_motion",
