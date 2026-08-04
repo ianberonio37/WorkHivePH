@@ -4,7 +4,7 @@ import {
   useVideoConfig, spring, interpolate, Sequence, Easing, random,
 } from 'remotion';
 import {ORANGE, FONT} from './Ambient';
-import {CAMERA_KEYS, CamKey} from './demoCamera';
+import {CAMERA_KEYS, CamKey, CAPTIONS} from './demoCamera';
 import {CameraMotionBlur} from '@remotion/motion-blur';
 
 // ════════════════════════════════════════════════════════════════════════
@@ -59,33 +59,35 @@ export const DEMO_BEATS: Beat[] = [
   {kind: 'word', text: 'Every', frames: 26},
   {kind: 'word', text: 'fix.', frames: 26},
   {kind: 'word', text: 'Every', frames: 26},
-  {kind: 'word', text: 'lesson.', frames: 26},
+  {kind: 'word', text: 'part.', frames: 26},
   {kind: 'word', text: 'Kept.', accent: true, frames: 40},
   {kind: 'logo', frames: 58},
-  // the sample's laptop moment: black stage, device rises, push into screen
-  {kind: 'device', seg: 0, frames: 180},
-  {kind: 'whip', frames: 18},
-  {kind: 'title', lines: ['See the whole shift'], frames: 96},
-  {kind: 'section', seg: 0, frames: 200},
+  {kind: 'device', seg: 0, frames: 170},
+
+  // CHAPTER 1 - LOGBOOK (the journey Ian named first)
   {kind: 'whip', frames: 18},
   {kind: 'title', lines: ['Log what you fixed'], frames: 96},
-  {kind: 'section', seg: 1, frames: 310},
-  {kind: 'section', seg: 2, frames: 280},
-  // the sample's PHONE moment - and WorkHive is mobile-first, so the phone
-  // shows the REAL 390px tech-persona UI (journey_segm0, captured live).
-  {kind: 'phone', frames: 150},
-  {kind: 'whip', frames: 18},
-  {kind: 'title', lines: ['Every machine', 'remembers'], frames: 96},
+  {kind: 'section', seg: 0, frames: 540},
+  {kind: 'section', seg: 1, frames: 450},
+  {kind: 'section', seg: 2, frames: 660},
   {kind: 'section', seg: 3, frames: 240},
+
+  // CHAPTER 2 - INVENTORY
   {kind: 'whip', frames: 18},
-  {kind: 'title', lines: ['Ask your own AI'], frames: 96},
-  {kind: 'section', seg: 4, frames: 210},
-  {kind: 'whip', frames: 16},
-  {kind: 'section', seg: 5, frames: 300},   // the ANSWER — the payoff beat
+  {kind: 'title', lines: ['Know what you have'], frames: 96},
+  {kind: 'section', seg: 4, frames: 690},
+
+  // CHAPTER 3 - PM SCHEDULER
   {kind: 'whip', frames: 18},
-  {kind: 'title', lines: ['Turn it into a plan'], frames: 96},
-  {kind: 'section', seg: 6, frames: 190},
-  {kind: 'end', frames: 290},               // sample holds its end card 10.4s
+  {kind: 'title', lines: ['Never miss a PM'], frames: 96},
+  {kind: 'section', seg: 5, frames: 570},
+
+  // CHAPTER 4 - DAY PLANNER
+  {kind: 'whip', frames: 18},
+  {kind: 'title', lines: ['Plan your whole day'], frames: 96},
+  {kind: 'section', seg: 6, frames: 420},
+
+  {kind: 'end', frames: 270},
 ];
 
 export const DEMO_DURATION = DEMO_BEATS.reduce((a, b) => a + b.frames, 0);
@@ -278,6 +280,41 @@ const PhoneReveal: React.FC<{frames: number}> = ({frames}) => {
 // ── product walkthrough on the pale backdrop ────────────────────────────
 // The measured treatment: footage inset (2.8% side margins), rounded, soft
 // shadow, slow settle — on PALE like the sample, not on the dark page navy.
+const CaptionBar: React.FC<{seg: number}> = ({seg}) => {
+  const f = useCurrentFrame();
+  const {fps, width, height} = useVideoConfig();
+  const t = f / fps;
+  const list = CAPTIONS[seg] ?? [];
+  const cur = list.find((c) => t >= c.t && t <= c.t + c.d);
+  if (!cur) return null;
+  const local = t - cur.t;
+  // quick wipe in, hold, quick wipe out - never a slow fade competing with
+  // the footage for attention
+  const inK = Math.min(1, local / 0.22);
+  const outK = Math.min(1, Math.max(0, (cur.t + cur.d - t) / 0.22));
+  const k = Math.min(inK, outK);
+  return (
+    <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center',
+                          paddingBottom: height * 0.075, pointerEvents: 'none'}}>
+      <div style={{
+        maxWidth: width * 0.74,
+        padding: `${height * 0.022}px ${height * 0.042}px`,
+        borderRadius: height * 0.012,
+        background: 'rgba(12,20,32,0.93)',
+        borderLeft: `${Math.round(height * 0.008)}px solid ${ORANGE}`,
+        boxShadow: '0 12px 40px rgba(0,0,0,.42)',
+        transform: `translateY(${(1 - k) * height * 0.05}px)`,
+        opacity: k,
+      }}>
+        <div style={{fontFamily: FONT, fontWeight: 700,
+                     fontSize: height * 0.042, lineHeight: 1.25,
+                     color: '#FFFFFF', textAlign: 'center',
+                     whiteSpace: 'pre-wrap'}}>{cur.text}</div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 const Section: React.FC<{seg: number; frames: number}> = ({seg, frames}) => {
   const f = useCurrentFrame();
   const {fps, width, height} = useVideoConfig();
@@ -328,6 +365,7 @@ const Section: React.FC<{seg: number; frames: number}> = ({seg, frames}) => {
                        transform: `scale(${scale})`,
                        transformOrigin: `${fx * 100}% ${fy * 100}%`}} />
       </div>
+      <CaptionBar seg={seg} />
     </AbsoluteFill>
   );
 };
@@ -354,6 +392,10 @@ const Whip: React.FC<{frames: number}> = ({frames}) => {
   );
 };
 
+// LOWER-THIRD CAPTION. Ian: "there is not even a caption what are you doing."
+// A product demo without narration is a stranger clicking things. Each caption
+// is generated from the recorder's own action log, so it is true by
+// construction and lands on the exact frame of the action it describes.
 const End: React.FC = () => {
   const f = useCurrentFrame();
   const {fps, height} = useVideoConfig();

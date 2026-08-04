@@ -3736,7 +3736,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       '<option value="normal" selected>Normal - within a few days</option><option value="high">High - today if possible</option><option value="critical">Critical - production is down</option><option value="low">Low - whenever convenient</option>' +
       '</select></label>' +
       '<button type="button" onclick="svcHailNow()" style="' + _svcBtnC + 'width:100%;margin-top:0.8rem;">Hail now - notify nearby providers</button>' +
-      '<p style="font-size:0.72rem;opacity:0.75;margin-top:0.4rem;">You pay the provider directly on completion. Standard rate shown; the provider confirms on accept.</p>' +
+      // THE REWARD WAS UNDISCOVERABLE ON THE SURFACE WHERE THE BUYER COMMITS (measured 2026-08-04).
+      // grant_service_reward() pays the buyer credits back when a hailed job SETTLES, and
+      // guard_reward_exclusive makes earning and spending mutually exclusive on the same job -- yet
+      // this pane mentioned neither credits, nor 10%, nor the hold. A buyer met the reward on a parts
+      // listing (the credits-back chip) and never on a service, which is the same class as the chip
+      // that silently vanished: the reward exists, and the person it belongs to never meets it.
+      '<p style="font-size:0.72rem;opacity:0.75;margin-top:0.4rem;">You pay the provider directly on completion. Standard rate shown; the provider confirms on accept. ' +
+      // Phrased as "credits back" ON PURPOSE: that is the exact wording the listing chip uses
+      // ("PHP6,898.05 credits back"), so a buyer meets ONE name for this reward across parts and
+      // services rather than two dialects for the same thing.
+      'When the job settles you get 10% of it in credits back, and you can spend credits on a job OR earn them on it, never both.</p>' +
       '</div>';
     // ── custom job → quotes ──
     html += '<div class="simple-card" style="margin-top:0.8rem;padding:0.9rem 1rem;">' +
