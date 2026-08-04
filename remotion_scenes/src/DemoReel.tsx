@@ -436,11 +436,12 @@ const Whip: React.FC<{frames: number}> = ({frames}) => {
   const flash = f < 2 ? 1 : 0;
   const streak = Math.sin(Math.min(1, Math.max(0, (k - 0.08) / 0.84)) * Math.PI);
   return (
-    <AbsoluteFill style={{background: flash ? '#1B2E47' : CLOUD,
+    <AbsoluteFill style={{background: flash ? '#16283E' : CLOUD,
                           alignItems: 'center', justifyContent: 'center'}}>
+      <HexField opacity={0.5} />
       <div style={{
-        width: '170%', height: '72%',
-        background: `linear-gradient(90deg, transparent, rgba(41,182,246,${0.5 * streak}), transparent)`,
+        width: '130%', height: '34%',
+        background: `linear-gradient(90deg, transparent, rgba(41,182,246,${0.26 * streak}), transparent)`,
         filter: `blur(${18 * streak}px)`,
         transform: `translateX(${(k - 0.5) * height * 2.4}px) skewX(-14deg)`,
       }} />

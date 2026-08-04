@@ -20228,8 +20228,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "session_died",
       "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "The session dying BETWEEN typing and submitting, injected exactly there: the listing sheet was filled, then the POST came back 401 'JWT expired'. All four halves of the oracle hold:\n  write attempts .......... 1, refused. Nothing was written.\n  the surface says so ..... 'Your session expired, so nothing was saved. Sign in again and redo this step.' -- it names the CAUSE (the session, not the network), states the OUTCOME (nothing saved), and gives the WAY OUT (sign in again). Three facts, one sentence.\n  typing preserved ........ the title is still in the field.\n  sheet still open ........ the person is left exactly where they were, not bounced to a login screen with their work gone.\nThis is the error taxonomy from earlier in the session paying off: a 401 is told apart from a connection problem and from a rate limit, because those three clear in completely different ways and one message for all of them is wrong two times out of three. 'Nothing was saved' is the clause that matters most -- without it a person cannot tell whether to redo the work or whether redoing it will duplicate something."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-market-buyer-wrong_then_fix",
