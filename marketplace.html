@@ -4039,7 +4039,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (/failed to fetch|network|load failed/i.test(msg)) {
       return 'Couldn\'t reach WorkHive' + tail + '. Check your connection and try again.';
     }
-    return msg || ('Something went wrong' + tail + '.');
+    /* THE FALLBACK WAS RETURNING THE SERVER'S OWN WORDS. Measured 2026-08-05: a 500 on the services
+       read rendered "Couldn't load your service requests. The rest of this page is still live."
+       followed by a second line reading, in full, "internal server error" -- a buyer cannot act on
+       that and it says nothing the honest sentence above it did not already say.
+       But some Postgres messages ARE written for a person: the platform's own guards raise sentences
+       like "a listing goes live only after WorkHive review, not by self-publishing" and
+       "A new seller can keep 3 listings live until one of them sells". Those are worth showing, and
+       they arrive with a code that says a guard spoke -- 23514 (CHECK), P0001 (RAISE), or a 42501
+       carrying prose rather than PostgREST's stock grant text. Everything else is machinery, and
+       machinery goes to the console where it is still diagnosable. Same rule the moderation console
+       got today, from the opposite direction. */
+    const _authored = (code === '23514' || code === 'P0001'
+      || (code === '42501' && msg && !/permission denied for (table|relation|schema|function|view|sequence)/i.test(msg)));
+    if (_authored && msg && msg.length < 300) return msg;
+    if (msg) { try { console.warn('marketplace service error (shown as a generic message):', code, msg); } catch (_) { /* empty-catch-allow: logging must never break the error path */ } }
+    return 'Something went wrong' + tail + '.';
   }
   const _svcWriteError = e => _svcErrorText(e, true);
 

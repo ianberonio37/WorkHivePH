@@ -696,7 +696,7 @@
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500); // limit-as-count-allow: list cap only; _listingsTotal head-count query below drives the badge
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
-      _readFailed.listings = false;
+      _readFailed.listings = false; _readFailErr.listings = null;
       _listings = data || [];
       // L2: accurate listing COUNT via head-only query (zero row egress) so the
       // badge/profile stat never undercounts if the list ever exceeds the cap.
@@ -709,7 +709,7 @@
         .eq('seller_name', WORKER_NAME);
       if (cErr || count === null || count === undefined) { _readFailed.listings = true; _listingsTotal = null; }
       else _listingsTotal = Number(count);
-    } catch (_e) { _readFailed.listings = true; _listings = []; if (typeof showToast === 'function') showToast(_failCopy(_e, 'your listings'), 'error'); } // dim-10: surface load failure, don't disguise as "no listings"
+    } catch (_e) { _readFailed.listings = true; _readFailErr.listings = _e; _listings = []; if (typeof showToast === 'function') showToast(_failCopy(_e, 'your listings'), 'error'); } // dim-10: surface load failure, don't disguise as "no listings"
     renderListings();
     updateBadges();
     updateProfileStats();
@@ -727,6 +727,10 @@
      put them back. Same class as the empty-vs-error work elsewhere in this session, on the last
      surface that still had it. */
   const _readFailed = { listings: false, inquiries: false, seller: false };
+  /* The ERROR ITSELF, not just the fact of one. The render needs it to keep _failCopy's taxonomy --
+     a 429 clears with time, a 401 clears by signing in, everything else is the connection -- so an
+     error state rendered later says the same thing the toast said at the moment of failure. */
+  const _readFailErr = { listings: null, inquiries: null, seller: null };
 
   /* 429 IS THE ONE ERROR WHOSE REMEDY IS TIME, and this surface was giving the opposite advice on
      every failure: "Check your connection and retry" sends a rate-limited seller to debug a working
@@ -769,7 +773,7 @@
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(50); // limit-as-count-allow: list cap only; tile counts come from the head-count queries below
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
-      _readFailed.inquiries = false;
+      _readFailed.inquiries = false; _readFailErr.inquiries = null;
       _inquiries = data || [];
       // True counts for the badge (un-capped by the detail .limit()).
       try {
@@ -785,7 +789,7 @@
           .eq('status', 'pending');
         _inquiriesPendingTotal = Number(pendingCount || 0);
       } catch (_) { /* fall back to .length below */ /* empty-catch-allow: best-effort silent swallow */ }
-    } catch (_e) { _readFailed.inquiries = true; _inquiries = []; if (typeof showToast === 'function') showToast(_failCopy(_e, 'your inquiries'), 'error'); } // dim-10: surface load failure, don't disguise as "no inquiries"
+    } catch (_e) { _readFailed.inquiries = true; _readFailErr.inquiries = _e; _inquiries = []; if (typeof showToast === 'function') showToast(_failCopy(_e, 'your inquiries'), 'error'); } // dim-10: surface load failure, don't disguise as "no inquiries"
     renderInquiries();
     updateBadges();
   }
@@ -1084,6 +1088,29 @@
     const lmWrap = document.getElementById('seller-load-more-wrap');
 
     if (!filtered.length) {
+      /* A FAILED READ RENDERED THE FIRST-RUN INVITATION. Measured 2026-08-05: inducing a 500 on the
+         listings read produced, character for character, the same screen as inducing zero rows --
+         "No listings yet. Post your first listing to start selling on WorkHive." A seller with live
+         listings, on the surface where they check whether those listings are up, is told they have
+         none and invited to post their first.
+         loadListings already knew: it sets _readFailed.listings and toasts _failCopy, with the
+         comment "don't disguise as 'no listings'". The toast fades; the content area never asked.
+         Zero rows and an unreadable table are the same row count and opposite things to a person.
+         Same class as the community leaderboard's `error || empty` answering a failed read with
+         "No activity yet.", fixed earlier this week. */
+      if (_readFailed.listings) {
+        if (typeof whListError === 'function') {
+          whListError(area, _failCopy(_readFailErr.listings, 'your listings'), () => loadListings());
+        } else {
+          area.innerHTML = `<div class="empty-state">
+        <h2>Couldn't load your listings</h2>
+        <p>This is a problem reading them, not an empty shop - nothing of yours has been removed.</p>
+        <button type="button" class="btn-post-now" onclick="svcRetryAll()">Retry</button>
+      </div>`;
+        }
+        if (lmWrap) lmWrap.classList.add('hidden');
+        return;
+      }
       area.innerHTML = `<div class="empty-state">
         <span class="ic ic-list" aria-hidden="true"></span>
         <h2>No listings yet</h2>
@@ -1160,6 +1187,23 @@
     if (_tab !== 'inquiries') return;   // see TAB GUARD above
 
     if (!_inquiries.length) {
+      /* SAME DEFECT AS THE LISTINGS PANE, and worse in its consequence: a failed inquiries read
+         rendered "No inquiries yet. Buyers will appear here when they contact you." A seller whose
+         inquiries could not be read is told nobody has contacted them -- so they stop checking, and
+         a buyer's message sits unanswered. loadInquiries already sets _readFailed.inquiries and
+         toasts; the pane never asked. */
+      if (_readFailed.inquiries) {
+        if (typeof whListError === 'function') {
+          whListError(area, _failCopy(_readFailErr.inquiries, 'your inquiries'), () => loadInquiries());
+        } else {
+          area.innerHTML = `<div class="empty-state">
+        <h2>Couldn't load your inquiries</h2>
+        <p>This is a problem reading them, not an empty inbox - a buyer may still be waiting.</p>
+        <button type="button" class="btn-post-now" onclick="svcRetryAll()">Retry</button>
+      </div>`;
+        }
+        return;
+      }
       area.innerHTML = `<div class="empty-state">
         <span class="ic ic-message" aria-hidden="true"></span>
         <h2 data-i="noinq">No inquiries yet</h2>
