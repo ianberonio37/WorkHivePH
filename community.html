@@ -1186,11 +1186,36 @@
     document.getElementById('feed-list').style.display     = 'flex';
 
     if (pageRes.error) {
+      /* THREE CAUSES, THREE REMEDIES. Every failure here said "Check your connection and try again",
+         but a 429 clears with TIME -- and retrying is the one action that extends it -- while a 401
+         clears by signing in and no amount of retrying will help. Only the rest are a connection
+         problem. Same taxonomy the marketplace, the seller console and the seller profile got. */
+      const _st = pageRes.status;
+      const _code = String((pageRes.error && pageRes.error.code) || '');
+      const _msgRaw = String((pageRes.error && pageRes.error.message) || '');
+      let _inline, _toast;
+      if (_st === 429 || _code === '429') {
+        const _hint = pageRes.error && pageRes.error.hint;
+        const _n = Number((_hint && (String(_hint).match(/(\d+)\s*s/) || [])[1]));
+        const _wait = (isFinite(_n) && _n > 0)
+          ? (_n < 60 ? Math.round(_n) + ' seconds'
+                     : Math.round(_n / 60) + ' minute' + (Math.round(_n / 60) === 1 ? '' : 's'))
+          : 'a moment';
+        _inline = 'Too many requests, so the community feed could not be read. Your connection is fine: wait about '
+                + _wait + ', then retry.';
+        _toast  = 'Too many requests. Wait about ' + _wait + ', then retry.';
+      } else if (_st === 401 || _st === 403 || _code === '42501' || /jwt|token/i.test(_msgRaw)) {
+        _inline = 'Your session expired, so the community feed could not be read. Sign in again to continue. Nothing you posted was lost.';
+        _toast  = 'Your session expired. Sign in again.';
+      } else {
+        _inline = 'Couldn’t load the community feed. Check your connection and try again.';
+        _toast  = 'Could not load posts';
+      }
       // E2 consistent states: inline error + Retry (shared whListError) beside the toast.
       if (typeof whListError === 'function') {
-        whListError(document.getElementById('feed-list'), "Couldn’t load the community feed. Check your connection and try again.", () => loadPosts());
+        whListError(document.getElementById('feed-list'), _inline, () => loadPosts());
       }
-      showToast('Could not load posts', 'error');
+      showToast(_toast, 'error');
       return;
     }
 

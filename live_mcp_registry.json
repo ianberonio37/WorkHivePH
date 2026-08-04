@@ -9554,9 +9554,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "4aa3236afcdcb320",
+        "sha": "ad43a4e029259036",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (run(): populated ok, 0 junk strings)."
       }
     },
     {
@@ -9639,9 +9639,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "4aa3236afcdcb320",
+        "sha": "ad43a4e029259036",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (run(): populated ok, 0 junk strings)."
       }
     },
     {
@@ -12398,9 +12398,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "4aa3236afcdcb320",
+        "sha": "ad43a4e029259036",
         "walked_at": "2026-08-04",
-        "checked": "LANDED ON THE SECOND APPROACH, after the first was vacuous and said so. Re-dispatching DOMContentLoaded touched 0 fields; a category filter chip DID re-query (5 requests) but still touched 0, because my key regex was guessing. Reading the actual response shapes settled it: v_community_posts_truth carries NO numeric fields at all (id, hive_id, author_name, content, category, pinned, flagged, public, timestamps), and community_reactions is (post_id, emoji, worker_name) -- the reaction counts on screen are derived from ROW COUNTS, which a null cannot corrupt. The single nullable numeric this surface reads is v_worker_achievements_truth.current_level.\nTargeting that one: 22 levels nulled via the filter-chip re-query, and the surface behaved. No fabricated 'Level 0' appeared, no undefined or NaN reached the text, and the tier badges were unchanged at 3 before and after -- correctly, since they come from trust_tier rather than from the level.\nTHE SUBJECT IS NARROW AND THAT IS THE FINDING AS MUCH AS THE PASS: on a surface whose data is almost entirely text and derived counts, this oracle has exactly one field to bite on. Saying so is worth more than a green that implies the whole page was exercised."
+        "checked": "LANDED ON THE SECOND APPROACH, after the first was vacuous and said so. Re-dispatching DOMContentLoaded touched 0 fields; a category filter chip DID re-query (5 requests) but still touched 0, because my key regex was guessing. Reading the actual response shapes settled it: v_community_posts_truth carries NO numeric fields at all (id, hive_id, author_name, content, category, pinned, flagged, public, timestamps), and community_reactions is (post_id, emoji, worker_name) -- the reaction counts on screen are derived from ROW COUNTS, which a null cannot corrupt. The single nullable numeric this surface reads is v_worker_achievements_truth.current_level.\nTargeting that one: 22 levels nulled via the filter-chip re-query, and the surface behaved. No fabricated 'Level 0' appeared, no undefined or NaN reached the text, and the tier badges were unchanged at 3 before and after -- correctly, since they come from trust_tier rather than from the level.\nTHE SUBJECT IS NARROW AND THAT IS THE FINDING AS MUCH AS THE PASS: on a surface whose data is almost entirely text and derived counts, this oracle has exactly one field to bite on. Saying so is worth more than a green that implies the whole page was exercised. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (failures(): no fabricated zero, no undefined/NaN)."
       }
     },
     {
@@ -14528,7 +14528,13 @@
       "state": "offline_refusal",
       "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "not-exercised",
+          "title": "offline reading is vacuous here; the composer was never opened",
+          "measured": "NOT EXERCISED, and recorded rather than counted. Offline (navigator.onLine stubbed false, the offline event fired, every read rejecting) the banner appears and ZERO writes are attempted -- but the lens reached no commit control, so nothing asked to write and the clean reading proves nothing. This surface DOES write (posting, reacting), so unlike the seller profile the row is not inapplicable: it is unproven. Closing it needs the composer opened and a post really submitted with the write held, the way the seller console's busy state was proven.\nThe two writes the guard did block were the page's own POST client_errors telemetry, which is counted separately and is not the page trying to save someone's work."
+        }
+      ]
     },
     {
       "id": "LM-BD-ufai-A-community-buyer-retry_path",
@@ -14540,8 +14546,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "retry_path",
       "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "ad43a4e029259036",
+        "walked_at": "2026-08-04",
+        "checked": "PASSES with the induction landed (7 reads): the failure offers a Retry, clicking it re-attempts, and with the cause removed the feed comes back carrying no failure text."
+      }
     },
     {
       "id": "LM-BD-ufai-A-community-buyer-rate_limit_legible",
@@ -14553,8 +14572,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "rate_limit_legible",
       "oracle": "a rate limit states what was limited and when it clears - never a bare error",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "a rate limit states what was limited and when it clears - never a bare error",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "ad43a4e029259036",
+        "walked_at": "2026-08-04",
+        "checked": "FOUND AND FIXED: every failure said 'Check your connection and try again', including a 429 whose remedy is TIME -- so a rate-limited person was sent to debug a working connection and invited to retry, the one action that extends the limit. This surface reads pageRes.error directly rather than throwing, so the status was there to branch on all along.\nVerified on fresh loads with the posts read served each status in turn: 429 gives 'Too many requests, so the community feed could not be read. Your connection is fine: wait about 1 minute, then retry.'; 401 gives 'Your session expired... Nothing you posted was lost.' -- which matters more here than anywhere else, because the person may have been mid-draft; 503 KEEPS the connection advice, where it is correct; and the healthy load renders the real pinned feed. 0 undefined/NaN in all four."
+      }
     },
     {
       "id": "LM-BD-ufai-A-community-buyer-fallback_engaged",
@@ -14566,8 +14598,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "fallback_engaged",
       "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "ad43a4e029259036",
+        "walked_at": "2026-08-04",
+        "checked": "PASSES: with the primary down nothing survives above the measured chrome floor and the surface NAMES the failure rather than showing a stale feed as current (induction landed, 8 reads for the empty floor and 23 for primary-down)."
+      }
     },
     {
       "id": "LM-BD-ufai-A-community-buyer-slow_honest",
@@ -14579,8 +14624,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "slow_honest",
       "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "ad43a4e029259036",
+        "walked_at": "2026-08-04",
+        "checked": "PASSES: sampled mid-flight the surface shows busy signals (4) and renders no empty-state invitation for a feed it has not received -- it does not tell someone the community is quiet while it is still asking."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-anon-bola_object",
@@ -16601,9 +16659,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "4aa3236afcdcb320",
+        "sha": "ad43a4e029259036",
         "walked_at": "2026-08-04",
-        "checked": "GENUINELY INDUCED: 5 skeleton nodes shown while the reads were held open, and no fallback to an empty-state invite."
+        "checked": "GENUINELY INDUCED: 5 skeleton nodes shown while the reads were held open, and no fallback to an empty-state invite. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (states(): loading ok with the induction LANDED -- 5 requests in flight)."
       }
     },
     {
@@ -16627,9 +16685,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "4aa3236afcdcb320",
+        "sha": "ad43a4e029259036",
         "walked_at": "2026-08-04",
-        "checked": "Reserves real space: measured heights 156, 156, 44, 44, 44 during the held reads -- two post cards and three rows, none zero-height."
+        "checked": "Reserves real space: measured heights 156, 156, 44, 44, 44 during the held reads -- two post cards and three rows, none zero-height. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (states(): skeleton ok, placeholders reserve their space)."
       }
     },
     {
@@ -16653,9 +16711,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "4aa3236afcdcb320",
+        "sha": "ad43a4e029259036",
         "walked_at": "2026-08-04",
-        "checked": "NOT EXERCISED: 0 disabled controls in the settled state. Recorded rather than passed."
+        "checked": "NOT EXERCISED: 0 disabled controls in the settled state. Recorded rather than passed. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (states(): 0 disabled controls in the settled state, recorded rather than passed)."
       }
     },
     {
@@ -16679,9 +16737,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "4aa3236afcdcb320",
+        "sha": "ad43a4e029259036",
         "walked_at": "2026-08-04",
-        "checked": "NOT EXERCISED in this walk: the board's commit control is the composer, which is not open in the default state. Recorded rather than passed rather than counted from a control that was never pressed."
+        "checked": "NOT EXERCISED in this walk: the board's commit control is the composer, which is not open in the default state. Recorded rather than passed rather than counted from a control that was never pressed. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (states(): INCONCLUSIVE and recorded as such -- the control the lens reached opens the composer rather than committing, so nothing was in flight to be busy about)."
       }
     },
     {
@@ -16705,9 +16763,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "4aa3236afcdcb320",
+        "sha": "ad43a4e029259036",
         "walked_at": "2026-08-04",
-        "checked": "1,842 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object])."
+        "checked": "1,842 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object]). | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (states(): populated ok, 0 junk)."
       }
     },
     {
@@ -18251,9 +18309,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "4aa3236afcdcb320",
+        "sha": "ad43a4e029259036",
         "walked_at": "2026-08-04",
-        "checked": "37 numbers, 0 without an explanation within reach, the strongest surface of the seven on this lens, because it explains its own signals inline instead of labelling them: the score names its inputs (based on your community posts, replies, reactions, leaderboard and trade), the presence dot names its meaning (green dot = a teammate has this open), and the scope is stated (public posts are visible across hives)."
+        "checked": "37 numbers, 0 without an explanation within reach, the strongest surface of the seven on this lens, because it explains its own signals inline instead of labelling them: the score names its inputs (based on your community posts, replies, reactions, leaderboard and trade), the presence dot names its meaning (green dot = a teammate has this open), and the scope is stated (public posts are visible across hives). | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (comprehension(): 31 numbers on the surface, 0 of them unexplained)."
       }
     },
     {
@@ -18329,9 +18387,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "4aa3236afcdcb320",
+        "sha": "ad43a4e029259036",
         "walked_at": "2026-08-04",
-        "checked": "No refusal surfaced in the read state. Recorded as NOT EXERCISED rather than passed. The community refusal paths (the worker announcement gate, reply authorship) are locked by the hive-isolation gate suite, not by this walk."
+        "checked": "No refusal surfaced in the read state. Recorded as NOT EXERCISED rather than passed. The community refusal paths (the worker announcement gate, reply authorship) are locked by the hive-isolation gate suite, not by this walk. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (comprehension(): 0 refusals naming a remedy that cannot be reached)."
       }
     },
     {
