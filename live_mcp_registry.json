@@ -20790,8 +20790,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "double_tap",
       "oracle": "the second press changes nothing further and the surface says so",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "the second press changes nothing further and the surface says so",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "8f70aaf0cb474f69",
+        "walked_at": "2026-08-04",
+        "checked": "Three presses, one write. The stubbed response was held open 1,200ms so the in-flight window was real; pressing Post once and twice more during flight produced exactly ONE write attempt, with the control reading disabled and 'Posting...'. Both halves: nothing further happens AND the surface says so.\nNothing leaked: 0 probe posts in community_posts on a delayed re-count."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-community-buyer-back_out",
@@ -20803,8 +20816,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "back_out",
       "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "8f70aaf0cb474f69",
+        "walked_at": "2026-08-04",
+        "checked": "Browser BACK on the open composer, not its close button. The overlay's .open flag goes true -> FALSE, and community_posts holds the same count before and after, so nothing half-applied. STATED HONESTLY: this composer never applies a body scroll lock in the first place (the marketplace sheet does), so the 'no leaked scroll lock' half of the oracle holds VACUOUSLY here rather than by measurement. Recorded rather than counted as a pass.\nNothing leaked: 0 probe posts in community_posts on a delayed re-count."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-community-buyer-session_died",
@@ -20816,8 +20842,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "session_died",
       "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "8f70aaf0cb474f69",
+        "walked_at": "2026-08-04",
+        "checked": "The session dying BETWEEN typing and submitting, injected there: the POST returns 401 and the surface says 'Your session expired, so nothing was saved. Sign in again and redo this step.' -- cause, outcome and way out in one sentence -- with the typing preserved. Same taxonomy as the marketplace, which is the point: a 401 is told apart from a connection problem and from a rate limit because those three clear in completely different ways.\nTHE FIRST RUN OF THIS ROW MEASURED NOTHING AND IS RETRACTED: writeAttempts was 0 because my own previous probe had just posted, arming the 3-second post cooldown, so the rate limiter refused before the request ever left the page. A probe that never reaches the network cannot test what the network does. Re-run on a fresh load after the cooldown lapsed, and asserted probeActuallyFired before reading the result.\nNothing leaked: 0 probe posts in community_posts on a delayed re-count."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-community-buyer-wrong_then_fix",
@@ -20829,8 +20868,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "wrong_then_fix",
       "oracle": "a wrong entry can be corrected without starting over",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "a wrong entry can be corrected without starting over",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "8f70aaf0cb474f69",
+        "walked_at": "2026-08-04",
+        "checked": "Submitting empty is refused with 'Write something first' -- it names what is missing rather than failing generically -- the composer stays open, and typing the content afterwards leaves it intact. One field wrong, one field fixed, nothing restarted.\nNothing leaked: 0 probe posts in community_posts on a delayed re-count."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-community-buyer-did_it_land",
@@ -20842,8 +20894,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "did_it_land",
       "oracle": "after a slow action the person can tell whether it landed, without guessing",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "after a slow action the person can tell whether it landed, without guessing",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "8f70aaf0cb474f69",
+        "walked_at": "2026-08-04",
+        "checked": "After a deliberately slow write the toast reads 'Posted!' -- the person is told, in words, rather than inferring success from the sheet closing. Thinner than the marketplace's equivalent, which also says where the thing went, but it answers the question this oracle asks.\nNothing leaked: 0 probe posts in community_posts on a delayed re-count."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-public_feed-buyer-double_tap",
