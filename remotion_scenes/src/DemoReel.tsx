@@ -123,6 +123,41 @@ const Word: React.FC<{text: string; accent?: boolean; frames: number}> = ({text,
   );
 };
 
+// THE WORKHIVE MASCOT (Ian: "I want this mascot to be added to the video").
+// Rendered from the project's own vector bee (tools/render_mascot_svg.py) so
+// the alpha is genuinely transparent at any size.
+//
+// PLACEMENT RULE, from the banked content-direction feedback: the product
+// screenshots are the hero and the mascot must never sit on top of them. So
+// the bee appears ONLY on card beats - the logo sting, the chapter titles,
+// the end card - where there is no product on screen to compete with.
+const Mascot: React.FC<{
+  side?: 'left' | 'right'; heightFrac?: number; delay?: number; wave?: boolean;
+}> = ({side = 'right', heightFrac = 0.42, delay = 0, wave = false}) => {
+  const f = useCurrentFrame();
+  const {fps, height} = useVideoConfig();
+  const s = spring({frame: f - delay, fps,
+                    config: {damping: 14, stiffness: 90, mass: 0.8}});
+  const bob = Math.sin((f - delay) / fps * 2.1) * height * 0.008;   // alive, not busy
+  const tilt = wave ? Math.sin((f - delay) / fps * 6.5) * 5 : 0;    // a wave
+  const edge = side === 'right' ? 1 : -1;
+  return (
+    <div style={{
+      position: 'absolute', bottom: 0,
+      [side]: `${height * 0.02}px`,
+      height: height * heightFrac,
+      transform: `translateY(${(1 - s) * height * 0.5 + bob}px) rotate(${tilt}deg)`,
+      transformOrigin: '50% 90%',
+      opacity: s,
+    }}>
+      <Img src={staticFile('mascot-cut.png')}
+           style={{height: '100%', width: 'auto', display: 'block',
+                   transform: edge < 0 ? 'scaleX(-1)' : undefined,
+                   filter: 'drop-shadow(0 10px 24px rgba(16,24,38,.28))'}} />
+    </div>
+  );
+};
+
 const Logo: React.FC<{frames: number}> = ({frames}) => {
   const f = useCurrentFrame();
   const {fps, height} = useVideoConfig();
@@ -134,6 +169,7 @@ const Logo: React.FC<{frames: number}> = ({frames}) => {
       <Img src={staticFile('workhive-logo-clean.png')}
            style={{height: height * 0.38, transform: `scale(${0.86 + 0.14 * s})`,
                    opacity: s * out}} />
+      <Mascot side="right" heightFrac={0.46} delay={10} wave />
     </AbsoluteFill>
   );
 };
@@ -142,7 +178,7 @@ const Logo: React.FC<{frames: number}> = ({frames}) => {
 // curls — the sample's "Extract Data from Your Documents" move), then a
 // physics SCATTER exit (letters fly apart with gravity — its
 // "Track/Compliance/Deadlines" move). Deterministic velocities via random(seed).
-const Title: React.FC<{lines: string[]; frames: number}> = ({lines, frames}) => {
+const Title: React.FC<{lines: string[]; frames: number; side?: 'left' | 'right'}> = ({lines, frames, side = 'right'}) => {
   const f = useCurrentFrame();
   const {fps, height} = useVideoConfig();
   // TRACED (curve_title_enter/scatter.json): lines POP in one at a time -
@@ -158,6 +194,7 @@ const Title: React.FC<{lines: string[]; frames: number}> = ({lines, frames}) => 
   let letterIndex = 0;
   return (
     <AbsoluteFill style={{background: CLOUD, alignItems: 'center', justifyContent: 'center'}}>
+      <Mascot side={side} heightFrac={0.34} delay={6} />
       <div style={{transform: `scale(${inflate})`}}>
         {lines.map((ln, li) => {
           const lineAt = li * 14;                    // ~0.45s stagger
@@ -410,6 +447,7 @@ const End: React.FC = () => {
                    color: INK, opacity: s}}>Built for the plant floor.</div>
       <div style={{fontFamily: FONT, fontWeight: 600, fontSize: height * 0.042,
                    color: CYAN, opacity: s}}>workhiveph.com · start free</div>
+      <Mascot side="right" heightFrac={0.44} delay={14} wave />
     </AbsoluteFill>
   );
 };
@@ -437,7 +475,8 @@ export const DemoReel: React.FC = () => {
             {b.kind === 'phone' && <PhoneReveal frames={b.frames} />}
             {b.kind === 'title' && (
               <CameraMotionBlur samples={6} shutterAngle={200}>
-                <Title lines={b.lines} frames={b.frames} />
+                <Title lines={b.lines} frames={b.frames}
+                       side={i % 2 === 0 ? 'right' : 'left'} />
               </CameraMotionBlur>)}
             {b.kind === 'section' && (
               <CameraMotionBlur samples={3} shutterAngle={160}>

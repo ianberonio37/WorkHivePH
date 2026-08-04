@@ -4524,6 +4524,35 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // the category chip row rendered EMPTY because there are no categories for services.
   // A count on screen has to be a count of what is on screen. A view swap owns the whole view, not
   // just its main element -- the same disposition rule a redesign follows.
+  // THE PROVENANCE CHIP HAS TO FOLLOW THE SECTION (measured 2026-08-04). It was rendered ONCE at
+  // init with the listings sources and never re-rendered, so on ?section=services it sat above a
+  // pane of SERVICE REQUESTS announcing "Based on your marketplace listings & seller ratings ·
+  // Tabs: Parts / Training / Jobs". A provenance chip that names the wrong source is worse than
+  // none: it is a confident claim about where a number came from, and it was pointing at a table
+  // the visible pane does not read. Same family as the Services view keeping the Parts view's
+  // chrome -- shared furniture that does not know the section changed.
+  function renderMarketChip() {
+    const el = document.getElementById('marketplace-source-chip');
+    if (!el || typeof renderSourceChip !== 'function') return;
+    const svc = _section === 'services';
+    el/* xss-allow: static strings only, no interpolated data */ .innerHTML = renderSourceChip(svc ? {
+      freshness: 'Live · refreshed on each tab switch',
+      source:    'service_requests + service_providers + v_service_area_presence',
+      notes:     [
+        'Your own hails, and providers currently online near you',
+        'You pay the provider directly; WorkHive handles no payment',
+      ],
+    } : {
+      freshness: 'Live · refreshed on each tab switch',
+      source:    'marketplace_listings + v_marketplace_sellers_truth',
+      notes:     [
+        'Tabs: Parts / Training / Jobs',
+        'ID-verified sellers only in results by default',
+        'Free, contact-only: no platform fees',
+      ],
+    });
+  }
+
   function _setListingsChrome(show) {
     // #listings-info is in this list because the first pass MISSED it. Four elements were hidden and
     // the page still read "Showing 9 listings - newest first" -- found only by re-scanning the whole
@@ -4538,6 +4567,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   function switchSection(section) {
     _section       = section;
+    renderMarketChip();   // provenance follows the section, not the page load
     _cat           = 'All';
     _query         = '';
     _lastCreatedAt = null;
@@ -4576,8 +4606,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   /* ============================================================
      REALTIME CHANNEL
   ============================================================ */
+  // A UNIQUE TOPIC PER SUBSCRIPTION, because db.removeChannel() is ASYNC (found 2026-08-04 by
+  // switching sections during a live walk). switchSection() calls removeChannel and then
+  // SYNCHRONOUSLY calls startRealtime; supabase-js keys channels by topic, so the still-registered
+  // old channel came back from db.channel('marketplace-parts'), and .on() after .subscribe() is
+  // illegal: "cannot add `postgres_changes` callbacks for realtime:marketplace-parts after
+  // subscribe()". It surfaced as an unhandled rejection and left the new subscription unwired, so
+  // the live "new listing just posted" prepend was dead until the next full page load.
+  // Awaiting the removal would make switchSection async for every caller; a per-mount suffix makes
+  // the collision impossible instead, and the old channel still gets torn down by removeChannel on
+  // its own schedule. Same defect class as the community startPresence re-entry fixed today.
+  let _rtSeq = 0;
   function startRealtime() {
-    _realtimeChannel = db.channel('marketplace-' + _section)
+    _realtimeChannel = db.channel('marketplace-' + _section + '-' + (++_rtSeq))
       .on('postgres_changes', {
         event:  'INSERT',
         schema: 'public',
@@ -4647,18 +4688,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // one — the class of bug where calling the loader by hand looks perfect and a real page load does not.
     await loadRewardKnobs();
 
-    const _mkChip = document.getElementById('marketplace-source-chip');
-    if (_mkChip && typeof renderSourceChip === 'function') {
-      _mkChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
-        freshness: 'Live · refreshed on each tab switch',
-        source:    'marketplace_listings + v_marketplace_sellers_truth',
-        notes:     [
-          'Tabs: Parts / Training / Jobs',
-          'ID-verified sellers only in results by default',
-          'Free, contact-only: no platform fees',
-        ],
-      });
-    }
+    renderMarketChip();
 
     /* Section tabs */
     document.querySelectorAll('.section-tab').forEach(btn => {
