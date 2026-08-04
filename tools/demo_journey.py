@@ -328,13 +328,25 @@ def act2_logbook(page, rep):
     # The real entry is a TWO-field story: the problem, then the action. The
     # old single-"textarea:visible" guess matched nothing and the journey
     # silently skipped the most important beat in the whole demo.
+    # MEASURED (live probe): #f-problem is 0x0 until the first .btn-next, and
+    # #f-action / #f-knowledge stay 0x0 until FURTHER next-clicks - this is a
+    # multi-STEP wizard. Typing all three off one screen (my earlier guess)
+    # silently missed the most important beat of the whole demo. Advance
+    # between fields, and only type what is genuinely on screen.
     for sel, text, cap in [
         ("#f-problem", "Drive belt worn and slipping under load.",
          "Say what went wrong, in plain words"),
         ("#f-action", "Replaced the belt and realigned the pulley.",
-         "Say what you did to fix it"),
+         "Then what you did to fix it"),
+        ("#f-knowledge", "Check pulley alignment whenever a belt wears early.",
+         "And the lesson - this is what your AI remembers"),
     ]:
-        if first_visible(page, [sel]):
+        if not first_visible(page, [sel], timeout=2500):
+            # not on this step yet - advance the wizard, then look again
+            try_click(page, rep, "2-logbook", [".btn-next:visible"],
+                      note="next step", caption="Next step")
+            page.wait_for_timeout(BEAT)
+        if first_visible(page, [sel], timeout=2500):
             try:
                 type_into(page, sel, text, per_char_ms=42)
                 rep.add("2-logbook", "type", sel, True, "not submitted",
@@ -344,19 +356,6 @@ def act2_logbook(page, rep):
                 rep.add("2-logbook", "type", sel, False, type(e).__name__)
         else:
             rep.add("2-logbook", "type", sel, False, "field not visible")
-
-    # the knowledge field is what makes it a LESSON, not just a record
-    if first_visible(page, ["#f-knowledge"]):
-        try:
-            type_into(page, "#f-knowledge",
-                      "Check pulley alignment whenever a belt wears early.",
-                      per_char_ms=40)
-            rep.add("2-logbook", "type", "#f-knowledge", True, "not submitted",
-                    xy=_xy_of(page, "#f-knowledge"),
-                    caption="Add the lesson - this is what your AI remembers")
-            dwell(page, READ)
-        except Exception as e:
-            rep.add("2-logbook", "type", "#f-knowledge", False, type(e).__name__)
 
     # The connectivity beat: the same page shows the whole team's entries.
     try_click(page, rep, "2-logbook", ["#btn-view-team"], note="the team's feed",
@@ -544,15 +543,13 @@ def act7_pm(page, rep):
               caption="Every asset with its PM status")
     dwell(page, 700)
 
-    if page.query_selector("#asset-search"):
-        try:
-            type_into(page, "#asset-search", "pump", per_char_ms=115)
-            rep.add("7-pm", "type", "#asset-search", True,
-                    caption="Find the machine you are working on",
-                    xy=_xy_of(page, "#asset-search"))
-            dwell(page, 1300)
-        except Exception as e:
-            rep.add("7-pm", "type", "#asset-search", False, str(e)[:60])
+    # MEASURED: #asset-search is 0x0 on load (collapsed); #filter-bar is
+    # 640x48 and visible with 10 asset cards under it. Use the real control.
+    if first_visible(page, ["#filter-bar button", "#filter-bar > *"], timeout=2500):
+        try_click(page, rep, "7-pm", ["#filter-bar button:nth-child(2)",
+                                      "#filter-bar > *:nth-child(2)"],
+                  caption="Filter to what is overdue")
+        dwell(page, 1400)
 
     for sel in ["#asset-list > *:first-child", "#asset-list .asset-row",
                 "[data-asset-id]"]:
@@ -599,13 +596,12 @@ def act8_dayplanner(page, rep):
                 xy=_xy_of(page, "#calendar-wrap"))
         dwell(page, 1500)
 
-    for sel in ["#calendar-wrap .fc-event", "#calendar-wrap [data-event-id]",
-                ".dp-job-row", "#dp-summary-details"]:
-        if page.query_selector(sel):
-            try_click(page, rep, "8-dayplanner", [sel],
-                      caption="Open a job to see what it needs")
-            dwell(page, 1800)
-            break
+    # MEASURED: .fc-event renders 0 nodes and #dp-summary-details is
+    # display:none until expanded; #details-toggle-btn (985x44) is the control
+    # a real user presses to see the day broken down.
+    try_click(page, rep, "8-dayplanner", ["#details-toggle-btn"],
+              caption="Open the breakdown of the day")
+    dwell(page, 2000)
     park(page)
 
 
