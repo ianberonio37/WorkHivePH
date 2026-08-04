@@ -75,10 +75,19 @@ a.btn-secondary, button.btn-secondary, a.btn-ghost, button.btn-ghost { min-heigh
      #CFD7E0 is the first step clearing 75 with margin while staying visibly
      quieter than --wh-cloud, so the hierarchy this token exists for survives. */
   --wh-steel-bright: #CFD7E0;
-  /* Danger TEXT on dark tints. The #f87171/#f87171 family measures 3.4–4.3:1 on
-     the red-tinted card chips (fails AA small-text); red-300 clears 4.5:1 on
-     every dark tint in use. Borders/backgrounds keep the stronger reds. */
-  --wh-red-text:     #FCA5A5;
+  /* Danger TEXT on dark tints. The #f87171 family measures 3.4–4.3:1 on the
+     red-tinted card chips (fails AA small-text). Borders/backgrounds keep the
+     stronger reds — this token is for TEXT only.
+
+     RAISED #FCA5A5 -> #FDC9C9 (2026-08-04), graded against APCA. #FCA5A5 was
+     chosen to clear WCAG AA 4.5:1 and still fails perceptual contrast: measured
+     Lc 61.5 on the red-tinted chip background rgb(53,44,62), against the Lc 75
+     body floor. Solved on that real background with the APCA implementation
+     validated against its published anchors first:
+         #f87171 -> 44.1   #FCA5A5 -> 61.5   #FCB8B8 -> 69.0   #FDC9C9 -> 76.4
+     #FDC9C9 is the first step over the floor. It stays unmistakably red, so the
+     danger signal is not traded away for legibility. */
+  --wh-red-text:     #FDC9C9;
   /* Violet accent TEXT on dark tints — #a78bfa measures 3.4–4.1:1 there. */
   --wh-violet-text:  #C4B5FD;
   /* Orange + Blue accent TEXT on dark (C5/APCA fix 2026-07-24, same pattern as --wh-red-text /

@@ -48,7 +48,11 @@
     .mod-btn { padding:0.5rem 0.8rem; border-radius:0.5rem; font-weight:700; font-size:0.8rem; cursor:pointer;
                border:1px solid var(--border); background:rgba(255,255,255,0.05); color:#fff; min-height:44px; }
     .mod-btn.ok { background:rgba(52,211,153,0.14); color:var(--green); border-color:rgba(52,211,153,0.35); }
-    .mod-btn.no { background:rgba(248,113,113,0.12); color:var(--red); border-color:rgba(248,113,113,0.3); }
+    /* TEXT uses --wh-red-text, not --red. --wh-red (#f87171) is the danger FILL token and its own
+       comment says so ("AA text = --wh-red-text"); using it as a label colour put "Reject" at APCA
+       Lc 44 on this chip background — the four worst strings on the whole surface. The fill and the
+       border keep the stronger red, so the button still reads as danger. */
+    .mod-btn.no { background:rgba(248,113,113,0.12); color:var(--wh-red-text); border-color:rgba(248,113,113,0.3); }
     .mod-btn:disabled { opacity:0.5; cursor:default; }
     .mod-empty { color:var(--muted); font-size:0.85rem; padding:0.5rem 0; }
     .updated { color:var(--muted); font-size:0.72rem; }
