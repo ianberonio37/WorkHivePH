@@ -1145,6 +1145,33 @@
       const _refreshTimer = setInterval(refreshQueues, 60000);
       window.addEventListener('pagehide', () => clearInterval(_refreshTimer), { once: true }); // stop polling when the page is backgrounded/navigated (no leaked interval)
     })();
+
+    // E3 provenance. This was the ONLY surface in the marketplace set with no source chip at all
+    // (measured 2026-08-04: marketplace, seller console, seller profile and community each state
+    // theirs; here document.querySelectorAll('[id*="source"]') returned nothing). It is also the
+    // surface that MOVES MONEY -- credits issued, GCash receipts, top-ups awaiting eyes -- and it was
+    // showing 15 numbers with no statement of where any of them came from. renderSourceChip was
+    // already loaded and simply never called.
+    // Sources are this page's own verified reads, and the refresh cadence is stated because the
+    // queues poll on a 60s interval rather than only on load: an admin deciding on a moderation
+    // queue needs to know how stale the number in front of them can be.
+    window.addEventListener('load', function () {
+      var el = document.getElementById('pa-source-chip');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'pa-source-chip';
+        var host = document.querySelector('main') || document.querySelector('.page') || document.body;
+        host.appendChild(el);
+      }
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
+        freshness: 'Live · refreshed on load and every 60s',
+        source: 'v_credit_posture + v_service_credit_ledger_truth + v_gcash_receipts_needing_eyes + '
+              + 'v_marketplace_listings_truth + v_marketplace_sellers_truth + service_credit_topups + '
+              + 'platform_feedback + hive_audit_log',
+      });
+    });
   </script>
   <script src="offline-banner.js"></script><!-- SaaS-layer AV: adopt the central offline/degraded banner -->
 </body>
