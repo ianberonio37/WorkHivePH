@@ -642,7 +642,7 @@
     // never flashes blank before cards render (shared whListSkeleton).
     if (grid && typeof whListSkeleton === 'function') whListSkeleton(grid, 6);
     try {
-      const { data, error } = await db
+      const { data, error, status } = await db
         .from('v_marketplace_listings_truth')
         .select('id,title,section,category,condition,price,location,image_url,created_at')
         .eq('seller_name', WORKER_VIEW)
@@ -650,16 +650,41 @@
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(60);
-      if (error) throw error;
+      if (error) { if (status) error._httpStatus = status; throw error; }
       _listings = data || [];
     } catch (err) {
       // E2 consistent states: a failed fetch shows an inline error + Retry (shared
       // whListError), distinct from the empty-listings state renderListings shows.
       console.warn('seller listings load failed:', err.message || err);
       _listings = [];
-      document.getElementById('stat-listings').textContent = '0';
+      /* THE FAILURE PATH WAS WRITING THE ZERO ITSELF. On a failed read this set the tile to '0',
+         so a seller whose listings could not be loaded was published to the world as having none.
+         Everywhere else on this platform absent renders as a gap; here the catch was manufacturing
+         the number. */
+      document.getElementById('stat-listings').textContent = '-';
       if (grid && typeof whListError === 'function') {
-        whListError(grid, "Couldn’t load this seller’s listings. Check your connection and try again.", () => loadListings());
+        /* AND ONE MESSAGE FOR THREE CAUSES. A 429 clears with TIME and a 401 clears by signing in;
+           only the rest are a connection problem, and telling a rate-limited visitor to retry is the
+           one action that extends the limit. Same taxonomy the marketplace and the seller console
+           got this session. */
+        const st = err && (err._httpStatus || err.status);
+        const code = String((err && err.code) || '');
+        let msg;
+        if (st === 429 || code === '429') {
+          const raw = err && (err.retryAfter || (err.hint && (String(err.hint).match(/(\d+)\s*s/) || [])[1]));
+          const n = Number(raw);
+          const wait = (isFinite(n) && n > 0)
+            ? (n < 60 ? Math.round(n) + ' seconds'
+                      : Math.round(n / 60) + ' minute' + (Math.round(n / 60) === 1 ? '' : 's'))
+            : 'a moment';
+          msg = 'Too many requests, so this seller’s listings could not be read. Your connection is fine: wait about '
+              + wait + ', then retry.';
+        } else if (st === 401 || st === 403 || code === '42501' || /jwt|token/i.test(String((err && err.message) || ''))) {
+          msg = 'Your session expired, so this seller’s listings could not be read. Sign in again to continue.';
+        } else {
+          msg = 'Couldn’t load this seller’s listings. Check your connection and try again.';
+        }
+        whListError(grid, msg, () => loadListings());
         return;
       }
     }
