@@ -310,6 +310,30 @@
         : allClear;
     }
 
+    /* A RAW ERROR STRING IS NOT AN EXPLANATION, and for a 429 it is missing the only actionable half.
+       These queues printed `m._error` verbatim, so a rate limit read "Couldn't load the queue: rate
+       limit exceeded" -- it NAMES the limit and never says when it clears, which leaves an admin
+       retrying, the one action that extends it. An expired session read the same way, with no hint
+       that signing in is the fix. Same taxonomy the marketplace, seller, profile and community
+       surfaces got this session. The raw text is kept in a title for whoever is debugging. */
+    function _queueErr(m) {
+      const st = m && m._status;
+      const code = String((m && m._code) || '');
+      const raw = String((m && m._error) || '');
+      if (st === 429 || code === '429' || /rate limit/i.test(raw)) {
+        const n = Number((m && m._retryAfter) || (raw.match(/(\d+)\s*s/) || [])[1]);
+        const wait = (isFinite(n) && n > 0)
+          ? (n < 60 ? Math.round(n) + ' seconds'
+                    : Math.round(n / 60) + ' minute' + (Math.round(n / 60) === 1 ? '' : 's'))
+          : 'a moment';
+        return 'Too many requests. Your connection is fine: wait about ' + wait + ', then refresh.';
+      }
+      if (st === 401 || st === 403 || code === '42501' || /jwt|token|expired/i.test(raw)) {
+        return 'Your session expired. Sign in again to load this queue.';
+      }
+      return "Couldn't load this queue: " + raw;
+    }
+
     async function fetchMktModeration() {
       try {
         // `marketplace_disputes` dropped 2026-08-03 — retired ghost table (0 rows, no client writer).
@@ -325,7 +349,7 @@
           drafts: drafts.data || [], sellers: sellers.data || [],
           _error: (drafts.error || sellers.error) ? (drafts.error || sellers.error).message : null,
         };
-      } catch (err) { return { _error: err && err.message || 'fetch failed' }; }
+      } catch (err) { return { _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
     }
 
     /* GCash top-up verification — the founder-income intake. A provider sent GCash P2P to the platform
@@ -341,7 +365,7 @@
           .eq('status', 'pending_verification')
           .order('created_at', { ascending: true }).order('id').limit(50);
         return { rows: data || [], _error: error ? error.message : null };
-      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed' }; }
+      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
     }
 
       /* A TOP-UP AMOUNT NOBODY COULD READ WAS RENDERING AS PHP0. `Number(null)` is 0, so an unreadable
@@ -359,7 +383,7 @@
       if (!box) return;
       m = m || {};
       if (m._error) {
-        box.innerHTML = `<div class="mod-empty">Couldn't load the queue: ${e(m._error)}</div>`;
+        box.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`;
         setCount('svc-topups-count', 0, '');
         return;
       }
@@ -435,7 +459,7 @@
       // Listings awaiting review
       const lc = document.getElementById('mkt-listings-content');
       if (lc) {
-        if (m._error) lc.innerHTML = `<div class="mod-empty">Couldn't load: ${e(m._error)}</div>`;
+        if (m._error) lc.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`;
         else if (!(m.drafts || []).length) lc.innerHTML = `<div class="mod-empty">${e(emptyText('No listings waiting: all clear.'))}</div>`;
         else lc.innerHTML = m.drafts.map(l => `
           <div class="mod-row">
@@ -453,7 +477,7 @@
       const sc = document.getElementById('mkt-sellers-content');
       let sellerCount = 0;
       if (sc) {
-        if (m._error) sc.innerHTML = `<div class="mod-empty">Couldn't load.</div>`;
+        if (m._error) sc.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`;
         else {
           const rows = (m.sellers || []).map(s => {
             const parts = [];
@@ -489,7 +513,7 @@
         // (42501, expected for anyone who is not a platform admin) from a genuine load failure, and
         // a message string alone would force it to pattern-match English.
         return { rows: data || [], _error: error ? error.message : null, _code: error ? error.code : null };
-      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null }; }
+      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
     }
 
     /* HIDDEN WHEN EMPTY, and that is deliberate: with the forwarder not yet configured this table is
@@ -513,7 +537,7 @@
         card.hidden = true;
         return;
       }
-      if (m._error) { card.hidden = false; box.innerHTML = `<div class="mod-empty">Couldn't load: ${e(m._error)}</div>`; return; }
+      if (m._error) { card.hidden = false; box.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`; return; }
       if (!rows.length) { card.hidden = true; return; }
       card.hidden = false;
       const WHY = {
@@ -768,7 +792,7 @@
           .order('id')                       // MR4: the sort above is not total on its own
           .limit(500);
         return { rows: data || [], _error: error ? error.message : null };
-      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed' }; }
+      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
     }
 
     function renderFeedback(m) {
