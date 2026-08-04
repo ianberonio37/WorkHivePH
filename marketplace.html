@@ -722,7 +722,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span class="ic ic-list" aria-hidden="true"></span>
       My Listings
     </a>
-    <a id="btn-admin-link" href="founder-console.html#sec-mkt-mod" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace moderation in Founder Console">
+    <!-- THIS LINK LED TO A DEAD PAGE. It pointed at founder-console.html#sec-mkt-mod, and that console
+         was retired behind #wh-retired-overlay (position:fixed, inset:0, z-index:100000) — so a
+         moderator following it landed on one "moved to Grafana" card with the moderation queue's
+         markup underneath it, unreachable: elementFromPoint at the centre of the screen returns the
+         overlay's own paragraph. The queue was LIFTED to platform-actions.html on 2026-08-03 and this
+         link was never repointed. Measured 2026-08-04 by following it. Same class as the retired page
+         that hid the only live control: the markup surviving underneath is exactly what makes it
+         invisible to a grep and to any check that queries for the button. -->
+    <a id="btn-admin-link" href="platform-actions.html#sec-mkt-mod" style="display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:999px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;text-decoration:none;align-items:center;gap:0.3rem;" aria-label="Marketplace moderation in Platform Actions">
       <span class="ic ic-admin" aria-hidden="true"></span>
       Admin
     </a>
