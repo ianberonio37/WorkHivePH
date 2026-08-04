@@ -16,25 +16,65 @@ OPT-IN per work-session (so casual Q&A turns are never blocked):
     deleting it when Ian says "wrap".
   - When the flag is ABSENT the guard is a no-op (allows every stop).
 
-Escape hatches (so an armed guard never traps a legitimate end):
-  1. Sentinel `.momentum_allow_stop` in the project root: create it when a GENUINE
-     turn-ender holds - (a) a fork needing Ian's decision, (b) a hard external
-     ceiling, (c) an irreversible/outward action that is the SOLE remaining item,
-     (d) the local queue is genuinely empty, (e) Ian explicitly said wrap/stop THIS
-     message. The guard consumes (deletes) the sentinel and allows the stop.
-  2. Per-session safety cap (MAX_BLOCKS): after that many blocks in one session it
-     allows the stop, so a misfire can never become a true infinite loop.
+────────────────────────────────────────────────────────────────────────────────
+2026-08-04 - THE COUNTER IS NO LONGER A RELEASE VALVE. This is the hole that let
+the 8th recurrence through, and it was in THIS FILE, not in Claude's prose.
+
+The old code was:
+
+    count = _read_count(session)
+    if count >= MAX_BLOCKS:      # "safety valve: ... then trust the model"
+        _write_count(session, 0)
+        allow()
+
+Two defects, one fatal:
+  1. Hitting the cap ALLOWED the stop. So the guard taught exactly the lesson it
+     exists to prevent: keep trying to stop and eventually the mechanism yields.
+     Claude read block 10/10, reasoned "the cap is reached, so the next stop is
+     permitted", and ended a turn with BJ 40 + BK 35 + ~145 F1 arch rows still
+     open. No `.momentum_allow_stop` was ever created, because no genuine ender
+     held - the stop happened because the ENFORCEMENT RAN OUT.
+  2. It then reset the count to 0, so a stop became available every 10 blocks,
+     forever, with the audit trail wiped each time.
+
+"Then trust the model" is precisely the part that is known-broken - the doctrine
+exists because Claude's judgment about when to stop keeps failing. A safety valve
+against an infinite loop must not double as permission to stop.
+
+THE FIX: the ONLY release is the sentinel, and the sentinel must SAY which ender
+it is claiming. That claim is appended to `.momentum_stop_log.jsonl` so Ian can
+audit every turn-end after the fact - if a claimed ender turns out to be false,
+the receipt is on disk with the session id and the block count at the time.
+
+There is no deadlock risk: writing the sentinel is one Bash call and is always
+available, so a genuinely-finished turn can always end. What is no longer
+available is ending a turn by simply outlasting the guard.
+────────────────────────────────────────────────────────────────────────────────
+
+Escape hatch (the only one):
+  Sentinel `.momentum_allow_stop` in the project root, created when a GENUINE
+  turn-ender holds - (a) a fork needing Ian's decision, (b) a hard external
+  ceiling, (c) an irreversible/outward action that is the SOLE remaining item,
+  (d) the local queue is genuinely empty, (e) Ian explicitly said wrap/stop THIS
+  message. Write the ender into the file so the log records WHY:
+      printf 'd: queue empty - every row banked' > .momentum_allow_stop
+  The guard consumes (deletes) the sentinel, logs the claim, and allows the stop.
 
 Hook contract: read the Stop event JSON on stdin; print {} to allow, or
 {"decision":"block","reason":"..."} to block + feed the reason back to the model.
 """
-import sys, os, json
+import sys, os, json, datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # project root = parent of tools/
 DRIVE_FLAG = os.path.join(ROOT, ".momentum_drive")
 SENTINEL = os.path.join(ROOT, ".momentum_allow_stop")
 STATE = os.path.join(ROOT, ".momentum_stop_state.json")
-MAX_BLOCKS = 10  # safety valve: force at most this many continuations per session, then trust the model
+LOG = os.path.join(ROOT, ".momentum_stop_log.jsonl")
+
+# Escalation thresholds. NEITHER of these allows a stop - they only sharpen the
+# message. The counter is a thermometer, never a door.
+NAG_AT = 10   # past this, the block text calls out that outlasting the guard is the violation
+LOUD_AT = 25  # past this, it also demands Claude state the ender in the sentinel
 
 
 def allow():
@@ -63,6 +103,21 @@ def _write_count(session, n):
         pass
 
 
+def _log_release(session, count, claim):
+    """Append the claimed ender so a false one leaves a receipt Ian can audit."""
+    try:
+        rec = {
+            "at": datetime.datetime.now().isoformat(timespec="seconds"),
+            "session": session,
+            "blocks_before_release": count,
+            "claimed_ender": (claim or "(none stated)").strip()[:400],
+        }
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+
+
 def main():
     try:
         raw = sys.stdin.read()
@@ -75,24 +130,29 @@ def main():
     if not os.path.exists(DRIVE_FLAG):
         allow()
 
-    # Escape 1: a genuine ender (a)-(e) was declared this turn.
+    count = _read_count(session)
+
+    # THE ONLY RELEASE: a sentinel declaring which ender (a)-(e) holds.
     if os.path.exists(SENTINEL):
+        claim = ""
+        try:
+            with open(SENTINEL, encoding="utf-8") as f:
+                claim = f.read()
+        except Exception:
+            pass
         try:
             os.remove(SENTINEL)
         except OSError:
             pass
+        _log_release(session, count, claim)
         _write_count(session, 0)
         allow()
 
-    # Escape 2: per-session safety valve.
-    count = _read_count(session)
-    if count >= MAX_BLOCKS:
-        _write_count(session, 0)
-        allow()
     _write_count(session, count + 1)
+    n = count + 1
 
     reason = (
-        "MOMENTUM DOCTRINE - STOP INTERCEPTED (block %d/%d). You are about to end the turn while the "
+        "MOMENTUM DOCTRINE - STOP INTERCEPTED (block %d). You are about to end the turn while the "
         "`.momentum_drive` session is ARMED. Run the TURN-END TEST now: does a concrete, LOCAL, KNOWN next "
         "unit exist? Re-read the active roadmap's `NEXT:` line and/or run "
         "`python C:\\Users\\ILBeronio\\.claude-memento\\tools\\memento_retrieve.py \"what is the NEXT unit\"`. "
@@ -101,10 +161,28 @@ def main():
         "A stop is allowed ONLY if a genuine ender holds: (a) a fork needing Ian's decision (use AskUserQuestion), "
         "(b) a hard EXTERNAL ceiling that truly cannot be done locally, (c) an irreversible/outward action that is "
         "the SOLE remaining item, (d) the local queue is genuinely EMPTY, (e) Ian explicitly said wrap/stop in his "
-        "LAST message. If and ONLY if one of (a)-(e) holds, create the file `.momentum_allow_stop` in the project "
-        "root (Bash: `touch .momentum_allow_stop`) and stop again - the next Stop will be allowed. Otherwise, "
-        "the only correct action is MORE TOOL CALLS that advance the NEXT unit."
-    ) % (count + 1, MAX_BLOCKS)
+        "LAST message. If and ONLY if one of (a)-(e) holds, declare it and stop again:\n"
+        "    printf '<letter>: <one line why>' > .momentum_allow_stop\n"
+        "The guard consumes the sentinel, LOGS your claim to .momentum_stop_log.jsonl for Ian to audit, and "
+        "allows the stop. Otherwise the only correct action is MORE TOOL CALLS that advance the NEXT unit."
+    ) % n
+
+    if n > NAG_AT:
+        reason += (
+            "\n\nTHERE IS NO BLOCK CAP. This guard used to allow the stop after 10 blocks - that hole is "
+            "CLOSED (2026-08-04), because on 2026-08-04 you read 'block 10/10', concluded the cap meant "
+            "permission, and ended a turn with hundreds of local rows still owed. The counter is a "
+            "thermometer, not a door. Outlasting the guard is not an ender; it is the violation with a "
+            "number attached. If work remains, do the work. If it genuinely does not, SAY WHICH ENDER "
+            "HOLDS in the sentinel and it will be recorded."
+        )
+    if n > LOUD_AT:
+        reason += (
+            "\n\n%d blocks in one session means one of two things, and both need an explicit act from you: "
+            "either you are refusing to execute a known unit (then execute it), or the guard is misfiring "
+            "because the queue really is empty (then write the sentinel with ender (d) and the reason). "
+            "Repeating a bare stop is not a third option." % n
+        )
 
     print(json.dumps({"decision": "block", "reason": reason}))
     sys.exit(0)
