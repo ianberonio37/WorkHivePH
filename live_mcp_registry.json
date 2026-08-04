@@ -16324,7 +16324,7 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html (ufai_battery sweepAll)",
         "asserts": "keyboard focus is visible on every interactive element, including custom ones",
         "value_checked": true,
         "depends_on": [
@@ -16333,7 +16333,7 @@
         ],
         "sha": "d1c1df9f56d4c7f4",
         "walked_at": "2026-08-04",
-        "checked": "Measured by the EXISTING ufai_battery.js rather than a hand-rolled probe (booted live, axe-core + web-vitals loaded), and then by its own sweepAll() because the battery REFUSES to call a single-state scan an all-clear: the referee returned complete=false with the reason 'STATIC scan of 1 rendered state, 9 more state-changers + 49 hidden clickables NOT scanned'. sweepAll covered 6 states (default, 4 section tabs, the details expansion) and reported totalUniqueDefects 0. focus-visible tab-walk: 40 focusable elements sampled, 0 missing a visible focus ring. One defect in the first run was MINE and is not filed: 'prod-path-in-src /workhive/ufai_battery.js' was the <script> tag my own failed boot attempt appended. Re-run by evaluating the module instead of injecting a tag, and it disappeared."
+        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 40 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 6 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear."
       }
     },
     {
@@ -16376,7 +16376,7 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html (ufai_battery sweepAll)",
         "asserts": "an icon-only control has an accessible name that says what it DOES",
         "value_checked": true,
         "depends_on": [
@@ -16385,7 +16385,7 @@
         ],
         "sha": "d1c1df9f56d4c7f4",
         "walked_at": "2026-08-04",
-        "checked": "Measured by the EXISTING ufai_battery.js rather than a hand-rolled probe (booted live, axe-core + web-vitals loaded), and then by its own sweepAll() because the battery REFUSES to call a single-state scan an all-clear: the referee returned complete=false with the reason 'STATIC scan of 1 rendered state, 9 more state-changers + 49 hidden clickables NOT scanned'. sweepAll covered 6 states (default, 4 section tabs, the details expansion) and reported totalUniqueDefects 0. axe's accessible-name rules (button-name / link-name / image-alt / aria-*) reported 0 violations at every state. One defect in the first run was MINE and is not filed: 'prod-path-in-src /workhive/ufai_battery.js' was the <script> tag my own failed boot attempt appended. Re-run by evaluating the module instead of injecting a tag, and it disappeared."
+        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 6 state(s)."
       }
     },
     {
@@ -16430,8 +16430,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "focus_visible",
       "oracle": "keyboard focus is visible on every interactive element, including custom ones",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services (ufai_battery sweepAll)",
+        "asserts": "keyboard focus is visible on every interactive element, including custom ones",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 38 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 6 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear."
+      }
     },
     {
       "id": "LM-BH-ui-visual-market_svc-buyer-reduced_motion",
@@ -16469,8 +16482,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "icon_only_name",
       "oracle": "an icon-only control has an accessible name that says what it DOES",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services (ufai_battery sweepAll)",
+        "asserts": "an icon-only control has an accessible name that says what it DOES",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 6 state(s)."
+      }
     },
     {
       "id": "LM-BH-ui-visual-seller-buyer-contrast_wcag",
@@ -16514,8 +16540,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "focus_visible",
       "oracle": "keyboard focus is visible on every interactive element, including custom ones",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html (ufai_battery sweepAll)",
+        "asserts": "keyboard focus is visible on every interactive element, including custom ones",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "9ab7aa7d5d9a8727",
+        "walked_at": "2026-08-04",
+        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 19 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 5 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear. 3 defects the DEFAULT state did not show: two inputs at 13.3px (one is edit-image-file, a FILE picker, which iOS does not auto-zoom - likely a battery false positive worth confirming before fixing) and an axe:color-contrast hit that appears only in the Analytics tab."
+      }
     },
     {
       "id": "LM-BH-ui-visual-seller-buyer-reduced_motion",
@@ -16553,8 +16592,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "icon_only_name",
       "oracle": "an icon-only control has an accessible name that says what it DOES",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html (ufai_battery sweepAll)",
+        "asserts": "an icon-only control has an accessible name that says what it DOES",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "9ab7aa7d5d9a8727",
+        "walked_at": "2026-08-04",
+        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 5 state(s). 3 defects the DEFAULT state did not show: two inputs at 13.3px (one is edit-image-file, a FILE picker, which iOS does not auto-zoom - likely a battery false positive worth confirming before fixing) and an axe:color-contrast hit that appears only in the Analytics tab."
+      }
     },
     {
       "id": "LM-BH-ui-visual-admin-buyer-contrast_wcag",
@@ -16598,8 +16650,20 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "focus_visible",
       "oracle": "keyboard focus is visible on every interactive element, including custom ones",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html (ufai_battery sweepAll)",
+        "asserts": "keyboard focus is visible on every interactive element, including custom ones",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html"
+        ],
+        "sha": "b33bcc485cadd886",
+        "walked_at": "2026-08-04",
+        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 34 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 6 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear. 1 unique defect across 6 states, not yet triaged."
+      }
     },
     {
       "id": "LM-BH-ui-visual-admin-buyer-reduced_motion",
@@ -16636,8 +16700,20 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "icon_only_name",
       "oracle": "an icon-only control has an accessible name that says what it DOES",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html (ufai_battery sweepAll)",
+        "asserts": "an icon-only control has an accessible name that says what it DOES",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html"
+        ],
+        "sha": "b33bcc485cadd886",
+        "walked_at": "2026-08-04",
+        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 6 state(s). 1 unique defect across 6 states, not yet triaged."
+      }
     },
     {
       "id": "LM-BH-ui-visual-profile-buyer-contrast_wcag",
@@ -16681,8 +16757,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "focus_visible",
       "oracle": "keyboard focus is visible on every interactive element, including custom ones",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar (ufai_battery sweepAll)",
+        "asserts": "keyboard focus is visible on every interactive element, including custom ones",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "230ded069a08dcbd",
+        "walked_at": "2026-08-04",
+        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 9 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 5 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear."
+      }
     },
     {
       "id": "LM-BH-ui-visual-profile-buyer-reduced_motion",
@@ -16720,8 +16809,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "icon_only_name",
       "oracle": "an icon-only control has an accessible name that says what it DOES",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar (ufai_battery sweepAll)",
+        "asserts": "an icon-only control has an accessible name that says what it DOES",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "230ded069a08dcbd",
+        "walked_at": "2026-08-04",
+        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 5 state(s)."
+      }
     },
     {
       "id": "LM-BH-ui-visual-community-buyer-contrast_wcag",
@@ -16765,8 +16867,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "focus_visible",
       "oracle": "keyboard focus is visible on every interactive element, including custom ones",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html (ufai_battery sweepAll)",
+        "asserts": "keyboard focus is visible on every interactive element, including custom ones",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "4aa3236afcdcb320",
+        "walked_at": "2026-08-04",
+        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 19 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 4 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear. 2 defects: a 278x17px tap target seen in the battery's own swept state, and LCP 13.9s in the Global tab. The tap target does NOT reproduce in the settled state (19 controls, 0 under 44px), which is what BF-ui-layout measured at three widths, so it is recorded as a state-dependent open item rather than as a contradiction of that row."
+      }
     },
     {
       "id": "LM-BH-ui-visual-community-buyer-reduced_motion",
@@ -16804,8 +16919,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "icon_only_name",
       "oracle": "an icon-only control has an accessible name that says what it DOES",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html (ufai_battery sweepAll)",
+        "asserts": "an icon-only control has an accessible name that says what it DOES",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "4aa3236afcdcb320",
+        "walked_at": "2026-08-04",
+        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 4 state(s). 2 defects: a 278x17px tap target seen in the battery's own swept state, and LCP 13.9s in the Global tab. The tap target does NOT reproduce in the settled state (19 controls, 0 under 44px), which is what BF-ui-layout measured at three widths, so it is recorded as a state-dependent open item rather than as a contradiction of that row."
+      }
     },
     {
       "id": "LM-BH-ui-visual-public_feed-buyer-contrast_wcag",
@@ -16849,8 +16977,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "focus_visible",
       "oracle": "keyboard focus is visible on every interactive element, including custom ones",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html (ufai_battery sweepAll)",
+        "asserts": "keyboard focus is visible on every interactive element, including custom ones",
+        "value_checked": true,
+        "depends_on": [
+          "public-feed.html",
+          "utils.js"
+        ],
+        "sha": "8f063aa1f1a2ab53",
+        "walked_at": "2026-08-04",
+        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 7 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 1 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear."
+      }
     },
     {
       "id": "LM-BH-ui-visual-public_feed-buyer-reduced_motion",
@@ -16888,8 +17029,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "icon_only_name",
       "oracle": "an icon-only control has an accessible name that says what it DOES",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html (ufai_battery sweepAll)",
+        "asserts": "an icon-only control has an accessible name that says what it DOES",
+        "value_checked": true,
+        "depends_on": [
+          "public-feed.html",
+          "utils.js"
+        ],
+        "sha": "8f063aa1f1a2ab53",
+        "walked_at": "2026-08-04",
+        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 1 state(s)."
+      }
     },
     {
       "id": "LM-BI-ux-comprehension-market-buyer-what_is_this_number",

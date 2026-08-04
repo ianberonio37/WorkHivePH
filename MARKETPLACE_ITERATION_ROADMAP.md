@@ -30,12 +30,15 @@ mechanism is a wish.
 
 | | scenarios | green | owed | green% |
 |---|---|---|---|---|
-| **Existing A–W bank** | 364 | 129 | 235 | 35.4% |
-| **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 18 | 160 | 10.1% |
-| **F2 · UFAI** (BB/BC/BD/BE) | 120 | 5 | 115 | 4.2% |
-| **F3 · UI** (BF/BG/BH) | 105 | 35 | 70 | 33.3% |
+| **Existing A–W bank** | 364 | 123 | 241 | 33.8% |
+| **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 19 | 159 | 10.7% |
+| **F2 · UFAI** (BB/BC/BD/BE) | 120 | 9 | 111 | 7.5% |
+| **F3 · UI** (BF/BG/BH) | 105 | 91 | 14 | **86.7%** |
 | **F4 · UX** (BI/BJ/BK) | 110 | 35 | 75 | 31.8% |
-| **TOTAL** | **877** | **222** | **655** | **25.3%** |
+| **TOTAL** | **877** | **278** | **599** | **31.7%** |
+
+**The 14 open F3 rows are one question, not fourteen.** `BH contrast_wcag` (7) and
+`BH contrast_apca` (7) are both blocked on the same decision — see §5.
 
 **Rule 5 was tested and held.** The two fixes below touched `marketplace.html` and
 `platform-actions.html`, which expired **95 rows** on the spot and failed the ratchet with *"re-walk, do
@@ -143,20 +146,55 @@ NEXT: F3 BF-ui-layout CLOSED — 35/35, all seven surfaces at three VERIFIED wid
       second press, and the first would mint real credits against a real GCash filing. The PATCH
       was intercepted and never forwarded, and psql confirmed afterwards that nothing moved.
 
-  NOW (F1 architecture is now the lowest-green family at 10.1%):
-  1. BG-ui-state — the six component states per COMPONENT rather than per page
-  2. BC-ufai-F effect_in_db + money_matches_ledger — assert each surface's effect against psql
+  DONE 2026-08-04 (BG + BH): BG-ui-state CLOSED 35/35 · BH 21/35 (the 14 contrast rows are §5).
+    · THE STATE LENS WROTE TO THE DATABASE and had to be fixed before it could be trusted:
+      component_busy clicks a real commit control, and delaying-then-forwarding the request moved
+      marketplace_sellers.updated_at for Pablo Aguilar. Every POST/PATCH/PUT/DELETE is now answered
+      synthetically and never forwarded; re-proven with 2 blocked writes on the seller Save and a
+      blocked PATCH on the admin's "Verify: mint credits", with psql confirming nothing moved.
+    · The lens also DEADLOCKED itself for 1803s (held every read open, then awaited the loaders that
+      await those reads). Bounded delay + a 40s ceiling on every call.
+    · REUSED ufai_battery.js for contrast/focus/names rather than hand-rolling — and it earned it,
+      refusing to call a single-state scan an all-clear. sweepAll found 3 defects on the seller and
+      2 on community that the default state never showed.
+
+  NOW (F2 UFAI is the lowest-green family at 7.5%, F1 next at 10.7%):
+  1. BC-ufai-F effect_in_db + money_matches_ledger — assert each surface's effect against psql
+  2. BB-ufai-U one_vocabulary · BD-ufai-A offline_refusal — both at 0%
   3. AZ fail_null_field on the REMAINING surfaces (only the seller surface is walked)
-  4. BH-ui-visual — WCAG *and* APCA, alpha-composited; focus visibility; reduced motion
-  5. BJ-ux-journey / BK-ux-recovery — including the two-sided walk, and the open question this
+  4. BJ-ux-journey / BK-ux-recovery — including the two-sided walk, and the open question this
      walk raised but did not settle: minting credits is irreversible and does not confirm. The
      button names its effect ("Verify: mint credits") and the queue is worked at speed, so this
      is a real design fork rather than a defect — it belongs to BK-recovery.
+  5. Triage the battery's un-triaged finds: 1 defect on admin, the seller's Analytics-tab
+     axe:color-contrast, and whether edit-image-file (a FILE picker at 13.3px) is a real iOS
+     auto-zoom risk or a battery false positive.
+  DEFERRED to arc close (Ian, 2026-08-04: reserve the full gate until the walk is done):
+     the full suite + the clone-debt collapse of the 374-line Supabase bootstrap.
 ```
 
 ---
 
 ## §5 · OPEN FOR IAN
+
+- **THE CONTRAST DECISION (blocks the last 14 F3 rows).** Two findings that are really one:
+  - **axe cannot see it.** axe-core reports **0 contrast violations** on every surface — and
+    *abstains* on the text it cannot read: **185 incomplete nodes on marketplace, 39 on
+    marketplace-seller**, nearly all "Element's background color could not be determined due to a
+    background gradient". A scan that abstains has not shown the text passes AA; it has shown it
+    cannot tell. One `contrast_wcag` row had already been banked green on that zero and has been
+    **withdrawn**.
+  - **APCA can, and it is unhappy.** The BH lens composites gradients, so it measures exactly the
+    nodes axe skips: **273 of 552 text nodes across the seven surfaces sit below their APCA floor.**
+    Not decoration — the admin's 13px **"Reject"** on the money queue at Lc 44, the seller's
+    Published / Draft / Removed chips at Lc 41, the profile's PRC and TESDA credential lines at
+    Lc 42.7.
+
+  The cause is the platform's small-text colour tokens at 10–13px, so the fix changes how the
+  product **looks** on every surface. That is a design call, not a probe's. Three ways to go:
+  lift the token lightness and keep the type scale; raise the small sizes and keep the palette;
+  or accept APCA as advisory and hold the WCAG line — in which case the 14 rows close as
+  "measured, accepted" rather than staying open. **Not started either way.**
 
 - **₱360 repealed-commission overhang.** `commission_pct = 0`, but three historical rows stand and *Pablo
   Aguilar Mechanical Works* sits at **−₱200**, blocked from listing and told to top up to clear a fee the
