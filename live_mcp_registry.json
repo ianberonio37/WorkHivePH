@@ -20660,8 +20660,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "double_tap",
       "oracle": "the second press changes nothing further and the surface says so",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "the second press changes nothing further and the surface says so",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "4cfcb1317b6661d5",
+        "walked_at": "2026-08-04",
+        "checked": "Three presses inside a 1,300ms in-flight window -> exactly ONE write attempt, the control reading 'Saving...' and disabled at both sampling points, restored afterwards. This page already had the guard; the walk confirms it rather than assuming it.\nNothing leaked: marketplace_listings 27 -> 27, 0 rows carrying the probe text, 0 rows updated in the last 2 hours. Every PATCH was intercepted and answered with a bodyless 204 -- the first stub returned '[]' WITH the 204, which is malformed, and the page's honest 'Save failed. Try again.' nearly went into the register as a product defect."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-seller-buyer-back_out",
@@ -20673,8 +20686,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "back_out",
       "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "4cfcb1317b6661d5",
+        "walked_at": "2026-08-04",
+        "checked": "MEASURED FAILING FIRST, THEN FIXED, AND THE FIX WENT WHERE IT COVERS EVERY PAGE. With the edit sheet open over the listing, text typed, and the body scroll-locked, browser Back left sheet-edit OPEN and body overflow STILL 'hidden' on the restored page -- an edit form the person thought they had left, over a page that will not scroll, with nothing intercepting clicks to explain why (which is exactly why every click-based check passed it). marketplace.html had already found and fixed this for itself; a sweep showed marketplace-seller.html and skillmatrix.html both still had it. Three pages, one behaviour, so the release now lives in utils.js as a self-wiring pageshow(persisted)+popstate handler rather than a fourth hand-rolled copy waiting to be forgotten on the fifth page. RE-MEASURED on both: 0 overlays open, lock cleared, and the typed draft still there.\nNothing leaked: marketplace_listings 27 -> 27, 0 rows carrying the probe text, 0 rows updated in the last 2 hours. Every PATCH was intercepted and answered with a bodyless 204 -- the first stub returned '[]' WITH the 204, which is malformed, and the page's honest 'Save failed. Try again.' nearly went into the register as a product defect."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-seller-buyer-session_died",
@@ -20686,8 +20712,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "session_died",
       "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "4cfcb1317b6661d5",
+        "walked_at": "2026-08-04",
+        "checked": "401 injected between typing and submitting; probeActuallyFired asserted (1 attempt) before the result was read. 'Your session expired, so nothing was saved. Sign in again and redo this step.' styled as an error, the sheet stays OPEN, the typed description and the title are both preserved, and the button is usable again -- so the person can sign in in another tab and press Save once, rather than retyping.\nNothing leaked: marketplace_listings 27 -> 27, 0 rows carrying the probe text, 0 rows updated in the last 2 hours. Every PATCH was intercepted and answered with a bodyless 204 -- the first stub returned '[]' WITH the 204, which is malformed, and the page's honest 'Save failed. Try again.' nearly went into the register as a product defect."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-seller-buyer-wrong_then_fix",
@@ -20699,8 +20738,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "wrong_then_fix",
       "oracle": "a wrong entry can be corrected without starting over",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "a wrong entry can be corrected without starting over",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "4cfcb1317b6661d5",
+        "walked_at": "2026-08-04",
+        "checked": "Three different wrong entries on the listing edit form, each refused by NAME rather than generically, with 0 write attempts and everything else kept: a blank title -> 'Title and description are required.' (description and price untouched, sheet still open); a negative price -> 'Price cannot be negative.' with the price field FOCUSED so the correction lands where the caret already is; a below-floor price -> 'The lowest price WorkHive lists is PHP500.00. This one is PHP120.00. Raise it, or bundle it with something.' -- the rule, the offending number, and two ways out. Correcting each in turn left the rest of the form intact.\nAND THIS ROW FOUND A REAL DEFECT IN THAT LAST BRANCH. _holdState is filled by a DEBOUNCED (300ms) price listener that then makes three RPC round-trips, and the save handler read that cache without checking it described the price being submitted. Measured: with PHP20,309.48 in the field, Save answered 'This one is PHP120.00' -- refusing over a number the seller had already fixed and could no longer see. The natural response is to press Save again, which works, so the form looks like it refuses at random. Same shape as a guard whose CHECK and whose ACTION read different rows. Fixed by recomputing when the cached price differs from the submitted one; re-measured, the corrected price saves on the first press.\nNothing leaked: marketplace_listings 27 -> 27, 0 rows carrying the probe text, 0 rows updated in the last 2 hours. Every PATCH was intercepted and answered with a bodyless 204 -- the first stub returned '[]' WITH the 204, which is malformed, and the page's honest 'Save failed. Try again.' nearly went into the register as a product defect."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-seller-buyer-did_it_land",
@@ -20712,8 +20764,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "did_it_land",
       "oracle": "after a slow action the person can tell whether it landed, without guessing",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "after a slow action the person can tell whether it landed, without guessing",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "4cfcb1317b6661d5",
+        "walked_at": "2026-08-04",
+        "checked": "Sampled at 230ms across the whole in-flight window: five frames of 'Saving.../disabled', then 'Listing updated. Re-submitted for review.' That last clause is the best of the four surfaces walked today -- it says not just that the write landed but what now HAPPENS to the thing, which is the question a seller actually has after editing a published listing.\nNothing leaked: marketplace_listings 27 -> 27, 0 rows carrying the probe text, 0 rows updated in the last 2 hours. Every PATCH was intercepted and answered with a bodyless 204 -- the first stub returned '[]' WITH the 204, which is malformed, and the page's honest 'Save failed. Try again.' nearly went into the register as a product defect."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-admin-buyer-double_tap",

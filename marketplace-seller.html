@@ -1396,7 +1396,22 @@
     if (!_priceRes.ok) { showToast(_priceRes.error, 'error'); document.getElementById('edit-price')?.focus(); return; }
     /* The form already computed whether this can publish, from the same functions the guard uses. Saying
        it HERE beats letting the seller submit and learn days later from an admin's rejection. A draft
-       below the floor is still allowed -- the rule is about publication, not about typing. */
+       below the floor is still allowed -- the rule is about publication, not about typing.
+
+       BUT THE CHECK AND THE ACTION WERE READING DIFFERENT PRICES. _holdState is filled by a DEBOUNCED
+       (300ms) listener that then makes three RPC round-trips, so between correcting the price and
+       pressing Save there is a window -- longer on a slow connection -- where this branch refuses the
+       submission using the PREVIOUS price. Measured 2026-08-04 on the live MCP browser: with
+       PHP20,309.48 in the field, Save answered "The lowest price WorkHive lists is PHP500.00. This one
+       is PHP120.00" -- quoting a number the seller had already fixed and could no longer see. The
+       natural next move is to press Save again, which works, and now the form looks like it randomly
+       refuses. Same shape as a guard whose CHECK and whose ACTION read different rows.
+       So: only trust the cache when it describes the price actually being submitted; otherwise
+       recompute and decide on the fresh answer. */
+    if (_holdState && _holdState.reason === 'below_floor' && Number(_holdState.price) !== Number(price)) {
+      clearTimeout(_holdTimer);
+      await updateListingHold();
+    }
     if (_holdState && _holdState.reason === 'below_floor') {
       showToast('The lowest price WorkHive lists is ' + _peso(_holdState.floor)
                 + '. This one is ' + _peso(_holdState.price) + '. Raise it, or bundle it with something.',

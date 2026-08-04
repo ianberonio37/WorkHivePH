@@ -2565,6 +2565,35 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _wireSheets);
     else _wireSheets();
   }
+
+  // ─────────────────────────────────────────────
+  // whReleaseSheetsOnBack — an overlay must not survive the Back button
+  // ─────────────────────────────────────────────
+  // A sheet here does not push a history entry (deliberately: it has its own close affordance and
+  // hijacking Back is worse). The consequence is that pressing Back navigates AWAY mid-sheet, and the
+  // page is later restored from the bfcache with the sheet STILL OPEN and body overflow STILL hidden.
+  // Nothing intercepts clicks, so every click-based check passes -- the page simply will not scroll,
+  // over a form the person thought they had left.
+  //
+  // marketplace.html found and fixed this on a live walk; walking marketplace-seller.html the same way
+  // found the identical defect, and a sweep showed skillmatrix.html has it too. Three pages, one
+  // behaviour: so it belongs HERE, self-wiring, rather than as a fourth hand-rolled copy waiting to be
+  // forgotten on the fifth page. (feedback_universal_a11y_shared_component: a repeated behaviour is ONE
+  // shared helper.) Pages that already handle it are unaffected -- releasing an already-released lock
+  // is a no-op.
+  //
+  // It only ever REMOVES state, so it cannot close a sheet a person just opened: both events fire on a
+  // history move or a bfcache restore, never during normal interaction.
+  if (typeof window !== 'undefined' && typeof document !== 'undefined' && !window.__whSheetRelease) {
+    window.__whSheetRelease = function () {
+      var open = document.querySelectorAll('.sheet.open, .sheet-overlay.open, .modal-overlay.open, [id^="overlay-"].open, [id^="sheet-"].open');
+      Array.prototype.forEach.call(open, function (el) { el.classList.remove('open'); });
+      // Clear the inline lock only -- a page whose stylesheet legitimately sets overflow keeps it.
+      if (document.body && document.body.style.overflow === 'hidden') document.body.style.overflow = '';
+    };
+    window.addEventListener('pageshow', function (e) { if (e.persisted) window.__whSheetRelease(); });
+    window.addEventListener('popstate', function () { window.__whSheetRelease(); });
+  }
 })();
 
 // The modal mounts on document.body (so it works on any page without
