@@ -12277,8 +12277,21 @@
       "persona_note": "no human - the scenario exercises the stack itself and asserts against psql or the network layer, never against another part of the screen",
       "state": "fail_null_field",
       "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "230ded069a08dcbd",
+        "walked_at": "2026-08-04",
+        "checked": "Induction LANDED (9 fields nulled across the profile's reads) and the surface behaved: the 4.7 star rating DISAPPEARED rather than becoming a fabricated 0.0, no PHP0.00 was invented anywhere, and no undefined or NaN reached the text. That is the right shape for a trust surface -- a 0.0-star seller is a claim about a person, and inventing it from a failed read would be a reputational lie rather than a display bug. Avg Response already renders a dash when there is no data, which is the same discipline stated visibly."
+      }
     },
     {
       "id": "LM-AZ-failure-injection-community-system-fail_500",
@@ -12369,7 +12382,13 @@
       "state": "fail_null_field",
       "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "not-exercised",
+          "title": "null induction did not land on this surface; the clean reading is vacuous",
+          "measured": "NOT EXERCISED, and recorded rather than counted: the null induction did not LAND on this surface (0 fields touched), because re-dispatching DOMContentLoaded does not re-run community's loaders and its own fetchers are not reachable from the console. The page text was byte-identical before and after, so the clean readings -- no fabricated zero, no undefined -- are measurements of an UNCHANGED page and prove nothing about how it handles a null. Closing this row needs the same treatment the marketplace grid needed: find the page's own route back to the network (a tab, a filter, a paginate) and drive that instead."
+        }
+      ]
     },
     {
       "id": "LM-BA-invariant-layer_db-system-credits_conserved",
