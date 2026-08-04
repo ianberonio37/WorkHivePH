@@ -82,6 +82,94 @@ export function blockWrite(i, x, sink) {
 }
 // Kept for the in-module callers that already wrap the value in their own Promise/timeout.
 const _stub = () => _stubResponse();
+
+// ── installWriteGuard — the ONE way a recovery walk should arm itself ────────────────────────────
+// Every BK-ux-recovery probe needs the same three things: block every write, hold the one it cares
+// about open long enough to measure the in-flight window, and be able to answer it with a 401.
+// Hand-rolling that per walk is what leaked rows. On 2026-08-04 a seller-dashboard probe matched
+// `/rest/v1/(audit_log|marketplace_audit)/` and stubbed the listing PATCH correctly -- but the real
+// table is `hive_audit_log`, which that pattern does not match, so three `edit_listing` rows reached
+// the shared audit log for edits that never happened. The listing was untouched and the audit log
+// said otherwise, which is worse than either alone. Found by a psql re-count, deleted by hand.
+// blockWrite was already right (it decides by VERB across the whole Supabase surface, so it would
+// have caught hive_audit_log); the defect was reaching past it. So the guard ships as something you
+// INSTALL, not something you re-derive:
+//
+//   const g = installWriteGuard({ match: /service_requests/, stallMs: 1300 });
+//   ...drive the control...
+//   g.calls          // writes that reached the matched endpoint -- assert this is > 0 before
+//                    // reading any result: a probe that never fired measures nothing
+//   g.mode = '401'   // next matched write answers 401
+//   g.blocked        // everything else that was stopped, so a walk can prove nothing escaped
+//   g.restore()
+//
+// `match` only chooses which write is SLOWED and observable. Everything else is still blocked --
+// there is no opt-out, because the tables a walk forgets are exactly the ones that leak.
+export function installWriteGuard(opts) {
+  const o = opts || {};
+  const g = { calls: 0, blocked: [], urls: [], mode: o.mode || 'stub', stallMs: o.stallMs || 0 };
+  const orig = window.__lsrFetch || window.fetch.bind(window);
+  window.__lsrFetch = orig;
+  g.restore = () => { window.fetch = orig; };
+  window.fetch = async (i, x) => {
+    const u = typeof i === 'string' ? i : (i && i.url) || '';
+    const watched = o.match && o.match.test(u) && MUTV.test(_verbOf(i, x));
+    if (watched) {
+      g.calls++;
+      g.urls.push(_verbOf(i, x) + ' ' + u.replace(/^https?:\/\/[^/]+\/rest\/v1\//, '').slice(0, 56));
+      if (g.stallMs) await new Promise(r => setTimeout(r, g.stallMs));
+      if (g.mode === '401') {
+        return new Response(JSON.stringify({ message: 'JWT expired', code: 'PGRST301' }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } });
+      }
+      // PostgREST answers a bare PATCH/DELETE with 204 AND NO BODY. A stub that sends '[]' with a 204
+      // is malformed, and the page's honest "Save failed" then reads like a product defect.
+      const verb = _verbOf(i, x);
+      return (verb === 'PATCH' || verb === 'DELETE')
+        ? new Response(null, { status: 204 })
+        : new Response(JSON.stringify([{ id: '00000000-0000-0000-0000-0000000000ff' }]),
+            { status: 201, headers: { 'Content-Type': 'application/json' } });
+    }
+    const stub = blockWrite(i, x, g.blocked);
+    if (stub) return stub;
+    return orig(i, x);
+  };
+  return g;
+}
+
+// ── watchToasts — a page's "it landed" message, in whichever dialect that page speaks ────────────
+// Three dialects met in one day, and each one silently blinded a probe that assumed another:
+//   marketplace.html    rewrites #toast's textContent and adds .show
+//   platform-actions    APPENDS a .toast-msg child and never touches #toast's class
+//   community.html      same container-append shape, different child class
+// A probe that demanded .show saw platform-actions fire and threw the message away, and I nearly
+// filed "no confirmation after approving a listing" as a defect on a page that says
+// "Listing approved: now live to buyers." Handle both shapes, and SELF-TEST before trusting it --
+// the returned object's .ok is false if the observer could not see a message it planted itself.
+// MutationObserver callbacks are microtasks, so the self-test awaits a tick; reading synchronously
+// reports a working observer as broken.
+export async function watchToasts(sel) {
+  const el = document.querySelector(sel || '#toast');
+  if (!el) return { ok: false, msgs: [], note: 'no toast element on this surface' };
+  const msgs = [];
+  const obs = new MutationObserver(muts => {
+    muts.forEach(m => m.addedNodes.forEach(n => {
+      if (n.nodeType !== 1) return;
+      const t = (n.textContent || '').trim();
+      if (t && msgs[msgs.length - 1] !== t) msgs.push(t);
+    }));
+    const own = (el.textContent || '').trim();
+    if (/\bshow\b/.test(el.className) && own && msgs[msgs.length - 1] !== own) msgs.push(own);
+  });
+  obs.observe(el, { attributes: true, childList: true, characterData: true, subtree: true });
+  const probe = document.createElement('div');
+  probe.className = 'toast-msg'; probe.textContent = '__watchToasts selftest__';
+  el.appendChild(probe);
+  await new Promise(r => setTimeout(r, 80));
+  const ok = msgs.includes('__watchToasts selftest__');
+  probe.remove(); msgs.length = 0;
+  return { ok, msgs, clear: () => { msgs.length = 0; }, stop: () => obs.disconnect() };
+}
 const LONG = 'Emergency Switchgear Overhaul and Transformer Oil Regeneration for the Southern Tagalog Industrial Estate Incorporated';
 const BAYBAYIN = 'ᜋᜄᜈ᜔ᜆᜅ᜔ ᜃᜄᜋᜒᜆᜈ᜔ ᜐ ᜉᜎᜒᜃ';
 const ERR = /couldn['’]?t load|could not load|failed to load|unavailable|something went wrong|error/i;

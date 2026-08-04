@@ -20790,8 +20790,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "double_tap",
       "oracle": "the second press changes nothing further and the surface says so",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "the second press changes nothing further and the surface says so",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html",
+          "utils.js"
+        ],
+        "sha": "5e9bf915fc9f731f",
+        "walked_at": "2026-08-04",
+        "checked": "Three presses inside a 1,300ms in-flight window -> exactly ONE PATCH to marketplace_listings. Counted per-endpoint, not as a total: the action legitimately also writes an audit row, and a naive total would have read 2 and looked like a double-write.\nThis walk armed itself with the SHARED guard (installWriteGuard) rather than a hand-rolled fetch wrapper, and the difference is on the record: g.blocked shows it stopped 'POST /rest/v1/hive_audit_log' -- the exact write that a hand-rolled per-table pattern matching /(audit_log|marketplace_audit)/ had let through earlier the same day, leaking three edit_listing rows for edits that never happened. Those were found by a psql re-count and deleted. Leak check after this walk: marketplace_listings 27, 0 moderated in 2h, 0 sellers verified in 2h, and the only audit row in the last hour is a legitimate new_device sign-in."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-admin-buyer-back_out",
@@ -20803,8 +20816,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "back_out",
       "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html",
+          "utils.js"
+        ],
+        "sha": "5e9bf915fc9f731f",
+        "walked_at": "2026-08-04",
+        "checked": "Browser Back with the reject-reason prompt open and a reason typed into it. After Back and returning: 0 modals open, no scroll lock, the queue re-rendered with 15 action buttons, and the Reject button reads 'Reject' rather than the 'Rejecting...' it wore when the prompt was up. Nothing was written -- marketplace_listings 27 with 0 rows moderated in the last 2 hours.\nThis walk armed itself with the SHARED guard (installWriteGuard) rather than a hand-rolled fetch wrapper, and the difference is on the record: g.blocked shows it stopped 'POST /rest/v1/hive_audit_log' -- the exact write that a hand-rolled per-table pattern matching /(audit_log|marketplace_audit)/ had let through earlier the same day, leaking three edit_listing rows for edits that never happened. Those were found by a psql re-count and deleted. Leak check after this walk: marketplace_listings 27, 0 moderated in 2h, 0 sellers verified in 2h, and the only audit row in the last hour is a legitimate new_device sign-in."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-admin-buyer-session_died",
@@ -20816,8 +20842,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "session_died",
       "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html",
+          "utils.js"
+        ],
+        "sha": "5e9bf915fc9f731f",
+        "walked_at": "2026-08-04",
+        "checked": "401 injected at the moderation write; probeActuallyFired asserted (1 attempt) before the result was read. 'Your admin session expired, so nothing was changed. Sign in again to continue moderating.' -- and the row stays in the queue with its button restored, so the admin can sign in and act on it rather than wondering whether it half-applied.\nThis walk armed itself with the SHARED guard (installWriteGuard) rather than a hand-rolled fetch wrapper, and the difference is on the record: g.blocked shows it stopped 'POST /rest/v1/hive_audit_log' -- the exact write that a hand-rolled per-table pattern matching /(audit_log|marketplace_audit)/ had let through earlier the same day, leaking three edit_listing rows for edits that never happened. Those were found by a psql re-count and deleted. Leak check after this walk: marketplace_listings 27, 0 moderated in 2h, 0 sellers verified in 2h, and the only audit row in the last hour is a legitimate new_device sign-in."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-admin-buyer-wrong_then_fix",
@@ -20829,8 +20868,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "wrong_then_fix",
       "oracle": "a wrong entry can be corrected without starting over",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "a wrong entry can be corrected without starting over",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html",
+          "utils.js"
+        ],
+        "sha": "5e9bf915fc9f731f",
+        "walked_at": "2026-08-04",
+        "checked": "The rejection flow, three ways. Reject opens a prompt that REQUIRES a reason; submitting it empty is refused with 'A reason is required so the seller can fix and resubmit.' -- which names not just the rule but WHY the rule exists -- with 0 writes. Cancelling writes nothing and says nothing, correctly: a cancel is not an error. Typing a real reason then goes through and the receipt confirms where it lands: 'Listing rejected. The seller can see your reason and resubmit.'\nAND BOTH EARLY EXITS USED TO STRAND THE CONTROL. Adding the busy label (below) exposed it: the three reject-reason early returns re-enabled the button without restoring its text, so pressing Cancel left a live, clickable button reading 'Rejecting...' for ever. One _btnRestore() now serves every path that hands the control back, including the catch. Measured after: both the empty-reason refusal and the cancel return the button reading 'Reject', enabled, aria-busy cleared.\nThis walk armed itself with the SHARED guard (installWriteGuard) rather than a hand-rolled fetch wrapper, and the difference is on the record: g.blocked shows it stopped 'POST /rest/v1/hive_audit_log' -- the exact write that a hand-rolled per-table pattern matching /(audit_log|marketplace_audit)/ had let through earlier the same day, leaking three edit_listing rows for edits that never happened. Those were found by a psql re-count and deleted. Leak check after this walk: marketplace_listings 27, 0 moderated in 2h, 0 sellers verified in 2h, and the only audit row in the last hour is a legitimate new_device sign-in."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-admin-buyer-did_it_land",
@@ -20842,8 +20894,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "did_it_land",
       "oracle": "after a slow action the person can tell whether it landed, without guessing",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "after a slow action the person can tell whether it landed, without guessing",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html",
+          "utils.js"
+        ],
+        "sha": "5e9bf915fc9f731f",
+        "walked_at": "2026-08-04",
+        "checked": "MEASURED WEAK FIRST, THEN IMPROVED. Across the whole flight the button correctly refused further presses but read 'Approve' and merely went dim -- on a queue where Approve publishes a listing to every buyer and Verify mints a trust badge, greying out is the thinnest possible way to say 'working', and every other write path on this platform relabels. Now 'Approving...' / 'Rejecting...' / 'Verifying...' with aria-busy, so it is said to a screen reader rather than left to colour. Re-measured: 4 frames of 'Approving.../disabled', then 'Listing approved: now live to buyers.' -- a receipt that names the CONSEQUENCE, not just the success.\nThis walk armed itself with the SHARED guard (installWriteGuard) rather than a hand-rolled fetch wrapper, and the difference is on the record: g.blocked shows it stopped 'POST /rest/v1/hive_audit_log' -- the exact write that a hand-rolled per-table pattern matching /(audit_log|marketplace_audit)/ had let through earlier the same day, leaking three edit_listing rows for edits that never happened. Those were found by a psql re-count and deleted. Leak check after this walk: marketplace_listings 27, 0 moderated in 2h, 0 sellers verified in 2h, and the only audit row in the last hour is a legitimate new_device sign-in."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-profile-buyer-double_tap",

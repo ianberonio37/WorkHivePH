@@ -720,7 +720,28 @@
           return;
         }
 
+        /* GREYING OUT IS THE WEAKEST WAY TO SAY "WORKING". Measured 2026-08-04 on the live MCP
+           browser: with the PATCH held open 1,300ms, three presses correctly produced ONE write, but
+           across the whole flight the button read "Approve" and only went dim -- which on a queue
+           where Approve publishes a listing to every buyer, and Verify mints a trust badge, is a
+           thinner signal than the action deserves. Every other write path on this platform relabels
+           (Saving.../Posting.../Hailing...), so this one does too, and aria-busy says it to a screen
+           reader rather than leaving it to the colour. Restored beside btn.disabled on the error path;
+           on success the queue refresh removes the row, button and all. */
+        /* ONE restore, used by EVERY path that hands the control back -- including the three
+           reject-reason early returns. Re-enabling without relabelling would leave a live button
+           reading "Rejecting..." after the admin simply pressed Cancel. */
+        const _btnRestore = () => {
+          btn.disabled = false;
+          btn.removeAttribute('aria-busy');
+          if (btn.dataset.whLabel) btn.textContent = btn.dataset.whLabel;
+        };
         btn.disabled = true;
+        btn.dataset.whLabel = btn.textContent;
+        btn.setAttribute('aria-busy', 'true');
+        btn.textContent = act === 'approve-listing' ? 'Approving…'
+                        : act === 'reject-listing'  ? 'Rejecting…'
+                        : 'Verifying…';
         try {
           if (act === 'approve-listing' || act === 'reject-listing') {
             const newStatus = act === 'approve-listing' ? 'published' : 'removed';
@@ -735,12 +756,12 @@
                              // whWorker() (utils.js) is the shared identity accessor both pages already load.
                              moderated_by: (typeof whWorker === 'function' && whWorker()) || 'admin' };
             if (act === 'reject-listing') {
-              if (typeof whPrompt !== 'function') { btn.disabled = false; showToast('Cannot collect a rejection reason right now. Reload and try again.', 'error'); return; }
+              if (typeof whPrompt !== 'function') { _btnRestore(); showToast('Cannot collect a rejection reason right now. Reload and try again.', 'error'); return; }
               let _reason = await whPrompt('Reject this listing. Tell the seller why:',
                 { okLabel: 'Reject', cancelLabel: 'Cancel', inputLabel: 'Reason shown to the seller' });
-              if (_reason === null) { btn.disabled = false; return; }   // cancelled
+              if (_reason === null) { _btnRestore(); return; }   // cancelled
               _reason = String(_reason).trim();
-              if (!_reason) { btn.disabled = false; showToast('A reason is required so the seller can fix and resubmit.', 'error'); return; }
+              if (!_reason) { _btnRestore(); showToast('A reason is required so the seller can fix and resubmit.', 'error'); return; }
               _patch.moderation_reason = _reason;
             } else {
               _patch.moderation_reason = null;   // approving clears a stale rejection note
@@ -781,7 +802,7 @@
             : _authFail
               ? 'Your admin session expired, so nothing was changed. Sign in again to continue moderating.'
               : 'Action failed. Try again.', 'error');
-          btn.disabled = false;
+          _btnRestore();
         }
       });
     }
