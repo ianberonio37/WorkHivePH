@@ -13470,8 +13470,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "effect_in_db",
       "oracle": "the happy path's effect is present in the database, asserted by psql",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "the happy path's effect is present in the database, asserted by psql",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "5ad360018355c069",
+        "walked_at": "2026-08-04",
+        "checked": "EFFECT IN DB. Driven through the page's OWN control, not by calling a function -- which mattered, because toggleWatchlist is page-scoped and `typeof toggleWatchlist === 'function'` is FALSE from an evaluate. That is the same shape as the error probe that silently never fired earlier today: a guarded call on a page-scoped name skips the work and reports on an untouched page. The first selector I tried grabbed the CARD (data-id), which navigated to the detail view instead of toggling anything -- 0 rows written, and it would have read as a failure rather than a mis-aimed click if I had not checked the row count.\nThe real round trip, on #btn-detail-save:\n  before  : 0 watchlist rows\n  Save    : 1 row, and the control's label changes 'Save' -> 'star Saved'\n  Save again: back to 0 rows -- the database is left exactly as found, confirmed independently by psql, not just by the client's own read.\nThe write is real and attributable: marketplace_watchlist is auth-gated by worker_name IN auth_worker_names(), so the row belongs to the person who clicked rather than to a client-supplied name."
+      }
     },
     {
       "id": "LM-BC-ufai-F-market-buyer-effect_visible",
@@ -13483,8 +13496,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "effect_visible",
       "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "that same effect is visible to the person who caused it, on the surface where they caused it",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "5ad360018355c069",
+        "walked_at": "2026-08-04",
+        "checked": "EFFECT VISIBLE TO ITS CAUSER, on the surface where they caused it. Driven through the page's OWN control, not by calling a function -- which mattered, because toggleWatchlist is page-scoped and `typeof toggleWatchlist === 'function'` is FALSE from an evaluate. That is the same shape as the error probe that silently never fired earlier today: a guarded call on a page-scoped name skips the work and reports on an untouched page. The first selector I tried grabbed the CARD (data-id), which navigated to the detail view instead of toggling anything -- 0 rows written, and it would have read as a failure rather than a mis-aimed click if I had not checked the row count.\nThe real round trip, on #btn-detail-save:\n  before  : 0 watchlist rows\n  Save    : 1 row, and the control's label changes 'Save' -> 'star Saved'\n  Save again: back to 0 rows -- the database is left exactly as found, confirmed independently by psql, not just by the client's own read.\nThe label flip is the whole oracle: the person who pressed Save can SEE that it took, without navigating anywhere or refreshing. A row in the database that the actor cannot see is a silent success, which is the failure mode this row exists to catch."
+      }
     },
     {
       "id": "LM-BC-ufai-F-market-buyer-count_matches_source",
@@ -13588,8 +13614,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "effect_in_db",
       "oracle": "the happy path's effect is present in the database, asserted by psql",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "the happy path's effect is present in the database, asserted by psql",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "5ad360018355c069",
+        "walked_at": "2026-08-04",
+        "checked": "EFFECT IN DB. Driven through the page's OWN control, not by calling a function -- which mattered, because toggleWatchlist is page-scoped and `typeof toggleWatchlist === 'function'` is FALSE from an evaluate. That is the same shape as the error probe that silently never fired earlier today: a guarded call on a page-scoped name skips the work and reports on an untouched page. The first selector I tried grabbed the CARD (data-id), which navigated to the detail view instead of toggling anything -- 0 rows written, and it would have read as a failure rather than a mis-aimed click if I had not checked the row count.\nThe real round trip, on #btn-detail-save:\n  before  : 0 watchlist rows\n  Save    : 1 row, and the control's label changes 'Save' -> 'star Saved'\n  Save again: back to 0 rows -- the database is left exactly as found, confirmed independently by psql, not just by the client's own read.\nThe write is real and attributable: marketplace_watchlist is auth-gated by worker_name IN auth_worker_names(), so the row belongs to the person who clicked rather than to a client-supplied name."
+      }
     },
     {
       "id": "LM-BC-ufai-F-market_svc-buyer-effect_visible",
@@ -13601,8 +13640,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "effect_visible",
       "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "that same effect is visible to the person who caused it, on the surface where they caused it",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "5ad360018355c069",
+        "walked_at": "2026-08-04",
+        "checked": "EFFECT VISIBLE TO ITS CAUSER, on the surface where they caused it. Driven through the page's OWN control, not by calling a function -- which mattered, because toggleWatchlist is page-scoped and `typeof toggleWatchlist === 'function'` is FALSE from an evaluate. That is the same shape as the error probe that silently never fired earlier today: a guarded call on a page-scoped name skips the work and reports on an untouched page. The first selector I tried grabbed the CARD (data-id), which navigated to the detail view instead of toggling anything -- 0 rows written, and it would have read as a failure rather than a mis-aimed click if I had not checked the row count.\nThe real round trip, on #btn-detail-save:\n  before  : 0 watchlist rows\n  Save    : 1 row, and the control's label changes 'Save' -> 'star Saved'\n  Save again: back to 0 rows -- the database is left exactly as found, confirmed independently by psql, not just by the client's own read.\nThe label flip is the whole oracle: the person who pressed Save can SEE that it took, without navigating anywhere or refreshing. A row in the database that the actor cannot see is a silent success, which is the failure mode this row exists to catch."
+      }
     },
     {
       "id": "LM-BC-ufai-F-market_svc-buyer-count_matches_source",
