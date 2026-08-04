@@ -1,4 +1,4 @@
 {
- "green": 314,
- "note": "forward-only ratchet on GREEN. stale is excluded from the denominator."
+ "green": 308,
+ "note": "lowered by an audited false-green withdrawal, not by absorbing drift"
 }
