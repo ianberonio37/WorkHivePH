@@ -3633,7 +3633,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               && Object.keys(_svcTrackTimers).length === 0,
         loadClientServices, 15000);
     } catch (err) {
-      pane.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml((err && err.message) || 'Please try again.') + '</p><button type="button" onclick="loadClientServices()" style="' + _svcGhostC + 'margin-top:0.6rem;">Retry</button></div>';
+      /* THE SAME PARTIAL RETRY THE GRID HAD, IN ITS SIBLING. This button re-ran ONLY the services
+         pane, so after a successful retry the pane filled back in while the page-level verdict still
+         read "Couldn't load the marketplace" -- permanently, because nothing else re-reads it. Retry
+         means retry what failed, which on a shared surface is the whole surface. */
+      pane.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml((err && err.message) || 'Please try again.') + '</p><button type="button" onclick="svcRetryAll()" style="' + _svcGhostC + 'margin-top:0.6rem;">Retry</button></div>';
       // The pane says it could not load; the TAB BADGE beside it must not keep asserting a count
       // from an earlier read. A number that outlives the data behind it is the stale-count class.
       const badgeErr = document.getElementById('count-services');
@@ -4485,6 +4489,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   window.svcTrack = svcTrack;
 
   window.loadClientServices = loadClientServices;
+
+  /* The services pane's Retry, widened to the whole surface. A person who presses Retry is asking
+     for the page to work again, not for one pane of it -- and the page-level "Couldn't load the
+     marketplace" verdict is only cleared by a successful listings read, so the services retry has to
+     drive that too or the banner outlives the failure that caused it. */
+  window.svcRetryAll = async function svcRetryAll() {
+    await Promise.resolve(loadClientServices());
+    try { await Promise.resolve(loadListings()); } catch (_) { /* empty-catch-allow: the grid paints its own error state */ }
+    if (typeof loadCounts === 'function') loadCounts();
+    if (typeof whFreshnessFooter === 'function') whFreshnessFooter();
+  };
   window.svcHailNow = svcHailNow;
   window.svcAskQuotes = svcAskQuotes;
   window.svcShowQuotes = svcShowQuotes;
