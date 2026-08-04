@@ -254,6 +254,11 @@
       border-radius: 999px; padding: 0.25rem 0.6rem;
       font-size: 0.75rem; font-weight: 700; color:var(--wh-orange-text);
     }
+    /* "Negotiable" is a real answer but it is not a price, so it does not wear the price colour --
+       a buyer scanning the grid should not read it as a figure. */
+    .card-price-pill.is-unpriced {
+      border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.82); font-weight: 600;
+    }
 
     /* Compare-mode selection visual */
     .listing-card.compare-selected { border-color: var(--wh-orange); box-shadow: 0 0 0 2px rgba(247,162,27,0.4); }
@@ -1948,6 +1953,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        never selected. tierOf() stays as the fallback for a payload that lacks it. */
     const tier = String(item.seller_tier || tierOf(item.completed_sales)).toLowerCase();
     const hasImg   = !!item.image_url;
+    /* A MISSING PRICE IS A THING TO SAY, NOT A THING TO OMIT. The card used to drop the price pill
+       entirely when there was no price, so a priced-category listing showed nothing at all and a
+       buyer could not tell whether it was free, negotiable, or broken data. fmtPrice already answers
+       this (it returns 'Negotiable' for null) and the seller PROFILE already renders exactly that,
+       so the same listing read one way there and another way here. The pill is now always rendered
+       and carries is-unpriced when there is no figure, so "Negotiable" does not wear the price
+       colour and cannot be scanned as an amount. Found by the AZ null-field induction 2026-08-04,
+       which had to be landed through a section-tab re-query because every loader on this page is
+       closure-scoped and unreachable from the console. */
     const hasPrice = item.price != null && Number(item.price) > 0;
 
     const isSelected = _compareSet.has(item.id);
@@ -1974,7 +1988,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               ? `<span class="ic ic-save" aria-hidden="true"></span>`
               : `<span class="ic ic-save" aria-hidden="true"></span>`}
           </button>
-          ${hasPrice ? `<span class="card-price-pill">${e(fmtPrice(item.price))}</span>` : ''}
+          <span class="card-price-pill${hasPrice ? '' : ' is-unpriced'}">${e(fmtPrice(item.price))}</span>
         </div>
         <div class="card-body">
           <h3 class="card-title" style="margin:0;" translate="no">${e(item.title)}</h3>
