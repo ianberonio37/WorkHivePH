@@ -3193,7 +3193,25 @@ async function loadWorkerTiers(db, workerNames) {
     '@keyframes wh-glow-blue{0%,100%{box-shadow:inset 1px 1px 2px rgba(255,255,255,0.22), inset -1px -1px 2px rgba(0,0,0,0.45), 0 0 8px rgba(41,182,217,0.55);}',
     '50%{box-shadow:inset 1px 1px 2px rgba(255,255,255,0.32), inset -1px -1px 2px rgba(0,0,0,0.45), 0 0 22px rgba(41,182,217,0.95);}}',
 
-    '@keyframes wh-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}'
+    '@keyframes wh-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}',
+
+    /* REDUCED MOTION, and it was missing from every tier. Measured 2026-08-05 on community.html:
+       document.getAnimations() returned 29 running animations, 26 of them wh-spin on .wh-avatar tier
+       rings, TEN of which were scrolled off-screen and still turning. Every one is `infinite`, and
+       nothing in this block asked whether the person wants motion at all.
+       That is a person who set "reduce motion" in their OS -- often because motion makes them ill --
+       being handed two dozen perpetually rotating rings. It also means the page NEVER reaches a
+       stable frame, which is not only a battery cost on a plant tablet: it made Playwright refuse to
+       screenshot the page ("waiting for element to be stable") and gave contradictory
+       getComputedStyle readings mid-transition, which cost this walk a long detour.
+       Rings still SHOW their tier -- the border, the colour and the glow are all static properties.
+       Only the movement stops, which is exactly what the preference asks for. */
+    '@media (prefers-reduced-motion:reduce){',
+    '.wh-avatar,.wh-avatar::before,.wh-avatar::after,',
+    '.wh-tier-iron,.wh-tier-bronze,.wh-tier-silver,.wh-tier-gold,.wh-tier-platinum,.wh-tier-legend,',
+    '.wh-tier-silver::after,.wh-tier-gold::after,.wh-tier-platinum::after,',
+    '.wh-tier-legend::before,.wh-tier-legend::after{animation:none !important;}',
+    '}'
   ].join('');
   document.head.appendChild(s);
 }());

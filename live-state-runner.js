@@ -138,37 +138,88 @@ export function installWriteGuard(opts) {
 }
 
 // ── watchToasts — a page's "it landed" message, in whichever dialect that page speaks ────────────
-// Three dialects met in one day, and each one silently blinded a probe that assumed another:
+// FOUR dialects now, and every one of them has blinded a probe that assumed another:
 //   marketplace.html    rewrites #toast's textContent and adds .show
 //   platform-actions    APPENDS a .toast-msg child and never touches #toast's class
-//   community.html      same container-append shape, different child class
-// A probe that demanded .show saw platform-actions fire and threw the message away, and I nearly
-// filed "no confirmation after approving a listing" as a defect on a page that says
-// "Listing approved: now live to buyers." Handle both shapes, and SELF-TEST before trusting it --
-// the returned object's .ok is false if the observer could not see a message it planted itself.
-// MutationObserver callbacks are microtasks, so the self-test awaits a tick; reading synchronously
-// reports a working observer as broken.
+//   community.html #1   same container-append shape, different child class
+//   community.html #2   rewrites a DESCENDANT (#toast-text) and toggles .hidden OFF — no .show ever
+// The fourth one cost a false reading on 2026-08-05: pressing "Post to Hive" with an empty composer
+// looked like total silence, and the page had said "Write something first" the whole time. I was one
+// step from filing a defect against a page that was right.
+//
+// SO IT NO LONGER ASKS WHICH CLASS. A toast is a message that BECOMES VISIBLE and whose text
+// changed -- decided by geometry and content, exactly as blockWrite decides by VERB rather than by
+// table name. Class names are dialect; visibility is the behaviour.
+//
+// And the self-test used to plant an APPENDED CHILD, which every container accepts -- so it returned
+// ok:true on a page whose real dialect it could not read at all. A green that only proves the probe
+// can see its own plant is a false all-clear. It now exercises BOTH shapes and reports which ones it
+// can actually observe, so a caller can tell "no toast fired" from "I cannot read this page".
 export async function watchToasts(sel) {
   const el = document.querySelector(sel || '#toast');
   if (!el) return { ok: false, msgs: [], note: 'no toast element on this surface' };
   const msgs = [];
-  const obs = new MutationObserver(muts => {
-    muts.forEach(m => m.addedNodes.forEach(n => {
-      if (n.nodeType !== 1) return;
-      const t = (n.textContent || '').trim();
-      if (t && msgs[msgs.length - 1] !== t) msgs.push(t);
-    }));
+  const seen = (t) => { t = (t || '').trim(); if (t && msgs[msgs.length - 1] !== t) msgs.push(t); };
+  const onScreen = () => {
+    const r = el.getBoundingClientRect(); const cs = getComputedStyle(el);
+    return r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden'
+        && parseFloat(cs.opacity || '1') > 0.05;
+  };
+  let lastOwn = (el.textContent || '').trim();
+  // VISIBILITY IS CHECKED ON THE NEXT FRAME, NOT INSIDE THE CALLBACK. community.html writes the text
+  // FIRST (container still .hidden -> not on screen) and removes .hidden SECOND; a MutationObserver
+  // callback is a microtask, so at both moments getBoundingClientRect() still reports the pre-flush
+  // geometry and an inside-the-callback check sees nothing either time. Measured 2026-08-05: the page
+  // put "Write something first" on screen and the observer recorded an empty list, which reads
+  // exactly like a page that says nothing.
+  const settle = () => requestAnimationFrame(() => {
     const own = (el.textContent || '').trim();
-    if (/\bshow\b/.test(el.className) && own && msgs[msgs.length - 1] !== own) msgs.push(own);
+    if (own && own !== lastOwn && onScreen()) { seen(own); lastOwn = own; }
+    else if (own && onScreen()) seen(own);
+  });
+  const obs = new MutationObserver(muts => {
+    muts.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) seen(n.textContent); }));
+    settle();
   });
   obs.observe(el, { attributes: true, childList: true, characterData: true, subtree: true });
+  // AND A SAMPLER, because mutation timing is not worth out-thinking. A synchronous show/hide pair
+  // (set the text, drop .hidden, re-add it 3.5s later) hands the observer two microtask callbacks
+  // that both land before layout flushes, and no amount of rAF chasing makes that reliable across
+  // dialects. Polling the rendered text every 100ms cannot miss a message a person had time to read,
+  // and it is indifferent to which class, child or attribute the page uses to express "visible".
+  // Cost: one getBoundingClientRect per tick on one element.
+  const poll = setInterval(() => { const own = (el.textContent || '').trim(); if (own && onScreen()) seen(own); }, 100);
+
+  // Self-test BOTH dialects: an appended child, and a descendant rewrite while visible.
   const probe = document.createElement('div');
-  probe.className = 'toast-msg'; probe.textContent = '__watchToasts selftest__';
+  probe.className = 'toast-msg'; probe.textContent = '__watchToasts append__';
   el.appendChild(probe);
   await new Promise(r => setTimeout(r, 80));
-  const ok = msgs.includes('__watchToasts selftest__');
-  probe.remove(); msgs.length = 0;
-  return { ok, msgs, clear: () => { msgs.length = 0; }, stop: () => obs.disconnect() };
+  const okAppend = msgs.includes('__watchToasts append__');
+  probe.remove();
+  msgs.length = 0;
+
+  // The rewrite dialect, in the page's OWN order: text first (while still hidden), reveal second.
+  // Testing it the other way round would pass on a probe that cannot read the real thing.
+  const hadHidden = el.classList.contains('hidden');
+  const prevText = el.textContent;
+  const sink = el.querySelector('[id$="-text"], [class*="text"]') || el;
+  const prevSink = sink.textContent;
+  sink.textContent = '__watchToasts rewrite__';
+  await new Promise(r => setTimeout(r, 20));
+  if (hadHidden) el.classList.remove('hidden');
+  await new Promise(r => setTimeout(r, 120));
+  const okRewrite = msgs.some(x => x.indexOf('__watchToasts rewrite__') >= 0);
+  sink.textContent = prevSink;
+  if (hadHidden) el.classList.add('hidden');
+  if (sink === el) el.textContent = prevText;
+  msgs.length = 0;
+  lastOwn = (el.textContent || '').trim();
+
+  return { ok: okAppend || okRewrite, okAppend, okRewrite,
+           note: (okAppend && okRewrite) ? null : 'only one dialect observable on this surface',
+           msgs, clear: () => { msgs.length = 0; },
+           stop: () => { obs.disconnect(); clearInterval(poll); } };
 }
 const LONG = 'Emergency Switchgear Overhaul and Transformer Oil Regeneration for the Southern Tagalog Industrial Estate Incorporated';
 const BAYBAYIN = 'ᜋᜄᜈ᜔ᜆᜅ᜔ ᜃᜄᜋᜒᜆᜈ᜔ ᜐ ᜉᜎᜒᜃ';

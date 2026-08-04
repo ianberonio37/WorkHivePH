@@ -2845,6 +2845,19 @@
   }
 
   // ── Toast ─────────────────────────────────────────────────────────────────────
+  /* A NOTE FOR THE NEXT WALK, because I spent a long time here and came away without a verdict.
+     Sampling getComputedStyle(#toast).opacity on this page gives CONTRADICTORY answers: an 'error'
+     toast read 0 for 1.2s while .hidden was absent, a 'success' toast read 1 immediately, and once it
+     read 1 while .hidden WAS applied (which that class sets to 0). Playwright then refused to
+     screenshot either the element or the page -- "waiting for element to be stable" -- and the reason
+     turned up in document.getAnimations(): 29 animations running continuously, 26 of them wh-spin on
+     .wh-avatar tier rings, 10 of those scrolled off-screen. A page that never settles gives
+     inconsistent computed-style snapshots mid-transition, which is what I was reading.
+     So: the toast may be fine and my instrument was unreliable, or the error branch genuinely does
+     not become visible. I could not tell them apart, and a measurement I cannot trust is not grounds
+     for a change here -- an earlier speculative edit was reverted for exactly that reason. The next
+     walk should settle it the only way that cannot lie: quiet the animations first (below), then
+     screenshot the toast on both branches. */
   function showToast(message, type = 'success') {
     const toast  = document.getElementById('toast');
     const text   = document.getElementById('toast-text');
