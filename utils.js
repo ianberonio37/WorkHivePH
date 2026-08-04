@@ -1472,6 +1472,54 @@ function whWriteError(err, fallback) {
   return fallback || 'That did not go through. Please try again.';
 }
 if (typeof window !== 'undefined') window.whWriteError = whWriteError;
+// whReadError — the READ-side sibling of whWriteError, for a fetch that failed on the way IN.
+// Three causes, three remedies, and until now most surfaces answered all three with one sentence:
+//   401  clears by signing in           -- "check your connection" sends them to fix the wrong thing
+//   429  clears by WAITING              -- "try again" is the one action that extends the limit
+//   everything else is the connection   -- and only here is "try again" the right advice
+// A public feed measured 2026-08-04 said "Couldn't load the public feed. Check your connection and try
+// again." for all three; the marketplace and the seller profile had each grown their own inline copy of
+// the taxonomy, which is the signal it belongs here. `what` names the thing that could not be read so the
+// sentence stays specific ("the public feed", "your service requests").
+function whReadError(err, what) {
+  var thing = what || 'this';
+  var msg  = err && err.message ? String(err.message) : '';
+  var hint = String((err && err.hint) || '') + ' ' + String((err && err.details) || '');
+  var code = err && err.code != null ? String(err.code) : '';
+  var st   = err && (err._httpStatus || err.status);
+  if (whIsAuthFailure(err)) {
+    return 'Your session expired, so ' + thing + ' could not be loaded. Sign in again to see it.';
+  }
+  if (st === 429 || code === '429' || /rate ?limit|too many/i.test(msg)) {
+    var secs = (msg + ' ' + hint).match(/(\d+)\s*(s|sec|secs|seconds?)\b/i);
+    return 'Too many requests, so ' + thing + ' could not be loaded. Try again in '
+         + (secs ? secs[1] + ' seconds' : 'a moment') + '.';
+  }
+  return 'Couldn’t load ' + thing + '. Check your connection and try again.';
+}
+if (typeof window !== 'undefined') window.whReadError = whReadError;
+// whQueryTimeout — an upper bound for a supabase-js READ, so a hung request cannot become an eternal
+// skeleton. fetchWithTimeout bounds raw fetches, but a PostgREST query builder never passes through it,
+// so a stalled read just... stays stalled, and the page keeps shimmering at someone who has already
+// decided it is broken. Measured 2026-08-04 on the public feed: request held open, stuckSkeleton true,
+// saysSomething FALSE -- indefinitely.
+// Resolves to supabase-js's own {data, error} shape so no caller needs a new branch; the synthetic error
+// carries code 'TIMEOUT' and reads as a connection problem through whReadError, which is what it is.
+// Reads only. A timed-out WRITE has not necessarily failed -- it may well have landed -- and telling
+// someone it did not is worse than saying nothing.
+function whQueryTimeout(query, ms, what) {
+  var budget = (typeof ms === 'number' && ms > 0) ? ms : 15000;
+  var timer;
+  return Promise.race([
+    Promise.resolve(query),
+    new Promise(function (resolve) {
+      timer = setTimeout(function () {
+        resolve({ data: null, error: { code: 'TIMEOUT', message: 'Timed out loading ' + (what || 'this') } });
+      }, budget);
+    })
+  ]).then(function (r) { clearTimeout(timer); return r; });
+}
+if (typeof window !== 'undefined') window.whQueryTimeout = whQueryTimeout;
 // Central refresh-retry dedup guard (deepwalk D2, 2026-07-22). A NON-idempotent client write (a fresh-id
 // insert or a decrement RPC) carries no idempotency key, so a refresh-mid-submit then retry creates a
 // DUPLICATE / double effect (live-confirmed: logbook dup entry; inventory double stock deduction). The

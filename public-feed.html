@@ -242,17 +242,41 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // static .skeleton-card divs stay in markup only as the pre-JS first-paint reserve.
     const _fsk = document.getElementById('feed-skeleton');
     if (_fsk && !_fsk.dataset.whSkel && typeof whListSkeleton === 'function') { whListSkeleton(_fsk, 3); _fsk.dataset.whSkel = '1'; }
-    const { data, error } = await fetchPage();
+    /* THE SECOND LOAD HAD NO LOADING STATE. This function only ever HIDES the skeleton (below), so on
+       the first load it works and on every load after -- pressing Retry on the error state, most of all
+       -- the skeleton stayed hidden and the feed area sat showing the stale error, or nothing, with no
+       sign that anything was happening. Measured 2026-08-04: 3 requests in flight, 0 skeleton nodes,
+       looksEmptyInstead true, distinguishableFromEmpty FALSE. Retry is exactly the moment a person is
+       already unsure whether the page is working, so it is the worst moment to go quiet.
+       Show it again on every entry, and pair it with hiding the list, so the two are never both up. */
+    if (_fsk) _fsk.style.display = '';
+    const _fl = document.getElementById('feed-list');
+    if (_fl) _fl.style.display = 'none';
+    /* AND BOUND IT, or the skeleton above becomes the eternal one. A supabase-js query never passes
+       through fetchWithTimeout, so a stalled read stays stalled and the page shimmers indefinitely at
+       someone who has already concluded it is broken. Measured: stuckSkeleton true, saysSomething
+       false, with no end. 15s is generous for a 20-row read on a 3G plant link and still finite. */
+    const { data, error } = (typeof whQueryTimeout === 'function')
+      ? await whQueryTimeout(fetchPage(), 15000, 'the public feed')
+      : await fetchPage();
     document.getElementById('feed-skeleton').style.display = 'none';
     document.getElementById('feed-list').style.display     = 'block';
 
     if (error) {
       // E2 consistent states: a failed fetch shows an inline error + Retry (shared
       // whListError), distinct from the empty state it used to be conflated with.
+      // ...but ONE SENTENCE FOR THREE CAUSES. Measured 2026-08-04: a 401 and a 429 both produced
+      // "Check your connection and try again." A dead session is not a connection problem, and
+      // retrying is precisely what extends a rate limit -- so the advice was wrong in exactly the two
+      // cases where a person could have acted. whReadError (utils.js) tells them apart; it was lifted
+      // there because the marketplace and the seller profile had each grown their own inline copy.
+      const _msg = (typeof whReadError === 'function')
+        ? whReadError(error, 'the public feed')
+        : "Couldn’t load the public feed. Check your connection and try again.";
       if (typeof whListError === 'function') {
-        whListError(document.getElementById('feed-list'), "Couldn’t load the public feed. Check your connection and try again.", () => loadInitial());
+        whListError(document.getElementById('feed-list'), _msg, () => loadInitial());
       }
-      if (typeof showToast === 'function') showToast('Public feed failed to load. Tap Retry.', 'warn');
+      if (typeof showToast === 'function') showToast(_msg, 'warn');
       return;
     }
     if (!data || data.length === 0) {

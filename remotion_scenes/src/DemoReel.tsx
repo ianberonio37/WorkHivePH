@@ -400,8 +400,9 @@ const CaptionBar: React.FC<{seg: number}> = ({seg}) => {
 
 const Section: React.FC<{seg: number; frames: number}> = ({seg, frames}) => {
   const f = useCurrentFrame();
-  const {fps, width} = useVideoConfig();
+  const {fps, width, height: frameH} = useVideoConfig();
   const height = useU();
+  const portrait = frameH > width;
   const sIn = spring({frame: f, fps, config: {damping: 16, stiffness: 80}});
   const out = interpolate(f, [frames - 5, frames], [1, 0], {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -425,10 +426,16 @@ const Section: React.FC<{seg: number; frames: number}> = ({seg, frames}) => {
     <AbsoluteFill style={{background: PALE, alignItems: 'center',
                           justifyContent: 'center'}}>
       <HexField opacity={0.35} />
+      {portrait && (
+        <Img src={staticFile('workhive-logo-clean.png')}
+             style={{position: 'absolute', top: height * 0.30,
+                     height: height * 0.16, opacity: 0.95}} />
+      )}
       <div style={{
-        width: width * 0.94, height: width * 0.94 * 9 / 16,
-        borderRadius: 12, overflow: 'hidden',
-        boxShadow: '0 18px 55px rgba(22,32,47,.28)',
+        width: portrait ? width : width * 0.94,
+        height: (portrait ? width : width * 0.94) * 9 / 16,
+        borderRadius: portrait ? 0 : 12, overflow: 'hidden',
+        boxShadow: '0 22px 60px rgba(0,0,0,.5)',
         transform: `scale(${0.97 + 0.03 * sIn})`,
         opacity: Math.min(sIn * 1.6, 1) * out,
       }}>
