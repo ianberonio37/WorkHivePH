@@ -438,6 +438,7 @@
     <div class="form-group">
       <label class="form-label" for="edit-desc">Description</label>
       <textarea class="wh-textarea" id="edit-desc" maxlength="2000" required></textarea>
+      <div id="edit-draft-offer" role="status"></div>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -1368,9 +1369,46 @@
     /* Pre-fill the existing photo in the edit picker (or empty if no photo yet) */
     preloadEditImageFromExisting(item);
 
+    /* THE DRAFT WAS WRITE-ONLY. whAutoSaveDraft('listing', ['edit-desc']) has been saving every
+       keystroke here, and it could never restore any of it: applyDraft only fills an UNTOUCHED field,
+       and this one is pre-filled with the saved description two lines above. Measured 2026-08-04 (BJ
+       abandon_resume) -- draft stored true, restored false. A key nothing reads.
+       That guard is RIGHT, though: silently pasting an abandoned edit over a published description is
+       worse than losing it. So the draft is offered instead of applied, and the seller decides.
+       Also keyed PER LISTING. The shared key meant a half-written edit of one listing would be
+       offered on the next one opened, which is a worse bug than the one being fixed. */
+    _editDraftOffer(item);
+
     document.getElementById('overlay-edit')?.classList.add('open');
     document.getElementById('sheet-edit')?.classList.add('open');
     document.body.style.overflow = 'hidden';
+  }
+
+  /* One key per listing, and an offer rather than a silent overwrite. */
+  function _editDraftKey(id) { return 'wh_draft_listing_desc_' + id; }
+
+  function _editDraftOffer(item) {
+    const slot = document.getElementById('edit-draft-offer');
+    const descInput = document.getElementById('edit-desc');
+    if (!slot || !descInput) return;
+    slot.innerHTML = '';
+    let saved = null;
+    try { saved = localStorage.getItem(_editDraftKey(item.id)); } catch (_) { /* empty-catch-allow: private mode */ }
+    if (!saved || saved === (item.description || '')) return;   // nothing to offer, or it matches what is saved
+    slot.innerHTML = '<p style="font-size:0.75rem;margin:0.35rem 0 0;color:var(--wh-text-muted);">'
+      + 'You have an unsaved edit to this description from earlier. '
+      + '<button type="button" id="edit-draft-restore" style="font-size:0.75rem;min-height:44px;padding:0.3rem 0.7rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;">Restore it</button> '
+      + '<button type="button" id="edit-draft-discard" style="font-size:0.75rem;min-height:44px;padding:0.3rem 0.7rem;border-radius:var(--wh-radius-sm);border:0;background:transparent;color:inherit;text-decoration:underline;">Discard</button></p>';
+    document.getElementById('edit-draft-restore').addEventListener('click', () => {
+      descInput.value = saved;
+      descInput.dispatchEvent(new Event('input', { bubbles: true }));
+      slot.innerHTML = '';
+      descInput.focus();
+    });
+    document.getElementById('edit-draft-discard').addEventListener('click', () => {
+      try { localStorage.removeItem(_editDraftKey(item.id)); } catch (_) { /* empty-catch-allow */ }
+      slot.innerHTML = '';
+    });
   }
 
   async function handleEditSubmit(ev) {
@@ -1434,6 +1472,7 @@
       writeAuditLog('edit_listing', 'marketplace_listings', id, title,
         { category, price, new_status: 'draft' });
 
+      try { localStorage.removeItem('wh_draft_listing_desc_' + id); } catch (_) { /* empty-catch-allow */ }
       showToast('Listing updated. Re-submitted for review.', 'success');
       document.getElementById('overlay-edit')?.classList.remove('open');
       document.getElementById('sheet-edit')?.classList.remove('open');
@@ -2739,7 +2778,25 @@
 })();
 </script>
 <script src="nav-hub.js"></script>
-<script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('listing', ['edit-desc']); });</script>
+<script>
+/* PER LISTING, and paired with the offer in openEditSheet. The old adoption
+   (whAutoSaveDraft('listing', ['edit-desc'])) wrote one key for EVERY listing and could never restore
+   any of it, because the field is pre-filled with the saved description and the helper's guard --
+   correctly -- refuses to overwrite a field that already has content. Write-only, and cross-listing. */
+window.addEventListener('load', function () {
+  var d = document.getElementById('edit-desc');
+  if (!d) return;
+  var t = null;
+  d.addEventListener('input', function () {
+    clearTimeout(t);
+    t = setTimeout(function () {
+      var id = (document.getElementById('edit-id') || {}).value;
+      if (!id) return;
+      try { localStorage.setItem('wh_draft_listing_desc_' + id, d.value); } catch (_) { /* empty-catch-allow: private mode / quota */ }
+    }, 500);
+  });
+});
+</script>
 <!-- Reconciliation helpers (PRODUCTION_FIXES #43 + #47 + #48) -->
 <script src="button-lock.js"></script>
 <script src="oc-helper.js"></script>
