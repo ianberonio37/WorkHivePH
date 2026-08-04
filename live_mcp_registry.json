@@ -13357,9 +13357,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": "0 raw enums reaching a person, scanned across the default view plus the Parts / Training / Jobs filter chips. The check looks for lowercase_with_underscores tokens in VISIBLE text only -- leaf nodes, excluding <code>/<pre> and anything that is a filename -- so a class name or an id cannot produce a false hit.\nNON-VACUITY PROVEN, because a scanner that finds nothing is worthless until you know it can find something: with the surface reading 0, the exact forbidden shape was planted in the live DOM ('Status: pending_verification'), the scan caught it, and removing it returned the count to 0. The zero is a measurement, not a silence.\nThis is the state that would have surfaced 'cancelled_by_client' on the seller console -- the page's own comment records that the raw enum WOULD have printed there without its label map. The mapping holds on every surface walked."
+        "checked": "0 raw enums reaching a person, scanned across the default view plus the Parts / Training / Jobs filter chips. The check looks for lowercase_with_underscores tokens in VISIBLE text only -- leaf nodes, excluding <code>/<pre> and anything that is a filename -- so a class name or an id cannot produce a false hit.\nNON-VACUITY PROVEN, because a scanner that finds nothing is worthless until you know it can find something: with the surface reading 0, the exact forbidden shape was planted in the live DOM ('Status: pending_verification'), the scan caught it, and removing it returned the count to 0. The zero is a measurement, not a silence.\nThis is the state that would have surfaced 'cancelled_by_client' on the seller console -- the page's own comment records that the raw enum WOULD have printed there without its label map. The mapping holds on every surface walked. | RE-WALKED 2026-08-04 on the seller profile (0 lowercase_with_underscores tokens reach the reader; scanned for the SHAPE a raw DB status takes rather than a known list, so a NEW enum leaking through would be caught too)."
       }
     },
     {
@@ -15573,9 +15573,9 @@
           "marketplace-seller-profile.html",
           "nav-hub.js"
         ],
-        "sha": "8bcb55e27e9f3cbb",
+        "sha": "9afa874087befd0d",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 overflowing elements, document does not scroll sideways (docBy=0). The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 overflowing elements, document does not scroll sideways (docBy=0). The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile (layout(): VERIFIED innerWidth 390 -- solved for as target x dpr, never requested -- 0 overflow, 0 document scroll)."
       }
     },
     {
@@ -15599,9 +15599,9 @@
           "marketplace-seller-profile.html",
           "nav-hub.js"
         ],
-        "sha": "8bcb55e27e9f3cbb",
+        "sha": "9afa874087befd0d",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 641: 0 overflowing elements, docBy=0. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": "Live MCP walk at a VERIFIED innerWidth of 641: 0 overflowing elements, docBy=0. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile (layout(): VERIFIED innerWidth 641, 0 overflow, 0 document scroll)."
       }
     },
     {
@@ -15625,9 +15625,9 @@
           "marketplace-seller-profile.html",
           "nav-hub.js"
         ],
-        "sha": "8bcb55e27e9f3cbb",
+        "sha": "9afa874087befd0d",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 1280: 0 overflowing elements, docBy=0, measured against the REAL seeded content. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": "Live MCP walk at a VERIFIED innerWidth of 1280: 0 overflowing elements, docBy=0, measured against the REAL seeded content. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile (layout(): VERIFIED innerWidth 1280, 0 overflow, 0 document scroll)."
       }
     },
     {
@@ -15651,9 +15651,9 @@
           "marketplace-seller-profile.html",
           "nav-hub.js"
         ],
-        "sha": "8bcb55e27e9f3cbb",
+        "sha": "9afa874087befd0d",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 controls under 44x44 measured by getBoundingClientRect, not by stylesheet intent. Denominator: 9 controls at verified 641. Controls sitting inline inside prose are excluded -- an inline citation is not a thumb target and counting it buries the ones that are. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 controls under 44x44 measured by getBoundingClientRect, not by stylesheet intent. Denominator: 9 controls at verified 641. Controls sitting inline inside prose are excluded -- an inline citation is not a thumb target and counting it buries the ones that are. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile (layout() at VERIFIED 390: 0 interactive controls under 44x44, measured by rect)."
       }
     },
     {
@@ -15677,9 +15677,9 @@
           "marketplace-seller-profile.html",
           "nav-hub.js"
         ],
-        "sha": "8bcb55e27e9f3cbb",
+        "sha": "9afa874087befd0d",
         "walked_at": "2026-08-04",
-        "checked": "Two-sided: the live probe reads the CSSOM (getComputedStyle RESOLVES env() to 0 on desktop, so a computed 32px cannot tell a guarded sheet from an unguarded one), and a source sweep of all 7 surfaces found 0 bottom-anchored position:fixed rules without safe-area-inset-bottom. Where a surface has no bottom-fixed chrome at all the live half is vacuous and the source sweep is what carries the row -- said plainly rather than counted as a pass. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds."
+        "checked": "Two-sided: the live probe reads the CSSOM (getComputedStyle RESOLVES env() to 0 on desktop, so a computed 32px cannot tell a guarded sheet from an unguarded one), and a source sweep of all 7 surfaces found 0 bottom-anchored position:fixed rules without safe-area-inset-bottom. Where a surface has no bottom-fixed chrome at all the live half is vacuous and the source sweep is what carries the row -- said plainly rather than counted as a pass. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile (layout(): no bottom-fixed chrome on this surface, so there is no home indicator to clear -- recorded as measured-and-empty rather than passed by default)."
       }
     },
     {
@@ -17336,9 +17336,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 9 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 5 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear."
+        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 9 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 5 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear. | RE-WALKED 2026-08-04 on the seller profile (measured on a FRESH load, not after an induction -- the trap that produced a false red on the seller console earlier today)."
       }
     },
     {
@@ -17388,9 +17388,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 5 state(s)."
+        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 5 state(s). | RE-WALKED 2026-08-04 on the seller profile (every visible control with empty innerText carries an aria-label or title -- 0 unnamed)."
       }
     },
     {
@@ -18206,9 +18206,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "230ded069a08dcbd",
+        "sha": "492b28930e5eb5fe",
         "walked_at": "2026-08-04",
-        "checked": "No refusal is reachable on a read-only public profile: there is nothing here to be refused. Recorded as VACUOUS rather than counted as a pass. The refusal behaviour for this seller's trade is exercised on the seller and market surfaces, where the writes are."
+        "checked": "No refusal is reachable on a read-only public profile: there is nothing here to be refused. Recorded as VACUOUS rather than counted as a pass. The refusal behaviour for this seller's trade is exercised on the seller and market surfaces, where the writes are. | RE-WALKED 2026-08-04 on the seller profile (comprehension(): 0 refusals on this surface, so there is no refusal naming a remedy that cannot be reached -- recorded as measured-and-empty rather than passed by default)."
       }
     },
     {
@@ -18221,21 +18221,14 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "reward_explained",
       "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
-      "status": "green",
-      "findings": [],
-      "evidence": {
-        "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
-        "asserts": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
-        "value_checked": true,
-        "depends_on": [
-          "marketplace-seller-profile.html",
-          "utils.js"
-        ],
-        "sha": "230ded069a08dcbd",
-        "walked_at": "2026-08-04",
-        "checked": "THE TIER WAS THE ONE SIGNAL THAT DID NOT EXPLAIN ITSELF. Every other badge on the row does. The community one reads: Earned by helping teammates in the WorkHive community forum. The tier, the first badge a buyer reads and the one that sounds most like a ranking, said only Bronze, and the page never mentioned that a ladder exists. Added a title and aria-label taken from the REAL thresholds (tierOf: silver at 11 sales, gold at 51) and from the trigger that enforces them (KYB / certification / tier / rating / sales are set by WorkHive, not self-assigned), so it describes the system instead of asserting something invented. Verified live on the rendered badge."
-      }
+      "status": "owed",
+      "findings": [
+        {
+          "severity": "false-green-withdrawn",
+          "title": "the 10% reward never appears on a shareable seller profile",
+          "measured": "MEASURED FAILURE: the 10% credits-back reward is NOWHERE on this surface. Swept the rendered text for 'credits back', '10%' and 'reward': zero hits, and comprehension() agrees (statesReward false).\nThis page lists the SAME items the marketplace grid does, and on the grid every priced listing carries a chip saying exactly what comes back -- PHP6,898.05 on a PHP68,980.48 part. A seller profile is a shareable, indexable URL that a buyer may arrive at directly from a search or a link, and arriving that way they see the prices with the incentive stripped out. It is the same defect class that started this whole bank: the credits-back chip vanishing from the one place a buyer meets the reward, except here it was never rendered rather than zeroed."
+        }
+      ]
     },
     {
       "id": "LM-BI-ux-comprehension-community-buyer-what_is_this_number",
