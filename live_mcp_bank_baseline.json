@@ -1,12 +1,4 @@
 {
- "green": 317,
- "note": "forward-only ratchet on GREEN. stale is excluded from the denominator. withdrawn_ids are withdrawals already paid out; each may lower the bar only once.",
- "withdrawn_ids": [
-  "LM-AZ-failure-injection-profile-system-fail_timeout",
-  "LM-BC-ufai-F-admin-buyer-effect_in_db",
-  "LM-BD-ufai-A-admin-buyer-rate_limit_legible",
-  "LM-BD-ufai-A-admin-buyer-slow_honest",
-  "LM-BG-ui-state-profile-buyer-component_loading",
-  "LM-BH-ui-visual-market-buyer-contrast_wcag"
- ]
+ "green": 318,
+ "note": "forward-only ratchet on GREEN. stale is excluded from the denominator."
 }
