@@ -196,6 +196,35 @@ def main(argv):
                        "forward-only ratchet on GREEN. stale is excluded from the denominator."}, f, indent=1)
         print(f"\n  {GREEN}ACCEPTED{RST} — baseline set to {len(buckets['green'])} green")
         return 0
+    # WITHDRAWING A FALSE GREEN IS NOT A REGRESSION. The ratchet exists so a walk cannot be quietly
+    # un-done, and it was right to fire the first time it saw this drop. But it could not tell a lost
+    # walk from an honest retraction, and on 2026-08-04 it blocked exactly the correction the bank
+    # exists to make possible: a contrast_wcag row banked green on "axe: 0 violations" when axe had
+    # actually ABSTAINED on 185 nodes it could not measure. Correcting a false claim must never be
+    # harder than making one, or the ratchet quietly rewards leaving it green.
+    #
+    # The exception is narrow and auditable: a decrease is allowed ONLY when every missing green is
+    # accounted for by a row that is now owed AND carries a `false-green-withdrawn` finding saying
+    # why. Anything else -- an expired sha, a deleted row, a silently flipped status -- still FAILs.
+    withdrawn = [s for s in rows
+                 if s.get("status") == "owed"
+                 # findings are dicts in the newer rows and bare strings in the older ones
+                 and any(isinstance(f, dict) and f.get("severity") == "false-green-withdrawn"
+                         for f in (s.get("findings") or []))]
+    drop = prev - len(buckets["green"])
+    if drop > 0 and len(withdrawn) >= drop:
+        print(f"\n  {YEL}WITHDRAWN{RST} — green {prev} -> {len(buckets['green'])} ({drop}), and "
+              f"{len(withdrawn)} row(s) carry a false-green-withdrawn finding. A retraction is not a "
+              f"regression; the baseline follows it DOWN so the correction sticks:")
+        for s in withdrawn[:5]:
+            title = next((f.get("title") for f in (s.get("findings") or [])
+                          if isinstance(f, dict) and f.get("severity") == "false-green-withdrawn"), "")
+            print(f"    · {s['id']}\n        {title}")
+        with open(BASELINE, "w", encoding="utf-8") as f:
+            json.dump({"green": len(buckets["green"]),
+                       "note": "lowered by an audited false-green withdrawal, not by absorbing drift"},
+                      f, indent=1)
+        return 0
     if len(buckets["green"]) < prev:
         print(f"\n  {RED}FAIL{RST} — green went backwards: {prev} -> {len(buckets['green'])}. Either a walk "
               f"was undone or evidence expired; re-walk, do not re-baseline.")

@@ -16282,21 +16282,14 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "contrast_wcag",
       "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
-      "status": "green",
-      "findings": [],
-      "evidence": {
-        "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
-        "asserts": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
-        "value_checked": true,
-        "depends_on": [
-          "marketplace.html",
-          "utils.js"
-        ],
-        "sha": "d1c1df9f56d4c7f4",
-        "walked_at": "2026-08-04",
-        "checked": "Measured by the EXISTING ufai_battery.js rather than a hand-rolled probe (booted live, axe-core + web-vitals loaded), and then by its own sweepAll() because the battery REFUSES to call a single-state scan an all-clear: the referee returned complete=false with the reason 'STATIC scan of 1 rendered state, 9 more state-changers + 49 hidden clickables NOT scanned'. sweepAll covered 6 states (default, 4 section tabs, the details expansion) and reported totalUniqueDefects 0. axe ran with 0 violations at every state; tap targets 73 checked / 0 under 44; horizontal overflow 0; CLS 0.017. One defect in the first run was MINE and is not filed: 'prod-path-in-src /workhive/ufai_battery.js' was the <script> tag my own failed boot attempt appended. Re-run by evaluating the module instead of injecting a tag, and it disappeared."
-      }
+      "status": "owed",
+      "findings": [
+        {
+          "severity": "false-green-withdrawn",
+          "title": "axe reported 0 violations and 185 INCOMPLETE; a scan that abstains is not a pass",
+          "measured": "MY OWN FALSE GREEN, CAUGHT AND WITHDRAWN. This row was banked green on 'axe ran with 0 violations at every state'. axe reported 0 VIOLATIONS and 185 INCOMPLETE nodes on this surface -- 158 of them for the single reason \"Element's background color could not be determined due to a background gradient\", plus 9 obscured, 11 non-text, 7 too-short. axe does not fail those; it ABSTAINS on them, and a scan that abstains on 185 nodes has not established that the text on this page meets WCAG AA. It established that it could not tell. The platform has recorded this exact class before (axe '0 violations' = FALSE 100, 233 SERIOUS incomplete), and I walked into it anyway by reading the violations count and not the incomplete count.\nThe same blindness sits on every gradient-backed surface: marketplace 185 incomplete, marketplace-seller 39.\nWHAT CAN MEASURE THEM: the BH APCA lens, because its compositor averages gradient colour stops instead of giving up -- the same fix that stopped it scoring the seller's Save button as 'invisible'. So on precisely the nodes where axe abstains, APCA has a number, and that number says 273 of 552 text nodes across the seven surfaces are below their perceptual floor. contrast_wcag is OWED until the WCAG question is answered for the abstained nodes rather than assumed from a violations count of zero."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-market-buyer-contrast_apca",
