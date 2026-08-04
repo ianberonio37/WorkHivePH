@@ -20241,8 +20241,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "wrong_then_fix",
       "oracle": "a wrong entry can be corrected without starting over",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a wrong entry can be corrected without starting over",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "A wrong entry is corrected in place, with nothing else lost. Filled the listing sheet correctly EXCEPT the required title, then submitted:\n  writes ................ 0   (refused before anything left the page)\n  sheet .................. still open\n  :invalid ............... post-title -- the form names the offending field rather than failing generically\n  price / description / location ... all intact\nThen corrected only the title. Price 1500, the description and Lucena all survived, and :invalid moved on to post-category -- the next genuinely unfilled field. So the form points at the next thing needing attention instead of clearing the work or repeating a stale complaint.\nTHE FIRST ATTEMPT AT THIS ROW WAS INVALID AND IS RETRACTED: I used a below-minimum PRICE as the 'wrong entry' while my write guard was installed. The PHP500 minimum is enforced by a DB TRIGGER at publish time, so with the POST stubbed as a 200 the page believed it had SUCCEEDED and reset the form -- I had stubbed away the very refusal I was trying to measure, then read the reset as 'the work was lost'. A guard that fakes success cannot test a failure path; this run uses a CLIENT-SIDE invalid entry, where no write occurs at all and no stub is needed."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-market-buyer-did_it_land",
