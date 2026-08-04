@@ -312,10 +312,26 @@
        23514 = check_violation, P0001 = a bare RAISE. Both mean a rule we wrote, deliberately, with a
        message meant to be read. Anything else (a network fault, a constraint we did not author) keeps
        the generic text, because a raw Postgres string is not an instruction. */
+    /* 42501 CARRIES DELIBERATE, HUMAN-WRITTEN REFUSALS AND THEY WERE BEING THROWN AWAY. Measured
+       2026-08-05: an admin who is also a seller pressed Approve on their own listing. The server
+       refused with 42501 and the sentence the guard was written to say --
+
+         "Not allowed: a listing goes live only after WorkHive review, not by self-publishing"
+
+       -- and the console showed "Action failed. Try again." Retrying is the one thing that cannot
+       work: the refusal is structural, and the actual next step (another admin reviews it) was in
+       the message that got dropped. Only 23514 and P0001 were passed through.
+
+       A raw 42501 can also be PostgREST's own "permission denied for table X", which tells an admin
+       nothing, so the grant-shaped wording is still filtered out and falls back to the session
+       branch below. */
     function refusalMessage(err) {
       const code = String(err && (err.code || err.errcode) || '');
       const msg = String(err && err.message || '').trim();
       if ((code === '23514' || code === 'P0001') && msg && msg.length < 300) return msg;
+      if (code === '42501' && msg && msg.length < 300
+          && !/permission denied for (table|relation|schema|function|view|sequence)/i.test(msg)
+          && !/jwt|token expired/i.test(msg)) return msg;
       return null;
     }
 
@@ -481,15 +497,24 @@
       if (lc) {
         if (m._error) lc.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`;
         else if (!(m.drafts || []).length) lc.innerHTML = `<div class="mod-empty">${e(emptyText('No listings waiting: all clear.'))}</div>`;
-        else lc.innerHTML = m.drafts.map(l => `
+        /* AN ADMIN WHO IS ALSO A SELLER WAS OFFERED APPROVE ON THEIR OWN LISTING. The guard refuses
+           it -- correctly, since self-publishing is exactly what review exists to prevent -- so that
+           button could never do anything but fail. Don't offer an action that cannot succeed: say
+           whose listing it is and what actually unblocks it. Reject stays, because withdrawing your
+           own listing is not self-dealing.
+           whWorker() is the same shared accessor the moderation record already uses for
+           moderated_by, so the button and the audit trail can never disagree about who is acting. */
+        else lc.innerHTML = m.drafts.map(l => { const _me = (typeof whWorker === 'function' && whWorker()) || null;
+          const _mine = !!(_me && l.seller_name && String(l.seller_name).trim() === String(_me).trim()); return `
           <div class="mod-row">
             <div class="mod-main"><strong>${e(l.title || 'Untitled')}</strong>
               <span class="mod-sub">${e(l.section || '')}${l.category ? ' · ' + e(l.category) : ''} · ${l.price != null ? '₱' + Number(l.price).toLocaleString() : 'price n/a'} · ${e(l.seller_name || '\u2014')}</span></div>
+            ${_mine ? '<span class="mod-sub" style="display:block;margin-top:0.2rem;">Your own listing: another admin has to review this one.</span>' : ''}
             <div class="mod-actions">
-              <button class="mod-btn ok" data-mkt-act="approve-listing" data-id="${e(l.id)}">Approve</button>
+              ${_mine ? '' : `<button class="mod-btn ok" data-mkt-act="approve-listing" data-id="${e(l.id)}">Approve</button>`}
               <button class="mod-btn no" data-mkt-act="reject-listing" data-id="${e(l.id)}">Reject</button>
             </div>
-          </div>`).join('');
+          </div>`; }).join('');
       }
       setCount('mkt-listings-count', (m.drafts || []).length, 'warn');
 
