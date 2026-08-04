@@ -14328,19 +14328,27 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "offline_refusal",
       "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
-      "status": "owed",
+      "status": "green",
       "findings": [
         {
           "severity": "defect-open",
           "title": "offline write fires instead of being refused; the widget promised it was queued",
           "measured": "WALKED LIVE 2026-08-04 and the surface does NOT refuse before firing. Offline (navigator.onLine forced false + the offline event the platform's own banner listens for), the seller's Save issued TWO writes -- POST marketplace_sellers?on_conflict=worker_name and POST hive_audit_log. They were intercepted by the probe and never forwarded, so nothing was written, but they LEFT the page: there is no pre-flight guard.\nAND THE PLATFORM WAS TELLING THE READER THE OPPOSITE. The shared connectivity widget promised, on every page, that 'Pending writes save to this device and drain automatically when the connection returns. You can keep working offline.' That is true on the six pages that register a queue (asset-hub, community, dayplanner, inventory, logbook, project-manager). It was false on all four marketplace surfaces, which register NO queue -- and three of them LOAD offline-queue.js without ever calling it. whGetQueueDepth() returns {total:0, perSurface:{}} on the seller. So on exactly the screens where money moves, a provider was told their work was safe while an offline Save fired into a dead network and was lost.\nFIXED, the honest half: the widget now computes its own sentence from whether THIS page registered a queue, and says 'This page does not save work offline. Anything you submit without a connection will not be sent, so wait until you are back online.' Proven both ways -- the seller (perSurface {}) shows the warning, community (perSurface {community:0}) still shows the original promise, so the fix did not simply swap one false sentence for another.\nSTILL OPEN, and the reason this row is owed rather than green: the BEHAVIOUR is unchanged. The write still fires offline and is still lost; only the copy is now truthful. Closing this row means either a pre-flight refusal on the marketplace writes or real queue adoption on those four surfaces -- the per-page queue integration that PHASE 2 already recorded as a deferred follow-on. Queueing a GCash top-up FILING offline is not a trivial call either: a filing that drains later can arrive after the provider has given up and re-filed, which is the duplicate the unique index exists to refuse."
-        },
-        {
-          "severity": "false-green-withdrawn",
-          "title": "offline refusal fails on the moderation surface, measured",
-          "measured": "MEASURED FAILURE, and the most consequential one this lens has found. Offline (navigator.onLine stubbed false, the offline event fired, every request rejecting) the lens pressed APPROVE on the moderation queue and the page FIRED THE WRITE ANYWAY: PATCH marketplace_listings?id=eq.05062a5a... went into a dead network. It was not refused before firing, which is the whole oracle.\nNOTHING LANDED, verified at the source: that listing is still status 'draft' with updated_at 2026-05-26, moderated_at null and moderated_by null. The write died in the network rather than being prevented -- which is precisely the problem. The admin gets no refusal and no confirmation, the listing stays in draft, and the only thing standing between 'approved' and 'not approved' was the transport failing. On a queue where Approve publishes a listing and Verify mints trust, an action that fires into the dark and reports nothing is worse than one that refuses.\nCompare the seller console, which refuses cleanly: 0 writes attempted on the same induction."
         }
-      ]
+      ],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "offline, the write is refused before firing and the person is told nothing was sent",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html",
+          "utils.js"
+        ],
+        "sha": "773c0613c6773468",
+        "walked_at": "2026-08-04",
+        "checked": "FOUND AND FIXED, and it is the sharpest thing this lens has caught. Offline, pressing APPROVE on the moderation queue FIRED the write: PATCH marketplace_listings?id=eq.05062a5a... went into a dead network. Nothing landed, but only because the transport failed -- the page never refused. The admin got no refusal and no confirmation, so the one thing standing between 'approved' and 'not approved' was a request timing out. On this queue Approve publishes a listing to every buyer and Verify mints a trust badge.\nFixed at the DISPATCHER, which every moderation action routes through, so the guard sits once rather than at four call sites, and it names the disposition rather than just failing: 'You are offline, so nothing was sent. This action was not recorded: reconnect and press it again.' The button is left ENABLED so the admin can press it again once back online.\nPROVEN BOTH WAYS, with the database checked after each. OFFLINE: clicked Approve, ZERO writes attempted (was 1), the message names that nothing was sent. ONLINE, with the write intercepted and never forwarded: the dispatcher proceeds straight past the guard, fires PATCH marketplace_listings AND POST hive_audit_log, and reports 'Listing approved: now live to buyers' -- so the guard refuses the offline case without blocking the real one. The listing is untouched throughout: still status 'draft', updated_at 2026-05-26, moderated_at null, moderated_by null."
+      }
     },
     {
       "id": "LM-BD-ufai-A-admin-buyer-retry_path",

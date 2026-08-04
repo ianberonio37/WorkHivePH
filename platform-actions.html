@@ -646,6 +646,22 @@
         const btn = ev.target.closest('button[data-mkt-act]');
         if (!btn) return;
         const act = btn.dataset.mktAct;
+
+        /* REFUSE BEFORE FIRING, NOT AFTER THE NETWORK EATS IT. Found 2026-08-04 by the live-MCP
+           availability walk: offline, pressing Approve sent
+           `PATCH marketplace_listings?id=eq...` into a dead network. Nothing landed -- the listing
+           stayed draft with moderated_at null -- but ONLY because the transport failed. The admin got
+           no refusal and no confirmation, so the one thing standing between "approved" and "not
+           approved" was a request timing out.
+           On this queue Approve publishes a listing to every buyer and Verify mints a trust badge, so
+           an action that fires into the dark and reports nothing is worse than one that refuses. Every
+           moderation action goes through this dispatcher, so the guard sits here once rather than at
+           four call sites, and it says plainly that nothing was sent. */
+        if (navigator.onLine === false) {
+          showToast('You are offline, so nothing was sent. This action was not recorded: reconnect and press it again.', 'error');
+          return;
+        }
+
         btn.disabled = true;
         try {
           if (act === 'approve-listing' || act === 'reject-listing') {
