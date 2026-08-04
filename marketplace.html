@@ -4506,6 +4506,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   window.svcPickQuote = svcPickQuote;
   window.svcClientCancel = svcClientCancel;
 
+  // Hiding the GRID is not the same as leaving the listings view. Measured 2026-08-04 on
+  // ?section=services: listing-grid was correctly hidden and the services pane correctly shown, but
+  // three pieces of listings-scoped chrome stayed on screen describing content nobody could see --
+  // the verdict still read "9 listings - 2 of them yours" above a pane showing 3 service requests,
+  // the search box still offered "Search listings..." (typing there filters the hidden grid), and
+  // the category chip row rendered EMPTY because there are no categories for services.
+  // A count on screen has to be a count of what is on screen. A view swap owns the whole view, not
+  // just its main element -- the same disposition rule a redesign follows.
+  function _setListingsChrome(show) {
+    // #listings-info is in this list because the first pass MISSED it. Four elements were hidden and
+    // the page still read "Showing 9 listings - newest first" -- found only by re-scanning the whole
+    // body text for the number rather than re-checking the four elements I had just changed.
+    const els = [document.getElementById('mk-verdict'),
+                 document.querySelector('.search-row'),
+                 document.getElementById('price-filter-panel'),
+                 document.getElementById('filter-chips'),
+                 document.getElementById('listings-info')];
+    for (const el of els) { if (el) el.hidden = !show; }
+  }
+
   function switchSection(section) {
     _section       = section;
     _cat           = 'All';
@@ -4526,6 +4546,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const grid = document.getElementById('listing-grid');
     if (section === 'services') {
       if (grid) grid.hidden = true;
+      _setListingsChrome(false);
       if (svcPane) { svcPane.hidden = false; loadClientServices(); }
       if (_realtimeChannel) { db.removeChannel(_realtimeChannel); _realtimeChannel = null; }
       renderFilterChips();
@@ -4533,6 +4554,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     if (svcPane) svcPane.hidden = true;
     if (grid) grid.hidden = false;
+    _setListingsChrome(true);
 
     /* re-subscribe Realtime to new section */
     if (_realtimeChannel) { db.removeChannel(_realtimeChannel); _realtimeChannel = null; }
