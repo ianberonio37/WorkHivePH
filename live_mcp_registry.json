@@ -20254,8 +20254,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "did_it_land",
       "oracle": "after a slow action the person can tell whether it landed, without guessing",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "after a slow action the person can tell whether it landed, without guessing",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "After a deliberately SLOW write (stub held open 1,200ms) the person is told, in words, what happened: at 1,600ms the toast reads '# Listing submitted for review -> in your Seller dashboard now - goes live to buyers in the Marketplace once approved'. That is three facts in one line -- it landed, where it is now, and what happens next -- so nobody has to infer success from a sheet closing. The control also settles back to 'Post Listing', enabled, and the sheet closes.\nTWO FALSE NEGATIVES WERE RETRACTED GETTING HERE, both mine, both the same root:\n  1. First run reported 'stuck on Posting..., no toast, ambiguous' -- I had only waited 2.8s while the gateway was degraded; polling to 20s showed it settling at 5s.\n  2. Then it reported toasts:[] TWICE, because I patched window.showToast -- and showToast is PAGE-SCOPED and called lexically, so a window patch never sees it. Same trap as loadListings, toggleWatchlist and openPostSheet earlier today: FOURTH occurrence.\nThe fix that finally measured it: watch the toast ELEMENT with a MutationObserver instead of intercepting the function. Observe what the page DOES, not what you hope you can hook.\nNothing leaked: 0 probe listings on a delayed re-count."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-market_svc-buyer-double_tap",
