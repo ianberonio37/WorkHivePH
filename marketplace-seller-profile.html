@@ -899,7 +899,6 @@
     if (!WORKER_VIEW) return;
 
     /* Filter chips */
-    if (window.whAutoRememberTabs) whAutoRememberTabs('seller-profile-section', '#section-filter', 'data-section');   // G5a: remember the last-viewed profile section
     document.querySelectorAll('[data-section]').forEach(chip => {
       chip.addEventListener('click', () => {
         _section = chip.dataset.section;
@@ -911,6 +910,19 @@
         renderListings();
       });
     });
+
+    /* G5a: remember the last-viewed profile section — AFTER the chips' own click handlers exist.
+       It used to run BEFORE the loop above, and the helper's own docs say why that cannot work: it
+       restores by CLICKING the saved chip, reusing the page's switch handler. With no handler yet
+       bound, the synthetic click did nothing — and then the save-on-click listener the helper had
+       just registered fired for that same click and wrote the STILL-DEFAULT "all" over the stored
+       preference. So the feature did not merely fail to restore, it ERASED what it was remembering,
+       on every load. Measured 2026-08-04: filter to Parts, leave, come back → "All", and the stored
+       value had flipped from {"v":"parts"} to {"v":"all"} on its own. Two lines apart, and the
+       ordering was the whole feature. (marketplace-seller.html looked like it had the same bug by
+       grep — its call sits above its handlers in the file — but it wraps the call in a `load`
+       listener, so at runtime the order is right. Measured both; only this page was broken.) */
+    if (window.whAutoRememberTabs) whAutoRememberTabs('seller-profile-section', '#section-filter', 'data-section');
 
     /* Load all in parallel except reviews which needs listings first */
     await Promise.all([loadSeller(), loadListings(), computeResponseStats()]);

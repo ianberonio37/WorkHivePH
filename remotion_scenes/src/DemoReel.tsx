@@ -498,6 +498,23 @@ const End: React.FC = () => {
   );
 };
 
+// Motion blur multiplies render cost by its sample count. At 1080x1920 that
+// is 2.25x the pixels ON TOP of 6x sampling - the native vertical ran past 50
+// minutes and had to be killed. Social verticals are watched small and fast,
+// where multi-sample trails buy little, so the vertical renders sharp and the
+// widescreen master keeps the film-like trails.
+const Blur: React.FC<{samples: number; angle: number; children: React.ReactNode}> =
+({samples, angle, children}) => {
+  const {width, height} = useVideoConfig();
+  const portrait = height > width;
+  if (portrait) return <>{children}</>;
+  return (
+    <CameraMotionBlur samples={samples} shutterAngle={angle}>
+      {children}
+    </CameraMotionBlur>
+  );
+};
+
 // ── assembly ────────────────────────────────────────────────────────────
 
 export const DemoReel: React.FC = () => {
@@ -510,28 +527,28 @@ export const DemoReel: React.FC = () => {
         return (
           <Sequence key={i} from={from} durationInFrames={b.frames}>
             {b.kind === 'word' && (
-              <CameraMotionBlur samples={6} shutterAngle={200}>
+              <Blur samples={6} angle={200}>
                 <Word text={b.text} accent={b.accent} frames={b.frames} />
-              </CameraMotionBlur>)}
+              </Blur>)}
             {b.kind === 'logo' && <Logo frames={b.frames} />}
             {b.kind === 'device' && (
-              <CameraMotionBlur samples={4} shutterAngle={180}>
+              <Blur samples={4} angle={180}>
                 <DeviceReveal seg={b.seg} frames={b.frames} />
-              </CameraMotionBlur>)}
+              </Blur>)}
             {b.kind === 'phone' && <PhoneReveal frames={b.frames} />}
             {b.kind === 'title' && (
-              <CameraMotionBlur samples={6} shutterAngle={200}>
+              <Blur samples={6} angle={200}>
                 <Title lines={b.lines} frames={b.frames}
                        side={i % 2 === 0 ? 'right' : 'left'} />
-              </CameraMotionBlur>)}
+              </Blur>)}
             {b.kind === 'section' && (
-              <CameraMotionBlur samples={3} shutterAngle={160}>
+              <Blur samples={3} angle={160}>
                 <Section seg={b.seg} frames={b.frames} />
-              </CameraMotionBlur>)}
+              </Blur>)}
             {b.kind === 'whip' && (
-              <CameraMotionBlur samples={6} shutterAngle={240}>
+              <Blur samples={6} angle={240}>
                 <Whip frames={b.frames} />
-              </CameraMotionBlur>)}
+              </Blur>)}
             {b.kind === 'end' && <End />}
           </Sequence>
         );

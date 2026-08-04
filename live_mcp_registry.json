@@ -20920,8 +20920,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "double_tap",
       "oracle": "the second press changes nothing further and the surface says so",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "the second press changes nothing further and the surface says so",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "cd129d7a096ac807",
+        "walked_at": "2026-08-04",
+        "checked": "This surface has NO write of its own -- no forms, no submit controls; the only writes reachable from it belong to the shared feedback panel, which is chrome. That is not a reason to record the recovery states as not-applicable: a read surface still has recovery behaviour, and here the input being recovered from is the ?worker= parameter and the filter state. Each row below is measured against that, and says so, rather than being waved through.\nThree presses of the same filter chip: the state after one press and after three is byte-identical (active chip 'parts', 2 cards). It does not toggle itself off on the second press -- the classic defect for a chip that is really a toggle -- and does not re-render twice."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-profile-buyer-back_out",
@@ -20933,8 +20946,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "back_out",
       "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "cd129d7a096ac807",
+        "walked_at": "2026-08-04",
+        "checked": "This surface has NO write of its own -- no forms, no submit controls; the only writes reachable from it belong to the shared feedback panel, which is chrome. That is not a reason to record the recovery states as not-applicable: a read surface still has recovery behaviour, and here the input being recovered from is the ?worker= parameter and the filter state. Each row below is measured against that, and says so, rather than being waved through.\nMEASURED FAILING FIRST, THEN FIXED. Filter to Parts, navigate to the marketplace, press Back: the page returned as 'All'. The stored preference had not merely failed to restore -- it had been ERASED, flipping from {\"v\":\"parts\"} to {\"v\":\"all\"} by itself. Root cause two lines apart: whAutoRememberTabs ran BEFORE the chips' own click handlers were bound, and it restores by CLICKING the saved chip to reuse the page's switch handler. With no handler yet, the synthetic click did nothing, and the save-on-click listener the helper had just registered fired for that same click and wrote the still-default 'all' over the preference. The helper's own documentation says to call it after the listeners exist. Moved. RE-MEASURED: choose Training, leave, come back -> restored as Training, stored value intact, 0 overlays open, no scroll lock, and the page actually scrolls (scrolled it and read scrollY back).\nmarketplace-seller.html looked identical by grep -- its call sits above its handlers in the file -- but it wraps the call in a window 'load' listener, so at runtime the order is right. Measured both; only the profile was broken. A textual sweep could not have told them apart."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-profile-buyer-session_died",
@@ -20946,8 +20972,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "session_died",
       "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "cd129d7a096ac807",
+        "walked_at": "2026-08-04",
+        "checked": "This surface has NO write of its own -- no forms, no submit controls; the only writes reachable from it belong to the shared feedback panel, which is chrome. That is not a reason to record the recovery states as not-applicable: a read surface still has recovery behaviour, and here the input being recovered from is the ?worker= parameter and the filter state. Each row below is measured against that, and says so, rather than being waved through.\nInduced through the runner's fail_401 lens rather than by hand, because hand-breaking the stored token does not work here -- supabase-js refreshes it in the background and overwrites the sabotage within a second, which I watched happen before switching instruments. The lens holds the reads at 401: saysExpiredOrFailed true, namesSession true, no bare retry. A first attempt at this row measured reads401=0 and is RETRACTED: clicking a filter chip re-renders from data already in memory and never touches the network, so the probe proved nothing about what the network does."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-profile-buyer-wrong_then_fix",
@@ -20959,8 +20998,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "wrong_then_fix",
       "oracle": "a wrong entry can be corrected without starting over",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "a wrong entry can be corrected without starting over",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "cd129d7a096ac807",
+        "walked_at": "2026-08-04",
+        "checked": "This surface has NO write of its own -- no forms, no submit controls; the only writes reachable from it belong to the shared feedback panel, which is chrome. That is not a reason to record the recovery states as not-applicable: a read surface still has recovery behaviour, and here the input being recovered from is the ?worker= parameter and the filter state. Each row below is measured against that, and says so, rather than being waved through.\nThe wrong input on this surface is the URL. ?worker=Nobody%20Whatsoever renders 'Seller not found -- We could not find a seller named \"Nobody Whatsoever\" on the marketplace.' It QUOTES THE OFFENDING VALUE BACK, which is what lets a person spot their own typo, and offers 'Back to Marketplace' as the way to fix it rather than leaving them on a dead page. The correct ?worker=Pablo%20Aguilar then renders the full profile -- 2 listings, the certifications and reviews sections -- with nothing carried over from the failed attempt."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-profile-buyer-did_it_land",
@@ -20972,8 +21024,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "did_it_land",
       "oracle": "after a slow action the person can tell whether it landed, without guessing",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "after a slow action the person can tell whether it landed, without guessing",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "cd129d7a096ac807",
+        "walked_at": "2026-08-04",
+        "checked": "This surface has NO write of its own -- no forms, no submit controls; the only writes reachable from it belong to the shared feedback panel, which is chrome. That is not a reason to record the recovery states as not-applicable: a read surface still has recovery behaviour, and here the input being recovered from is the ?worker= parameter and the filter state. Each row below is measured against that, and says so, rather than being waved through.\nThe filter is a state change with no network, so 'did it land' is answered visually or not at all: the chosen chip carries .active AND aria-selected=true, and the count line reads '2 listings' for what is now shown. Both halves, since a chip that only changes colour tells a screen reader nothing."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-community-buyer-double_tap",
