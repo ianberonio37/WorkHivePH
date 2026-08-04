@@ -241,6 +241,13 @@ def _fn_digests_v1(paths):
     return out
 
 
+def accept_allowed(prev, now):
+    """The ratchet's one rule, as a function so it can be tested without re-entering main().
+    --accept may only RAISE the high-water mark. Lowering it goes through the audited
+    false-green-withdrawal path, which records which rows bought the decrease."""
+    return int(now) >= int(prev)
+
+
 def fn_digests_still_hold(recorded):
     """True when every function/top-level digest a row RECORDED is still byte-identical, recomputed
     with the SAME algorithm that wrote it. Names absent from `recorded` are new code and are
@@ -374,10 +381,28 @@ def main(argv):
     base = load(BASELINE, {}) or {}
     prev = int(base.get("green", 0))
     if "--accept" in argv:
+        now = len(buckets["green"])
+        # A RATCHET THAT TURNS BOTH WAYS IS NOT A RATCHET. --accept used to overwrite the baseline
+        # unconditionally, so it LOWERED the high-water mark as happily as it raised it. On 2026-08-05
+        # I edited utils.js (adding a reduced-motion guard), which legitimately expired most rows to
+        # `stale`, then ran --accept out of habit while banking five unrelated rows: 752 -> 29,
+        # silently, in the one mechanism whose whole job is that a walk cannot be quietly un-done. A
+        # later 100 would then have read as progress from 29.
+        # Accept may only RAISE. A drop caused by drift is what `stale` is for — re-walk it. A drop
+        # caused by an honest retraction goes through the audited withdrawal path below, which demands
+        # a false-green-withdrawn finding on each row and records the ids that bought the decrease.
+        if not accept_allowed(prev, now):
+            print(f"\n  {RED}REFUSED{RST} — --accept may only ratchet UP. green {prev} -> {now} "
+                  f"({now - prev}); the baseline stays at {prev}.")
+            print(f"  {DIM}{len(buckets['stale'])} row(s) are stale: a dependency changed, so their "
+                  f"evidence expired. Re-walk them — that is what stale means. To LOWER the bar you "
+                  f"must withdraw specific rows with a false-green-withdrawn finding, which is "
+                  f"audited and records which ids bought the decrease.{RST}")
+            return 1
         with open(BASELINE, "w", encoding="utf-8") as f:
-            json.dump({"green": len(buckets["green"]), "note":
+            json.dump({"green": now, "note":
                        "forward-only ratchet on GREEN. stale is excluded from the denominator."}, f, indent=1)
-        print(f"\n  {GREEN}ACCEPTED{RST} — baseline set to {len(buckets['green'])} green")
+        print(f"\n  {GREEN}ACCEPTED{RST} — baseline {prev} -> {now} green")
         return 0
     # WITHDRAWING A FALSE GREEN IS NOT A REGRESSION. The ratchet exists so a walk cannot be quietly
     # un-done, and it was right to fire the first time it saw this drop. But it could not tell a lost
@@ -627,8 +652,22 @@ def selftest():
         if os.path.exists(tmp1):
             os.remove(tmp1)
 
+    # ── R5 · THE RATCHET MUST ONLY TURN ONE WAY ──────────────────────────────────────────────────
+    # --accept overwrote the baseline unconditionally, so it lowered the high-water mark as happily as
+    # it raised it: on 2026-08-05 a legitimate utils.js edit expired most rows to stale and a habitual
+    # --accept took the baseline 752 -> 29 in silence.
+    for prev, now, want_ok, label in [
+        (752, 29, False, "a drift-driven drop must be REFUSED"),
+        (752, 752, True, "an unchanged count is allowed (no-op)"),
+        (752, 760, True, "a genuine increase must be ACCEPTED"),
+        (0, 5, True, "from a cold baseline any count is an increase"),
+    ]:
+        if accept_allowed(prev, now) is not want_ok:
+            print(f"  {RED}FAIL{RST} — R5: {label} (prev={prev}, now={now})")
+            ok = False
+
     if ok:
-        print(f"  {GREEN}PASS{RST} — R1/R2/R3/R4/R4b/R6 all fire; a well-formed row passes; owed is exempt")
+        print(f"  {GREEN}PASS{RST} — R1/R2/R3/R4/R4b/R5/R6 all fire; a well-formed row passes; owed is exempt")
     return 0 if ok else 1
 
 
