@@ -1461,6 +1461,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   async function handleSubmitRfq(ev) {
     ev.preventDefault();
+    if (!svcRequireOnline('Sending your quote requests')) return;
 
     const name    = (document.getElementById('rfq-name')?.value    || '').trim();
     const contact = (document.getElementById('rfq-contact')?.value || '').trim();
@@ -1684,6 +1685,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   async function handleSaveCurrentSearch() {
+    if (!svcRequireOnline('Saving this search')) return;
     const name  = (document.getElementById('save-search-name')?.value  || '').trim();
     const email = (document.getElementById('save-search-email')?.value || '').trim();
     if (!name) { showToast('Give this search a name.', 'error'); return; }
@@ -1762,6 +1764,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   async function deleteSavedSearch(id) {
+    if (!svcRequireOnline('Deleting this saved search')) return;
     if (!(await window.whConfirm('Delete this saved search? This cannot be undone.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
     try {
       const { error } = await db
@@ -1804,6 +1807,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   async function toggleWatchlist(listingId) {
+    if (!svcRequireOnline('Saving this listing to your watchlist')) return;
     if (!WORKER_NAME) {
       showToast('Sign in first to save listings.', 'error');
       return;
@@ -2834,6 +2838,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       document.getElementById('review-comment')?.focus();
     });
     document.getElementById('btn-submit-review')?.addEventListener('click', async (ev) => {
+      if (!svcRequireOnline('Posting your review')) return;
       const btn = ev.currentTarget;
       const ratingEl = document.getElementById('review-rating');
       const commentEl = document.getElementById('review-comment');
@@ -3456,6 +3461,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   async function handlePostSubmit(ev) {
     ev.preventDefault();
+    if (!svcRequireOnline('Posting your listing')) return;
 
     const section  = document.getElementById('post-section')?.value || 'parts';
     const title    = (document.getElementById('post-title')?.value || '').trim();
@@ -3551,8 +3557,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   /* ============================================================
      INQUIRY SUBMIT
   ============================================================ */
+  /* THE BUYER'S WRITES WERE NEVER GIVEN THE OFFLINE GUARD. The 2026-07-29 sweep guarded every svc*
+     path on this page -- hail, quotes, pick, settle, review, voucher, object, cancel -- and stopped
+     at the service boundary, leaving every marketplace path beside them open. Measured 2026-08-05
+     against a genuinely dead network (a REJECTING fetch, not a stubbed one): Send Inquiry FIRED,
+     and the buyer was told "Failed to send inquiry. Try again." Try again is the one instruction
+     that cannot work while offline, and nothing said they were offline or that nothing was sent.
+     Found by brace-matching every function body on the page rather than grepping for the guard. */
   async function handleInquirySubmit(ev) {
     ev.preventDefault();
+    if (!svcRequireOnline('Sending your inquiry')) return;
 
     const listingIdEl = document.getElementById('inq-listing-id');
     const listingId   = listingIdEl?.value || '';
