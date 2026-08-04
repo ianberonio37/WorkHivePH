@@ -2845,19 +2845,23 @@
   }
 
   // ── Toast ─────────────────────────────────────────────────────────────────────
-  /* A NOTE FOR THE NEXT WALK, because I spent a long time here and came away without a verdict.
-     Sampling getComputedStyle(#toast).opacity on this page gives CONTRADICTORY answers: an 'error'
-     toast read 0 for 1.2s while .hidden was absent, a 'success' toast read 1 immediately, and once it
-     read 1 while .hidden WAS applied (which that class sets to 0). Playwright then refused to
-     screenshot either the element or the page -- "waiting for element to be stable" -- and the reason
-     turned up in document.getAnimations(): 29 animations running continuously, 26 of them wh-spin on
-     .wh-avatar tier rings, 10 of those scrolled off-screen. A page that never settles gives
-     inconsistent computed-style snapshots mid-transition, which is what I was reading.
-     So: the toast may be fine and my instrument was unreliable, or the error branch genuinely does
-     not become visible. I could not tell them apart, and a measurement I cannot trust is not grounds
-     for a change here -- an earlier speculative edit was reverted for exactly that reason. The next
-     walk should settle it the only way that cannot lie: quiet the animations first (below), then
-     screenshot the toast on both branches. */
+  /* THIS TOAST IS FINE, and the record of how nearly it was "fixed" is worth more than the code.
+     Sampling getComputedStyle(#toast).opacity here gave CONTRADICTORY answers: an 'error' toast read
+     0 for 1.2s with .hidden absent, a 'success' toast read 1 at once, and once it read 1 while
+     .hidden WAS applied -- which that class sets to 0. On that evidence I changed this function to
+     assert opacity positively, then reverted it, because a measurement I cannot trust is not grounds
+     for a change.
+     The cause was the page, not the toast: document.getAnimations() returned 29 running animations
+     (26 wh-spin on .wh-avatar tier rings, 10 of them off-screen), so the compositor never settled and
+     every mid-transition snapshot disagreed with the last. Playwright refused to screenshot for the
+     same reason -- "waiting for element to be stable".
+     Settled by quieting the animations and screenshotting: the FULL-PAGE shot shows
+     "✕ GROUND TRUTH: can a person read this refusal?" in white on the pill, plainly readable. The
+     ELEMENT screenshot came back blank even at 40px bold, because this toast is position:fixed with
+     transform:translateX(-50%) and captures as an isolated composited layer -- so a blank element
+     shot is a Playwright artifact on this shape, never evidence that text does not paint.
+     Two rules earned here: an unstable page makes getComputedStyle unreliable, and a full-page shot
+     is the ground truth an element shot cannot give you. */
   function showToast(message, type = 'success') {
     const toast  = document.getElementById('toast');
     const text   = document.getElementById('toast-text');
