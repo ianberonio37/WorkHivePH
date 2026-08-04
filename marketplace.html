@@ -2664,6 +2664,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </div>
       <div class="detail-price">${e(fmtPrice(item.price))}</div>
       ${creditsBackChipHtml(item.price, 'margin-bottom:0.5rem;')}
+      ${/* THE CHIP TRAVELLED HERE; ITS MEANING DID NOT. The chip was added to this sheet because the
+            incentive used to vanish exactly at the moment of commitment — and on a ₱68,980 listing the
+            bare words "₱6,898.05 credits back" read like money coming back. They are not: credits are
+            spend-only and cannot be withdrawn, which is one of this platform's hard rules. That
+            sentence exists on the page BEHIND this sheet, inside the "Show details" panel, collapsed.
+            Measured 2026-08-04: on the detail sheet, explainsCredits FALSE. A number that reads as
+            cash, on the screen where someone decides to contact a stranger and pay them off-platform,
+            has to carry its own meaning rather than rely on a panel nobody opened. */''}
+      ${creditsBack(item.price)
+        ? `<p style="font-size:0.7rem;color:var(--wh-text-muted);margin:-0.25rem 0 0.5rem;">Credits are spent on WorkHive services — they are not cash and cannot be withdrawn. You get them when the job settles.</p>`
+        : ''}
       <div class="detail-title">${e(item.title)}</div>
 
       <div class="detail-section">
