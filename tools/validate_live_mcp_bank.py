@@ -181,17 +181,78 @@ def fn_digests(paths):
         # is inside that function's own digest, untouched by this.
         norm = "\n".join(ln.strip() for chunk in top for ln in chunk.splitlines() if ln.strip())
         out["%s::toplevel" % p] = hashlib.sha256(norm.encode("utf-8")).hexdigest()[:16]
+    if out:
+        out["::v"] = "2"          # see fn_digests_still_hold: a map must be checked by its own algorithm
+    return out
+
+
+# ── THE MEASUREMENT CHANGED, AND THAT IS NOT DRIFT ───────────────────────────────────────────────
+# Widening R4b to .html and to indented declarations (2026-08-05) also changed what "toplevel" MEANS:
+# nested function bodies used to be part of the remainder and are now carved out of it, so the
+# normalised remainder hashes differently for a file NOBODY TOUCHED. Recomputing old recordings with
+# the new algorithm expired 661 rows in one run -- green 742 -> 81 -- and the forward-only ratchet
+# refused it, correctly: "green went backwards, re-walk, do not re-baseline."
+#
+# It would have been wrong to re-walk them, because nothing they claim had changed; and wronger to
+# re-baseline, because that is how a false green is minted. A recorded map must be checked by the
+# ALGORITHM THAT PRODUCED IT. Maps written from now on carry "::v" = 2; a map without it is v1 and is
+# checked against a v1 recomputation, so those rows keep exactly the freshness contract they were
+# banked under and lose nothing. Re-walking a v1 row upgrades it naturally, because the new map is
+# written at bank time from the code as it then is.
+_FN_RE_V1 = re.compile(r"^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(", re.M)
+
+
+def _fn_digests_v1(paths):
+    """The pre-2026-08-05 algorithm, kept verbatim so v1 recordings stay comparable: `.js` only,
+    declarations at column 0 only, no nested-span handling, no duplicate-name disambiguation."""
+    out = {}
+    for p in sorted(paths or []):
+        fp = os.path.join(ROOT, p)
+        if not os.path.exists(fp) or not p.endswith(".js"):
+            continue
+        src = open(fp, "r", encoding="utf-8", errors="replace").read()
+        spans = []
+        for m in _FN_RE_V1.finditer(src):
+            i = src.find("{", m.end() - 1)
+            if i < 0:
+                continue
+            depth, j, n = 0, i, len(src)
+            while j < n:
+                c = src[j]
+                if c == "{":
+                    depth += 1
+                elif c == "}":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                j += 1
+            if depth != 0:
+                continue
+            out["%s::%s" % (p, m.group(1))] = hashlib.sha256(
+                src[m.start():j + 1].encode("utf-8")).hexdigest()[:16]
+            spans.append((m.start(), j + 1))
+        top, last = [], 0
+        for a, b in sorted(spans):
+            top.append(src[last:a])
+            last = b
+        top.append(src[last:])
+        norm = "\n".join(ln.strip() for chunk in top for ln in chunk.splitlines() if ln.strip())
+        out["%s::toplevel" % p] = hashlib.sha256(norm.encode("utf-8")).hexdigest()[:16]
     return out
 
 
 def fn_digests_still_hold(recorded):
-    """True when every function/top-level digest a row RECORDED is still byte-identical. Names absent
-    from `recorded` are new code and are deliberately ignored."""
+    """True when every function/top-level digest a row RECORDED is still byte-identical, recomputed
+    with the SAME algorithm that wrote it. Names absent from `recorded` are new code and are
+    deliberately ignored."""
     if not recorded:
         return False
-    files = sorted({k.split("::", 1)[0] for k in recorded})
-    current = fn_digests(files)
+    version = str(recorded.get("::v") or "1")
+    files = sorted({k.split("::", 1)[0] for k in recorded if k != "::v"})
+    current = fn_digests(files) if version == "2" else _fn_digests_v1(files)
     for k, v in recorded.items():
+        if k == "::v":
+            continue
         if current.get(k) != v:
             return False
     return True
@@ -519,6 +580,52 @@ def selftest():
     finally:
         if os.path.exists(tmph):
             os.remove(tmph)
+
+    # ── A v1 MAP MUST STILL BE HONOURED, AND MUST STILL HAVE TEETH ───────────────────────────────
+    # Widening the algorithm changed what "toplevel" means, so recomputing a v1 recording with the v2
+    # algorithm expired 661 untouched rows. A map is checked by the algorithm that wrote it. Both
+    # halves are asserted: a v1 row survives code it does not name, and STILL dies on code it does.
+    tmp1 = os.path.join(ROOT, "_r4b_v1_selftest.js")
+    try:
+        # The fixture must REPRODUCE the divergence, or this case is a teeth test that never fires.
+        # An IIFE with INDENTED declarations is the real shape (utils.js, every page): v1 matches no
+        # `^function` at all, so its toplevel remainder is the whole file INCLUDING those bodies,
+        # while v2 carves them out. A fixture with a column-0 function wrapping an indented one does
+        # NOT diverge -- v2's outermost-span rule keeps the same remainder -- and an earlier version
+        # of this test used exactly that, passed under a deliberately broken checker, and proved
+        # nothing.
+        iife = ("(function () {\n"
+                "  function alpha() { return 'a'; }\n"
+                "  var wired = 1;\n"
+                "})();\n")
+        open(tmp1, "w", encoding="utf-8").write(iife)
+        v1 = _fn_digests_v1(["_r4b_v1_selftest.js"])          # no "::v" key: this is a v1 recording
+        if "::v" in v1:
+            print(f"  {RED}FAIL{RST} — R4b/v1: a v1 map must not carry a version marker")
+            ok = False
+        if v1.get("_r4b_v1_selftest.js::toplevel") == fn_digests(
+                ["_r4b_v1_selftest.js"]).get("_r4b_v1_selftest.js::toplevel"):
+            print(f"  {RED}FAIL{RST} — R4b/v1: fixture does not diverge, so the version test proves nothing")
+            ok = False
+        rowv1 = {"status": "green",
+                 "evidence": {"kind": "gate", "ref": "gate:validate_public_read_surface", "asserts": "a",
+                              "depends_on": ["_r4b_v1_selftest.js"], "sha": "stale-on-purpose",
+                              "fn_digests": v1}}
+        if classify(rowv1, gates, urls)[0] != "green":
+            print(f"  {RED}FAIL{RST} — R4b/v1: an untouched v1 row must stay green under the new algorithm")
+            ok = False
+        open(tmp1, "a", encoding="utf-8").write("function added() { return 2; }\n")
+        if classify(rowv1, gates, urls)[0] != "green":
+            print(f"  {RED}FAIL{RST} — R4b/v1: adding a function must not expire a v1 row")
+            ok = False
+        open(tmp1, "w", encoding="utf-8").write(
+            "function alpha() {\n  function helper() { return 99; }\n  return helper();\n}\nvar top = 1;\n")
+        if classify(rowv1, gates, urls)[0] != "stale":
+            print(f"  {RED}FAIL{RST} — R4b/v1: a v1 row MUST still expire when its recorded body changes")
+            ok = False
+    finally:
+        if os.path.exists(tmp1):
+            os.remove(tmp1)
 
     if ok:
         print(f"  {GREEN}PASS{RST} — R1/R2/R3/R4/R4b/R6 all fire; a well-formed row passes; owed is exempt")
