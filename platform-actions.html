@@ -562,7 +562,12 @@
         box.innerHTML = `<div class="mod-empty">${e(boundary
           ? emptyText('Not visible with this session - sign in as a platform admin to see the credit position.')
           : "Couldn't load the credit position: " + m._error)}</div>`;
-        setCount('cp-cover', 0, '');
+        /* NOT ZERO. The card correctly says "not visible with this session", and then this badge
+           said "0" beside it -- and on a solvency console a cover of 0 does not read as "unknown",
+           it reads as "the platform cannot cover its liabilities at all". The markup's own initial
+           value is the gap character; the refusal path should return to it rather than invent the
+           most alarming number on the page. Found by the AZ null-field induction 2026-08-04. */
+        setCount('cp-cover', '\u2014', '');
         return;
       }
       const sum = t => (m.rows || []).filter(r => r.entry_type === t)
@@ -590,7 +595,9 @@
       const peso = n => '₱' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
       const num  = n => Number(n || 0).toLocaleString();
 
-      setCount('cp-cover', cover === null ? 0 : Number(cover.toFixed(2)),
+      // same reason as the refusal branch above: an unknown cover is a gap, never a 0, because 0 is
+      // the reading that says the platform is insolvent
+      setCount('cp-cover', cover === null ? '\u2014' : Number(cover.toFixed(2)),
                cover === null ? '' : (cover >= 1 ? '' : (cover >= 0.8 ? 'warn' : 'fail')));
 
       box.innerHTML =
