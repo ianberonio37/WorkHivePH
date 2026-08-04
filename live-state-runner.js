@@ -177,6 +177,166 @@ export async function run() {
   return out;
 }
 
+// ── F3 · BH-ui-visual (the two the battery cannot do) ────────────────────────────────────────
+// ufai_battery.js already runs axe-core WCAG 2.2 AA (contrast, names, target size) and the
+// focus-visible tab-walk, across every enumerated state via sweepAll(). REUSE that; this adds only
+// the two it does not measure:
+//
+//   APCA — axe grades WCAG 2.x contrast RATIO, which is a different model from APCA's perceptual
+//   lightness contrast. They disagree often enough that this platform has already recorded a page
+//   scoring WCAG 100% and APCA 25%. Passing one says nothing about the other.
+//
+//   REDUCED MOTION — the battery reports "OS-off" because the browser is not emulating
+//   prefers-reduced-motion, so it cannot observe the honoured state. Whether the page HONOURS it is
+//   still answerable: does anything animate, and is there a rule that turns it off.
+//
+// Backgrounds are composited through ancestors. A tinted pill over a dark card over a gradient page
+// is the exact shape that made naive checks read a transparent background as white and pass.
+const APCA = {
+  normBG: 0.56, normTXT: 0.57, revTXT: 0.62, revBG: 0.65,
+  blkThrs: 0.022, blkClmp: 1.414, scale: 1.14, loOffset: 0.027, deltaYmin: 0.0005,
+};
+
+function _parseRGBA(s) {
+  const m = String(s).match(/rgba?\(([^)]+)\)/);
+  if (!m) return null;
+  const p = m[1].split(',').map(x => parseFloat(x.trim()));
+  return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
+}
+
+function _overlay(fg, bg) {            // source-over compositing
+  const a = fg.a + bg.a * (1 - fg.a);
+  if (a === 0) return { r: 0, g: 0, b: 0, a: 0 };
+  return {
+    r: (fg.r * fg.a + bg.r * bg.a * (1 - fg.a)) / a,
+    g: (fg.g * fg.a + bg.g * bg.a * (1 - fg.a)) / a,
+    b: (fg.b * fg.a + bg.b * bg.a * (1 - fg.a)) / a,
+    a,
+  };
+}
+
+// A GRADIENT IS A BACKGROUND. Reading backgroundColor alone reports rgba(0,0,0,0) for anything
+// painted by background-image, so the walk fell through to the page canvas and produced nonsense:
+// the seller's Save button is dark navy on a BRIGHT ORANGE gradient -- high contrast -- and scored
+// Lc 0, "invisible". 41 of 49 text nodes on that surface sit over a gradient, so almost every
+// reading was wrong. Averaging the gradient's colour stops is an approximation, and it is enormously
+// closer than pretending the element is transparent. A url() image cannot be averaged from CSS at
+// all, so those are reported INCONCLUSIVE rather than scored.
+function _gradientAvg(bgImage) {
+  if (!bgImage || bgImage === 'none') return null;
+  if (/url\(/i.test(bgImage)) return { unknown: true };
+  const stops = bgImage.match(/rgba?\([^)]+\)/g);
+  if (!stops || !stops.length) return null;
+  const cs = stops.map(_parseRGBA).filter(Boolean);
+  if (!cs.length) return null;
+  const n = cs.length;
+  return { r: cs.reduce((s, c) => s + c.r, 0) / n,
+           g: cs.reduce((s, c) => s + c.g, 0) / n,
+           b: cs.reduce((s, c) => s + c.b, 0) / n,
+           a: cs.reduce((s, c) => s + c.a, 0) / n };
+}
+
+function _effectiveBg(el) {
+  // walk up compositing each ancestor's background until opaque; the page canvas is the floor
+  let acc = { r: 0, g: 0, b: 0, a: 0 };
+  let inconclusive = false;
+  for (let n = el; n && n !== document.documentElement.parentNode; n = n.parentElement) {
+    const st = getComputedStyle(n);
+    const g = _gradientAvg(st.backgroundImage);
+    if (g && g.unknown) { inconclusive = true; break; }
+    if (g) { acc = _overlay(acc, g); if (acc.a >= 0.999) break; }
+    const c = _parseRGBA(st.backgroundColor);
+    if (c && c.a > 0) { acc = _overlay(acc, c); if (acc.a >= 0.999) break; }
+  }
+  if (!inconclusive && acc.a < 0.999) {
+    const bodySt = getComputedStyle(document.body);
+    const bodyG = _gradientAvg(bodySt.backgroundImage);
+    const body = (bodyG && !bodyG.unknown) ? bodyG
+               : (_parseRGBA(bodySt.backgroundColor) || { r: 255, g: 255, b: 255, a: 1 });
+    acc = _overlay(acc, { ...body, a: 1 });
+  }
+  acc.inconclusive = inconclusive;
+  return acc;
+}
+
+function _Y(c) {
+  const f = v => Math.pow(Math.max(0, Math.min(255, v)) / 255, 2.4);
+  return 0.2126729 * f(c.r) + 0.7151522 * f(c.g) + 0.0721750 * f(c.b);
+}
+
+function _apcaLc(txt, bg) {
+  let Yt = _Y(txt), Yb = _Y(bg);
+  Yt = Yt > APCA.blkThrs ? Yt : Yt + Math.pow(APCA.blkThrs - Yt, APCA.blkClmp);
+  Yb = Yb > APCA.blkThrs ? Yb : Yb + Math.pow(APCA.blkThrs - Yb, APCA.blkClmp);
+  if (Math.abs(Yb - Yt) < APCA.deltaYmin) return 0;
+  let S;
+  if (Yb > Yt) {                                   // dark text on light
+    S = (Math.pow(Yb, APCA.normBG) - Math.pow(Yt, APCA.normTXT)) * APCA.scale;
+    return (S < APCA.loOffset ? 0 : S - APCA.loOffset) * 100;
+  }
+  S = (Math.pow(Yb, APCA.revBG) - Math.pow(Yt, APCA.revTXT)) * APCA.scale;   // light text on dark
+  return (S > -APCA.loOffset ? 0 : S + APCA.loOffset) * 100;
+}
+
+export function visual() {
+  const m = document.querySelector('main') || document.body;
+  const vis = el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden';
+  const texts = [...m.querySelectorAll('*')].filter(el =>
+    el.childElementCount === 0 && vis(el) && (el.textContent || '').trim().length > 1);
+
+  const rows = texts.slice(0, 400).map(el => {
+    const cs = getComputedStyle(el);
+    const fg = _parseRGBA(cs.color) || { r: 0, g: 0, b: 0, a: 1 };
+    const bg = _effectiveBg(el);
+    const composited = fg.a < 1 ? _overlay(fg, bg) : fg;   // translucent TEXT composites too
+    const px = parseFloat(cs.fontSize) || 16;
+    const w = parseInt(cs.fontWeight, 10) || 400;
+    const Lc = Math.abs(_apcaLc(composited, bg));
+    // APCA bronze-ish floors: large/bold text may sit lower than body copy
+    const floor = (px >= 24 || (px >= 18.66 && w >= 700)) ? 45 : (px < 14 ? 75 : 60);
+    return { txt: (el.textContent || '').trim().slice(0, 32), px: Math.round(px), w,
+             Lc: Math.round(Lc * 10) / 10, floor,
+             ok: bg.inconclusive ? null : Lc >= floor,
+             inconclusive: !!bg.inconclusive,
+             fg: cs.color, bg: 'rgb(' + [bg.r, bg.g, bg.b].map(Math.round).join(',') + ')' };
+  });
+  const fails = rows.filter(r => r.ok === false).sort((a, b) => a.Lc - b.Lc);
+  const unknown = rows.filter(r => r.inconclusive);
+
+  // REDUCED MOTION: does anything actually animate, and is the opt-out expressed?
+  const animated = [...document.querySelectorAll('*')].filter(el => {
+    const cs = getComputedStyle(el);
+    return vis(el) && ((cs.animationName && cs.animationName !== 'none') ||
+                       (cs.transitionDuration && parseFloat(cs.transitionDuration) > 0));
+  });
+  let declaresGuard = false;
+  for (const sheet of document.styleSheets) {
+    let rules; try { rules = sheet.cssRules; } catch (e) { continue; }  // empty-catch-allow: cross-origin sheet
+    for (const r of rules || []) {
+      if (r.media && /prefers-reduced-motion/.test(r.conditionText || r.media.mediaText || '')) { declaresGuard = true; break; }
+    }
+    if (declaresGuard) break;
+  }
+  return {
+    apca: {
+      measured: rows.length,
+      failing: fails.length,
+      inconclusive: unknown.length,
+      ok: unknown.length ? null : fails.length === 0,
+      worst: fails.slice(0, 10),
+      unmeasurable: unknown.slice(0, 4).map(u => u.txt),
+    },
+    reduced_motion: {
+      animatedElements: animated.length,
+      declaresGuard,
+      ok: animated.length === 0 ? null : declaresGuard,
+      note: animated.length === 0 ? 'nothing animates on this surface - nothing to honour'
+                                  : (declaresGuard ? null : 'elements animate and no @media (prefers-reduced-motion) rule exists'),
+      matchesNow: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    },
+  };
+}
+
 // ── F3 · BG-ui-state ─────────────────────────────────────────────────────────────────────────
 // The six states per COMPONENT, not per page. Four of them cannot be seen on a settled page at all
 // -- loading, skeleton and busy only exist while something is in flight, and a disabled control only

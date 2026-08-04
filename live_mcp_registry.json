@@ -16282,8 +16282,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "contrast_wcag",
       "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "Measured by the EXISTING ufai_battery.js rather than a hand-rolled probe (booted live, axe-core + web-vitals loaded), and then by its own sweepAll() because the battery REFUSES to call a single-state scan an all-clear: the referee returned complete=false with the reason 'STATIC scan of 1 rendered state, 9 more state-changers + 49 hidden clickables NOT scanned'. sweepAll covered 6 states (default, 4 section tabs, the details expansion) and reported totalUniqueDefects 0. axe ran with 0 violations at every state; tap targets 73 checked / 0 under 44; horizontal overflow 0; CLS 0.017. One defect in the first run was MINE and is not filed: 'prod-path-in-src /workhive/ufai_battery.js' was the <script> tag my own failed boot attempt appended. Re-run by evaluating the module instead of injecting a tag, and it disappeared."
+      }
     },
     {
       "id": "LM-BH-ui-visual-market-buyer-contrast_apca",
@@ -16296,7 +16309,13 @@
       "state": "contrast_apca",
       "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "APCA: 103 of 126 text nodes sit below their perceptual floor while WCAG AA passes",
+          "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 10-11px category and trust chips at Lc 45-58. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-market-buyer-focus_visible",
@@ -16308,8 +16327,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "focus_visible",
       "oracle": "keyboard focus is visible on every interactive element, including custom ones",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "keyboard focus is visible on every interactive element, including custom ones",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "Measured by the EXISTING ufai_battery.js rather than a hand-rolled probe (booted live, axe-core + web-vitals loaded), and then by its own sweepAll() because the battery REFUSES to call a single-state scan an all-clear: the referee returned complete=false with the reason 'STATIC scan of 1 rendered state, 9 more state-changers + 49 hidden clickables NOT scanned'. sweepAll covered 6 states (default, 4 section tabs, the details expansion) and reported totalUniqueDefects 0. focus-visible tab-walk: 40 focusable elements sampled, 0 missing a visible focus ring. One defect in the first run was MINE and is not filed: 'prod-path-in-src /workhive/ufai_battery.js' was the <script> tag my own failed boot attempt appended. Re-run by evaluating the module instead of injecting a tag, and it disappeared."
+      }
     },
     {
       "id": "LM-BH-ui-visual-market-buyer-reduced_motion",
@@ -16321,8 +16353,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "reduced_motion",
       "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "prefers-reduced-motion is honoured - no animation that ignores it",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "prefers-reduced-motion is HONOURED: 69 element(s) carry a live animation or transition on this surface and the stylesheet declares an @media (prefers-reduced-motion) rule that turns them off. Measured by walking the CSSOM for the guard rather than by trusting the browser's current setting -- the UFAI battery reports this as 'OS-off' because the session is not emulating the preference, which is a statement about the harness, not about the page."
+      }
     },
     {
       "id": "LM-BH-ui-visual-market-buyer-icon_only_name",
@@ -16334,8 +16379,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "icon_only_name",
       "oracle": "an icon-only control has an accessible name that says what it DOES",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "an icon-only control has an accessible name that says what it DOES",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "Measured by the EXISTING ufai_battery.js rather than a hand-rolled probe (booted live, axe-core + web-vitals loaded), and then by its own sweepAll() because the battery REFUSES to call a single-state scan an all-clear: the referee returned complete=false with the reason 'STATIC scan of 1 rendered state, 9 more state-changers + 49 hidden clickables NOT scanned'. sweepAll covered 6 states (default, 4 section tabs, the details expansion) and reported totalUniqueDefects 0. axe's accessible-name rules (button-name / link-name / image-alt / aria-*) reported 0 violations at every state. One defect in the first run was MINE and is not filed: 'prod-path-in-src /workhive/ufai_battery.js' was the <script> tag my own failed boot attempt appended. Re-run by evaluating the module instead of injecting a tag, and it disappeared."
+      }
     },
     {
       "id": "LM-BH-ui-visual-market_svc-buyer-contrast_wcag",
@@ -16361,7 +16419,13 @@
       "state": "contrast_apca",
       "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "APCA: 15 of 40 text nodes sit below their perceptual floor while WCAG AA passes",
+          "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 11px Searches at Lc 45.4 and the 13px section tabs at Lc 51.6. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-market_svc-buyer-focus_visible",
@@ -16386,8 +16450,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "reduced_motion",
       "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "prefers-reduced-motion is honoured - no animation that ignores it",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "prefers-reduced-motion is HONOURED: 24 element(s) carry a live animation or transition on this surface and the stylesheet declares an @media (prefers-reduced-motion) rule that turns them off. Measured by walking the CSSOM for the guard rather than by trusting the browser's current setting -- the UFAI battery reports this as 'OS-off' because the session is not emulating the preference, which is a statement about the harness, not about the page."
+      }
     },
     {
       "id": "LM-BH-ui-visual-market_svc-buyer-icon_only_name",
@@ -16426,7 +16503,13 @@
       "state": "contrast_apca",
       "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "APCA: 34 of 48 text nodes sit below their perceptual floor while WCAG AA passes",
+          "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 10-12px status chips (Published / Draft / Removed) at Lc 41-56. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-seller-buyer-focus_visible",
@@ -16451,8 +16534,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "reduced_motion",
       "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "prefers-reduced-motion is honoured - no animation that ignores it",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "9ab7aa7d5d9a8727",
+        "walked_at": "2026-08-04",
+        "checked": "prefers-reduced-motion is HONOURED: 19 element(s) carry a live animation or transition on this surface and the stylesheet declares an @media (prefers-reduced-motion) rule that turns them off. Measured by walking the CSSOM for the guard rather than by trusting the browser's current setting -- the UFAI battery reports this as 'OS-off' because the session is not emulating the preference, which is a statement about the harness, not about the page."
+      }
     },
     {
       "id": "LM-BH-ui-visual-seller-buyer-icon_only_name",
@@ -16491,7 +16587,13 @@
       "state": "contrast_apca",
       "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "APCA: 31 of 122 text nodes sit below their perceptual floor while WCAG AA passes",
+          "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: the 13px Reject action on the money queue at Lc 44. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-admin-buyer-focus_visible",
@@ -16516,8 +16618,20 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "reduced_motion",
       "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "prefers-reduced-motion is honoured - no animation that ignores it",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html"
+        ],
+        "sha": "b33bcc485cadd886",
+        "walked_at": "2026-08-04",
+        "checked": "NOTHING ANIMATES on this surface: 0 elements carry an animation or a transition, so there is nothing for prefers-reduced-motion to honour. The guard rule exists platform-wide anyway. Recorded as vacuous rather than counted as a pass."
+      }
     },
     {
       "id": "LM-BH-ui-visual-admin-buyer-icon_only_name",
@@ -16556,7 +16670,13 @@
       "state": "contrast_apca",
       "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "APCA: 38 of 58 text nodes sit below their perceptual floor while WCAG AA passes",
+          "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 12px credential lines (PRC Registered, TESDA NC II) at Lc 42.7. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-profile-buyer-focus_visible",
@@ -16581,8 +16701,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "reduced_motion",
       "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "prefers-reduced-motion is honoured - no animation that ignores it",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "230ded069a08dcbd",
+        "walked_at": "2026-08-04",
+        "checked": "prefers-reduced-motion is HONOURED: 12 element(s) carry a live animation or transition on this surface and the stylesheet declares an @media (prefers-reduced-motion) rule that turns them off. Measured by walking the CSSOM for the guard rather than by trusting the browser's current setting -- the UFAI battery reports this as 'OS-off' because the session is not emulating the preference, which is a statement about the harness, not about the page."
+      }
     },
     {
       "id": "LM-BH-ui-visual-profile-buyer-icon_only_name",
@@ -16621,7 +16754,13 @@
       "state": "contrast_apca",
       "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "APCA: 39 of 92 text nodes sit below their perceptual floor while WCAG AA passes",
+          "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 10px Announcement chip at Lc 43 and the 13px author name at Lc 45.4. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-community-buyer-focus_visible",
@@ -16646,8 +16785,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "reduced_motion",
       "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "prefers-reduced-motion is honoured - no animation that ignores it",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "4aa3236afcdcb320",
+        "walked_at": "2026-08-04",
+        "checked": "prefers-reduced-motion is HONOURED: 60 element(s) carry a live animation or transition on this surface and the stylesheet declares an @media (prefers-reduced-motion) rule that turns them off. Measured by walking the CSSOM for the guard rather than by trusting the browser's current setting -- the UFAI battery reports this as 'OS-off' because the session is not emulating the preference, which is a statement about the harness, not about the page."
+      }
     },
     {
       "id": "LM-BH-ui-visual-community-buyer-icon_only_name",
@@ -16686,7 +16838,13 @@
       "state": "contrast_apca",
       "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "defect-open",
+          "title": "APCA: 13 of 66 text nodes sit below their perceptual floor while WCAG AA passes",
+          "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 10px category chips at Lc 58.4. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-public_feed-buyer-focus_visible",
@@ -16711,8 +16869,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "reduced_motion",
       "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html",
+        "asserts": "prefers-reduced-motion is honoured - no animation that ignores it",
+        "value_checked": true,
+        "depends_on": [
+          "public-feed.html",
+          "utils.js"
+        ],
+        "sha": "8f063aa1f1a2ab53",
+        "walked_at": "2026-08-04",
+        "checked": "prefers-reduced-motion is HONOURED: 21 element(s) carry a live animation or transition on this surface and the stylesheet declares an @media (prefers-reduced-motion) rule that turns them off. Measured by walking the CSSOM for the guard rather than by trusting the browser's current setting -- the UFAI battery reports this as 'OS-off' because the session is not emulating the preference, which is a statement about the harness, not about the page."
+      }
     },
     {
       "id": "LM-BH-ui-visual-public_feed-buyer-icon_only_name",
