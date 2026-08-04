@@ -22187,7 +22187,7 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "ref": "2026-08-05 live MCP - /workhive/marketplace.html?section=services",
         "asserts": "reload MID-FLOW and the surface returns to a truthful state - a half-filled sheet either survives intact or is gone, never restored into a state the person did not leave it in",
         "value_checked": true,
         "depends_on": [
@@ -22195,7 +22195,7 @@
           "marketplace-seller.html",
           "utils.js"
         ],
-        "sha": "d004f70fc42dd0ab",
+        "sha": "7b64cfbb326a1f7f",
         "fn_digests": {
           "utils.js::escHtml": "0c87a3151f6b57d7",
           "utils.js::escJsAttr": "6701c69b9e358083",
@@ -22268,8 +22268,8 @@
           "utils.js::whLivePoll": "2de84048876fd818",
           "utils.js::toplevel": "024e8d1092d68986"
         },
-        "walked_at": "2026-08-04",
-        "checked": "A GENUINE page reload mid-flow, not a re-render. On the services surface the hail was filled -- service picked, 'Reload probe, Plant 7 Lucena' typed, urgency set to High -- and the page reloaded for real: all THREE fields come back, and ?section=services with them. The urgency matters most, because it is a <select> and the shared draft helper skipped every select until that was fixed today; 'High' silently reverting to 'Normal' is the difference between a provider coming now and coming next week.\nOn the seller dashboard a reload correctly CLOSES the edit sheet -- a reload is not still-in-the-flow -- and the half-written description survives as a draft keyed to that listing, offered back on reopen ('You have an unsaved edit to this description from earlier') with the SAVED text still in the field until the seller chooses. Restoring it produced the typed text verbatim.\nNothing leaked: marketplace_listings 27, 0 edited in the last hour, service_requests 12."
+        "walked_at": "2026-08-05",
+        "checked": "PERSONA AXIS COLLAPSES ON THIS SURFACE, and here is the check rather than the assumption. marketplace.html?section=services offers no provider-only control: every svc* write on it is a CLIENT action (hail, ask for quotes, pick a quote, confirm payment, rate, object, cancel). The provider's own controls -- Accept, Send quote, Advance, Cancel job, availability, job alerts, register -- live on marketplace-seller.html and are walked under seller/provider, where they produced three real defects today. A provider standing on the services surface is acting as a client, so this row measures the same controls as the buyer row, deliberately and not by oversight.\nWhat that walk measured: a hail filled mid-flow survives a genuine reload -- service, address AND urgency (a <select>, which the shared draft helper skipped until it was fixed) plus ?section=services; three presses inside a held window produce ONE write after the fix, measured failing first at 3 broadcasts for one job; a 401 refuses the write, says nothing was sent and keeps the typing; offline refuses before firing with 0 attempts and replays nothing on reconnect; Back leaves no overlay and a page that scrolls.\nNothing leaked: 0 offers, 0 accepts, 0 reviews, 0 audit rows and 0 availability changes in the hour of the walk; every probe write stubbed. The three hails seeded to reach this state (no broadcasting request sat inside either of the provider's bases) were deleted afterwards - service_requests back to 12."
       }
     },
     {
@@ -22299,7 +22299,7 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "ref": "2026-08-05 live MCP - /workhive/marketplace.html?section=services",
         "asserts": "browser Back out of a sheet leaves no orphaned overlay and no write half-applied; the underlying list reflects what actually happened",
         "value_checked": true,
         "depends_on": [
@@ -22307,7 +22307,7 @@
           "marketplace-seller.html",
           "utils.js"
         ],
-        "sha": "d004f70fc42dd0ab",
+        "sha": "7b64cfbb326a1f7f",
         "fn_digests": {
           "utils.js::escHtml": "0c87a3151f6b57d7",
           "utils.js::escJsAttr": "6701c69b9e358083",
@@ -22380,8 +22380,8 @@
           "utils.js::whLivePoll": "2de84048876fd818",
           "utils.js::toplevel": "024e8d1092d68986"
         },
-        "walked_at": "2026-08-04",
-        "checked": "Browser Back over an open sheet leaves no orphan and no lock: 0 overlays open, the inline body-overflow lock cleared, and the page ACTUALLY scrolls -- asserted by scrolling it and reading scrollY back, not by reading the style that was just cleared. Fixed today in utils.js as a self-wiring pageshow(persisted)+popstate release, because a sweep found marketplace-seller.html AND skillmatrix.html both carrying the defect that marketplace.html had already fixed for itself.\nNothing leaked: marketplace_listings 27, 0 edited in the last hour, service_requests 12."
+        "walked_at": "2026-08-05",
+        "checked": "PERSONA AXIS COLLAPSES ON THIS SURFACE, and here is the check rather than the assumption. marketplace.html?section=services offers no provider-only control: every svc* write on it is a CLIENT action (hail, ask for quotes, pick a quote, confirm payment, rate, object, cancel). The provider's own controls -- Accept, Send quote, Advance, Cancel job, availability, job alerts, register -- live on marketplace-seller.html and are walked under seller/provider, where they produced three real defects today. A provider standing on the services surface is acting as a client, so this row measures the same controls as the buyer row, deliberately and not by oversight.\nWhat that walk measured: a hail filled mid-flow survives a genuine reload -- service, address AND urgency (a <select>, which the shared draft helper skipped until it was fixed) plus ?section=services; three presses inside a held window produce ONE write after the fix, measured failing first at 3 broadcasts for one job; a 401 refuses the write, says nothing was sent and keeps the typing; offline refuses before firing with 0 attempts and replays nothing on reconnect; Back leaves no overlay and a page that scrolls.\nNothing leaked: 0 offers, 0 accepts, 0 reviews, 0 audit rows and 0 availability changes in the hour of the walk; every probe write stubbed. The three hails seeded to reach this state (no broadcasting request sat inside either of the provider's bases) were deleted afterwards - service_requests back to 12."
       }
     },
     {
@@ -22411,7 +22411,7 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "ref": "2026-08-05 live MCP - /workhive/marketplace.html?section=services",
         "asserts": "the session dies BETWEEN typing and submitting: the write is refused, the person is told their session expired and that NOTHING was sent, and 'try again' is not offered when retrying would fail identically",
         "value_checked": true,
         "depends_on": [
@@ -22419,7 +22419,7 @@
           "marketplace-seller.html",
           "utils.js"
         ],
-        "sha": "d004f70fc42dd0ab",
+        "sha": "7b64cfbb326a1f7f",
         "fn_digests": {
           "utils.js::escHtml": "0c87a3151f6b57d7",
           "utils.js::escJsAttr": "6701c69b9e358083",
@@ -22492,8 +22492,8 @@
           "utils.js::whLivePoll": "2de84048876fd818",
           "utils.js::toplevel": "024e8d1092d68986"
         },
-        "walked_at": "2026-08-04",
-        "checked": "A 401 injected between typing and submitting: the write is refused, the surface says nothing was sent and how to clear it -- 'Your session expired, so nothing was sent/saved. Sign in again and redo this step.' -- the typing is preserved and the control comes back usable. probeActuallyFired asserted before the result was read, because a probe that never reaches the network proves nothing about what the network does.\nNothing leaked: marketplace_listings 27, 0 edited in the last hour, service_requests 12."
+        "walked_at": "2026-08-05",
+        "checked": "PERSONA AXIS COLLAPSES ON THIS SURFACE, and here is the check rather than the assumption. marketplace.html?section=services offers no provider-only control: every svc* write on it is a CLIENT action (hail, ask for quotes, pick a quote, confirm payment, rate, object, cancel). The provider's own controls -- Accept, Send quote, Advance, Cancel job, availability, job alerts, register -- live on marketplace-seller.html and are walked under seller/provider, where they produced three real defects today. A provider standing on the services surface is acting as a client, so this row measures the same controls as the buyer row, deliberately and not by oversight.\nWhat that walk measured: a hail filled mid-flow survives a genuine reload -- service, address AND urgency (a <select>, which the shared draft helper skipped until it was fixed) plus ?section=services; three presses inside a held window produce ONE write after the fix, measured failing first at 3 broadcasts for one job; a 401 refuses the write, says nothing was sent and keeps the typing; offline refuses before firing with 0 attempts and replays nothing on reconnect; Back leaves no overlay and a page that scrolls.\nNothing leaked: 0 offers, 0 accepts, 0 reviews, 0 audit rows and 0 availability changes in the hour of the walk; every probe write stubbed. The three hails seeded to reach this state (no broadcasting request sat inside either of the provider's bases) were deleted afterwards - service_requests back to 12."
       }
     },
     {
@@ -22523,7 +22523,7 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "ref": "2026-08-05 live MCP - /workhive/marketplace.html?section=services",
         "asserts": "the second press changes nothing further and SAYS so - the expected human error on a queue worked at speed, not an exotic one",
         "value_checked": true,
         "depends_on": [
@@ -22531,7 +22531,7 @@
           "marketplace-seller.html",
           "utils.js"
         ],
-        "sha": "d004f70fc42dd0ab",
+        "sha": "7b64cfbb326a1f7f",
         "fn_digests": {
           "utils.js::escHtml": "0c87a3151f6b57d7",
           "utils.js::escJsAttr": "6701c69b9e358083",
@@ -22604,8 +22604,8 @@
           "utils.js::whLivePoll": "2de84048876fd818",
           "utils.js::toplevel": "024e8d1092d68986"
         },
-        "walked_at": "2026-08-04",
-        "checked": "Three presses inside a held-open write window produce exactly ONE write attempt on both surfaces, with the control disabled and relabelled ('Hailing...', 'Saving...') for the whole flight. On the services surface this was MEASURED FAILING FIRST -- 3 presses, 3 writes -- and a hail is not an idempotent row, it BROADCASTS, so that was three sets of nearby providers notified for one job.\nNothing leaked: marketplace_listings 27, 0 edited in the last hour, service_requests 12."
+        "walked_at": "2026-08-05",
+        "checked": "PERSONA AXIS COLLAPSES ON THIS SURFACE, and here is the check rather than the assumption. marketplace.html?section=services offers no provider-only control: every svc* write on it is a CLIENT action (hail, ask for quotes, pick a quote, confirm payment, rate, object, cancel). The provider's own controls -- Accept, Send quote, Advance, Cancel job, availability, job alerts, register -- live on marketplace-seller.html and are walked under seller/provider, where they produced three real defects today. A provider standing on the services surface is acting as a client, so this row measures the same controls as the buyer row, deliberately and not by oversight.\nWhat that walk measured: a hail filled mid-flow survives a genuine reload -- service, address AND urgency (a <select>, which the shared draft helper skipped until it was fixed) plus ?section=services; three presses inside a held window produce ONE write after the fix, measured failing first at 3 broadcasts for one job; a 401 refuses the write, says nothing was sent and keeps the typing; offline refuses before firing with 0 attempts and replays nothing on reconnect; Back leaves no overlay and a page that scrolls.\nNothing leaked: 0 offers, 0 accepts, 0 reviews, 0 audit rows and 0 availability changes in the hour of the walk; every probe write stubbed. The three hails seeded to reach this state (no broadcasting request sat inside either of the provider's bases) were deleted afterwards - service_requests back to 12."
       }
     },
     {
@@ -22635,7 +22635,7 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "ref": "2026-08-05 live MCP - /workhive/marketplace.html?section=services",
         "asserts": "offline the write is refused before it fires; coming back online does not silently replay it, and the person can see which of their actions landed",
         "value_checked": true,
         "depends_on": [
@@ -22643,7 +22643,7 @@
           "marketplace-seller.html",
           "utils.js"
         ],
-        "sha": "d004f70fc42dd0ab",
+        "sha": "7b64cfbb326a1f7f",
         "fn_digests": {
           "utils.js::escHtml": "0c87a3151f6b57d7",
           "utils.js::escJsAttr": "6701c69b9e358083",
@@ -22716,8 +22716,8 @@
           "utils.js::whLivePoll": "2de84048876fd818",
           "utils.js::toplevel": "024e8d1092d68986"
         },
-        "walked_at": "2026-08-04",
-        "checked": "THE WORST SHAPE A FAILURE CAN TAKE, FOUND AND FIXED HERE: not a silent failure, a falsely confirmed one. Offline, the seller's Save Changes SENT the PATCH and toasted 'Listing updated. Re-submitted for review.' The seller closes the sheet believing the price change is live.\nThe 2026-07-29 offline sweep guarded every svc* path on that page and stopped at the service boundary; six listing and inquiry writes beside them were open -- handleEditSubmit, handleDelete, handleReply, handleCloseInquiry, handleSaveMessenger, handleSaveCerts. Found by brace-matching each function body, after a regex slice cut bodies short and reported guarded functions as gaps. Three paths are deliberately left unguarded and recorded as such: writeAuditLog (refusing the audit row for an action that DID happen is the wrong failure), _selSyncUrl (a URL, not a server), and svcGeoSync (fire-and-forget presence).\nRE-MEASURED on both surfaces: 0 write attempts offline, 'You are offline. <action> needs a connection - nothing was sent, so nothing is half-done.', the form keeps its typing, and reconnecting replays NOTHING -- 0 further attempts after the online event, which is the half of this oracle a queue-and-retry design would fail.\nNothing leaked: marketplace_listings 27, 0 edited in the last hour, service_requests 12."
+        "walked_at": "2026-08-05",
+        "checked": "PERSONA AXIS COLLAPSES ON THIS SURFACE, and here is the check rather than the assumption. marketplace.html?section=services offers no provider-only control: every svc* write on it is a CLIENT action (hail, ask for quotes, pick a quote, confirm payment, rate, object, cancel). The provider's own controls -- Accept, Send quote, Advance, Cancel job, availability, job alerts, register -- live on marketplace-seller.html and are walked under seller/provider, where they produced three real defects today. A provider standing on the services surface is acting as a client, so this row measures the same controls as the buyer row, deliberately and not by oversight.\nWhat that walk measured: a hail filled mid-flow survives a genuine reload -- service, address AND urgency (a <select>, which the shared draft helper skipped until it was fixed) plus ?section=services; three presses inside a held window produce ONE write after the fix, measured failing first at 3 broadcasts for one job; a 401 refuses the write, says nothing was sent and keeps the typing; offline refuses before firing with 0 attempts and replays nothing on reconnect; Back leaves no overlay and a page that scrolls.\nNothing leaked: 0 offers, 0 accepts, 0 reviews, 0 audit rows and 0 availability changes in the hour of the walk; every probe write stubbed. The three hails seeded to reach this state (no broadcasting request sat inside either of the provider's bases) were deleted afterwards - service_requests back to 12."
       }
     },
     {
@@ -23307,7 +23307,7 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "ref": "2026-08-05 live MCP - /workhive/marketplace-seller.html",
         "asserts": "reload MID-FLOW and the surface returns to a truthful state - a half-filled sheet either survives intact or is gone, never restored into a state the person did not leave it in",
         "value_checked": true,
         "depends_on": [
@@ -23315,7 +23315,7 @@
           "marketplace-seller.html",
           "utils.js"
         ],
-        "sha": "d004f70fc42dd0ab",
+        "sha": "7b64cfbb326a1f7f",
         "fn_digests": {
           "utils.js::escHtml": "0c87a3151f6b57d7",
           "utils.js::escJsAttr": "6701c69b9e358083",
@@ -23388,8 +23388,8 @@
           "utils.js::whLivePoll": "2de84048876fd818",
           "utils.js::toplevel": "024e8d1092d68986"
         },
-        "walked_at": "2026-08-04",
-        "checked": "A GENUINE page reload mid-flow, not a re-render. On the services surface the hail was filled -- service picked, 'Reload probe, Plant 7 Lucena' typed, urgency set to High -- and the page reloaded for real: all THREE fields come back, and ?section=services with them. The urgency matters most, because it is a <select> and the shared draft helper skipped every select until that was fixed today; 'High' silently reverting to 'Normal' is the difference between a provider coming now and coming next week.\nOn the seller dashboard a reload correctly CLOSES the edit sheet -- a reload is not still-in-the-flow -- and the half-written description survives as a draft keyed to that listing, offered back on reopen ('You have an unsaved edit to this description from earlier') with the SAVED text still in the field until the seller chooses. Restoring it produced the typed text verbatim.\nNothing leaked: marketplace_listings 27, 0 edited in the last hour, service_requests 12."
+        "walked_at": "2026-08-05",
+        "checked": "A GENUINE reload mid-flow. The Services tab survives, ?tab=services survives, the open hails come back -- and the typed QUOTE PRICE now survives with them. It did not before: typed 3750, reloaded, box empty, while the buyer's half-written hail and the seller's half-written listing both survive the same interruption. A quote price is WORK -- materials, travel, hours -- not a keystroke. Keyed per request and verified across TWO open quote rows: 4275 returns under its own hail and the other row stays empty, which is the cross-row bleed this page has had once before. Cleared when the quote actually lands.\nNothing leaked: 0 offers, 0 accepts, 0 reviews, 0 audit rows and 0 availability changes in the hour of the walk; every probe write stubbed. The three hails seeded to reach this state (no broadcasting request sat inside either of the provider's bases) were deleted afterwards - service_requests back to 12."
       }
     },
     {
@@ -23419,7 +23419,7 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "ref": "2026-08-05 live MCP - /workhive/marketplace-seller.html",
         "asserts": "browser Back out of a sheet leaves no orphaned overlay and no write half-applied; the underlying list reflects what actually happened",
         "value_checked": true,
         "depends_on": [
@@ -23427,7 +23427,7 @@
           "marketplace-seller.html",
           "utils.js"
         ],
-        "sha": "d004f70fc42dd0ab",
+        "sha": "7b64cfbb326a1f7f",
         "fn_digests": {
           "utils.js::escHtml": "0c87a3151f6b57d7",
           "utils.js::escJsAttr": "6701c69b9e358083",
@@ -23500,8 +23500,8 @@
           "utils.js::whLivePoll": "2de84048876fd818",
           "utils.js::toplevel": "024e8d1092d68986"
         },
-        "walked_at": "2026-08-04",
-        "checked": "Browser Back over an open sheet leaves no orphan and no lock: 0 overlays open, the inline body-overflow lock cleared, and the page ACTUALLY scrolls -- asserted by scrolling it and reading scrollY back, not by reading the style that was just cleared. Fixed today in utils.js as a self-wiring pageshow(persisted)+popstate release, because a sweep found marketplace-seller.html AND skillmatrix.html both carrying the defect that marketplace.html had already fixed for itself.\nNothing leaked: marketplace_listings 27, 0 edited in the last hour, service_requests 12."
+        "walked_at": "2026-08-05",
+        "checked": "Back over an open edit sheet leaves nothing behind: 0 overlays ON SCREEN, .open removed, the inline scroll lock cleared, the page ACTUALLY scrolls (scrolled it and read scrollY back), and nothing covering the centre by hit-test.\nOne instrument correction recorded rather than hidden: my first read called #sheet-edit an orphan because it had height and display:block. It is a TRANSFORM-based sheet parked at translateY(993px) -- below the fold, not on screen. A rect with height is not a visible overlay; the viewport intersection is.\nNothing leaked: 0 offers, 0 accepts, 0 reviews, 0 audit rows and 0 availability changes in the hour of the walk; every probe write stubbed. The three hails seeded to reach this state (no broadcasting request sat inside either of the provider's bases) were deleted afterwards - service_requests back to 12."
       }
     },
     {
@@ -23531,7 +23531,7 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "ref": "2026-08-05 live MCP - /workhive/marketplace-seller.html",
         "asserts": "the session dies BETWEEN typing and submitting: the write is refused, the person is told their session expired and that NOTHING was sent, and 'try again' is not offered when retrying would fail identically",
         "value_checked": true,
         "depends_on": [
@@ -23539,7 +23539,7 @@
           "marketplace-seller.html",
           "utils.js"
         ],
-        "sha": "d004f70fc42dd0ab",
+        "sha": "7b64cfbb326a1f7f",
         "fn_digests": {
           "utils.js::escHtml": "0c87a3151f6b57d7",
           "utils.js::escJsAttr": "6701c69b9e358083",
@@ -23612,8 +23612,8 @@
           "utils.js::whLivePoll": "2de84048876fd818",
           "utils.js::toplevel": "024e8d1092d68986"
         },
-        "walked_at": "2026-08-04",
-        "checked": "A 401 injected between typing and submitting: the write is refused, the surface says nothing was sent and how to clear it -- 'Your session expired, so nothing was sent/saved. Sign in again and redo this step.' -- the typing is preserved and the control comes back usable. probeActuallyFired asserted before the result was read, because a probe that never reaches the network proves nothing about what the network does.\nNothing leaked: marketplace_listings 27, 0 edited in the last hour, service_requests 12."
+        "walked_at": "2026-08-05",
+        "checked": "A 401 injected between the press and the response on the provider's Accept. BEFORE: the toast read 'JWT expired' -- the one failure a person can act on, delivered in the vocabulary of the token layer. Nine raw showToast(error.message) passthroughs on this page, every one a provider write path, while the listing half had used whWriteError for weeks.\nEach now says what did NOT happen: 'It was NOT accepted - the client is still waiting', 'It is STILL YOURS and the client still expects you', 'It is unchanged - the client still sees the previous step'. Re-measured: 'Your session expired, so nothing was saved. Sign in again and redo this step.' -- no raw JWT, names the session, gives the clearing action, and the control comes back usable. probeActuallyFired asserted first.\nNothing leaked: 0 offers, 0 accepts, 0 reviews, 0 audit rows and 0 availability changes in the hour of the walk; every probe write stubbed. The three hails seeded to reach this state (no broadcasting request sat inside either of the provider's bases) were deleted afterwards - service_requests back to 12."
       }
     },
     {
@@ -23643,7 +23643,7 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "ref": "2026-08-05 live MCP - /workhive/marketplace-seller.html",
         "asserts": "the second press changes nothing further and SAYS so - the expected human error on a queue worked at speed, not an exotic one",
         "value_checked": true,
         "depends_on": [
@@ -23651,7 +23651,7 @@
           "marketplace-seller.html",
           "utils.js"
         ],
-        "sha": "d004f70fc42dd0ab",
+        "sha": "7b64cfbb326a1f7f",
         "fn_digests": {
           "utils.js::escHtml": "0c87a3151f6b57d7",
           "utils.js::escJsAttr": "6701c69b9e358083",
@@ -23724,8 +23724,8 @@
           "utils.js::whLivePoll": "2de84048876fd818",
           "utils.js::toplevel": "024e8d1092d68986"
         },
-        "walked_at": "2026-08-04",
-        "checked": "Three presses inside a held-open write window produce exactly ONE write attempt on both surfaces, with the control disabled and relabelled ('Hailing...', 'Saving...') for the whole flight. On the services surface this was MEASURED FAILING FIRST -- 3 presses, 3 writes -- and a hail is not an idempotent row, it BROADCASTS, so that was three sets of nearby providers notified for one job.\nNothing leaked: marketplace_listings 27, 0 edited in the last hour, service_requests 12."
+        "walked_at": "2026-08-05",
+        "checked": "THE DEFECT THIS WALK EXISTED TO FIND. Three presses of 'Accept job' inside one held-open window sent THREE accept_service_request RPCs, with the button never disabled, never relabelled and never aria-busy. The RPC resolves the race correctly, so the provider was told, in order: 'Job is yours. Head over when ready' then 'Another provider got this one first' -- and the false one is what stays on screen. The winner is told they lost. Measured end-to-end by answering call 1 with accepted:true and calls 2-3 with the server's own lost_race_or_closed reason, then reading the toast sequence; not reasoned from the code.\nNone of this surface's NINE provider job controls had an in-flight lock -- Accept, Send quote, Advance, Cancel job, the five rating stars, the availability switch, Enable job alerts and both Register paths -- while the LISTING half of the same page already locked, and the buyer surface got its guard the day before. _svcJobGuard keys on the element, not an id, because these rows are rendered inline and carry none.\nRe-measured after the fix: 3 presses -> 1 call; 'Accepting...' + disabled + aria-busy for the whole flight; restored in finally; one truthful toast.\nThe fix ALSO broke every one of those buttons for one measurement: an inline onclick= resolves in GLOBAL scope and this page lives in an IIFE, so the re-measure returned ReferenceError: _svcJobGuard is not defined. Caught only because the probe asserts the write ACTUALLY FIRED before reading anything else -- a probe watching for a duplicate toast would have seen none and scored a dead button as a pass.\nNothing leaked: 0 offers, 0 accepts, 0 reviews, 0 audit rows and 0 availability changes in the hour of the walk; every probe write stubbed. The three hails seeded to reach this state (no broadcasting request sat inside either of the provider's bases) were deleted afterwards - service_requests back to 12."
       }
     },
     {
@@ -23755,7 +23755,7 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "ref": "2026-08-05 live MCP - /workhive/marketplace-seller.html",
         "asserts": "offline the write is refused before it fires; coming back online does not silently replay it, and the person can see which of their actions landed",
         "value_checked": true,
         "depends_on": [
@@ -23763,7 +23763,7 @@
           "marketplace-seller.html",
           "utils.js"
         ],
-        "sha": "d004f70fc42dd0ab",
+        "sha": "7b64cfbb326a1f7f",
         "fn_digests": {
           "utils.js::escHtml": "0c87a3151f6b57d7",
           "utils.js::escJsAttr": "6701c69b9e358083",
@@ -23836,8 +23836,8 @@
           "utils.js::whLivePoll": "2de84048876fd818",
           "utils.js::toplevel": "024e8d1092d68986"
         },
-        "walked_at": "2026-08-04",
-        "checked": "THE WORST SHAPE A FAILURE CAN TAKE, FOUND AND FIXED HERE: not a silent failure, a falsely confirmed one. Offline, the seller's Save Changes SENT the PATCH and toasted 'Listing updated. Re-submitted for review.' The seller closes the sheet believing the price change is live.\nThe 2026-07-29 offline sweep guarded every svc* path on that page and stopped at the service boundary; six listing and inquiry writes beside them were open -- handleEditSubmit, handleDelete, handleReply, handleCloseInquiry, handleSaveMessenger, handleSaveCerts. Found by brace-matching each function body, after a regex slice cut bodies short and reported guarded functions as gaps. Three paths are deliberately left unguarded and recorded as such: writeAuditLog (refusing the audit row for an action that DID happen is the wrong failure), _selSyncUrl (a URL, not a server), and svcGeoSync (fire-and-forget presence).\nRE-MEASURED on both surfaces: 0 write attempts offline, 'You are offline. <action> needs a connection - nothing was sent, so nothing is half-done.', the form keeps its typing, and reconnecting replays NOTHING -- 0 further attempts after the online event, which is the half of this oracle a queue-and-retry design would fail.\nNothing leaked: marketplace_listings 27, 0 edited in the last hour, service_requests 12."
+        "walked_at": "2026-08-05",
+        "checked": "Both provider controls refuse BEFORE firing: 0 write attempts across accept_service_request and submit_service_quote. Accept carries its own wording rather than the shared helper, and is right to -- 'You are offline. Accepting a job needs a connection - another provider may already have taken it.' An accept RESOLVES A RACE; a queued one would claim a job already taken. Quote uses the shared sentence. The typed price survives, and on reconnect NOTHING replays: 0 further attempts after the online event, which is the half a queue-and-retry design would fail.\nNothing leaked: 0 offers, 0 accepts, 0 reviews, 0 audit rows and 0 availability changes in the hour of the walk; every probe write stubbed. The three hails seeded to reach this state (no broadcasting request sat inside either of the provider's bases) were deleted afterwards - service_requests back to 12."
       }
     },
     {

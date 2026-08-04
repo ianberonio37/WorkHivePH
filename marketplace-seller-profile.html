@@ -433,11 +433,39 @@
   };
 
   /* X-axis reverse cross-link: render the seller's community standing + a deep link back to
-     their person card in the forum. Only shows when the seller has public community activity. */
+     their person card in the forum.
+
+     THE COMMENT SAID "only shows when the seller has public community activity" AND THE CODE ONLY
+     ASKED WHETHER THE RPC RETURNED A ROW -- which it does for EVERY marketplace seller, by its own
+     final WHERE clause. Measured live 2026-08-05 on a real seller (Dennis Aquino):
+
+       "🐝 Community standing · View in forum → · 0 COMMUNITY XP · 0 PUBLIC POSTS · New Member
+        This seller earned trust by helping teammates in the community forum."
+
+     Two zeros, "New Member", and a sentence asserting earned trust -- on the page where a buyer
+     decides whether to pay a stranger off-platform, and with a forum link leading to a person card
+     that has nothing public on it. A claim no query enforces is the same class as the marketplace
+     source chip that promised "ID-verified sellers only".
+
+     Six of thirteen sellers also have XP with ZERO public posts, because their contributions are
+     hive-internal (Pablo Aguilar: 10 posts, all private). For them the old sentence pointed a buyer
+     at a public forum to verify something that is not there. So the card now says which of the three
+     it is, and shows nothing at all when there is nothing to stand behind. */
   function renderCommunityRep() {
     const el = document.getElementById('community-rep');
     if (!el) return;
     if (!_communityRep) { el.style.display = 'none'; return; }
+    const _xp     = Number(_communityRep.xp_total || 0);
+    const _posts  = Number(_communityRep.public_posts || 0);
+    const _badge  = !!_communityRep.is_voice_of_hive;
+    if (!_badge && !_xp && !_posts) { el.style.display = 'none'; return; }   // nothing earned, nothing claimed
+    const _note = _badge
+      ? ('WorkHive awarded this seller the ' + (_COMMUNITY_TIER[_communityRep.trust_tier] || 'community') +
+         ' badge for helping teammates.' +
+         (_posts ? '' : ' That help was inside their own hive, so it is not public here.'))
+      : (_posts
+          ? 'This seller earned trust by helping teammates in the community forum.'
+          : 'This seller\'s community activity is inside their own hive, so none of it is public here.');
     const tierLabel = _COMMUNITY_TIER[_communityRep.trust_tier] || 'Community Member';
     const link = 'community.html?person=' + encodeURIComponent(WORKER_VIEW)
       + (_seller?.hive_id ? '&phive=' + encodeURIComponent(_seller.hive_id) : '');
@@ -446,14 +474,14 @@
       <div style="background:linear-gradient(135deg,rgba(41,182,217,0.10),rgba(247,162,27,0.08));border:1px solid rgba(41,182,217,0.25);border-radius:0.75rem;padding:1rem;margin-bottom:1rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:0.6rem;">
           <span style="font-size:0.82rem;font-weight:800;display:flex;align-items:center;gap:6px;">🐝 Community standing</span>
-          <a href="${link}" style="font-size:0.75rem;font-weight:700;color:var(--wh-blue-light);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;min-height:44px;">View in forum →</a>
+          ${_posts ? `<a href="${link}" style="font-size:0.75rem;font-weight:700;color:var(--wh-blue-light);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;min-height:44px;">View in forum →</a>` : ''}
         </div>
         <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
           <div><div style="font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.xp_total}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.80);">Community XP</div></div>
           <div><div style="font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;">${_communityRep.public_posts}</div><div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:0.05em;color:rgba(255,255,255,0.80);">Public posts</div></div>
           <div style="margin-left:auto;"><span style="font-size:0.75rem;font-weight:700;color:var(--wh-blue-text);">${escHtml(tierLabel)}</span></div>
         </div>
-        <p style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin:0.6rem 0 0;line-height:1.45;">This seller earned trust by helping teammates in the community forum.</p>
+        <p style="font-size:0.7rem;color:rgba(255,255,255,0.80);margin:0.6rem 0 0;line-height:1.45;">${escHtml(_note)}</p>
       </div>`;
   }
 
