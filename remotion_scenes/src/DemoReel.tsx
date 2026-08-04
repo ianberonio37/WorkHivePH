@@ -67,41 +67,96 @@ type Beat =
   | {kind: 'end'; frames: number};
 
 export const DEMO_BEATS: Beat[] = [
-  {kind: 'word', text: 'Every', frames: 26},
-  {kind: 'word', text: 'fix.', frames: 26},
-  {kind: 'word', text: 'Every', frames: 26},
-  {kind: 'word', text: 'part.', frames: 26},
-  {kind: 'word', text: 'Kept.', accent: true, frames: 40},
-  {kind: 'logo', frames: 58},
+  // HOOK - the poster's own headline, delivered one line at a time.
+  {kind: 'word', text: 'Track every machine.', frames: 34},
+  {kind: 'word', text: 'Stop breakdowns', frames: 30},
+  {kind: 'word', text: 'before they cost you.', accent: true, frames: 44},
+  {kind: 'logo', frames: 56},
   {kind: 'device', seg: 0, frames: 170},
 
-  // CHAPTER 1 - LOGBOOK (the journey Ian named first)
+  // The poster names the product's parts; each becomes a chapter.
   {kind: 'whip', frames: 18},
-  {kind: 'title', lines: ['Log what you fixed'], frames: 96},
+  {kind: 'title', lines: ['Digital', 'Logbook'], frames: 104},
   {kind: 'section', seg: 0, frames: 540},
   {kind: 'section', seg: 1, frames: 450},
   {kind: 'section', seg: 2, frames: 660},
   {kind: 'section', seg: 3, frames: 240},
 
-  // CHAPTER 2 - INVENTORY
   {kind: 'whip', frames: 18},
-  {kind: 'title', lines: ['Know what you have'], frames: 96},
+  {kind: 'title', lines: ['Spare-parts', 'Inventory'], frames: 104},
   {kind: 'section', seg: 4, frames: 690},
 
-  // CHAPTER 3 - PM SCHEDULER
   {kind: 'whip', frames: 18},
-  {kind: 'title', lines: ['Never miss a PM'], frames: 96},
+  {kind: 'title', lines: ['PM', 'Scheduler'], frames: 104},
   {kind: 'section', seg: 5, frames: 570},
 
-  // CHAPTER 4 - DAY PLANNER
   {kind: 'whip', frames: 18},
-  {kind: 'title', lines: ['Plan your whole day'], frames: 96},
+  {kind: 'title', lines: ['Your', 'Day Planner'], frames: 104},
   {kind: 'section', seg: 6, frames: 420},
 
-  {kind: 'end', frames: 270},
+  {kind: 'end', frames: 280},
 ];
 
 export const DEMO_DURATION = DEMO_BEATS.reduce((a, b) => a + b.frames, 0);
+
+// ── the poster's world ──────────────────────────────────────────────────
+
+// The poster's hexagon field - drawn, not an image, so it stays crisp at any
+// size and costs nothing to re-scale per beat.
+const HexField: React.FC<{opacity?: number}> = ({opacity = 0.5}) => {
+  const {width, height} = useVideoConfig();
+  const r = height * 0.085;
+  const dx = r * Math.sqrt(3);
+  const cells: React.ReactNode[] = [];
+  let key = 0;
+  for (let row = -1; row * r * 1.5 < height + r; row++) {
+    for (let col = -1; col * dx < width + dx; col++) {
+      const cx = col * dx + (row % 2 ? dx / 2 : 0);
+      const cy = row * r * 1.5;
+      const pts = Array.from({length: 6}, (_, k) => {
+        const ang = (Math.PI / 180) * (60 * k - 30);
+        return `${cx + r * Math.cos(ang)},${cy + r * Math.sin(ang)}`;
+      }).join(' ');
+      cells.push(<polygon key={key++} points={pts} fill="none"
+                          stroke="#1E3350" strokeWidth={1.4} />);
+    }
+  }
+  return (
+    <AbsoluteFill style={{opacity}}>
+      <svg width={width} height={height} style={{display: 'block'}}>{cells}</svg>
+    </AbsoluteFill>
+  );
+};
+
+// IAN'S OWN 3D MASCOT, cut from his poster (tools/prep_mascot.py, GrabCut +
+// soft bottom fade). He rejected the project's flat vector bee as ugly, so
+// this is the real character and nothing stands in for it.
+//
+// Placement rule stands: card beats only, never over the product footage -
+// the screenshots remain the hero and the bee is the guide beside them.
+const Mascot: React.FC<{
+  side?: 'left' | 'right'; heightFrac?: number; delay?: number;
+}> = ({side = 'right', heightFrac = 0.7, delay = 0}) => {
+  const f = useCurrentFrame();
+  const {fps, height} = useVideoConfig();
+  const s = spring({frame: f - delay, fps,
+                    config: {damping: 15, stiffness: 82, mass: 0.9}});
+  const bob = Math.sin((f - delay) / fps * 1.7) * height * 0.006;
+  return (
+    <div style={{
+      position: 'absolute', bottom: -height * 0.02,
+      [side]: `-${height * 0.03}px`,
+      height: height * heightFrac,
+      transform: `translateY(${(1 - s) * height * 0.3 + bob}px)`,
+      opacity: s,
+    }}>
+      <Img src={staticFile('mascot-cut.png')}
+           style={{height: '100%', width: 'auto', display: 'block',
+                   transform: side === 'left' ? 'scaleX(-1)' : undefined,
+                   filter: 'drop-shadow(0 18px 40px rgba(0,0,0,.55))'}} />
+    </div>
+  );
+};
 
 // ── kinetic type ────────────────────────────────────────────────────────
 
@@ -381,11 +436,11 @@ const Whip: React.FC<{frames: number}> = ({frames}) => {
   const flash = f < 2 ? 1 : 0;
   const streak = Math.sin(Math.min(1, Math.max(0, (k - 0.08) / 0.84)) * Math.PI);
   return (
-    <AbsoluteFill style={{background: flash ? '#FFFFFF' : CLOUD,
+    <AbsoluteFill style={{background: flash ? '#1B2E47' : CLOUD,
                           alignItems: 'center', justifyContent: 'center'}}>
       <div style={{
         width: '170%', height: '72%',
-        background: `linear-gradient(90deg, transparent, rgba(15,25,35,${0.55 * streak}), transparent)`,
+        background: `linear-gradient(90deg, transparent, rgba(41,182,246,${0.5 * streak}), transparent)`,
         filter: `blur(${18 * streak}px)`,
         transform: `translateX(${(k - 0.5) * height * 2.4}px) skewX(-14deg)`,
       }} />
