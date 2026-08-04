@@ -2,7 +2,7 @@
 name: page-index
 type: page
 source: file:index.html
-source_sha: 89033811f8c793a8
+source_sha: ed9b21f611d60dc0
 last_verified: 2026-07-13
 supersedes: null
 ---

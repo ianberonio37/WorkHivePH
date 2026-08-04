@@ -269,7 +269,7 @@
          so itself, persistently, with a way to retry. -->
     <div id="ps-gap-note" role="status" hidden
          style="margin:0.35rem 0 0;font-size:0.75rem;color:var(--wh-danger,#d9534f);">
-      Couldn't load these numbers, so they're showing as a dash rather than as zero.
+      Couldn't load these numbers, so they're showing as a dash rather than as zero.<span id="ps-gap-why"></span>
       <button type="button" onclick="location.reload()"
               style="background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">Retry</button>
     </div>
@@ -668,7 +668,7 @@
   async function loadListings() {
     showSkeletons();
     try {
-      const { data, error } = await db
+      const { data, error, status } = await db
         .from('v_marketplace_listings_truth')
         // MK2 (deepwalk 2026-07-24): moderation_reason/_at come with the row so a rejected listing can
         // TELL the seller why (previously they saw only a bare red "Removed" chip). RLS keeps these
@@ -678,17 +678,21 @@
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500); // limit-as-count-allow: list cap only; _listingsTotal head-count query below drives the badge
-      if (error) throw error;
+      if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       _readFailed.listings = false;
       _listings = data || [];
       // L2: accurate listing COUNT via head-only query (zero row egress) so the
       // badge/profile stat never undercounts if the list ever exceeds the cap.
-      const { count } = await db
+      // A head:true COUNT resolves {count:null, error}; it does not throw. `count || 0` therefore
+      // turned an unreadable total into a confident 0 with _readFailed still false, so the tile
+      // showed a number nobody had measured. Absent is not zero here either.
+      const { count, error: cErr } = await db
         .from('v_marketplace_listings_truth')
         .select('id', { count: 'exact', head: true })
         .eq('seller_name', WORKER_NAME);
-      _listingsTotal = Number(count || 0);
-    } catch (_) { _readFailed.listings = true; _listings = []; if (typeof showToast === 'function') showToast("Couldn't load your listings . Check your connection and retry.", 'error'); } // dim-10: surface load failure, don't disguise as "no listings"
+      if (cErr || count === null || count === undefined) { _readFailed.listings = true; _listingsTotal = null; }
+      else _listingsTotal = Number(count);
+    } catch (_e) { _readFailed.listings = true; _listings = []; if (typeof showToast === 'function') showToast(_failCopy(_e, 'your listings'), 'error'); } // dim-10: surface load failure, don't disguise as "no listings"
     renderListings();
     updateBadges();
     updateProfileStats();
@@ -706,6 +710,33 @@
      put them back. Same class as the empty-vs-error work elsewhere in this session, on the last
      surface that still had it. */
   const _readFailed = { listings: false, inquiries: false, seller: false };
+
+  /* 429 IS THE ONE ERROR WHOSE REMEDY IS TIME, and this surface was giving the opposite advice on
+     every failure: "Check your connection and retry" sends a rate-limited seller to debug a working
+     connection and invites the immediate retry that extends the limit. Same fix the marketplace got
+     this session; the seller console is its sibling and had the same single message for every cause. */
+  let _lastFailReason = null;   // the persistent gap note reads this after the toast has faded
+  function _failCopy(err, what) {
+    const st = err && (err._httpStatus || err.status);
+    const code = String((err && err.code) || '');
+    _lastFailReason = null;
+    if (st === 429 || code === '429') {
+      const raw = err && (err.retryAfter || (err.hint && (String(err.hint).match(/(\d+)\s*s/) || [])[1]));
+      const n = Number(raw);
+      const wait = (isFinite(n) && n > 0) ? (n < 60 ? Math.round(n) + ' seconds'
+                    : Math.round(n / 60) + ' minute' + (Math.round(n / 60) === 1 ? '' : 's'))
+                 : 'a moment';
+      _lastFailReason = 'Too many requests. Your connection is fine: wait about ' + wait + ', then retry.';
+      return 'Too many requests, so ' + what + " couldn't be read. Your connection is fine: wait about "
+             + wait + ', then retry.';
+    }
+    if (st === 401 || st === 403 || code === '42501' || /jwt|token/i.test(String((err && err.message) || ''))) {
+      _lastFailReason = 'Your session expired. Sign in again to continue; nothing you did was lost.';
+      return 'Your session expired, so ' + what + " couldn't be read. Sign in again to continue. "
+             + 'Nothing you did was lost.';
+    }
+    return "Couldn't load " + what + '. Check your connection and retry.';
+  }
   const _statOrGap = (failed, value) => (failed ? '\u2014' : String(value));
   let _listingsTotal  = 0;
 
@@ -713,14 +744,14 @@
   async function loadInquiries() {
     showSkeletons();
     try {
-      const { data, error } = await db
+      const { data, error, status } = await db
         .from('v_marketplace_inquiries_truth')
         .select('id,listing_id,buyer_name,buyer_contact,message,status,reply_text,replied_at,created_at,listing_title')
         .eq('seller_name', WORKER_NAME)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(50); // limit-as-count-allow: list cap only; tile counts come from the head-count queries below
-      if (error) throw error;
+      if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       _readFailed.inquiries = false;
       _inquiries = data || [];
       // True counts for the badge (un-capped by the detail .limit()).
@@ -737,7 +768,7 @@
           .eq('status', 'pending');
         _inquiriesPendingTotal = Number(pendingCount || 0);
       } catch (_) { /* fall back to .length below */ /* empty-catch-allow: best-effort silent swallow */ }
-    } catch (_) { _readFailed.inquiries = true; _inquiries = []; if (typeof showToast === 'function') showToast("Couldn't load inquiries . Check your connection and retry.", 'error'); } // dim-10: surface load failure, don't disguise as "no inquiries"
+    } catch (_e) { _readFailed.inquiries = true; _inquiries = []; if (typeof showToast === 'function') showToast(_failCopy(_e, 'your inquiries'), 'error'); } // dim-10: surface load failure, don't disguise as "no inquiries"
     renderInquiries();
     updateBadges();
   }
@@ -757,7 +788,17 @@
     const pss = document.getElementById('ps-sales');
     const psi = document.getElementById('ps-pending-inq');
     const gapNote = document.getElementById('ps-gap-note');
-    if (gapNote) gapNote.hidden = !(_readFailed.listings || _readFailed.inquiries || _readFailed.seller);
+    const anyFailed = !!(_readFailed.listings || _readFailed.inquiries || _readFailed.seller);
+    if (gapNote) {
+      gapNote.hidden = !anyFailed;
+      /* THE TOAST FADES AND THE TILES DO NOT. The rate-limit and expired-session explanations were
+         only ever spoken in a toast, so a seller who looked away came back to a dash and a generic
+         sentence: "showing as a dash rather than as zero" says WHAT happened and never WHY, and for a
+         429 the remedy (wait) is the opposite of what a bare retry invites. Carry the reason here,
+         where it persists as long as the gap does. */
+      const why = document.getElementById('ps-gap-why');
+      if (why) { why.textContent = anyFailed && _lastFailReason ? ' ' + _lastFailReason : ''; }
+    }
     if (psl) psl.textContent = _statOrGap(_readFailed.listings, _listingsTotal || _listings.length);
     if (pss) pss.textContent = _statOrGap(_readFailed.seller, _seller?.total_sales || 0);
     if (psi) psi.textContent = _statOrGap(_readFailed.inquiries, _inquiries.filter(i => i.status === 'pending').length);
@@ -912,8 +953,8 @@
   async function loadCreditWallet() {
     if (!WORKER_NAME) return;
     try {
-      const { data, error } = await db.rpc('seller_credit_balance', { p_seller: WORKER_NAME });
-      if (error) throw error;
+      const { data, error, status } = await db.rpc('seller_credit_balance', { p_seller: WORKER_NAME });
+      if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       const row = Array.isArray(data) ? data[0] : data;
       /* ABSENT IS NOT ZERO, and on a balance the difference is the whole message. `Number(x || 0)`
          turns a NULL balance into 0, so a wallet the platform could not read renders as "PHP0" --
@@ -984,8 +1025,8 @@
     const btn = document.getElementById('cw-claim');
     if (btn) { btn.disabled = true; btn.textContent = 'Claiming…'; }
     try {
-      const { data, error } = await db.rpc('claim_starter_grant');
-      if (error) throw error;
+      const { data, error, status } = await db.rpc('claim_starter_grant');
+      if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       if (data?.granted) {
         showToast('Starter credits added. You can publish your first listings now.', 'success');
         await loadCreditWallet();
@@ -1202,7 +1243,7 @@
     const { error } = await db.storage.from(STORAGE_BUCKET).upload(filename, blob, {
       contentType: 'image/jpeg', cacheControl: '3600', upsert: false,
     });
-    if (error) throw error;
+    if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
     const { data } = db.storage.from(STORAGE_BUCKET).getPublicUrl(filename);
     return data?.publicUrl || '';
   }
@@ -1357,7 +1398,7 @@
         .update({ title, category, condition, description: desc, price, location, seller_contact: contact, image_url: imageUrl, status: 'draft', updated_at: new Date().toISOString() })
         .eq('id', id)
         .eq('seller_name', WORKER_NAME);
-      if (error) throw error;
+      if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
 
       writeAuditLog('edit_listing', 'marketplace_listings', id, title,
         { category, price, new_status: 'draft' });
@@ -1383,7 +1424,7 @@
 
     try {
       const { error } = await db.from('marketplace_listings').delete().eq('id', id).eq('seller_name', WORKER_NAME);
-      if (error) throw error;
+      if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       writeAuditLog('delete_listing', 'marketplace_listings', id, item.title,
         { prev_status: item.status });
       showToast('Listing deleted.', 'success');
@@ -1407,7 +1448,7 @@
         .from('marketplace_inquiries')
         .update({ status: 'replied', reply_text: replyText || null, replied_at: now })
         .eq('id', inqId);
-      if (error) throw error;
+      if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       showToast('Marked as replied.', 'success');
       await loadInquiries();
     } catch (_err) {
@@ -1419,7 +1460,7 @@
   async function handleCloseInquiry(inqId) {
     try {
       const { error } = await db.from('marketplace_inquiries').update({ status: 'closed' }).eq('id', inqId);
-      if (error) throw error;
+      if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       showToast('Inquiry closed.', 'info');
       await loadInquiries();
     } catch (_err) { console.error('marketplace-seller action failed:', _); showToast(whWriteError(_err, 'Failed. Try again.'), 'error'); }
@@ -1564,7 +1605,7 @@
       // or a services console that starts failing for providers is invisible in observability.
       console.error('services console load failed:', err);
       area.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml((err && err.message) || 'Please try again.') + '</p>' +
-        '<button type="button" onclick="loadServices()" style="' + _svcBtnGhost + 'margin-top:0.6rem;">Retry</button></div>';
+        '<button type="button" onclick="svcRetryAll()" style="' + _svcBtnGhost + 'margin-top:0.6rem;">Retry</button></div>';
     }
   }
 
@@ -1621,7 +1662,7 @@
     if (!cats.length) { showToast('Pick the services your hive offers first (checkboxes above)', 'error'); return; }
     const areaTxt = (document.getElementById('svc-reg-area') || {}).value || '';
     const contact = (document.getElementById('svc-reg-contact') || {}).value || '';
-    const { data, error } = await db.from('service_providers').insert({
+    const { data, error, status } = await db.from('service_providers').insert({
       provider_type: 'hive',
       hive_id: hiveId,
       display_name: hiveName + ' Field Services',
@@ -1645,7 +1686,7 @@
     const cats = [...document.querySelectorAll('.svc-cat:checked')].map(cb => cb.value);
     if (!name.trim()) { showToast('Give your provider profile a name', 'error'); return; }
     if (!cats.length) { showToast('Pick at least one service you offer', 'error'); return; }
-    const { data, error } = await db.from('service_providers').insert({
+    const { data, error, status } = await db.from('service_providers').insert({
       provider_type: 'freelancer',
       auth_uid: _authUid,
       worker_name: WORKER_NAME || null,
@@ -1859,7 +1900,7 @@
     const ref = ((document.getElementById('svc-topup-ref-' + provId) || {}).value || '').replace(/\D/g, '');
     if (!isFinite(amt) || amt <= 0) { showToast('Enter the amount you sent', 'error'); return; }
     if (ref.length < 9) { showToast('Enter the GCash reference number from your receipt', 'error'); return; }
-    const { data, error } = await db.from('service_credit_topups').insert({
+    const { data, error, status } = await db.from('service_credit_topups').insert({
       account_type: 'provider', account_id: provId, payer_auth_uid: _authUid, amount: amt, gcash_ref: ref
     }).select('id');
     /* RAW `error.message` REACHED THE PROVIDER ON THE MONEY-IN DOOR (found 2026-08-04, U-recovery
@@ -2024,7 +2065,7 @@
 
   async function svcToggleAvail(providerId, to) {
     if (!svcRequireOnline('Changing your availability')) return;
-    const { data, error } = await db.from('service_providers').update({ availability: to, updated_at: new Date().toISOString() }).eq('id', providerId).select('id');
+    const { data, error, status } = await db.from('service_providers').update({ availability: to, updated_at: new Date().toISOString() }).eq('id', providerId).select('id');
     if (error) { showToast(error.message, 'error'); return; }
     if (!data || !data.length) { showToast('Couldn\'t change availability - refresh and try again', 'error'); return; }
     showToast(to === 'online' ? 'You\'re Online - jobs in your area will appear here' : 'You\'re Offline');
@@ -2081,7 +2122,7 @@
       showToast("You are offline. Accepting a job needs a connection - another provider may already have taken it.", "error");
       return;
     }
-    const { data, error } = await db.rpc('accept_service_request', { p_request_id: requestId });
+    const { data, error, status } = await db.rpc('accept_service_request', { p_request_id: requestId });
     if (error) { showToast(error.message, 'error'); return; }
     if (data && data.accepted) {
       showToast('Job is yours. Head over when ready');
@@ -2120,7 +2161,7 @@
     const inp = document.getElementById('svc-q-' + requestId);
     const price = inp ? Number(inp.value) : NaN;
     if (!isFinite(price) || price <= 0) { showToast('Enter your price first', 'error'); return; }
-    const { data, error } = await db.rpc('submit_service_quote', { p_request_id: requestId, p_price: price });
+    const { data, error, status } = await db.rpc('submit_service_quote', { p_request_id: requestId, p_price: price });
     if (error) { showToast(error.message, 'error'); return; }
     if (data && data.quoted) { showToast('Quote sent - you\'ll see it here if the client picks you'); }
     else { showToast('Couldn\'t send the quote - the request may have closed', 'error'); }
@@ -2131,7 +2172,7 @@
     if (!svcRequireOnline('Updating the job status')) return;
     const patch = { status: next, updated_at: new Date().toISOString() };
     if (SVC_TS_COL[next]) patch[SVC_TS_COL[next]] = new Date().toISOString();
-    const { data, error } = await db.from('service_requests').update(patch).eq('id', requestId).select('id');
+    const { data, error, status } = await db.from('service_requests').update(patch).eq('id', requestId).select('id');
     if (error) { showToast(error.message, 'error'); return; }
     if (!data || !data.length) { showToast('Couldn\'t update - the job may have moved on. Refreshing.', 'error'); }
     else { showToast(next === 'completed' ? 'Job completed. Nice work!' : 'Status updated'); }
@@ -2169,7 +2210,7 @@
   async function svcCancelJob(requestId) {
     if (!svcRequireOnline('Cancelling this job')) return;
     if (!(await window.whConfirm('Cancel this job? The client will be notified.', { okLabel: 'Cancel job', cancelLabel: 'Keep it' }))) return;
-    const { data, error } = await db.from('service_requests').update({ status: 'cancelled_by_provider', cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', requestId).select('id');
+    const { data, error, status } = await db.from('service_requests').update({ status: 'cancelled_by_provider', cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', requestId).select('id');
     if (error) { showToast(error.message, 'error'); return; }
     if (!data || !data.length) { showToast('Couldn\'t cancel - refresh and try again', 'error'); }
     else { showToast('Job cancelled'); }
@@ -2232,7 +2273,7 @@
         sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: _svcB64ToU8(SVC_VAPID_PUBLIC) });
       }
       const j = sub.toJSON();
-      const { data, error } = await db.from('push_subscriptions').upsert({
+      const { data, error, status } = await db.from('push_subscriptions').upsert({
         auth_uid: _authUid, endpoint: sub.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth,
         user_agent: navigator.userAgent.slice(0, 200)
       }, { onConflict: 'endpoint' }).select('id');
@@ -2292,6 +2333,19 @@
   // window-attached functions (the window.loadMoreSeller precedent) - caught live
   // when svcRegister() threw ReferenceError from the onboarding button.
   window.loadServices = loadServices;
+
+  /* THE THIRD PARTIAL RETRY IN THIS ARC, and the same shape each time: a Retry that re-runs only the
+     pane it sits in. The services Retry restored services while the stat tiles above kept their gap
+     note -- "Couldn't load these numbers, so they're showing as a dash rather than as zero" -- because
+     _readFailed.{listings,inquiries,seller} is only cleared by those three loaders and nothing was
+     driving them. The seller pressed Retry, watched a pane come back, and still could not tell whether
+     they had 0 listings or an unread database. Retry means retry what failed. */
+  window.svcRetryAll = async function svcRetryAll() {
+    await Promise.resolve(loadServices());
+    await Promise.allSettled([loadProfile(), loadListings(), loadInquiries()]);
+    if (typeof updateProfileStats === 'function') updateProfileStats();
+    if (typeof loadCreditWallet === 'function') loadCreditWallet();
+  };
   window.svcRegister = svcRegister;
   window.svcRegisterHive = svcRegisterHive;
   window.svcToggleAvail = svcToggleAvail;
@@ -2466,7 +2520,7 @@
         messenger_username: raw || null,
         updated_at:         new Date().toISOString(),
       }, { onConflict: 'worker_name' });
-      if (error) throw error;
+      if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
 
       writeAuditLog('edit_seller_messenger', 'marketplace_sellers', WORKER_NAME, WORKER_NAME,
         { has_handle: !!raw });
@@ -2518,7 +2572,7 @@
         update.cert_verified_at = null;
       }
       const { error } = await db.from('marketplace_sellers').upsert(update, { onConflict: 'worker_name' });
-      if (error) throw error;
+      if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
 
       writeAuditLog('edit_seller_certs', 'marketplace_sellers', WORKER_NAME, WORKER_NAME,
         { cert_count: lines.length, invalidated_verification: (update.cert_verified === false) && !!wasVerified });

@@ -1139,7 +1139,13 @@ export async function availability(opts) {
       const u = typeof i === 'string' ? i : (i && i.url) || '';
       // OFFLINE MUST COUNT the write rather than answer it: the oracle is whether the page fired
       // into a dead network at all, so the attempt is recorded and then the network "fails".
-      if (SUPA.test(u) && MUTV.test(verb(i, x))) noteWrite(i, x, u);
+      //
+      // ...but a READ SENT AS POST IS STILL A READ. PostgREST posts every rpc, so counting by verb
+      // alone charged the seller console with six writes it never made -- all of them
+      // rpc/my_service_provider_ids, a STABLE function that cannot write -- and failed the row for
+      // firing into the dark when it had only been reading. Same exemption blockWrite uses.
+      const _rpcName = (u.match(/\/rest\/v1\/rpc\/([A-Za-z0-9_]+)/) || [])[1];
+      if (SUPA.test(u) && MUTV.test(verb(i, x)) && !(_rpcName && RPC_READONLY.has(_rpcName))) noteWrite(i, x, u);
       if (!SUPA.test(u)) return orig(i, x);
       throw new TypeError('Failed to fetch');
     };
@@ -1147,7 +1153,14 @@ export async function availability(opts) {
     await new Promise(r => setTimeout(r, 1200));
 
     const before = writes;
+    // A LINK IS NOT A WRITE. The picker excluded inline location handlers but not plain anchors, so
+    // on the seller console it clicked "List an item" -- an <a href> to the post flow -- and
+    // navigated the page out from under the probe mid-run ("Execution context was destroyed").
+    // Anything that leaves the surface is disqualified: the oracle is about a write being refused
+    // before it fires, and a control that navigates never had a write to refuse.
     const act = ctrls().filter(el => ACTION.test(el.innerText || el.value || '') && !el.disabled &&
+                                     el.tagName !== 'A' && !el.closest('a[href]') &&
+                                     !el.getAttribute('href') &&
                                      !NAVIGATES.test(el.getAttribute('onclick') || ''));
     const clicked = act[0] || null;
     if (clicked) { clicked.click(); await new Promise(r => setTimeout(r, 1600)); }

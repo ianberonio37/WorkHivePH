@@ -4067,7 +4067,7 @@
       invRaw   = invRes.status   === 'fulfilled' ? (invRes.value.data   || []) : [];
       pmAssets = pmRes.status    === 'fulfilled' ? (pmRes.value.data    || []) : [];
       /* 'fulfilled' IS NOT 'SUCCEEDED'. The note below already says supabase-js resolves with
-         {data:null, error} on a network fault — the same is true of a head:true COUNT, which
+         {data:null, error} on a network fault, and the same is true of a head:true COUNT, which
          resolves with {count:null, error}. So a settled-but-failed count fell through
          `status === 'fulfilled'` and `count || 0` turned it into a confident zero: "0 jobs closed
          today" to someone who closed four, and a Risk Alerts tile that quietly disappeared because
