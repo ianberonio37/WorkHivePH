@@ -113,6 +113,16 @@ def sha_of(paths):
 # every row that named it, including rows whose claim was about a function I had not been near.
 # The pages wrap everything in an IIFE, so their declarations are indented; allowing leading
 # whitespace also matches NESTED functions, which is handled by dropping contained spans below.
+#
+# A v3 WAS TRIED AND REJECTED (2026-08-05), and the reason is worth keeping. utils.js injects its
+# shared stylesheet from an anonymous top-level IIFE, which lands in the single `toplevel` unit — so
+# adding one @media block to that CSS expired 831 rows whose claims had nothing to do with it. The
+# obvious fix is to digest each top-level IIFE separately. It is the WRONG fix: every page wraps its
+# ENTIRE script in one such IIFE, so that unit would cover the whole file and any page edit would
+# expire every row naming that page — strictly worse than today. The self-test caught it ("adding a
+# new function must not expire a row" went RED) before it shipped.
+# A correct v3 would digest an IIFE's OWN code while excluding the named functions inside it — i.e.
+# apply the `toplevel` treatment per-IIFE rather than per-file. Worth doing; not done here.
 _FN_RE = re.compile(r"^[ \t]*(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(", re.M)
 
 
