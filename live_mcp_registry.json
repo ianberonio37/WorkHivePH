@@ -13245,20 +13245,14 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "units_visible",
       "oracle": "the unit is on screen beside the number, not implied by position",
-      "status": "green",
-      "findings": [],
-      "evidence": {
-        "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
-        "asserts": "the unit is on screen beside the number, not implied by position",
-        "value_checked": true,
-        "depends_on": [
-          "platform-actions.html"
-        ],
-        "sha": "703528db0a4136ff",
-        "walked_at": "2026-08-04",
-        "checked": "13 bare numbers on the admin money surface, 0 of them genuinely unitless. THE PROBE HAD TO BE CALIBRATED TWICE BEFORE ITS ANSWER WAS WORTH ANYTHING, and both wrong answers were mine:\n  · v1 demanded a physical unit token and flagged 10 -- including '1,500 / Issued: minted into circulation so far'. For a COUNT the counted noun IS the unit, and that label names it.\n  · v2 accepted a naming label and flagged 5, all of them feedback-triage filter chips ('New 10', 'Triaged 0', 'In progress 0', 'Resolved 0', 'All 10'). Reading them settles it: a filter chip's noun comes from the section heading it sits under ('Feedback from users'), which is exactly what 'the unit is on screen beside the number' means for a filtered count.\nThe money figures all carry their unit explicitly: PHP1,140.00, 1.32x, and the credit counts sit against 'Total WorkHive Credits: the cap', 'Issued: minted into circulation so far', 'Available to issue: still unissued in the treasury'. Filing those 10, or those 5, would have been ten or five defects that do not exist -- which is why the rule here is to read what the probe returned rather than to count it. RE-WALKED 2026-08-04 (8) after the cover-badge gap fix: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 and the repaired pending-top-up row still fitting, component_busy re-proven on 'Verify: mint credits' with the PATCH BLOCKED, and status/body re-checked on the wire (200 with rows / 400 error body / anon-on-treasury 401)."
-      }
+      "status": "owed",
+      "findings": [
+        {
+          "severity": "false-green-withdrawn",
+          "title": "two treasury figures take their unit from a heading two rows up",
+          "measured": "MEASURED, AND NARROWER THAN THE FIRST READING -- which is why it was checked twice. A first sweep counted 13 'bare' numbers and I did not file it, because that sweep read LEAF text only and a unit sitting in an adjacent LABEL would have read as missing. Re-measured with each number's own label context (siblings, parent, aria-label, title), most are fine: 'Listings awaiting review 3', 'Sellers awaiting verification 9', 'GCash top-ups awaiting verification 1', 'Feedback from users 10', 'Credit position 1.32', '10,000,000 Total WorkHive Credits: the cap'. Each names its noun beside the figure.\nTWO DO NOT, and both are treasury lines:\n  · '1,500 -- Issued: minted into circulation so far'\n  · '9,998,500 -- Available to issue: still unissued in the treasury'\nIssued WHAT, available to issue WHAT: the unit is credits, and it is established only by the card heading one line above ('Total WorkHive Credits'). That is the unit IMPLIED BY POSITION, which is exactly what this oracle forbids. On a solvency console the two figures a founder reads to answer 'how much have I put into circulation' should not depend on the reader carrying the heading down two rows -- and 1,500 versus 9,998,500 are pesos-shaped numbers on a page that also shows real pesos (PHP1,140.00, PHP300).\nTHE FIX IS ONE WORD EACH: 'Issued (credits)' and 'Available to issue (credits)'. Left owed rather than patched here because the edit would expire every row resting on platform-actions.html again, and the next pass can make it with the re-walk it will already be doing."
+        }
+      ]
     },
     {
       "id": "LM-BB-ufai-U-admin-buyer-no_raw_enum",
