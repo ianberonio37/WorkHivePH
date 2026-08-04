@@ -5106,7 +5106,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           if (_listings.some(l => l.id === _wantListing)) openDetailSheet(_wantListing);
         });
       }
-      if (_sp.get('section') === 'services') {
+      /* EVERY section, not just services. This block only ever honoured ?section=services, so
+         ?section=parts / training / jobs were silently ignored -- harmless while the default happened
+         to be parts, and NOT harmless the moment the page started remembering the last section
+         (below): a link explicitly asking for parts landed on the remembered services instead.
+         An explicit link is a stronger signal than a remembered habit and has to win, so the URL is
+         applied here and `_urlSection` tells the remember-helper to stand down. */
+      const _validSections = ['parts', 'training', 'jobs', 'services'];
+      const _urlSection = _validSections.includes(_sp.get('section')) ? _sp.get('section') : null;
+      if (_urlSection && _urlSection !== 'services') switchSection(_urlSection);
+      window.__mktUrlSection = _urlSection;
+      if (_urlSection === 'services') {
         switchSection('services');
         const _scope = (_sp.get('scope') || '').slice(0, 500);
         const _asset = (_sp.get('asset') || '').slice(0, 60);
@@ -5121,6 +5131,31 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         }
       }
     } catch (_) { /* empty-catch-allow: best-effort deep-link; tab is still reachable by hand */ }
+
+    /* G5a: REMEMBER WHICH SECTION THEY USE. Measured 2026-08-04 (BJ repeat_visit): choose Services,
+       leave, come back to the plain URL -> Parts, every time. For someone whose reason to be here is
+       hailing a technician, that is re-doing setup on every single visit, which is precisely what the
+       oracle is about; the seller dashboard and the seller profile both already remember their tab
+       through this same shared helper.
+       AFTER the deep-link block above, deliberately: whAutoRememberTabs steps aside when a NON-DEFAULT
+       tab is already selected, so ?section=services keeps winning -- an explicit link beats a
+       remembered preference. And after the tab handlers exist, because it restores by CLICKING the
+       saved tab; called earlier it would click into the void and then save the default OVER the
+       preference, which is the exact bug this same helper had on the seller profile today. */
+    if (window.whAutoRememberTabs && !window.__mktUrlSection) {
+      whAutoRememberTabs('mkt-section', '.section-tabs', 'data-section');
+    } else if (window.whRememberView && window.__mktUrlSection) {
+      /* The URL named a section, so it wins -- and the helper cannot be used here at all, because it
+         RESTORES the moment it is constructed and would put the remembered section straight back over
+         the one the link asked for (measured: ?section=parts landed on services). So the choice is
+         persisted directly instead: the link still updates the preference, rather than arriving once
+         from a ?section= link freezing it at whatever it was before, and the tab click listeners the
+         helper would have added are unnecessary -- the next plain visit re-arms the full helper. */
+      whRememberView('mkt-section', function () {
+        const a = document.querySelector('.section-tab.active');
+        return { v: a ? a.getAttribute('data-section') : null };
+      }).save();
+    }
 
     /* Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10). */
     if (typeof wireDetailToggle === 'function') wireDetailToggle();
