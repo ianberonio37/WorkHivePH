@@ -628,12 +628,32 @@
         setCount('cp-cover', '\u2014', '');
         return;
       }
-      const sum = t => (m.rows || []).filter(r => r.entry_type === t)
-                                     .reduce((a, r) => a + Number(r.amount || 0), 0);
-      const topups   = sum('topup') + sum('starter_grant');
-      const earned   = -sum('commission');          // historical only; the rate is 0 now
-      const vouchers = sum('voucher_grant');        // retired mechanic, kept for historical rows
-      const liability = topups + sum('cashback') + vouchers - earned;
+      /* YOU CANNOT TOTAL A COLUMN THAT CONTAINS AN UNKNOWN. `Number(r.amount || 0)` treated a NULL
+         amount as zero, so a ledger row whose amount could not be read simply did not count -- and
+         the tile still printed a confident peso figure. With the amounts nulled by the AZ induction
+         the liability rendered "₱0.00": the platform owes nothing. That is the single most flattering
+         reading available, invented from missing data, on the console that decides solvency, and it
+         is the same class as the ₱300 top-up that printed as ₱0.00.
+         A sum over rows containing an unreadable amount is UNKNOWN, and unknown propagates: every
+         figure derived from it renders as a gap instead of a number. Real rows always carry an
+         amount, so nothing changes in the healthy case -- this only fires when the data is missing,
+         which is exactly when the wrong number does the most damage. */
+      const sum = t => {
+        const rows = (m.rows || []).filter(r => r.entry_type === t);
+        let acc = 0;
+        for (const r of rows) {
+          const n = Number(r.amount);
+          if (r.amount === null || r.amount === undefined || !isFinite(n)) return null;
+          acc += n;
+        }
+        return acc;
+      };
+      const add = (...xs) => xs.some(x => x === null) ? null : xs.reduce((a, b) => a + b, 0);
+      const topups   = add(sum('topup'), sum('starter_grant'));
+      const _comm    = sum('commission');
+      const earned   = _comm === null ? null : -_comm;   // historical only; the rate is 0 now
+      const vouchers = sum('voucher_grant');             // retired mechanic, kept for historical rows
+      const liability = add(topups, sum('cashback'), vouchers, earned === null ? null : -earned);
       /* COVER COUNTED THE COMMISSION TWICE (found 2026-08-04, BC-ufai-F money_matches_ledger walk:
          the tile read 1.63 while cash-in / credits-owed is 1.32).
          The numerator was `topups + earned`. But commission is taken IN CREDITS, not in new cash —
@@ -647,11 +667,23 @@
          "keep at or above 1.00". An overstated cover is exactly the wrong error on a ratio designed
          to warn about approaching insolvency.
          Cover is cash in / credits owed. Nothing else. */
-      const cover = liability > 0 ? topups / liability : null;
+      const cover = (liability !== null && topups !== null && liability > 0) ? topups / liability : null;
       const supply = m.posture ? Number(m.posture.authorised_credits) : null;
       const issued = m.posture ? Number(m.posture.issued_credits) : null;
-      const peso = n => '₱' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2 });
-      const num  = n => Number(n || 0).toLocaleString();
+      /* `Number(n || 0)` IS THE FABRICATED ZERO, and this is the last page it belongs on. The two
+         tiles above already learned it: an unknown cover renders as a gap, because 0 on a solvency
+         console does not read as "unknown", it reads as "the platform cannot cover its liabilities".
+         These two formatters still had it, so a NULL liability printed "₱0.00" -- we owe nothing --
+         and a null authorised/issued figure printed "0" credits, with `supply - issued` going through
+         NaN to reach 0 as well. Every one of those is the most flattering reading available, invented
+         by a formatter, on the page that decides whether the business is solvent.
+         Absent renders as a gap. It is the same rule the top-up queue got when a filed ₱300 printed
+         as ₱0.00, and the AZ null-field induction found it again here. */
+      const gap = '—';
+      const peso = n => (n === null || n === undefined || !isFinite(Number(n)))
+        ? gap : '₱' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2 });
+      const num  = n => (n === null || n === undefined || !isFinite(Number(n)))
+        ? gap : Number(n).toLocaleString();
 
       // same reason as the refusal branch above: an unknown cover is a gap, never a 0, because 0 is
       // the reading that says the platform is insolvent
@@ -668,7 +700,8 @@
              <span class="mod-sub">Total WorkHive Credits: the cap; lifetime liability cannot exceed it</span></div></div>`
         + `<div class="mod-row"><div class="mod-main"><strong>${e(num(issued))}</strong>
              <span class="mod-sub">Credits issued: minted into circulation so far</span></div></div>`
-        + `<div class="mod-row"><div class="mod-main"><strong>${e(num(supply - issued))}</strong>
+        + `<div class="mod-row"><div class="mod-main"><strong>${e(num(
+              (supply === null || issued === null) ? null : supply - issued))}</strong>
              <span class="mod-sub">Credits available to issue: still unissued in the treasury</span></div></div>`
         + `<div class="mod-row"><div class="mod-main"><strong>1 credit = ₱1</strong>
              <span class="mod-sub">Fixed, and never moves</span></div></div>`)
@@ -683,17 +716,40 @@
          guard compares against — so a save would silently overwrite the very edit the guard exists
          to catch, and the typed note would be judged against a row the admin never saw. The realtime
          channel still delivers new arrivals; only the reload is deferred. */
+      /* SEVEN READS IN FLIGHT AND THE PAGE SAID NOTHING. Measured 2026-08-04: requestsInFlight 7,
+         skeletonNodes 0, saysLoading false, busySignals 0 -- so every refresh, including the manual
+         "Refresh queues" and the 60-second poll, left the queues showing their PREVIOUS contents with
+         no sign that anything was happening. On a moderation console that is worse than a blank: the
+         admin is looking at a list that may already be answered, believing it is current, and the
+         only clue is a "Updated HH:MM:SS" stamp that has not moved yet.
+         Marking the queue containers aria-busy costs nothing, does not disturb the rows already on
+         screen (the admin can keep reading them), and is cleared by the renderers below on every
+         path, success or failure, because they all overwrite innerHTML. */
+      const _boxes = ['svc-topups-content', 'mkt-listings-content', 'gcash-receipts-content', 'cp-content']
+        .map(id => document.getElementById(id)).filter(Boolean);
+      const _sync = document.getElementById('last-sync');
+      _boxes.forEach(b => b.setAttribute('aria-busy', 'true'));
+      if (_sync) _sync.textContent = 'Refreshing…';
       const wantFeedback = !_fb.drawerId;
-      const [mod, tops, gcash, fb, cp] = await Promise.all([
-        fetchMktModeration(), fetchSvcTopups(), fetchGcashLeftovers(),
-        wantFeedback ? fetchFeedback() : Promise.resolve(null),
-        fetchCreditPosition()]);
-      renderMktModeration(mod);
-      renderSvcTopups(tops);
-      renderGcashLeftovers(gcash);
-      if (fb) renderFeedback(fb);
-      renderCreditPosition(cp);
-      document.getElementById('last-sync').textContent = 'Updated ' + new Date().toLocaleTimeString();
+      try {
+        const [mod, tops, gcash, fb, cp] = await Promise.all([
+          fetchMktModeration(), fetchSvcTopups(), fetchGcashLeftovers(),
+          wantFeedback ? fetchFeedback() : Promise.resolve(null),
+          fetchCreditPosition()]);
+        renderMktModeration(mod);
+        renderSvcTopups(tops);
+        renderGcashLeftovers(gcash);
+        if (fb) renderFeedback(fb);
+        renderCreditPosition(cp);
+        if (_sync) _sync.textContent = 'Updated ' + new Date().toLocaleTimeString();
+      } catch (err) {
+        // The busy state must not outlive the attempt. A stamp stuck on "Refreshing…" says the
+        // console is working on it, which is the one thing that is definitely not true.
+        console.error('refreshQueues failed:', err);
+        if (_sync) _sync.textContent = 'Could not refresh — press Refresh queues to try again';
+      } finally {
+        _boxes.forEach(b => b.removeAttribute('aria-busy'));
+      }
     }
 
     // One delegated listener for all moderation action buttons (data-attrs = XSS-safe).
