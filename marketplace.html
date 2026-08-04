@@ -3592,6 +3592,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      #svc-quote-scope, -budget, -address) at 13.3px. Fixed on the SHARED constant so a seventh field
      added later inherits the fix instead of re-introducing the bug. */
   const _svcInputC = 'display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;font-size:16px;';
+  let _svcDraft = { clear() {}, restore() {}, save() {} };   // the hail/quote draft; re-bound on every render
   const SVC_OPEN = ['requested', 'broadcasting', 'accepted', 'en_route', 'on_site', 'in_progress'];
   const SVC_CHIP = { requested: 'Draft', broadcasting: 'Finding a provider…', accepted: 'Provider accepted', en_route: 'Provider on the way', on_site: 'Provider on site', in_progress: 'Work in progress', completed: 'Completed', settled: 'Settled', cancelled_by_client: 'You cancelled', cancelled_by_provider: 'Provider cancelled', expired: 'No provider found', disputed: 'In dispute' };
 
@@ -3816,6 +3817,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     pane.innerHTML = html;
     svcLoadPresence();   // J33: fill the area-presence line after the pane exists
 
+    /* THE HALF-TYPED HAIL DID NOT SURVIVE LEAVING THE TAB. Measured 2026-08-04 (BJ abandon_resume):
+       pick a service, type "Plant 3, Lucena", set urgency critical, switch to Parts and back -- all
+       three fields empty. Nothing was half-WRITTEN, so the narrow reading of the oracle passes; but
+       this is the most interruption-prone entry on the platform. The person filling it is standing in
+       a plant with something broken, on a phone, and the thing that interrupts them is the emergency
+       itself. whAutoSaveDraft (utils.js) exists for exactly that -- ten other surfaces already adopt
+       it, including this page's own Post-a-listing description -- and the hail was simply never
+       wired.
+       Re-bound after every render because renderClientServices REPLACES these nodes; the old
+       listeners die with the old elements, so this does not accumulate. `auto:false` because the
+       generic lifecycle clears a draft when a button matching /post|save|send|submit|.../ is clicked,
+       and "Hail now - notify nearby providers" matches none of those -- the draft would have survived
+       a successful hail and been restored into the next blank form. It is cleared explicitly on
+       success instead, which is the only moment the entry is genuinely finished with. */
+    _svcDraft = (typeof whAutoSaveDraft === 'function')
+      ? whAutoSaveDraft('svchail', ['svc-hail-item', 'svc-hail-address', 'svc-hail-urgency',
+                                    'svc-quote-scope', 'svc-quote-budget', 'svc-quote-address'],
+                        { auto: false })
+      : { clear() {}, restore() {}, save() {} };
+
     /* Surface the certified-only requirement the moment a gated trade is picked (see the note above
        the picker). Reads the option's own data-cert, so it costs no extra query. */
     (function wireCertNote() {
@@ -3973,6 +3994,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }).select('id');
       if (error) { showToast(_svcWriteError(error), 'error'); return; }
       if (!data || !data.length) { showToast('Request didn\'t save - please try again', 'error'); return; }
+      _svcDraft.clear();          // the entry is committed; the next hail starts blank
       showToast('Hailing - nearby providers are being notified');
       loadClientServices();
     });
@@ -3993,6 +4015,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }).select('id');
       if (error) { showToast(_svcWriteError(error), 'error'); return; }
       if (!data || !data.length) { showToast('Request didn\'t save - please try again', 'error'); return; }
+      _svcDraft.clear();
       showToast('Posted - providers will send quotes here');
       loadClientServices();
     });

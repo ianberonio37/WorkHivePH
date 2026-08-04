@@ -1614,7 +1614,20 @@ function whAutoSaveDraft(key, ids, opts) {
     function scheduleSave() { clearTimeout(t); t = setTimeout(view.save, opts.debounce || 500); }
     function scheduleClear(ms) { setTimeout(view.clear, ms); }
     view = whRememberView('draft_' + key, function () { var o = {}; ids.forEach(function (id) { var el = document.getElementById(id); if (el) o[id] = el.value; }); return o; });
-    applyDraft = function (s) { ids.forEach(function (id) { var el = document.getElementById(id); if (el && s[id] != null && s[id] !== '' && !el.value) { el.value = s[id]; el.dispatchEvent(new Event('input', { bubbles: true })); } }); };
+    // A SELECT IS NEVER "EMPTY", so `!el.value` skipped every one of them. Measured 2026-08-04 on the
+    // service hail: the chosen service and the typed address came back after an interruption and the
+    // urgency did NOT -- "Critical - production is down" silently reverted to "Normal - within a few
+    // days", which is the difference between a provider coming now and coming next week. A select
+    // always has a value, so the guard has to ask the equivalent question: is it still at its DEFAULT?
+    // (the option carrying the `selected` attribute, else the first one). That preserves what the
+    // guard is for -- never overwrite a choice the person has already made -- while letting a draft
+    // restore into an untouched dropdown.
+    var _isUntouched = function (el) {
+      if (el.tagName !== 'SELECT') return !el.value;
+      var def = el.querySelector('option[selected]') || el.options[0];
+      return !def || el.value === def.value;
+    };
+    applyDraft = function (s) { ids.forEach(function (id) { var el = document.getElementById(id); if (el && s[id] != null && s[id] !== '' && _isUntouched(el)) { el.value = s[id]; el.dispatchEvent(new Event(el.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true })); } }); };
     view.restore(applyDraft);
     ids.forEach(function (id) { var el = document.getElementById(id); if (el) ['input', 'change'].forEach(function (ev) { el.addEventListener(ev, scheduleSave); }); });
     // GENERIC lifecycle (no per-page selectors needed): restore the draft when the user FOCUSES the compose
