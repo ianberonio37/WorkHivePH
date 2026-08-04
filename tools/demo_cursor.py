@@ -58,23 +58,51 @@ CURSOR_JS = r"""
     const style = document.createElement('style');
     style.id = '__wh_cursor_style';
     style.textContent = `
+      /* 44px, not 22: at 1280 wide the old pointer was 1.7% of frame width
+         and vanished once the video downscaled and the camera pulled wide.
+         A demo pointer is a NARRATOR - it has to be legible at a glance. */
       #__wh_cursor {
-        position: fixed; top: 0; left: 0; width: 22px; height: 22px;
-        margin: -2px 0 0 -2px; pointer-events: none; z-index: 2147483647;
-        transition: transform 90ms ease-out; will-change: transform;
+        position: fixed; top: 0; left: 0; width: 44px; height: 44px;
+        margin: -3px 0 0 -3px; pointer-events: none; z-index: 2147483647;
+        transition: transform 55ms linear; will-change: transform;
       }
-      #__wh_cursor svg { display:block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.42)); }
-      #__wh_cursor.__pressed { transform: scale(.82); }
+      #__wh_cursor svg { display:block;
+        filter: drop-shadow(0 3px 7px rgba(0,0,0,.55)) drop-shadow(0 0 2px rgba(0,0,0,.4)); }
+      #__wh_cursor.__pressed { transform: scale(.84); }
       #__wh_ripple {
         position: fixed; pointer-events: none; z-index: 2147483646;
-        width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
-        background: rgba(247,162,27,.55); opacity: 0; will-change: transform, opacity;
+        width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%;
+        background: rgba(247,162,27,.6); opacity: 0; will-change: transform, opacity;
       }
       @keyframes __wh_pulse {
-        0%   { transform: scale(.4); opacity: .85; }
-        100% { transform: scale(4.2); opacity: 0; }
+        0%   { transform: scale(.35); opacity: .95; }
+        100% { transform: scale(5.0); opacity: 0; }
       }
-      #__wh_ripple.__go { animation: __wh_pulse 520ms ease-out forwards; }
+      #__wh_ripple.__go { animation: __wh_pulse 620ms ease-out forwards; }
+      /* SCROLL AFFORDANCE: a wheel badge pinned beside the pointer while the
+         page is scrolling, so a moving page is legible as "being scrolled"
+         rather than "lurching on its own". */
+      #__wh_scroll {
+        position: fixed; top: 0; left: 0; pointer-events: none;
+        z-index: 2147483647; opacity: 0; transition: opacity 140ms ease-out;
+        transform: translate(-9999px, -9999px);
+      }
+      #__wh_scroll.__on { opacity: 1; }
+      #__wh_scroll .__pill {
+        width: 30px; height: 46px; border-radius: 16px;
+        border: 3px solid #fff; background: rgba(11,17,26,.72);
+        box-shadow: 0 3px 10px rgba(0,0,0,.5); position: relative;
+      }
+      #__wh_scroll .__dot {
+        position: absolute; left: 50%; margin-left: -3.5px; top: 8px;
+        width: 7px; height: 11px; border-radius: 4px; background: #F7A21B;
+        animation: __wh_wheel 900ms ease-in-out infinite;
+      }
+      @keyframes __wh_wheel {
+        0%   { top: 8px;  opacity: 0; }
+        30%  { opacity: 1; }
+        100% { top: 26px; opacity: 0; }
+      }
     `;
     (document.head || document.documentElement).appendChild(style);
     }
@@ -84,15 +112,21 @@ CURSOR_JS = r"""
       const cur = document.createElement('div');
       cur.id = '__wh_cursor';
       cur.innerHTML =
-        '<svg width="22" height="22" viewBox="0 0 22 22">' +
+        '<svg width="44" height="44" viewBox="0 0 22 22">' +
         '<path d="M2 1 L2 17 L6.2 13.1 L8.9 19.2 L11.7 18 L9 12 L14.6 12 Z" ' +
-        'fill="#fff" stroke="#16202f" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+        'fill="#fff" stroke="#16202f" stroke-width="1.6" stroke-linejoin="round"/></svg>';
       document.body.appendChild(cur);
     }
     if (!document.getElementById('__wh_ripple')) {
       const rip = document.createElement('div');
       rip.id = '__wh_ripple';
       document.body.appendChild(rip);
+    }
+    if (!document.getElementById('__wh_scroll')) {
+      const sc = document.createElement('div');
+      sc.id = '__wh_scroll';
+      sc.innerHTML = '<div class="__pill"><div class="__dot"></div></div>';
+      document.body.appendChild(sc);
     }
 
     // Position lives on window so it survives a body/document swap - otherwise
@@ -142,6 +176,18 @@ CURSOR_JS = r"""
       window.__whX = nx; window.__whY = ny;
       const c = document.getElementById('__wh_cursor');
       if (c) c.style.transform = `translate(${nx}px, ${ny}px)`;
+      const sc = document.getElementById('__wh_scroll');
+      if (sc && sc.classList.contains('__on'))
+        sc.style.transform = `translate(${nx + 26}px, ${ny - 12}px)`;
+    };
+    // The scroll badge rides just right of the pointer for the whole scroll.
+    window.__whScroll = (on) => {
+      const sc = document.getElementById('__wh_scroll');
+      if (!sc) return;
+      sc.classList.toggle('__on', !!on);
+      if (on) sc.style.transform =
+        `translate(${window.__whX + 26}px, ${window.__whY - 12}px)`;
+      else sc.style.transform = 'translate(-9999px, -9999px)';
     };
     window.__whCursorPress = (down) => {
       const c = document.getElementById('__wh_cursor');
@@ -290,6 +336,31 @@ def type_into(page, selector: str, text: str, per_char_ms: int = 45,
     click_at(page, selector, duration_ms=duration_ms, timeout=timeout)
     page.wait_for_timeout(140)
     page.keyboard.type(text, delay=per_char_ms)
+
+
+def scroll(page, dy: int, duration_ms: int = 900, rep=None, act="",
+           caption="") -> None:
+    """Scroll by dy px SMOOTHLY over duration_ms, with the wheel badge showing.
+
+    An instant `mouse.wheel(0, 600)` moves the page in one frame: the viewer
+    sees a lurch with a motionless pointer and cannot tell scrolling happened
+    (Ian: "the scroll symbol ... doesnt keep up what do you want to do").
+    Real scrolling is paced, and the pointer stays put while the content moves
+    under it - so this steps the wheel at ~30fps and holds the badge visible
+    for the whole gesture."""
+    page.evaluate("() => window.__whScroll && window.__whScroll(true)")
+    steps = max(6, int(duration_ms / 33))
+    per = dy / steps
+    for _ in range(steps):
+        page.mouse.wheel(0, per)
+        page.wait_for_timeout(33)
+    page.wait_for_timeout(120)
+    page.evaluate("() => window.__whScroll && window.__whScroll(false)")
+    if rep is not None:
+        x, y = getattr(page, "_wh_cursor_pos", (None, None))
+        vp = page.viewport_size or {"width": 1280, "height": 900}
+        xy = (x / vp["width"], y / vp["height"]) if x is not None else None
+        rep.add(act, "scroll", f"{dy:+d}px", True, caption, xy=xy)
 
 
 def dwell(page, ms: int) -> None:

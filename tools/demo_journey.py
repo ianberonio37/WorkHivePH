@@ -147,13 +147,18 @@ class Report:
         self.rows = []
         self.t0 = time.time()
 
-    def add(self, act, action, target, ok, note="", xy=None):
+    def add(self, act, action, target, ok, note="", xy=None, caption=None):
         # Wall-clock offset from the start of the recording. Without this the
         # edit has to eyeball its cut points from frame samples; with it, each
         # act's in/out are known numbers and the trim is exact.
         at = round(time.time() - self.t0, 2)
         row = {"at_s": at, "act": act, "action": action,
                "target": target, "ok": bool(ok), "note": note}
+        # THE CAPTION is the narration track. A demo where things are clicked
+        # with no on-screen explanation is the thing Ian called out; the edit
+        # burns this as a lower-third at exactly this timestamp.
+        if caption:
+            row["caption"] = caption
         if xy:
             # viewport-fraction coords of the action - the camera in the edit
             # zooms toward THIS point at THIS timestamp. Measured, not staged.
@@ -211,7 +216,7 @@ def _xy_of(page, selector):
     return None
 
 
-def try_click(page, rep, act, selectors, note="", timeout=4000):
+def try_click(page, rep, act, selectors, note="", timeout=4000, caption=None):
     sel = first_visible(page, selectors, timeout)
     if not sel:
         rep.add(act, "click", selectors[0], False, "no candidate visible")
@@ -227,7 +232,7 @@ def try_click(page, rep, act, selectors, note="", timeout=4000):
                       (box["y"] + box["height"] / 2) / vp["height"])
         except Exception:
             pass
-        rep.add(act, "click", sel, True, note, xy=xy)
+        rep.add(act, "click", sel, True, note, xy=xy, caption=caption)
         return True
     except Exception as e:
         rep.add(act, "click", sel, False, f"{type(e).__name__}")
@@ -281,7 +286,8 @@ def act2_logbook(page, rep):
     # The logbook is not a list-plus-"New Entry" page; the entry wizard is
     # already ON the page. Step one is choosing the machine.
     if not try_click(page, rep, "2-logbook", ["#asset-picker-btn"],
-                     note="which machine?"):
+                     note="which machine?",
+                     caption="Start the entry: which machine?"):
         return
     page.wait_for_timeout(BEAT)
 
@@ -291,7 +297,8 @@ def act2_logbook(page, rep):
         try:
             type_into(page, "#asset-picker-search", "pump", per_char_ms=110)
             rep.add("2-logbook", "type", "#asset-picker-search", True, "search for it",
-                    xy=_xy_of(page, "#asset-picker-search"))
+                    xy=_xy_of(page, "#asset-picker-search"),
+                    caption="Search your machine by name or code")
         except Exception as e:
             rep.add("2-logbook", "type", "#asset-picker-search", False, type(e).__name__)
     dwell(page, READ)
@@ -303,13 +310,13 @@ def act2_logbook(page, rep):
     try_click(page, rep, "2-logbook", [
         "#asset-picker-modal button[data-asset-id]", "[data-asset-id]",
         "#asset-picker-results button",
-    ], note="choose the machine")
+    ], note="choose the machine", caption="Pick it from your own asset list")
     page.wait_for_timeout(BEAT)
 
     # :visible matters - there are two .btn-next in the DOM and the hidden one
     # is first in document order.
     try_click(page, rep, "2-logbook", [".btn-next:visible"],
-              note="what happened?")
+              note="what happened?", caption="Next: what happened?")
     dwell(page, READ)
 
     # Type the lesson, but DO NOT submit. logbook addEntry is non-idempotent and
@@ -321,7 +328,8 @@ def act2_logbook(page, rep):
             type_into(page, sel, "Replaced the worn drive belt and realigned the pulley.",
                       per_char_ms=48)
             rep.add("2-logbook", "type", sel, True, "the lesson, in plain words (not submitted)",
-                    xy=_xy_of(page, sel))
+                    xy=_xy_of(page, sel),
+                    caption="Write the fix in plain words - that is the whole entry")
         except Exception as e:
             rep.add("2-logbook", "type", sel, False, type(e).__name__)
     else:
@@ -329,7 +337,8 @@ def act2_logbook(page, rep):
     dwell(page, READ)
 
     # The connectivity beat: the same page shows the whole team's entries.
-    try_click(page, rep, "2-logbook", ["#btn-view-team"], note="the team's feed")
+    try_click(page, rep, "2-logbook", ["#btn-view-team"], note="the team's feed",
+              caption="Every teammate's fixes, in one feed")
     dwell(page, READ)
 
 
@@ -452,7 +461,134 @@ def act5_pm(page, rep):
     scroll_read(page, 340)
 
 
-ACTS = {1: act1_hive, 2: act2_logbook, 3: act3_asset, 4: act4_assistant, 5: act5_pm}
+def act6_inventory(page, rep):
+    """COMPLETE inventory journey: see the shortage -> filter to it -> open the
+    part -> read its detail. The story is 'you know what you are out of'."""
+    from demo_cursor import scroll as wh_scroll
+    goto(page, "inventory.html")
+    dwell(page, 1100)
+    rep.add("6-inventory", "open", "inventory.html", True,
+            caption="Spare-parts inventory - every part you stock")
+
+    wh_scroll(page, 320, 900, rep, "6-inventory",
+              caption="Low stock and out-of-stock, counted for you")
+    dwell(page, 700)
+
+    # filter down to the parts that actually need attention
+    if try_click(page, rep, "6-inventory", ["#filter-status"],
+                 caption="Filter to just what needs re-ordering"):
+        dwell(page, 900)
+        try:
+            page.select_option("#filter-status", index=1)
+            rep.add("6-inventory", "select", "#filter-status", True,
+                    caption="Show only low and out-of-stock parts",
+                    xy=_xy_of(page, "#filter-status"))
+        except Exception as e:
+            rep.add("6-inventory", "select", "#filter-status", False, str(e)[:60])
+        dwell(page, 1200)
+
+    # search a part by name - the everyday action
+    if page.query_selector("#search-input"):
+        try:
+            type_into(page, "#search-input", "bearing", per_char_ms=110)
+            rep.add("6-inventory", "type", "#search-input", True,
+                    caption="Search a part by name",
+                    xy=_xy_of(page, "#search-input"))
+            dwell(page, 1300)
+        except Exception as e:
+            rep.add("6-inventory", "type", "#search-input", False, str(e)[:60])
+
+    # open one part's detail
+    for sel in ["#inv-list .part-row", "#inv-list > *:first-child",
+                "[data-part-id]", ".part-card"]:
+        if page.query_selector(sel):
+            try_click(page, rep, "6-inventory", [sel],
+                      caption="Open the part to see stock, location and history")
+            dwell(page, 1800)
+            break
+    park(page)
+
+
+def act7_pm(page, rep):
+    """COMPLETE PM journey: the schedule -> pick an asset -> its task list ->
+    tick a task done. The story is 'PMs stop slipping'."""
+    from demo_cursor import scroll as wh_scroll
+    goto(page, "pm-scheduler.html")
+    dwell(page, 1200)
+    rep.add("7-pm", "open", "pm-scheduler.html", True,
+            caption="PM scheduler - what is due, per machine")
+
+    wh_scroll(page, 300, 850, rep, "7-pm",
+              caption="Every asset with its PM status")
+    dwell(page, 700)
+
+    if page.query_selector("#asset-search"):
+        try:
+            type_into(page, "#asset-search", "pump", per_char_ms=115)
+            rep.add("7-pm", "type", "#asset-search", True,
+                    caption="Find the machine you are working on",
+                    xy=_xy_of(page, "#asset-search"))
+            dwell(page, 1300)
+        except Exception as e:
+            rep.add("7-pm", "type", "#asset-search", False, str(e)[:60])
+
+    for sel in ["#asset-list > *:first-child", "#asset-list .asset-row",
+                "[data-asset-id]"]:
+        if page.query_selector(sel):
+            try_click(page, rep, "7-pm", [sel],
+                      caption="Open its PM checklist")
+            dwell(page, 1800)
+            break
+
+    # the payoff: a task actually ticked off
+    for sel in ["#det-tasks input[type=checkbox]", "#det-tasks .task-item",
+                "#det-tasks > *:first-child"]:
+        if page.query_selector(sel):
+            try_click(page, rep, "7-pm", [sel],
+                      caption="Tick a PM task as done - it logs itself")
+            dwell(page, 1700)
+            break
+    park(page)
+
+
+def act8_dayplanner(page, rep):
+    """COMPLETE day-planner journey: the verdict -> today's load -> the
+    calendar -> open a job. The story is 'you know what today looks like'."""
+    from demo_cursor import scroll as wh_scroll
+    goto(page, "dayplanner.html")
+    dwell(page, 1300)
+    rep.add("8-dayplanner", "open", "dayplanner.html", True,
+            caption="Day planner - your whole day, decided")
+
+    # the verdict card is the page's headline answer
+    if page.query_selector("#dp-verdict"):
+        rep.add("8-dayplanner", "read", "#dp-verdict", True,
+                caption="Today's verdict: overdue, due, and this week",
+                xy=_xy_of(page, "#dp-verdict"))
+        dwell(page, 1600)
+
+    wh_scroll(page, 360, 950, rep, "8-dayplanner",
+              caption="Scroll to the day's schedule")
+    dwell(page, 900)
+
+    if page.query_selector("#calendar-wrap"):
+        rep.add("8-dayplanner", "read", "#calendar-wrap", True,
+                caption="Every job on a real calendar",
+                xy=_xy_of(page, "#calendar-wrap"))
+        dwell(page, 1500)
+
+    for sel in ["#calendar-wrap .fc-event", "#calendar-wrap [data-event-id]",
+                ".dp-job-row", "#dp-summary-details"]:
+        if page.query_selector(sel):
+            try_click(page, rep, "8-dayplanner", [sel],
+                      caption="Open a job to see what it needs")
+            dwell(page, 1800)
+            break
+    park(page)
+
+
+ACTS = {1: act1_hive, 2: act2_logbook, 3: act3_asset, 4: act4_assistant,
+        5: act5_pm, 6: act6_inventory, 7: act7_pm, 8: act8_dayplanner}
 
 
 def run(acts=(1, 2, 3, 4, 5), dry_run=False, headed=False):

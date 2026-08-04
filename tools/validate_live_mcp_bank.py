@@ -92,7 +92,13 @@ def gate_ids():
             src = f.read()
     except Exception:
         return set()
-    return set(re.findall(r'"id"\s*:\s*"([a-z0-9_]+)"', src))
+    # The character class used to be [a-z0-9_], which cannot match a HYPHEN -- and the gate registry
+    # names gates like "edge-status-body", "admin-gates", "abort-timeout". Measured 2026-08-04: the
+    # old pattern saw 186 of the 732 registered ids, so 546 gates (75% of the registry) were invisible
+    # and rule R2 rejected any evidence citing them. The bank could only ever cite the underscore
+    # quarter of its own gate suite, which silently pushed walks toward weaker live-walk evidence when
+    # a whole-layer gate was the stronger proof available.
+    return set(re.findall(r'"id"\s*:\s*"([a-z0-9_-]+)"', src))
 
 
 def surface_urls(reg):
