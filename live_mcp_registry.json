@@ -13305,8 +13305,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "money_matches_ledger",
       "oracle": "every peso and credit figure equals the canonical view, to the centavo",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP + psql - /workhive/marketplace.html",
+        "asserts": "every peso and credit figure equals the canonical view, to the centavo",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "d1c1df9f56d4c7f4",
+        "walked_at": "2026-08-04",
+        "checked": "Every credits-back figure on the discovery surface equals 10.000% of its OWN listing price, matched against service_knob_pct(reward_pct) = 10 rather than against another chip: 9 priced listings, ratio exactly 10 on all of them (PHP68,980.48 -> PHP6,898.05, PHP20,309.48 -> PHP2,030.95, PHP140,298.89 -> PHP14,029.89, and six more). This is the figure that had silently become PHP0 on every listing when a NULL cap was read through Number(null)."
+      }
     },
     {
       "id": "LM-BC-ufai-F-market-buyer-idempotent_repeat",
@@ -13452,15 +13465,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP + psql per-figure check · /workhive/marketplace-seller.html",
-        "asserts": "every count equals the count its own predicate returns, including the geo-filtered one",
+        "ref": "2026-08-04 live MCP + psql - /workhive/marketplace-seller.html",
+        "asserts": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
         "value_checked": true,
-        "checked": "Harvested all 12 numeric figures the seller surface renders and checked each against psql from ITS OWN source. All 12 agree: Listings 2 == 2 published; Sales 0 == 0 sold; New Inquiries 0 == 0 pending; wallet ₱-200 == person_credit_balance(-200.00); Held by live listings ₱0 == 0 open reservations (a GENUINE zero, correctly rendered as ₱0 rather than a gap); Credit wallet ₱-200.00; My active jobs 0 == 0 in accepted/en_route/on_site/in_progress; Recently finished 2 == 2 in completed/settled. ONE needed care rather than a verdict: \"Open requests near you 0\" against 1 broadcasting request platform-wide. Read as a mismatch it would be a defect; read correctly it is the point of the phrase. v_service_open_broadcasts filters on st_distance(request.location, provider.base_location) against the broadcast radius, and queried AS PABLO (jwt claims + role) it returns 0. The screen and the source agree; the one open request is simply outside his service area. RE-WALKED 2026-08-04 (4), after the Arc-P em-dash ratchet fixes to marketplace-seller.html and platform-actions.html. Five displayed labels were REWRITTEN (an em dash in body copy is what that gate is for, and escaping it would satisfy the counter while leaving the copy unchanged): 'Credit liability: services owed, not profit' and its four siblings now read with a colon. Four LONE gap characters were re-spelled as the '—' escape instead, matching what utils.js already does -- and the escape was proven to evaluate to the character at runtime (charCode 8212), not to leak the six letters into the DOM. Re-walked live: both surfaces re-loaded, all six states re-run with edge and script_name LANDED, layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, the repaired pending-top-up row still fitting its full 291px, admin cover still 1.32x, the seller gap note fitting its column at 390. Seam/layer rows re-proved: base-vs-view identical on all three top-ups, and status/body agreeing on the wire including anon-on-treasury 401. One artifact recorded rather than filed: the seller page briefly showed the Baybayin probe name after an induction, which a genuinely fresh load corrected, with 0 Baybayin rows and 0 probe titles in the database -- the induction never wrote. RE-WALKED 2026-08-04 (5) after the 'Go to top up' route was added to the credit wallet: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), and layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 -- the new control itself measuring 98x44.",
         "depends_on": [
-          "marketplace-seller.html"
+          "marketplace-seller.html",
+          "utils.js"
         ],
-        "sha": "ccdbfb483cdf236b",
-        "walked_at": "2026-08-04"
+        "sha": "9ab7aa7d5d9a8727",
+        "walked_at": "2026-08-04",
+        "checked": "'2 Listings' on screen = 2 rows in marketplace_listings for Pablo Aguilar. Measured against the page's OWN predicate rather than a guessed one: the page queries v_marketplace_listings_truth filtered by seller_name with NO status filter, so the count it shows is every listing it owns. My first psql query guessed status='approved' and returned 0 -- the real value is 'published', and reading the status distribution rather than trusting the guess is what caught it. A count check that assumes the wrong predicate reports a defect that is not there."
       }
     },
     {
@@ -13477,15 +13491,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP + psql per-figure check · /workhive/marketplace-seller.html",
-        "asserts": "every money figure on the seller surface equals its own source",
+        "ref": "2026-08-04 live MCP + psql - /workhive/marketplace-seller.html",
+        "asserts": "every peso and credit figure equals the canonical view, to the centavo",
         "value_checked": true,
-        "checked": "Harvested all 12 numeric figures the seller surface renders and checked each against psql from ITS OWN source. All 12 agree: Listings 2 == 2 published; Sales 0 == 0 sold; New Inquiries 0 == 0 pending; wallet ₱-200 == person_credit_balance(-200.00); Held by live listings ₱0 == 0 open reservations (a GENUINE zero, correctly rendered as ₱0 rather than a gap); Credit wallet ₱-200.00; My active jobs 0 == 0 in accepted/en_route/on_site/in_progress; Recently finished 2 == 2 in completed/settled. ONE needed care rather than a verdict: \"Open requests near you 0\" against 1 broadcasting request platform-wide. Read as a mismatch it would be a defect; read correctly it is the point of the phrase. v_service_open_broadcasts filters on st_distance(request.location, provider.base_location) against the broadcast radius, and queried AS PABLO (jwt claims + role) it returns 0. The screen and the source agree; the one open request is simply outside his service area. RE-WALKED 2026-08-04 (4), after the Arc-P em-dash ratchet fixes to marketplace-seller.html and platform-actions.html. Five displayed labels were REWRITTEN (an em dash in body copy is what that gate is for, and escaping it would satisfy the counter while leaving the copy unchanged): 'Credit liability: services owed, not profit' and its four siblings now read with a colon. Four LONE gap characters were re-spelled as the '—' escape instead, matching what utils.js already does -- and the escape was proven to evaluate to the character at runtime (charCode 8212), not to leak the six letters into the DOM. Re-walked live: both surfaces re-loaded, all six states re-run with edge and script_name LANDED, layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, the repaired pending-top-up row still fitting its full 291px, admin cover still 1.32x, the seller gap note fitting its column at 390. Seam/layer rows re-proved: base-vs-view identical on all three top-ups, and status/body agreeing on the wire including anon-on-treasury 401. One artifact recorded rather than filed: the seller page briefly showed the Baybayin probe name after an induction, which a genuinely fresh load corrected, with 0 Baybayin rows and 0 probe titles in the database -- the induction never wrote. RE-WALKED 2026-08-04 (5) after the 'Go to top up' route was added to the credit wallet: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), and layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 -- the new control itself measuring 98x44.",
         "depends_on": [
-          "marketplace-seller.html"
+          "marketplace-seller.html",
+          "utils.js"
         ],
-        "sha": "ccdbfb483cdf236b",
-        "walked_at": "2026-08-04"
+        "sha": "9ab7aa7d5d9a8727",
+        "walked_at": "2026-08-04",
+        "checked": "The wallet reads PHP-200 available / PHP0 held. The RPC the page actually calls (seller_credit_balance) returns available -200, reserved 0, total -200 -- and to avoid comparing the screen against the source it already reads, the RPC was checked against the LEDGER itself: Pablo's rows sum to -200.00. Screen = RPC = ledger. The ledger holds exactly ONE row for him, 'commission -200.00', which is the repealed-commission overhang still standing against his account."
       }
     },
     {
@@ -13524,8 +13539,20 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "effect_in_db",
       "oracle": "the happy path's effect is present in the database, asserted by psql",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP + psql - /workhive/platform-actions.html",
+        "asserts": "the happy path's effect is present in the database, asserted by psql",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html"
+        ],
+        "sha": "b33bcc485cadd886",
+        "walked_at": "2026-08-04",
+        "checked": "The money surface's happy path is 'verify a filed top-up and credits are minted', and it was PERFORMED rather than reasoned about -- inside a transaction that was rolled back, so nothing persisted. BEFORE: issued 1500.00, Pablo -200.00. Verified topup 2d302380 (UPDATE 1 row). AFTER: issued 1800.00 and Pablo 100.00, with the ledger now holding TWO rows for him -- 'topup 300.00' created by the trigger alongside the existing 'commission -200.00'. The effect is therefore present in the database at three places at once (treasury counter, ledger row, holder balance) and they agree: +300 minted, +300 credited, exactly once. ROLLBACK, then re-read outside the transaction: issued back to 1500.00 and the top-up back to pending_verification. Nothing was written."
+      }
     },
     {
       "id": "LM-BC-ufai-F-admin-buyer-effect_visible",
@@ -13579,15 +13606,15 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP + psql per-figure check · /workhive/platform-actions.html | re-walked 2026-08-04",
-        "asserts": "every money figure on the surface equals its own source to the centavo",
+        "ref": "2026-08-04 live MCP + psql - /workhive/platform-actions.html",
+        "asserts": "every peso and credit figure equals the canonical view, to the centavo",
         "value_checked": true,
-        "checked": "Harvested EVERY numeric figure the admin surface renders (14 of them, each with its own label) and checked each against psql computed from ITS OWN source — never against another tile, which is the failure mode this oracle exists for. 13 matched exactly: liability ₱1,140.00, cap 10,000,000, issued 1,500, available 9,998,500, top-ups pending 1, drafts 3, sellers unverified 9, feedback 10/new 10, and the tab counters. ONE DID NOT, and it was the solvency tile: cover read 1.63 while cash-in / credits-owed is 1.32. The formula was (topups + earned) / liability, adding the PHP360 commission to the numerator. Commission is taken IN CREDITS, not new cash — proven in the ledger: the three commission rows are NEGATIVE amounts on PROVIDER accounts (-200, -80, -80) with NO positive platform leg, and issued_credits does not move when one fires (1500 still equals the minting-only sum). No peso enters the business; 360 credits leave circulation. That benefit is ALREADY in the denominator (liability fell 1500 -> 1140 because of it), so the numerator counted it twice and overstated solvency by 24% on the one tile whose entire job is to say \"keep at or above 1.00\". FIXED to topups / liability. Verified live: the tile now reads 1.32x matching psql, every other figure unchanged. RE-WALKED 2026-08-04 (2). Two page edits expired this row -- marketplace.html's .sheet gained env(safe-area-inset-bottom) and platform-actions.html's .mod-main gained a flex basis. The re-walk is not a re-stamp: each surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner (populated/empty/error/edge/script_name/degraded), and the money figures re-read -- marketplace chips PHP6,898.05 / PHP2,030.95 / PHP14,029.89 each 10% of their own listing, admin liability PHP1,140.00 and cover 1.32x. The runner itself was tightened during this walk: edge/script_name now REQUIRE the induced payload to have rendered, and public-feed was a false green under the old rule. RE-WALKED 2026-08-04 (4), after the Arc-P em-dash ratchet fixes to marketplace-seller.html and platform-actions.html. Five displayed labels were REWRITTEN (an em dash in body copy is what that gate is for, and escaping it would satisfy the counter while leaving the copy unchanged): 'Credit liability: services owed, not profit' and its four siblings now read with a colon. Four LONE gap characters were re-spelled as the '—' escape instead, matching what utils.js already does -- and the escape was proven to evaluate to the character at runtime (charCode 8212), not to leak the six letters into the DOM. Re-walked live: both surfaces re-loaded, all six states re-run with edge and script_name LANDED, layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, the repaired pending-top-up row still fitting its full 291px, admin cover still 1.32x, the seller gap note fitting its column at 390. Seam/layer rows re-proved: base-vs-view identical on all three top-ups, and status/body agreeing on the wire including anon-on-treasury 401. One artifact recorded rather than filed: the seller page briefly showed the Baybayin probe name after an induction, which a genuinely fresh load corrected, with 0 Baybayin rows and 0 probe titles in the database -- the induction never wrote.",
         "depends_on": [
           "platform-actions.html"
         ],
         "sha": "b33bcc485cadd886",
-        "walked_at": "2026-08-04"
+        "walked_at": "2026-08-04",
+        "checked": "Seven figures compared to psql to the centavo, none of them read from another part of the screen: liability PHP1,140.00 = ledger net 1140.00; issued 1,500 = 1500.00; cap 10,000,000 = 10000000.00; available to issue 9,998,500 = (cap - issued) 9998500.00; the pending queue's 'PHP300 - ref 1005556667770' = amount 300.00 with that exact gcash_ref; and cover 1.32x = 1.315789 rounded, computed as verified topups / liability. That last one matters: it is the CORRECTED ratio, not the (topups + earned)/liability that double-counted commission and overstated cover as 1.63."
       }
     },
     {
