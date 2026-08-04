@@ -666,18 +666,49 @@
     // E2 consistent states: shimmer skeleton while listings fetch so the grid
     // never flashes blank before cards render (shared whListSkeleton).
     if (grid && typeof whListSkeleton === 'function') whListSkeleton(grid, 6);
+    /* AND SAY SOMETHING IF IT DRAGS. whQueryTimeout bounds this read at 15s, but a skeleton that
+       shimmers in silence for fifteen seconds is only technically not-infinite -- measured by the
+       failure lens at 4s in: stuckSkeleton true, saysSomething FALSE. Four seconds is past "fast" and
+       well short of the ceiling, so it is the moment to admit the wait rather than the moment to give
+       up. Cleared in the finally below on every path. */
+    let _slowNote = setTimeout(() => {
+      const g = document.getElementById('listing-grid');
+      if (g && !g.querySelector('.wh-slow-note')) {
+        g.insertAdjacentHTML('afterbegin',
+          '<p class="wh-slow-note" role="status" style="grid-column:1/-1;font-size:0.75rem;color:var(--wh-text-muted);margin:0 0 0.5rem;">'
+          + 'Still loading this seller’s listings… taking longer than usual.</p>');
+      }
+    }, 4000);
     try {
-      const { data, error, status } = await db
-        .from('v_marketplace_listings_truth')
-        .select('id,title,section,category,condition,price,location,image_url,created_at')
-        .eq('seller_name', WORKER_VIEW)
-        .eq('status', 'published')
-        .order('created_at', { ascending: false })
-        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(60);
+      /* BOUNDED, or the skeleton above is the eternal one. A supabase-js query never passes through
+         fetchWithTimeout, so a stalled read had no ceiling and whListSkeleton would shimmer for ever
+         -- measured 2026-08-04, stuckSkeleton true and saysSomething false with no end. whQueryTimeout
+         resolves in supabase's own {data,error} shape, so the catch below already knows what to do
+         with it and reads a hang as the connection problem it is. */
+      const { data, error, status } = await (typeof whQueryTimeout === 'function'
+        ? whQueryTimeout(db
+            .from('v_marketplace_listings_truth')
+            .select('id,title,section,category,condition,price,location,image_url,created_at')
+            .eq('seller_name', WORKER_VIEW)
+            .eq('status', 'published')
+            .order('created_at', { ascending: false })
+            .order('id')   // MR4 tiebreaker: the sort above is not total on its own
+            .limit(60), 15000, 'this seller’s listings')
+        : db
+            .from('v_marketplace_listings_truth')
+            .select('id,title,section,category,condition,price,location,image_url,created_at')
+            .eq('seller_name', WORKER_VIEW)
+            .eq('status', 'published')
+            .order('created_at', { ascending: false })
+            .order('id')
+            .limit(60));
       if (error) { if (status) error._httpStatus = status; throw error; }
       _listings = data || [];
+      _listingsResolved = true;
+      clearTimeout(_slowNote);
     } catch (err) {
+      _listingsResolved = true;   // it answered, with a failure; that is still an answer
+      clearTimeout(_slowNote);
       // E2 consistent states: a failed fetch shows an inline error + Retry (shared
       // whListError), distinct from the empty-listings state renderListings shows.
       console.warn('seller listings load failed:', err.message || err);
@@ -771,10 +802,25 @@
   }
 
   /* ── Load reviews ───────────────────────────────────────────────────── */
+  let _reviewsResolved = false;   // an invitation shown mid-read is a lie with a friendly face
+  let _listingsResolved = false;  // ...and reviews cannot conclude before listings have
+
   async function loadReviews() {
+    _reviewsResolved = false;   // reset per RUN: a retry must not inherit the last run's answer
     try {
       const listingIds = _listings.map(l => l.id);
-      if (!listingIds.length) { _reviews = []; renderReviews(); return; }
+      /* NO LISTINGS YET IS NOT NO REVIEWS. This function derives its query from _listings, so while
+         the listings read is in flight _listings is empty -- and this early return used to read that
+         as "this seller has no reviews", set resolved, and print the invitation. Measured 2026-08-04:
+         a seller WITH a review showed "No reviews yet" for the whole of a slow listings read.
+         Absent listings mean UNKNOWN reviews. Only a settled listings read with genuinely zero rows
+         can conclude anything, and _listingsResolved is what tells the two apart. */
+      if (!listingIds.length) {
+        _reviews = [];
+        _reviewsResolved = _listingsResolved;   // conclude only if the listings read actually answered
+        renderReviews();
+        return;
+      }
 
       const { data } = await db
         .from('marketplace_reviews')
@@ -785,6 +831,7 @@
         .limit(REVIEWS_SHOWN);
       _reviews = data || [];
     } catch (_) { _reviews = []; }
+    _reviewsResolved = true;
     renderReviews();
   }
 
@@ -825,6 +872,13 @@
     }
 
     if (!_reviews.length) {
+      /* NOT UNTIL THE READ HAS ANSWERED. An empty-state invitation rendered while the query is still
+         in flight is a lie with a friendly face: it says "this seller has no reviews" at a moment when
+         the page does not yet know. Measured 2026-08-04 by the slow_honest lens -- prematureEmptyState
+         true, and inviteAtRest FALSE, which is the tell: the invitation appeared ONLY during the slow
+         state, never once the data had arrived. The markup's own "Loading reviews…" is the honest
+         thing to leave on screen until then. */
+      if (!_reviewsResolved) return;
       /* MK13 (2026-07-24): this used to read "Reviews will appear here after buyers submit them." —
          a promise the product cannot keep. Both pages that touch marketplace_reviews only SELECT from
          it; there is no review-submission UI anywhere in the app, so no buyer can write one. That also
