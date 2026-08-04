@@ -384,7 +384,11 @@
       m = m || {};
       if (m._error) {
         box.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`;
-        setCount('svc-topups-count', 0, '');
+        /* A FAILED READ WAS SETTING THE BADGE TO 0. "Top-ups 0" beside a card that just said it
+           could not load tells an admin there is nothing waiting, on the queue where waiting means
+           somebody has paid and is owed credits. Same shape as the cover badge fixed earlier, in the
+           sibling queue: the failure path was writing the number instead of admitting the gap. */
+        setCount('svc-topups-count', '—', '');
         return;
       }
       const rows = m.rows || [];
@@ -593,9 +597,13 @@
       if (m._error) {
         // A permission boundary is not a fault: a non-admin simply may not see the platform's books.
         const boundary = m._code === '42501' || /permission denied/i.test(m._error);
+        /* The boundary branch was already right; the OTHER branch still printed the raw string, so a
+           rate limit on the solvency card read "Couldn't load the credit position: rate limit
+           exceeded" -- naming the limit and never the wait, which is the half an admin can act on.
+           _queueErr covers 429 and 401 and falls back to the original sentence otherwise. */
         box.innerHTML = `<div class="mod-empty">${e(boundary
           ? emptyText('Not visible with this session - sign in as a platform admin to see the credit position.')
-          : "Couldn't load the credit position: " + m._error)}</div>`;
+          : _queueErr(m))}</div>`;
         /* NOT ZERO. The card correctly says "not visible with this session", and then this badge
            said "0" beside it -- and on a solvency console a cover of 0 does not read as "unknown",
            it reads as "the platform cannot cover its liabilities at all". The markup's own initial
@@ -807,8 +815,10 @@
       if (!list) return;
 
       if (_fb.error) {
-        list.innerHTML = `<div class="mod-empty">Couldn't load feedback: ${e(_fb.error)}</div>`;
-        setCount('fb-count-badge', 0, '');
+        // Third instance of the same shape on this page: the failure path writing a 0 into the badge,
+        // so an unread feedback queue reads as an empty one. The gap says it does not know.
+        list.innerHTML = `<div class="mod-empty">${e(_queueErr({ _error: _fb.error, _code: _fb.code, _status: _fb.status }))}</div>`;
+        setCount('fb-count-badge', '—', '');
         return;
       }
 
