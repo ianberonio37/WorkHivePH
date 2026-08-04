@@ -13059,8 +13059,20 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "units_visible",
       "oracle": "the unit is on screen beside the number, not implied by position",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html",
+        "asserts": "the unit is on screen beside the number, not implied by position",
+        "value_checked": true,
+        "depends_on": [
+          "platform-actions.html"
+        ],
+        "sha": "b33bcc485cadd886",
+        "walked_at": "2026-08-04",
+        "checked": "13 bare numbers on the admin money surface, 0 of them genuinely unitless. THE PROBE HAD TO BE CALIBRATED TWICE BEFORE ITS ANSWER WAS WORTH ANYTHING, and both wrong answers were mine:\n  · v1 demanded a physical unit token and flagged 10 -- including '1,500 / Issued: minted into circulation so far'. For a COUNT the counted noun IS the unit, and that label names it.\n  · v2 accepted a naming label and flagged 5, all of them feedback-triage filter chips ('New 10', 'Triaged 0', 'In progress 0', 'Resolved 0', 'All 10'). Reading them settles it: a filter chip's noun comes from the section heading it sits under ('Feedback from users'), which is exactly what 'the unit is on screen beside the number' means for a filtered count.\nThe money figures all carry their unit explicitly: PHP1,140.00, 1.32x, and the credit counts sit against 'Total WorkHive Credits: the cap', 'Issued: minted into circulation so far', 'Available to issue: still unissued in the treasury'. Filing those 10, or those 5, would have been ten or five defects that do not exist -- which is why the rule here is to read what the probe returned rather than to count it."
+      }
     },
     {
       "id": "LM-BB-ufai-U-admin-buyer-no_raw_enum",

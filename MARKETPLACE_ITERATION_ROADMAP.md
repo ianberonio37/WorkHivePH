@@ -177,6 +177,17 @@ NEXT: F3 BF-ui-layout CLOSED — 35/35, all seven surfaces at three VERIFIED wid
 
 ## §5 · OPEN FOR IAN
 
+- **THE OFFLINE-WRITE DECISION (blocks 5 BD rows).** Offline, the seller's Save *fires* two writes
+  instead of refusing — there is no pre-flight guard — and the write is then lost. The copy half is
+  fixed: the shared connectivity widget was promising *"pending writes save to this device and drain
+  automatically"* on **every** page, which is earned only on the six that register a queue; all four
+  marketplace surfaces register none (three of them load `offline-queue.js` and never call it). It
+  now tells the truth per page. **The behaviour is unchanged and deliberately so.** Closing these
+  rows means either a pre-flight refusal on the marketplace writes, or real queue adoption on those
+  four surfaces — and queueing a **GCash top-up filing** is not free: a filing that drains later can
+  land *after* the provider gave up and re-filed, which is the duplicate the unique index exists to
+  refuse. Your call on which.
+
 - **THE CONTRAST DECISION (blocks the last 14 F3 rows).** Two findings that are really one:
   - **axe cannot see it.** axe-core reports **0 contrast violations** on every surface — and
     *abstains* on the text it cannot read: **185 incomplete nodes on marketplace, 39 on
