@@ -1414,6 +1414,12 @@
   async function handleEditSubmit(ev) {
     ev.preventDefault();
     if (!_editItem) return;
+    /* OFFLINE FIRES INTO THE DARK AND SAYS IT WORKED. Measured 2026-08-04: offline, this path sent
+       the PATCH and toasted 'Listing updated. Re-submitted for review.' The 2026-07-29 sweep guarded
+       every svc* path and stopped at the service boundary; every listing and inquiry write on this
+       page was left. A false confirmation is worse than a silent failure -- the seller closes the
+       sheet believing the price change is live. */
+    if (!svcRequireOnline('Saving this listing')) return;
 
     const id       = document.getElementById('edit-id')?.value || '';
     const title    = (document.getElementById('edit-title')?.value || '').trim();
@@ -1488,6 +1494,7 @@
 
   /* ── Delete draft ───────────────────────────────────────────────────────── */
   async function handleDelete(id) {
+    if (!svcRequireOnline('Deleting a listing')) return;
     const item = _listings.find(l => l.id === id);
     if (!item || item.status !== 'draft') return;
     if (!(await window.whConfirm(`Delete "${item.title}"? This cannot be undone.`, { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
@@ -1507,6 +1514,7 @@
 
   /* ── Inquiry reply ──────────────────────────────────────────────────────── */
   async function handleReply(inqId) {
+    if (!svcRequireOnline('Sending your reply')) return;
     const textarea = document.querySelector(`.reply-textarea[data-inq-id="${inqId}"]`);
     const replyText = (textarea?.value || '').trim();
     const now = new Date().toISOString();
@@ -1528,6 +1536,7 @@
   }
 
   async function handleCloseInquiry(inqId) {
+    if (!svcRequireOnline('Closing this inquiry')) return;
     try {
       const { error } = await db.from('marketplace_inquiries').update({ status: 'closed' }).eq('id', inqId);
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
@@ -2572,6 +2581,7 @@
 
   /* ── Save Messenger handle ──────────────────────────────────────────────── */
   async function handleSaveMessenger() {
+    if (!svcRequireOnline('Saving your messenger username')) return;
     const input = document.getElementById('messenger-input');
     const btn   = document.getElementById('btn-save-messenger');
     const preview = document.getElementById('messenger-preview');
@@ -2621,6 +2631,7 @@
 
   /* ── Save certifications (admin verification flips the badge) ──────────── */
   async function handleSaveCerts() {
+    if (!svcRequireOnline('Saving your certifications')) return;
     const input = document.getElementById('cert-input');
     const btn   = document.getElementById('btn-save-certs');
     const pill  = document.getElementById('cert-status-pill');
