@@ -325,6 +325,22 @@
        A raw 42501 can also be PostgREST's own "permission denied for table X", which tells an admin
        nothing, so the grant-shaped wording is still filtered out and falls back to the session
        branch below. */
+    /* ONE VOCABULARY PER CONCEPT, and this queue had its own. A price of 0 means NEGOTIABLE across
+       the whole platform -- the grid, the seller dashboard and the public profile all render it that
+       way -- but the moderation row rendered a bare "₱0". A moderator deciding whether to publish a
+       listing was reading a different fact from the one the seller entered and the buyer will see,
+       and "₱0" reads like a mistake worth rejecting. Measured 2026-08-05 by injecting a zero-price
+       and a null-price row into the queue.
+       The moderator still needs the stored value, so say both where they differ, rather than picking
+       one side and hiding the other. */
+    function _modPrice(p) {
+      if (p === null || p === undefined || p === '') return 'price not set';
+      const n = Number(p);
+      if (!isFinite(n)) return 'price unreadable';
+      if (n === 0) return 'Negotiable (listed at ₱0)';
+      return '₱' + n.toLocaleString();
+    }
+
     function refusalMessage(err) {
       const code = String(err && (err.code || err.errcode) || '');
       const msg = String(err && err.message || '').trim();
@@ -508,7 +524,7 @@
           const _mine = !!(_me && l.seller_name && String(l.seller_name).trim() === String(_me).trim()); return `
           <div class="mod-row">
             <div class="mod-main"><strong>${e(l.title || 'Untitled')}</strong>
-              <span class="mod-sub">${e(l.section || '')}${l.category ? ' · ' + e(l.category) : ''} · ${l.price != null ? '₱' + Number(l.price).toLocaleString() : 'price n/a'} · ${e(l.seller_name || '\u2014')}</span></div>
+              <span class="mod-sub">${e(l.section || '')}${l.category ? ' · ' + e(l.category) : ''} · ${_modPrice(l.price)} · ${e(l.seller_name || '\u2014')}</span></div>
             ${_mine ? '<span class="mod-sub" style="display:block;margin-top:0.2rem;">Your own listing: another admin has to review this one.</span>' : ''}
             <div class="mod-actions">
               ${_mine ? '' : `<button class="mod-btn ok" data-mkt-act="approve-listing" data-id="${e(l.id)}">Approve</button>`}
