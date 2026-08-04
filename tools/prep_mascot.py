@@ -44,6 +44,8 @@ def main() -> int:
     ap.add_argument("--top", type=float, default=0.0)
     ap.add_argument("--bottom", type=float, default=1.0)
     ap.add_argument("--iters", type=int, default=6)
+    ap.add_argument("--fade-bottom", type=float, default=0.16,
+                    help="fraction of height faded to transparent at the base")
     a = ap.parse_args()
 
     src = Path(a.src)
@@ -65,7 +67,9 @@ def main() -> int:
     # GrabCut seeded with a rect inset from the crop: everything outside the
     # inset is treated as probable background, inside as probable foreground.
     mask = np.zeros((h, w), np.uint8)
-    inset = (int(w * 0.04), int(h * 0.02), int(w * 0.92), int(h * 0.97))
+    # NB: cv2 wants (x, y, WIDTH, HEIGHT) - not corners.
+    x, y = int(w * 0.03), int(h * 0.01)
+    inset = (x, y, int(w * 0.94) - x, int(h * 0.99) - y)
     bgd, fgd = np.zeros((1, 65), np.float64), np.zeros((1, 65), np.float64)
     cv2.grabCut(cv2.cvtColor(arr, cv2.COLOR_RGB2BGR), mask, inset,
                 bgd, fgd, a.iters, cv2.GC_INIT_WITH_RECT)
@@ -88,6 +92,21 @@ def main() -> int:
     bbox = out.getchannel("A").point(lambda v: 255 if v > 8 else 0).getbbox()
     if bbox:
         out = out.crop(bbox)
+
+    # SOFT BOTTOM FADE. The character's navy trousers and black boots sit on a
+    # dark factory floor, so no segmentation separates them - grabcut always
+    # ends the figure somewhere around the thigh. Rather than fight that, make
+    # the ending deliberate: ramp alpha to zero across the last band so the
+    # mascot dissolves into the (also dark) background instead of showing a
+    # hard amputation line. Half-figure is a normal hero treatment anyway.
+    if a.fade_bottom > 0:
+        import numpy as _np
+        al = _np.asarray(out.getchannel("A")).astype(_np.float32)
+        hh = al.shape[0]
+        band = max(1, int(hh * a.fade_bottom))
+        ramp = _np.linspace(1.0, 0.0, band).reshape(-1, 1)
+        al[hh - band:, :] *= ramp
+        out.putalpha(Image.fromarray(al.astype("uint8")))
 
     kept = float((np.asarray(out.getchannel("A")) > 8).mean())
     print(f"subject kept: {kept:.1%} of its bounding box")

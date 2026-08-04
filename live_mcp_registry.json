@@ -20189,8 +20189,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "back_out",
       "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "1100db7081391f00",
+        "walked_at": "2026-08-04",
+        "checked": "Browser BACK, not the sheet's close button -- the case a person actually hits and a click-the-X test never reaches. All three halves of the oracle measured in one pass:\n  ORPHANED OVERLAY : sheet-post .open is false -> true on open -> FALSE after history.back(). Back closes it rather than leaving it stranded over the page.\n  SCROLL LOCK      : body overflow goes hidden on open and is RELEASED after Back. A lock that survives the overlay is the version of this bug that leaves a page you cannot scroll and no visible cause.\n  HALF-WRITE       : marketplace_listings content-range reads 0-0/21 before and 0-0/21 after.\nTHE ORACLE HAD TO BE FIXED FIRST. My initial check used getClientRects().length to decide whether the sheet was open, and it reported the sheet VISIBLE BEFORE IT WAS OPENED -- the sheet is translated off-screen, not display:none, so it always has rects. That would have filed 'Back does not close the overlay' against a page that closes it correctly. The classList 'open' flag discriminates (closed 'sheet' vs open 'sheet open'), and the probe now shows false->true->false rather than a constant."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-market-buyer-session_died",

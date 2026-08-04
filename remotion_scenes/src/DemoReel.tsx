@@ -36,11 +36,22 @@ import {CameraMotionBlur} from '@remotion/motion-blur';
 
 // WorkHive palette in light-world ROLES: CLOUD is the brand's own light token
 // (FlagshipReel CLOUD / site --text inverse), INK the site ink; accents as-is.
-const CLOUD = '#F4F6FA';          // card world      (sample measured #F4F4F4)
-const PALE = '#E4EDF7';           // product backdrop (sample measured #DDEAF7)
-const INK = '#16202F';            // type             (sample uses near-black)
-const CYAN = '#38BDF8';
-const BLACK = '#050608';          // device-reveal stage
+// THE MASCOT POSTER IS THE DESIGN BRIEF (Ian, 2026-08-04: "revolve your
+// animation to that concept of my mascot image, it has more information").
+//
+// The poster is a dark INDUSTRIAL world - deep navy, hexagon motifs, amber and
+// cyan accents, white display type - with the 3D bee as the guide and a named
+// feature list down the left. That replaces the borrowed light-SaaS palette
+// wholesale. It also fixes a fight the light world could never win: WorkHive's
+// own UI is dark navy, so light cards made every screen recording look pasted
+// on. Now the chrome and the product share one world.
+const CLOUD = '#0D1928';          // the world (poster backdrop)
+const PALE = '#101C2E';           // behind product footage
+const INK = '#FFFFFF';            // display type is white here, not near-black
+const INK_DIM = '#9FB2C9';
+const CYAN = '#29B6F6';           // poster cyan
+const AMBER = '#F5A623';          // poster amber
+const BLACK = '#05090F';          // device-reveal stage
 
 const FPS = 30;
 const sec = (s: number) => Math.round(s * FPS);
@@ -99,62 +110,25 @@ export const DEMO_DURATION = DEMO_BEATS.reduce((a, b) => a + b.frames, 0);
 const Word: React.FC<{text: string; accent?: boolean; frames: number}> = ({text, accent, frames}) => {
   const f = useCurrentFrame();
   const {height} = useVideoConfig();
-  // TRACED, not styled (tools/trace_motion_curve.py, curve_word1.json): the
-  // sample word is LOCKED - scale flat, blur 0.01, zero drift - for ~11
-  // frames, then ERUPTS (blur 0.95, scale sweeping 0.74->1.07) across ~5-6
-  // frames, and the NEXT word is already locked dead-sharp one frame later.
-  // A word is never seen animating: it is locked, or it is mush. Twelve
-  // spring variants failed because they showed the in-between.
+  // traced grammar kept: LOCKED, then a short blur ERUPTION out.
   const ERUPT = 6;
-  const k = Math.max(0, f - (frames - ERUPT)) / ERUPT;    // 0 locked .. 1 gone
-  const arriving = f < 2 ? (2 - f) / 2 : 0;               // <=2f residual snap
+  const k = Math.max(0, f - (frames - ERUPT)) / ERUPT;
+  const arriving = f < 2 ? (2 - f) / 2 : 0;
   const e = Math.pow(k, 1.6);
   return (
     <AbsoluteFill style={{background: CLOUD, alignItems: 'center', justifyContent: 'center'}}>
+      <HexField opacity={0.55} />
       <div style={{
         fontFamily: FONT, fontWeight: 800,
-        fontSize: height * (accent ? 0.28 : 0.24),
-        color: accent ? ORANGE : INK,
-        transform: `scale(${1 + e * 0.38}) translateX(${e * height * 0.06}px)`,
+        fontSize: height * (accent ? 0.2 : 0.17),
+        color: accent ? AMBER : INK,
+        letterSpacing: '-0.01em', textAlign: 'center', lineHeight: 1.05,
+        maxWidth: '86%',
+        transform: `scale(${1 + e * 0.34}) translateX(${e * height * 0.05}px)`,
         filter: `blur(${e * 26 + arriving * 8}px)`,
         opacity: 1 - e * 0.65,
       }}>{text}</div>
     </AbsoluteFill>
-  );
-};
-
-// THE WORKHIVE MASCOT (Ian: "I want this mascot to be added to the video").
-// Rendered from the project's own vector bee (tools/render_mascot_svg.py) so
-// the alpha is genuinely transparent at any size.
-//
-// PLACEMENT RULE, from the banked content-direction feedback: the product
-// screenshots are the hero and the mascot must never sit on top of them. So
-// the bee appears ONLY on card beats - the logo sting, the chapter titles,
-// the end card - where there is no product on screen to compete with.
-const Mascot: React.FC<{
-  side?: 'left' | 'right'; heightFrac?: number; delay?: number; wave?: boolean;
-}> = ({side = 'right', heightFrac = 0.42, delay = 0, wave = false}) => {
-  const f = useCurrentFrame();
-  const {fps, height} = useVideoConfig();
-  const s = spring({frame: f - delay, fps,
-                    config: {damping: 14, stiffness: 90, mass: 0.8}});
-  const bob = Math.sin((f - delay) / fps * 2.1) * height * 0.008;   // alive, not busy
-  const tilt = wave ? Math.sin((f - delay) / fps * 6.5) * 5 : 0;    // a wave
-  const edge = side === 'right' ? 1 : -1;
-  return (
-    <div style={{
-      position: 'absolute', bottom: 0,
-      [side]: `${height * 0.02}px`,
-      height: height * heightFrac,
-      transform: `translateY(${(1 - s) * height * 0.5 + bob}px) rotate(${tilt}deg)`,
-      transformOrigin: '50% 90%',
-      opacity: s,
-    }}>
-      <Img src={staticFile('mascot-cut.png')}
-           style={{height: '100%', width: 'auto', display: 'block',
-                   transform: edge < 0 ? 'scaleX(-1)' : undefined,
-                   filter: 'drop-shadow(0 10px 24px rgba(16,24,38,.28))'}} />
-    </div>
   );
 };
 
@@ -166,6 +140,7 @@ const Logo: React.FC<{frames: number}> = ({frames}) => {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
     <AbsoluteFill style={{background: CLOUD, alignItems: 'center', justifyContent: 'center'}}>
+      <HexField opacity={0.6} />
       <Img src={staticFile('workhive-logo-clean.png')}
            style={{height: height * 0.38, transform: `scale(${0.86 + 0.14 * s})`,
                    opacity: s * out}} />
@@ -177,53 +152,56 @@ const Logo: React.FC<{frames: number}> = ({frames}) => {
 // curls — the sample's "Extract Data from Your Documents" move), then a
 // physics SCATTER exit (letters fly apart with gravity — its
 // "Track/Compliance/Deadlines" move). Deterministic velocities via random(seed).
-const Title: React.FC<{lines: string[]; frames: number; side?: 'left' | 'right'}> = ({lines, frames, side = 'right'}) => {
+// The poster's feature row, promoted to a full chapter card: an amber hex
+// badge, the feature name in white display type, a cyan rule, and the mascot
+// standing beside it. This is the poster's own layout language rather than a
+// borrowed kinetic-type card.
+const Title: React.FC<{lines: string[]; frames: number; side?: 'left' | 'right'}> =
+({lines, frames, side = 'right'}) => {
   const f = useCurrentFrame();
   const {fps, height} = useVideoConfig();
-  // TRACED (curve_title_enter/scatter.json): lines POP in one at a time -
-  // sharp ON the arrival frame, ~0.45s apart, with only a 3-4 frame sharpen
-  // settle. Before the scatter the whole stack INFLATES (~1.0 -> 1.35 with a
-  // wobble) for ~6 frames, THEN erupts downward. Holds are LOCKED.
-  const SCATTER_AT = frames - 14;
-  const INFLATE_AT = SCATTER_AT - 6;
-  const ex = Math.max(0, f - SCATTER_AT);
-  const inflate = f >= INFLATE_AT && ex === 0
-    ? 1 + 0.3 * Math.sin(((f - INFLATE_AT) / 6) * Math.PI * 0.9)
-    : 1;
-  let letterIndex = 0;
+  const s0 = spring({frame: f * 1.9, fps, config: {damping: 16, stiffness: 200, mass: 0.5}});
+  const out = interpolate(f, [frames - 8, frames], [1, 0],
+    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const hex = (sz: number) => {
+    const pts = Array.from({length: 6}, (_, k) => {
+      const a2 = (Math.PI / 180) * (60 * k - 30);
+      return `${sz / 2 + (sz / 2) * Math.cos(a2)},${sz / 2 + (sz / 2) * Math.sin(a2)}`;
+    }).join(' ');
+    return (
+      <svg width={sz} height={sz}><polygon points={pts} fill="none"
+        stroke={AMBER} strokeWidth={sz * 0.055} /></svg>
+    );
+  };
   return (
-    <AbsoluteFill style={{background: CLOUD, alignItems: 'center', justifyContent: 'center'}}>
-      <div style={{transform: `scale(${inflate})`}}>
-        {lines.map((ln, li) => {
-          const lineAt = li * 14;                    // ~0.45s stagger
-          const on = f >= lineAt;
-          const settle = Math.max(0, 4 - (f - lineAt));   // 4-frame sharpen
-          return (
-            <div key={li} style={{textAlign: 'center', whiteSpace: 'pre',
-                                  lineHeight: 1.12, opacity: on ? 1 : 0}}>
-              {ln.split('').map((ch, ci) => {
-                const i = letterIndex++;
-                const vx = (random(`x${li}-${ci}`) - 0.5) * height * 0.10;
-                const vy = -random(`y${li}-${ci}`) * height * 0.06;
-                const sx = ex * vx * 0.35;
-                const sy = ex * vy * 0.5 + ex * ex * height * 0.0045;  // faster fall
-                const srot = ex * (random(`r${li}-${ci}`) - 0.5) * 30;
-                const op = ex > 0 ? Math.max(0, 1 - ex / 7) : 1;   // gone in ~7f
-                return (
-                  <span key={ci} style={{
-                    display: 'inline-block',
-                    fontFamily: FONT, fontWeight: 800, color: INK,
-                    fontSize: height * 0.135,
-                    transform: `translate(${sx}px, ${sy}px) rotate(${srot}deg) scale(${ex > 0 ? Math.max(0.25, 1 - ex * 0.12) : 1})`,
-                    filter: ex > 0 ? `blur(${Math.min(30, ex * ex * 1.6)}px)` : `blur(${settle * 1.6}px)`,
-                    opacity: op,
-                  }}>{ch === ' ' ? ' ' : ch}</span>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
+    <AbsoluteFill style={{background: CLOUD}}>
+      <HexField opacity={0.5} />
+      <Mascot side={side} heightFrac={0.72} delay={4} />
+      <AbsoluteFill style={{
+        justifyContent: 'center',
+        alignItems: side === 'right' ? 'flex-start' : 'flex-end',
+        padding: `0 ${height * 0.09}px`, opacity: out,
+      }}>
+        <div style={{transform: `translateX(${(1 - s0) * (side === 'right' ? -1 : 1) * height * 0.12}px)`,
+                     opacity: Math.min(1, s0 * 1.4),
+                     textAlign: side === 'right' ? 'left' : 'right'}}>
+          <div style={{marginBottom: height * 0.028,
+                       display: 'flex',
+                       justifyContent: side === 'right' ? 'flex-start' : 'flex-end'}}>
+            {hex(height * 0.10)}
+          </div>
+          {lines.map((ln, li) => (
+            <div key={li} style={{fontFamily: FONT, fontWeight: 800,
+                                  fontSize: height * 0.105, color: INK,
+                                  lineHeight: 1.08, letterSpacing: '-0.01em'}}>{ln}</div>
+          ))}
+          <div style={{marginTop: height * 0.03,
+                       marginLeft: side === 'right' ? 0 : 'auto',
+                       width: height * 0.22 * Math.min(1, s0 * 1.2),
+                       height: Math.max(2, height * 0.006),
+                       background: CYAN}} />
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
@@ -375,6 +353,7 @@ const Section: React.FC<{seg: number; frames: number}> = ({seg, frames}) => {
   return (
     <AbsoluteFill style={{background: PALE, alignItems: 'center',
                           justifyContent: 'center'}}>
+      <HexField opacity={0.35} />
       <div style={{
         width: width * 0.935, height: height * 0.94,
         borderRadius: 12, overflow: 'hidden',
@@ -421,17 +400,27 @@ const Whip: React.FC<{frames: number}> = ({frames}) => {
 const End: React.FC = () => {
   const f = useCurrentFrame();
   const {fps, height} = useVideoConfig();
-  const s = spring({frame: f, fps, config: {damping: 15, stiffness: 90}});
+  const s0 = spring({frame: f, fps, config: {damping: 15, stiffness: 90}});
   return (
-    <AbsoluteFill style={{background: CLOUD, alignItems: 'center',
-                          justifyContent: 'center', gap: height * 0.05}}>
-      <Img src={staticFile('workhive-logo-clean.png')}
-           style={{height: height * 0.30, opacity: s,
-                   transform: `scale(${0.9 + 0.1 * s})`}} />
-      <div style={{fontFamily: FONT, fontWeight: 800, fontSize: height * 0.075,
-                   color: INK, opacity: s}}>Built for the plant floor.</div>
-      <div style={{fontFamily: FONT, fontWeight: 600, fontSize: height * 0.042,
-                   color: CYAN, opacity: s}}>workhiveph.com · start free</div>
+    <AbsoluteFill style={{background: CLOUD}}>
+      <HexField opacity={0.6} />
+      <Mascot side="right" heightFrac={0.8} delay={10} />
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'flex-start',
+                            padding: `0 ${height * 0.1}px`}}>
+        <div style={{opacity: s0, transform: `translateY(${(1 - s0) * height * 0.05}px)`}}>
+          <Img src={staticFile('workhive-logo-clean.png')}
+               style={{height: height * 0.19, display: 'block',
+                       marginBottom: height * 0.05}} />
+          <div style={{fontFamily: FONT, fontWeight: 800, fontSize: height * 0.082,
+                       color: INK, lineHeight: 1.12}}>Track every machine.</div>
+          <div style={{fontFamily: FONT, fontWeight: 800, fontSize: height * 0.082,
+                       color: AMBER, lineHeight: 1.12}}>Stop breakdowns.</div>
+          <div style={{marginTop: height * 0.045, fontFamily: FONT, fontWeight: 600,
+                       fontSize: height * 0.04, color: CYAN}}>
+            workhiveph.com · free in your browser
+          </div>
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
