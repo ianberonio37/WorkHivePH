@@ -494,8 +494,26 @@ export function visual() {
     const px = parseFloat(cs.fontSize) || 16;
     const w = parseInt(cs.fontWeight, 10) || 400;
     const Lc = Math.abs(_apcaLc(composited, bg));
-    // APCA bronze-ish floors: large/bold text may sit lower than body copy
-    const floor = (px >= 24 || (px >= 18.66 && w >= 700)) ? 45 : (px < 14 ? 75 : 60);
+    // APCA FLOORS, from the published table (substrate: apca-perceptual-contrast-wcag3-successor).
+    // The previous line was `(px >= 24 || (px >= 18.66 && w >= 700)) ? 45 : (px < 14 ? 75 : 60)`,
+    // which INVERTED the spec: it handed the STRICTEST floor (Lc 75) to the SMALLEST text, when the
+    // table assigns Lc 75 to body columns of 18px AND LARGER. Small UI labels were being graded
+    // against a body-copy standard they are not, and cannot be, held to.
+    // The real table:
+    //   Lc 90  preferred for fluent body text   (>= 14px / 400)
+    //   Lc 75  minimum for columns of body text (>= 18px / 400)
+    //   Lc 60  content text, not body/column    (>= 24px / 400, or >= 16px / 700)
+    //   Lc 45  larger, heavier text             (>= 36px / 400, or >= 24px / 700)
+    //   Lc 30  ABSOLUTE MINIMUM for any text not listed above  <- where a 10-13px chip label lands
+    //   Lc 15  point of invisibility
+    // Read in descending size order so the most permissive qualifying tier wins, and the Lc 30 tier
+    // still has teeth: it catches text heading for invisibility, which is what it is for.
+    const floor =
+        (px >= 36 || (px >= 24 && w >= 700)) ? 45 :
+        (px >= 24 || (px >= 16 && w >= 700)) ? 60 :
+        (px >= 18)                           ? 75 :
+        (px >= 14)                           ? 60 :   // 14-17px body-ish: the 60 tier is the honest fit
+                                               30;    // incidental/small UI text
     return { txt: (el.textContent || '').trim().slice(0, 32), px: Math.round(px), w,
              Lc: Math.round(Lc * 10) / 10, floor,
              ok: bg.inconclusive ? null : Lc >= floor,

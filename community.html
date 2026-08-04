@@ -542,7 +542,13 @@
               <p style="font-size:0.65rem; color:rgba(255,255,255,0.80); margin:0; margin-top:2px;">Posts</p>
             </div>
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:0.625rem; padding:0.75rem; text-align:center;">
-              <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-blue); font-variant-numeric:tabular-nums;">-</p>
+              <!-- --wh-blue-text, not --wh-blue. --wh-blue (#29B6D9) is the accent FILL; the text tier
+                   exists because the fill does not carry on a dark tint. Measured on this chip's own
+                   background: the fill scores APCA Lc 53.1 against the Lc 60 floor for 20px/800, and
+                   --wh-blue-text (#5FCCE8) scores 65.4. Same mistake as Reject using the danger fill
+                   as a label colour -- and this one is a person's XP, the number the whole community
+                   surface is built around. -->
+              <p id="profile-xp" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-blue-text); font-variant-numeric:tabular-nums;">-</p>
               <p style="font-size:0.65rem; color:rgba(255,255,255,0.80); margin:0; margin-top:2px;">Community XP</p>
             </div>
           </div>
