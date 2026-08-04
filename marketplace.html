@@ -3778,8 +3778,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            would hail a ₱0 overhaul, and a provider would be asked to travel to a site and work for
            nothing. Absent is not zero, and on a rate card it is the difference between a price and a
            promise nobody can keep. Say the rate is unavailable and let the server price it. */
+        /* ...AND THE GUARD WAS AIMED AT THE WRONG VALUE. It defends against NULL — but
+           service_catalog.base_rate is NOT NULL, so that case cannot arise from the table; what the
+           schema DOES allow is `CHECK (base_rate >= 0)`, i.e. ZERO. Measured 2026-08-04 by injecting
+           one: the option rendered "Electrical - VFD Commissioning & Parameter Tune (₱0/visit)".
+           That is the exact failure the note above describes, reached by the value the constraint
+           permits rather than the one it forbids: a buyer would hail a ₱0 commissioning, and a
+           provider would be asked to drive to a site and work for nothing.
+           A rate of 0 on a rate card is not a price, it is a missing one — and the pane already says
+           "the provider confirms on accept", so saying so costs nothing. The NULL branch stays: this
+           reads a VIEW, and a view can produce a NULL its base table cannot. */
         '>' + e(c.category) + ' - ' + e(c.name) + ' (' +
           (c.base_rate === null || c.base_rate === undefined || !isFinite(Number(c.base_rate))
+            || Number(c.base_rate) <= 0
             ? 'rate unavailable'
             : '₱' + Number(c.base_rate).toLocaleString() + (c.unit === 'per_hour' ? '/hr' : '/visit')) + ')' +
         (c.requires_cert_level ? ' (certified only)' : '') + '</option>').join('') +
