@@ -192,10 +192,22 @@
 
     <div class="card" id="sec-mkt-mod">
       <div class="card-hdr"><h2>Listings awaiting review</h2><span id="mkt-listings-count" class="count">-</span></div>
+      <!-- SAY WHAT THE BUTTON DOES, BEFORE IT IS PRESSED. Measured 2026-08-04: this surface explained
+           every number it showed (15 numbers, 0 unexplained) and never what follows an action, on a
+           queue whose buttons publish listings to every buyer and mint trust badges. The same silence
+           was measured on four other surfaces; this is the first of them to say it. -->
+      <p class="mod-sub" style="margin:0 0 0.6rem;">Approve publishes the listing to every buyer
+        immediately, and it can still be removed later. Reject asks you for a reason, and the seller
+        sees that reason and can fix and resubmit. A listing can only go live if its seller holds 10%
+        of the price in credits, so a refusal here may be about their balance rather than your
+        decision.</p>
       <div id="mkt-listings-content"><div class="mod-empty">Loading…</div></div>
     </div>
     <div class="card">
       <div class="card-hdr"><h2>Sellers awaiting verification</h2><span id="mkt-sellers-count" class="count">-</span></div>
+      <p class="mod-sub" style="margin:0 0 0.6rem;">Verifying a seller changes what buyers see of them
+        everywhere on the platform, not just here: the ID-verified badge appears on every listing they
+        have and on their public profile, and buyers filter for it by default.</p>
       <div id="mkt-sellers-content"><div class="mod-empty">Loading…</div></div>
     </div>
     <!-- RETIRED 2026-08-03: an "Open disputes" card read `marketplace_disputes` — 0 rows, no client

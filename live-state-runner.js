@@ -771,7 +771,14 @@ export function comprehension() {
     },
     // what happens next -- after an action, the surface says what and when
     next: {
-      saysWhatNext: /(what to do next|next step|we.ll|you.ll (get|receive|hear)|within \d|once (you|the)|after)/i.test(body),
+      // A CONSEQUENCE STATED PLAINLY IS STILL A CONSEQUENCE. This pattern only recognised a few
+      // phrasings ("what to do next", "we'll", "within N"), so a surface that says in plain words
+      // "Approve publishes the listing to every buyer immediately, and it can still be removed later"
+      // scored as saying nothing. The oracle is whether a person is told what FOLLOWS an action, not
+      // whether the copy uses a house phrase -- and an element-shaped test (does an .action-card
+      // exist) is even further from it. Match the SHAPE of a consequence: a present-tense verb about
+      // what the action does, a visibility change, a reversibility statement, or a timing promise.
+      saysWhatNext: /(what to do next|next step|we.ll|you.ll (get|receive|hear)|within \d|once (you|the)|after you|goes live|publishes|will be (sent|shown|live|notified)|can still be (removed|undone|changed)|cannot be undone|sees (that|your)|changes what|appears on|notifie[sd]|takes effect)/i.test(body),
       hasActionCard: !!m.querySelector('.action-card, #mk-action-text, .ac-text'),
       actionText: (m.querySelector('#mk-action-text, .ac-text') || {}).innerText || null,
     },
