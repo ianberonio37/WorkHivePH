@@ -17737,6 +17737,12 @@
           "severity": "false-green-withdrawn",
           "title": "axe reported 0 violations and 185 INCOMPLETE; a scan that abstains is not a pass",
           "measured": "MY OWN FALSE GREEN, CAUGHT AND WITHDRAWN. This row was banked green on 'axe ran with 0 violations at every state'. axe reported 0 VIOLATIONS and 185 INCOMPLETE nodes on this surface -- 158 of them for the single reason \"Element's background color could not be determined due to a background gradient\", plus 9 obscured, 11 non-text, 7 too-short. axe does not fail those; it ABSTAINS on them, and a scan that abstains on 185 nodes has not established that the text on this page meets WCAG AA. It established that it could not tell. The platform has recorded this exact class before (axe '0 violations' = FALSE 100, 233 SERIOUS incomplete), and I walked into it anyway by reading the violations count and not the incomplete count.\nThe same blindness sits on every gradient-backed surface: marketplace 185 incomplete, marketplace-seller 39.\nWHAT CAN MEASURE THEM: the BH APCA lens, because its compositor averages gradient colour stops instead of giving up -- the same fix that stopped it scoring the seller's Save button as 'invisible'. So on precisely the nodes where axe abstains, APCA has a number, and that number says 273 of 552 text nodes across the seven surfaces are below their perceptual floor. contrast_wcag is OWED until the WCAG question is answered for the abstained nodes rather than assumed from a violations count of zero."
+        },
+        {
+          "severity": "measured-partial",
+          "state": "contrast_wcag",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
         }
       ]
     },
@@ -17756,6 +17762,12 @@
           "severity": "defect-open",
           "title": "APCA: 103 of 126 text nodes sit below their perceptual floor while WCAG AA passes",
           "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 10-11px category and trust chips at Lc 45-58. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        },
+        {
+          "severity": "measured-partial",
+          "state": "contrast_apca",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
         }
       ]
     },
@@ -17848,7 +17860,14 @@
       "state": "contrast_wcag",
       "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "measured-partial",
+          "state": "contrast_wcag",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-market_svc-buyer-contrast_apca",
@@ -17866,6 +17885,12 @@
           "severity": "defect-open",
           "title": "APCA: 15 of 40 text nodes sit below their perceptual floor while WCAG AA passes",
           "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 11px Searches at Lc 45.4 and the 13px section tabs at Lc 51.6. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        },
+        {
+          "severity": "measured-partial",
+          "state": "contrast_apca",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
         }
       ]
     },
@@ -17958,7 +17983,14 @@
       "state": "contrast_wcag",
       "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "measured-partial",
+          "state": "contrast_wcag",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-seller-buyer-contrast_apca",
@@ -17976,6 +18008,12 @@
           "severity": "defect-open",
           "title": "APCA: 34 of 48 text nodes sit below their perceptual floor while WCAG AA passes",
           "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 10-12px status chips (Published / Draft / Removed) at Lc 41-56. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        },
+        {
+          "severity": "measured-partial",
+          "state": "contrast_apca",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
         }
       ]
     },
@@ -18074,7 +18112,14 @@
       "state": "contrast_wcag",
       "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "measured-partial",
+          "state": "contrast_wcag",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-admin-buyer-contrast_apca",
@@ -18092,6 +18137,12 @@
           "severity": "defect-open",
           "title": "APCA: 31 of 122 text nodes sit below their perceptual floor while WCAG AA passes",
           "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: the 13px Reject action on the money queue at Lc 44. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        },
+        {
+          "severity": "measured-partial",
+          "state": "contrast_apca",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
         }
       ]
     },
@@ -18181,7 +18232,14 @@
       "state": "contrast_wcag",
       "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "measured-partial",
+          "state": "contrast_wcag",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-profile-buyer-contrast_apca",
@@ -18199,6 +18257,12 @@
           "severity": "defect-open",
           "title": "APCA: 38 of 58 text nodes sit below their perceptual floor while WCAG AA passes",
           "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 12px credential lines (PRC Registered, TESDA NC II) at Lc 42.7. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        },
+        {
+          "severity": "measured-partial",
+          "state": "contrast_apca",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
         }
       ]
     },
@@ -18291,7 +18355,14 @@
       "state": "contrast_wcag",
       "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "measured-partial",
+          "state": "contrast_wcag",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-community-buyer-contrast_apca",
@@ -18309,6 +18380,12 @@
           "severity": "defect-open",
           "title": "APCA: 39 of 92 text nodes sit below their perceptual floor while WCAG AA passes",
           "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 10px Announcement chip at Lc 43 and the 13px author name at Lc 45.4. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        },
+        {
+          "severity": "measured-partial",
+          "state": "contrast_apca",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
         }
       ]
     },
@@ -18401,7 +18478,14 @@
       "state": "contrast_wcag",
       "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
       "status": "owed",
-      "findings": []
+      "findings": [
+        {
+          "severity": "measured-partial",
+          "state": "contrast_wcag",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
+        }
+      ]
     },
     {
       "id": "LM-BH-ui-visual-public_feed-buyer-contrast_apca",
@@ -18419,6 +18503,12 @@
           "severity": "defect-open",
           "title": "APCA: 13 of 66 text nodes sit below their perceptual floor while WCAG AA passes",
           "measured": "Measured live 2026-08-04 with a gradient-aware compositor. The instrument was verified against APCA's published anchors BEFORE any verdict was recorded: black on white 106.0, white on black -107.9, #888 on white 63.1 -- all matching. It was also wrong once and corrected: reading backgroundColor alone reported the seller's Save button as Lc 0 ('invisible') when it is dark navy on a BRIGHT ORANGE gradient, and 41 of 49 text nodes on that surface sit over a gradient, so nearly every first reading was false. Averaging the gradient's colour stops fixed it and the Save button left the failure list. Worst on this surface: 10px category chips at Lc 58.4. axe-core reports 0 WCAG violations on the same text, which is the point: WCAG grades a contrast RATIO and APCA grades perceptual lightness, and they disagree hardest on small text. NOT FIXED: the cause is the platform's small-text colour tokens at 10-13px, so the remedy changes how the product LOOKS across every surface. That is Ian's call, not a probe's."
+        },
+        {
+          "severity": "measured-partial",
+          "state": "contrast_apca",
+          "walked_at": "2026-08-04",
+          "detail": "DECIDED AND PARTLY FIXED, not banked. The standard question is settled from the substrate: grade text on this dark theme against APCA, not WCAG - WCAG 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is this whole platform. That was recorded in feedback_apca_perceptual_contrast_c5 and needed no further decision.\nSHARED ROOT FIXED: --wh-steel-bright raised #A9B6C4 -> #CFD7E0 and --wh-text-muted 0.62 -> 0.80, both solved on the REAL composited backgrounds with an APCA implementation validated against its published anchors (106.04 / -107.88 / 63.06) to the centesimal first. 46 hardcoded #9aa6b3 in marketplace.html were pointed at the token, which is what the token comment already required.\nMEASURED A/B on one page by flipping the token in place: 126 strings measured, 103 failing with the old value vs 86 with the new - 17 strings fixed. NOT GREEN: 86 still fail.\nINSTRUMENT CORRECTION that nearly cost a false green: apca.worst is a TOP-10 list, not the failure set. My first per-surface readings computed \"0 failing at >=14px\" over ten rows and would have banked 14 rows on a truncated view. The real fields are apca.measured and apca.failing.\nREMAINING, measured: most failures are sub-14px text, which is OUTSIDE APCA's table and is a legible-SIZE finding rather than a contrast one; plus the danger red #F87171 at Lc 44 on admin (4 of its worst 10), another hardcode bypassing its own --wh-red-300 token. Admin: 125 measured, 31 failing."
         }
       ]
     },

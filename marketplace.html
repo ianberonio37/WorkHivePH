@@ -98,7 +98,7 @@
     /* Page header — 1.5rem/24px keeps the top-level gap on the 8-pt grid (R1); 1.25rem=20px is off-scale. */
     .page-header { margin-bottom: 1.5rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; }
-    .page-header p { font-size: 0.8rem; color: #9aa6b3; margin-top: 0.2rem; }
+    .page-header p { font-size: 0.8rem; color: var(--wh-steel-bright); margin-top: 0.2rem; }
 
     /* Section tabs */
     /* THE MAIN NAVIGATION SPILLED ON A PHONE (found 2026-08-04, V-edge-content batch walk). Four
@@ -118,7 +118,7 @@
     .section-tabs::-webkit-scrollbar { display: none; }
     .section-tab {
       flex: 1 0 auto; min-height: 44px; padding: 0.6rem 0.75rem; border: none; border-radius: 0.5rem;
-      background: transparent; color: #9aa6b3;
+      background: transparent; color: var(--wh-steel-bright);
       font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
       cursor: pointer; transition: all 0.2s;
       display: flex; align-items: center; justify-content: center; gap: 0.4rem;
@@ -148,7 +148,7 @@
     /* Search + filter */
     .search-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
     .search-wrap { flex: 1; position: relative; }
-    .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9aa6b3; pointer-events: none; }
+    .search-wrap svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--wh-steel-bright); pointer-events: none; }
     .search-input {
       width: 100%; min-height: 44px; padding: 0.6rem 0.75rem 0.6rem 2.25rem;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
@@ -156,7 +156,7 @@
       font-family: 'Poppins', sans-serif; font-size: 1rem;
     }
     .search-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
-    .search-input::placeholder { color: #9aa6b3; }
+    .search-input::placeholder { color: var(--wh-steel-bright); }
     .btn-filter {
       padding: 0.6rem 0.875rem;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
@@ -176,10 +176,10 @@
       border-radius: var(--wh-radius); margin-bottom: 0.75rem;
     }
     .price-filter.show { display: block; }
-    .price-filter > label { font-size: 0.72rem; color: #9aa6b3; margin-bottom: 0.4rem; display: block; }
+    .price-filter > label { font-size: 0.72rem; color: var(--wh-steel-bright); margin-bottom: 0.4rem; display: block; }
     .price-range-row { display: flex; gap: 0.5rem; align-items: center; }
     .price-range-row input { flex: 1; }
-    .price-range-sep { color: #9aa6b3; font-size: 0.8rem; }
+    .price-range-sep { color: var(--wh-steel-bright); font-size: 0.8rem; }
 
     /* Filter chips */
     .filter-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
@@ -187,7 +187,7 @@
       display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px;
       padding: 0.3rem 0.75rem; border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(22,32,50,0.5); color: #9aa6b3;
+      background: rgba(22,32,50,0.5); color: var(--wh-steel-bright);
       font-size: 0.72rem; font-family: 'Poppins', sans-serif; cursor: pointer;
       transition: all 0.15s;
     }
@@ -196,7 +196,7 @@
     }
 
     /* Listings info */
-    .listings-info { font-size: 0.75rem; color: #9aa6b3; margin-bottom: 0.75rem; }
+    .listings-info { font-size: 0.75rem; color: var(--wh-steel-bright); margin-bottom: 0.75rem; }
     .listings-info span { color: var(--wh-orange); font-weight: 600; }
 
     /* Listing grid */
@@ -227,7 +227,7 @@
       width: 100%; aspect-ratio: 4 / 3;
       background: linear-gradient(135deg, rgba(42,61,88,0.8), rgba(22,32,50,0.9));
       display: flex; align-items: center; justify-content: center;
-      color: #9aa6b3; position: relative; overflow: hidden;
+      color: var(--wh-steel-bright); position: relative; overflow: hidden;
     }
     .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .card-badges { position: absolute; top: 0.5rem; left: 0.5rem; display: flex; gap: 0.3rem; flex-wrap: wrap; }
@@ -294,7 +294,7 @@
     .card-meta { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
     .cat-chip {
       padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600;
-      background: rgba(255,255,255,0.06); color: #9aa6b3; border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08);
     }
     /* Money coming BACK to the buyer, so it reads as a gain rather than another grey fact. Same chip
        geometry as .cat-chip beside it — the colour is the whole difference, because a card with two
@@ -304,7 +304,7 @@
     }
     .cond-chip { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.65rem; font-weight: 600; }
     .cond-chip.new   { background: rgba(74,222,128,0.1); color: var(--wh-green); border: 1px solid rgba(74,222,128,0.2); }
-    .cond-chip.used  { background: rgba(255,255,255,0.06); color: #9aa6b3; border: 1px solid rgba(255,255,255,0.1); }
+    .cond-chip.used  { background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.1); }
     .cond-chip.refurb { background: rgba(251,191,36,0.1); color: var(--wh-orange); border: 1px solid rgba(251,191,36,0.2); }
 
     /* Card footer */
@@ -321,9 +321,9 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 0.6rem; font-weight: 700; color:var(--wh-orange-text);
     }
-    .seller-name { font-size: 0.7rem; color: #9aa6b3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
+    .seller-name { font-size: 0.7rem; color: var(--wh-steel-bright); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
     .stars { color:var(--wh-orange-text); font-size: 0.7rem; letter-spacing: -1px; }
-    .rating-val { font-size: 0.7rem; color: #9aa6b3; }
+    .rating-val { font-size: 0.7rem; color: var(--wh-steel-bright); }
     .btn-view {
       padding: 0.35rem 0.75rem; border-radius: 0.5rem; cursor: pointer; min-height: 44px; /* D1 U2: gloved-field tap target */
       background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.25);
@@ -340,7 +340,7 @@
     .skel-card { border-radius: 1rem; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); background: linear-gradient(145deg, rgba(42,61,88,0.3), rgba(31,46,69,0.5)); }
 
     /* Empty state */
-    .empty-state { grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: #9aa6b3; }
+    .empty-state { grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: var(--wh-steel-bright); }
     .empty-state svg { opacity: 0.25; margin-bottom: 1rem; }
     .empty-state h3 { font-size: 1rem; font-weight: 700; color: var(--wh-cloud); margin-bottom: 0.4rem; }
     .empty-state p { font-size: 0.8rem; }
@@ -394,12 +394,12 @@
     .btn-close-sheet {
       width: 44px; height: 44px; border-radius: 50%; /* D1 U2: 32→44 gloved-field tap target */
       background: rgba(255,255,255,0.06); border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; color: #9aa6b3;
+      display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright);
     }
 
     /* Form elements */
     .form-group { margin-bottom: 1rem; }
-    .form-label { font-size: 0.75rem; font-weight: 600; color: #9aa6b3; margin-bottom: 0.4rem; display: block; }
+    .form-label { font-size: 0.75rem; font-weight: 600; color: var(--wh-steel-bright); margin-bottom: 0.4rem; display: block; }
     .wh-input {
       width: 100%; padding: 0.65rem 0.875rem;
       background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1);
@@ -407,7 +407,7 @@
       font-family: 'Poppins', sans-serif; font-size: 1rem;
     }
     .wh-input:focus { outline: none; border-color: rgba(247,162,27,0.4); }
-    .wh-input::placeholder { color: #9aa6b3; }
+    .wh-input::placeholder { color: var(--wh-steel-bright); }
     .wh-select {
       width: 100%; padding: 0.65rem 0.875rem;
       background: rgba(22,32,50,0.7); border: 1px solid rgba(255,255,255,0.1);
@@ -424,7 +424,7 @@
       resize: vertical; min-height: 80px;
     }
     .wh-textarea:focus { outline: none; border-color: rgba(247,162,27,0.4); }
-    .wh-textarea::placeholder { color: #9aa6b3; }
+    .wh-textarea::placeholder { color: var(--wh-steel-bright); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     @media (max-width: 400px) { .form-row { grid-template-columns: 1fr; } }
 
@@ -433,7 +433,7 @@
     .section-toggle-btn {
       flex: 1; padding: 0.5rem; text-align: center;
       background: rgba(22,32,50,0.5); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.5rem; color: #9aa6b3;
+      border-radius: 0.5rem; color: var(--wh-steel-bright);
       font-size: 0.72rem; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer;
       transition: all 0.15s; min-height: 44px; /* D1 U2 */
     }
@@ -482,14 +482,14 @@
       width: 100%; aspect-ratio: 16 / 9;
       background: linear-gradient(135deg, rgba(42,61,88,0.8), rgba(22,32,50,0.9));
       border-radius: 0.75rem; margin-bottom: 1rem;
-      display: flex; align-items: center; justify-content: center; color: #9aa6b3; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); overflow: hidden;
     }
     .detail-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .detail-price { font-size: 1.5rem; font-weight: 800; color: var(--wh-orange); margin-bottom: 0.25rem; }
     .detail-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; line-height: 1.3; }
     .detail-section { margin-bottom: 1.25rem; }
     .detail-section-label {
-      font-size: 0.72rem; font-weight: 600; color: #9aa6b3; text-transform: uppercase;
+      font-size: 0.72rem; font-weight: 600; color: var(--wh-steel-bright); text-transform: uppercase;
       letter-spacing: 0.05em; margin-bottom: 0.5rem;
     }
     .detail-description { font-size: 0.82rem; color: #b0b8c4; line-height: 1.6; }
@@ -509,7 +509,7 @@
     }
     .seller-card-info { flex: 1; min-width: 0; }
     .seller-card-name { font-size: 0.88rem; font-weight: 700; }
-    .seller-card-meta { font-size: 0.7rem; color: #9aa6b3; margin-top: 0.15rem; }
+    .seller-card-meta { font-size: 0.7rem; color: var(--wh-steel-bright); margin-top: 0.15rem; }
     .seller-badges { display: flex; gap: 0.35rem; margin-top: 0.35rem; flex-wrap: wrap; }
 
     /* Reviews */
@@ -517,7 +517,7 @@
     .review-item:last-child { border-bottom: none; }
     .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; }
     .review-author { font-size: 0.78rem; font-weight: 600; }
-    .review-date { font-size: 0.7rem; color: #9aa6b3; }
+    .review-date { font-size: 0.7rem; color: var(--wh-steel-bright); }
     .review-text { font-size: 0.78rem; color: #b0b8c4; line-height: 1.5; }
 
     /* Info notice */
@@ -758,7 +758,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <section id="parts-for-assets" style="display:none;margin:0.25rem 0 0.85rem;" aria-label="Parts for your assets">
     <div style="display:flex;align-items:baseline;gap:0.45rem;margin-bottom:0.45rem;flex-wrap:wrap;">
       <span style="font-size:0.82rem;font-weight:700;color:var(--wh-blue-text);">Parts for your assets</span>
-      <span style="font-size:0.68rem;color:#9aa6b3;">listed by other plants, matched to what you stock</span>
+      <span style="font-size:0.68rem;color:var(--wh-steel-bright);">listed by other plants, matched to what you stock</span>
     </div>
     <div id="parts-for-assets-rail" role="list" style="display:flex;gap:0.6rem;overflow-x:auto;padding-bottom:0.35rem;"></div>
   </section>
@@ -798,11 +798,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div id="compare-bar" style="display:none;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:0.875rem 1rem calc(0.875rem + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(15,25,35,0.85),rgba(15,25,35,0.98));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-top:1px solid rgba(247,162,27,0.2);">
   <div style="max-width:880px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
     <div style="font-size:0.85rem;font-weight:700;color:var(--wh-cloud);">
-      <span id="compare-count">0</span> <span style="color:#9aa6b3;font-weight:600;">selected</span>
-      <span style="font-size:0.7rem;color:#9aa6b3;font-weight:400;display:block;margin-top:0.15rem;">Tap up to 5 listings to request quotes</span>
+      <span id="compare-count">0</span> <span style="color:var(--wh-steel-bright);font-weight:600;">selected</span>
+      <span style="font-size:0.7rem;color:var(--wh-steel-bright);font-weight:400;display:block;margin-top:0.15rem;">Tap up to 5 listings to request quotes</span>
     </div>
     <div style="display:flex;gap:0.5rem;">
-      <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#9aa6b3;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;" data-i="clear">Clear</button>
+      <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--wh-steel-bright);font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;" data-i="clear">Clear</button>
       <button id="btn-compare-rfq" style="padding:0.55rem 1rem;border-radius:0.5rem;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));border:none;color:#0f1923;font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
         <span class="ic ic-send" aria-hidden="true"></span>
         <span data-i="requestquotes">Request Quotes</span>
@@ -865,7 +865,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         </button>
       </div>
       <textarea class="wh-textarea" id="post-desc" maxlength="2000" placeholder="Specs, compatibility, dimensions, quantity available..." required></textarea>
-      <div id="post-ai-assist-hint" style="font-size:0.68rem;color:#9aa6b3;margin-top:0.3rem;">AI drafts a category and description from your title, part number, and photo. Always review before posting.</div>
+      <div id="post-ai-assist-hint" style="font-size:0.68rem;color:var(--wh-steel-bright);margin-top:0.3rem;">AI drafts a category and description from your title, part number, and photo. Always review before posting.</div>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -888,14 +888,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <label for="post-image-file" class="form-label" data-i="photo">Photo (recommended)</label>
       <div id="post-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color 0.15s;">
         <input type="file" id="post-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
-        <div id="post-image-empty" style="color:#9aa6b3;">
+        <div id="post-image-empty" style="color:var(--wh-steel-bright);">
           <span class="ic ic-image ic-lg" aria-hidden="true"></span>
           <div style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);">Tap to add a photo</div>
           <div style="font-size:0.7rem;margin-top:0.2rem;">JPEG, PNG or WebP up to 5MB. Listings with photos get 3× more inquiries.</div>
         </div>
         <div id="post-image-preview" style="display:none;">
           <img id="post-image-preview-img" alt="Preview" style="max-width:100%;max-height:200px;border-radius:0.5rem;display:block;margin:0 auto;" />
-          <div id="post-image-status" style="font-size:0.7rem;color:#9aa6b3;margin-top:0.5rem;"></div>
+          <div id="post-image-status" style="font-size:0.7rem;color:var(--wh-steel-bright);margin-top:0.5rem;"></div>
           <button type="button" id="post-image-remove" style="margin-top:0.5rem;padding:0.35rem 0.75rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:0.5rem;color:var(--wh-red);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;" data-i="removephoto">Remove photo</button>
         </div>
       </div>
@@ -911,12 +911,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div id="quality-widget" style="margin-bottom:1rem;padding:0.875rem;background:rgba(22,32,50,0.5);border:1px solid rgba(255,255,255,0.07);border-radius:0.75rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
         <span style="font-size:0.78rem;font-weight:700;" title="WorkHive Marketplace Seller Score: platform-internal listing-quality composite (0-100)">Listing quality · WorkHive Marketplace Seller Score</span>
-        <span id="quality-score-num" style="font-size:0.95rem;font-weight:800;color:#9aa6b3;">0 / 100</span>
+        <span id="quality-score-num" style="font-size:0.95rem;font-weight:800;color:var(--wh-steel-bright);">0 / 100</span>
       </div>
       <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;">
         <div id="quality-bar" style="height:100%;width:0%;background:var(--wh-red);transition:width 0.3s,background 0.3s;"></div>
       </div>
-      <div id="quality-tips" style="margin-top:0.625rem;font-size:0.7rem;color:#9aa6b3;line-height:1.6;"></div>
+      <div id="quality-tips" style="margin-top:0.625rem;font-size:0.7rem;color:var(--wh-steel-bright);line-height:1.6;"></div>
     </div>
 
     <button type="submit" class="btn-primary" id="btn-submit-post" data-i="postlisting">Post Listing</button>
@@ -1004,7 +1004,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- Save current panel — only shown when at least one filter is active -->
   <div id="save-current-panel" style="display:none;background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.18);border-radius:0.75rem;padding:0.875rem;margin-bottom:1rem;">
     <div style="font-size:0.78rem;font-weight:700;margin-bottom:0.5rem;color:var(--wh-blue-text);">Save current search</div>
-    <div id="save-current-summary" style="font-size:0.72rem;color:#9aa6b3;margin-bottom:0.625rem;line-height:1.5;"></div>
+    <div id="save-current-summary" style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.625rem;line-height:1.5;"></div>
     <div class="form-group" style="margin-bottom:0.625rem;">
       <input aria-label="Name this search (e.g. HVAC Manila)" class="wh-input" type="text" id="save-search-name" placeholder="Name this search (e.g. HVAC Manila)" maxlength="60" style="font-size:1rem;" />
     </div>
@@ -1015,7 +1015,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   </div>
 
   <div id="saved-searches-content">
-    <div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
+    <div style="text-align:center;padding:2rem 1rem;color:var(--wh-steel-bright);">
       <span class="ic ic-saved ic-xl" aria-hidden="true"></span>
       <p style="margin-top:0.75rem;font-size:0.82rem;">Loading saved searches…</p>
     </div>
@@ -1072,7 +1072,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </button>
   </div>
   <div id="watchlist-content">
-    <div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
+    <div style="text-align:center;padding:2rem 1rem;color:var(--wh-steel-bright);">
       <span class="ic ic-save ic-xl" aria-hidden="true"></span>
       <p style="margin-top:0.75rem;font-size:0.82rem;">Loading saved listings…</p>
     </div>
@@ -1437,7 +1437,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = selected.map(item => `
         <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;background:rgba(255,255,255,0.04);border-radius:0.4rem;font-size:0.72rem;">
           <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--wh-cloud);">${e(item.title)}</span>
-          <span style="color:#9aa6b3;white-space:nowrap;">${e(item.seller_name || 'Seller')}</span>
+          <span style="color:var(--wh-steel-bright);white-space:nowrap;">${e(item.seller_name || 'Seller')}</span>
         </div>`).join('');
     }
     if (nameEl && WORKER_NAME && !nameEl.value) nameEl.value = WORKER_NAME;
@@ -1610,7 +1610,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } catch (_) { /* empty-catch-allow: counts are best-effort */ }
 
       if (!items.length) {
-        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:#9aa6b3;">
+        content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="text-align:center;padding:2rem 1rem;color:var(--wh-steel-bright);">
           <span class="ic ic-saved ic-xl" aria-hidden="true"></span>
           <h2 style="font-size:0.95rem;font-weight:700;color:var(--wh-cloud);margin:0.625rem 0 0.4rem;">No saved searches</h2>
           <p style="font-size:0.78rem;">Set filters above and save them here for quick reuse.</p>
@@ -1624,8 +1624,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const matchPill = Number(mm.new_count) > 0
           ? `<span style="font-size:0.62rem;font-weight:800;color:#1a1a1a;background:var(--wh-orange);border-radius:999px;padding:0.1rem 0.45rem;">${mm.new_count} new</span>`
           : (Number(mm.total_count) > 0
-              ? `<span style="font-size:0.62rem;color:#9aa6b3;">${mm.total_count} match${Number(mm.total_count) > 1 ? 'es' : ''}</span>`
-              : `<span style="font-size:0.62rem;color:#9aa6b3;">no matches yet</span>`);
+              ? `<span style="font-size:0.62rem;color:var(--wh-steel-bright);">${mm.total_count} match${Number(mm.total_count) > 1 ? 'es' : ''}</span>`
+              : `<span style="font-size:0.62rem;color:var(--wh-steel-bright);">no matches yet</span>`);
         const pieces = [];
         if (s.section)    pieces.push(s.section.charAt(0).toUpperCase() + s.section.slice(1));
         if (s.category)   pieces.push(s.category);
@@ -1642,7 +1642,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                 ${s.email ? '<span style="font-size:0.62rem;color:var(--wh-violet);background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);border-radius:999px;padding:0.1rem 0.45rem;">✉ Alerts on</span>' : ''}
               </span>
             </div>
-            <div style="font-size:0.72rem;color:#9aa6b3;margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
+            <div style="font-size:0.72rem;color:var(--wh-steel-bright);margin-bottom:0.625rem;">${e(pieces.join(' · ') || 'All listings')}</div>
             <div style="display:flex;gap:0.4rem;">
               <button class="btn-apply-search" data-id="${e(s.id)}" data-section="${e(s.section || 'parts')}" data-cat="${e(s.category || 'All')}" data-q="${e(s.query_text || '')}" data-min="${s.price_min ?? ''}" data-max="${s.price_max ?? ''}"
                 style="padding:0.4rem 0.875rem;border-radius:0.5rem;border:1px solid rgba(247,162,27,0.3);background:rgba(247,162,27,0.1);color:var(--wh-orange-text);font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;cursor:pointer;">Apply</button>
@@ -1860,7 +1860,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const ids = Array.from(_watchlist);
       if (!ids.length) {
         content/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-          <div style="text-align:center;padding:2.5rem 1rem;color:#9aa6b3;">
+          <div style="text-align:center;padding:2.5rem 1rem;color:var(--wh-steel-bright);">
             <span class="ic ic-save ic-xl" aria-hidden="true"></span>
             <h3 style="font-size:0.95rem;font-weight:700;color:var(--wh-cloud);margin:0.625rem 0 0.4rem;">No saved listings</h3>
             <p style="font-size:0.78rem;">Tap the heart on any listing to save it for later.</p>
@@ -1908,7 +1908,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             </div>
             <div style="flex:1;min-width:0;">
               <div style="font-size:0.82rem;font-weight:700;line-height:1.3;margin-bottom:0.2rem;">${e(item.title)}</div>
-              <div style="font-size:0.7rem;color:#9aa6b3;">
+              <div style="font-size:0.7rem;color:var(--wh-steel-bright);">
                 ${e(fmtPrice(item.price))} &nbsp;·&nbsp; ${e(item.section)} &nbsp;·&nbsp; ${e(item.seller_name || 'Seller')}
                 ${removed ? `<br><span style="color:var(--wh-red);">No longer available</span>` : ''}
               </div>
@@ -2734,13 +2734,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                   out.push(`<span title="Earned by helping teammates in the WorkHive community forum" style="display:inline-flex;align-items:center;gap:0.2rem;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.62rem;font-weight:700;background:rgba(41,182,217,0.15);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.35);">🐝 Community-trusted</span>`);
                 }
                 if (!out.length) {
-                  out.push(`<span class="cat-chip" style="font-size:0.62rem;color:#9aa6b3;">Unverified</span>`);
+                  out.push(`<span class="cat-chip" style="font-size:0.62rem;color:var(--wh-steel-bright);">Unverified</span>`);
                 }
                 return out.join('');
               })()}
             </div>
             ${sellerProfile?.cert_verified && sellerProfile?.certifications
-              ? `<div style="margin-top:0.5rem;font-size:0.7rem;color:#9aa6b3;line-height:1.5;"><strong style="color:var(--wh-violet);">Certifications:</strong> ${e((sellerProfile.certifications || '').split('\n').filter(c => c.trim()).join(' · '))}</div>`
+              ? `<div style="margin-top:0.5rem;font-size:0.7rem;color:var(--wh-steel-bright);line-height:1.5;"><strong style="color:var(--wh-violet);">Certifications:</strong> ${e((sellerProfile.certifications || '').split('\n').filter(c => c.trim()).join(' · '))}</div>`
               : ''}
           </div>
         </div>
@@ -3073,7 +3073,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           style="flex:0 0 auto;min-width:158px;max-width:200px;text-align:left;background:#141922;border:1px solid rgba(41,182,217,0.25);border-radius:0.6rem;padding:0.6rem 0.7rem;cursor:pointer;min-height:44px;">
           <div style="font-size:0.62rem;font-weight:700;color:var(--wh-blue-text);font-family:'JetBrains Mono',monospace;">#${e(r.part_number)}</div>
           <div style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e(r.title)}</div>
-          <div style="font-size:0.68rem;color:#9aa6b3;">${r.price != null ? whFmtPeso(r.price) : 'Negotiable'}${r.location ? ' · ' + e(r.location) : ''}</div>
+          <div style="font-size:0.68rem;color:var(--wh-steel-bright);">${r.price != null ? whFmtPeso(r.price) : 'Negotiable'}${r.location ? ' · ' + e(r.location) : ''}</div>
         </button>`).join('');
       sec.style.display = 'block';
     } catch (_) { sec.style.display = 'none'; }
@@ -3265,7 +3265,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (urlInput)   urlInput.value   = '';
     if (emptyView)   emptyView.style.display   = 'block';
     if (previewView) previewView.style.display = 'none';
-    if (statusEl)   { statusEl.style.color = '#9aa6b3'; statusEl.textContent = ''; }
+    if (statusEl)   { statusEl.style.color = 'var(--wh-steel-bright)'; statusEl.textContent = ''; }
   }
 
   /* ============================================================

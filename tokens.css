@@ -58,10 +58,23 @@ a.btn-secondary, button.btn-secondary, a.btn-ghost, button.btn-ghost { min-heigh
   --wh-navy-light:   #2A3D58;
   --wh-steel:        #7B8794;
   /* Muted label for DARK surfaces. --wh-steel is 3.3–3.9:1 on the wh-card
-     gradient (fails WCAG AA small-text); this value clears 4.5:1 on the
-     gradient's LIGHTEST stop while staying visibly quieter than --wh-cloud.
-     Keep --wh-steel itself for light surfaces (resume.html) where it passes. */
-  --wh-steel-bright: #A9B6C4;
+     gradient (fails WCAG AA small-text); Keep --wh-steel itself for light
+     surfaces (resume.html) where it passes.
+
+     RAISED #A9B6C4 -> #CFD7E0 (2026-08-04), graded against APCA rather than WCAG.
+     The old value cleared WCAG AA 4.5:1 and still failed perceptual contrast on a
+     dark theme: measured Lc 60.3 on the filter-chip background and 60.9 on the
+     card, against a body-text floor of Lc 75. WCAG 2.x is a luminance QUOTIENT and
+     overestimates legibility on dark backgrounds — which is this whole platform —
+     so "clears 4.5:1" was never evidence this label could be read.
+     Solved on the REAL composited backgrounds (chip rgba(22,32,50,0.5) over
+     rgb(15,25,35) = rgb(19,29,43); card rgb(15,25,35)), with the APCA
+     implementation validated against its published anchors (106.04 / -107.88 /
+     63.06) to the centesimal first:
+         #9aa6b3 -> 51.6   #A9B6C4 -> 60.3   #C3CCD6 -> 73.3   #CFD7E0 -> 80.0
+     #CFD7E0 is the first step clearing 75 with margin while staying visibly
+     quieter than --wh-cloud, so the hierarchy this token exists for survives. */
+  --wh-steel-bright: #CFD7E0;
   /* Danger TEXT on dark tints. The #f87171/#f87171 family measures 3.4–4.3:1 on
      the red-tinted card chips (fails AA small-text); red-300 clears 4.5:1 on
      every dark tint in use. Borders/backgrounds keep the stronger reds. */
@@ -139,12 +152,26 @@ a.btn-secondary, button.btn-secondary, a.btn-ghost, button.btn-ghost { min-heigh
   --wh-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --wh-dur-fast: 0.15s; --wh-dur: 0.2s; --wh-dur-slow: 0.25s;
 
-  /* Muted TEXT on dark surfaces — the recurring "secondary label" colour. Measured
-     floor: alpha >= 0.62 clears WCAG AA on the wh-card gradient. This is the ONE home
-     for it; a page must reference the token / .wh-text-muted, never hardcode an alpha.
-     (2026-07-16: it had been hand-set inline on 19 pages before this token existed.) */
-  --wh-text-muted:  rgba(255, 255, 255, 0.62);
-  --wh-text-faint:  rgba(255, 255, 255, 0.72); /* slightly brighter — hints, captions on darker tints */
+  /* Muted TEXT on dark surfaces — the recurring "secondary label" colour. This is the ONE
+     home for it; a page must reference the token / .wh-text-muted, never hardcode an alpha.
+     (2026-07-16: it had been hand-set inline on 19 pages before this token existed.)
+
+     GRADED AGAINST APCA, NOT WCAG (raised 2026-08-04). WCAG 2.x contrast is a luminance
+     QUOTIENT and systematically overestimates legibility on dark backgrounds — which is this
+     entire platform. The old value cleared WCAG AA and still read badly: measured on the live
+     card background rgb(15,25,35), alpha 0.62 scores APCA Lc 53.7 against a body-text floor of
+     Lc 75. Nine strings on the marketplace alone were failing at Lc 45-58 while WCAG called the
+     page green, which is exactly the blind spot APCA exists to close.
+     Solved on the real background rather than guessed, with the APCA implementation first
+     validated against its published anchors (black/white 106.04, white/black -107.88,
+     #888/#fff 63.06) to the centesimal:
+         alpha 0.62 -> Lc 53.7   0.75 -> 70.7   0.78 -> 74.4   0.80 -> 77.4   0.85 -> 84.6
+     0.80 is the first step that clears 75 with margin while staying visibly quieter than
+     --wh-cloud, so the hierarchy this token exists to express survives the fix.
+     APCA body floor is Lc 75 for 14-24px; Lc 90 is PREFERRED, not a floor, and text under 14px
+     is outside APCA's table (that is a legible-SIZE finding, not a contrast one). */
+  --wh-text-muted:  rgba(255, 255, 255, 0.80);
+  --wh-text-faint:  rgba(255, 255, 255, 0.86); /* brighter tier — hints, captions on darker tints; kept above muted */
 
 }
 
