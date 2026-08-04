@@ -19479,8 +19479,23 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "two_sided_same_object",
       "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back two-identity probe on one draft listing",
+        "asserts": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000004_listing_view_count.sql",
+          "supabase/migrations/20260520000017_v_marketplace_listings_truth.sql",
+          "supabase/migrations/20260616000000_fix_marketplace_active_listings.sql",
+          "supabase/migrations/20260706000002_marketplace_listings_realtime.sql"
+        ],
+        "sha": "b4e2996b0b4095ac",
+        "walked_at": "2026-08-04",
+        "checked": "TWO IDENTITIES, ONE OBJECT, in a single rolled-back transaction -- the half a single-identity walk structurally cannot see. The object is a real DRAFT listing (a9693ff2), chosen because a draft is exactly where the two views must legitimately DIFFER; on a published row both parties would agree and the probe would prove nothing.\n  OWNER (Bryan Garcia, the seller_name on the row):\n    sees his own draft ............ 1\n    can edit its price ........... 1\n  OTHER PARTY (Hector Salvador, a real non-admin in a different hive):\n    sees that same draft ......... 0\n    can edit it .................. 0\n  NON-VACUITY: the other party DOES see 21 published listings in the same session, so the zeros above are a BOUNDARY rather than an empty table or a broken probe.\nBoth views are truthful about the same row: the owner's says 'this is mine and unfinished', the stranger's says 'there is nothing here for you' -- and neither is a lie about the object. Each ran as SET LOCAL ROLE authenticated with that person's own JWT claims, because claims alone still execute as postgres and bypass RLS, which is how this exact probe would otherwise report a false all-clear."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-market-buyer-abandon_resume",
@@ -19544,8 +19559,23 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "two_sided_same_object",
       "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back two-identity probe on one draft listing",
+        "asserts": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000004_listing_view_count.sql",
+          "supabase/migrations/20260520000017_v_marketplace_listings_truth.sql",
+          "supabase/migrations/20260616000000_fix_marketplace_active_listings.sql",
+          "supabase/migrations/20260706000002_marketplace_listings_realtime.sql"
+        ],
+        "sha": "b4e2996b0b4095ac",
+        "walked_at": "2026-08-04",
+        "checked": "TWO IDENTITIES, ONE OBJECT, in a single rolled-back transaction -- the half a single-identity walk structurally cannot see. The object is a real DRAFT listing (a9693ff2), chosen because a draft is exactly where the two views must legitimately DIFFER; on a published row both parties would agree and the probe would prove nothing.\n  OWNER (Bryan Garcia, the seller_name on the row):\n    sees his own draft ............ 1\n    can edit its price ........... 1\n  OTHER PARTY (Hector Salvador, a real non-admin in a different hive):\n    sees that same draft ......... 0\n    can edit it .................. 0\n  NON-VACUITY: the other party DOES see 21 published listings in the same session, so the zeros above are a BOUNDARY rather than an empty table or a broken probe.\nBoth views are truthful about the same row: the owner's says 'this is mine and unfinished', the stranger's says 'there is nothing here for you' -- and neither is a lie about the object. Each ran as SET LOCAL ROLE authenticated with that person's own JWT claims, because claims alone still execute as postgres and bypass RLS, which is how this exact probe would otherwise report a false all-clear."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-market-two_context-abandon_resume",
@@ -19739,8 +19769,23 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "two_sided_same_object",
       "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back two-identity probe on one draft listing",
+        "asserts": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000004_listing_view_count.sql",
+          "supabase/migrations/20260520000017_v_marketplace_listings_truth.sql",
+          "supabase/migrations/20260616000000_fix_marketplace_active_listings.sql",
+          "supabase/migrations/20260706000002_marketplace_listings_realtime.sql"
+        ],
+        "sha": "b4e2996b0b4095ac",
+        "walked_at": "2026-08-04",
+        "checked": "TWO IDENTITIES, ONE OBJECT, in a single rolled-back transaction -- the half a single-identity walk structurally cannot see. The object is a real DRAFT listing (a9693ff2), chosen because a draft is exactly where the two views must legitimately DIFFER; on a published row both parties would agree and the probe would prove nothing.\n  OWNER (Bryan Garcia, the seller_name on the row):\n    sees his own draft ............ 1\n    can edit its price ........... 1\n  OTHER PARTY (Hector Salvador, a real non-admin in a different hive):\n    sees that same draft ......... 0\n    can edit it .................. 0\n  NON-VACUITY: the other party DOES see 21 published listings in the same session, so the zeros above are a BOUNDARY rather than an empty table or a broken probe.\nBoth views are truthful about the same row: the owner's says 'this is mine and unfinished', the stranger's says 'there is nothing here for you' -- and neither is a lie about the object. Each ran as SET LOCAL ROLE authenticated with that person's own JWT claims, because claims alone still execute as postgres and bypass RLS, which is how this exact probe would otherwise report a false all-clear."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-seller-buyer-abandon_resume",
@@ -19804,8 +19849,23 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "two_sided_same_object",
       "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back two-identity probe on one draft listing",
+        "asserts": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000004_listing_view_count.sql",
+          "supabase/migrations/20260520000017_v_marketplace_listings_truth.sql",
+          "supabase/migrations/20260616000000_fix_marketplace_active_listings.sql",
+          "supabase/migrations/20260706000002_marketplace_listings_realtime.sql"
+        ],
+        "sha": "b4e2996b0b4095ac",
+        "walked_at": "2026-08-04",
+        "checked": "TWO IDENTITIES, ONE OBJECT, in a single rolled-back transaction -- the half a single-identity walk structurally cannot see. The object is a real DRAFT listing (a9693ff2), chosen because a draft is exactly where the two views must legitimately DIFFER; on a published row both parties would agree and the probe would prove nothing.\n  OWNER (Bryan Garcia, the seller_name on the row):\n    sees his own draft ............ 1\n    can edit its price ........... 1\n  OTHER PARTY (Hector Salvador, a real non-admin in a different hive):\n    sees that same draft ......... 0\n    can edit it .................. 0\n  NON-VACUITY: the other party DOES see 21 published listings in the same session, so the zeros above are a BOUNDARY rather than an empty table or a broken probe.\nBoth views are truthful about the same row: the owner's says 'this is mine and unfinished', the stranger's says 'there is nothing here for you' -- and neither is a lie about the object. Each ran as SET LOCAL ROLE authenticated with that person's own JWT claims, because claims alone still execute as postgres and bypass RLS, which is how this exact probe would otherwise report a false all-clear."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-seller-two_context-abandon_resume",
