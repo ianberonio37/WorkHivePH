@@ -4,7 +4,7 @@ import {
   useVideoConfig, spring, interpolate, Sequence, Easing, random,
 } from 'remotion';
 import {ORANGE, FONT} from './Ambient';
-import {CAMERA_KEYS, CamKey, CAPTIONS} from './demoCamera';
+import {CAPTIONS} from './demoCamera';
 import {CameraMotionBlur} from '@remotion/motion-blur';
 
 // ════════════════════════════════════════════════════════════════════════
@@ -169,7 +169,6 @@ const Logo: React.FC<{frames: number}> = ({frames}) => {
       <Img src={staticFile('workhive-logo-clean.png')}
            style={{height: height * 0.38, transform: `scale(${0.86 + 0.14 * s})`,
                    opacity: s * out}} />
-      <Mascot side="right" heightFrac={0.46} delay={10} wave />
     </AbsoluteFill>
   );
 };
@@ -194,7 +193,6 @@ const Title: React.FC<{lines: string[]; frames: number; side?: 'left' | 'right'}
   let letterIndex = 0;
   return (
     <AbsoluteFill style={{background: CLOUD, alignItems: 'center', justifyContent: 'center'}}>
-      <Mascot side={side} heightFrac={0.34} delay={6} />
       <div style={{transform: `scale(${inflate})`}}>
         {lines.map((ln, li) => {
           const lineAt = li * 14;                    // ~0.45s stagger
@@ -359,33 +357,20 @@ const Section: React.FC<{seg: number; frames: number}> = ({seg, frames}) => {
   const out = interpolate(f, [frames - 5, frames], [1, 0], {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
-  // THE CAMERA FOLLOWS THE ACTION (Ian: "the zoom in zoom out, the scrolling
-  // and clicking"). Keys are GENERATED from the recorder's own click log
-  // (gen_camera_keys.py): the view pushes toward each click as it happens and
-  // relaxes to wide between - the sample's measured pattern (bbox tightening
-  // 0.92 -> ~0.80 with the centroid moving to the action). Actionless
-  // segments get a slow documentary drift so nothing ever sits still.
-  const keys: CamKey[] = CAMERA_KEYS[seg] ?? [];
-  const t = f / fps;
-  let scale = 1.0, fx = 0.5, fy = 0.5;
-  if (keys.length > 1) {
-    let a = keys[0], b = keys[keys.length - 1];
-    for (let i = 0; i < keys.length - 1; i++) {
-      if (t >= keys[i].t && t <= keys[i + 1].t) { a = keys[i]; b = keys[i + 1]; break; }
-      if (t > keys[keys.length - 1].t) { a = b = keys[keys.length - 1]; }
-    }
-    const span = Math.max(0.001, b.t - a.t);
-    const k = Math.min(1, Math.max(0, (t - a.t) / span));
-    const e = k * k * (3 - 2 * k);          // smoothstep between keyframes
-    scale = a.s + (b.s - a.s) * e;
-    fx = a.fx + (b.fx - a.fx) * e;
-    fy = a.fy + (b.fy - a.fy) * e;
-  } else {
-    // MEASURED: the sample's camera is perfectly static on actionless beats -
-    // the footage's own scrolling is the motion. The slow drift I had here
-    // was invented, and invented motion is what reads as "weird".
-    scale = 1.0; fx = 0.5; fy = 0.5;
-  }
+  // NO CAMERA MOVE. AT ALL. (Ian, 2026-08-04: "just remove the zoom in and
+  // zoom out because still like a brainless child.")
+  //
+  // Four attempts to make programmatic zoom look intentional all failed:
+  // synthetic snaps (v10, "chaotic"), per-action snaps (v15, "brainless"),
+  // intent-clustered snaps (v17, still brainless). The footage already
+  // contains motion - the cursor moves, the page scrolls, panels open - and
+  // adding a second, invented camera on top of real motion is what reads as
+  // amateur. The frame is now LOCKED and the product does the moving.
+  // CAMERA_KEYS is still generated (the captions ship from the same file);
+  // it is simply not consumed. Deliberate, not dead code by accident.
+  const scale = 1;
+  const fx = 0.5;
+  const fy = 0.5;
 
   return (
     <AbsoluteFill style={{background: PALE, alignItems: 'center',
@@ -447,7 +432,6 @@ const End: React.FC = () => {
                    color: INK, opacity: s}}>Built for the plant floor.</div>
       <div style={{fontFamily: FONT, fontWeight: 600, fontSize: height * 0.042,
                    color: CYAN, opacity: s}}>workhiveph.com · start free</div>
-      <Mascot side="right" heightFrac={0.44} delay={14} wave />
     </AbsoluteFill>
   );
 };

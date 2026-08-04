@@ -19479,8 +19479,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "cross_surface_handoff",
       "oracle": "a flow that spans surfaces carries its context across the handoff",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a flow that spans surfaces carries its context across the handoff",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "marketplace-seller-profile.html"
+        ],
+        "sha": "b6bdc829f7a80779",
+        "walked_at": "2026-08-04",
+        "checked": "Walked the real handoff, market -> seller profile, and checked the DESTINATION against source rather than just checking that a link exists.\n  the card's seller link carries context in the URL: marketplace-seller-profile.html?worker=Romeo%20Beltran\n  arriving there: document.title becomes 'Romeo Beltran: WorkHive Marketplace', the page names Romeo, and names NO OTHER seller (Pablo / Leandro / Leonardo all absent) -- so the context did not just travel, it DISPLACED the previous one.\n  the destination is truthful about him: stat-listings reads 2, and psql returns exactly 2 published listings for seller_name='Romeo Beltran'; both rendered titles match the source strings character for character ('Honeywell Pressure Transmitter', 'New (boxed) Bearing 6313 C3 - SKF').\nA handoff that carried the name but rendered someone else's inventory would pass a link-exists check and fail a person, which is why the oracle is measured on the CONTENT at the destination."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-market-buyer-two_sided_same_object",
@@ -19585,8 +19598,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "cross_surface_handoff",
       "oracle": "a flow that spans surfaces carries its context across the handoff",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a flow that spans surfaces carries its context across the handoff",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "marketplace-seller-profile.html"
+        ],
+        "sha": "b6bdc829f7a80779",
+        "walked_at": "2026-08-04",
+        "checked": "Walked the real handoff, market -> seller profile, and checked the DESTINATION against source rather than just checking that a link exists.\n  the card's seller link carries context in the URL: marketplace-seller-profile.html?worker=Romeo%20Beltran\n  arriving there: document.title becomes 'Romeo Beltran: WorkHive Marketplace', the page names Romeo, and names NO OTHER seller (Pablo / Leandro / Leonardo all absent) -- so the context did not just travel, it DISPLACED the previous one.\n  the destination is truthful about him: stat-listings reads 2, and psql returns exactly 2 published listings for seller_name='Romeo Beltran'; both rendered titles match the source strings character for character ('Honeywell Pressure Transmitter', 'New (boxed) Bearing 6313 C3 - SKF').\nA handoff that carried the name but rendered someone else's inventory would pass a link-exists check and fail a person, which is why the oracle is measured on the CONTENT at the destination."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-market-two_context-two_sided_same_object",
@@ -19808,8 +19834,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "cross_surface_handoff",
       "oracle": "a flow that spans surfaces carries its context across the handoff",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "a flow that spans surfaces carries its context across the handoff",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "marketplace-seller-profile.html"
+        ],
+        "sha": "b6bdc829f7a80779",
+        "walked_at": "2026-08-04",
+        "checked": "Walked the real handoff, market -> seller profile, and checked the DESTINATION against source rather than just checking that a link exists.\n  the card's seller link carries context in the URL: marketplace-seller-profile.html?worker=Romeo%20Beltran\n  arriving there: document.title becomes 'Romeo Beltran: WorkHive Marketplace', the page names Romeo, and names NO OTHER seller (Pablo / Leandro / Leonardo all absent) -- so the context did not just travel, it DISPLACED the previous one.\n  the destination is truthful about him: stat-listings reads 2, and psql returns exactly 2 published listings for seller_name='Romeo Beltran'; both rendered titles match the source strings character for character ('Honeywell Pressure Transmitter', 'New (boxed) Bearing 6313 C3 - SKF').\nA handoff that carried the name but rendered someone else's inventory would pass a link-exists check and fail a person, which is why the oracle is measured on the CONTENT at the destination."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-seller-buyer-two_sided_same_object",
@@ -19888,8 +19927,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "cross_surface_handoff",
       "oracle": "a flow that spans surfaces carries its context across the handoff",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "a flow that spans surfaces carries its context across the handoff",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "marketplace-seller-profile.html"
+        ],
+        "sha": "b6bdc829f7a80779",
+        "walked_at": "2026-08-04",
+        "checked": "Walked the real handoff, market -> seller profile, and checked the DESTINATION against source rather than just checking that a link exists.\n  the card's seller link carries context in the URL: marketplace-seller-profile.html?worker=Romeo%20Beltran\n  arriving there: document.title becomes 'Romeo Beltran: WorkHive Marketplace', the page names Romeo, and names NO OTHER seller (Pablo / Leandro / Leonardo all absent) -- so the context did not just travel, it DISPLACED the previous one.\n  the destination is truthful about him: stat-listings reads 2, and psql returns exactly 2 published listings for seller_name='Romeo Beltran'; both rendered titles match the source strings character for character ('Honeywell Pressure Transmitter', 'New (boxed) Bearing 6313 C3 - SKF').\nA handoff that carried the name but rendered someone else's inventory would pass a link-exists check and fail a person, which is why the oracle is measured on the CONTENT at the destination."
+      }
     },
     {
       "id": "LM-BJ-ux-journey-seller-two_context-two_sided_same_object",
