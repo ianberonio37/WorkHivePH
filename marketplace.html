@@ -1484,7 +1484,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!selected.length) { showToast('No matching listings found.', 'error'); return; }
 
     const btn = document.getElementById('btn-submit-rfq');
-    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+    if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Sending…'; }
 
     try {
       const rows = selected.map(item => ({
@@ -1512,7 +1512,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         ? `Send quote requests under your WorkHive name (${WORKER_NAME || 'your account name'}).`
         : 'Failed to send quote requests. Try again.', 'error');
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Send All Quote Requests'; }
+      if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Send All Quote Requests'; }
     }
   }
 
@@ -1692,7 +1692,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showToast('Invalid email address.', 'error'); return; }
 
     const btn = document.getElementById('btn-save-current-search');
-    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Saving…'; }
     try {
       const { error } = await db.from('marketplace_saved_searches').insert([{
         worker_name: WORKER_NAME,
@@ -1721,7 +1721,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         ? 'Your session expired, so the search was not saved. Sign in again and re-save it.'
         : 'Could not save. Try again.', 'error');
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Save Search'; }
+      if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Save Search'; }
     }
   }
 
@@ -1942,7 +1942,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // give them the one useful action - prune them - and reopen the sheet so the list is honest again.
       document.getElementById('btn-clear-gone-saves')?.addEventListener('click', async (ev) => {
         const _b = ev.currentTarget;
-        _b.disabled = true; _b.textContent = 'Removing…';
+        _b.disabled = true; _b.setAttribute('aria-busy', 'true'); _b.textContent = 'Removing…';
         try {
           const _liveIds = new Set(items.map(i => i.id));
           const _dead = ids.filter(id => !_liveIds.has(id));
@@ -1958,7 +1958,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           // L-layer: this tells the user the delete failed, so it must also be greppable — a
           // watchlist delete that starts failing would otherwise be invisible in the console.
           console.error('[marketplace] clear-gone watchlist saves failed', err);
-          _b.disabled = false; _b.textContent = 'Remove';
+          _b.disabled = false; _b.removeAttribute('aria-busy'); _b.textContent = 'Remove';
           showToast(whWriteError(err, 'Could not update your saved list. Try again.'), 'error');
         }
       });
@@ -2854,7 +2854,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         commentEl?.focus();
         return;
       }
-      btn.disabled = true; btn.textContent = 'Posting…';
+      btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Posting…';
       try {
         const { error } = await db.from('marketplace_reviews').insert([{
           listing_id: item.id,
@@ -2868,7 +2868,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         openDetailSheet(item.id);            // MK12: re-derive the list we just changed
       } catch (err) {
         console.error('[marketplace] review insert failed', err);
-        btn.disabled = false; btn.textContent = 'Post review';
+        btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Post review';
         // MK11: only offer a retry that can work.
         showToast(whWriteError(err, 'Could not post your review. Try again.'), 'error');
       }
@@ -3350,7 +3350,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!HIVE_ID)              { showToast('Sign in to use AI assist.', 'error'); return; }
 
     const prev = label ? label.textContent : '';
-    btn.disabled = true; btn.style.opacity = '0.6'; if (label) label.textContent = 'Thinking…';
+    btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.style.opacity = '0.6'; if (label) label.textContent = 'Thinking…';
     try {
       /* Reuse the already-compressed photo (small payload) for a vision refine. */
       let imageDataUrl = '';
@@ -3384,7 +3384,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     } catch (_) {
       showToast(whAiError(_, 'AI assist could not run. Please fill the listing manually.'), 'error');
     } finally {
-      btn.disabled = false; btn.style.opacity = '1'; if (label) label.textContent = prev || 'AI assist';
+      btn.disabled = false; btn.removeAttribute('aria-busy'); btn.style.opacity = '1'; if (label) label.textContent = prev || 'AI assist';
     }
   }
 
@@ -3485,7 +3485,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!_priceRes.ok) { showToast(_priceRes.error, 'error'); document.getElementById('post-price')?.focus(); return; }
 
     const btn = document.getElementById('btn-submit-post');
-    if (btn) { btn.disabled = true; btn.textContent = 'Posting…'; }
+    if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Posting…'; }
 
     try {
       // D2 (deepwalk): a refresh-mid-submit then retry creates a DUPLICATE listing (fresh insert, no
@@ -3550,7 +3550,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          signed-in buyer their session had expired. */
       showToast(whWriteError(err, 'Failed to post listing. Try again.'), 'error');
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Post Listing'; }
+      if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Post Listing'; }
     }
   }
 
@@ -3591,7 +3591,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     const btn = document.getElementById('btn-submit-inquiry');
-    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+    if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Sending…'; }
 
     try {
       const { error } = await db.from('marketplace_inquiries').insert([{
@@ -3620,7 +3620,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         ? 'Your session expired, so the inquiry was not sent. Sign in again and your message will go through.'
         : 'Failed to send inquiry. Try again.', 'error');
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Send Inquiry'; }
+      if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Send Inquiry'; }
     }
   }
 
@@ -4420,7 +4420,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     const btn = document.getElementById('svc-pay-go-' + requestId);
-    if (btn) { btn.disabled = true; btn.textContent = 'Confirming…'; }
+    if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Confirming…'; }
     try {
       const pay = await db.from('service_payments').insert({
         request_id: requestId, amount_paid: amount, method,
@@ -4470,7 +4470,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       showToast('Payment recorded and released. Thanks for confirming!', 'success');
       loadClientServices();
     } finally {
-      if (btn) { btn.disabled = false; btn.textContent = 'Confirm payment & release'; }
+      if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Confirm payment & release'; }
     }
   }
 
