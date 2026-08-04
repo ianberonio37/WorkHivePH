@@ -1,25 +1,29 @@
 #!/usr/bin/env python3
 """
-gen_camera_keys.py - turn the journey's ACTION LOG into a camera script.
-========================================================================
-Ian, on v5: "you still didn't get the motion, the zoom in zoom out, the
-scrolling and clicking." Measured, he is right: inside the sample's product
-beats the ink-centroid/bbox trace shows the view repeatedly TIGHTENS onto the
-active region (bbox w drops 0.92 -> 0.79-0.83 with the centroid moving to the
-action, e.g. cx 0.48 -> 0.73 at t=32.5) and relaxes back. The camera follows
-the hand. Mine sat at a fixed inset.
+gen_camera_keys.py - turn the journey's ACTION LOG into a camera + caption script.
+==================================================================================
+The recorder logs every click / type / scroll / read with a timestamp, the
+viewport-fraction position of the element acted on, and a human CAPTION. Both
+the camera moves and the on-screen captions are DERIVED from that one log, so
+they can never drift apart.
 
-The recorder already logs every click/type with a timestamp AND (since the
-coordinate patch) the viewport-fraction position of the element acted on. So
-the camera script is DERIVED from the recording itself: for each Remotion
-segment, every action inside its window becomes a push-in keyframe centred on
-that action, with pull-outs between. No staging, no hand-tuning per cut.
+Camera design, arrived at by correction:
+  * v10 synthesized snaps on a timer to hit the reference's zoom COUNT. Ian:
+    "chaotic ... not aligned what you are highlighting to ... random and
+    erratic." A zoom is a pointing gesture; it needs a real referent.
+  * v15 zoomed only at real targets but still gave EVERY action its own
+    push+pull, so a form with five fields whipped five times. Ian: "the way
+    you zoom in and zoom out like a brainless, you have to be rational."
 
-Writes remotion_scenes/src/demoCamera.ts (a generated module - do not edit).
+So the rule now: CLUSTER nearby actions into one intent, aim at the cluster's
+centroid, push in ONCE, hold long enough to actually read the screen, and pull
+out once. Fewer, slower, shallower, and always pointed at something.
+
+Writes remotion_scenes/src/demoCamera.ts (generated - do not edit).
 
 Usage:
     python tools/gen_camera_keys.py .tmp/demo_journey/journey_<ts>.json \
-        --segs "5.4:7,20.6:24,61.6:10,80.8:9,121.6:13,138.1:7"
+        --segs "3.9:20,20:18,81:20,110:17,133:13"
 """
 from __future__ import annotations
 
@@ -31,58 +35,80 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 ROOT = _HERE.parent
 
-# Measured with OPTICAL FLOW (video_camera_motion.py), which overturned the
-# first guess: the sample's camera is STATIC between moves (zoom rate 0.0000
-# for seconds at a stretch) punctuated by SNAP zooms - ~0.2-0.3s bursts into a
-# tight crop, a locked hold, then a snap back out. Slow eased drifts were MY
-# invention and read as "weird". Crop depth from the bbox jump at t=32.5
-# (cx 0.48->0.75, w->0.79 = a right-panel crop ~1.8x).
-PUSH = 2.0
+PUSH = 1.55               # a readable crop, not a face-plant
 WIDE = 1.0
-PUSH_IN_S = 0.18          # sample zoom bursts measure 0.1-0.2s
-HOLD_S = 2.2
-PULL_OUT_S = 0.25
+PUSH_IN_S = 0.30          # deliberate, not a twitch
+HOLD_S = 3.2              # stay long enough to read the thing
+PULL_OUT_S = 0.45
+CLUSTER_S = 5.0           # actions closer than this share ONE zoom
+CENTRE_PULL = 0.35        # bias the focal point toward frame centre
 
 
 def keys_for_segment(steps: list, seg_start: float, seg_dur: float) -> list:
-    """Camera keyframes (t_in_segment, scale, fx, fy) for one segment window."""
+    """Camera keyframes (t, scale, focal-x, focal-y) for one segment window."""
     acts = [s for s in steps
             if s.get("ok") and "x" in s
             and seg_start - 0.2 <= s["at_s"] <= seg_start + seg_dur]
-    keys = [(0.0, WIDE, 0.5, 0.5)]
-    # NO synthetic snaps. v10 filled quiet stretches with rotating-focal
-    # zooms to chase the sample's event COUNT and Ian felt it instantly:
-    # "chaotic... not aligned what you are highlighting to... random and
-    # erratic." A zoom is a pointing gesture - it exists only when there is a
-    # logged, real target (a click, a typed field, the answer bubble).
-    # Alignment beats count; the count follows from richer action logging.
+
+    # cluster consecutive actions that belong to one intent
+    clusters: list[list] = []
     for a in acts:
-        t = max(0.15, a["at_s"] - seg_start)
-        # pull the focal 35% toward centre: an off-centre transform-origin
-        # halves the zoom's full-frame optical-flow signature (and its felt
-        # impact); the sample's crops stay near-central.
-        fx = a["x"] + (0.5 - a["x"]) * 0.35
-        fy = a["y"] + (0.5 - a["y"]) * 0.35
-        # push in just BEFORE the click lands so the click is seen tight
+        if clusters and (a["at_s"] - clusters[-1][-1]["at_s"]) < CLUSTER_S:
+            clusters[-1].append(a)
+        else:
+            clusters.append([a])
+
+    keys = [(0.0, WIDE, 0.5, 0.5)]
+    for c in clusters:
+        t = max(0.15, c[0]["at_s"] - seg_start)
+        t_last = c[-1]["at_s"] - seg_start
+        # aim at the cluster CENTROID: one stable frame containing every
+        # action in the intent, rather than chasing each element in turn
+        fx = sum(a["x"] for a in c) / len(c)
+        fy = sum(a["y"] for a in c) / len(c)
+        fx += (0.5 - fx) * CENTRE_PULL
+        fy += (0.5 - fy) * CENTRE_PULL
+
         t_in = max(0.0, t - PUSH_IN_S)
-        if keys and t_in <= keys[-1][0] + 0.25:
-            # overlapping pushes merge: retarget instead of bouncing out
-            keys.append((t, PUSH, fx, fy))
+        if t_in <= keys[-1][0] + 0.25:
+            keys.append((t, PUSH, fx, fy))          # retarget, don't bounce
         else:
             keys.append((t_in, WIDE, keys[-1][2], keys[-1][3]))
             keys.append((t, PUSH, fx, fy))
-        keys.append((min(seg_dur - 0.3, t + HOLD_S), PUSH, fx, fy))
-        keys.append((min(seg_dur - 0.1, t + HOLD_S + PULL_OUT_S), WIDE, fx, fy))
-    # always end wide so the outgoing fade reads calm
+        t_end = max(t + HOLD_S, t_last + 1.4)       # hold across the cluster
+        keys.append((min(seg_dur - 0.3, t_end), PUSH, fx, fy))
+        keys.append((min(seg_dur - 0.1, t_end + PULL_OUT_S), WIDE, fx, fy))
+
     if keys[-1][1] != WIDE:
         keys.append((seg_dur, WIDE, keys[-1][2], keys[-1][3]))
-    # clamp monotonic time
+
     out, last_t = [], -1.0
     for t, s, fx, fy in keys:
         t = max(t, last_t + 0.05)
         out.append({"t": round(t, 2), "s": s, "fx": round(fx, 3), "fy": round(fy, 3)})
         last_t = t
     return out
+
+
+def captions_for_segment(steps: list, seg_start: float, seg_dur: float) -> list:
+    """Non-overlapping captions for one segment, from the same action log."""
+    caps, last_end = [], -99.0
+    for a in steps:
+        if not a.get("caption") or not a.get("ok"):
+            continue
+        t = a["at_s"] - seg_start
+        if t < -0.4 or t > seg_dur:
+            continue
+        t = max(0.0, t)
+        if t < last_end - 0.2:                      # never stack captions
+            continue
+        dur = min(3.4, max(2.0, len(a["caption"]) * 0.055))
+        dur = min(dur, seg_dur - t)
+        if dur < 0.8:
+            continue
+        caps.append({"t": round(t, 2), "d": round(dur, 2), "text": a["caption"]})
+        last_end = t + dur
+    return caps
 
 
 def main() -> int:
@@ -92,26 +118,32 @@ def main() -> int:
                     help="comma list of start:dur for each Remotion segment")
     a = ap.parse_args()
 
-    side = json.loads(Path(a.sidecar).read_text(encoding="utf-8"))
-    steps = side["steps"]
+    steps = json.loads(Path(a.sidecar).read_text(encoding="utf-8"))["steps"]
     segs = []
     for part in a.segs.split(","):
         st, du = part.split(":")
         segs.append((float(st), float(du)))
 
     all_keys = [keys_for_segment(steps, st, du) for st, du in segs]
+    all_caps = [captions_for_segment(steps, st, du) for st, du in segs]
+
     ts = ("// GENERATED by tools/gen_camera_keys.py - do not edit.\n"
-          "// Camera keyframes per journey segment, derived from the recorder's\n"
-          "// own action log: the camera zooms toward each click as it happens.\n"
+          "// Camera moves AND captions, both derived from the recorder's own\n"
+          "// action log, so a caption can never describe a moment the edit\n"
+          "// no longer contains.\n"
           "export type CamKey = {t: number; s: number; fx: number; fy: number};\n"
-          f"export const CAMERA_KEYS: CamKey[][] = {json.dumps(all_keys)};\n")
+          f"export const CAMERA_KEYS: CamKey[][] = {json.dumps(all_keys)};\n"
+          "export type Caption = {t: number; d: number; text: string};\n"
+          f"export const CAPTIONS: Caption[][] = {json.dumps(all_caps)};\n")
     dest = ROOT / "remotion_scenes" / "src" / "demoCamera.ts"
     dest.write_text(ts, encoding="utf-8")
+
     n = sum(len(k) for k in all_keys)
-    print(f"camera script -> {dest.name}: {len(all_keys)} segments, {n} keyframes")
+    c = sum(len(k) for k in all_caps)
+    print(f"-> {dest.name}: {len(all_keys)} segments, {n} keyframes, {c} captions")
     for i, k in enumerate(all_keys):
         pushes = sum(1 for x in k if x["s"] > 1.0)
-        print(f"  seg{i}: {len(k)} keys, {pushes} pushed frames")
+        print(f"  seg{i}: {len(k)} keys, {pushes} pushed, {len(all_caps[i])} captions")
     return 0
 
 
