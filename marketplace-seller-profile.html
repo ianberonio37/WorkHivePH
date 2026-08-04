@@ -51,7 +51,7 @@
       color:rgba(255,255,255,0.86); font-size: 0.78rem; text-decoration: none; /* D1 a11y: was --wh-steel (<4.5:1) → WCAG 1.4.3 */
       margin-bottom: 1rem; padding: 0.4rem 0; transition: color 0.15s; min-height: 44px; /* D1 U2 */
     }
-    .back-link:hover { color: var(--wh-orange); }
+    .back-link:hover { color: var(--wh-orange-text); }
 
     /* Hero card */
     .hero-card {
@@ -67,7 +67,7 @@
       background: linear-gradient(135deg, rgba(247,162,27,0.25), rgba(247,162,27,0.1));
       border: 3px solid rgba(247,162,27,0.4);
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.75rem; font-weight: 800; color: var(--wh-orange);
+      font-size: 1.75rem; font-weight: 800; color: var(--wh-orange-text);
     }
     .hero-info { flex: 1; min-width: 200px; }
     .hero-name { font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
@@ -82,9 +82,9 @@
     .hero-badges::-webkit-scrollbar { display: none; }
     .hero-badges > * { flex: 0 0 auto; }
     .badge-tier { padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
-    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: var(--wh-orange); border: 1px solid rgba(205,127,50,0.3); }
+    .badge-tier.bronze { background: rgba(205,127,50,0.2); color: var(--wh-orange-text); border: 1px solid rgba(205,127,50,0.3); }
     .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
-    .badge-tier.gold   { background: rgba(247,162,27,0.15); color: var(--wh-orange); border: 1px solid rgba(247,162,27,0.35); }
+    .badge-tier.gold   { background: rgba(247,162,27,0.15); color: var(--wh-orange-text); border: 1px solid rgba(247,162,27,0.35); }
     .badge-verified {
       display: inline-flex; align-items: center; gap: 0.25rem;
       padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700;
@@ -114,7 +114,16 @@
       padding: 0.875rem 0.5rem;
       text-align: center;
     }
-    .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--wh-orange); line-height: 1.1; font-variant-numeric: tabular-nums; }
+    /* THE FILL TOKEN IS NOT THE TEXT TOKEN — fourth time this exact substitution has been found today
+       (Reject on platform-actions, the XP number on community, the avatar initials on the seller
+       dashboard, and now every orange label on this page). --wh-orange #F7A21B is the brand FILL: it
+       is meant to sit BEHIND things. Used as a label colour on the navy shell the seller's rating
+       "4.7★" measured APCA Lc 58.5 at 22.4px/800, under the Lc 60 content floor, on the one number a
+       buyer uses to decide. --wh-orange-text #FDB94A exists for exactly this and clears it. The other
+       five uses here (avatar initials, both tier badges, the active filter chip, the back link hover)
+       are the same category error sitting above the small-text floor by luck — they fail the moment
+       someone bumps a font size, so they move with it rather than waiting to be found separately. */
+    .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--wh-orange-text); line-height: 1.1; font-variant-numeric: tabular-nums; }
     .stat-num.blue  { color: var(--wh-blue); }
     .stat-num.green { color: var(--wh-green); }
     .stat-lbl { font-size: 0.65rem; color: var(--wh-steel-bright); margin-top: 0.25rem; line-height: 1.2; }
@@ -155,7 +164,7 @@
       cursor: pointer; transition: all 0.15s;
     }
     .filter-chip.active {
-      background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: var(--wh-orange);
+      background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: var(--wh-orange-text);
     }
 
     /* Listing grid */
