@@ -20530,8 +20530,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "double_tap",
       "oracle": "the second press changes nothing further and the surface says so",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "the second press changes nothing further and the surface says so",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "33fd164531c9aa9a",
+        "walked_at": "2026-08-04",
+        "checked": "MEASURED FAILING FIRST, THEN FIXED. With the POST held open 1,400ms (a slow phone on plant wifi), three presses of 'Hail now' produced writeAttempts 3 -- the button never disabled, never relabelled, never aria-busy, nothing on screen changing between the first press and the third, which is exactly why a person presses again. On this surface that is not a duplicate row: a hail BROADCASTS, so three copies notify nearby providers three times for one job. Fixed with the guard the page already used in eight other places (_svcSubmitGuard: disable + relabel + aria-busy, restored in finally). RE-MEASURED: 3 presses -> writeAttempts 1, 'Hailing...' and disabled through the whole flight, control given back afterwards.\nNothing leaked: service_requests 12 -> 12, marketplace_listings 27 -> 27, 0 rows created in the last 2 hours, 0 rows carrying the probe text. Every write was intercepted and stubbed at fetch; the stub returns a Promise, since a bare Response falls through to the postgrest polyfill and re-issues the real POST ~35s later."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-market_svc-buyer-back_out",
@@ -20543,8 +20556,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "back_out",
       "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "33fd164531c9aa9a",
+        "walked_at": "2026-08-04",
+        "checked": "Browser Back with the Post sheet open over the services pane, text typed into it, and the body scroll-locked. After Back: no overlay open (checked by .open class, not by rect -- these sheets sit off-screen translated and keep a truthy bounding box while closed), the inline overflow lock cleared, and THE PAGE ACTUALLY SCROLLS -- asserted by scrolling it and reading scrollY back, not by reading the style that was just cleared. ?section=services survived, the hail form is still there, and the typed draft was restored rather than destroyed. This is the case _releaseSheets (pageshow persisted + popstate) was added for earlier today; without it the bfcache restore hands back a page that simply will not scroll, with nothing intercepting clicks to explain why.\nNothing leaked: service_requests 12 -> 12, marketplace_listings 27 -> 27, 0 rows created in the last 2 hours, 0 rows carrying the probe text. Every write was intercepted and stubbed at fetch; the stub returns a Promise, since a bare Response falls through to the postgrest polyfill and re-issues the real POST ~35s later."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-market_svc-buyer-session_died",
@@ -20556,8 +20582,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "session_died",
       "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "33fd164531c9aa9a",
+        "walked_at": "2026-08-04",
+        "checked": "MEASURED FAILING FIRST, THEN FIXED. The session dying between typing and submitting was reported by passing PostgREST's own words through: showToast(error.message) put 'JWT expired' on screen -- the one failure a person can actually act on, delivered in the vocabulary of the token layer. Added _svcWriteError, the same three-way taxonomy the community composer already had, because these clear in completely different ways. RE-MEASURED with a 401 injected between typing and submitting: 'Your session expired, so nothing was sent. Sign in again and redo this step.' styled as an error, with the service, address and urgency all preserved and the button usable again. probeActuallyFired asserted (writeAttempts 1) before the result was read.\nNothing leaked: service_requests 12 -> 12, marketplace_listings 27 -> 27, 0 rows created in the last 2 hours, 0 rows carrying the probe text. Every write was intercepted and stubbed at fetch; the stub returns a Promise, since a bare Response falls through to the postgrest polyfill and re-issues the real POST ~35s later."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-market_svc-buyer-wrong_then_fix",
@@ -20569,8 +20608,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "wrong_then_fix",
       "oracle": "a wrong entry can be corrected without starting over",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "a wrong entry can be corrected without starting over",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "33fd164531c9aa9a",
+        "walked_at": "2026-08-04",
+        "checked": "Submitting the hail empty is refused with 'Pick a service first'. Picking the service and submitting again names the NEXT missing thing -- 'Tell providers where the job is' -- rather than repeating a generic error, and the service stays picked. Filling the address then leaves both entries intact. Two things wrong, corrected one at a time, nothing restarted, and writeAttempts stayed 0 through both refusals: the form refuses BEFORE the network, so a wrong entry never reaches the providers.\nNothing leaked: service_requests 12 -> 12, marketplace_listings 27 -> 27, 0 rows created in the last 2 hours, 0 rows carrying the probe text. Every write was intercepted and stubbed at fetch; the stub returns a Promise, since a bare Response falls through to the postgrest polyfill and re-issues the real POST ~35s later."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-market_svc-buyer-did_it_land",
@@ -20582,8 +20634,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "did_it_land",
       "oracle": "after a slow action the person can tell whether it landed, without guessing",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
+        "asserts": "after a slow action the person can tell whether it landed, without guessing",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "33fd164531c9aa9a",
+        "walked_at": "2026-08-04",
+        "checked": "Watched at 230ms intervals across the whole 1,400ms in-flight window: every frame reads 'Hailing...', disabled, aria-busy=true -- so the person is never left guessing mid-write -- and it ends with 'Hailing - nearby providers are being notified'. Before today's guard this window was completely silent, which is what made the double-tap defect above inevitable rather than unlucky.\nNothing leaked: service_requests 12 -> 12, marketplace_listings 27 -> 27, 0 rows created in the last 2 hours, 0 rows carrying the probe text. Every write was intercepted and stubbed at fetch; the stub returns a Promise, since a bare Response falls through to the postgrest polyfill and re-issues the real POST ~35s later."
+      }
     },
     {
       "id": "LM-BK-ux-recovery-seller-buyer-double_tap",

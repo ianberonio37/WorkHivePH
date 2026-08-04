@@ -608,7 +608,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <span id="mk-verdict-icon" class="verdict-icon">·</span>
     <div class="verdict-text"><span id="mk-verdict-label">Loading marketplace...</span><small id="mk-verdict-sub">Counting listings, your activity, and open inquiries.</small></div>
   </div>
-  <div class="simple-row">
+  <div class="simple-row" id="mk-summary-row">
     <div class="simple-card tag-grey hero" id="mk-card-total" data-rag-tile="marketplace:listings_in_view" data-rag-label="Listings in view">
       <div class="sc-label">Listings in view</div>
       <!-- The pre-data seed is a GAP, not a zero. Measured on a slow/failing backend, these tiles
@@ -630,7 +630,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          law of conserving complexity). The active tab is already visible in the
          section switcher; surfacing it as a metric was noise. -->
   </div>
-  <div class="action-card">
+  <div class="action-card" id="mk-action-card">
     <div class="ac-label">What to do next</div>
     <div class="ac-text" id="mk-action-text">Computing recommendation...</div>
   </div>
@@ -765,7 +765,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- U5 heading-order (§11 deepwalk): the H3 listing-card titles sat under H1 with no H2 (a WCAG
        heading-level skip). A screen-reader H2 section heading restores H1→H2→H3 without a visual change. -->
-  <h2 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Marketplace listings</h2>
+  <h2 id="mk-listings-h2" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Marketplace listings</h2>
   <!-- Listings count -->
   <div class="listings-info" id="listings-info"></div>
 
@@ -3610,13 +3610,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          nothing -- a buyer with a job in flight is told it does not exist. Surface the error
          explicitly so the existing branch renders "Couldn't load services" with its Retry button.
          Same defect the listings grid already fixed (P7, 2026-07-24); this pane still had it. */
-      if (catRes.error)  throw catRes.error;
-      if (mineRes.error) throw mineRes.error;
+      /* ...AND ONE READ FAILING MUST NOT THROW AWAY THE OTHER. These two reads are independent — the
+         rate card (v_service_catalog_truth) and the person's own jobs (v_service_request_truth) — and
+         until now EITHER error blew the whole pane away, replacing 1,861 characters of screen with a
+         519-character "Couldn't load services". Measured 2026-08-04 by the fail_partial lens:
+         keptSomething false. The half that costs the most is the one the person did not ask about: a
+         buyer with a provider EN ROUTE loses the tracker, the provider's phone number and the
+         Confirm-payment button because the CATALOGUE — which they were not even looking at — could
+         not be read. Each half now fails on its own and says so where it sits. Only a pane with
+         NEITHER half left falls through to the whole-surface error below, which is the case where
+         there is genuinely nothing to keep. */
+      if (catRes.error && mineRes.error) throw catRes.error;
+      const partial = { cats: catRes.error || null, mine: mineRes.error || null };
       const cats = catRes.data || [];
       const mine = (mineRes.data || []).filter(r => r.client_auth_uid === _authUid);
       const badge = document.getElementById('count-services');
-      if (badge) badge.textContent = String(mine.filter(r => SVC_OPEN.includes(r.status)).length);
-      renderClientServices(pane, cats, mine);
+      // A badge must not assert a count from a read that failed — the stale-count class again.
+      if (badge) badge.textContent = partial.mine ? '—' : String(mine.filter(r => SVC_OPEN.includes(r.status)).length);
+      renderClientServices(pane, cats, mine, partial);
       // The client's chip must keep up with the provider (2026-07-30, found by the two-context walk
       // TB-SJ07-ui-the-watcher-sees-the-job-advance). The tracker map already polls every 10s, so on a
       // job being watched the MAP MOVED while the label beside it still read "Provider accepted" - a
@@ -3637,7 +3648,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          pane, so after a successful retry the pane filled back in while the page-level verdict still
          read "Couldn't load the marketplace" -- permanently, because nothing else re-reads it. Retry
          means retry what failed, which on a shared surface is the whole surface. */
-      pane.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml((err && err.message) || 'Please try again.') + '</p><button type="button" onclick="svcRetryAll()" style="' + _svcGhostC + 'margin-top:0.6rem;">Retry</button></div>';
+      pane.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml(_svcErrorText(err, false) || 'Please try again.') + '</p><button type="button" onclick="svcRetryAll()" style="' + _svcGhostC + 'margin-top:0.6rem;">Retry</button></div>';
       // The pane says it could not load; the TAB BADGE beside it must not keep asserting a count
       // from an earlier read. A number that outlives the data behind it is the stale-count class.
       const badgeErr = document.getElementById('count-services');
@@ -3645,12 +3656,41 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
   }
 
-  function renderClientServices(pane, cats, mine) {
+  /* The quote form, extracted so the two paths that render it — the normal pane and the
+     rate-card-unreadable fallback — emit the SAME markup rather than two copies that drift. It
+     depends on nothing the catalogue read provides, which is exactly why it can still be offered
+     when that read fails: describing a job in words needs no rate card. */
+  function _svcQuoteFormHtml(e) {
+    return '<div class="simple-card list-row" style="margin-top:0.8rem;padding:0.9rem 1rem;">' +
+      '<strong>Bigger or unusual job?</strong>' +
+      '<label style="display:block;margin-top:0.5rem;font-size:0.8rem;font-weight:600;">Describe it' +
+      '<textarea id="svc-quote-scope" aria-label="Describe the job" rows="3" maxlength="600" placeholder="e.g. Rewind or replace a 75kW motor, bearing noise, need insulation test" style="' + _svcInputC + 'resize:vertical;"></textarea></label>' +
+      '<label style="display:block;margin-top:0.5rem;font-size:0.8rem;font-weight:600;">Budget (₱, optional)' +
+      '<input id="svc-quote-budget" type="number" aria-label="Budget in pesos (optional)" min="0" step="500" style="' + _svcInputC + '"></label>' +
+      '<label style="display:block;margin-top:0.5rem;font-size:0.8rem;font-weight:600;">Where?' +
+      '<input id="svc-quote-address" type="text" aria-label="Job city or site" maxlength="120" placeholder="City / site" style="' + _svcInputC + '"></label>' +
+      '<button type="button" id="svc-quote-go" onclick="svcAskQuotes()" style="' + _svcGhostC + 'width:100%;margin-top:0.8rem;">Ask providers for quotes</button>' +
+      '<button type="button" onclick="svcTriage()" style="' + _svcGhostC + 'width:100%;margin-top:0.5rem;">🤖 Not sure? Let AI suggest the category and urgency</button>' +
+      '<div id="svc-triage-out" style="font-size:0.75rem;opacity:0.9;margin-top:0.3rem;" role="status"></div>' +
+      '</div>';
+  }
+
+  function renderClientServices(pane, cats, mine, partial) {
     const e = escHtml;
+    const fail = partial || {};
+    // A half that could not be read gets a notice IN ITS OWN PLACE, naming which half is missing and
+    // offering the same Retry as the whole-pane error. Written once and used by both halves so the
+    // two never drift into saying different things about the same kind of failure.
+    const halfDown = (what, err) => '<div class="empty-state" style="padding:0.9rem;">' +
+      '<p style="margin:0 0 0.5rem;">Couldn\'t load ' + e(what) + '. The rest of this page is still live.</p>' +
+      (err ? '<p style="margin:0 0 0.5rem;font-size:0.75rem;opacity:0.85;">' + e(_svcErrorText(err, false)) + '</p>' : '') +
+      '<button type="button" onclick="svcRetryAll()" style="' + _svcGhostC + '">Retry</button></div>';
     let html = '';
     // ── my requests tracker ──
-    html += '<h2 style="font-size:0.95rem;margin:0.4rem 0 0.5rem;">My service requests <span class="tab-count">' + mine.length + '</span></h2>';
-    if (!_authUid) {
+    html += '<h2 style="font-size:0.95rem;margin:0.4rem 0 0.5rem;">My service requests <span class="tab-count">' + (fail.mine ? '—' : mine.length) + '</span></h2>';
+    if (fail.mine) {
+      html += halfDown('your service requests', fail.mine);
+    } else if (!_authUid) {
       html += '<div class="empty-state" style="padding:1rem;"><p>Sign in to hail a service and track your requests.</p></div>';
     } else if (!mine.length) {
       html += '<div class="empty-state" style="padding:1rem;"><p>No requests yet. Hail your first service below - a nearby provider accepts and you track them here.</p></div>';
@@ -3663,7 +3703,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          into a handler string. */
       mine.forEach(r => {
         _svcPayTo[r.id] = { name: r.provider_name || '', contact: r.provider_contact || '' };
-        html += '<div class="simple-card" style="margin-bottom:0.6rem;padding:0.9rem 1rem;">' +
+        html += '<div class="simple-card list-row" style="margin-bottom:0.6rem;padding:0.9rem 1rem;">' +
           '<strong>' + e(r.catalog_name || r.custom_scope || 'Service request') + '</strong>' +
           '<div style="font-size:0.75rem;opacity:0.85;margin:0.2rem 0 0.4rem;">' + e(SVC_CHIP[r.status] || r.status) +
           (r.provider_name ? ' · ' + e(r.provider_name) + (r.provider_contact ? ' (' + e(r.provider_contact) + ')' : '') : '') +
@@ -3687,12 +3727,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     // ── hail composer: rate card ──
     html += '<h2 style="font-size:0.95rem;margin:1.1rem 0 0.5rem;">Hail a service</h2>';
+    if (fail.cats) {
+      // No rate card means no service to name, so the instant-hail form cannot be honestly offered.
+      // The QUOTE form below does not depend on the catalogue at all, so it stays: a person with an
+      // urgent job can still describe it and get quotes while the rate card is unreadable.
+      html += halfDown('the service rate card', fail.cats) +
+        '<p style="font-size:0.75rem;opacity:0.85;margin:0.4rem 0 0;">You can still describe the job below and ask providers for quotes.</p>';
+      pane.innerHTML = html + _svcQuoteFormHtml(e);
+      svcLoadPresence();
+      return;
+    }
     // J33/D8: idle providers show as AREA presence, never a pin. Before this, a client hailed with
     // no idea whether anyone was online - you could not tell an empty market from a broken one.
     // Filled async by svcLoadPresence(); stays silent when nobody is online rather than printing a
     // discouraging zero.
     html += '<div id="svc-presence" style="margin:0 0 0.5rem;"></div>';
-    html += '<div class="simple-card" style="padding:0.9rem 1rem;">' +
+    html += '<div class="simple-card list-row" style="padding:0.9rem 1rem;">' +
       '<label style="display:block;font-size:0.8rem;font-weight:600;">What do you need?' +
       '<select id="svc-hail-item" aria-label="Which service do you need" style="' + _svcInputC + '">' +
       '<option value="">Choose a service…</option>' +
@@ -3735,7 +3785,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       '<select id="svc-hail-urgency" aria-label="How urgent is this job" style="' + _svcInputC + '">' +
       '<option value="normal" selected>Normal - within a few days</option><option value="high">High - today if possible</option><option value="critical">Critical - production is down</option><option value="low">Low - whenever convenient</option>' +
       '</select></label>' +
-      '<button type="button" onclick="svcHailNow()" style="' + _svcBtnC + 'width:100%;margin-top:0.8rem;">Hail now - notify nearby providers</button>' +
+      '<button type="button" id="svc-hail-go" onclick="svcHailNow()" style="' + _svcBtnC + 'width:100%;margin-top:0.8rem;">Hail now - notify nearby providers</button>' +
+      /* WHAT PRESSING IT DOES, BEFORE IT IS PRESSED. This section used to inherit the page-level
+         "What to do next" card, which was written for the LISTINGS grid and said things like "you
+         have 2 live listings, check your inbox" — advice about a different surface entirely. Hiding
+         that card here (it now follows the grid's visibility) left the hail with no statement of
+         consequence at all, which the comprehension lens caught as saysWhatNext false. The honest
+         replacement belongs under the button that causes it, not in a summary card at the top of a
+         page: a hail is broadcast, first-accept wins, and it stays cancellable until the provider
+         arrives — three facts a person wants BEFORE pressing, not after. */
+      '<p style="margin:0.45rem 0 0;font-size:0.72rem;color:var(--wh-text-muted);">Every nearby provider is notified straight away. The first one to accept takes the job, and you can still cancel until they arrive.</p>' +
       // THE REWARD WAS UNDISCOVERABLE ON THE SURFACE WHERE THE BUYER COMMITS (measured 2026-08-04).
       // grant_service_reward() pays the buyer credits back when a hailed job SETTLES, and
       // guard_reward_exclusive makes earning and spending mutually exclusive on the same job -- yet
@@ -3749,18 +3808,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       'When the job settles you get 10% of it in credits back, and you can spend credits on a job OR earn them on it, never both.</p>' +
       '</div>';
     // ── custom job → quotes ──
-    html += '<div class="simple-card" style="margin-top:0.8rem;padding:0.9rem 1rem;">' +
-      '<strong>Bigger or unusual job?</strong>' +
-      '<label style="display:block;margin-top:0.5rem;font-size:0.8rem;font-weight:600;">Describe it' +
-      '<textarea id="svc-quote-scope" aria-label="Describe the job" rows="3" maxlength="600" placeholder="e.g. Rewind or replace a 75kW motor, bearing noise, need insulation test" style="' + _svcInputC + 'resize:vertical;"></textarea></label>' +
-      '<label style="display:block;margin-top:0.5rem;font-size:0.8rem;font-weight:600;">Budget (₱, optional)' +
-      '<input id="svc-quote-budget" type="number" aria-label="Budget in pesos (optional)" min="0" step="500" style="' + _svcInputC + '"></label>' +
-      '<label style="display:block;margin-top:0.5rem;font-size:0.8rem;font-weight:600;">Where?' +
-      '<input id="svc-quote-address" type="text" aria-label="Job city or site" maxlength="120" placeholder="City / site" style="' + _svcInputC + '"></label>' +
-      '<button type="button" onclick="svcAskQuotes()" style="' + _svcGhostC + 'width:100%;margin-top:0.8rem;">Ask providers for quotes</button>' +
-      '<button type="button" onclick="svcTriage()" style="' + _svcGhostC + 'width:100%;margin-top:0.5rem;">🤖 Not sure? Let AI suggest the category and urgency</button>' +
-      '<div id="svc-triage-out" style="font-size:0.75rem;opacity:0.9;margin-top:0.3rem;" role="status"></div>' +
-      '</div>';
+    html += _svcQuoteFormHtml(e);
     pane.innerHTML = html;
     svcLoadPresence();   // J33: fill the area-presence line after the pane exists
 
@@ -3842,6 +3890,66 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
   window.svcPinSite = svcPinSite;
 
+  /* THREE PRESSES USED TO MEAN THREE HAILS, and on this surface a hail is not an idempotent row — it
+     BROADCASTS. Measured 2026-08-04 on a live walk: with the POST held open 1,400ms (a slow phone on
+     plant wifi, which is the normal case here), pressing "Hail now" three times produced writeAttempts
+     3, with the button never disabled, never relabelled and never aria-busy. The cost is not a
+     duplicate row in a table; it is three broadcasts for one job, so nearby providers get notified
+     three times, some accept different copies, and the person who tapped twice because nothing seemed
+     to happen has to cancel two of them. Nothing on screen changed between the first press and the
+     third, which is exactly why a person presses again.
+
+     The page already had the answer in eight other places (svcConfirmPayment, postListing, sendInquiry
+     ...): capture the button, disable + relabel, restore in `finally`. These two write paths were the
+     ones it had never been applied to. `finally` matters more than the disable: an early `return` on a
+     validation refusal must give the button back, or one wrong entry bricks the form. */
+  async function _svcSubmitGuard(btnId, busyLabel, fn) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      if (btn.disabled) return;              // a press that arrives while one is in flight does nothing
+      btn.dataset.whLabel = btn.textContent;
+      btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = busyLabel;
+    }
+    try { await fn(); }
+    finally {
+      if (btn) {
+        btn.disabled = false; btn.removeAttribute('aria-busy');
+        btn.textContent = btn.dataset.whLabel || btn.textContent;
+      }
+    }
+  }
+
+  /* A dead session must not be reported to a person as "JWT expired". showToast(error.message) passed
+     PostgREST's wording straight through, so the one failure a person can actually act on arrived in
+     the vocabulary of the token layer. The community composer already tells these apart, because they
+     clear in completely different ways: sign in again / wait N seconds / check your connection.
+
+     `sent` is false on the READ path, where nothing was being sent in the first place and claiming
+     otherwise would be its own small lie. */
+  function _svcErrorText(error, sent) {
+    const msg  = String((error && error.message) || '');
+    const hint = String((error && error.hint) || '') + ' ' + String((error && error.details) || '');
+    const code = String((error && error.code) || '');
+    const tail = sent === false ? '' : ', so nothing was sent';
+    if (/jwt|expired|not authenticated|invalid token/i.test(msg) || code === 'PGRST301' || (error && error.status) === 401) {
+      return 'Your session expired' + tail + '. Sign in again and redo this step.';
+    }
+    /* 429 IS THE ONE ERROR WHOSE REMEDY IS TIME, and it was arriving as the bare words "rate limit
+       exceeded" — which names the limit and says nothing about when it lifts, so the only reasonable
+       thing a person can do with it is press the button again immediately, the exact action that
+       extends the limit. PostgREST puts the interval in the hint ("retry after 60s"); read it, and
+       fall back to "in a moment" rather than inventing a number we do not have. */
+    if (/rate ?limit|too many/i.test(msg) || code === '429' || (error && error.status) === 429) {
+      const secs = (msg + ' ' + hint).match(/(\d+)\s*(s|sec|secs|seconds?)\b/i);
+      return 'Too many requests' + tail + '. Try again in ' + (secs ? secs[1] + ' seconds' : 'a moment') + '.';
+    }
+    if (/failed to fetch|network|load failed/i.test(msg)) {
+      return 'Couldn\'t reach WorkHive' + tail + '. Check your connection and try again.';
+    }
+    return msg || ('Something went wrong' + tail + '.');
+  }
+  const _svcWriteError = e => _svcErrorText(e, true);
+
   async function svcHailNow() {
     if (!_authUid) { showToast('Sign in first to hail a service'); return; }
     if (!svcRequireOnline('Hailing a provider')) return;
@@ -3850,18 +3958,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const urgency = (document.getElementById('svc-hail-urgency') || {}).value || 'normal';
     if (!itemId) { showToast('Pick a service first'); return; }
     if (!address) { showToast('Tell providers where the job is'); return; }
-    const { data, error } = await db.from('service_requests').insert({
-      client_auth_uid: _authUid, client_worker_name: WORKER_NAME || null,
-      hive_id: HIVE_ID || null, segment: HIVE_ID ? 'industrial' : 'consumer', mode: 'instant', catalog_item_id: itemId,
-      address: address, urgency: urgency, status: 'broadcasting',
-      // EWKT for geography(Point,4326). Omitted when unpinned so the row stays exactly as it
-      // was before this feature — a hail without a pin is still a valid hail.
-      ...(_svcPin ? { location: 'SRID=4326;POINT(' + _svcPin[0] + ' ' + _svcPin[1] + ')' } : {})
-    }).select('id');
-    if (error) { showToast(error.message); return; }
-    if (!data || !data.length) { showToast('Request didn\'t save - please try again'); return; }
-    showToast('Hailing - nearby providers are being notified');
-    loadClientServices();
+    await _svcSubmitGuard('svc-hail-go', 'Hailing…', async () => {
+      const { data, error } = await db.from('service_requests').insert({
+        client_auth_uid: _authUid, client_worker_name: WORKER_NAME || null,
+        hive_id: HIVE_ID || null, segment: HIVE_ID ? 'industrial' : 'consumer', mode: 'instant', catalog_item_id: itemId,
+        address: address, urgency: urgency, status: 'broadcasting',
+        // EWKT for geography(Point,4326). Omitted when unpinned so the row stays exactly as it
+        // was before this feature — a hail without a pin is still a valid hail.
+        ...(_svcPin ? { location: 'SRID=4326;POINT(' + _svcPin[0] + ' ' + _svcPin[1] + ')' } : {})
+      }).select('id');
+      if (error) { showToast(_svcWriteError(error), 'error'); return; }
+      if (!data || !data.length) { showToast('Request didn\'t save - please try again', 'error'); return; }
+      showToast('Hailing - nearby providers are being notified');
+      loadClientServices();
+    });
   }
 
   async function svcAskQuotes() {
@@ -3871,15 +3981,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const budget = Number((document.getElementById('svc-quote-budget') || {}).value) || null;
     const address = ((document.getElementById('svc-quote-address') || {}).value || '').trim();
     if (scope.length < 10) { showToast('Describe the job in a sentence or two'); return; }
-    const { data, error } = await db.from('service_requests').insert({
-      client_auth_uid: _authUid, client_worker_name: WORKER_NAME || null,
-      hive_id: HIVE_ID || null, segment: HIVE_ID ? 'industrial' : 'consumer', mode: 'quote', custom_scope: scope,
-      budget: budget, address: address || null, status: 'broadcasting'
-    }).select('id');
-    if (error) { showToast(error.message); return; }
-    if (!data || !data.length) { showToast('Request didn\'t save - please try again'); return; }
-    showToast('Posted - providers will send quotes here');
-    loadClientServices();
+    await _svcSubmitGuard('svc-quote-go', 'Sending…', async () => {
+      const { data, error } = await db.from('service_requests').insert({
+        client_auth_uid: _authUid, client_worker_name: WORKER_NAME || null,
+        hive_id: HIVE_ID || null, segment: HIVE_ID ? 'industrial' : 'consumer', mode: 'quote', custom_scope: scope,
+        budget: budget, address: address || null, status: 'broadcasting'
+      }).select('id');
+      if (error) { showToast(_svcWriteError(error), 'error'); return; }
+      if (!data || !data.length) { showToast('Request didn\'t save - please try again', 'error'); return; }
+      showToast('Posted - providers will send quotes here');
+      loadClientServices();
+    });
   }
 
   async function svcShowQuotes(requestId) {
@@ -4557,12 +4669,45 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // #listings-info is in this list because the first pass MISSED it. Four elements were hidden and
     // the page still read "Showing 9 listings - newest first" -- found only by re-scanning the whole
     // body text for the number rather than re-checking the four elements I had just changed.
+    //
+    // AND THE SECOND PASS MISSED THE WHOLE SUMMARY BLOCK, the same way. After re-scanning the body I
+    // added #listings-info and stopped there, without walking the page's top-level children in order.
+    // Doing that (2026-08-04, on ?section=services) showed 310px of parts chrome still standing above
+    // the services pane, every word of it about a grid that was hidden:
+    //     "LISTINGS IN VIEW - 9 - 9 parts listings after filter"    <- says "parts" while Services is on
+    //     "MY LISTINGS - 2 - 2 of your listings live in marketplace"
+    //     "WHAT TO DO NEXT - You have 2 live listings ... check your inbox for buyer inquiries"
+    //     "Show details" -> "Listings in view: listings for the current section (parts / training / jobs)"
+    // The explainer does not even list services as a section, which is the tell: this entire block was
+    // written for the listings grid and follows it, so it belongs to the grid's visibility, not the
+    // page's. The services pane brings its OWN orientation (My service requests N / providers online
+    // now / Hail a service), so hiding this is not a loss of context -- and it lifts the hail form
+    // 310px up the page, the same defect that put the marketplace's only transact control below the
+    // fold in 53cc8460.
+    // The sr-only <h2>Marketplace listings</h2> goes with them: a heading for a hidden grid is an
+    // orphan in the screen-reader outline, announcing a region that is not there.
     const els = [document.getElementById('mk-verdict'),
+                 document.getElementById('mk-summary-row'),
+                 document.getElementById('mk-action-card'),
+                 document.getElementById('details-toggle-btn'),
                  document.querySelector('.search-row'),
                  document.getElementById('price-filter-panel'),
                  document.getElementById('filter-chips'),
+                 document.getElementById('mk-listings-h2'),
                  document.getElementById('listings-info')];
     for (const el of els) { if (el) el.hidden = !show; }
+    // Collapse the explainer rather than just hiding it: left expanded, switching back to parts would
+    // restore a panel the person never chose to open on this section.
+    // It is closed by REMOVING .open, not by setting .hidden -- `#mk-summary-details.open{display:block}`
+    // is an ID selector and beats the UA stylesheet's [hidden]{display:none}, so `hidden = true` on an
+    // open panel changes the attribute and nothing on screen. Same shape as the column-REVOKE that was
+    // a no-op under a table GRANT: the stronger rule was already in force underneath.
+    if (!show) {
+      const det = document.getElementById('mk-summary-details');
+      const tog = document.getElementById('details-toggle-btn');
+      if (det) det.classList.remove('open');
+      if (tog) { tog.setAttribute('aria-expanded', 'false'); tog.textContent = 'Show details'; }
+    }
   }
 
   function switchSection(section) {

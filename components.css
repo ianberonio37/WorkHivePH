@@ -46,6 +46,18 @@
 /* Arc W · W1: lift the KPI card off the page with the navy ladder (was background:var(--wh-navy)
    == page bg → coplanar). The soft shadow comes from the global elevation rule below. */
 .simple-card { background:var(--wh-elev-1); border:1px solid rgba(255,255,255,0.07); border-radius:var(--wh-radius); padding:14px 16px; min-height:154px; }
+/* ...BUT THE 154px FLOOR BELONGS TO A KPI TILE, NOT TO A LIST ROW. The floor above exists so an
+   async value-fill cannot grow a tile and push the command-center stack down (CLS) — it assumes a
+   label + hero number + sub + tag. Surfaces that reuse .simple-card for a two-line LIST ROW inherit
+   it too, and there the same rule reserves space for content that will never arrive: measured
+   2026-08-04 on the services pane, three request rows of 41px content each rendered 154px tall, so
+   339px of the screen above "Hail a service" was empty by construction. That is the below-the-fold
+   defect in miniature, and it is invisible to every overflow and contrast check because nothing is
+   wrong with what IS drawn.
+   `.simple-card.list-row` opts a row out of the floor without touching the tiles that need it: the
+   CLS reserve is only protective where a number lands late, and a list row's text is already there
+   when the row is built. */
+.simple-card.list-row { min-height:0; }
 .simple-card .sc-label { font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.80); text-transform:uppercase; letter-spacing:0.06em; }
 /* THE canonical KPI number. Two tiers only, and this is the standard one:
      .sc-hero            -> 1.5rem  (every KPI tile on every page)
