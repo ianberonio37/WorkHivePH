@@ -1133,6 +1133,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let _priceMax      = null;
   let _listings      = [];
   let _counts        = { parts: 0, training: 0, jobs: 0 };
+  let _mineAllSections = null;   // this seller's live listings across every section (BC count_matches_source)
   let _authUid       = null;
   let _lastCreatedAt = null;
   let _hasMore       = false;
@@ -2061,7 +2062,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // Layer D — Plain-Read summary for Marketplace. Reads _listings + active section.
   function renderMarketplaceSummary() {
     const total   = _listings.length;
-    const mine    = _listings.filter(l => l.seller_name === WORKER_NAME).length;
+    // ACROSS ALL SECTIONS, which is what this tile's own explainer promises. The section-scoped
+  // fallback is kept for the moment before loadCounts() answers, so the tile is never blank; once
+  // the count lands it is authoritative, and null (an unreadable count) renders as a gap.
+  const mine    = (_mineAllSections !== undefined && _mineAllSections !== null)
+    ? _mineAllSections
+    : _listings.filter(l => l.seller_name === WORKER_NAME).length;
     const section = (_section || 'parts');
     const sectionLabel = section.charAt(0).toUpperCase() + section.slice(1);
 
@@ -2125,7 +2131,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     setCard('mine',
       canPost ? String(mine) : '-',
       !canPost ? 'Sign in to list your own parts'
-               : mine === 0 ? 'You have no live listings yet' : `${mine} of your listings live in marketplace`,
+               : mine === 0 ? 'You have no live listings in any section' : `${mine} of your listings live in marketplace`,
       !canPost ? 'GUEST' : mine === 0 ? 'NONE' : 'LISTED',
       canPost && mine > 0 ? 'green' : 'grey'
     );
@@ -2495,6 +2501,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         next[s] = count;
       }));
       _counts = unread ? null : next;
+      /* "MY LISTINGS" SAID 0 TO SOMEONE WITH TWO OF THEM. The tile counted `_listings`, which holds
+         only the CURRENT section, so on Training it read 0 with the sub-label "You have no live
+         listings yet" -- a claim about the PERSON, not the section -- while this seller had 2 live
+         listings sitting one tab away. Its own explainer states the intended meaning plainly: "My
+         listings: listings where the seller name matches your name, ACROSS ALL SECTIONS." The label
+         was right and the number was wrong. Measured 2026-08-04 (BC count_matches_source): parts 2,
+         training 0, jobs 0, against 2 published for this seller in the database.
+         One more head:true COUNT, no row egress, and null on failure so an unreadable count renders
+         as a gap rather than as a confident zero -- the same rule the three section counts learned
+         under a 503. */
+      if (WORKER_NAME) {
+        const { count: mineCount, error: mineErr } = await db
+          .from('v_marketplace_listings_truth')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'published')
+          .eq('seller_name', WORKER_NAME);
+        _mineAllSections = (mineErr || mineCount === null || mineCount === undefined) ? null : mineCount;
+      }
       updateCountBadges();
     } catch (_) { /* ignore — table may not exist yet */ /* empty-catch-allow: best-effort silent swallow */
       _counts = null; updateCountBadges();
