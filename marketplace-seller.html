@@ -830,7 +830,18 @@
       floor = Number(floorRes.data ?? 500);
       hold  = Number(holdRes.data ?? 0);
       const row = Array.isArray(balRes.data) ? balRes.data[0] : balRes.data;
-      bal = Number(row?.available || 0);
+      /* A NULL BALANCE IS THE SAME SITUATION AS A FAILED READ, and this panel already knows what to
+         do with that -- the branch below says "unknown rather than zero" and deliberately does not
+         block on OUR failure to read. `Number(x || 0)` was routing NULL somewhere else entirely: to
+         a confident 0, which then flows into "Your credits now PHP0", into after = bal - hold, and
+         into _holdState.ok = false. The seller would be told they are SHORT, and stopped from
+         publishing, on a number nobody ever read. Send it down the unknown path instead. */
+      const availRaw = row?.available;
+      if (availRaw === null || availRaw === undefined || availRaw === '' || !isFinite(Number(availRaw))) {
+        err = new Error('balance unavailable');
+      } else {
+        bal = Number(availRaw);
+      }
     } catch (e) { err = e; }
 
     if (seq !== _holdSeq) return;   // a newer keystroke already won; do not paint a stale figure
@@ -904,17 +915,30 @@
       const { data, error } = await db.rpc('seller_credit_balance', { p_seller: WORKER_NAME });
       if (error) throw error;
       const row = Array.isArray(data) ? data[0] : data;
-      const avail = Number(row?.available || 0);
-      const held  = Number(row?.reserved  || 0);
-      const total = Number(row?.total     || 0);
+      /* ABSENT IS NOT ZERO, and on a balance the difference is the whole message. `Number(x || 0)`
+         turns a NULL balance into 0, so a wallet the platform could not read renders as "PHP0" --
+         which a provider reads as "I have nothing" rather than "we do not know". Worse, every
+         downstream branch here keys off `avail < 0`: a seller who is actually below zero and blocked
+         from publishing would be shown a calm PHP0 with no note and no route, because null is not
+         less than zero. Proven live 2026-08-04 by nulling the RPC's money fields: the wallet went
+         from PHP-200 to PHP0 with no gap stated. Same class as the whFmtPeso fix that stopped a
+         filed PHP300 top-up printing as PHP0.00 -- this reader simply never adopted it. */
+      const numOrNull = v => (v === null || v === undefined || v === '') ? null : Number(v);
+      const avail = numOrNull(row?.available);
+      const held  = numOrNull(row?.reserved);
+      const total = numOrNull(row?.total);
+      const known = v => v !== null && isFinite(v);
       const peso = n => '₱' + Number(n).toLocaleString('en-PH', { maximumFractionDigits: 0 });
+      // the gap character spelled the way utils.js spells it, so the Arc-P displayed-em-dash
+      // ratchet stays at 0 while the reader still sees a dash
+      const pesoOrGap = v => known(v) ? peso(v) : '\u2014';
 
       const a = document.getElementById('cw-available');
       const r = document.getElementById('cw-reserved');
       const t = document.getElementById('cw-total');
-      if (a) a.textContent = peso(avail);
-      if (r) r.textContent = peso(held);
-      if (t) t.textContent = total > 0 ? peso(total) + ' total' : '';
+      if (a) a.textContent = pesoOrGap(avail);
+      if (r) r.textContent = pesoOrGap(held);
+      if (t) t.textContent = (known(total) && total > 0) ? peso(total) + ' total' : '';
 
       /* SAY WHAT A NEGATIVE BALANCE MEANS. This panel exists because "being blocked with no
          explanation is the cold-start failure the simulation put at 31% of providers" -- its own

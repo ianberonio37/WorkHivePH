@@ -177,6 +177,127 @@ export async function run() {
   return out;
 }
 
+// ── F1 · AZ-failure-injection ────────────────────────────────────────────────────────────────
+// Each layer fails in turn and the layer ABOVE must degrade honestly. Every induction here serves a
+// REAL response (a 500 with a body, a 401, a null field) rather than rejecting the promise: a
+// rejected fetch leaves a stuck skeleton and proves a different thing entirely.
+//
+// Mutating verbs are never forwarded, for the same reason as everywhere else in this file.
+export async function failures(opts) {
+  const settle = (opts && opts.settle) || 1800;
+  const orig = window.__lsrFetch || window.fetch;
+  window.__lsrFetch = orig;
+  const out = {};
+  const m = () => document.querySelector('main') || document.body;
+  const txt = () => (m().innerText || '').replace(/\s+/g, ' ');
+  const MUT = /^(POST|PATCH|PUT|DELETE)$/i;
+  const guard = (i, x) => MUT.test((x && x.method) || (i && i.method) || 'GET');
+  const SAYS_FAIL = /couldn['’]?t|could not|failed|unavailable|error|problem|went wrong|expired|timed out|timeout/i;
+  const OFFERS_BACK = /retry|try again|reload|refresh|sign in again/i;
+
+  const baseline = txt();
+
+  const serve = (status, body) => { window.fetch = async (i, x) => {
+    const u = typeof i === 'string' ? i : (i && i.url) || '';
+    if (!REST.test(u)) return orig(i, x);
+    if (guard(i, x)) return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
+    return new Response(typeof body === 'string' ? body : JSON.stringify(body),
+                        { status, headers: { 'Content-Type': 'application/json' } });
+  }; };
+
+  // 401 — an expired session must SAY the session expired and that nothing was sent. Never a bare
+  // "try again" (which invites a retry that cannot work) and never a sign-in instruction to someone
+  // who IS signed in.
+  serve(401, { code: '42501', message: 'JWT expired' });
+  await rerun(1200);
+  {
+    const t = txt();
+    out.fail_401 = {
+      saysExpiredOrFailed: SAYS_FAIL.test(t),
+      namesSession: /session|sign ?in|log ?in|expired/i.test(t),
+      saysNothingSent: /nothing was sent|not sent|no changes were saved|nothing was saved/i.test(t),
+      bareRetryOnly: OFFERS_BACK.test(t) && !/session|expired/i.test(t),
+      ok: SAYS_FAIL.test(t) && /session|expired/i.test(t),
+    };
+  }
+
+  // TIMEOUT — a hung dependency must END in a stated timeout, not an indefinite skeleton. Served as
+  // a slow-but-real response so the page's own timeout path is what decides.
+  window.fetch = async (i, x) => {
+    const u = typeof i === 'string' ? i : (i && i.url) || '';
+    if (!REST.test(u)) return orig(i, x);
+    if (guard(i, x)) return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
+    await new Promise(r => setTimeout(r, 9000));
+    return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  rerun(0);                                    // deliberately NOT awaited - we sample mid-hang
+  await new Promise(r => setTimeout(r, 4000));
+  {
+    const t = txt();
+    const skel = m().querySelectorAll('[class*="skeleton"],.shimmer,[aria-busy="true"]').length;
+    out.fail_timeout = {
+      statesTimeout: /timed out|timeout|taking longer|slow/i.test(t),
+      stuckSkeleton: skel > 0 && !/timed out|timeout|taking longer/i.test(t),
+      saysSomething: SAYS_FAIL.test(t),
+      ok: /timed out|timeout|taking longer|slow/i.test(t) || SAYS_FAIL.test(t),
+    };
+  }
+  await new Promise(r => setTimeout(r, 6000));  // let the hang drain before the next induction
+
+  // PARTIAL — half the reads succeed. What loaded must be KEPT and what failed must be NAMED; a
+  // silent blank beside good data is the failure this catches.
+  let n = 0;
+  window.fetch = async (i, x) => {
+    const u = typeof i === 'string' ? i : (i && i.url) || '';
+    if (!REST.test(u)) return orig(i, x);
+    if (guard(i, x)) return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
+    n++;
+    if (n % 2 === 0) return new Response(JSON.stringify({ code: '500', message: 'induced partial failure' }),
+                                         { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return orig(i, x);
+  };
+  await rerun(1600);
+  {
+    const t = txt();
+    out.fail_partial = {
+      keptSomething: t.length > baseline.length * 0.3,
+      namesTheFailure: SAYS_FAIL.test(t),
+      ok: t.length > baseline.length * 0.3 && SAYS_FAIL.test(t),
+      len: t.length, baselineLen: baseline.length,
+    };
+  }
+
+  // NULL FIELD — a valid row with a NULL in it must render a STATED GAP, never 0, never "undefined",
+  // never a fabricated value. This is the class that printed a filed PHP300 top-up as PHP0.00.
+  window.fetch = async (i, x) => {
+    const u = typeof i === 'string' ? i : (i && i.url) || '';
+    if (!REST.test(u)) return orig(i, x);
+    if (guard(i, x)) return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const r = await orig(i, x);
+    let b; try { b = await r.clone().json(); } catch (e) { return r; }
+    if (Array.isArray(b)) b.forEach(row => {
+      for (const k of Object.keys(row || {})) {
+        if (/amount|price|rate|total|count|rating|balance|fee/i.test(k)) row[k] = null;
+      }
+    });
+    return new Response(JSON.stringify(b), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  await rerun(1600);
+  {
+    const t = txt();
+    out.fail_null_field = {
+      fabricatedZero: /₱0\.00|₱0\b/.test(t),
+      leakedUndefined: /\bundefined\b|\bNaN\b|\bnull\b/i.test(t),
+      showsGap: /[\u2014\u2013-]|not set|no data|unknown|not recorded/.test(t),
+      ok: !/₱0\.00/.test(t) && !/\bundefined\b|\bNaN\b/i.test(t),
+    };
+  }
+
+  window.fetch = orig;
+  await rerun(settle);
+  return out;
+}
+
 // ── F3 · BH-ui-visual (the two the battery cannot do) ────────────────────────────────────────
 // ufai_battery.js already runs axe-core WCAG 2.2 AA (contrast, names, target size) and the
 // focus-visible tab-walk, across every enumerated state via sweepAll(). REUSE that; this adds only
