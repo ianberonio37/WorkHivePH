@@ -14691,8 +14691,23 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "bola_object",
       "oracle": "another person's object id is refused, and the refusal is legible",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated probe (BEGIN/SAVEPOINT/ROLLBACK)",
+        "asserts": "another person's object id is refused, and the refusal is legible",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000006_platform_admins.sql",
+          "supabase/migrations/20260729000003_review_guard_admin_selfdeal.sql",
+          "supabase/migrations/20260730000003_admin_bypass_only_for_non_parties.sql",
+          "supabase/migrations/20260804000048_any_signed_in_user_could_list_who_the_admins_are.sql"
+        ],
+        "sha": "a492a83fb3ae3f84",
+        "walked_at": "2026-08-04",
+        "checked": "Another seller's object is refused, with NON-VACUITY proven rather than assumed -- a refusal only means something if the same statement succeeds for the rightful owner:\n  Hector (owns no listings) reprices others ..... UPDATE 0\n  Pablo (owns 2) reprices his own ............... UPDATE 2   <- the probe has teeth\n  Pablo reprices other sellers' ................. UPDATE 25  <- because he is a platform admin\nThe 25 is admin breadth, not a hole in the ordinary-user boundary: mkt_listings_update is USING/CHECK (own OR is_marketplace_admin()), and the non-admin path measured 0. Recorded here because the WITH CHECK is satisfied by is_marketplace_admin() ALONE, so it places no constraint on the NEW seller_name -- RLS by itself would let an admin transfer a listing to themselves. It is a TRIGGER, not the policy, that actually stops it: attempting it raised 'Not allowed: a listing's owner and hive are immutable - review publishes a listing, it does not transfer it'. Defense in depth is doing the work the policy does not. NOTE FOR IAN: an admin CAN still silently change another seller's PRICE (that trigger only guards owner and hive), which is a moderation-scope question rather than a defect, and is raised rather than changed unilaterally."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-anon-bfla_function",
@@ -14730,8 +14745,23 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "jwt_not_body",
       "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated probe (BEGIN/SAVEPOINT/ROLLBACK)",
+        "asserts": "identity comes from the JWT; a forged identity in the body changes nothing",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000006_platform_admins.sql",
+          "supabase/migrations/20260729000003_review_guard_admin_selfdeal.sql",
+          "supabase/migrations/20260730000003_admin_bypass_only_for_non_parties.sql",
+          "supabase/migrations/20260804000048_any_signed_in_user_could_list_who_the_admins_are.sql"
+        ],
+        "sha": "a492a83fb3ae3f84",
+        "walked_at": "2026-08-04",
+        "checked": "Identity comes from the JWT, and a forged identity in the request BODY changes nothing. is_marketplace_admin() resolves the caller through auth_worker_names() off the JWT, never off a submitted field. Tested by acting as Hector Salvador while writing 'Pablo Aguilar' into the body:\n  INSERT skill_badges in the victim's name ..... ERROR, violates RLS policy\n  INSERT skill_badges in my own name ........... ERROR, violates RLS policy (badges are earned, not claimed -- self-minting a trust signal is refused too)\n  INSERT marketplace_inquiries as another buyer  ERROR, violates RLS policy\nThis matters because all three tables carry an identity column with NO submitter-binding trigger (skill_badges.worker_name, marketplace_inquiries.buyer_name/seller_name), so the column itself is attacker-controlled; RLS is what refuses to trust it."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-anon-boundary_not_emptiness",
@@ -14860,8 +14890,23 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "bola_object",
       "oracle": "another person's object id is refused, and the refusal is legible",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated probe (BEGIN/SAVEPOINT/ROLLBACK)",
+        "asserts": "another person's object id is refused, and the refusal is legible",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000006_platform_admins.sql",
+          "supabase/migrations/20260729000003_review_guard_admin_selfdeal.sql",
+          "supabase/migrations/20260730000003_admin_bypass_only_for_non_parties.sql",
+          "supabase/migrations/20260804000048_any_signed_in_user_could_list_who_the_admins_are.sql"
+        ],
+        "sha": "a492a83fb3ae3f84",
+        "walked_at": "2026-08-04",
+        "checked": "Another seller's object is refused, with NON-VACUITY proven rather than assumed -- a refusal only means something if the same statement succeeds for the rightful owner:\n  Hector (owns no listings) reprices others ..... UPDATE 0\n  Pablo (owns 2) reprices his own ............... UPDATE 2   <- the probe has teeth\n  Pablo reprices other sellers' ................. UPDATE 25  <- because he is a platform admin\nThe 25 is admin breadth, not a hole in the ordinary-user boundary: mkt_listings_update is USING/CHECK (own OR is_marketplace_admin()), and the non-admin path measured 0. Recorded here because the WITH CHECK is satisfied by is_marketplace_admin() ALONE, so it places no constraint on the NEW seller_name -- RLS by itself would let an admin transfer a listing to themselves. It is a TRIGGER, not the policy, that actually stops it: attempting it raised 'Not allowed: a listing's owner and hive are immutable - review publishes a listing, it does not transfer it'. Defense in depth is doing the work the policy does not. NOTE FOR IAN: an admin CAN still silently change another seller's PRICE (that trigger only guards owner and hive), which is a moderation-scope question rather than a defect, and is raised rather than changed unilaterally."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-two_context-bfla_function",
@@ -14899,8 +14944,23 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "jwt_not_body",
       "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated probe (BEGIN/SAVEPOINT/ROLLBACK)",
+        "asserts": "identity comes from the JWT; a forged identity in the body changes nothing",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000006_platform_admins.sql",
+          "supabase/migrations/20260729000003_review_guard_admin_selfdeal.sql",
+          "supabase/migrations/20260730000003_admin_bypass_only_for_non_parties.sql",
+          "supabase/migrations/20260804000048_any_signed_in_user_could_list_who_the_admins_are.sql"
+        ],
+        "sha": "a492a83fb3ae3f84",
+        "walked_at": "2026-08-04",
+        "checked": "Identity comes from the JWT, and a forged identity in the request BODY changes nothing. is_marketplace_admin() resolves the caller through auth_worker_names() off the JWT, never off a submitted field. Tested by acting as Hector Salvador while writing 'Pablo Aguilar' into the body:\n  INSERT skill_badges in the victim's name ..... ERROR, violates RLS policy\n  INSERT skill_badges in my own name ........... ERROR, violates RLS policy (badges are earned, not claimed -- self-minting a trust signal is refused too)\n  INSERT marketplace_inquiries as another buyer  ERROR, violates RLS policy\nThis matters because all three tables carry an identity column with NO submitter-binding trigger (skill_badges.worker_name, marketplace_inquiries.buyer_name/seller_name), so the column itself is attacker-controlled; RLS is what refuses to trust it."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-two_context-boundary_not_emptiness",
@@ -14938,8 +14998,23 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "bfla_function",
       "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated probe (BEGIN/SAVEPOINT/ROLLBACK)",
+        "asserts": "a function above this role is refused at the server, not merely hidden in the UI",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000006_platform_admins.sql",
+          "supabase/migrations/20260729000003_review_guard_admin_selfdeal.sql",
+          "supabase/migrations/20260730000003_admin_bypass_only_for_non_parties.sql",
+          "supabase/migrations/20260804000048_any_signed_in_user_could_list_who_the_admins_are.sql"
+        ],
+        "sha": "a492a83fb3ae3f84",
+        "walked_at": "2026-08-04",
+        "checked": "Proven at the SERVER, which is the whole oracle -- not merely hidden in the UI. Acting as a real non-admin (Hector Salvador) under SET LOCAL ROLE authenticated with his own JWT claims, against a roster that genuinely held two admins (Pablo Aguilar, Leandro Marquez):\n  is_marketplace_admin() ....................... false\n  INSERT self-promotion ........................ ERROR, violates RLS policy\n  UPDATE rename an admin to me ................. UPDATE 0, rows named HIJACKED = 0\n  DELETE the whole roster ...................... DELETE 0\n  and as postgres afterwards, the true roster is still 2.\nThe grants are wide open -- anon and authenticated both hold INSERT/UPDATE/DELETE on marketplace_platform_admins -- so RLS is the only thing standing between any signed-in user and self-promotion to platform admin. It holds, on all three verbs. is_marketplace_admin() is also sound at the bootstrap edge: it is EXISTS over the roster, so an empty roster makes nobody an admin rather than everybody."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-anon-tenant_boundary",
@@ -14964,8 +15039,23 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "jwt_not_body",
       "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated probe (BEGIN/SAVEPOINT/ROLLBACK)",
+        "asserts": "identity comes from the JWT; a forged identity in the body changes nothing",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000006_platform_admins.sql",
+          "supabase/migrations/20260729000003_review_guard_admin_selfdeal.sql",
+          "supabase/migrations/20260730000003_admin_bypass_only_for_non_parties.sql",
+          "supabase/migrations/20260804000048_any_signed_in_user_could_list_who_the_admins_are.sql"
+        ],
+        "sha": "a492a83fb3ae3f84",
+        "walked_at": "2026-08-04",
+        "checked": "Identity comes from the JWT, and a forged identity in the request BODY changes nothing. is_marketplace_admin() resolves the caller through auth_worker_names() off the JWT, never off a submitted field. Tested by acting as Hector Salvador while writing 'Pablo Aguilar' into the body:\n  INSERT skill_badges in the victim's name ..... ERROR, violates RLS policy\n  INSERT skill_badges in my own name ........... ERROR, violates RLS policy (badges are earned, not claimed -- self-minting a trust signal is refused too)\n  INSERT marketplace_inquiries as another buyer  ERROR, violates RLS policy\nThis matters because all three tables carry an identity column with NO submitter-binding trigger (skill_badges.worker_name, marketplace_inquiries.buyer_name/seller_name), so the column itself is attacker-controlled; RLS is what refuses to trust it."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-anon-boundary_not_emptiness",
@@ -15016,8 +15106,23 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "bfla_function",
       "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated probe (BEGIN/SAVEPOINT/ROLLBACK)",
+        "asserts": "a function above this role is refused at the server, not merely hidden in the UI",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000006_platform_admins.sql",
+          "supabase/migrations/20260729000003_review_guard_admin_selfdeal.sql",
+          "supabase/migrations/20260730000003_admin_bypass_only_for_non_parties.sql",
+          "supabase/migrations/20260804000048_any_signed_in_user_could_list_who_the_admins_are.sql"
+        ],
+        "sha": "a492a83fb3ae3f84",
+        "walked_at": "2026-08-04",
+        "checked": "Proven at the SERVER, which is the whole oracle -- not merely hidden in the UI. Acting as a real non-admin (Hector Salvador) under SET LOCAL ROLE authenticated with his own JWT claims, against a roster that genuinely held two admins (Pablo Aguilar, Leandro Marquez):\n  is_marketplace_admin() ....................... false\n  INSERT self-promotion ........................ ERROR, violates RLS policy\n  UPDATE rename an admin to me ................. UPDATE 0, rows named HIJACKED = 0\n  DELETE the whole roster ...................... DELETE 0\n  and as postgres afterwards, the true roster is still 2.\nThe grants are wide open -- anon and authenticated both hold INSERT/UPDATE/DELETE on marketplace_platform_admins -- so RLS is the only thing standing between any signed-in user and self-promotion to platform admin. It holds, on all three verbs. is_marketplace_admin() is also sound at the bootstrap edge: it is EXISTS over the roster, so an empty roster makes nobody an admin rather than everybody."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-buyer-tenant_boundary",
@@ -15042,8 +15147,23 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "jwt_not_body",
       "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated probe (BEGIN/SAVEPOINT/ROLLBACK)",
+        "asserts": "identity comes from the JWT; a forged identity in the body changes nothing",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000006_platform_admins.sql",
+          "supabase/migrations/20260729000003_review_guard_admin_selfdeal.sql",
+          "supabase/migrations/20260730000003_admin_bypass_only_for_non_parties.sql",
+          "supabase/migrations/20260804000048_any_signed_in_user_could_list_who_the_admins_are.sql"
+        ],
+        "sha": "a492a83fb3ae3f84",
+        "walked_at": "2026-08-04",
+        "checked": "Identity comes from the JWT, and a forged identity in the request BODY changes nothing. is_marketplace_admin() resolves the caller through auth_worker_names() off the JWT, never off a submitted field. Tested by acting as Hector Salvador while writing 'Pablo Aguilar' into the body:\n  INSERT skill_badges in the victim's name ..... ERROR, violates RLS policy\n  INSERT skill_badges in my own name ........... ERROR, violates RLS policy (badges are earned, not claimed -- self-minting a trust signal is refused too)\n  INSERT marketplace_inquiries as another buyer  ERROR, violates RLS policy\nThis matters because all three tables carry an identity column with NO submitter-binding trigger (skill_badges.worker_name, marketplace_inquiries.buyer_name/seller_name), so the column itself is attacker-controlled; RLS is what refuses to trust it."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-buyer-boundary_not_emptiness",
@@ -15094,8 +15214,23 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "bfla_function",
       "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated probe (BEGIN/SAVEPOINT/ROLLBACK)",
+        "asserts": "a function above this role is refused at the server, not merely hidden in the UI",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000006_platform_admins.sql",
+          "supabase/migrations/20260729000003_review_guard_admin_selfdeal.sql",
+          "supabase/migrations/20260730000003_admin_bypass_only_for_non_parties.sql",
+          "supabase/migrations/20260804000048_any_signed_in_user_could_list_who_the_admins_are.sql"
+        ],
+        "sha": "a492a83fb3ae3f84",
+        "walked_at": "2026-08-04",
+        "checked": "Proven at the SERVER, which is the whole oracle -- not merely hidden in the UI. Acting as a real non-admin (Hector Salvador) under SET LOCAL ROLE authenticated with his own JWT claims, against a roster that genuinely held two admins (Pablo Aguilar, Leandro Marquez):\n  is_marketplace_admin() ....................... false\n  INSERT self-promotion ........................ ERROR, violates RLS policy\n  UPDATE rename an admin to me ................. UPDATE 0, rows named HIJACKED = 0\n  DELETE the whole roster ...................... DELETE 0\n  and as postgres afterwards, the true roster is still 2.\nThe grants are wide open -- anon and authenticated both hold INSERT/UPDATE/DELETE on marketplace_platform_admins -- so RLS is the only thing standing between any signed-in user and self-promotion to platform admin. It holds, on all three verbs. is_marketplace_admin() is also sound at the bootstrap edge: it is EXISTS over the roster, so an empty roster makes nobody an admin rather than everybody."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-two_context-tenant_boundary",
@@ -15120,8 +15255,23 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "jwt_not_body",
       "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "psql",
+        "ref": "psql:2026-08-04 rolled-back SET LOCAL ROLE authenticated probe (BEGIN/SAVEPOINT/ROLLBACK)",
+        "asserts": "identity comes from the JWT; a forged identity in the body changes nothing",
+        "value_checked": true,
+        "depends_on": [
+          "supabase/migrations/20260502000006_platform_admins.sql",
+          "supabase/migrations/20260729000003_review_guard_admin_selfdeal.sql",
+          "supabase/migrations/20260730000003_admin_bypass_only_for_non_parties.sql",
+          "supabase/migrations/20260804000048_any_signed_in_user_could_list_who_the_admins_are.sql"
+        ],
+        "sha": "a492a83fb3ae3f84",
+        "walked_at": "2026-08-04",
+        "checked": "Identity comes from the JWT, and a forged identity in the request BODY changes nothing. is_marketplace_admin() resolves the caller through auth_worker_names() off the JWT, never off a submitted field. Tested by acting as Hector Salvador while writing 'Pablo Aguilar' into the body:\n  INSERT skill_badges in the victim's name ..... ERROR, violates RLS policy\n  INSERT skill_badges in my own name ........... ERROR, violates RLS policy (badges are earned, not claimed -- self-minting a trust signal is refused too)\n  INSERT marketplace_inquiries as another buyer  ERROR, violates RLS policy\nThis matters because all three tables carry an identity column with NO submitter-binding trigger (skill_badges.worker_name, marketplace_inquiries.buyer_name/seller_name), so the column itself is attacker-controlled; RLS is what refuses to trust it."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-two_context-boundary_not_emptiness",
@@ -18014,14 +18164,27 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "what_happens_next",
       "oracle": "after an action, the surface says what happens next and when",
-      "status": "owed",
+      "status": "green",
       "findings": [
         {
           "severity": "measured-fail",
           "title": "the surface never says what happens after an action",
           "measured": "NO FORWARD GUIDANCE ON THE SURFACE. Swept the rendered text for any statement of what follows an action -- 'what happens next', 'we'll', 'you'll', 'within N', 'next step', 'after you', 'once you' -- and found ZERO. A seller can post a listing, save a profile and top up credits here without the page ever saying what happens after any of them: when a listing goes live, how long verification takes, when credits land. The comprehension lens agrees (saysWhatNext false) while the same lens reports 0 unexplained NUMBERS, so this surface explains its figures and not its consequences."
         }
-      ]
+      ],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
+        "asserts": "after an action, the surface says what happens next and when",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller.html",
+          "utils.js"
+        ],
+        "sha": "6e975fdf9b3316c0",
+        "walked_at": "2026-08-04",
+        "checked": "The last of the five surfaces to owe this. Measured on a clean load: saysWhatNext true, with statesFee, statesReward and statesHold all true across the three commit controls the page offers (Go to top up / Save / Save certifications), 10 numbers and 0 unexplained. The paragraph before #credit-wallet is what closes it: it says the 10% is a HOLD that comes back, which is the fact a seller most needs before committing and the one the page previously left to inference."
+      }
     },
     {
       "id": "LM-BI-ux-comprehension-seller-buyer-what_does_it_cost",
