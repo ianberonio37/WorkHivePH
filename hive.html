@@ -2200,12 +2200,18 @@ async function showWelcome(hive) {
     db.from('v_logbook_truth').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('status', 'Closed')
   ]);
 
-  const _wlc = logRes.count    || 0;
-  const _wpc = closedRes.count || 0;
+  /* A head:true COUNT resolves with { count: null, error } rather than throwing, so `count || 0`
+     told a worker they had logged NOTHING whenever their own logbook could not be read — the same
+     shape already fixed at the openCount site further down this file, which reads
+     `openRes.error ? null : (openRes.count || 0)`. On a welcome screen a zero is not neutral: it is
+     the platform telling someone their history is gone. Show a gap when we could not look. */
+  const _cnt = r => (r && !r.error && r.count !== null && r.count !== undefined) ? r.count : null;
+  const _wlc = _cnt(logRes);
+  const _wpc = _cnt(closedRes);
   const _wlcEl = document.getElementById('welcome-log-count');
   const _wpcEl = document.getElementById('welcome-parts-count');
-  _wlcEl.textContent = _wlc;
-  _wpcEl.textContent = _wpc;
+  _wlcEl.textContent = _wlc === null ? '—' : _wlc;
+  _wpcEl.textContent = _wpc === null ? '—' : _wpc;
   // Calm Dashboard Contract: dim zero counts so the welcome view doesn't
   // read as broken on a brand-new worker's first sign-in.
   if (window.hideZeroStat) { hideZeroStat(_wlcEl, _wlc); hideZeroStat(_wpcEl, _wpc); }

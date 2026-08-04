@@ -115,11 +115,22 @@ def inline_js_display(html: str) -> str:
 CALC_ID_EMDASH = ("System — Air Cooled", "System — Water Cooled")
 
 
+# A QUOTED LONE EM DASH IS THE GAP GLYPH, NOT PROSE. The absent-vs-zero discipline renders an
+# unknown value as a bare "—", which in code looks like `x === null ? '—' : x` — and the prose
+# regex reads the identifiers on either side as the words straddling a dash. That flagged
+# `_wlcEl.textContent = _wlc === null ? '—' : _wlc` as displayed prose: the gate was counting the
+# very convention it exists to protect (a gap must never be a fabricated 0). Same idea as the
+# existing ">—<" placeholder exclusion, one level up: exclude a dash that is ALONE inside quotes.
+QUOTED_LONE_DASH = re.compile(r"""['"]\s*—\s*['"]""")
+
+
 def scan(text: str, source: str, sink: list):
     for m in PROSE_EMDASH.finditer(text):
         s = re.sub(r"\s+", " ", m.group(0)).strip()
         if any(cid in s for cid in CALC_ID_EMDASH):
             continue  # internal colon-rendered calc-id key, never displayed as an em-dash
+        if QUOTED_LONE_DASH.search(s):
+            continue  # placeholder glyph in a code expression, not a sentence
         sink.append({"source": source, "context": s})
 
 

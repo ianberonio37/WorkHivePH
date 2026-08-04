@@ -1,6 +1,6 @@
-# Flywheel Turn #360
+# Flywheel Turn #363
 
-_2026-08-04T12:32:59_
+_2026-08-04T16:39:27_
 
 ## Layer deltas
 
@@ -9,15 +9,11 @@ _2026-08-04T12:32:59_
 | L-1   | cluster proposals       | 0 | 0 | · |
 | L-1.5 | rules in manifest       | 50 | 50 | · |
 | L0    | baselines tracked       | 196 | 196 | · |
-| L0    | total locked count      | 3504 | 3509 | ↑5 ❌ |
+| L0    | total locked count      | 3583 | 3583 | · |
 | L2    | sentinel parity cases   | 29 | 29 | · |
 | L13   | stale walkthroughs      | 0 | 0 | · |
 
-## 🟡 Quarantined (1) — baseline deltas classified as noise, not scored (env up)
-
-| Validator | Was | Now | Class | Note |
-|---|---:|---:|---|---|
-| `live_mcp_bank` | 222 | 227 | **adoption-ratchet** |  |
+## No ratchets or regressions this turn — platform stable.
 
 ## ⏫ Promotions — queued for one-pass approval
 

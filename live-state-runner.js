@@ -17,6 +17,57 @@
 //     erroring pane is correct while some other pane is legitimately empty
 
 const REST = /\/rest\/v1\/(?!rpc\/)/;
+
+// THE WRITE GUARD MUST NOT REUSE THE READ PATTERN. Every induction in this file opens with
+// `if (!REST.test(u)) return orig(i, x)` — and REST deliberately EXCLUDES /rest/v1/rpc/, because an
+// RPC is not a table read to be rewritten. The consequence was that a mutation sent through an RPC
+// (or an edge function) matched no guard and went straight to the shared database, which is the one
+// thing this bank may never do. Found while walking the post form: submitting it fires
+// `POST /rest/v1/rpc/get_marketplace_price_comps` alongside the table insert, and only an ad-hoc
+// probe that keyed on the METHOD caught it — the module's own guards would have forwarded it.
+// So: writes are decided by the VERB across the whole Supabase surface, before any read logic.
+// ...BUT THE VERB ALONE OVER-BLOCKS, AND OVER-BLOCKING FALSIFIES THE WALK. PostgREST sends EVERY
+// rpc as a POST, including the read-only ones, so a verb-only guard stubbed `service_knob_pct` to
+// `[]` — the exact knob whose misreading made the credits-back chip vanish from every listing, i.e.
+// the defect this whole bank was built around. A probe that silently blanks a read is not safer, it
+// is wrong in a way that looks like a finding.
+//
+// The database settles it rather than a guess: a STABLE or IMMUTABLE function CANNOT write (Postgres
+// refuses), so those names are safe to forward and everything else (VOLATILE) is blocked. Derived
+// from pg_proc, and regenerated with:
+//   select string_agg(distinct proname, ',' order by proname) from pg_proc p
+//   join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.provolatile in ('i','s');
+// An RPC missing from this list fails CLOSED — blocked, never forwarded — so a stale list costs
+// fidelity on one probe, never a write to the shared database.
+const RPC_READONLY = new Set(('auth_worker_names,check_username_available,export_hive_data,find_hive_by_code,' +
+  'get_adoption_risk_current,get_community_reputation,get_community_reputation_by_auth,get_downtime_pareto,' +
+  'get_failure_frequency,get_hive_board_dashboard,get_hive_dashboard,get_hive_trade_peers,' +
+  'get_marketplace_parts_for_my_assets,get_marketplace_price_comps,get_marketplace_seller_public,' +
+  'get_marketplace_trust_badges,get_mtbf_by_machine,get_mttr_by_machine,get_oee_by_machine,' +
+  'get_pm_compliance_smrp,get_pm_ontime_delivery,get_project_budget,get_repeat_failures,' +
+  'get_saved_search_matches,get_seller_community_reputation,hive_has_other_members,is_marketplace_admin,' +
+  'is_platform_admin,listing_reservation_amount,match_persona_knowledge,match_procedural_memories,' +
+  'my_credit_balance,my_service_provider_ids,person_credit_balance,provider_credit_balance,' +
+  'provider_is_certified_for,search_all_knowledge,search_bom_knowledge,search_calc_knowledge,' +
+  'search_fault_knowledge,search_pm_knowledge,search_skill_knowledge,search_voice_journal_entries,' +
+  'seller_credit_balance,service_agreed_base,service_knob,service_knob_pct,service_objection_deadline,' +
+  'service_request_price,show_limit,slo_error_budget,unified_event_source_rank,user_can_access_hive,' +
+  'user_hive_ids,user_hive_worker_names,user_supervisor_hive_ids').split(','));
+
+const SUPA = /\/rest\/v1\/|\/functions\/v1\/|\/storage\/v1\//;
+const MUTV = /^(POST|PATCH|PUT|DELETE)$/i;
+const _verbOf = (i, x) => ((x && x.method) || (i && i.method) || 'GET').toUpperCase();
+const _stub = () => new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
+// Returns a synthetic response for any mutating call to Supabase, or null to let the caller proceed.
+// `sink` (optional) records what was stopped so a walk can prove the guard fired.
+export function blockWrite(i, x, sink) {
+  const u = typeof i === 'string' ? i : (i && i.url) || '';
+  if (!SUPA.test(u) || !MUTV.test(_verbOf(i, x))) return null;
+  const rpc = u.match(/\/rest\/v1\/rpc\/([A-Za-z0-9_]+)/);
+  if (rpc && RPC_READONLY.has(rpc[1])) return null;      // provably write-incapable; forward it
+  if (sink) sink.push(_verbOf(i, x) + ' ' + u.replace(/^https?:\/\/[^/]+/, '').slice(0, 64));
+  return _stub();
+}
 const LONG = 'Emergency Switchgear Overhaul and Transformer Oil Regeneration for the Southern Tagalog Industrial Estate Incorporated';
 const BAYBAYIN = 'ᜋᜄᜈ᜔ᜆᜅ᜔ ᜃᜄᜋᜒᜆᜈ᜔ ᜐ ᜉᜎᜒᜃ';
 const ERR = /couldn['’]?t load|could not load|failed to load|unavailable|something went wrong|error/i;
@@ -78,10 +129,21 @@ export async function run() {
     };
   }
 
-  // EMPTY — every read returns zero rows
+  // EMPTY — every read returns zero rows.
+  //
+  // A BARE `[]` IS NOT AN EMPTY DATABASE, IT IS AN UNKNOWN COUNT. PostgREST answers a
+  // `count: 'exact'` query with a Content-Range header, and supabase-js reads the count from THERE,
+  // not from the body — so a stub that omits it hands the page `count: null`, which a
+  // correctly-written page reports as "unavailable" rather than as zero. That is the page being
+  // right and the probe being unfaithful: it scored marketplace's empty state as
+  // renderedAsFailure the moment the page learned to tell absent from zero. Send what the real
+  // server sends for no rows.
+  const EMPTY_HEADERS = { 'Content-Type': 'application/json', 'Content-Range': '*/0' };
+  const wrote = [];
   set(async (i, x) => {
     const u = typeof i === 'string' ? i : (i && i.url) || '';
-    return REST.test(u) ? new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } }) : orig(i, x);
+    const b = blockWrite(i, x, wrote); if (b) return b;
+    return REST.test(u) ? new Response('[]', { status: 200, headers: EMPTY_HEADERS }) : orig(i, x);
   });
   await rerun();
   const emptyText = read().t;
@@ -94,6 +156,7 @@ export async function run() {
   // ERROR — a real 500, judged against the empty render above
   set(async (i, x) => {
     const u = typeof i === 'string' ? i : (i && i.url) || '';
+    const b = blockWrite(i, x, wrote); if (b) return b;
     return REST.test(u)
       ? new Response(JSON.stringify({ code: '500', message: 'induced failure' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
       : orig(i, x);
@@ -110,6 +173,7 @@ export async function run() {
   // EDGE — the real payload rewritten to its boundaries, then re-measured narrow
   const mutate = (mapper) => set(async (i, x) => {
     let u = typeof i === 'string' ? i : (i && i.url) || '';
+    { const b = blockWrite(i, x, wrote); if (b) return b; }
     // KEYSET PAGINATION DEFEATS A NAIVE RE-RUN. public-feed.html's loadInitial() keeps its cursor in
     // module scope and queries .lt('created_at', cursor); calling it a second time therefore asks for
     // the page AFTER the last one and comes back with zero rows, so the mutated payload never reached
@@ -173,7 +237,9 @@ export async function run() {
 
   window.fetch = orig;
   window.dispatchEvent(new Event('online'));
-  out._allOk = Object.keys(out).filter(k => !k.startsWith('_')).every(k => out[k].ok === true);
+  out._writesBlocked = wrote;
+  out._allOk = Object.keys(out).filter(k => !k.startsWith('_') && out[k] && out[k].ok !== null)
+    .every(k => out[k].ok === true);
   return out;
 }
 
@@ -199,8 +265,8 @@ export async function failures(opts) {
 
   const serve = (status, body) => { window.fetch = async (i, x) => {
     const u = typeof i === 'string' ? i : (i && i.url) || '';
+    { const b = blockWrite(i, x); if (b) return b; }
     if (!REST.test(u)) return orig(i, x);
-    if (guard(i, x)) return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
     return new Response(typeof body === 'string' ? body : JSON.stringify(body),
                         { status, headers: { 'Content-Type': 'application/json' } });
   }; };
@@ -225,8 +291,8 @@ export async function failures(opts) {
   // a slow-but-real response so the page's own timeout path is what decides.
   window.fetch = async (i, x) => {
     const u = typeof i === 'string' ? i : (i && i.url) || '';
+    { const b = blockWrite(i, x); if (b) return b; }
     if (!REST.test(u)) return orig(i, x);
-    if (guard(i, x)) return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
     await new Promise(r => setTimeout(r, 9000));
     return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
@@ -234,7 +300,8 @@ export async function failures(opts) {
   await new Promise(r => setTimeout(r, 4000));
   {
     const t = txt();
-    const skel = m().querySelectorAll('[class*="skeleton"],.shimmer,[aria-busy="true"]').length;
+    // `[class*="skeleton"]` misses this platform's own wh-cardskel; match the STEM (see states()).
+    const skel = m().querySelectorAll('[class*="skel"],.shimmer,[aria-busy="true"]').length;
     out.fail_timeout = {
       statesTimeout: /timed out|timeout|taking longer|slow/i.test(t),
       stuckSkeleton: skel > 0 && !/timed out|timeout|taking longer/i.test(t),
@@ -249,8 +316,8 @@ export async function failures(opts) {
   let n = 0;
   window.fetch = async (i, x) => {
     const u = typeof i === 'string' ? i : (i && i.url) || '';
+    { const b = blockWrite(i, x); if (b) return b; }
     if (!REST.test(u)) return orig(i, x);
-    if (guard(i, x)) return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
     n++;
     if (n % 2 === 0) return new Response(JSON.stringify({ code: '500', message: 'induced partial failure' }),
                                          { status: 500, headers: { 'Content-Type': 'application/json' } });
@@ -271,8 +338,8 @@ export async function failures(opts) {
   // never a fabricated value. This is the class that printed a filed PHP300 top-up as PHP0.00.
   window.fetch = async (i, x) => {
     const u = typeof i === 'string' ? i : (i && i.url) || '';
+    { const b = blockWrite(i, x); if (b) return b; }
     if (!REST.test(u)) return orig(i, x);
-    if (guard(i, x)) return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
     const r = await orig(i, x);
     let b; try { b = await r.clone().json(); } catch (e) { return r; }
     if (Array.isArray(b)) b.forEach(row => {
@@ -493,17 +560,17 @@ export async function states(opts) {
     // in-flight window to look at and always drains itself. The loaders are also fired WITHOUT being
     // awaited here, for the same reason: this state is about what the page shows WHILE it waits.
     const HOLD = 1100;
+    let held = 0;
     window.fetch = (i, x) => {
       const u = typeof i === 'string' ? i : (i && i.url) || '';
       const method = ((x && x.method) || (i && i.method) || 'GET');
-      if (!REST.test(u)) return orig(i, x);
-      // same rule as the busy check: a mutating verb is answered, never forwarded. The loaders this
-      // re-runs are reads, but "should only be reads" is an assumption and the cost of being wrong
-      // is a write to the shared database.
-      if (/^(POST|PATCH|PUT|DELETE)$/i.test(method)) {
-        return new Promise(res => setTimeout(() => res(
-          new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } })), HOLD));
+      // A mutating verb is answered, never forwarded - decided by blockWrite across the WHOLE
+      // Supabase surface (rpc and edge functions included), before any read logic runs.
+      if (blockWrite(i, x)) {
+        return new Promise(res => setTimeout(() => res(_stub()), HOLD));
       }
+      if (!REST.test(u)) return orig(i, x);
+      held++;
       return new Promise(res => setTimeout(() => res(orig(i, x)), HOLD));
     };
     document.dispatchEvent(new Event('DOMContentLoaded'));
@@ -511,15 +578,35 @@ export async function states(opts) {
       // deliberately NOT awaited: we sample mid-flight, and a throw must not stop the others
       if (typeof window[k] === 'function') { try { window[k](); } catch (e) { /* empty-catch-allow: see above */ } }
     }
+    // NO LOADER ON WINDOW MEANS NOTHING WAS EVER IN FLIGHT, AND A LOADING STATE MEASURED WITH
+    // NOTHING LOADING IS VACUOUS. marketplace.html keeps every loader closure-scoped inside its
+    // IIFE, so this loop ran zero of them and the probe scored "no skeleton on this surface" about
+    // a page that renders nine — the same defect the AZ null-field walk hit twice. Drive the page's
+    // OWN route back to the network instead: a section tab, a filter chip, a category button.
+    if (!held) {
+      const reQuery = [...m().querySelectorAll(
+        '[role="tab"]:not([aria-selected="true"]),.section-tab:not(.active),.cat-chip,.filter-chip,[data-section]')]
+        .filter(el => vis(el) && !/^https?:/.test(el.getAttribute('href') || ''))[0];
+      if (reQuery) reQuery.click();
+    }
     await new Promise(r => setTimeout(r, Math.floor(HOLD / 2)));   // sample INSIDE the flight
     const s = m();
-    const skel = [...s.querySelectorAll('[class*="skeleton"],[id*="skeleton"],.shimmer,[aria-busy="true"]')].filter(vis);
+    // MATCH THE STEM, NOT THE WORD. This asked for `[class*="skeleton"]` while every skeleton on the
+    // platform is named wh-cardskel / wh-skel-*, so it reported "no skeleton component on this
+    // surface" about pages that render nine of them — and then recorded that as a not-applicable,
+    // which is the quietest way an instrument can be wrong: it looks like an honest abstention.
+    const skel = [...s.querySelectorAll('[class*="skel"],[id*="skel"],.shimmer,[aria-busy="true"]')].filter(vis);
     const txt = (s.innerText || '');
     heightsBefore = skel.map(e => Math.round(e.getBoundingClientRect().height));
     // "loading" must be distinguishable from "empty": an invite to act is what an EMPTY surface says,
     // and a surface that is merely waiting must not say it
     out.component_loading = {
-      ok: skel.length > 0 || /loading|loadingâ€¦|…/i.test(txt) || /\bloading\b/i.test(txt),
+      // A state that never reached the screen is not a state that failed, either. Report the
+      // vacuum rather than a verdict when nothing was in flight to look at.
+      ok: held === 0 ? null
+        : (skel.length > 0 || /loading|loadingâ€¦|…/i.test(txt) || /\bloading\b/i.test(txt)),
+      inconclusive: held === 0,
+      requestsInFlight: held,
       skeletonNodes: skel.length,
       saysLoading: /\bloading\b/i.test(txt),
       looksEmptyInstead: INVITE.test(txt),
@@ -528,7 +615,10 @@ export async function states(opts) {
     out.component_skeleton = {
       ok: skel.length === 0 ? null : heightsBefore.every(h => h > 0),
       reservedHeights: heightsBefore,
-      note: skel.length === 0 ? 'no skeleton component on this surface - nothing to reserve space, recorded rather than passed' : null,
+      note: skel.length > 0 ? null
+        : held === 0
+          ? 'INCONCLUSIVE: nothing was in flight (no loader on window and no re-query affordance found), so the absence of a skeleton says nothing about this surface'
+          : 'no skeleton component on this surface - nothing to reserve space, recorded rather than passed',
     };
     await new Promise(r => setTimeout(r, HOLD + wait));   // let the delayed reads land and settle
   }
@@ -590,24 +680,36 @@ export async function states(opts) {
       window.fetch = (i, x) => {
         const u = typeof i === 'string' ? i : (i && i.url) || '';
         const method = ((x && x.method) || (i && i.method) || 'GET');
-        if (!REST.test(u)) return orig(i, x);
-        if (MUTATING.test(method)) {
-          blocked.push(method + ' ' + u.split('/rest/v1/')[1]);
-          return new Promise(res => setTimeout(() => res(
-            new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } })), HOLD));
+        if (blockWrite(i, x, blocked)) {
+          return new Promise(res => setTimeout(() => res(_stub()), HOLD));
         }
+        if (!REST.test(u)) return orig(i, x);
         return new Promise(res => setTimeout(() => res(orig(i, x)), HOLD));
       };
       out._writesBlocked = blocked;
       btn.click();
       await new Promise(r => setTimeout(r, 450));          // sample INSIDE the flight
       const cs = getComputedStyle(btn);
+      // THE VERDICT MUST DEPEND ON A FLIGHT ACTUALLY HAPPENING. Text-matching picked "Post a Parts
+      // Listing", which OPENS the post sheet and commits nothing — so it can never go busy and
+      // failed by construction, the third time this selector has flunked a control that was never
+      // in flight (after the "Searches" tab and the default-submit match). No request fired means
+      // the control was not in-flight-capable: say so instead of scoring it.
+      // ...and TELEMETRY IS NOT A FLIGHT. Every page POSTs client_errors / analytics_events on its
+      // own schedule, so counting any write at all let the page's own logging stand in for the
+      // control's action — writeFired:true with "POST client_errors" as the only evidence.
+      const TELEMETRY = /^(POST|PATCH|PUT|DELETE)\s+(client_errors|analytics_events|page_views|rpc\/log)/i;
+      const realWrites = blocked.filter(b => !TELEMETRY.test(b));
+      const fired = realWrites.length > 0;
       out.component_busy = {
-        ok: btn.disabled || btn.getAttribute('aria-busy') === 'true' || cs.pointerEvents === 'none',
+        ok: fired ? (btn.disabled || btn.getAttribute('aria-busy') === 'true' || cs.pointerEvents === 'none') : null,
+        inconclusive: !fired,
+        writeFired: fired, writes: realWrites.slice(0, 3), allWritesBlocked: blocked.slice(0, 4),
         control: (btn.textContent || '').trim().slice(0, 28),
         disabledInFlight: btn.disabled,
         ariaBusy: btn.getAttribute('aria-busy'),
         pointerEvents: cs.pointerEvents,
+        note: fired ? undefined : 'the control this lens could reach commits nothing (it opens a flow), so nothing was in flight to be busy about',
       };
       await new Promise(r => setTimeout(r, HOLD + wait));
     }
@@ -771,4 +873,307 @@ export function layout(target) {
     bottomFixed,
     ok: onTarget && docBy <= 1 && offenders.length === 0,
   };
+}
+
+// ── F2 · BD-ufai-A (available / adaptable) ───────────────────────────────────────────────────
+// Five states the other lenses never touch, each aimed at a way a surface can be UNAVAILABLE while
+// still looking fine:
+//
+//   retry_path       a failure that offers a retry which does not re-attempt is worse than one that
+//                    offers nothing — it turns a dead end into a loop the person blames themselves
+//                    for. So the affordance is CLICKED and the network is watched, not read off the
+//                    screen. `run()` already reports offersRetry from the TEXT; that is the claim,
+//                    this is the proof.
+//   fallback_engaged the dangerous shape is not "no fallback" — it is a fallback that engages
+//                    SILENTLY, so a cached price reads as today's price. With the primary down,
+//                    either nothing survives (and the surface says the read failed) or something
+//                    survives (and it must say where that came from).
+//   rate_limit_legible  429 is the one error whose remedy is TIME. A bare "something went wrong"
+//                    invites an immediate retry, which is the exact action that extends the limit.
+//   slow_honest      an empty-state invitation rendered while the read is still in flight is a lie
+//                    with a friendly face: "be the first to post" when the page does not yet know.
+//                    Measured mid-hang, not after.
+//   offline_refusal  a write fired into a dead network that says nothing leaves the person believing
+//                    it landed. Either it is refused before firing, or it is queued and SAID to be.
+//
+// Mutating verbs are counted and answered, never forwarded — the same rule as everywhere else in
+// this file, earned after a probe of mine moved marketplace_sellers.updated_at on the shared DB.
+export async function availability(opts) {
+  const o = opts || {};
+  const orig = window.__lsrFetch || window.fetch;
+  window.__lsrFetch = orig;
+  const out = {};
+  const m = () => document.querySelector('main') || document.body;
+  const txt = () => (m().innerText || '').replace(/\s+/g, ' ');
+  const MUT = /^(POST|PATCH|PUT|DELETE)$/i;
+  const verb = (i, x) => ((x && x.method) || (i && i.method) || 'GET').toUpperCase();
+  const SAYS_FAIL = /couldn['’]?t|could not|failed|unavailable|error|problem|went wrong|expired|timed out|timeout|offline|no connection|not connected/i;
+  const RETRY_TXT = /\b(retry|try again|reload|refresh)\b/i;
+  const NAVIGATES = /location\s*\.\s*(reload|href|assign|replace)|window\s*\.\s*location/i;
+  const STALE_TXT = /cached|from this device|from your device|saved copy|last (updated|synced)|may be out of date|out of date|stale|showing saved|offline copy|saved earlier/i;
+  // `[class*="skeleton"]` does not match this platform's own skeletons, which are named wh-cardskel —
+  // so the first run of this lens reported busySignals:0 on a page that was visibly full of them.
+  // Match the stem, not the word.
+  const BUSY_SEL = '[aria-busy="true"],[class*="skel"],[class*="shimmer"],[class*="spinner"],[class*="loading"]';
+  const ACTION = /\b(buy|purchase|order|submit|save|send|post|confirm|reserve|hail|pay|publish|update|apply|accept|approve|top ?up|withdraw)\b/i;
+
+  const vis = el => !!(el.offsetParent || el.getClientRects().length);
+  const ctrls = () => [...m().querySelectorAll('button,[role="button"],a[href],input[type="submit"]')].filter(vis);
+  const baselineText = txt();
+  const baselineLen = baselineText.length;
+  const baselineInvite = INVITE.test(baselineText);
+
+  let reads = 0, writes = 0;
+  const writeUrls = [];
+  const noteWrite = (i, x, u) => {
+    writes++;
+    writeUrls.push(verb(i, x) + ' ' + u.replace(/^.*\/rest\/v1\//, '').slice(0, 48));
+  };
+  const install = h => { window.fetch = async (i, x) => {
+    const u = typeof i === 'string' ? i : (i && i.url) || '';
+    { const b = blockWrite(i, x, writeUrls); if (b) { writes++; return b; } }
+    if (!REST.test(u)) return orig(i, x);
+    reads++;
+    return h(i, x);
+  }; };
+  const dead = status => async () => new Response(JSON.stringify({ code: String(status), message: 'induced' }),
+    { status, headers: { 'Content-Type': 'application/json' } });
+
+  /* AN INDUCTION THAT NEVER REACHED THE NETWORK PROVES NOTHING, AND THIS LENS LEARNED IT THE SAME
+     WAY THE OTHERS DID. rerun() calls window[loader](), but marketplace.html keeps every loader
+     closure-scoped inside its IIFE, so zero of them run: the page stays exactly as it was, the
+     failure copy never appears, and the probe then scores the UNCHANGED page. It read
+     retry_path:false / fallback:silentlyStale on a surface that handles both correctly, and on an
+     earlier pass it read them GREEN only because a previous induction had happened to leave the
+     page in an error state — a false green and a false red from the same blind spot.
+     So: fire the loaders, and if nothing hit the network, drive the page's OWN route back to it
+     (a section tab, a filter chip). Return how many reads actually went out, and let each state
+     report itself INCONCLUSIVE rather than pass or fail on a page that never moved. */
+  const requery = async (ms) => {
+    const before = reads;
+    await rerun(ms);
+    if (reads === before) {
+      // ONE CANDIDATE IS NOT ENOUGH: the obvious affordance is often the tab this walk already
+      // switched to, so clicking it re-queries nothing. Work down the list until reads actually move.
+      const cands = [...m().querySelectorAll(
+        '[role="tab"]:not([aria-selected="true"]),.section-tab:not(.active),.cat-chip,.filter-chip,[data-section]')]
+        .filter(e => vis(e) && !/^https?:/.test(e.getAttribute('href') || ''));
+      for (const el of cands.slice(0, 4)) {
+        el.click();
+        await new Promise(r => setTimeout(r, ms || 1500));
+        if (reads > before) break;
+      }
+    }
+    return reads - before;
+  };
+
+  // ── retry_path ──────────────────────────────────────────────────────────────────────────────
+  install(dead(500));
+  const landedRetry = await requery(1400);
+  {
+    const t = txt();
+    const label = el => (el.innerText || el.value || el.getAttribute('aria-label') || '');
+    const cand = ctrls().filter(el => RETRY_TXT.test(label(el)));
+    // Prefer a control that stays on the page. A "Reload" wired to location.reload() would take the
+    // document down and the induction with it, so its inline handler is READ rather than fired — the
+    // measurement stays honest about which affordance it could actually prove.
+    const inline = el => (el.getAttribute('onclick') || '') + (el.getAttribute('href') || '');
+    const safe = cand.filter(el => !NAVIGATES.test(inline(el)) && !/^https?:|^\//.test(el.getAttribute('href') || ''));
+    const target = safe[0] || null;
+    const before = reads;
+    let clicked = false, recoveredDetail = null;
+    if (target) { target.click(); clicked = true; await new Promise(r => setTimeout(r, 1500)); }
+    const reAttempted = reads > before;
+
+    // the cause is gone: the same affordance must now SUCCEED, not stay stuck on the failure copy
+    let recovered = null;
+    if (clicked && reAttempted) {
+      window.fetch = orig;
+      target.click();
+      await new Promise(r => setTimeout(r, 1800));
+      const t2 = txt();
+      recovered = !SAYS_FAIL.test(t2) && t2.length > baselineLen * 0.6;
+      recoveredDetail = { len: t2.length, baselineLen,
+                          stillSaysFail: (t2.match(SAYS_FAIL) || [])[0] || null,
+                          ctx: (() => { const j = t2.search(SAYS_FAIL); return j < 0 ? null : t2.slice(Math.max(0, j - 50), j + 60); })() };
+      install(dead(500));
+    }
+    out.retry_path = {
+      saysFailure: SAYS_FAIL.test(t),
+      recoveredDetail,
+      affordances: cand.length,
+      affordanceText: cand.slice(0, 3).map(el => label(el).trim().slice(0, 28)),
+      navigationOnly: cand.length > 0 && safe.length === 0,
+      clicked, reAttempted, recovered,
+      inductionLanded: landedRetry,
+      ok: landedRetry === 0 ? null
+        : cand.length === 0 ? false
+        : safe.length === 0 ? null
+        : (reAttempted && recovered === true),
+      inconclusive: landedRetry === 0 || (cand.length > 0 && safe.length === 0),
+      note: landedRetry === 0
+        ? 'INCONCLUSIVE: the failure never reached the screen (no loader on window, no re-query affordance), so no verdict is possible'
+        : undefined,
+    };
+  }
+
+  // ── fallback_engaged ────────────────────────────────────────────────────────────────────────
+  {
+    // "DID ANYTHING SURVIVE" MUST BE A CONTRAST, NOT A COUNT. My first version counted every element
+    // whose class contained card/row/item and read 20 survivors with the primary down — on a page
+    // that renders 9 listings and 83 pieces of chrome matching the same selector. It would have
+    // reported silent staleness on a page that had none. So the chrome floor is MEASURED, by
+    // rendering the surface with zero rows first; anything above that floor is data that outlived
+    // the failed read.
+    /* A SKELETON IS NOT A SURVIVOR. wh-cardskel-card matches [class*="card"], so eight loading
+       placeholders counted as eight rows of data that outlived a failed read — the lens reported
+       silentlyStale about a page that was still loading. Placeholders are excluded, and the verdict
+       waits for the surface to actually give up (this grid takes ~16s to decide), because judging a
+       mid-load page for "pretending nothing happened" measures the wrong moment. */
+    const ROWS = '[class*="card"]:not([class*="skel"]),[class*="row"]:not([class*="skel"]),' +
+                 '[class*="item"]:not([class*="skel"]),tbody tr,li[class]:not([class*="skel"])';
+    const settleUntilFailureNamed = async (capMs) => {
+      for (let n = 0; n < Math.ceil(capMs / 1500); n++) {
+        if (SAYS_FAIL.test(txt())) return true;
+        await new Promise(r => setTimeout(r, 1500));
+      }
+      return SAYS_FAIL.test(txt());
+    };
+    // Content-Range is what supabase-js reads a count from; without it an "empty" stub means
+    // UNKNOWN, not zero. See the note on EMPTY_HEADERS in run().
+    install(async () => new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json', 'Content-Range': '*/0' } }));
+    const landedEmpty = await requery(1500);
+    const chrome = m().querySelectorAll(ROWS).length;
+
+    install(dead(503));
+    const landedDown = await requery(1600);
+    const gaveUp = await settleUntilFailureNamed(21000);
+    const t = txt();
+    const rows = m().querySelectorAll(ROWS).length;
+    const survived = rows > chrome;
+    out.fallback_engaged = {
+      primaryDown: true, rowsWithPrimaryDown: rows, chromeFloorMeasuredEmpty: chrome,
+      domainRowsSurviving: Math.max(0, rows - chrome),
+      saysFailure: SAYS_FAIL.test(t),
+      labelsProvenance: STALE_TXT.test(t),
+      silentlyStale: survived && !STALE_TXT.test(t) && !SAYS_FAIL.test(t),
+      inductionLanded: { emptyPass: landedEmpty, primaryDownPass: landedDown },
+      surfaceGaveUpAndSaidSo: gaveUp,
+      ok: (landedEmpty === 0 || landedDown === 0) ? null
+        : survived ? (STALE_TXT.test(t) || SAYS_FAIL.test(t)) : SAYS_FAIL.test(t),
+      inconclusive: landedEmpty === 0 || landedDown === 0,
+      note: (landedEmpty === 0 || landedDown === 0)
+        ? 'INCONCLUSIVE: the chrome floor and/or the primary-down render never re-queried, so the survivor count compares a page to itself'
+        : undefined,
+    };
+  }
+
+  // ── rate_limit_legible ──────────────────────────────────────────────────────────────────────
+  {
+    window.fetch = async (i, x) => {
+      const u = typeof i === 'string' ? i : (i && i.url) || '';
+      { const b = blockWrite(i, x, writeUrls); if (b) { writes++; return b; } }
+      if (!REST.test(u)) return orig(i, x);
+      reads++;   // requery() measures landing by this counter; a bespoke handler must keep it honest
+      return new Response(JSON.stringify({ code: '429', message: 'rate limit exceeded', hint: 'retry after 60s' }),
+        { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': '60' } });
+    };
+    const landedRate = await requery(1500);
+    const t = txt();
+    const NAMES = /too many|rate ?limit|slow down|throttl/i;
+    // "wait about 1 minute" is a perfectly good answer to "when does it clear" and the first version
+    // of this pattern scored it as no answer, because it only accepted "in|after N units". Match the
+    // DURATION wherever it sits, not one phrasing of it.
+    const WHEN = /\b\d+\s*(seconds?|secs?|minutes?|mins?|hours?)\b|try again in|a moment|shortly/i;
+    out.rate_limit_legible = {
+      namesTheLimit: NAMES.test(t),
+      namesWhenItClears: WHEN.test(t),
+      bareErrorOnly: SAYS_FAIL.test(t) && !NAMES.test(t),
+      inductionLanded: landedRate,
+      ok: landedRate === 0 ? null : (NAMES.test(t) && WHEN.test(t)),
+      inconclusive: landedRate === 0,
+      note: landedRate === 0 ? 'INCONCLUSIVE: the 429 never reached the screen' : undefined,
+    };
+  }
+
+  // ── slow_honest ─────────────────────────────────────────────────────────────────────────────
+  {
+    window.fetch = async (i, x) => {
+      const u = typeof i === 'string' ? i : (i && i.url) || '';
+      { const b = blockWrite(i, x, writeUrls); if (b) { writes++; return b; } }
+      if (!REST.test(u)) return orig(i, x);
+      reads++;
+      await new Promise(r => setTimeout(r, 8000));
+      return orig(i, x);
+    };
+    rerun(0);                                    // deliberately NOT awaited — sampled mid-flight
+    await new Promise(r => setTimeout(r, 2600));
+    const t = txt();
+    const busy = m().querySelectorAll(BUSY_SEL).length;
+    const invites = INVITE.test(t);
+    const saysLoading = /loading|fetching|please wait|working/i.test(t);
+    const liveActions = ctrls().filter(el => ACTION.test(el.innerText || el.value || '') && !el.disabled &&
+                                             el.getAttribute('aria-disabled') !== 'true').length;
+    // The empty-state claim is only PREMATURE if it was not already there — a section that is
+    // legitimately empty says so at rest too, and counting that as a defect would be the same
+    // instrument error as counting chrome as survivors above.
+    const inviteEl = invites ? [...m().querySelectorAll('*')].filter(el =>
+      vis(el) && el.children.length === 0 && INVITE.test(el.innerText || ''))[0] : null;
+    out.slow_honest = {
+      busySignals: busy,
+      prematureEmptyState: invites && !baselineInvite,   // "be the first" while it does not yet know
+      inviteAtRest: baselineInvite,
+      inviteText: inviteEl ? (inviteEl.innerText || '').trim().slice(0, 70) : ((txt().match(INVITE) || [])[0] || null),
+      saysLoading,
+      enabledActionControls: liveActions,
+      ok: (busy > 0 || saysLoading) && !(invites && !baselineInvite),
+    };
+    await new Promise(r => setTimeout(r, 6200));  // let the hang drain before the next induction
+  }
+
+  // ── offline_refusal ─────────────────────────────────────────────────────────────────────────
+  {
+    const onLineDesc = Object.getOwnPropertyDescriptor(Navigator.prototype, 'onLine');
+    Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => false });
+    window.fetch = async (i, x) => {
+      const u = typeof i === 'string' ? i : (i && i.url) || '';
+      // OFFLINE MUST COUNT the write rather than answer it: the oracle is whether the page fired
+      // into a dead network at all, so the attempt is recorded and then the network "fails".
+      if (SUPA.test(u) && MUTV.test(verb(i, x))) noteWrite(i, x, u);
+      if (!SUPA.test(u)) return orig(i, x);
+      throw new TypeError('Failed to fetch');
+    };
+    window.dispatchEvent(new Event('offline'));
+    await new Promise(r => setTimeout(r, 1200));
+
+    const before = writes;
+    const act = ctrls().filter(el => ACTION.test(el.innerText || el.value || '') && !el.disabled &&
+                                     !NAVIGATES.test(el.getAttribute('onclick') || ''));
+    const clicked = act[0] || null;
+    if (clicked) { clicked.click(); await new Promise(r => setTimeout(r, 1600)); }
+    const t = txt();
+    const firedIntoTheDark = writes > before;
+    const QUEUED = /queued|saved to this device|will send when|pending write/i;
+    out.offline_refusal = {
+      offlineBannerShown: [...document.body.querySelectorAll('*')].some(el =>
+        /you are offline|no connection|offline|reconnect/i.test((el.innerText || '').slice(0, 120)) &&
+        vis(el) && el.children.length === 0),
+      actionClicked: clicked ? (clicked.innerText || '').trim().slice(0, 34) : null,
+      writesAttempted: writes - before, writeTargets: writeUrls.slice(-3),
+      firedIntoTheDark,
+      saysNothingSent: /nothing was sent|not sent|no changes were saved|nothing was saved/i.test(t) || QUEUED.test(t),
+      ok: clicked ? ((!firedIntoTheDark || QUEUED.test(t)) && (SAYS_FAIL.test(t) || QUEUED.test(t))) : null,
+      inconclusive: !clicked,
+      note: clicked ? undefined : 'no write affordance reachable on this surface without opening a flow',
+    };
+    if (onLineDesc) Object.defineProperty(navigator, 'onLine', onLineDesc);
+    else delete navigator.onLine;
+  }
+
+  window.fetch = orig;
+  window.dispatchEvent(new Event('online'));
+  await rerun(o.settle || 1800);
+  out._writesBlocked = writes;
+  out._writeTargets = writeUrls;
+  return out;
 }

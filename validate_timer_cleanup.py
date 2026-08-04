@@ -31,6 +31,15 @@ CLEAR_INTERVAL_RE = re.compile(r"(?<![\w$])clearInterval\s*\(")
 SET_TIMEOUT_RE    = re.compile(r"(?<![\w$])setTimeout\s*\(")
 CLEAR_TIMEOUT_RE  = re.compile(r"(?<![\w$])clearTimeout\s*\(")
 
+# AN AWAITED SLEEP IS NOT A TIMER TO CLEAN UP. `await new Promise(r => setTimeout(r, ms))` is the
+# standard bounded pause: the handle is unreachable by construction, it fires exactly once, and the
+# awaiting frame cannot proceed until it does — there is nothing a clearTimeout could cancel and no
+# way for it to outlive its caller. The soft rule ("10+ setTimeouts with no clearTimeout looks like
+# fire-and-forget") is right about fire-and-forget callbacks and wrong about sleeps, so a probe
+# module built from 22 sequential pauses reported as timer drift. Sleeps are subtracted before the
+# threshold; every other setTimeout still counts.
+SLEEP_RE = re.compile(r"new\s+Promise\s*\(\s*(?:async\s*)?\(?\s*\w+\s*\)?\s*=>\s*setTimeout\s*\(")
+
 
 # Sentinel binding: name the L2 test `test('timer_cleanup: ...')` for coverage credit.
 CHECK_NAMES = ["timer_cleanup"]
@@ -58,7 +67,8 @@ def _check_file(path: Path) -> list:
 
     n_interval   = len(SET_INTERVAL_RE.findall(src))
     n_clear_int  = len(CLEAR_INTERVAL_RE.findall(src))
-    n_timeout    = len(SET_TIMEOUT_RE.findall(src))
+    n_sleep      = len(SLEEP_RE.findall(src))
+    n_timeout    = max(0, len(SET_TIMEOUT_RE.findall(src)) - n_sleep)
     n_clear_to   = len(CLEAR_TIMEOUT_RE.findall(src))
 
     issues = []

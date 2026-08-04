@@ -6088,8 +6088,15 @@
     try {
       const dueSoon = await db.from('v_pm_scope_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_due_soon', true);
       const overdue = await db.from('v_pm_scope_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_overdue', true);
-      const due = dueSoon.count || 0;
-      const overdueCount = overdue.count || 0;
+      /* A head:true COUNT resolves with {count:null, error}; it does not throw, so the catch below
+         never fires on a failed read. `count || 0` made a HALF-read look whole: with due=5 readable
+         and overdue unreadable, this spoke "PMs: 5 due this week." and silently dropped the overdue
+         clause — a voice answer that omits overdue PMs is the one omission that matters here. If
+         either side is unknown, say the status is incomplete rather than assert a partial one. */
+      const _ok = r => r && !r.error && r.count !== null && r.count !== undefined;
+      if (!_ok(dueSoon) || !_ok(overdue)) return 'PM status could not be read just now.';
+      const due = dueSoon.count;
+      const overdueCount = overdue.count;
       if (due + overdueCount === 0) return '';
       return 'PMs: ' + due + ' due this week' + (overdueCount ? ', ' + overdueCount + ' overdue' : '') + '.';
     } catch (_) { return ''; }
@@ -6100,8 +6107,12 @@
     try {
       const low = await db.from('v_inventory_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_low_stock', true);
       const out = await db.from('v_inventory_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_out_of_stock', true);
-      const lowCount = low.count || 0;
-      const outCount = out.count || 0;
+      // Same half-read trap as _fetchPMStatus above: an unreadable out-of-stock count would have
+      // been spoken as "3 low" with the out-of-stock clause silently dropped.
+      const _okc = r => r && !r.error && r.count !== null && r.count !== undefined;
+      if (!_okc(low) || !_okc(out)) return 'stock status could not be read just now';
+      const lowCount = low.count;
+      const outCount = out.count;
       if (lowCount + outCount === 0) return '';
       return (lowCount ? lowCount + ' low' : '') + (outCount ? (lowCount ? ' + ' : '') + outCount + ' out of stock' : '');
     } catch (_) { return ''; }

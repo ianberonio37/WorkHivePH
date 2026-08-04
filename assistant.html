@@ -479,7 +479,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const _rl = document.getElementById('records-list');
       if (_rl && !_rl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_rl, 3);
       const name = localStorage.getItem(KEY_WORKER) || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
-      let logbookCount = 0;
+      let logbookCount = null;   // null = not read yet; a real 0 means 'none', and the two must not render alike
       if (name) {
         // Cold-load 401 sibling (matches buildSystemPrompt's fix): restoreIdentityFromSession
         // is fire-and-forget, so this count can race the JWT attach on a fresh device and 401
@@ -488,7 +488,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const [l] = await Promise.all([
           db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', name),
         ]);
-        logbookCount = l.count || 0;
+        // {count:null, error} on failure -- it does not throw, so `count || 0` claimed 'no records'.
+        logbookCount = (l && !l.error && l.count !== null && l.count !== undefined) ? l.count : null;
       }
 
       const list = document.getElementById('records-list');
@@ -496,12 +497,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         { label: 'Logbook entries', count: logbookCount, color: '#F7A21B' },
       ];
       const nudge = document.getElementById('empty-records-nudge');
-      if (nudge) nudge.classList.toggle('hidden', items.some(i => i.count > 0));
+      // Only nudge someone to add their first record when we actually KNOW they have none.
+      const anyUnread = items.some(i => i.count === null || i.count === undefined);
+      if (nudge) nudge.classList.toggle('hidden', anyUnread || items.some(i => i.count > 0));
 
       list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = items.map(i => `
         <div class="flex items-center justify-between">
           <span class="text-xs text-white/80">${i.label}</span>
-          <span class="text-xs font-bold" style="color:${i.color}">${i.count} record${i.count !== 1 ? 's' : ''}</span>
+          <span class="text-xs font-bold" style="color:${i.color}">${(i.count === null || i.count === undefined) ? 'not read' : i.count + ' record' + (i.count !== 1 ? 's' : '')}</span>
         </div>
       `).join('');
     }
@@ -759,8 +762,17 @@ happens to know maintenance, not a manual.`;
       window._systemPrompt = systemPrompt;
       removeTypingIndicator();
 
-      const hasRecords = (lc.count || 0) > 0;
-      const recordsNote = hasRecords
+      /* THE COMMENT ABOVE FIXED THE RACE AND LEFT THE ERROR. A head:true COUNT resolves with
+         { count: null, error } instead of throwing, so any failed read — not just the cold-load
+         401 that was already handled — still collapsed to `0 > 0 === false` and greeted the person
+         with "You don't have any records yet", then adapted the assistant's whole behaviour to that
+         premise. To a worker with three years of logbook entries, that is the platform telling them
+         their history is gone. Unknown is its own branch: say what happened and claim nothing. */
+      const lcUnknown = !lc || lc.error || lc.count === null || lc.count === undefined;
+      const hasRecords = !lcUnknown && lc.count > 0;
+      const recordsNote = lcUnknown
+        ? "I couldn't reach your job records just now, so I may not have them to hand. That does not mean they are missing. Ask me anything technical in the meantime, and try again in a moment for anything about your own history."
+        : hasRecords
         ? "I can see your job records and will reference them when relevant."
         : "You don't have any records yet. Add logbook entries or parts to unlock personalised insights. For now I can help with technical questions, procedures, or anything on your mind.";
       addAssistantBubble(`Hi ${workerName}! I'm your WorkHive Work Assistant. ${recordsNote}\n\nWhat do you need?`);

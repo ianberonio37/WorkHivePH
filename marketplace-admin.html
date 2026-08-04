@@ -318,17 +318,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <button class="tab-btn active" data-tab="draft" role="tab" aria-selected="true">
       <span class="ic ic-clock" aria-hidden="true"></span>
       <span data-i="f_pend">Pending</span>
-      <span class="tab-count red" id="badge-draft">0</span>
+      <span class="tab-count red" id="badge-draft">—</span>
     </button>
     <button class="tab-btn" data-tab="published" role="tab" aria-selected="false">
       <span class="ic ic-check" aria-hidden="true"></span>
       <span data-i="f_pub">Published</span>
-      <span class="tab-count" id="badge-published">0</span>
+      <span class="tab-count" id="badge-published">—</span>
     </button>
     <button class="tab-btn" data-tab="sellers" role="tab" aria-selected="false">
       <span class="ic ic-community" aria-hidden="true"></span>
       <span data-i="f_sellers">Sellers</span>
-      <span class="tab-count" id="badge-sellers">0</span>
+      <span class="tab-count" id="badge-sellers">—</span>
     </button>
     <button class="tab-btn" data-tab="removed" role="tab" aria-selected="false">
       <span class="ic ic-close" aria-hidden="true"></span>
@@ -460,7 +460,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let _listings = [];
   let _sellers  = [];
   let _query    = '';
-  let _stats    = { draft: 0, published: 0, removed: 0, sellers: 0, unverified: 0 };
+  let _stats    = { draft: null, published: null, removed: null, sellers: null, unverified: null };  // null = not read yet, which is not 0
   let _adminDisplayCount = 30;  // List View Contract: client-side slice pagination
 
   /* ============================================================
@@ -516,13 +516,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         db.from('v_marketplace_sellers_truth').select('id', { count: 'exact', head: true }),
         db.from('v_marketplace_sellers_truth').select('id', { count: 'exact', head: true }).eq('kyb_verified', true),
       ]);
-      _stats.draft      = draftRes.count  || 0;
-      _stats.published  = pubRes.count    || 0;
-      _stats.removed    = remRes.count    || 0;
-      _stats.sellers    = sellersRes.count || 0;
-      _stats.unverified = (sellersRes.count || 0) - (verifiedRes.count || 0);
+      /* A head:true COUNT does not THROW when it fails — supabase-js resolves with
+         { count: null, error }. `count || 0` therefore turned an unreadable moderation queue into a
+         confident "0 drafts, 0 published, 0 sellers", and the catch below never ran.
+         The subtraction was the worst of them: with the VERIFIED count unreadable and the seller
+         count fine, `sellers - 0` reported EVERY SELLER AS UNVERIFIED — a moderator would have seen
+         a platform-wide KYB failure that did not exist, on a screen whose whole purpose is deciding
+         who to trust. Absent is not zero, and it is certainly not "all of them". */
+      const n = r => (r && !r.error && r.count !== null && r.count !== undefined) ? r.count : null;
+      _stats.draft      = n(draftRes);
+      _stats.published  = n(pubRes);
+      _stats.removed    = n(remRes);
+      _stats.sellers    = n(sellersRes);
+      _stats.unverified = (n(sellersRes) === null || n(verifiedRes) === null)
+        ? null                       // a difference is only knowable when BOTH sides are
+        : n(sellersRes) - n(verifiedRes);
       updateStats();
-    } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+    } catch (_) { /* empty-catch-allow: best-effort silent swallow */
+      _stats.draft = _stats.published = _stats.removed = _stats.sellers = _stats.unverified = null;
+      updateStats();
+    }
   }
 
   function updateStats() {
@@ -534,13 +547,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const bd = document.getElementById('badge-draft');
     const bp = document.getElementById('badge-published');
     const bs = document.getElementById('badge-sellers');
-    if (sd) sd.textContent = s.draft;
-    if (sp) sp.textContent = s.published;
-    if (ss) ss.textContent = s.sellers;
-    if (su) su.textContent = s.unverified;
-    if (bd) bd.textContent = s.draft;
-    if (bp) bp.textContent = s.published;
-    if (bs) bs.textContent = s.sellers;
+    // null means "not read", which must look different from a real 0 on a queue a moderator acts on.
+    const show = v => (v === null || v === undefined) ? '—' : String(v);
+    if (sd) sd.textContent = show(s.draft);
+    if (sp) sp.textContent = show(s.published);
+    if (ss) ss.textContent = show(s.sellers);
+    if (su) su.textContent = show(s.unverified);
+    if (bd) bd.textContent = show(s.draft);
+    if (bp) bp.textContent = show(s.published);
+    if (bs) bs.textContent = show(s.sellers);
   }
 
   /* ============================================================

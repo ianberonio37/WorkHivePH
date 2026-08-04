@@ -4066,10 +4066,19 @@
       risks    = riskRes.status  === 'fulfilled' ? (riskRes.value.data  || []) : [];
       invRaw   = invRes.status   === 'fulfilled' ? (invRes.value.data   || []) : [];
       pmAssets = pmRes.status    === 'fulfilled' ? (pmRes.value.data    || []) : [];
-      closedToday = closedTodayRes.status === 'fulfilled' ? (closedTodayRes.value.count || 0) : 0;
-      pmDoneToday = pmDoneTodayRes.status === 'fulfilled' ? (pmDoneTodayRes.value.count || 0) : 0;
-      jobsCount  = jobsCountRes.status  === 'fulfilled' ? Number(jobsCountRes.value.count  || 0) : 0;
-      risksCount = risksCountRes.status === 'fulfilled' ? Number(risksCountRes.value.count || 0) : 0;
+      /* 'fulfilled' IS NOT 'SUCCEEDED'. The note below already says supabase-js resolves with
+         {data:null, error} on a network fault — the same is true of a head:true COUNT, which
+         resolves with {count:null, error}. So a settled-but-failed count fell through
+         `status === 'fulfilled'` and `count || 0` turned it into a confident zero: "0 jobs closed
+         today" to someone who closed four, and a Risk Alerts tile that quietly disappeared because
+         `> 0` filtered the fabricated zero out. null now means unread, and the renderers below show
+         a gap rather than a number nobody measured. */
+      const _n = r => (r.status === 'fulfilled' && r.value && !r.value.error &&
+                       r.value.count !== null && r.value.count !== undefined) ? Number(r.value.count) : null;
+      closedToday = _n(closedTodayRes);
+      pmDoneToday = _n(pmDoneTodayRes);
+      jobsCount   = _n(jobsCountRes);
+      risksCount  = _n(risksCountRes);
       // A5: total network failure = every REAL read failed (log/inv/jobs-count;
       // the hive-only reads are synthetic Promise.resolve in solo mode). NOTE:
       // supabase-js RESOLVES with {data:null, error} on a network fault (it does
@@ -4162,7 +4171,10 @@
         { kpi: 'risk-alerts', num: risksCount,      label: _t('Risk Alerts','Alerto sa Panganib'), color: '#f87171', href: 'asset-hub.html'    },
         { kpi: 'pm-overdue',  num: pmOverdueCount,  label: _t('PM Overdue','Lumipas na PM'),  color: '#29B6D9', href: 'pm-scheduler.html' },
         { kpi: 'low-stock',   num: lowStock.length, label: _outOfStock > 0 ? `${_t('Stock','Stock')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low Stock','Kulang na Stock'), color: '#f7a21b', href: 'inventory.html'    },
-      ].filter(t => Number(t.num) > 0);
+        // A tile whose count could not be READ (null) must not be filtered out alongside the real
+        // zeros — that is how an unreadable "Risk Alerts 3" became no tile at all, which reads as
+        // "no risk alerts". Keep it, and let it show a gap.
+      ].filter(t => t.num === null || Number(t.num) > 0);
 
       if (tiles.length === 0) {
         statsEl.style.display = 'none';
@@ -4173,7 +4185,7 @@
       // target each tile precisely without text-matching.
       statsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = tiles.map(t =>
         `<a href="${escHtml(t.href)}" class="oh-card oh-tile" data-kpi="${escHtml(t.kpi)}">
-           <span class="oh-tile-num" style="color:${t.color};">${Number(t.num)}</span>
+           <span class="oh-tile-num" style="color:${t.color};">${t.num === null ? '&mdash;' : Number(t.num)}</span>
            <span class="oh-tile-lbl">${escHtml(t.label)}</span>
          </a>`
       ).join('');
@@ -4494,11 +4506,11 @@
         <h2 class="oh-sec-lbl">${_t('Hive Activity Today','Aktibidad ng Hive Ngayon')}</h2>
         <div class="oh-card oh-activity" data-rag-tile="index:hive_activity" data-rag-label="Hive Activity Today" style="padding:14px;">
           <div style="text-align:center;">
-            <span class="ac-num" style="color:var(--wh-green);">${closedToday}</span>
+            <span class="ac-num" style="color:var(--wh-green);">${closedToday === null ? '&mdash;' : closedToday}</span>
             <span class="ac-lbl">${_t('Jobs Closed','Tapos na Trabaho')}</span>
           </div>
           <div style="text-align:center; border-left:1px solid rgba(255,255,255,.06); border-right:1px solid rgba(255,255,255,.06);">
-            <span class="ac-num" style="color:var(--wh-blue);">${pmDoneToday}</span>
+            <span class="ac-num" style="color:var(--wh-blue);">${pmDoneToday === null ? '&mdash;' : pmDoneToday}</span>
             <span class="ac-lbl">${_t('PM Done','Tapos na PM')}</span>
           </div>
           <div style="text-align:center;">

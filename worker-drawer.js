@@ -111,7 +111,12 @@
       ]);
 
       const skills  = skillRes.status === 'fulfilled' ? (skillRes.value.data || []) : [];
-      const openN   = jobsRes.status === 'fulfilled' ? (jobsRes.value.count || 0) : 0;
+      // A head:true COUNT resolves with {count:null, error} rather than rejecting, so 'fulfilled'
+      // does not mean it worked — `count || 0` reported "Open jobs 0" for a worker whose jobs
+      // simply could not be read. null renders as a gap below.
+      const openN   = (jobsRes.status === 'fulfilled' && jobsRes.value && !jobsRes.value.error &&
+                       jobsRes.value.count !== null && jobsRes.value.count !== undefined)
+                       ? jobsRes.value.count : null;
       const recents = lbRes.status === 'fulfilled' ? (lbRes.value.data || []) : [];
       const invs    = invRes.status === 'fulfilled' ? (invRes.value.data || []) : [];
 
@@ -140,7 +145,7 @@
         <button class="close-btn" aria-label="Close">×</button>
         <h3>${escHtml(workerName)}</h3>
         <div class="row"><span>Skills</span><span style="font-weight:500;">${skillLine}</span></div>
-        <div class="row"><span>Open jobs</span><span>${openN}</span></div>
+        <div class="row"><span>Open jobs</span><span>${openN === null ? '&mdash;' : openN}</span></div>
         <h3 style="margin-top:1rem;font-size:0.9rem;">Recent logbook</h3>
         ${recentBlock}
         <h3 style="margin-top:1rem;font-size:0.9rem;">Low stock (assigned)</h3>

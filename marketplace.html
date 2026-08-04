@@ -611,13 +611,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div class="simple-row">
     <div class="simple-card tag-grey hero" id="mk-card-total" data-rag-tile="marketplace:listings_in_view" data-rag-label="Listings in view">
       <div class="sc-label">Listings in view</div>
-      <div class="sc-hero" id="mk-total-hero">0</div>
+      <!-- The pre-data seed is a GAP, not a zero. Measured on a slow/failing backend, these tiles
+           read "0 · Loading..." for the first ~16 seconds — a number sitting in the hero slot while
+           the sub-label admits it does not know yet. The number is what gets read; "Loading..."
+           underneath does not undo it. An em dash claims nothing. -->
+      <div class="sc-hero" id="mk-total-hero">—</div>
       <div class="sc-sub" id="mk-total-sub">Loading...</div>
       <span class="sc-tag" id="mk-total-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="mk-card-mine" data-rag-tile="marketplace:my_listings" data-rag-label="My listings">
       <div class="sc-label">My listings</div>
-      <div class="sc-hero" id="mk-mine-hero">0</div>
+      <div class="sc-hero" id="mk-mine-hero">—</div>
       <div class="sc-sub" id="mk-mine-sub">Loading...</div>
       <span class="sc-tag" id="mk-mine-tag">-</span>
     </div>
@@ -661,12 +665,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <button class="section-tab active" data-section="parts" role="tab" aria-selected="true">
       <span class="ic ic-parts" aria-hidden="true"></span>
       <span class="tab-label" data-i="tabparts">Parts</span>
-      <span class="tab-count" id="count-parts">0</span>
+      <span class="tab-count" id="count-parts">—</span>
     </button>
     <button class="section-tab" data-section="training" role="tab" aria-selected="false">
       <span class="ic ic-training" aria-hidden="true"></span>
       <span class="tab-label" data-i="tabtraining">Training</span>
-      <span class="tab-count" id="count-training">0</span>
+      <span class="tab-count" id="count-training">—</span>
     </button>
     <button class="section-tab" data-section="jobs" role="tab" aria-selected="false">
       <span class="ic ic-jobs" aria-hidden="true"></span>
@@ -674,12 +678,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            are different things and the same word for both is the T1 clash. The DB section value
            stays 'jobs'; only the human label changes. -->
       <span class="tab-label" data-i="tabjobs">Hiring</span>
-      <span class="tab-count" id="count-jobs">0</span>
+      <span class="tab-count" id="count-jobs">—</span>
     </button>
     <button class="section-tab" data-section="services" role="tab" aria-selected="false"><!-- service-hailing client side (SERVICE_HAILING_ROADMAP.md P4, disposition D14: jobs=employment KEPT, services=the hail flow) -->
       <span class="ic ic-maintenance" aria-hidden="true"></span>
       <span class="tab-label" data-i="tabservices">Services</span>
-      <span class="tab-count" id="count-services">0</span>
+      <span class="tab-count" id="count-services">—</span>
     </button>
   </div>
 
@@ -699,7 +703,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
     <div class="trust-item right">
       <span class="ic ic-list" aria-hidden="true"></span>
-      <span id="txt-total-listings">0 listings</span>
+      <span id="txt-total-listings">counting listings…</span>
     </div>
     <button id="btn-my-watchlist" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;color:var(--wh-red-text);font-family:'Poppins',sans-serif;font-size:0.7rem;font-weight:600;min-height:44px;padding:0.2rem 0.65rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;" aria-label="My Watchlist">
       <span class="ic ic-save" aria-hidden="true"></span>
@@ -1122,6 +1126,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let _hasMore       = false;
   let _loadingMore   = false;
   let _loadError     = false;  // P7: a FAILED listings fetch must render an error state, not the first-run "be the first to sell" CTA
+  let _rateLimited   = null;   // when the failure was a 429, the human-readable wait ("60 seconds") — null otherwise
+  let _authExpired   = false;  // ...and when it was a 401/403, the remedy is signing in, not retrying
+
+  /* PostgREST/most gateways answer a rate limit with Retry-After, in seconds or as an HTTP date.
+     Without it there is still an honest thing to say ("a moment"), which beats a bare error. */
+  function _retryAfterSeconds(err) {
+    const raw = err && (err.retryAfter || err.retry_after ||
+                        (err.hint && (String(err.hint).match(/(\d+)\s*s/) || [])[1]));
+    const n = Number(raw);
+    if (!isFinite(n) || n <= 0) return 'a moment';
+    if (n < 60) return `${Math.round(n)} seconds`;
+    const mins = Math.round(n / 60);
+    return `${mins} minute${mins === 1 ? '' : 's'}`;
+  }
   let _watchlist     = new Set(); /* listing IDs the current buyer has saved */
   let _sellerTiers   = {};        /* { sellerName: topLevel } for tier frames */
   const _communityTrustedSellers = new Set();  /* X-axis: sellers with the Voice-of-the-Hive community badge */
@@ -1538,6 +1556,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         WORKER_NAME ? db.from('v_marketplace_listings_truth').select('id', { count: 'exact', head: true }).eq('seller_name', WORKER_NAME) : zero,
         WORKER_NAME ? db.from('marketplace_saved_searches').select('id', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('active', true) : zero,
       ]);
+      // Same absent-vs-zero trap as the tab badges, and worse here: a head:true COUNT returns
+      // {count:null, error} rather than throwing, so an unreachable database used to ground the
+      // companion with "Published now: 0 parts, 0 training, 0 jobs" — which it then states to the
+      // person as fact. An ungrounded companion says it does not know; a FALSELY grounded one
+      // confabulates with confidence, so leave the context alone rather than seed it with zeros.
+      if ([pubParts, pubTraining, pubJobs, myListings, savedSearches]
+            .some(r => r && (r.error || r.count === null || r.count === undefined))) return;
       const parts = pubParts.count || 0, training = pubTraining.count || 0, jobs = pubJobs.count || 0;
       const summary =
         `Marketplace is free and contact-only (no fees, no payments). Published now: ${parts} parts, ` +
@@ -2043,6 +2068,38 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const t = document.getElementById('mk-' + name + '-tag');  if (t) t.textContent = tag;
     };
 
+    /* P7 GUARDED THE GRID AND STOPPED ONE LINE SHORT OF EVERYTHING ABOVE IT. renderListings() paints
+       a proper "Couldn't load listings / Retry" when the fetch fails — but this summary runs first,
+       unconditionally, and derives its entire story from _listings.length, which a failed read leaves
+       at 0. Measured on a fresh load with every REST read served 503: the grid degraded correctly
+       while the four panes a person reads FIRST said "0", "EMPTY", "You have no live listings yet",
+       "NONE", "No parts listings yet · Be the first to post in this section" and "Click + Post to add
+       the first one" — five confident assertions about a database nobody managed to ask. To a buyer
+       that reads as an empty marketplace; to a seller, as their listings having vanished.
+       Absent is not zero, here as everywhere else on this platform. */
+    if (_loadError) {
+      const GAP = '—';
+      setCard('total', GAP, "Couldn't load listings", 'UNKNOWN', 'grey');
+      setCard('mine',  GAP, "Couldn't load your listings", 'UNKNOWN', 'grey');
+      const vBoxE = document.getElementById('mk-verdict');
+      if (vBoxE) { vBoxE.classList.remove('healthy','watch','attn','empty'); vBoxE.classList.add('attn'); }
+      const vIconE = document.getElementById('mk-verdict-icon'); if (vIconE) vIconE.textContent = '⚠';
+      const vLblE = document.getElementById('mk-verdict-label');
+      if (vLblE) vLblE.textContent = _rateLimited ? 'Too many requests just now'
+        : _authExpired ? 'Your session expired' : "Couldn't load the marketplace";
+      const vSbE  = document.getElementById('mk-verdict-sub');
+      if (vSbE) vSbE.textContent = 'These are not counts: the listings could not be read, so nothing here is known yet.';
+      const actE = document.getElementById('mk-action-text');
+      // A rate limit does NOT mean "check your connection" — telling someone to debug a working
+      // connection sends them off to fix the wrong thing, and retrying is what extends the limit.
+      if (actE) actE.textContent = _rateLimited
+        ? `The marketplace is limiting how often it can be read, so the figures above are unknown rather than zero. Your connection is fine: wait about ${_rateLimited}, then use Retry in the grid below.`
+        : _authExpired
+        ? 'Your sign-in is no longer valid, so the figures above are unknown rather than zero, not an empty marketplace. Sign in again using the button below. Nothing you did was lost.'
+        : 'The marketplace could not be reached, so the figures above are unknown rather than zero, not an empty marketplace. Use Retry in the grid below; if it keeps failing, check your connection.';
+      return;
+    }
+
     setCard('total',
       String(total),
       total === 0 ? `No ${section} listings match your filter` : `${total} ${section} listing${total === 1 ? '' : 's'} after filter`,
@@ -2134,16 +2191,38 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (_loadError) {
         if (info) info.innerHTML = '';
         grid.removeAttribute('role');
-        grid/* xss-allow: fully static markup */ .innerHTML = `
+        // The toast fades (that was the P7 lesson); the persistent grid state must carry the same
+        // distinction, or a rate-limited person is left reading "check your connection" forever.
+        grid/* xss-allow: _rateLimited is built by _retryAfterSeconds from a numeric parse, never raw input */ .innerHTML = `
         <div class="empty-state">
           <span class="ic ic-warning ic-xl" aria-hidden="true"></span>
-          <h3>Couldn't load listings</h3>
-          <p style="max-width:420px;margin:0 auto 0.9rem;">Something went wrong reaching the marketplace. Check your connection and try again.</p>
-          <button class="btn-primary" id="btn-retry-load" style="min-height:44px;display:inline-flex;align-items:center;gap:0.4rem;"><span class="ic ic-refresh" aria-hidden="true"></span>Retry</button>
+          <h3>${_rateLimited ? 'Too many requests' : _authExpired ? 'Your session expired' : "Couldn't load listings"}</h3>
+          <p style="max-width:420px;margin:0 auto 0.9rem;">${_rateLimited
+            ? `The marketplace is limiting how often it can be read right now. Your connection is fine: wait about ${_rateLimited}, then retry.`
+            : _authExpired
+            ? 'The marketplace could not be read because your sign-in is no longer valid. Retrying will not help until you sign in again. Nothing you did was lost.'
+            : 'Something went wrong reaching the marketplace. Check your connection and try again.'}</p>
+          ${_authExpired
+            ? `<button class="btn-primary" id="btn-signin-again" style="min-height:44px;display:inline-flex;align-items:center;gap:0.4rem;">Sign in again</button>`
+            : `<button class="btn-primary" id="btn-retry-load" style="min-height:44px;display:inline-flex;align-items:center;gap:0.4rem;"><span class="ic ic-refresh" aria-hidden="true"></span>Retry</button>`}
         </div>`;
+        // An expired session must not be offered a Retry: the button cannot work, and a control that
+        // cannot work is worse than none — it converts a dead end into a loop. Offer the remedy that
+        // does work, using the same route the rest of this page already uses for sign-in.
+        document.getElementById('btn-signin-again')?.addEventListener('click', () => {
+          window.location.href = 'index.html?signin=1';
+        });
         document.getElementById('btn-retry-load')?.addEventListener('click', () => {
           showSkeletons();
-          Promise.resolve(loadListings()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); });
+          // A PARTIAL RETRY IS ITS OWN DEFECT. This handler re-ran ONLY the listings, so after a
+          // successful retry the grid filled back in while the tab badges and the trust bar kept
+          // saying the count was unavailable — permanently, since nothing else re-reads them. The
+          // person did what the button asked and the page stayed half-broken with no way forward.
+          // Retry means retry what failed, which was every read on this surface.
+          Promise.resolve(loadListings()).then(() => {
+            if (typeof loadCounts === 'function') loadCounts();
+            if (typeof whFreshnessFooter === 'function') whFreshnessFooter();
+          });
         });
         return;
       }
@@ -2312,13 +2391,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       /* keyset: skip already-seen rows */
       if (append && _lastCreatedAt) q = q.lt('created_at', _lastCreatedAt);
 
-      const { data, error } = await q;
-      if (error) throw error;
+      const { data, error, status } = await q;
+      if (error) { if (status) error._httpStatus = status; throw error; }
 
       const rows = data || [];
       _listings = append ? [..._listings, ...rows] : rows;
       _hasMore  = rows.length === PAGE_SIZE;
       _loadError = false;   // P7: a clean fetch clears any prior error state
+      _rateLimited = null;  // ...and so does the rate-limit copy, or it outlives the limit itself
+      _authExpired = false;
       if (rows.length) _lastCreatedAt = rows[rows.length - 1].created_at;
     } catch (_err) {
       if (!append) _listings = [];
@@ -2329,7 +2410,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // the first-run "be the first to sell" CTA on a full marketplace. Flag the error so renderListings
       // paints a distinct, persistent "couldn't load" grid state instead of the empty-state CTA.
       _loadError = true;
-      if (typeof showToast === 'function') showToast("Couldn't load listings. Check your connection and try again.", 'error');
+      /* 429 IS THE ONE ERROR WHOSE REMEDY IS TIME, AND WE WERE GIVING THE OPPOSITE ADVICE. Every
+         failure rendered "Check your connection and try again", so a rate-limited person retried
+         immediately — the exact action that extends the limit — while being told to go debug a
+         connection that was fine. Name the limit and say when it clears. */
+      _rateLimited = (_err && (_err._httpStatus === 429 || String(_err.code) === '429')) ? _retryAfterSeconds(_err) : null;
+      /* AND 401 IS THE OTHER ONE THE GENERIC MESSAGE GETS WRONG. An expired session rendered
+         "Check your connection and try again" with a Retry that can never succeed — a loop the
+         person blames on their own signal, while the actual remedy (sign in again) is never named.
+         Three failures, three different remedies: wait (429), sign in (401), check the line (the
+         rest). One message for all of them was only ever right a third of the time. */
+      _authExpired = !!(_err && (_err._httpStatus === 401 || _err._httpStatus === 403 ||
+                                 /jwt|token/i.test(String(_err.message || '')) ||
+                                 String(_err.code) === '42501'));
+      if (typeof showToast === 'function') {
+        showToast(_rateLimited
+          ? `Too many requests. The marketplace is limiting how often it can be read. Try again in ${_rateLimited}.`
+          : _authExpired
+          ? 'Your session expired, so the marketplace could not be read. Sign in again to continue. Nothing you did was lost.'
+          : "Couldn't load listings. Check your connection and try again.", 'error');
+      }
     }
 
     const sellerNames = [...new Set(_listings.map(l => l.seller_name).filter(Boolean))];
@@ -2368,25 +2468,41 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // instead of streaming every published row's `section` to tally client-side.
       const sections = ['parts', 'training', 'jobs'];
       const next = { parts: 0, training: 0, jobs: 0 };
+      let unread = false;
       await Promise.all(sections.map(async (s) => {
-        const { count } = await db
+        // A head:true COUNT does not THROW on failure — supabase-js hands back {count:null, error}.
+        // `count || 0` therefore turned every unreadable section into a confident 0 on the tabs, and
+        // the catch below never even ran. Measured under a 503: "Parts 0 Training 0 Hiring 0
+        // Services 0" and "0 listings", beside a grid that correctly said it could not load.
+        const { count, error } = await db
           .from('v_marketplace_listings_truth')
           .select('id', { count: 'exact', head: true })
           .eq('status', 'published')
           .eq('section', s);
-        next[s] = count || 0;
+        if (error || count === null || count === undefined) { unread = true; return; }
+        next[s] = count;
       }));
-      _counts = next;
+      _counts = unread ? null : next;
       updateCountBadges();
-    } catch (_) { /* ignore — table may not exist yet */ /* empty-catch-allow: best-effort silent swallow */ }
+    } catch (_) { /* ignore — table may not exist yet */ /* empty-catch-allow: best-effort silent swallow */
+      _counts = null; updateCountBadges();
+    }
   }
 
   function updateCountBadges() {
-    const total = _counts.parts + _counts.training + _counts.jobs;
     const cp = document.getElementById('count-parts');
     const ct = document.getElementById('count-training');
     const cj = document.getElementById('count-jobs');
     const tt = document.getElementById('txt-total-listings');
+    if (!_counts) {                       // unread, which is not the same as none
+      const GAP = '—';
+      if (cp) cp.textContent = GAP;
+      if (ct) ct.textContent = GAP;
+      if (cj) cj.textContent = GAP;
+      if (tt) tt.textContent = 'listing count unavailable';
+      return;
+    }
+    const total = _counts.parts + _counts.training + _counts.jobs;
     if (cp) cp.textContent = _counts.parts;
     if (ct) ct.textContent = _counts.training;
     if (cj) cj.textContent = _counts.jobs;
@@ -3518,6 +3634,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         loadClientServices, 15000);
     } catch (err) {
       pane.innerHTML = '<div class="empty-state"><h2>Couldn\'t load services</h2><p>' + escHtml((err && err.message) || 'Please try again.') + '</p><button type="button" onclick="loadClientServices()" style="' + _svcGhostC + 'margin-top:0.6rem;">Retry</button></div>';
+      // The pane says it could not load; the TAB BADGE beside it must not keep asserting a count
+      // from an earlier read. A number that outlives the data behind it is the stale-count class.
+      const badgeErr = document.getElementById('count-services');
+      if (badgeErr) badgeErr.textContent = '—';
     }
   }
 
@@ -3574,7 +3694,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       '<option value="">Choose a service…</option>' +
       cats.map(c => '<option value="' + e(c.id) + '"' +
         (c.requires_cert_level ? ' data-cert="' + e(String(c.requires_cert_level)) + '" data-cert-cat="' + e(c.category) + '"' : '') +
-        '>' + e(c.category) + ' - ' + e(c.name) + ' (₱' + Number(c.base_rate).toLocaleString() + (c.unit === 'per_hour' ? '/hr' : '/visit') + ')' +
+        /* `Number(null)` IS 0, AND HERE THAT PRINTED A PRICE LIST OF FREE LABOUR. With base_rate
+           unreadable, this option read "Mechanical - Pump Overhaul (site) (₱0/visit)" — eight of them
+           on one live walk, none present before the induction. A buyer decides on THIS label: they
+           would hail a ₱0 overhaul, and a provider would be asked to travel to a site and work for
+           nothing. Absent is not zero, and on a rate card it is the difference between a price and a
+           promise nobody can keep. Say the rate is unavailable and let the server price it. */
+        '>' + e(c.category) + ' - ' + e(c.name) + ' (' +
+          (c.base_rate === null || c.base_rate === undefined || !isFinite(Number(c.base_rate))
+            ? 'rate unavailable'
+            : '₱' + Number(c.base_rate).toLocaleString() + (c.unit === 'per_hour' ? '/hr' : '/visit')) + ')' +
         (c.requires_cert_level ? ' (certified only)' : '') + '</option>').join('') +
       '</select></label>' +
       /* SAY IT BEFORE THE HAIL, NOT AFTER THE TIMEOUT. A cert-gated trade can only be accepted by a
