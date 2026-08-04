@@ -959,6 +959,14 @@
         card.dataset.postId = postId;
 
         renderIO.unobserve(el);
+        /* AN OBSERVED NODE CAN BE GONE BY THE TIME ITS ENTRY IS DELIVERED. IntersectionObserver
+           batches entries and hands them over on a later frame; if the feed re-rendered in between
+           (a realtime prepend, a filter, a reload), `el` is detached and el.parentNode is null.
+           Measured 2026-08-04: 5 uncaught "Cannot read properties of null (reading 'replaceChild')"
+           on a single community load. The throw is INSIDE entries.forEach, so it did not merely log
+           — it abandoned the rest of that batch, leaving other cards unexpanded or uncollapsed while
+           their observers had already been unhooked. Detached means the work is moot, so skip it. */
+        if (!el.parentNode) return;
         el.parentNode.replaceChild(card, el);
         collapseIO.observe(card);
         requestAnimationFrame(() => { heightCache[postId] = card.offsetHeight; });
@@ -976,6 +984,7 @@
 
         const stub = _makeStub(postId);
         collapseIO.unobserve(el);
+        if (!el.parentNode) return;   // same race as renderIO above; this is where it was measured
         el.parentNode.replaceChild(stub, el);
         renderIO.observe(stub);
       });
@@ -1050,7 +1059,26 @@
       .order('worker_name')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(10);
 
-    if (error || !data || data.length === 0) {
+    /* `error || empty` COLLAPSED A FAILED READ INTO "No activity yet." -- the exact class this whole
+       bank was built around, on the one panel whose job is to say who is contributing. A hive whose
+       leaderboard could not be read was told nobody had done anything, which is not a smaller claim
+       than the truth, it is a different and discouraging one. Measured 2026-08-04 by the slow_honest
+       lens (prematureEmptyState true, inviteAtRest false: the invitation appears only when something
+       has gone wrong, never at rest).
+       Split them: a failure says what failed and how it clears, and offers a retry; an empty
+       leaderboard keeps the invitation, which is true and worth saying. */
+    if (error) {
+      const msg = (typeof whReadError === 'function')
+        ? whReadError(error, 'the leaderboard')
+        : 'Couldn’t load the leaderboard. Check your connection and try again.';
+      el.innerHTML = '<p style="font-size:0.78rem; color:var(--wh-text-muted); text-align:center; padding:1rem 0;">'
+                   + escHtml(msg) + '</p>'
+                   + '<div style="text-align:center;"><button type="button" id="lb-retry" style="font-size:0.75rem;padding:0.4rem 0.9rem;min-height:44px;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;">Retry</button></div>';
+      const rb = document.getElementById('lb-retry');
+      if (rb) rb.addEventListener('click', loadLeaderboard);
+      return;
+    }
+    if (!data || data.length === 0) {
       el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80); text-align:center; padding:1rem 0;">No activity yet.</p>';
       return;
     }
@@ -1205,12 +1233,20 @@
     document.getElementById('feed-list').style.display     = 'none';
     _resetFeed();
 
+    /* AND BOUND BOTH READS, or the skeleton above is the eternal one. A supabase-js query never goes
+       through fetchWithTimeout, so a stalled feed read had no ceiling and this skeleton would shimmer
+       indefinitely — measured 2026-08-04, stuckSkeleton true and saysSomething false, with no end.
+       whQueryTimeout resolves in supabase's own {data,error} shape, so the error branch below already
+       knows what to do with it and reads it as a connection problem, which is what a hung read is.
+       15s is generous for these two reads on a 3G plant link and still finite. */
+    const _bound = q => (typeof whQueryTimeout === 'function')
+      ? whQueryTimeout(q, 15000, 'the community feed') : q;
     const [pinnedRes, pageRes] = await Promise.all([
-      db.from('v_community_posts_truth')
+      _bound(db.from('v_community_posts_truth')
         .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
         .eq('hive_id', HIVE_ID).eq('pinned', true).is('deleted_at', null)
-        .order('created_at', { ascending: false }).order('id').limit(500),
-      _fetchPage(),
+        .order('created_at', { ascending: false }).order('id').limit(500)),
+      _bound(_fetchPage()),
     ]);
 
     document.getElementById('feed-skeleton').style.display = 'none';

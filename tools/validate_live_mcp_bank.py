@@ -85,6 +85,90 @@ def sha_of(paths):
     return h.hexdigest()[:16]
 
 
+# ── R4b · A WHOLE-FILE HASH IS TOO BLUNT FOR A SHARED LIBRARY ────────────────────────────────────
+# The file hash above is right for a page: edit marketplace.html and every claim about marketplace.html
+# should be re-walked. It is WRONG for utils.js, which nearly every row depends on. Adding one new
+# helper to it -- `whReadError`, appended, touching nothing -- expired 402 of 435 green rows in one
+# commit (2026-08-04). None of those claims could possibly have been affected: "the seller edit form
+# refuses a blank title" does not become doubtful because a function it never calls now exists.
+#
+# An instrument that cannot tell "the code this claim rests on changed" from "unrelated code was added
+# beside it" is not measuring freshness, it is measuring file mtime with extra steps -- and the cost is
+# paid in re-walks that re-confirm what nobody doubted, which is exactly how a discipline stops being
+# followed.
+#
+# So a row may ALSO carry `fn_digests`: a map of {"utils.js::whWriteError": "<digest>", ...} plus the
+# file's TOP-LEVEL code (everything outside any function body) under "::toplevel". A row stays fresh if
+# every entry it recorded is still byte-identical. A NEW function is absent from the map, so it expires
+# nothing; a CHANGED or DELETED one expires the row, which is the case that matters. Top-level code is
+# included because that is where a wrapper, a monkey-patch or an assignment could change behaviour
+# without touching any function body.
+#
+# This is a WIDENING of what counts as fresh, so it must not become a way to launder a real change:
+# the map is written at BANK time from the code as it then was, never recomputed from the current file,
+# and a row with no map falls back to the whole-file hash. The self-test proves both directions.
+_FN_RE = re.compile(r"^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(", re.M)
+
+
+def fn_digests(paths):
+    """{"<file>::<fn>": digest} for every top-level `function name(...)`, plus "<file>::toplevel"
+    for everything outside those bodies. Brace-matched rather than regex-sliced, because a regex that
+    stops at the first `}` reports a two-line function for a fifty-line one and would call a real
+    change unchanged."""
+    out = {}
+    for p in sorted(paths or []):
+        fp = os.path.join(ROOT, p)
+        if not os.path.exists(fp) or not p.endswith(".js"):
+            continue
+        src = open(fp, "r", encoding="utf-8", errors="replace").read()
+        spans = []
+        for m in _FN_RE.finditer(src):
+            i = src.find("{", m.end() - 1)
+            if i < 0:
+                continue
+            depth, j, n = 0, i, len(src)
+            while j < n:
+                c = src[j]
+                if c == "{":
+                    depth += 1
+                elif c == "}":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                j += 1
+            if depth != 0:
+                continue                      # unbalanced: skip rather than guess
+            body = src[m.start():j + 1]
+            out["%s::%s" % (p, m.group(1))] = hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
+            spans.append((m.start(), j + 1))
+        top, last = [], 0
+        for a, b in sorted(spans):
+            top.append(src[last:a])
+            last = b
+        top.append(src[last:])
+        # Normalised, because appending a function leaves an extra blank line in the top-level slice
+        # and a raw hash would read that as a behaviour change -- expiring every row for a whitespace
+        # gap, which is the exact over-sensitivity this whole mechanism exists to remove. Whitespace
+        # BETWEEN top-level declarations cannot change what the file does; whitespace INSIDE a function
+        # is inside that function's own digest, untouched by this.
+        norm = "\n".join(ln.strip() for chunk in top for ln in chunk.splitlines() if ln.strip())
+        out["%s::toplevel" % p] = hashlib.sha256(norm.encode("utf-8")).hexdigest()[:16]
+    return out
+
+
+def fn_digests_still_hold(recorded):
+    """True when every function/top-level digest a row RECORDED is still byte-identical. Names absent
+    from `recorded` are new code and are deliberately ignored."""
+    if not recorded:
+        return False
+    files = sorted({k.split("::", 1)[0] for k in recorded})
+    current = fn_digests(files)
+    for k, v in recorded.items():
+        if current.get(k) != v:
+            return False
+    return True
+
+
 def gate_ids():
     src = ""
     try:
@@ -137,7 +221,11 @@ def classify(row, gates, urls):
     dep = ev.get("depends_on") or []
     if dep:
         if sha_of(dep) != ev.get("sha"):
-            return "stale", "R4 a file this claim depends on has changed since the walk"
+            # R4b: before calling it stale, ask the finer question. If the row recorded which FUNCTIONS
+            # it rested on and every one of them is byte-identical, the file changed around the claim
+            # rather than under it. Only rows that took the trouble to record that get the benefit.
+            if not fn_digests_still_hold(ev.get("fn_digests")):
+                return "stale", "R4 a file this claim depends on has changed since the walk"
     return "green", ""
 
 
@@ -297,8 +385,53 @@ def selftest():
         if got != want:
             print(f"  {RED}FAIL{RST} — {label}: expected {want}, got {got}")
             ok = False
+
+    # ── R4b, both directions, against a REAL temporary .js rather than a mocked digest ────────────
+    # The widening must survive the question "does it still catch a change?", so it is tested by
+    # actually editing a file: appending a function must NOT expire the row, and editing a recorded
+    # one MUST. A one-directional test here would let R4b quietly become "never stale".
+    tmp = os.path.join(ROOT, "_r4b_selftest.js")
+    try:
+        open(tmp, "w", encoding="utf-8").write(
+            "function alpha() {\n  if (1) { return 'a'; }\n}\nvar top = 1;\n")
+        rec = fn_digests(["_r4b_selftest.js"])
+        row = {"status": "green",
+               "evidence": {"kind": "gate", "ref": "gate:validate_public_read_surface", "asserts": "a",
+                            "depends_on": ["_r4b_selftest.js"], "sha": "stale-on-purpose",
+                            "fn_digests": rec}}
+        if classify(row, gates, urls)[0] != "green":
+            print(f"  {RED}FAIL{RST} — R4b: an unchanged function should read green even with a stale file sha")
+            ok = False
+        # append a NEW function: nothing the row recorded moved, so the row must survive
+        open(tmp, "a", encoding="utf-8").write("function beta() {\n  return 'b';\n}\n")
+        if classify(row, gates, urls)[0] != "green":
+            print(f"  {RED}FAIL{RST} — R4b: appending an unrelated function must not expire a row")
+            ok = False
+        # now EDIT the recorded function: this must expire it
+        open(tmp, "w", encoding="utf-8").write(
+            "function alpha() {\n  if (1) { return 'CHANGED'; }\n}\nvar top = 1;\n")
+        if classify(row, gates, urls)[0] != "stale":
+            print(f"  {RED}FAIL{RST} — R4b: editing a recorded function MUST expire the row")
+            ok = False
+        # and a change to TOP-LEVEL code must expire it too -- that is where a wrapper would hide
+        open(tmp, "w", encoding="utf-8").write(
+            "function alpha() {\n  if (1) { return 'a'; }\n}\nvar top = 2;\n")
+        if classify(row, gates, urls)[0] != "stale":
+            print(f"  {RED}FAIL{RST} — R4b: a top-level change MUST expire the row")
+            ok = False
+        # a row that recorded nothing gets no benefit: it falls back to the whole-file hash
+        bare = {"status": "green",
+                "evidence": {"kind": "gate", "ref": "gate:validate_public_read_surface", "asserts": "a",
+                             "depends_on": ["_r4b_selftest.js"], "sha": "stale-on-purpose"}}
+        if classify(bare, gates, urls)[0] != "stale":
+            print(f"  {RED}FAIL{RST} — R4b: a row with no fn_digests must still fall back to the file hash")
+            ok = False
+    finally:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+
     if ok:
-        print(f"  {GREEN}PASS{RST} — R1/R2/R3/R4/R6 all fire; a well-formed row passes; owed is exempt")
+        print(f"  {GREEN}PASS{RST} — R1/R2/R3/R4/R4b/R6 all fire; a well-formed row passes; owed is exempt")
     return 0 if ok else 1
 
 
