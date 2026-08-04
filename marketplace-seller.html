@@ -1542,7 +1542,12 @@
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       showToast('Inquiry closed.', 'info');
       await loadInquiries();
-    } catch (_err) { console.error('marketplace-seller action failed:', _); showToast(whWriteError(_err, 'Failed. Try again.'), 'error'); }
+    /* `console.error(..., _)` -- a bare `_` that is declared NOWHERE on this page and is not lodash.
+       The catch threw ReferenceError on its own first line, so showToast never ran: closing an
+       inquiry failed in complete silence, the one outcome the whole catch exists to prevent.
+       Confirmed in the page's own runtime, not just by reading: evaluating that exact expression
+       there returns "ReferenceError: _ is not defined". */
+    } catch (_err) { console.error('marketplace-seller action failed:', _err); showToast(whWriteError(_err, 'Couldn\'t close this inquiry. It is still open.'), 'error'); }
   }
 
   /* Arc X A3 (list-state persistence): mirror the active tab + listing status filter
@@ -1664,6 +1669,19 @@
       const badge = document.getElementById('badge-services');
       if (badge) badge.textContent = String(feed.length);
       renderSvcConsole(area, provs, feed, jobs, done, ratedIds, disputed, closed);
+      /* A quote price is WORK, not a keystroke: the provider adds up materials, travel and hours
+         before typing it. Measured 2026-08-05 -- typed 3750, reloaded, and the box came back empty,
+         while the buyer's half-written hail (wh_view_marketplace.html_draft_svchail) and the
+         seller's half-written listing both survive the same interruption. Same page, same machinery,
+         one form left out.
+         Keyed PER REQUEST so a price computed for one job can never surface under another -- the
+         cross-listing draft bug this page already had once. auto:false because these rows are
+         re-rendered on every poll and the generic focus-restore would fight the render; the draft is
+         cleared explicitly when the quote actually lands. */
+      feed.forEach(f => {
+        if (f.mode === 'instant' || f.already_responded) return;
+        if (typeof whAutoSaveDraft === 'function') whAutoSaveDraft('svcquote_' + f.request_id, ['svc-q-' + f.request_id], { auto: false });
+      });
       // P6b wallet card (async append under the provider cards; first identity's wallet)
       /* WHOSE WALLET IS THIS? provs[0] on an UNORDERED query bound the top-up form to an arbitrary
          provider. my_service_provider_ids() returns every provider the user can act for — including
@@ -1710,7 +1728,7 @@
       '<input id="svc-reg-area" type="text" placeholder="e.g. Baguio" maxlength="60" style="display:block;width:100%;margin-top:0.3rem;padding:0.6rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
       '<div style="margin-top:0.9rem;font-size:0.8rem;font-weight:600;">What services do you offer?</div>' +
       '<div id="svc-reg-cats" style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.4rem;">' + (catBoxes || '<em>Loading categories…</em>') + '</div>' +
-      '<button type="button" onclick="svcRegister()" style="' + _svcBtn + 'width:100%;margin-top:1rem;">Register as a provider</button>' +
+      '<button type="button" onclick="_svcJobGuard(this,\'Registering…\',function(){return svcRegister();})" style="' + _svcBtn + 'width:100%;margin-top:1rem;">Register as a provider</button>' +
       '<p style="font-size:0.72rem;opacity:0.75;margin-top:0.5rem;">Verification is granted by the platform after review. Your profile starts unverified and can take jobs right away.</p>' +
       '<div id="svc-hive-reg" style="margin-top:0.9rem;"></div>' +
       '</div>';
@@ -1730,7 +1748,7 @@
       if (slot && sup && sup.length) {
         const e2 = escHtml;
         slot.innerHTML = '<div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:0.8rem;font-size:0.8rem;font-weight:600;">You supervise a hive</div>' +
-          sup.map(s => '<button type="button" onclick="svcRegisterHive(\'' + e2(s.hive_id) + '\',\'' + e2(((s.hives && s.hives.name) || 'Our hive').replace(/'/g, '')) + '\')" style="' + _svcBtnGhost + 'width:100%;margin-top:0.5rem;">Register ' + e2((s.hives && s.hives.name) || 'your hive') + ' as a service company</button>').join('');
+          sup.map(s => '<button type="button" onclick="_svcJobGuard(this,\'Registering…\',function(){return svcRegisterHive(\'' + e2(s.hive_id) + '\',\'' + e2(((s.hives && s.hives.name) || 'Our hive').replace(/'/g, '')) + '\');})" style="' + _svcBtnGhost + 'width:100%;margin-top:0.5rem;">Register ' + e2((s.hives && s.hives.name) || 'your hive') + ' as a service company</button>').join('');
       }
     } catch (_) { /* empty-catch-allow: hive-company option is additive; the freelancer form stands alone */ }
   }
@@ -1750,7 +1768,7 @@
       service_areas: areaTxt.trim() ? [areaTxt.trim()] : [],
       availability: 'offline'
     }).select('id');
-    if (error) { showToast(error.message, 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'Couldn\'t register your hive as a provider. Nothing was saved.'), 'error'); return; }
     if (!data || !data.length) { showToast('Registration didn\'t save - please try again', 'error'); return; }
     showToast('Your hive is now a service company. Go Online to receive jobs');
     loadServices();
@@ -1775,7 +1793,7 @@
       service_areas: areaTxt.trim() ? [areaTxt.trim()] : [],
       availability: 'offline'
     }).select('id');
-    if (error) { showToast(error.message, 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'Couldn\'t register you as a provider. Nothing was saved.'), 'error'); return; }
     if (!data || !data.length) { showToast('Registration didn\'t save - please try again', 'error'); return; }
     showToast('You\'re a provider now - go Online to receive jobs');
     loadServices();
@@ -2016,7 +2034,7 @@
         '<div style="font-size:0.75rem;opacity:0.8;margin-top:0.15rem;">' + e((p.categories || []).join(' · ')) + (p.service_areas && p.service_areas.length ? ' - ' + e(p.service_areas.join(', ')) : '') + ' · ' + Number(p.completed_jobs || 0) + ' job' + (Number(p.completed_jobs || 0) === 1 ? '' : 's') + ' done' + (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + (p.tier === 'gold' ? ' · 🥇 Gold' : p.tier === 'silver' ? ' · 🥈 Silver' : ' · 🥉 Bronze') + '</div></div>' +
         (onJob
           ? '<span style="font-size:0.8rem;font-weight:700;color:var(--wh-orange-text);">On a job</span>'
-          : '<button type="button" role="switch" aria-checked="' + (online ? 'true' : 'false') + '" onclick="svcToggleAvail(\'' + e(p.id) + '\',\'' + (online ? 'offline' : 'online') + '\')" style="' + (online ? _svcBtn : _svcBtnGhost) + '">' + (online ? 'Online: receiving jobs' : 'Offline: go Online') + '</button>') +
+          : '<button type="button" role="switch" aria-checked="' + (online ? 'true' : 'false') + '" onclick="_svcJobGuard(this,\'Updating…\',function(){return svcToggleAvail(\'' + e(p.id) + '\',\'' + (online ? 'offline' : 'online') + '\');})" style="' + (online ? _svcBtn : _svcBtnGhost) + '">' + (online ? 'Online: receiving jobs' : 'Offline: go Online') + '</button>') +
         '</div>';
     });
 
@@ -2024,7 +2042,7 @@
     if (svcPushSupported() && Notification.permission !== 'granted') {
       html += '<div class="simple-card" style="margin-bottom:0.8rem;padding:0.8rem 1rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;justify-content:space-between;">' +
         '<div style="font-size:0.8rem;">🔔 <strong>Hear new hails with this tab closed</strong><div style="opacity:0.8;font-size:0.74rem;margin-top:0.1rem;">Job offers arrive as notifications, like a ride-hailing driver app.</div></div>' +
-        '<button type="button" onclick="svcEnablePush()" style="' + _svcBtn + '">Enable job alerts</button></div>';
+        '<button type="button" onclick="_svcJobGuard(this,\'Turning on…\',function(){return svcEnablePush();})" style="' + _svcBtn + '">Enable job alerts</button></div>';
     }
     html += '<div id="svc-wallet-slot"></div>';
     /* Disputed work comes FIRST. It is not active and not finished, and it is the only state on this
@@ -2067,8 +2085,8 @@
           '<div class="simple-card" style="margin-bottom:0.6rem;padding:0.9rem 1rem;">' +
           '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>' +
           '<div style="font-size:0.75rem;opacity:0.8;margin:0.2rem 0 0.5rem;">' + e(SVC_STATUS_LABEL[j.status] || j.status) + ' · ' + e(j.address || '') + (j.client_worker_name ? ' · for ' + e(j.client_worker_name) : '') + '</div>' +
-          (nxt ? '<button type="button" onclick="svcAdvance(\'' + e(j.id) + '\',\'' + nxt[0] + '\')" style="' + _svcBtn + 'margin-right:0.4rem;">' + nxt[1] + '</button>' : '') +
-          '<button type="button" onclick="svcCancelJob(\'' + e(j.id) + '\')" style="' + _svcBtnGhost + 'margin-right:0.4rem;">Cancel job</button>' +
+          (nxt ? '<button type="button" onclick="_svcJobGuard(this,\'Updating…\',function(){return svcAdvance(\'' + e(j.id) + '\',\'' + nxt[0] + '\');})" style="' + _svcBtn + 'margin-right:0.4rem;">' + nxt[1] + '</button>' : '') +
+          '<button type="button" onclick="_svcJobGuard(this,\'Cancelling…\',function(){return svcCancelJob(\'' + e(j.id) + '\');})" style="' + _svcBtnGhost + 'margin-right:0.4rem;">Cancel job</button>' +
           // dayplanner hook (P5/§1c): the platform's existing ?add=1 deep-link contract
           '<a href="dayplanner.html?add=1&title=' + encodeURIComponent('Service job: ' + (j.catalog_name || (j.custom_scope || 'hailed job').slice(0, 60))) + '&kind=shift&ref=svc-' + e(j.id) + '&cat=CM" style="' + _svcBtnGhost + 'display:inline-flex;align-items:center;text-decoration:none;margin-right:0.4rem;" aria-label="Add this job to my Day Planner">+ Add to my day</a>' +
           // parts cross-sell (P9/§1c): a job that needs a part feeds the parts marketplace
@@ -2132,10 +2150,10 @@
           (f.already_responded
             ? '<span style="font-size:0.8rem;opacity:0.75;">Responded. Waiting for the client</span>'
             : (f.mode === 'instant'
-                ? '<button type="button" onclick="svcAccept(\'' + e(f.request_id) + '\')" style="' + _svcBtn + '">Accept job</button>'
+                ? '<button type="button" onclick="_svcJobGuard(this,\'Accepting…\',function(){return svcAccept(\'' + e(f.request_id) + '\');})" style="' + _svcBtn + '">Accept job</button>'
                 : '<span style="display:inline-flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">' +
                   '<input id="svc-q-' + e(f.request_id) + '" type="number" min="0" step="50" placeholder="Your price ₱" aria-label="Your quote price in pesos" style="width:9rem;padding:0.55rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
-                  '<button type="button" onclick="svcQuote(\'' + e(f.request_id) + '\')" style="' + _svcBtnGhost + '">Send quote</button></span>')) +
+                  '<button type="button" onclick="_svcJobGuard(this,\'Sending…\',function(){return svcQuote(\'' + e(f.request_id) + '\');})" style="' + _svcBtnGhost + '">Send quote</button></span>')) +
           '</div>';
       });
     }
@@ -2145,7 +2163,7 @@
   async function svcToggleAvail(providerId, to) {
     if (!svcRequireOnline('Changing your availability')) return;
     const { data, error, status } = await db.from('service_providers').update({ availability: to, updated_at: new Date().toISOString() }).eq('id', providerId).select('id');
-    if (error) { showToast(error.message, 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'Couldn\'t change your availability. It is unchanged.'), 'error'); return; }
     if (!data || !data.length) { showToast('Couldn\'t change availability - refresh and try again', 'error'); return; }
     showToast(to === 'online' ? 'You\'re Online - jobs in your area will appear here' : 'You\'re Offline');
     loadServices();
@@ -2181,6 +2199,39 @@
      `offline-write-guard`. */
   // Delegates to the shared whRequireOnline (utils.js). Kept as a local name so every call
   // site reads the same, while the wording lives in exactly one place.
+  /* P7 double-submit, provider side. Measured 2026-08-05: three presses of "Accept job" inside one
+     in-flight window sent THREE accept_service_request RPCs, with the button never disabled, never
+     relabelled and never aria-busy. The RPC resolves the race correctly, so the provider saw:
+
+         "Job is yours. Head over when ready"     <- press 1, true
+         "Another provider got this one first"    <- press 2, and it stays on screen
+
+     The winner is told they lost, and the false message is the one left standing. Nothing on screen
+     changed between press 1 and press 3, which is exactly why a person presses again.
+
+     The listing side of this page already locks (withButtonLock on File top-up; disable+relabel on
+     Save/Reply/Messenger/Certs) and the BUYER surface has _svcSubmitGuard — the provider job controls
+     were the set nobody had applied it to. Same shape as the buyer guard, but keyed on the ELEMENT
+     rather than an id, because these buttons are rendered inline per row and have none.
+
+     `finally` matters more than the disable: svcAccept returns early on several refusals, and a
+     control that stays disabled after a refusal bricks the row. aria-busy so a screen reader hears
+     the wait rather than silence. */
+  async function _svcJobGuard(btn, busyLabel, fn) {
+    if (btn) {
+      if (btn.disabled) return;            // a press arriving mid-flight does nothing at all
+      btn.dataset.whLabel = btn.textContent;
+      btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = busyLabel;
+    }
+    try { return await fn(); }
+    finally {
+      if (btn) {
+        btn.disabled = false; btn.removeAttribute('aria-busy');
+        btn.textContent = btn.dataset.whLabel || btn.textContent;
+      }
+    }
+  }
+
   function svcRequireOnline(action) {
     // The page's own showToast is the sink; utils.js owns the wording. A missing helper still refuses
     // AND still speaks - a guard that throws blocks the write and shows nothing, which is the silent
@@ -2202,7 +2253,7 @@
       return;
     }
     const { data, error, status } = await db.rpc('accept_service_request', { p_request_id: requestId });
-    if (error) { showToast(error.message, 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'Couldn\'t accept this job. It was NOT accepted - the client is still waiting, so try again.'), 'error'); return; }
     if (data && data.accepted) {
       showToast('Job is yours. Head over when ready');
     } else {
@@ -2241,8 +2292,13 @@
     const price = inp ? Number(inp.value) : NaN;
     if (!isFinite(price) || price <= 0) { showToast('Enter your price first', 'error'); return; }
     const { data, error, status } = await db.rpc('submit_service_quote', { p_request_id: requestId, p_price: price });
-    if (error) { showToast(error.message, 'error'); return; }
-    if (data && data.quoted) { showToast('Quote sent - you\'ll see it here if the client picks you'); }
+    if (error) { showToast(whWriteError(error, 'Couldn\'t send the quote. Nothing was sent - your price is still here, so try again.'), 'error'); return; }
+    if (data && data.quoted) {
+      // the price committed, so the next visit to this row starts fresh rather than re-offering
+      // a number that is already on the client's screen
+      try { if (typeof whRememberView === 'function') whRememberView('draft_svcquote_' + requestId, function () { return {}; }).clear(); } catch (_e) { /* empty-catch-allow: a stale draft is harmless next to a sent quote */ }
+      showToast('Quote sent - you\'ll see it here if the client picks you');
+    }
     else { showToast('Couldn\'t send the quote - the request may have closed', 'error'); }
     loadServices();
   }
@@ -2252,7 +2308,7 @@
     const patch = { status: next, updated_at: new Date().toISOString() };
     if (SVC_TS_COL[next]) patch[SVC_TS_COL[next]] = new Date().toISOString();
     const { data, error, status } = await db.from('service_requests').update(patch).eq('id', requestId).select('id');
-    if (error) { showToast(error.message, 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'Couldn\'t update the job status. It is unchanged - the client still sees the previous step.'), 'error'); return; }
     if (!data || !data.length) { showToast('Couldn\'t update - the job may have moved on. Refreshing.', 'error'); }
     else { showToast(next === 'completed' ? 'Job completed. Nice work!' : 'Status updated'); }
     loadServices();
@@ -2268,7 +2324,7 @@
     slot.innerHTML = '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);padding:0.6rem 0.7rem;">' +
       '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.3rem;">How was this client?</div>' +
       '<div role="radiogroup" aria-label="Rating from 1 to 5 stars" style="display:flex;gap:0.3rem;margin-bottom:0.4rem;flex-wrap:wrap;">' +
-      [1, 2, 3, 4, 5].map(n => '<button type="button" aria-label="' + n + ' star' + (n > 1 ? 's' : '') + '" onclick="svcProvPickStar(\'' + e(requestId) + '\',' + n + ')" style="' + _svcBtnGhost + 'min-width:44px;">' + n + '★</button>').join('') + '</div>' +
+      [1, 2, 3, 4, 5].map(n => '<button type="button" aria-label="' + n + ' star' + (n > 1 ? 's' : '') + '" onclick="_svcJobGuard(this,\'…\',function(){return svcProvPickStar(\'' + e(requestId) + '\',' + n + ');})" style="' + _svcBtnGhost + 'min-width:44px;">' + n + '★</button>').join('') + '</div>' +
       '<input id="svc-prate-comment-' + e(requestId) + '" type="text" maxlength="200" placeholder="A sentence for other providers (optional)" aria-label="Review comment (optional)" style="width:100%;' + _svcInput + '">' +
       '</div>';
   }
@@ -2281,7 +2337,7 @@
       reviewer_name: WORKER_NAME || 'Provider', rating: stars, comment: comment || null,
       request_id: requestId, direction: 'provider_to_client'
     });
-    if (error) { showToast(error.message, 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'Couldn\'t save your rating. Nothing was saved - the job is still rateable.'), 'error'); return; }
     showToast('Thanks - your rating helps other providers');
     loadServices();
   }
@@ -2290,7 +2346,7 @@
     if (!svcRequireOnline('Cancelling this job')) return;
     if (!(await window.whConfirm('Cancel this job? The client will be notified.', { okLabel: 'Cancel job', cancelLabel: 'Keep it' }))) return;
     const { data, error, status } = await db.from('service_requests').update({ status: 'cancelled_by_provider', cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', requestId).select('id');
-    if (error) { showToast(error.message, 'error'); return; }
+    if (error) { showToast(whWriteError(error, 'Couldn\'t cancel this job. It is STILL YOURS and the client still expects you.'), 'error'); return; }
     if (!data || !data.length) { showToast('Couldn\'t cancel - refresh and try again', 'error'); }
     else { showToast('Job cancelled'); }
     loadServices();
@@ -2356,7 +2412,7 @@
         auth_uid: _authUid, endpoint: sub.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth,
         user_agent: navigator.userAgent.slice(0, 200)
       }, { onConflict: 'endpoint' }).select('id');
-      if (error) { showToast(error.message, 'error'); return; }
+      if (error) { showToast(whWriteError(error, 'Couldn\'t turn on job alerts. They stay off, so keep this tab open to see new hails.'), 'error'); return; }
       if (!data || !data.length) { showToast('Couldn\'t save the alert subscription. Try again.', 'error'); return; }
       showToast('Job alerts ON. You\'ll hear new hails even with this tab closed');
       loadServices();
@@ -2425,6 +2481,12 @@
     if (typeof updateProfileStats === 'function') updateProfileStats();
     if (typeof loadCreditWallet === 'function') loadCreditWallet();
   };
+  /* An inline onclick= resolves in GLOBAL scope, and everything on this page lives inside an IIFE.
+     Shipping the guard without this line made every provider control throw
+     "ReferenceError: _svcJobGuard is not defined" -- caught only because the re-measure asserts the
+     write ACTUALLY FIRED before reading anything else. A probe that watched for a duplicate toast
+     would have seen none and called a fully broken button a pass. */
+  window._svcJobGuard = _svcJobGuard;
   window.svcRegister = svcRegister;
   window.svcRegisterHive = svcRegisterHive;
   window.svcToggleAvail = svcToggleAvail;
