@@ -289,7 +289,13 @@
          a person by a page that had not yet looked. Same rule the rest of the platform now follows. -->
     <div class="stat-cell"><div class="stat-num" id="stat-listings">-</div><div class="stat-lbl">Active Listings</div></div>
     <div class="stat-cell"><div class="stat-num blue" id="stat-replies">-</div><div class="stat-lbl">Inquiries Replied</div></div>
-    <div class="stat-cell"><div class="stat-num green" id="stat-response">-</div><div class="stat-lbl">Avg Response</div></div>
+    <!-- "Avg Reply", not "Avg Response". One concept, one word: the tile beside it says "Inquiries
+         REPLIED" and the paragraph above says "their REPLY time below is measured from real
+         inquiries", so calling the same thing a response here made a buyer match two words to one
+         idea on a single screen. I introduced half of that collision myself when I wrote the hero
+         copy earlier today, which is exactly why this check reads the WHOLE surface rather than the
+         part that was just edited. -->
+    <div class="stat-cell"><div class="stat-num green" id="stat-response">-</div><div class="stat-lbl">Avg Reply</div></div>
     <div class="stat-cell"><div class="stat-num" id="stat-rating">-</div><div class="stat-lbl" title="WorkHive Marketplace Seller Score input: overall buyer rating">Rating</div></div>
   </div>
   <!-- Standard: WorkHive Marketplace Seller Score (platform-internal seller-quality composite). -->

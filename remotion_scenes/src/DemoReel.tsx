@@ -307,7 +307,7 @@ const CaptionBar: React.FC<{seg: number}> = ({seg}) => {
         opacity: k,
       }}>
         <div style={{fontFamily: FONT, fontWeight: 700,
-                     fontSize: height * 0.042, lineHeight: 1.25,
+                     fontSize: height * 0.05, lineHeight: 1.25,
                      color: '#FFFFFF', textAlign: 'center',
                      whiteSpace: 'pre-wrap'}}>{cur.text}</div>
       </div>

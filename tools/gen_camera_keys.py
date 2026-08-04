@@ -92,9 +92,15 @@ def keys_for_segment(steps: list, seg_start: float, seg_dur: float) -> list:
 
 def captions_for_segment(steps: list, seg_start: float, seg_dur: float) -> list:
     """Non-overlapping captions for one segment, from the same action log."""
+    # Captions must narrate INTENT, never the mechanic. "Next step" tells a
+    # viewer nothing about the product - it describes the wizard's plumbing,
+    # which is exactly the contentless narration a demo should not have.
+    MECHANIC = {"next step", "next", "back", "continue", "close", "open"}
     caps, last_end = [], -99.0
     for a in steps:
         if not a.get("caption") or not a.get("ok"):
+            continue
+        if a["caption"].strip().lower() in MECHANIC:
             continue
         t = a["at_s"] - seg_start
         if t < -0.4 or t > seg_dur:
