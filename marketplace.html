@@ -4857,14 +4857,26 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
   }
 
-  function switchSection(section) {
+  /* `keepFilters` exists for ONE caller: the URL restore. A PERSON switching sections wants a fresh
+     browse, so clearing the search is right for them. A LINK is not a person switching sections -- it
+     is one intent expressed once, and ?section=parts&q=Bearing means both halves.
+     Measured 2026-08-05: that link showed all 9 listings with an EMPTY search box. The section was
+     applied AFTER the query was restored from the URL, and this function wiped it on the way past, so
+     every shared or bookmarked search silently became "show me everything". ?q= alone worked, which
+     is what made it invisible -- the loss only appears when both params are present.
+     The comment on the caller describes fixing ?section= so an explicit link beats a remembered
+     habit; this is that same fix one step further, since a link that keeps its section and loses its
+     search is still not the page that was shared. */
+  function switchSection(section, keepFilters) {
     _section       = section;
     renderMarketChip();   // provenance follows the section, not the page load
-    _cat           = 'All';
-    _query         = '';
     _lastCreatedAt = null;
-    const srch = document.getElementById('search-input');
-    if (srch) srch.value = '';
+    if (!keepFilters) {
+      _cat   = 'All';
+      _query = '';
+      const srch = document.getElementById('search-input');
+      if (srch) srch.value = '';
+    }
 
     document.querySelectorAll('.section-tab').forEach(tab => {
       const active = tab.dataset.section === section;
@@ -5224,7 +5236,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          applied here and `_urlSection` tells the remember-helper to stand down. */
       const _validSections = ['parts', 'training', 'jobs', 'services'];
       const _urlSection = _validSections.includes(_sp.get('section')) ? _sp.get('section') : null;
-      if (_urlSection && _urlSection !== 'services') switchSection(_urlSection);
+      if (_urlSection && _urlSection !== 'services') switchSection(_urlSection, true);   // keep the URL's own ?q=/filters
       window.__mktUrlSection = _urlSection;
       if (_urlSection === 'services') {
         switchSection('services');
