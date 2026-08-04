@@ -18141,20 +18141,14 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "what_happens_next",
       "oracle": "after an action, the surface says what happens next and when",
-      "status": "green",
-      "findings": [],
-      "evidence": {
-        "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/platform-actions.html (queues + credit position)",
-        "asserts": "after an action, the surface says what happens next and when",
-        "value_checked": true,
-        "depends_on": [
-          "platform-actions.html"
-        ],
-        "sha": "703528db0a4136ff",
-        "walked_at": "2026-08-04",
-        "checked": "Stated as an effect, not a status: 'Verified. Credits minted to the provider's wallet.' or 'Rejected. No credits were minted.' Both name what moved and where. RE-WALKED 2026-08-04 (8) after the cover-badge gap fix: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 and the repaired pending-top-up row still fitting, component_busy re-proven on 'Verify: mint credits' with the PATCH BLOCKED, and status/body re-checked on the wire (200 with rows / 400 error body / anon-on-treasury 401)."
-      }
+      "status": "owed",
+      "findings": [
+        {
+          "severity": "false-green-withdrawn",
+          "title": "the moderation queue never says what follows an action",
+          "measured": "MEASURED FAILURE on a CLEAN LOAD, which is the only reason it is filed -- an earlier reading of the same result came mid-sequence and was deliberately held back, because state inheritance produced two false reds today. Re-run standalone: saysWhatNext false, no action card, and ZERO hits sweeping the rendered text for 'what happens next', \"we'll\", \"you'll\", 'within N', 'next step', 'after you', 'once you', 'goes live', 'will be'.\nTHE SAME LENS FINDS 15 NUMBERS WITH 0 UNEXPLAINED. This surface explains every figure it shows and never what follows an action -- and the actions here are Approve, Reject, Verify ID, Verify certs and releasing a GCash top-up. An admin pressing Approve is not told the listing goes live to buyers immediately, whether the seller is notified, or whether it can be undone; pressing Verify is not told the seller's badge changes platform-wide.\nFIFTH SURFACE WITH THIS EXACT SILENCE (marketplace seller console, seller profile, community, and now the moderation queue). That makes it a platform-wide gap rather than five page bugs: the product is consistently good at labelling its numbers and consistently silent about consequences. Worth fixing as one pattern -- a short 'what happens when you press this' line beside each committing control -- rather than five times over."
+        }
+      ]
     },
     {
       "id": "LM-BI-ux-comprehension-admin-buyer-what_does_it_cost",
