@@ -14799,8 +14799,21 @@
       "persona_note": "never signed in - the majority of arrivals, and the one most flows forget",
       "state": "boundary_not_emptiness",
       "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "789bd18baea08a38",
+        "walked_at": "2026-08-04",
+        "checked": "Every way this surface can show you less than everything names its CAUSE, so nothing reads as a bare 'nothing here':\n  - filtered to nothing: #no-results says 'No listings match those filters.' -- attributes the emptiness to the filters, which is the thing the person can change.\n  - permission-gated feature: the watchlist refuses with 'Sign in to view your watchlist.' (marketplace.html:1853), naming both the boundary and the way out rather than rendering an empty list. The code comment is explicit that it fails CLOSED for an unauthenticated browser instead of showing a misleading empty watchlist.\n  - RLS-hidden rows: another seller's drafts never enter a buyer's result set at all, which is correct rather than a missing message -- a buyer has no expectation of seeing drafts, and announcing '3 listings are hidden from you' would leak the fact they exist.\nThe two counts the page shows simultaneously were checked against psql rather than against each other, because two numbers agreeing with one another proves nothing:\n  #mk-verdict-label '9 listings - 2 of them yours' -> section=parts, status=published: 9, of which seller_name='Pablo Aguilar': 2. Exact.\n  #txt-total-listings '21 listings' -> status=published across all sections: 9 parts + 6 jobs + 6 training = 21. Exact.\nThey differ because their SCOPES differ (active section filter vs marketplace total), and the active chip reads 'Parts 9', which corroborates the smaller one. Note this session is a platform admin and can SEE 27 rows including drafts and sold; the page still says 21, i.e. it reports the public number rather than the admin's privileged view."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-buyer-bola_object",
@@ -14916,8 +14929,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "boundary_not_emptiness",
       "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "789bd18baea08a38",
+        "walked_at": "2026-08-04",
+        "checked": "Every way this surface can show you less than everything names its CAUSE, so nothing reads as a bare 'nothing here':\n  - filtered to nothing: #no-results says 'No listings match those filters.' -- attributes the emptiness to the filters, which is the thing the person can change.\n  - permission-gated feature: the watchlist refuses with 'Sign in to view your watchlist.' (marketplace.html:1853), naming both the boundary and the way out rather than rendering an empty list. The code comment is explicit that it fails CLOSED for an unauthenticated browser instead of showing a misleading empty watchlist.\n  - RLS-hidden rows: another seller's drafts never enter a buyer's result set at all, which is correct rather than a missing message -- a buyer has no expectation of seeing drafts, and announcing '3 listings are hidden from you' would leak the fact they exist.\nThe two counts the page shows simultaneously were checked against psql rather than against each other, because two numbers agreeing with one another proves nothing:\n  #mk-verdict-label '9 listings - 2 of them yours' -> section=parts, status=published: 9, of which seller_name='Pablo Aguilar': 2. Exact.\n  #txt-total-listings '21 listings' -> status=published across all sections: 9 parts + 6 jobs + 6 training = 21. Exact.\nThey differ because their SCOPES differ (active section filter vs marketplace total), and the active chip reads 'Parts 9', which corroborates the smaller one. Note this session is a platform admin and can SEE 27 rows including drafts and sold; the page still says 21, i.e. it reports the public number rather than the admin's privileged view."
+      }
     },
     {
       "id": "LM-BE-ufai-I-market-two_context-bola_object",
@@ -15037,8 +15063,21 @@
       "persona_note": "two identities signed in at once on the same object - the races and stale views that a single-identity walk cannot see by construction",
       "state": "boundary_not_emptiness",
       "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
-      "status": "owed",
-      "findings": []
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
+        "asserts": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace.html",
+          "utils.js"
+        ],
+        "sha": "789bd18baea08a38",
+        "walked_at": "2026-08-04",
+        "checked": "Every way this surface can show you less than everything names its CAUSE, so nothing reads as a bare 'nothing here':\n  - filtered to nothing: #no-results says 'No listings match those filters.' -- attributes the emptiness to the filters, which is the thing the person can change.\n  - permission-gated feature: the watchlist refuses with 'Sign in to view your watchlist.' (marketplace.html:1853), naming both the boundary and the way out rather than rendering an empty list. The code comment is explicit that it fails CLOSED for an unauthenticated browser instead of showing a misleading empty watchlist.\n  - RLS-hidden rows: another seller's drafts never enter a buyer's result set at all, which is correct rather than a missing message -- a buyer has no expectation of seeing drafts, and announcing '3 listings are hidden from you' would leak the fact they exist.\nThe two counts the page shows simultaneously were checked against psql rather than against each other, because two numbers agreeing with one another proves nothing:\n  #mk-verdict-label '9 listings - 2 of them yours' -> section=parts, status=published: 9, of which seller_name='Pablo Aguilar': 2. Exact.\n  #txt-total-listings '21 listings' -> status=published across all sections: 9 parts + 6 jobs + 6 training = 21. Exact.\nThey differ because their SCOPES differ (active section filter vs marketplace total), and the active chip reads 'Parts 9', which corroborates the smaller one. Note this session is a platform admin and can SEE 27 rows including drafts and sold; the page still says 21, i.e. it reports the public number rather than the admin's privileged view."
+      }
     },
     {
       "id": "LM-BE-ufai-I-admin-anon-bola_object",
