@@ -4038,6 +4038,33 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (!itemId) { showToast('Pick a service first'); return; }
     if (!address) { showToast('Tell providers where the job is'); return; }
     await _svcSubmitGuard('svc-hail-go', 'Hailing…', async () => {
+      /* A HAIL IS NOT A ROW, IT IS A BROADCAST, and repeating one said nothing. Measured 2026-08-05:
+         hailed "Pressure/Temp Instrument Calibration" at one address, waited for it to complete,
+         hailed the identical thing again four seconds later -- two live broadcasting requests, and
+         both times the surface said the same cheerful "Hailing - nearby providers are being
+         notified". Nothing told the buyer they had just hailed this, so a page they were unsure had
+         worked becomes two providers dispatched to one job and one of them turned away.
+         _svcSubmitGuard covers presses inside ONE in-flight window; this is the deliberate repeat
+         after the first has landed, which that guard cannot see.
+         whRecentDuplicate (utils.js) is the same helper the listing post already uses. The listing
+         path silently swallows the duplicate because a second identical draft is never wanted; a
+         second identical HAIL sometimes IS (two machines down at the same plant), so this ASKS
+         instead of refusing, and names what is already out there. */
+      if (window.whRecentDuplicate) {
+        const _dupId = await window.whRecentDuplicate(db, 'service_requests',
+          { client_auth_uid: _authUid, catalog_item_id: itemId, address: address, status: 'broadcasting' },
+          { windowMs: 10 * 60 * 1000, tsColumn: 'created_at' });
+        if (_dupId) {
+          const _again = (typeof window.whConfirm === 'function')
+            ? await window.whConfirm('You already hailed this at the same address in the last few minutes, and providers are still being notified about it. Hail a second one?',
+                { okLabel: 'Yes, hail another', cancelLabel: 'No, keep the one I sent' })
+            : false;
+          if (!_again) {
+            showToast('Kept the hail you already sent - nothing new was created. Providers are still being notified about it.', 'info');
+            return;
+          }
+        }
+      }
       const { data, error } = await db.from('service_requests').insert({
         client_auth_uid: _authUid, client_worker_name: WORKER_NAME || null,
         hive_id: HIVE_ID || null, segment: HIVE_ID ? 'industrial' : 'consumer', mode: 'instant', catalog_item_id: itemId,
