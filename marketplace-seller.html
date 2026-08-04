@@ -1464,8 +1464,40 @@
       return;
     }
 
+    /* A SAVE THAT CHANGES NOTHING USED TO TAKE THE LISTING OFF THE MARKETPLACE. Every save writes
+       status:'draft', unconditionally, so a seller who opened the sheet to LOOK at a published
+       listing and pressed Save out of habit un-published it. Measured live 2026-08-05 on a probe
+       listing, touching no field: status published -> draft, rows visible to buyers 1 -> 0, a third
+       edit_listing audit row for an edit that changed nothing, and the seller told "Listing updated.
+       Re-submitted for review." -- which reads like a routine confirmation, not "your listing is now
+       off the marketplace waiting on a moderator".
+       Nothing changed, so nothing is sent: no write, no audit row, no un-publish. Compared against
+       the row the sheet was opened FROM, field by field, with the same normalisation the submit uses
+       (trimmed strings, numeric price, null-ish empty). */
+    const _same = (a, b) => (a === null || a === undefined || a === '' ? '' : String(a).trim())
+                         === (b === null || b === undefined || b === '' ? '' : String(b).trim());
+    if (_editItem
+        && _same(title, _editItem.title)
+        && _same(category, _editItem.category)
+        && _same(condition, _editItem.condition)
+        && _same(desc, _editItem.description)
+        && Number(price === null || price === undefined ? NaN : price) === Number(_editItem.price === null || _editItem.price === undefined ? NaN : _editItem.price)
+        && _same(location, _editItem.location)
+        && _same(contact, _editItem.seller_contact)
+        && _same(imageUrl, _editItem.image_url)) {
+      showToast(_editItem.status === 'published'
+        ? 'Nothing changed, so nothing was sent. Your listing is still live.'
+        : 'Nothing changed, so nothing was sent.', 'info');
+      document.getElementById('overlay-edit')?.classList.remove('open');
+      document.getElementById('sheet-edit')?.classList.remove('open');
+      document.body.style.overflow = '';
+      _editItem = null;
+      return;
+    }
+
     const btn = document.getElementById('btn-save-edit');
     if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    const _wasPublished = _editItem && _editItem.status === 'published';
 
     try {
       const { error } = await db
@@ -1479,7 +1511,12 @@
         { category, price, new_status: 'draft' });
 
       try { localStorage.removeItem('wh_draft_listing_desc_' + id); } catch (_) { /* empty-catch-allow */ }
-      showToast('Listing updated. Re-submitted for review.', 'success');
+      /* "Re-submitted for review" does not say the part that costs the seller money: editing a LIVE
+         listing takes it off the marketplace until a moderator approves it again. Say it plainly, so
+         a seller fixing a typo knows what it costs before they wonder where their listing went. */
+      showToast(_wasPublished
+        ? 'Listing updated - and taken off the marketplace until a moderator approves it again.'
+        : 'Listing updated. Submitted for review.', 'success');
       document.getElementById('overlay-edit')?.classList.remove('open');
       document.getElementById('sheet-edit')?.classList.remove('open');
       document.body.style.overflow = '';
