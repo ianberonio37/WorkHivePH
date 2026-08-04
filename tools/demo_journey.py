@@ -317,11 +317,23 @@ def act2_logbook(page, rep):
     ], note="choose the machine", caption="Pick it from your own asset list")
     page.wait_for_timeout(BEAT)
 
-    # :visible matters - there are two .btn-next in the DOM and the hidden one
-    # is first in document order.
-    try_click(page, rep, "2-logbook", [".btn-next:visible"],
-              note="what happened?", caption="Next: what happened?")
-    dwell(page, READ)
+    # STEP 1 must be COMPLETE before .btn-next does anything. Probing the
+    # wizard showed all six "steps" rendering identical fields: the next
+    # button is silently inert while required selects are empty, so my
+    # earlier walk clicked next five times and never left step 1. Filling
+    # the structured fields is also the better story - this is precisely
+    # what turns a note into data the AI can use later.
+    for sel, cap in [("#f-maint-type", "Pick the type of work"),
+                     ("#f-category", "Categorise it - that is what makes it searchable"),
+                     ("#f-root-cause", "And the root cause")]:
+        if first_visible(page, [sel], timeout=2500):
+            try:
+                page.select_option(sel, index=1)
+                rep.add("2-logbook", "select", sel, True, "", 
+                        xy=_xy_of(page, sel), caption=cap)
+                dwell(page, BEAT)
+            except Exception as e:
+                rep.add("2-logbook", "select", sel, False, type(e).__name__)
 
     # Type the lesson, but DO NOT submit. logbook addEntry is non-idempotent and
     # this runs against the shared local DB - a demo must not leave rows behind.
@@ -342,10 +354,21 @@ def act2_logbook(page, rep):
          "And the lesson - this is what your AI remembers"),
     ]:
         if not first_visible(page, [sel], timeout=2500):
-            # not on this step yet - advance the wizard, then look again
+            # not on this step yet - advance, then VERIFY it actually moved
+            # (an inert next-click is the failure mode this whole block exists
+            # for; logging "ok" on a click that changed nothing is a lie).
+            before = page.evaluate(
+                "() => { const e = document.querySelector('#f-action');"
+                "  return e ? e.getBoundingClientRect().height : -1; }")
             try_click(page, rep, "2-logbook", [".btn-next:visible"],
                       note="next step", caption="Next step")
             page.wait_for_timeout(BEAT)
+            after = page.evaluate(
+                "() => { const e = document.querySelector('#f-action');"
+                "  return e ? e.getBoundingClientRect().height : -1; }")
+            if before == after and after <= 4:
+                rep.add("2-logbook", "advance", ".btn-next", False,
+                        "next click did not change the step (form invalid?)")
         if first_visible(page, [sel], timeout=2500):
             try:
                 type_into(page, sel, text, per_char_ms=42)

@@ -55,15 +55,44 @@ def _get_test_worker() -> tuple:
     - username: used for sign-in form
     - display_name: used to look up hive_members (worker_name column)
     """
-    try:
-        from tools.platform_intel import _sb_get
-        rows = _sb_get("worker_profiles", select="username,display_name", limit=1)
-        if rows:
-            return rows[0].get("username", ""), rows[0].get("display_name", "")
-    except Exception:
-        pass
-    fallback = os.getenv("WORKHIVE_WORKER", "Demo Engineer")
-    return fallback, fallback
+    # DETERMINISTIC + LOUD. Two defects lived here:
+    #  1. `limit=1` with no ORDER returns an arbitrary row, so the recorded
+    #     identity could change between runs (same class as the limit(1)
+    #     hive-picking bug).
+    #  2. a bare `except: pass` fell back to the literal string "Demo
+    #     Engineer" - a worker that does not exist. A transient REST hiccup
+    #     therefore surfaced as "no hive resolved for Demo Engineer", and in
+    #     any caller that did not check, it would happily record a whole
+    #     session as the wrong user. A silent wrong identity is worse than a
+    #     crash, so this retries and then RAISES.
+    env = os.getenv("WORKHIVE_WORKER")
+    if env:
+        return env, os.getenv("WORKHIVE_WORKER_DISPLAY", env)
+
+    last = None
+    for attempt in range(3):
+        try:
+            from tools.platform_intel import _sb_get
+            rows = _sb_get("worker_profiles", select="username,display_name",
+                           limit=50) or []
+            # _sb_get has no ORDER param, so sort here - the point is only
+            # that the choice is stable across runs, not that the DB sorts it.
+            rows = sorted(rows, key=lambda r: (r.get("username") or ""))
+            # prefer the canonical supervisor test identity when present
+            for r in rows:
+                if r.get("username") == "pabloaguilar":
+                    return r["username"], r.get("display_name", "")
+            if rows:
+                return rows[0].get("username", ""), rows[0].get("display_name", "")
+            last = "worker_profiles returned 0 rows"
+        except Exception as exc:
+            last = f"{type(exc).__name__}: {exc}"
+        time.sleep(1.0 + attempt)
+    raise RuntimeError(
+        f"could not resolve a test worker from worker_profiles ({last}). "
+        f"Set WORKHIVE_WORKER=<username> to override, or reseed. "
+        f"Refusing to invent an identity - recording as a nonexistent worker "
+        f"produces a silently wrong video.")
 
 
 def _get_worker_hive(display_name: str) -> str:
