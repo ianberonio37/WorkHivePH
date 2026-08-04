@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:527
-source_sha: a86e0009aab6c1ec
+source: dir:supabase/migrations:528
+source_sha: bf3d0ed0607d126a
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (527 migrations)
+## migration · catalog (528 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260713000009_marketplace_listing_trust_from_canonical` — (misc DDL/DML)
 - `20260713000010_pm_attribution_pin` — fns:bind_pm_asset_submitter,bind_pm_completion_submitter · triggers:trg_bind_submitter_pm_asset,trg_bind_submitter_pm_completion
 - `20260713000011_post_inventory_attribution_pin` — fns:bind_community_post_submitter,bind_inventory_item_submitter · triggers:trg_bind_submitter_community_post,trg_bind_submitter_inventory_item
 - `20260713000012_calc_parts_voice_attribution_pin` — fns:bind_engineering_calc_submitter,bind_parts_record_submitter,bind_voice_journal_submitter · triggers:trg_bind_submitter_engineering_calc,trg_bind_submitter_parts_record,trg_bind_submitter_voice_journal
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260803000045_the_voucher_refusal_took_the_endpoint_down_instead` — fns:redeem_service_voucher
 - `20260803000046_restore_the_explicit_security_invoker_declaration` — (misc DDL/DML)
 - `20260804000047_the_platforms_money_position_was_world_readable` — policies:credit_treasury_read
+- `20260804000048_any_signed_in_user_could_list_who_the_admins_are` — policies:mkt_admins_read,mkt_admins_read_self
 
 (showing last 200)
 
