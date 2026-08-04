@@ -107,21 +107,33 @@ def sha_of(paths):
 # This is a WIDENING of what counts as fresh, so it must not become a way to launder a real change:
 # the map is written at BANK time from the code as it then was, never recomputed from the current file,
 # and a row with no map falls back to the whole-file hash. The self-test proves both directions.
-_FN_RE = re.compile(r"^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(", re.M)
+# INDENTED, because the pages are where the code actually lives. Until 2026-08-05 this matched only
+# `^function` and only in `.js` files, so every .html dependency fell back to the whole-file hash --
+# the exact blunt instrument R4b exists to replace. One touch anywhere in marketplace.html expired
+# every row that named it, including rows whose claim was about a function I had not been near.
+# The pages wrap everything in an IIFE, so their declarations are indented; allowing leading
+# whitespace also matches NESTED functions, which is handled by dropping contained spans below.
+_FN_RE = re.compile(r"^[ \t]*(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(", re.M)
 
 
 def fn_digests(paths):
-    """{"<file>::<fn>": digest} for every top-level `function name(...)`, plus "<file>::toplevel"
+    """{"<file>::<fn>": digest} for every `function name(...)` declaration, plus "<file>::toplevel"
     for everything outside those bodies. Brace-matched rather than regex-sliced, because a regex that
     stops at the first `}` reports a two-line function for a fifty-line one and would call a real
-    change unchanged."""
+    change unchanged.
+
+    Covers .js AND .html: a page's inline script is code, and a row that names one function in it must
+    not be expired by an edit to another. A repeated name (two pages' `escHtml`, or an inner helper
+    shadowing an outer) is disambiguated by occurrence, so two different bodies can never collapse
+    onto one key and hide a change."""
     out = {}
     for p in sorted(paths or []):
         fp = os.path.join(ROOT, p)
-        if not os.path.exists(fp) or not p.endswith(".js"):
+        if not os.path.exists(fp) or not (p.endswith(".js") or p.endswith(".html")):
             continue
         src = open(fp, "r", encoding="utf-8", errors="replace").read()
         spans = []
+        seen_names = {}
         for m in _FN_RE.finditer(src):
             i = src.find("{", m.end() - 1)
             if i < 0:
@@ -139,10 +151,26 @@ def fn_digests(paths):
             if depth != 0:
                 continue                      # unbalanced: skip rather than guess
             body = src[m.start():j + 1]
-            out["%s::%s" % (p, m.group(1))] = hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
+            name = m.group(1)
+            # A name can legitimately repeat -- an inner helper shadowing an outer one, or two pages
+            # sharing `escHtml`. Keying on the name alone would let the second body overwrite the
+            # first, so a change to the shadowed one would leave the map byte-identical and the row
+            # fresh. Disambiguate by occurrence; the extra key costs nothing and cannot hide a change.
+            seen_names[name] = seen_names.get(name, 0) + 1
+            key = name if seen_names[name] == 1 else "%s#%d" % (name, seen_names[name])
+            out["%s::%s" % (p, key)] = hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
             spans.append((m.start(), j + 1))
-        top, last = [], 0
+        # Allowing indented declarations means NESTED functions match too, and a nested span sits
+        # INSIDE its parent's. Slicing overlapping spans out of the source would corrupt the top-level
+        # remainder (and could even run `last` backwards), so keep only the outermost spans here. The
+        # nested bodies keep their own digests -- they are simply already covered by the parent's.
+        outer, cover = [], -1
         for a, b in sorted(spans):
+            if a >= cover:
+                outer.append((a, b))
+                cover = b
+        top, last = [], 0
+        for a, b in outer:
             top.append(src[last:a])
             last = b
         top.append(src[last:])
@@ -429,6 +457,68 @@ def selftest():
     finally:
         if os.path.exists(tmp):
             os.remove(tmp)
+
+    # ── R4b on an .HTML page, both directions, and the two traps the widening introduced ──────────
+    # The pages are where the code lives, and until 2026-08-05 they were excluded, so one touch
+    # anywhere in a page expired every row that named it. Matching INDENTED declarations brings them
+    # in, and brings two hazards with it: nested functions (whose spans sit inside their parent's and
+    # would corrupt the top-level remainder) and repeated names (where the second body would silently
+    # overwrite the first, hiding a change in the shadowed one). Both are asserted here.
+    tmph = os.path.join(ROOT, "_r4b_selftest.html")
+    try:
+        page = ("<html><body><script>\n(function () {\n"
+                "  function outer() {\n    function inner() { return 1; }\n    return inner();\n  }\n"
+                "  function other() { return 'x'; }\n"
+                "  var wired = 1;\n})();\n</script></body></html>\n")
+        open(tmph, "w", encoding="utf-8").write(page)
+        rec = fn_digests(["_r4b_selftest.html"])
+        if "_r4b_selftest.html::outer" not in rec or "_r4b_selftest.html::inner" not in rec:
+            print(f"  {RED}FAIL{RST} — R4b/html: an inline script's functions must be digested")
+            ok = False
+        row = {"status": "green",
+               "evidence": {"kind": "gate", "ref": "gate:validate_public_read_surface", "asserts": "a",
+                            "depends_on": ["_r4b_selftest.html"], "sha": "stale-on-purpose",
+                            "fn_digests": rec}}
+        if classify(row, gates, urls)[0] != "green":
+            print(f"  {RED}FAIL{RST} — R4b/html: an untouched page should read green despite a stale file sha")
+            ok = False
+        # add a function the row never recorded: it must expire nothing
+        open(tmph, "w", encoding="utf-8").write(page.replace(
+            "  var wired = 1;", "  function added() { return 2; }\n  var wired = 1;"))
+        if classify(row, gates, urls)[0] != "green":
+            print(f"  {RED}FAIL{RST} — R4b/html: adding a new function must not expire a row")
+            ok = False
+        # edit a NESTED function: the parent's body contains it, so the row MUST expire
+        open(tmph, "w", encoding="utf-8").write(page.replace("return 1;", "return 99;"))
+        if classify(row, gates, urls)[0] != "stale":
+            print(f"  {RED}FAIL{RST} — R4b/html: editing a NESTED function MUST expire the row")
+            ok = False
+        # top-level code inside the IIFE is inside `outer`'s siblings, not the file remainder, so
+        # assert the remainder too: the markup around the script must still count
+        open(tmph, "w", encoding="utf-8").write(page.replace("<body>", "<body data-changed='1'>"))
+        if classify(row, gates, urls)[0] != "stale":
+            print(f"  {RED}FAIL{RST} — R4b/html: a change OUTSIDE every function must expire the row")
+            ok = False
+        # a repeated name must not collapse onto one key and hide a change in the shadowed body
+        dup = ("<html><body><script>\n"
+               "  function dupe() { return 'first'; }\n"
+               "  function dupe() { return 'second'; }\n</script></body></html>\n")
+        open(tmph, "w", encoding="utf-8").write(dup)
+        d1 = fn_digests(["_r4b_selftest.html"])
+        if "_r4b_selftest.html::dupe#2" not in d1:
+            print(f"  {RED}FAIL{RST} — R4b/html: a repeated function name must get its own key")
+            ok = False
+        rowd = {"status": "green",
+                "evidence": {"kind": "gate", "ref": "gate:validate_public_read_surface", "asserts": "a",
+                             "depends_on": ["_r4b_selftest.html"], "sha": "stale-on-purpose",
+                             "fn_digests": d1}}
+        open(tmph, "w", encoding="utf-8").write(dup.replace("'second'", "'CHANGED'"))
+        if classify(rowd, gates, urls)[0] != "stale":
+            print(f"  {RED}FAIL{RST} — R4b/html: changing the SHADOWED duplicate MUST expire the row")
+            ok = False
+    finally:
+        if os.path.exists(tmph):
+            os.remove(tmph)
 
     if ok:
         print(f"  {GREEN}PASS{RST} — R1/R2/R3/R4/R4b/R6 all fire; a well-formed row passes; owed is exempt")
