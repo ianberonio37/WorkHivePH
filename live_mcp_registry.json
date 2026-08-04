@@ -922,9 +922,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk). | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -981,9 +981,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk). | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -1040,9 +1040,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk). | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -2739,9 +2739,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk). | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -2798,9 +2798,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk). | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -2857,9 +2857,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk). | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -6976,9 +6976,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk). | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -7009,9 +7009,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk). | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -9547,16 +9547,16 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP re-walk · /workhive/community.html",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
         "asserts": "the surface renders real rows and every visible number matches its source of truth",
         "value_checked": true,
         "depends_on": [
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (run(): populated ok, 0 junk strings)."
+        "checked": "Checked against source, not against another part of the screen. The page's leaderboard read David Velasco 50 XP / Pablo Aguilar 25 / Ricardo Morales 25; psql on community_xp for this hive returned exactly the same three rows and values."
       }
     },
     {
@@ -9632,16 +9632,16 @@
       ],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP re-walk · /workhive/community.html",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
         "asserts": "the surface renders real rows and every visible number matches its source of truth",
         "value_checked": true,
         "depends_on": [
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (run(): populated ok, 0 junk strings)."
+        "checked": "Checked against source, not against another part of the screen. The page's leaderboard read David Velasco 50 XP / Pablo Aguilar 25 / Ricardo Morales 25; psql on community_xp for this hive returned exactly the same three rows and values."
       }
     },
     {
@@ -10064,9 +10064,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk). | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -10149,9 +10149,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
+        "checked": " RE-WALKED 2026-08-04 after the utils.js formatter change (absent-vs-zero) expired this row. The re-walk is not a re-stamp: every surface was re-loaded in the live MCP browser, all six states re-run via live-state-runner (populated/empty/error/edge/script_name/degraded all pass on every surface), and the REAL numbers re-read to prove the formatter edit changed nothing for present values — marketplace ₱68,980.48 -> ₱6,898.05 chips still exactly 10%; platform-actions ₱1,140.00 / 1.63x / 1,500 issued / 10,000,000 cap unchanged; seller wallet ₱-200 and pending top-up ₱300.00 · ref 1005556667770 (matching psql); profile ₱20,309.48 / ₱172,659.13; community, achievements and public-feed all six states green. Zero stray gaps where a number belongs on any surface. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk). | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (run(): all six states green in one pass, 0 junk)."
       }
     },
     {
@@ -12295,9 +12295,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": "Induction LANDED (9 fields nulled across the profile's reads) and the surface behaved: the 4.7 star rating DISAPPEARED rather than becoming a fabricated 0.0, no PHP0.00 was invented anywhere, and no undefined or NaN reached the text. That is the right shape for a trust surface -- a 0.0-star seller is a claim about a person, and inventing it from a failed read would be a reputational lie rather than a display bug. Avg Response already renders a dash when there is no data, which is the same discipline stated visibly. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (failures(): no fabricated zero, no undefined/NaN -- and the tile seeds plus the catch that used to ASSIGN a '0' on failure were both fixed this session)."
+        "checked": "Induction LANDED (9 fields nulled across the profile's reads) and the surface behaved: the 4.7 star rating DISAPPEARED rather than becoming a fabricated 0.0, no PHP0.00 was invented anywhere, and no undefined or NaN reached the text. That is the right shape for a trust surface -- a 0.0-star seller is a claim about a person, and inventing it from a failed read would be a reputational lie rather than a display bug. Avg Response already renders a dash when there is no data, which is the same discipline stated visibly. | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (failures(): no fabricated zero, no undefined/NaN -- and the tile seeds plus the catch that used to ASSIGN a '0' on failure were both fixed this session). | RE-WALKED 2026-08-04 on the seller profile after the failure-path fix (failures(): no fabricated zero, no undefined/NaN -- and the tile seeds plus the catch that used to ASSIGN a '0' on failure were both fixed this session)."
       }
     },
     {
@@ -12399,9 +12399,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "LANDED ON THE SECOND APPROACH, after the first was vacuous and said so. Re-dispatching DOMContentLoaded touched 0 fields; a category filter chip DID re-query (5 requests) but still touched 0, because my key regex was guessing. Reading the actual response shapes settled it: v_community_posts_truth carries NO numeric fields at all (id, hive_id, author_name, content, category, pinned, flagged, public, timestamps), and community_reactions is (post_id, emoji, worker_name) -- the reaction counts on screen are derived from ROW COUNTS, which a null cannot corrupt. The single nullable numeric this surface reads is v_worker_achievements_truth.current_level.\nTargeting that one: 22 levels nulled via the filter-chip re-query, and the surface behaved. No fabricated 'Level 0' appeared, no undefined or NaN reached the text, and the tier badges were unchanged at 3 before and after -- correctly, since they come from trust_tier rather than from the level.\nTHE SUBJECT IS NARROW AND THAT IS THE FINDING AS MUCH AS THE PASS: on a surface whose data is almost entirely text and derived counts, this oracle has exactly one field to bite on. Saying so is worth more than a green that implies the whole page was exercised. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (failures(): no fabricated zero, no undefined/NaN)."
+        "checked": "A NULL field in an otherwise valid row renders as a stated gap, never as 0."
       }
     },
     {
@@ -13359,9 +13359,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": "0 raw enums reaching a person, scanned across the default view plus the Parts / Training / Jobs filter chips. The check looks for lowercase_with_underscores tokens in VISIBLE text only -- leaf nodes, excluding <code>/<pre> and anything that is a filename -- so a class name or an id cannot produce a false hit.\nNON-VACUITY PROVEN, because a scanner that finds nothing is worthless until you know it can find something: with the surface reading 0, the exact forbidden shape was planted in the live DOM ('Status: pending_verification'), the scan caught it, and removing it returned the count to 0. The zero is a measurement, not a silence.\nThis is the state that would have surfaced 'cancelled_by_client' on the seller console -- the page's own comment records that the raw enum WOULD have printed there without its label map. The mapping holds on every surface walked. | RE-WALKED 2026-08-04 on the seller profile (0 lowercase_with_underscores tokens reach the reader; scanned for the SHAPE a raw DB status takes rather than a known list, so a NEW enum leaking through would be caught too)."
+        "checked": "0 raw enums reaching a person, scanned across the default view plus the Parts / Training / Jobs filter chips. The check looks for lowercase_with_underscores tokens in VISIBLE text only -- leaf nodes, excluding <code>/<pre> and anything that is a filename -- so a class name or an id cannot produce a false hit.\nNON-VACUITY PROVEN, because a scanner that finds nothing is worthless until you know it can find something: with the surface reading 0, the exact forbidden shape was planted in the live DOM ('Status: pending_verification'), the scan caught it, and removing it returned the count to 0. The zero is a measurement, not a silence.\nThis is the state that would have surfaced 'cancelled_by_client' on the seller console -- the page's own comment records that the raw enum WOULD have printed there without its label map. The mapping holds on every surface walked. | RE-WALKED 2026-08-04 on the seller profile (0 lowercase_with_underscores tokens reach the reader; scanned for the SHAPE a raw DB status takes rather than a known list, so a NEW enum leaking through would be caught too). | RE-WALKED 2026-08-04 on the seller profile (0 lowercase_with_underscores tokens reach the reader; scanned for the SHAPE a raw DB status takes rather than a known list, so a NEW enum leaking through would be caught too)."
       }
     },
     {
@@ -13437,9 +13437,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "0 raw enums reaching a person, scanned across the discussion board with its post categories and trust tiers. The check looks for lowercase_with_underscores tokens in VISIBLE text only -- leaf nodes, excluding <code>/<pre> and anything that is a filename -- so a class name or an id cannot produce a false hit.\nNON-VACUITY PROVEN, because a scanner that finds nothing is worthless until you know it can find something: with the surface reading 0, the exact forbidden shape was planted in the live DOM ('Status: pending_verification'), the scan caught it, and removing it returned the count to 0. The zero is a measurement, not a silence.\nThis is the state that would have surfaced 'cancelled_by_client' on the seller console -- the page's own comment records that the raw enum WOULD have printed there without its label map. The mapping holds on every surface walked. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (0 lowercase_with_underscores tokens reach the reader, scanned for the SHAPE a raw DB status takes rather than a known list)."
+        "checked": "No lowercase_with_underscores token reaches a person in the rendered text."
       }
     },
     {
@@ -14481,7 +14481,7 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
         "checked": "PASSES with the induction landed (9 reads): the failure offers a Retry, clicking it re-attempts, and with the cause removed the surface comes back carrying no failure text."
       }
@@ -14507,7 +14507,7 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
         "checked": "FOUND AND FIXED TWO THINGS IN ONE CATCH. The failure path ran `stat-listings.textContent = '0'` -- it did not fall back to a zero, it ASSIGNED one, so a seller whose listings could not be read was published to the world as having none, on the page a buyer uses to decide whether to trust them. And every cause got the same sentence, though a 429 clears with TIME and a 401 clears by signing in.\nVerified on fresh loads with the listings read served each status: 429 gives 'Too many requests... wait about 1 minute', 401 gives 'Your session expired... sign in again', 503 keeps the connection advice where it is right, the tile reads a gap in ALL THREE, and the healthy load reads 2.\nMY FIRST VERIFICATION OF THE 503 WAS WRONG AND IS RECORDED AS SUCH: the sweep read document.querySelector('main') while this page's listings grid sits OUTSIDE main, so it reported no message where there was one. Re-checked against document.body: the copy is present."
       }
@@ -14533,7 +14533,7 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
         "checked": "PASSES: with the primary down nothing survives above the measured chrome floor and the surface names the failure rather than showing stale numbers as current (induction landed 8 reads for the empty floor, 12 for primary-down)."
       }
@@ -14559,7 +14559,7 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
         "checked": "PASSES, and the lens's own RED was withdrawn to say so. availability() reported a premature empty-state here; a faithful fresh-load slow test (every read delayed 9s from first paint, sampled at 2.6s) found NO empty-state invitation at all, 7 skeletons and 'Loading...' present. The lens runs its slow state after three earlier inductions have mutated the page, so it inherited an empty-state left behind by the EMPTY induction. A state measured after another state is not that state.\nTHE SAME FAITHFUL TEST FOUND A REAL ONE BESIDE IT: mid-load the row read 'Active Listings 0 - Inquiries Replied 0' beside two tiles correctly showing a dash -- two tiles claiming a count before the page had looked. On a PUBLIC profile that is a reputational claim about a person: a seller with nothing to sell who does not answer. Seeded with the gap now; mid-load all three read '-', and the healthy load reads 2 / 0 / - where that 0 is a real measured zero and is kept."
       }
@@ -14604,9 +14604,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "PASSES with the induction landed (7 reads): the failure offers a Retry, clicking it re-attempts, and with the cause removed the feed comes back carrying no failure text."
+        "checked": "A failure offers a retry that genuinely re-attempts."
       }
     },
     {
@@ -14630,9 +14630,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "FOUND AND FIXED: every failure said 'Check your connection and try again', including a 429 whose remedy is TIME -- so a rate-limited person was sent to debug a working connection and invited to retry, the one action that extends the limit. This surface reads pageRes.error directly rather than throwing, so the status was there to branch on all along.\nVerified on fresh loads with the posts read served each status in turn: 429 gives 'Too many requests, so the community feed could not be read. Your connection is fine: wait about 1 minute, then retry.'; 401 gives 'Your session expired... Nothing you posted was lost.' -- which matters more here than anywhere else, because the person may have been mid-draft; 503 KEEPS the connection advice, where it is correct; and the healthy load renders the real pinned feed. 0 undefined/NaN in all four."
+        "checked": "A rate limit states what was limited and when it clears."
       }
     },
     {
@@ -14656,9 +14656,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "PASSES: with the primary down nothing survives above the measured chrome floor and the surface NAMES the failure rather than showing a stale feed as current (induction landed, 8 reads for the empty floor and 23 for primary-down)."
+        "checked": "When the primary is down the fallback engages and the surface says which it used."
       }
     },
     {
@@ -14671,21 +14671,15 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "slow_honest",
       "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
-      "status": "green",
-      "findings": [],
-      "evidence": {
-        "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/community.html",
-        "asserts": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
-        "value_checked": true,
-        "depends_on": [
-          "community.html",
-          "utils.js"
-        ],
-        "sha": "ad43a4e029259036",
-        "walked_at": "2026-08-04",
-        "checked": "PASSES: sampled mid-flight the surface shows busy signals (4) and renders no empty-state invitation for a feed it has not received -- it does not tell someone the community is quiet while it is still asking."
-      }
+      "status": "owed",
+      "findings": [
+        {
+          "severity": "measured-failure",
+          "state": "slow_honest",
+          "walked_at": "2026-08-04",
+          "detail": "MEASURED FALSE on a clean load (availability lens): under a slow dependency the surface does not stay honest -- there is no busy signal where busy is owed. Same failure the admin surface shows, so this is a shared-chrome gap rather than a community-specific one. Recorded as owed with the measurement rather than banked; it is a finding, not a pass."
+        }
+      ]
     },
     {
       "id": "LM-BE-ufai-I-market-anon-bola_object",
@@ -15156,16 +15150,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
         "asserts": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
         "value_checked": true,
         "depends_on": [
           "marketplace.html",
           "nav-hub.js"
         ],
-        "sha": "48b03e3721a6ad4a",
+        "sha": "af4a1a8ba7aad924",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 overflowing elements, document does not scroll sideways (docBy=0). The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (3), after the comprehension fixes to marketplace.html: the credits explainer bullet and the shared creditsBackChipHtml helper expired every row depending on that file. Re-walked, not re-stamped -- market and market_svc each re-loaded in the live MCP browser with all six states re-run through live-state-runner (edge and script_name both LANDED, longNameRendered and baybayinRendered true, so neither passed vacuously), and layout re-measured at VERIFIED innerWidths 390/641/1280: 0 overflow, 0 tap targets under 44, docBy 0 at every width, the three .sheet elements still declaring safe-area, and the new explainer bullet fitting its column at 390. The 9 credits-back chips re-read correct. The layer/seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), status and body agree on the wire both ways (200 with rows / 400 with an error body), all 9 paginated client queries still carry an id tiebreaker, and a 70-byte PNG round-tripped byte-identical through storage and was confirmed gone after delete with a cache-busted read. RE-WALKED 2026-08-04 (9) after the Negotiable-pill fix: surface re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, and the 6 credits-back chips re-read at exactly 10.000% of their own listing price against service_knob_pct = 10. | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): VERIFIED innerWidth 390 via requested=target*dpr, 0 overflow, docBy 0). | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): VERIFIED innerWidth 390 via requested=target*dpr, 0 overflow, docBy 0). | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): VERIFIED innerWidth 390 via requested=target*dpr, 0 overflow, docBy 0)."
+        "checked": "RE-WALKED at a verified innerWidth of 390 (requested 260 at dpr 0.667) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15182,16 +15176,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html @ verified innerWidth 641",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
         "asserts": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
         "value_checked": true,
         "depends_on": [
           "marketplace.html",
           "nav-hub.js"
         ],
-        "sha": "48b03e3721a6ad4a",
+        "sha": "af4a1a8ba7aad924",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 641: 0 overflowing elements, docBy=0. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (3), after the comprehension fixes to marketplace.html: the credits explainer bullet and the shared creditsBackChipHtml helper expired every row depending on that file. Re-walked, not re-stamped -- market and market_svc each re-loaded in the live MCP browser with all six states re-run through live-state-runner (edge and script_name both LANDED, longNameRendered and baybayinRendered true, so neither passed vacuously), and layout re-measured at VERIFIED innerWidths 390/641/1280: 0 overflow, 0 tap targets under 44, docBy 0 at every width, the three .sheet elements still declaring safe-area, and the new explainer bullet fitting its column at 390. The 9 credits-back chips re-read correct. The layer/seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), status and body agree on the wire both ways (200 with rows / 400 with an error body), all 9 paginated client queries still carry an id tiebreaker, and a 70-byte PNG round-tripped byte-identical through storage and was confirmed gone after delete with a cache-busted read. RE-WALKED 2026-08-04 (9) after the Negotiable-pill fix: surface re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, and the 6 credits-back chips re-read at exactly 10.000% of their own listing price against service_knob_pct = 10. | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): VERIFIED innerWidth 641, 0 overflow, docBy 0). | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): VERIFIED innerWidth 641, 0 overflow, docBy 0). | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): VERIFIED innerWidth 641, 0 overflow, docBy 0)."
+        "checked": "RE-WALKED at a verified innerWidth of 641 (requested 427) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15208,16 +15202,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html @ verified innerWidth 1280",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
         "asserts": "at 1280 the same holds, with real content rather than seed-perfect content",
         "value_checked": true,
         "depends_on": [
           "marketplace.html",
           "nav-hub.js"
         ],
-        "sha": "48b03e3721a6ad4a",
+        "sha": "af4a1a8ba7aad924",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 1280: 0 overflowing elements, docBy=0, measured against the REAL seeded content. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (3), after the comprehension fixes to marketplace.html: the credits explainer bullet and the shared creditsBackChipHtml helper expired every row depending on that file. Re-walked, not re-stamped -- market and market_svc each re-loaded in the live MCP browser with all six states re-run through live-state-runner (edge and script_name both LANDED, longNameRendered and baybayinRendered true, so neither passed vacuously), and layout re-measured at VERIFIED innerWidths 390/641/1280: 0 overflow, 0 tap targets under 44, docBy 0 at every width, the three .sheet elements still declaring safe-area, and the new explainer bullet fitting its column at 390. The 9 credits-back chips re-read correct. The layer/seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), status and body agree on the wire both ways (200 with rows / 400 with an error body), all 9 paginated client queries still carry an id tiebreaker, and a 70-byte PNG round-tripped byte-identical through storage and was confirmed gone after delete with a cache-busted read. RE-WALKED 2026-08-04 (9) after the Negotiable-pill fix: surface re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, and the 6 credits-back chips re-read at exactly 10.000% of their own listing price against service_knob_pct = 10. | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): VERIFIED innerWidth 1280, 0 overflow, docBy 0). | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): VERIFIED innerWidth 1280, 0 overflow, docBy 0). | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): VERIFIED innerWidth 1280, 0 overflow, docBy 0)."
+        "checked": "RE-WALKED at a verified innerWidth of 1280 (requested 853) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15234,16 +15228,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
         "asserts": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
         "value_checked": true,
         "depends_on": [
           "marketplace.html",
           "nav-hub.js"
         ],
-        "sha": "48b03e3721a6ad4a",
+        "sha": "af4a1a8ba7aad924",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 controls under 44x44 measured by getBoundingClientRect, not by stylesheet intent. Denominator: 53 controls at verified 390 (min height AND min width exactly 44 -- the instrument was checked against a known denominator before any verdict was believed). Controls sitting inline inside prose are excluded -- an inline citation is not a thumb target and counting it buries the ones that are. RE-WALKED 2026-08-04 (3), after the comprehension fixes to marketplace.html: the credits explainer bullet and the shared creditsBackChipHtml helper expired every row depending on that file. Re-walked, not re-stamped -- market and market_svc each re-loaded in the live MCP browser with all six states re-run through live-state-runner (edge and script_name both LANDED, longNameRendered and baybayinRendered true, so neither passed vacuously), and layout re-measured at VERIFIED innerWidths 390/641/1280: 0 overflow, 0 tap targets under 44, docBy 0 at every width, the three .sheet elements still declaring safe-area, and the new explainer bullet fitting its column at 390. The 9 credits-back chips re-read correct. The layer/seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), status and body agree on the wire both ways (200 with rows / 400 with an error body), all 9 paginated client queries still carry an id tiebreaker, and a 70-byte PNG round-tripped byte-identical through storage and was confirmed gone after delete with a cache-busted read. RE-WALKED 2026-08-04 (9) after the Negotiable-pill fix: surface re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, and the 6 credits-back chips re-read at exactly 10.000% of their own listing price against service_knob_pct = 10. | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout() at VERIFIED 390: 0 interactive controls under 44x44). | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout() at VERIFIED 390: 0 interactive controls under 44x44). | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout() at VERIFIED 390: 0 interactive controls under 44x44)."
+        "checked": "RE-WALKED at a verified innerWidth of 390 after the nav-hub change: tapTargetsUnder44 = 0, measured by rect rather than by stylesheet intent."
       }
     },
     {
@@ -15260,16 +15254,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP + source sweep - /workhive/marketplace.html",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html",
         "asserts": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
         "value_checked": true,
         "depends_on": [
           "marketplace.html",
           "nav-hub.js"
         ],
-        "sha": "48b03e3721a6ad4a",
+        "sha": "af4a1a8ba7aad924",
         "walked_at": "2026-08-04",
-        "checked": "Two-sided: the live probe reads the CSSOM (getComputedStyle RESOLVES env() to 0 on desktop, so a computed 32px cannot tell a guarded sheet from an unguarded one), and a source sweep of all 7 surfaces found 0 bottom-anchored position:fixed rules without safe-area-inset-bottom. Where a surface has no bottom-fixed chrome at all the live half is vacuous and the source sweep is what carries the row -- said plainly rather than counted as a pass. The safe_area walk found marketplace.html's .sheet padding at a flat 2rem while its own sibling marketplace-seller.html used calc(2rem + env(safe-area-inset-bottom)) -- so on a notched phone the last control in the buyer's detail/watchlist/saved-search sheets ('Save Search', the submit) sat under the home indicator. Both compute to 32px on desktop because env() resolves to 0 there, so only the two declarations side by side could show it. Fixed. RE-WALKED 2026-08-04 (3), after the comprehension fixes to marketplace.html: the credits explainer bullet and the shared creditsBackChipHtml helper expired every row depending on that file. Re-walked, not re-stamped -- market and market_svc each re-loaded in the live MCP browser with all six states re-run through live-state-runner (edge and script_name both LANDED, longNameRendered and baybayinRendered true, so neither passed vacuously), and layout re-measured at VERIFIED innerWidths 390/641/1280: 0 overflow, 0 tap targets under 44, docBy 0 at every width, the three .sheet elements still declaring safe-area, and the new explainer bullet fitting its column at 390. The 9 credits-back chips re-read correct. The layer/seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), status and body agree on the wire both ways (200 with rows / 400 with an error body), all 9 paginated client queries still carry an id tiebreaker, and a 70-byte PNG round-tripped byte-identical through storage and was confirmed gone after delete with a cache-busted read. RE-WALKED 2026-08-04 (9) after the Negotiable-pill fix: surface re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, and the 6 credits-back chips re-read at exactly 10.000% of their own listing price against service_knob_pct = 10. | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): all three bottom-fixed sheets declare env(safe-area-inset-bottom), read from the CSSOM). | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): all three bottom-fixed sheets declare env(safe-area-inset-bottom), read from the CSSOM). | RE-WALKED 2026-08-04 after the absent-is-not-zero + error-taxonomy work on marketplace.html (layout(): all three bottom-fixed sheets declare env(safe-area-inset-bottom), read from the CSSOM)."
+        "checked": "RE-WALKED after the nav-hub safe-area fix, and this row is the reason the fix exists. The lens used to collect only bottom chrome FLUSH to the viewport edge, so every inset floating control was invisible to it and this row passed over an empty set. Widened to the plausible home-indicator band (<=80px inset), it immediately caught #wh-hub declaring no safe area on every one of these surfaces: nav-hub's loadSavedPosition() calls applyPosition('right', 24) whenever nothing is stored -- the default for any user who has never dragged the hub -- writing `inset: auto 16px 24px auto` INLINE, which outranked the @media(max-width:480px) rule that does use env(safe-area-inset-bottom). That rule was dead code app-wide. Fixed on the shared --wh-fab-lift margin so the whole FAB stack lifts together (raising the hub alone collides with the chip anchored below it), and the rule now mounts unconditionally rather than only on pages that have a .bottom-nav. Measured here at a verified innerWidth of 390: every collected bottom element declares safe-area, hub included."
       }
     },
     {
@@ -15286,16 +15280,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
         "asserts": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
         "value_checked": true,
         "depends_on": [
           "marketplace.html",
           "nav-hub.js"
         ],
-        "sha": "48b03e3721a6ad4a",
+        "sha": "af4a1a8ba7aad924",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 overflowing elements, document does not scroll sideways (docBy=0). The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (3), after the comprehension fixes to marketplace.html: the credits explainer bullet and the shared creditsBackChipHtml helper expired every row depending on that file. Re-walked, not re-stamped -- market and market_svc each re-loaded in the live MCP browser with all six states re-run through live-state-runner (edge and script_name both LANDED, longNameRendered and baybayinRendered true, so neither passed vacuously), and layout re-measured at VERIFIED innerWidths 390/641/1280: 0 overflow, 0 tap targets under 44, docBy 0 at every width, the three .sheet elements still declaring safe-area, and the new explainer bullet fitting its column at 390. The 9 credits-back chips re-read correct. The layer/seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), status and body agree on the wire both ways (200 with rows / 400 with an error body), all 9 paginated client queries still carry an id tiebreaker, and a 70-byte PNG round-tripped byte-identical through storage and was confirmed gone after delete with a cache-busted read. RE-WALKED 2026-08-04 (9) after the Negotiable-pill fix: surface re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, and the 6 credits-back chips re-read at exactly 10.000% of their own listing price against service_knob_pct = 10. | RE-WALKED 2026-08-04 on the SERVICES pane after the marketplace.html error-taxonomy work (layout(): VERIFIED innerWidth 390, 0 overflow, docBy 0). | RE-WALKED 2026-08-04 on the SERVICES pane after the marketplace.html error-taxonomy work (layout(): VERIFIED innerWidth 390, 0 overflow, docBy 0)."
+        "checked": "RE-WALKED at a verified innerWidth of 390 (requested 260 at dpr 0.667) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15312,16 +15306,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services @ verified innerWidth 641",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
         "asserts": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
         "value_checked": true,
         "depends_on": [
           "marketplace.html",
           "nav-hub.js"
         ],
-        "sha": "48b03e3721a6ad4a",
+        "sha": "af4a1a8ba7aad924",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 641: 0 overflowing elements, docBy=0. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (3), after the comprehension fixes to marketplace.html: the credits explainer bullet and the shared creditsBackChipHtml helper expired every row depending on that file. Re-walked, not re-stamped -- market and market_svc each re-loaded in the live MCP browser with all six states re-run through live-state-runner (edge and script_name both LANDED, longNameRendered and baybayinRendered true, so neither passed vacuously), and layout re-measured at VERIFIED innerWidths 390/641/1280: 0 overflow, 0 tap targets under 44, docBy 0 at every width, the three .sheet elements still declaring safe-area, and the new explainer bullet fitting its column at 390. The 9 credits-back chips re-read correct. The layer/seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), status and body agree on the wire both ways (200 with rows / 400 with an error body), all 9 paginated client queries still carry an id tiebreaker, and a 70-byte PNG round-tripped byte-identical through storage and was confirmed gone after delete with a cache-busted read. RE-WALKED 2026-08-04 (9) after the Negotiable-pill fix: surface re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, and the 6 credits-back chips re-read at exactly 10.000% of their own listing price against service_knob_pct = 10. | RE-WALKED 2026-08-04 on the SERVICES pane after the marketplace.html error-taxonomy work (layout(): VERIFIED innerWidth 641, 0 overflow, docBy 0). | RE-WALKED 2026-08-04 on the SERVICES pane after the marketplace.html error-taxonomy work (layout(): VERIFIED innerWidth 641, 0 overflow, docBy 0)."
+        "checked": "RE-WALKED at a verified innerWidth of 641 (requested 427) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15338,16 +15332,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services @ verified innerWidth 1280",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
         "asserts": "at 1280 the same holds, with real content rather than seed-perfect content",
         "value_checked": true,
         "depends_on": [
           "marketplace.html",
           "nav-hub.js"
         ],
-        "sha": "48b03e3721a6ad4a",
+        "sha": "af4a1a8ba7aad924",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 1280: 0 overflowing elements, docBy=0, measured against the REAL seeded content. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (3), after the comprehension fixes to marketplace.html: the credits explainer bullet and the shared creditsBackChipHtml helper expired every row depending on that file. Re-walked, not re-stamped -- market and market_svc each re-loaded in the live MCP browser with all six states re-run through live-state-runner (edge and script_name both LANDED, longNameRendered and baybayinRendered true, so neither passed vacuously), and layout re-measured at VERIFIED innerWidths 390/641/1280: 0 overflow, 0 tap targets under 44, docBy 0 at every width, the three .sheet elements still declaring safe-area, and the new explainer bullet fitting its column at 390. The 9 credits-back chips re-read correct. The layer/seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), status and body agree on the wire both ways (200 with rows / 400 with an error body), all 9 paginated client queries still carry an id tiebreaker, and a 70-byte PNG round-tripped byte-identical through storage and was confirmed gone after delete with a cache-busted read. RE-WALKED 2026-08-04 (9) after the Negotiable-pill fix: surface re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, and the 6 credits-back chips re-read at exactly 10.000% of their own listing price against service_knob_pct = 10. | RE-WALKED 2026-08-04 on the SERVICES pane after the marketplace.html error-taxonomy work (layout(): VERIFIED innerWidth 1280, 0 overflow, docBy 0). | RE-WALKED 2026-08-04 on the SERVICES pane after the marketplace.html error-taxonomy work (layout(): VERIFIED innerWidth 1280, 0 overflow, docBy 0)."
+        "checked": "RE-WALKED at a verified innerWidth of 1280 (requested 853) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15364,16 +15358,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
         "asserts": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
         "value_checked": true,
         "depends_on": [
           "marketplace.html",
           "nav-hub.js"
         ],
-        "sha": "48b03e3721a6ad4a",
+        "sha": "af4a1a8ba7aad924",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 controls under 44x44 measured by getBoundingClientRect, not by stylesheet intent. Denominator: 9 controls in the services pane at verified 641; pane confirmed shown (aria-selected=true, 1439px tall) with 3 real service requests and a live 7-providers-online strip. Controls sitting inline inside prose are excluded -- an inline citation is not a thumb target and counting it buries the ones that are. RE-WALKED 2026-08-04 (3), after the comprehension fixes to marketplace.html: the credits explainer bullet and the shared creditsBackChipHtml helper expired every row depending on that file. Re-walked, not re-stamped -- market and market_svc each re-loaded in the live MCP browser with all six states re-run through live-state-runner (edge and script_name both LANDED, longNameRendered and baybayinRendered true, so neither passed vacuously), and layout re-measured at VERIFIED innerWidths 390/641/1280: 0 overflow, 0 tap targets under 44, docBy 0 at every width, the three .sheet elements still declaring safe-area, and the new explainer bullet fitting its column at 390. The 9 credits-back chips re-read correct. The layer/seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), status and body agree on the wire both ways (200 with rows / 400 with an error body), all 9 paginated client queries still carry an id tiebreaker, and a 70-byte PNG round-tripped byte-identical through storage and was confirmed gone after delete with a cache-busted read. RE-WALKED 2026-08-04 (9) after the Negotiable-pill fix: surface re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, and the 6 credits-back chips re-read at exactly 10.000% of their own listing price against service_knob_pct = 10. | RE-WALKED 2026-08-04 on the SERVICES pane after the marketplace.html error-taxonomy work (layout() at VERIFIED 390: 0 controls under 44x44). | RE-WALKED 2026-08-04 on the SERVICES pane after the marketplace.html error-taxonomy work (layout() at VERIFIED 390: 0 controls under 44x44)."
+        "checked": "RE-WALKED at a verified innerWidth of 390 after the nav-hub change: tapTargetsUnder44 = 0, measured by rect rather than by stylesheet intent."
       }
     },
     {
@@ -15390,16 +15384,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP + source sweep - /workhive/marketplace.html?section=services",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace.html?section=services",
         "asserts": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
         "value_checked": true,
         "depends_on": [
           "marketplace.html",
           "nav-hub.js"
         ],
-        "sha": "48b03e3721a6ad4a",
+        "sha": "af4a1a8ba7aad924",
         "walked_at": "2026-08-04",
-        "checked": "Two-sided: the live probe reads the CSSOM (getComputedStyle RESOLVES env() to 0 on desktop, so a computed 32px cannot tell a guarded sheet from an unguarded one), and a source sweep of all 7 surfaces found 0 bottom-anchored position:fixed rules without safe-area-inset-bottom. Where a surface has no bottom-fixed chrome at all the live half is vacuous and the source sweep is what carries the row -- said plainly rather than counted as a pass. RE-WALKED 2026-08-04 (3), after the comprehension fixes to marketplace.html: the credits explainer bullet and the shared creditsBackChipHtml helper expired every row depending on that file. Re-walked, not re-stamped -- market and market_svc each re-loaded in the live MCP browser with all six states re-run through live-state-runner (edge and script_name both LANDED, longNameRendered and baybayinRendered true, so neither passed vacuously), and layout re-measured at VERIFIED innerWidths 390/641/1280: 0 overflow, 0 tap targets under 44, docBy 0 at every width, the three .sheet elements still declaring safe-area, and the new explainer bullet fitting its column at 390. The 9 credits-back chips re-read correct. The layer/seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), status and body agree on the wire both ways (200 with rows / 400 with an error body), all 9 paginated client queries still carry an id tiebreaker, and a 70-byte PNG round-tripped byte-identical through storage and was confirmed gone after delete with a cache-busted read. RE-WALKED 2026-08-04 (9) after the Negotiable-pill fix: surface re-loaded live, all six states re-run (edge and script_name LANDED), layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, and the 6 credits-back chips re-read at exactly 10.000% of their own listing price against service_knob_pct = 10. | RE-WALKED 2026-08-04 on the SERVICES pane after the marketplace.html error-taxonomy work (layout(): all three bottom-fixed sheets declare env(safe-area-inset-bottom)). | RE-WALKED 2026-08-04 on the SERVICES pane after the marketplace.html error-taxonomy work (layout(): all three bottom-fixed sheets declare env(safe-area-inset-bottom))."
+        "checked": "RE-WALKED after the nav-hub safe-area fix, and this row is the reason the fix exists. The lens used to collect only bottom chrome FLUSH to the viewport edge, so every inset floating control was invisible to it and this row passed over an empty set. Widened to the plausible home-indicator band (<=80px inset), it immediately caught #wh-hub declaring no safe area on every one of these surfaces: nav-hub's loadSavedPosition() calls applyPosition('right', 24) whenever nothing is stored -- the default for any user who has never dragged the hub -- writing `inset: auto 16px 24px auto` INLINE, which outranked the @media(max-width:480px) rule that does use env(safe-area-inset-bottom). That rule was dead code app-wide. Fixed on the shared --wh-fab-lift margin so the whole FAB stack lifts together (raising the hub alone collides with the chip anchored below it), and the rule now mounts unconditionally rather than only on pages that have a .bottom-nav. Measured here at a verified innerWidth of 390: every collected bottom element declares safe-area, hub included."
       }
     },
     {
@@ -15416,16 +15410,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
         "asserts": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
         "value_checked": true,
         "depends_on": [
           "marketplace-seller.html",
           "nav-hub.js"
         ],
-        "sha": "906ba9f41390491b",
+        "sha": "5de485e676aceb67",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 overflowing elements, document does not scroll sideways (docBy=0). The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (4), after the Arc-P em-dash ratchet fixes to marketplace-seller.html and platform-actions.html. Five displayed labels were REWRITTEN (an em dash in body copy is what that gate is for, and escaping it would satisfy the counter while leaving the copy unchanged): 'Credit liability: services owed, not profit' and its four siblings now read with a colon. Four LONE gap characters were re-spelled as the '—' escape instead, matching what utils.js already does -- and the escape was proven to evaluate to the character at runtime (charCode 8212), not to leak the six letters into the DOM. Re-walked live: both surfaces re-loaded, all six states re-run with edge and script_name LANDED, layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, the repaired pending-top-up row still fitting its full 291px, admin cover still 1.32x, the seller gap note fitting its column at 390. Seam/layer rows re-proved: base-vs-view identical on all three top-ups, and status/body agreeing on the wire including anon-on-treasury 401. One artifact recorded rather than filed: the seller page briefly showed the Baybayin probe name after an induction, which a genuinely fresh load corrected, with 0 Baybayin rows and 0 probe titles in the database -- the induction never wrote. RE-WALKED 2026-08-04 (5) after the 'Go to top up' route was added to the credit wallet: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), and layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 -- the new control itself measuring 98x44. RE-WALKED 2026-08-04 (7) after the absent-is-not-zero fix to the seller's two balance readers. RE-WALKED, NOT ABSORBED: an --accept had briefly re-baselined this 55-row expiry down to 235, which is the exact 'absorb the drop' move rule 5 forbids; the baseline was restored to 287 and the rows earned back by walking. The surface was re-loaded live, all six states re-run (edge and script_name both LANDED), layout re-measured at VERIFIED 390 / 641 / 1280 with 0 overflow and 0 tap targets under 44 (the 'Go to top up' control measuring 98x44), comprehension re-read at 12 numbers / 0 unexplained, the wallet still showing the real PHP-200, and component_busy re-proven with 2 writes BLOCKED (POST marketplace_sellers, POST hive_audit_log). The two seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), and a 70-byte PNG round-tripped byte-identical through storage with its content-type intact and was confirmed gone after delete. | RE-WALKED 2026-08-04 on marketplace-seller.html (layout(): VERIFIED innerWidth 390 -- solved for as target x dpr, never requested -- 0 overflow, 0 document scroll). | RE-WALKED 2026-08-04 on marketplace-seller.html (layout(): VERIFIED innerWidth 390 -- solved for as target x dpr, never requested -- 0 overflow, 0 document scroll)."
+        "checked": "RE-WALKED at a verified innerWidth of 390 (requested 260 at dpr 0.667) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15442,16 +15436,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html @ verified innerWidth 641",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
         "asserts": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
         "value_checked": true,
         "depends_on": [
           "marketplace-seller.html",
           "nav-hub.js"
         ],
-        "sha": "906ba9f41390491b",
+        "sha": "5de485e676aceb67",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 641: 0 overflowing elements, docBy=0. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (4), after the Arc-P em-dash ratchet fixes to marketplace-seller.html and platform-actions.html. Five displayed labels were REWRITTEN (an em dash in body copy is what that gate is for, and escaping it would satisfy the counter while leaving the copy unchanged): 'Credit liability: services owed, not profit' and its four siblings now read with a colon. Four LONE gap characters were re-spelled as the '—' escape instead, matching what utils.js already does -- and the escape was proven to evaluate to the character at runtime (charCode 8212), not to leak the six letters into the DOM. Re-walked live: both surfaces re-loaded, all six states re-run with edge and script_name LANDED, layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, the repaired pending-top-up row still fitting its full 291px, admin cover still 1.32x, the seller gap note fitting its column at 390. Seam/layer rows re-proved: base-vs-view identical on all three top-ups, and status/body agreeing on the wire including anon-on-treasury 401. One artifact recorded rather than filed: the seller page briefly showed the Baybayin probe name after an induction, which a genuinely fresh load corrected, with 0 Baybayin rows and 0 probe titles in the database -- the induction never wrote. RE-WALKED 2026-08-04 (5) after the 'Go to top up' route was added to the credit wallet: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), and layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 -- the new control itself measuring 98x44. RE-WALKED 2026-08-04 (7) after the absent-is-not-zero fix to the seller's two balance readers. RE-WALKED, NOT ABSORBED: an --accept had briefly re-baselined this 55-row expiry down to 235, which is the exact 'absorb the drop' move rule 5 forbids; the baseline was restored to 287 and the rows earned back by walking. The surface was re-loaded live, all six states re-run (edge and script_name both LANDED), layout re-measured at VERIFIED 390 / 641 / 1280 with 0 overflow and 0 tap targets under 44 (the 'Go to top up' control measuring 98x44), comprehension re-read at 12 numbers / 0 unexplained, the wallet still showing the real PHP-200, and component_busy re-proven with 2 writes BLOCKED (POST marketplace_sellers, POST hive_audit_log). The two seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), and a 70-byte PNG round-tripped byte-identical through storage with its content-type intact and was confirmed gone after delete. | RE-WALKED 2026-08-04 on marketplace-seller.html (layout(): VERIFIED innerWidth 641, 0 overflow, 0 document scroll). | RE-WALKED 2026-08-04 on marketplace-seller.html (layout(): VERIFIED innerWidth 641, 0 overflow, 0 document scroll)."
+        "checked": "RE-WALKED at a verified innerWidth of 641 (requested 427) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15468,16 +15462,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html @ verified innerWidth 1280",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
         "asserts": "at 1280 the same holds, with real content rather than seed-perfect content",
         "value_checked": true,
         "depends_on": [
           "marketplace-seller.html",
           "nav-hub.js"
         ],
-        "sha": "906ba9f41390491b",
+        "sha": "5de485e676aceb67",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 1280: 0 overflowing elements, docBy=0, measured against the REAL seeded content. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (4), after the Arc-P em-dash ratchet fixes to marketplace-seller.html and platform-actions.html. Five displayed labels were REWRITTEN (an em dash in body copy is what that gate is for, and escaping it would satisfy the counter while leaving the copy unchanged): 'Credit liability: services owed, not profit' and its four siblings now read with a colon. Four LONE gap characters were re-spelled as the '—' escape instead, matching what utils.js already does -- and the escape was proven to evaluate to the character at runtime (charCode 8212), not to leak the six letters into the DOM. Re-walked live: both surfaces re-loaded, all six states re-run with edge and script_name LANDED, layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, the repaired pending-top-up row still fitting its full 291px, admin cover still 1.32x, the seller gap note fitting its column at 390. Seam/layer rows re-proved: base-vs-view identical on all three top-ups, and status/body agreeing on the wire including anon-on-treasury 401. One artifact recorded rather than filed: the seller page briefly showed the Baybayin probe name after an induction, which a genuinely fresh load corrected, with 0 Baybayin rows and 0 probe titles in the database -- the induction never wrote. RE-WALKED 2026-08-04 (5) after the 'Go to top up' route was added to the credit wallet: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), and layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 -- the new control itself measuring 98x44. RE-WALKED 2026-08-04 (7) after the absent-is-not-zero fix to the seller's two balance readers. RE-WALKED, NOT ABSORBED: an --accept had briefly re-baselined this 55-row expiry down to 235, which is the exact 'absorb the drop' move rule 5 forbids; the baseline was restored to 287 and the rows earned back by walking. The surface was re-loaded live, all six states re-run (edge and script_name both LANDED), layout re-measured at VERIFIED 390 / 641 / 1280 with 0 overflow and 0 tap targets under 44 (the 'Go to top up' control measuring 98x44), comprehension re-read at 12 numbers / 0 unexplained, the wallet still showing the real PHP-200, and component_busy re-proven with 2 writes BLOCKED (POST marketplace_sellers, POST hive_audit_log). The two seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), and a 70-byte PNG round-tripped byte-identical through storage with its content-type intact and was confirmed gone after delete. | RE-WALKED 2026-08-04 on marketplace-seller.html (layout(): VERIFIED innerWidth 1280, 0 overflow, 0 document scroll). | RE-WALKED 2026-08-04 on marketplace-seller.html (layout(): VERIFIED innerWidth 1280, 0 overflow, 0 document scroll)."
+        "checked": "RE-WALKED at a verified innerWidth of 1280 (requested 853) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15494,16 +15488,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
         "asserts": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
         "value_checked": true,
         "depends_on": [
           "marketplace-seller.html",
           "nav-hub.js"
         ],
-        "sha": "906ba9f41390491b",
+        "sha": "5de485e676aceb67",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 controls under 44x44 measured by getBoundingClientRect, not by stylesheet intent. Denominator: 17 controls at verified 641. Controls sitting inline inside prose are excluded -- an inline citation is not a thumb target and counting it buries the ones that are. RE-WALKED 2026-08-04 (4), after the Arc-P em-dash ratchet fixes to marketplace-seller.html and platform-actions.html. Five displayed labels were REWRITTEN (an em dash in body copy is what that gate is for, and escaping it would satisfy the counter while leaving the copy unchanged): 'Credit liability: services owed, not profit' and its four siblings now read with a colon. Four LONE gap characters were re-spelled as the '—' escape instead, matching what utils.js already does -- and the escape was proven to evaluate to the character at runtime (charCode 8212), not to leak the six letters into the DOM. Re-walked live: both surfaces re-loaded, all six states re-run with edge and script_name LANDED, layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, the repaired pending-top-up row still fitting its full 291px, admin cover still 1.32x, the seller gap note fitting its column at 390. Seam/layer rows re-proved: base-vs-view identical on all three top-ups, and status/body agreeing on the wire including anon-on-treasury 401. One artifact recorded rather than filed: the seller page briefly showed the Baybayin probe name after an induction, which a genuinely fresh load corrected, with 0 Baybayin rows and 0 probe titles in the database -- the induction never wrote. RE-WALKED 2026-08-04 (5) after the 'Go to top up' route was added to the credit wallet: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), and layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 -- the new control itself measuring 98x44. RE-WALKED 2026-08-04 (7) after the absent-is-not-zero fix to the seller's two balance readers. RE-WALKED, NOT ABSORBED: an --accept had briefly re-baselined this 55-row expiry down to 235, which is the exact 'absorb the drop' move rule 5 forbids; the baseline was restored to 287 and the rows earned back by walking. The surface was re-loaded live, all six states re-run (edge and script_name both LANDED), layout re-measured at VERIFIED 390 / 641 / 1280 with 0 overflow and 0 tap targets under 44 (the 'Go to top up' control measuring 98x44), comprehension re-read at 12 numbers / 0 unexplained, the wallet still showing the real PHP-200, and component_busy re-proven with 2 writes BLOCKED (POST marketplace_sellers, POST hive_audit_log). The two seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), and a 70-byte PNG round-tripped byte-identical through storage with its content-type intact and was confirmed gone after delete. | RE-WALKED 2026-08-04 on marketplace-seller.html (layout() at VERIFIED 390: 0 interactive controls under 44x44, measured by rect). | RE-WALKED 2026-08-04 on marketplace-seller.html (layout() at VERIFIED 390: 0 interactive controls under 44x44, measured by rect)."
+        "checked": "RE-WALKED at a verified innerWidth of 390 after the nav-hub change: tapTargetsUnder44 = 0, measured by rect rather than by stylesheet intent."
       }
     },
     {
@@ -15520,16 +15514,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP + source sweep - /workhive/marketplace-seller.html",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller.html",
         "asserts": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
         "value_checked": true,
         "depends_on": [
           "marketplace-seller.html",
           "nav-hub.js"
         ],
-        "sha": "906ba9f41390491b",
+        "sha": "5de485e676aceb67",
         "walked_at": "2026-08-04",
-        "checked": "Two-sided: the live probe reads the CSSOM (getComputedStyle RESOLVES env() to 0 on desktop, so a computed 32px cannot tell a guarded sheet from an unguarded one), and a source sweep of all 7 surfaces found 0 bottom-anchored position:fixed rules without safe-area-inset-bottom. Where a surface has no bottom-fixed chrome at all the live half is vacuous and the source sweep is what carries the row -- said plainly rather than counted as a pass. RE-WALKED 2026-08-04 (4), after the Arc-P em-dash ratchet fixes to marketplace-seller.html and platform-actions.html. Five displayed labels were REWRITTEN (an em dash in body copy is what that gate is for, and escaping it would satisfy the counter while leaving the copy unchanged): 'Credit liability: services owed, not profit' and its four siblings now read with a colon. Four LONE gap characters were re-spelled as the '—' escape instead, matching what utils.js already does -- and the escape was proven to evaluate to the character at runtime (charCode 8212), not to leak the six letters into the DOM. Re-walked live: both surfaces re-loaded, all six states re-run with edge and script_name LANDED, layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44, the repaired pending-top-up row still fitting its full 291px, admin cover still 1.32x, the seller gap note fitting its column at 390. Seam/layer rows re-proved: base-vs-view identical on all three top-ups, and status/body agreeing on the wire including anon-on-treasury 401. One artifact recorded rather than filed: the seller page briefly showed the Baybayin probe name after an induction, which a genuinely fresh load corrected, with 0 Baybayin rows and 0 probe titles in the database -- the induction never wrote. RE-WALKED 2026-08-04 (5) after the 'Go to top up' route was added to the credit wallet: the surface was re-loaded live, all six states re-run (edge and script_name LANDED), and layout re-measured at VERIFIED 390/641/1280 with 0 overflow and 0 tap targets under 44 -- the new control itself measuring 98x44. RE-WALKED 2026-08-04 (7) after the absent-is-not-zero fix to the seller's two balance readers. RE-WALKED, NOT ABSORBED: an --accept had briefly re-baselined this 55-row expiry down to 235, which is the exact 'absorb the drop' move rule 5 forbids; the baseline was restored to 287 and the rows earned back by walking. The surface was re-loaded live, all six states re-run (edge and script_name both LANDED), layout re-measured at VERIFIED 390 / 641 / 1280 with 0 overflow and 0 tap targets under 44 (the 'Go to top up' control measuring 98x44), comprehension re-read at 12 numbers / 0 unexplained, the wallet still showing the real PHP-200, and component_busy re-proven with 2 writes BLOCKED (POST marketplace_sellers, POST hive_audit_log). The two seam rows on this file were re-proved rather than assumed: service_knob returns a REAL null (error null, data null), and a 70-byte PNG round-tripped byte-identical through storage with its content-type intact and was confirmed gone after delete. | RE-WALKED 2026-08-04 on marketplace-seller.html (layout(): this surface carries no bottom-fixed chrome to clear the home indicator, so there is nothing to guard -- recorded as measured-and-empty rather than passed by default). | RE-WALKED 2026-08-04 on marketplace-seller.html (layout(): this surface carries no bottom-fixed chrome to clear the home indicator, so there is nothing to guard -- recorded as measured-and-empty rather than passed by default)."
+        "checked": "RE-WALKED after the nav-hub safe-area fix, and this row is the reason the fix exists. The lens used to collect only bottom chrome FLUSH to the viewport edge, so every inset floating control was invisible to it and this row passed over an empty set. Widened to the plausible home-indicator band (<=80px inset), it immediately caught #wh-hub declaring no safe area on every one of these surfaces: nav-hub's loadSavedPosition() calls applyPosition('right', 24) whenever nothing is stored -- the default for any user who has never dragged the hub -- writing `inset: auto 16px 24px auto` INLINE, which outranked the @media(max-width:480px) rule that does use env(safe-area-inset-bottom). That rule was dead code app-wide. Fixed on the shared --wh-fab-lift margin so the whole FAB stack lifts together (raising the hub alone collides with the chip anchored below it), and the rule now mounts unconditionally rather than only on pages that have a .bottom-nav. Measured here at a verified innerWidth of 390: every collected bottom element declares safe-area, hub included."
       }
     },
     {
@@ -15671,16 +15665,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
         "asserts": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
         "value_checked": true,
         "depends_on": [
           "marketplace-seller-profile.html",
           "nav-hub.js"
         ],
-        "sha": "9afa874087befd0d",
+        "sha": "f0a67acfdf803648",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 overflowing elements, document does not scroll sideways (docBy=0). The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile (layout(): VERIFIED innerWidth 390 -- solved for as target x dpr, never requested -- 0 overflow, 0 document scroll)."
+        "checked": "RE-WALKED at a verified innerWidth of 390 (requested 260 at dpr 0.667) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15697,16 +15691,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar @ verified innerWidth 641",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
         "asserts": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
         "value_checked": true,
         "depends_on": [
           "marketplace-seller-profile.html",
           "nav-hub.js"
         ],
-        "sha": "9afa874087befd0d",
+        "sha": "f0a67acfdf803648",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 641: 0 overflowing elements, docBy=0. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile (layout(): VERIFIED innerWidth 641, 0 overflow, 0 document scroll)."
+        "checked": "RE-WALKED at a verified innerWidth of 641 (requested 427) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15723,16 +15717,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar @ verified innerWidth 1280",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
         "asserts": "at 1280 the same holds, with real content rather than seed-perfect content",
         "value_checked": true,
         "depends_on": [
           "marketplace-seller-profile.html",
           "nav-hub.js"
         ],
-        "sha": "9afa874087befd0d",
+        "sha": "f0a67acfdf803648",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 1280: 0 overflowing elements, docBy=0, measured against the REAL seeded content. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile (layout(): VERIFIED innerWidth 1280, 0 overflow, 0 document scroll)."
+        "checked": "RE-WALKED at a verified innerWidth of 1280 (requested 853) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15749,16 +15743,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
         "asserts": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
         "value_checked": true,
         "depends_on": [
           "marketplace-seller-profile.html",
           "nav-hub.js"
         ],
-        "sha": "9afa874087befd0d",
+        "sha": "f0a67acfdf803648",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 controls under 44x44 measured by getBoundingClientRect, not by stylesheet intent. Denominator: 9 controls at verified 641. Controls sitting inline inside prose are excluded -- an inline citation is not a thumb target and counting it buries the ones that are. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile (layout() at VERIFIED 390: 0 interactive controls under 44x44, measured by rect)."
+        "checked": "RE-WALKED at a verified innerWidth of 390 after the nav-hub change: tapTargetsUnder44 = 0, measured by rect rather than by stylesheet intent."
       }
     },
     {
@@ -15775,16 +15769,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP + source sweep - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
         "asserts": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
         "value_checked": true,
         "depends_on": [
           "marketplace-seller-profile.html",
           "nav-hub.js"
         ],
-        "sha": "9afa874087befd0d",
+        "sha": "f0a67acfdf803648",
         "walked_at": "2026-08-04",
-        "checked": "Two-sided: the live probe reads the CSSOM (getComputedStyle RESOLVES env() to 0 on desktop, so a computed 32px cannot tell a guarded sheet from an unguarded one), and a source sweep of all 7 surfaces found 0 bottom-anchored position:fixed rules without safe-area-inset-bottom. Where a surface has no bottom-fixed chrome at all the live half is vacuous and the source sweep is what carries the row -- said plainly rather than counted as a pass. RE-WALKED 2026-08-04 (6) after the tier badge gained its explanation. The surface was re-loaded in the live MCP browser and all six states re-run through live-state-runner, with edge and script_name both LANDED (longNameRendered and baybayinRendered true) so neither passed vacuously, and layout re-measured at VERIFIED innerWidths 390 / 641 / 1280: 0 overflowing elements, 0 tap targets under 44x44, and no sideways document scroll at any width. The badge itself was re-read on the rendered page and still carries the real thresholds. | RE-WALKED 2026-08-04 on the seller profile (layout(): no bottom-fixed chrome on this surface, so there is no home indicator to clear -- recorded as measured-and-empty rather than passed by default)."
+        "checked": "RE-WALKED after the nav-hub safe-area fix, and this row is the reason the fix exists. The lens used to collect only bottom chrome FLUSH to the viewport edge, so every inset floating control was invisible to it and this row passed over an empty set. Widened to the plausible home-indicator band (<=80px inset), it immediately caught #wh-hub declaring no safe area on every one of these surfaces: nav-hub's loadSavedPosition() calls applyPosition('right', 24) whenever nothing is stored -- the default for any user who has never dragged the hub -- writing `inset: auto 16px 24px auto` INLINE, which outranked the @media(max-width:480px) rule that does use env(safe-area-inset-bottom). That rule was dead code app-wide. Fixed on the shared --wh-fab-lift margin so the whole FAB stack lifts together (raising the hub alone collides with the chip anchored below it), and the rule now mounts unconditionally rather than only on pages that have a .bottom-nav. Measured here at a verified innerWidth of 390: every collected bottom element declares safe-area, hub included."
       }
     },
     {
@@ -15801,16 +15795,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/community.html @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
         "asserts": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
         "value_checked": true,
         "depends_on": [
           "community.html",
           "nav-hub.js"
         ],
-        "sha": "10940f1e285e850a",
+        "sha": "da5c467f8b1d17ed",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 overflowing elements, document does not scroll sideways (docBy=0). The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (layout(): VERIFIED innerWidth 390 -- solved for as target x dpr, never requested -- 0 overflow, 0 document scroll)."
+        "checked": "Verified innerWidth 390 (requested 260 at dpr 0.667). overflowCount 0, docScrollsSideways false. Re-checked because the new guidance paragraph is a 62ch block that lands at the narrow width."
       }
     },
     {
@@ -15827,16 +15821,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/community.html @ verified innerWidth 641",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
         "asserts": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
         "value_checked": true,
         "depends_on": [
           "community.html",
           "nav-hub.js"
         ],
-        "sha": "10940f1e285e850a",
+        "sha": "da5c467f8b1d17ed",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 641: 0 overflowing elements, docBy=0. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (layout(): VERIFIED innerWidth 641, 0 overflow, 0 document scroll)."
+        "checked": "Verified innerWidth 641 (requested 427). overflowCount 0, no sideways scroll."
       }
     },
     {
@@ -15853,16 +15847,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/community.html @ verified innerWidth 1280",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
         "asserts": "at 1280 the same holds, with real content rather than seed-perfect content",
         "value_checked": true,
         "depends_on": [
           "community.html",
           "nav-hub.js"
         ],
-        "sha": "10940f1e285e850a",
+        "sha": "da5c467f8b1d17ed",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 1280: 0 overflowing elements, docBy=0, measured against the REAL seeded content. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (layout(): VERIFIED innerWidth 1280, 0 overflow, 0 document scroll)."
+        "checked": "Verified innerWidth 1280 (requested 853). overflowCount 0, no sideways scroll."
       }
     },
     {
@@ -15879,16 +15873,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/community.html @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
         "asserts": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
         "value_checked": true,
         "depends_on": [
           "community.html",
           "nav-hub.js"
         ],
-        "sha": "10940f1e285e850a",
+        "sha": "da5c467f8b1d17ed",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 controls under 44x44 measured by getBoundingClientRect, not by stylesheet intent. Denominator: 72 controls at verified 641. Controls sitting inline inside prose are excluded -- an inline citation is not a thumb target and counting it buries the ones that are. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (layout() at VERIFIED 390: 0 interactive controls under 44x44, measured by rect)."
+        "checked": "tapTargetsUnder44 = 0 at all three verified widths, measured by rect."
       }
     },
     {
@@ -15905,16 +15899,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP + source sweep - /workhive/community.html",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
         "asserts": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
         "value_checked": true,
         "depends_on": [
           "community.html",
           "nav-hub.js"
         ],
-        "sha": "10940f1e285e850a",
+        "sha": "da5c467f8b1d17ed",
         "walked_at": "2026-08-04",
-        "checked": "Two-sided: the live probe reads the CSSOM (getComputedStyle RESOLVES env() to 0 on desktop, so a computed 32px cannot tell a guarded sheet from an unguarded one), and a source sweep of all 7 surfaces found 0 bottom-anchored position:fixed rules without safe-area-inset-bottom. Where a surface has no bottom-fixed chrome at all the live half is vacuous and the source sweep is what carries the row -- said plainly rather than counted as a pass. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (layout(): no bottom-fixed chrome on this surface, so there is no home indicator to clear -- recorded as measured-and-empty rather than passed by default)."
+        "checked": "This row was previously passing VACUOUSLY. bottomFixed collected only chrome flush to the viewport edge, and community's #fab-post sits at bottom: calc(24px + env(safe-area-inset-bottom)), 24px short -- so the lens returned [] and 'every bottom element declares safe-area' was true of the empty set. Widened the band to the plausible home-indicator zone (<=80px inset). It then collected three elements and immediately found a real defect: #wh-hub declared NO safe area, because nav-hub's loadSavedPosition() calls applyPosition('right', 24) on every load when nothing is stored -- the default path -- stamping `inset: auto 16px 24px auto` INLINE, which beat the @media(max-width:480px) rule that does use env(). That rule was dead code on every page. Fixed on the shared --wh-fab-lift margin (raising the hub alone would collide with the chip anchored below it, a regression this mechanism exists to prevent), and while fixing it the selector was found to target #wh-ai-trigger, a position:relative CHILD, instead of the fixed #wh-ai-widget that owns the bottom -- driving the lift moved the hub 34px and the trigger 24px. Now all three stack members move by exactly 34px with gaps preserved, and pm-scheduler (the one page with a .bottom-nav) still clears its bar at lift 65px."
       }
     },
     {
@@ -15931,16 +15925,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/public-feed.html @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html",
         "asserts": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
         "value_checked": true,
         "depends_on": [
           "public-feed.html",
           "nav-hub.js"
         ],
-        "sha": "a73d31c2a0cb1e92",
+        "sha": "ba4984c106e3de1f",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 overflowing elements, document does not scroll sideways (docBy=0). The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded."
+        "checked": "RE-WALKED at a verified innerWidth of 390 (requested 260 at dpr 0.667) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15957,16 +15951,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/public-feed.html @ verified innerWidth 641",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html",
         "asserts": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
         "value_checked": true,
         "depends_on": [
           "public-feed.html",
           "nav-hub.js"
         ],
-        "sha": "a73d31c2a0cb1e92",
+        "sha": "ba4984c106e3de1f",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 641: 0 overflowing elements, docBy=0. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded."
+        "checked": "RE-WALKED at a verified innerWidth of 641 (requested 427) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -15983,16 +15977,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/public-feed.html @ verified innerWidth 1280",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html",
         "asserts": "at 1280 the same holds, with real content rather than seed-perfect content",
         "value_checked": true,
         "depends_on": [
           "public-feed.html",
           "nav-hub.js"
         ],
-        "sha": "a73d31c2a0cb1e92",
+        "sha": "ba4984c106e3de1f",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 1280: 0 overflowing elements, docBy=0, measured against the REAL seeded content. The viewport was NOT trusted -- browser_resize reported 390 while window.innerWidth read 585 (dpr 0.667), so every width was solved for (requested = target x dpr) and re-read from the page before any verdict was recorded."
+        "checked": "RE-WALKED at a verified innerWidth of 1280 (requested 853) after the nav-hub change: overflowCount 0 and the document does not scroll sideways."
       }
     },
     {
@@ -16009,16 +16003,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/public-feed.html @ verified innerWidth 390",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html",
         "asserts": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
         "value_checked": true,
         "depends_on": [
           "public-feed.html",
           "nav-hub.js"
         ],
-        "sha": "a73d31c2a0cb1e92",
+        "sha": "ba4984c106e3de1f",
         "walked_at": "2026-08-04",
-        "checked": "Live MCP walk at a VERIFIED innerWidth of 390: 0 controls under 44x44 measured by getBoundingClientRect, not by stylesheet intent. Denominator: 2 controls at verified 1280 -- a genuinely thin anonymous view ('Sign in to post', 'Hail a service'); the feed itself is real (posts from Jericho Bonifacio, Romeo Beltran, Hector Salvador in #feed-list). Controls sitting inline inside prose are excluded -- an inline citation is not a thumb target and counting it buries the ones that are."
+        "checked": "RE-WALKED at a verified innerWidth of 390 after the nav-hub change: tapTargetsUnder44 = 0, measured by rect rather than by stylesheet intent."
       }
     },
     {
@@ -16035,16 +16029,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP + source sweep - /workhive/public-feed.html",
+        "ref": "2026-08-04 live MCP - /workhive/public-feed.html",
         "asserts": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
         "value_checked": true,
         "depends_on": [
           "public-feed.html",
           "nav-hub.js"
         ],
-        "sha": "a73d31c2a0cb1e92",
+        "sha": "ba4984c106e3de1f",
         "walked_at": "2026-08-04",
-        "checked": "Two-sided: the live probe reads the CSSOM (getComputedStyle RESOLVES env() to 0 on desktop, so a computed 32px cannot tell a guarded sheet from an unguarded one), and a source sweep of all 7 surfaces found 0 bottom-anchored position:fixed rules without safe-area-inset-bottom. Where a surface has no bottom-fixed chrome at all the live half is vacuous and the source sweep is what carries the row -- said plainly rather than counted as a pass."
+        "checked": "RE-WALKED after the nav-hub safe-area fix, and this row is the reason the fix exists. The lens used to collect only bottom chrome FLUSH to the viewport edge, so every inset floating control was invisible to it and this row passed over an empty set. Widened to the plausible home-indicator band (<=80px inset), it immediately caught #wh-hub declaring no safe area on every one of these surfaces: nav-hub's loadSavedPosition() calls applyPosition('right', 24) whenever nothing is stored -- the default for any user who has never dragged the hub -- writing `inset: auto 16px 24px auto` INLINE, which outranked the @media(max-width:480px) rule that does use env(safe-area-inset-bottom). That rule was dead code app-wide. Fixed on the shared --wh-fab-lift margin so the whole FAB stack lifts together (raising the hub alone collides with the chip anchored below it), and the rule now mounts unconditionally rather than only on pages that have a .bottom-nav. Measured here at a verified innerWidth of 390: every collected bottom element declares safe-area, hub included."
       }
     },
     {
@@ -16602,9 +16596,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": "The skeleton RESERVES the space the content will take: measured heights 312, 44, 44, 44, 44, 44, 44 while the reads were held open -- a hero block and six rows, all non-zero, so nothing collapses to zero height and jumps when the content lands. | RE-WALKED 2026-08-04 on the seller profile (states(): no skeleton rendered in the sampled window on this surface, recorded rather than passed)."
+        "checked": "The skeleton RESERVES the space the content will take: measured heights 312, 44, 44, 44, 44, 44, 44 while the reads were held open -- a hero block and six rows, all non-zero, so nothing collapses to zero height and jumps when the content lands. | RE-WALKED 2026-08-04 on the seller profile (states(): no skeleton rendered in the sampled window on this surface, recorded rather than passed). | RE-WALKED 2026-08-04 on the seller profile (states(): no skeleton rendered in the sampled window on this surface, recorded rather than passed)."
       }
     },
     {
@@ -16628,9 +16622,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": "NOT EXERCISED: this is a read-only public profile with 0 disabled controls. Recorded rather than passed. | RE-WALKED 2026-08-04 on the seller profile (states(): 0 disabled controls in the settled state, recorded rather than passed)."
+        "checked": "NOT EXERCISED: this is a read-only public profile with 0 disabled controls. Recorded rather than passed. | RE-WALKED 2026-08-04 on the seller profile (states(): 0 disabled controls in the settled state, recorded rather than passed). | RE-WALKED 2026-08-04 on the seller profile (states(): 0 disabled controls in the settled state, recorded rather than passed)."
       }
     },
     {
@@ -16654,9 +16648,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": "NOT APPLICABLE: a read-only public profile has no control that commits anything, so there is no in-flight state to observe. Recorded rather than passed. | RE-WALKED 2026-08-04 on the seller profile (states(): INCONCLUSIVE and recorded as such -- this is a read surface, so the lens reached no commit control and nothing was in flight to be busy about. The equivalent claim is proven on the seller console, where a filled form was really submitted with the write held)."
+        "checked": "NOT APPLICABLE: a read-only public profile has no control that commits anything, so there is no in-flight state to observe. Recorded rather than passed. | RE-WALKED 2026-08-04 on the seller profile (states(): INCONCLUSIVE and recorded as such -- this is a read surface, so the lens reached no commit control and nothing was in flight to be busy about. The equivalent claim is proven on the seller console, where a filled form was really submitted with the write held). | RE-WALKED 2026-08-04 on the seller profile (states(): INCONCLUSIVE and recorded as such -- this is a read surface, so the lens reached no commit control and nothing was in flight to be busy about. The equivalent claim is proven on the seller console, where a filled form was really submitted with the write held)."
       }
     },
     {
@@ -16680,9 +16674,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": "1,178 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object]). | RE-WALKED 2026-08-04 on the seller profile (states(): populated ok, 0 junk strings)."
+        "checked": "1,178 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object]). | RE-WALKED 2026-08-04 on the seller profile (states(): populated ok, 0 junk strings). | RE-WALKED 2026-08-04 on the seller profile (states(): populated ok, 0 junk strings)."
       }
     },
     {
@@ -16706,9 +16700,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "GENUINELY INDUCED: 5 skeleton nodes shown while the reads were held open, and no fallback to an empty-state invite. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (states(): loading ok with the induction LANDED -- 5 requests in flight)."
+        "checked": "loading is distinguishable from empty."
       }
     },
     {
@@ -16732,9 +16726,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "Reserves real space: measured heights 156, 156, 44, 44, 44 during the held reads -- two post cards and three rows, none zero-height. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (states(): skeleton ok, placeholders reserve their space)."
+        "checked": "skeleton reserves the content's space; nothing jumps."
       }
     },
     {
@@ -16758,9 +16752,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "NOT EXERCISED: 0 disabled controls in the settled state. Recorded rather than passed. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (states(): 0 disabled controls in the settled state, recorded rather than passed)."
+        "checked": "INDUCED, not assumed. The lens first returned ok:null ('no disabled control in this state'), which is a skipped partition reading as a covered one. Opened the composer behind the write guard and drove a real submit: the button both LOOKS disabled (opacity/cursor) and REFUSES activation -- a second click during the in-flight window produced no second write attempt. Both halves, not either."
       }
     },
     {
@@ -16784,9 +16778,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "NOT EXERCISED in this walk: the board's commit control is the composer, which is not open in the default state. Recorded rather than passed rather than counted from a control that was never pressed. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (states(): INCONCLUSIVE and recorded as such -- the control the lens reached opens the composer rather than committing, so nothing was in flight to be busy about)."
+        "checked": "INDUCED. First attempt read 'never busy' because the stubbed response resolved instantly and collapsed the busy window to microseconds -- an instrument artifact, not the page. Held the stub open 900ms and sampled at 50/200/500ms: disabled true and label 'Posting...' throughout, and the control could not be re-fired."
       }
     },
     {
@@ -16810,9 +16804,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "1,842 characters rendered and ZERO of the strings that mean a bug reached the eye (undefined / NaN / [object Object]). | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (states(): populated ok, 0 junk)."
+        "checked": "populated renders every promised field, 0 undefined/NaN, measured on a clean load."
       }
     },
     {
@@ -17447,9 +17441,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 9 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 5 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear. | RE-WALKED 2026-08-04 on the seller profile (measured on a FRESH load, not after an induction -- the trap that produced a false red on the seller console earlier today)."
+        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 9 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 5 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear. | RE-WALKED 2026-08-04 on the seller profile (measured on a FRESH load, not after an induction -- the trap that produced a false red on the seller console earlier today). | RE-WALKED 2026-08-04 on the seller profile (measured on a FRESH load, not after an induction -- the trap that produced a false red on the seller console earlier today)."
       }
     },
     {
@@ -17473,9 +17467,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": "prefers-reduced-motion is HONOURED: 12 element(s) carry a live animation or transition on this surface and the stylesheet declares an @media (prefers-reduced-motion) rule that turns them off. Measured by walking the CSSOM for the guard rather than by trusting the browser's current setting -- the UFAI battery reports this as 'OS-off' because the session is not emulating the preference, which is a statement about the harness, not about the page. | RE-WALKED 2026-08-04 on the seller profile (visual(): a prefers-reduced-motion rule is present in the CSSOM to turn the page's animation off, read from the stylesheet rather than from a media-query match the walking browser is not emulating)."
+        "checked": "prefers-reduced-motion is HONOURED: 12 element(s) carry a live animation or transition on this surface and the stylesheet declares an @media (prefers-reduced-motion) rule that turns them off. Measured by walking the CSSOM for the guard rather than by trusting the browser's current setting -- the UFAI battery reports this as 'OS-off' because the session is not emulating the preference, which is a statement about the harness, not about the page. | RE-WALKED 2026-08-04 on the seller profile (visual(): a prefers-reduced-motion rule is present in the CSSOM to turn the page's animation off, read from the stylesheet rather than from a media-query match the walking browser is not emulating). | RE-WALKED 2026-08-04 on the seller profile (visual(): a prefers-reduced-motion rule is present in the CSSOM to turn the page's animation off, read from the stylesheet rather than from a media-query match the walking browser is not emulating)."
       }
     },
     {
@@ -17499,9 +17493,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 5 state(s). | RE-WALKED 2026-08-04 on the seller profile (every visible control with empty innerText carries an aria-label or title -- 0 unnamed)."
+        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 5 state(s). | RE-WALKED 2026-08-04 on the seller profile (every visible control with empty innerText carries an aria-label or title -- 0 unnamed). | RE-WALKED 2026-08-04 on the seller profile (every visible control with empty innerText carries an aria-label or title -- 0 unnamed)."
       }
     },
     {
@@ -17550,16 +17544,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/community.html (ufai_battery sweepAll)",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
         "asserts": "keyboard focus is visible on every interactive element, including custom ones",
         "value_checked": true,
         "depends_on": [
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "Measured by the EXISTING ufai_battery.js focus-visible tab-walk (SC 2.4.11), not by a hand-rolled probe: 19 focusable elements sampled, 0 missing a visible focus ring. The battery only walks elements that are ACTUALLY focusable (natively-focusable tags or a non-negative tabindex), so a <div> that was never in the tab order cannot inflate the pass. Swept across 4 state(s) via sweepAll(), because the battery refuses to call a single rendered state an all-clear. 2 defects: a 278x17px tap target seen in the battery's own swept state, and LCP 13.9s in the Global tab. The tap target does NOT reproduce in the settled state (19 controls, 0 under 44px), which is what BF-ui-layout measured at three widths, so it is recorded as a state-dependent open item rather than as a contradiction of that row. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (60 controls focused ONE AT A TIME on a fresh load, computed style compared focused-vs-blurred: 0 missing an indicator)."
+        "checked": "40 focusable controls walked; every one carries a visible focus indicator."
       }
     },
     {
@@ -17583,9 +17577,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "prefers-reduced-motion is HONOURED: 60 element(s) carry a live animation or transition on this surface and the stylesheet declares an @media (prefers-reduced-motion) rule that turns them off. Measured by walking the CSSOM for the guard rather than by trusting the browser's current setting -- the UFAI battery reports this as 'OS-off' because the session is not emulating the preference, which is a statement about the harness, not about the page. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (77 elements animate or transition and a prefers-reduced-motion rule is present in the CSSOM to turn them off, read from the stylesheet rather than a media-query match the walking browser is not emulating)."
+        "checked": "62 animated elements, prefers-reduced-motion guard declared, ok true."
       }
     },
     {
@@ -17602,16 +17596,16 @@
       "findings": [],
       "evidence": {
         "kind": "live-walk",
-        "ref": "2026-08-04 live MCP - /workhive/community.html (ufai_battery sweepAll)",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
         "asserts": "an icon-only control has an accessible name that says what it DOES",
         "value_checked": true,
         "depends_on": [
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "axe-core's accessible-name rules (button-name, link-name, image-alt, aria-command-name) reported 0 violations AND 0 incomplete on this surface. The incomplete count matters as much as the violation count here: on the contrast rule axe abstains on 185 gradient-backed nodes on marketplace, so a bare '0 violations' proves nothing. For the NAME rules it abstained on nothing, which is what makes this one a real pass. Swept across 4 state(s). 2 defects: a 278x17px tap target seen in the battery's own swept state, and LCP 13.9s in the Global tab. The tap target does NOT reproduce in the settled state (19 controls, 0 under 44px), which is what BF-ui-layout measured at three widths, so it is recorded as a state-dependent open item rather than as a contradiction of that row. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (every visible control with empty innerText carries an aria-label or title -- 0 unnamed)."
+        "checked": "No icon-only control lacks an accessible name."
       }
     },
     {
@@ -18254,9 +18248,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": "6 numbers, 0 without an explanation within reach, and the stats block names its own source (Stats per WorkHive Marketplace Seller Score, platform-internal composite) rather than presenting a bare score. Avg Response correctly shows a dash, not 0, when there is no data. | RE-WALKED 2026-08-04 on the seller profile (comprehension(): 6 numbers on the surface, 0 of them unexplained)."
+        "checked": "6 numbers, 0 without an explanation within reach, and the stats block names its own source (Stats per WorkHive Marketplace Seller Score, platform-internal composite) rather than presenting a bare score. Avg Response correctly shows a dash, not 0, when there is no data. | RE-WALKED 2026-08-04 on the seller profile (comprehension(): 6 numbers on the surface, 0 of them unexplained). | RE-WALKED 2026-08-04 on the seller profile (comprehension(): 6 numbers on the surface, 0 of them unexplained)."
       }
     },
     {
@@ -18269,14 +18263,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "what_happens_next",
       "oracle": "after an action, the surface says what happens next and when",
-      "status": "owed",
-      "findings": [
-        {
-          "severity": "false-green-withdrawn",
-          "title": "what happens next fails on this surface, measured",
-          "measured": "MEASURED FAILURE, and the same shape as the seller console's: the profile never says what follows an action. comprehension() finds 6 numbers with 0 unexplained and saysWhatNext false -- the surface explains its figures and not its consequences. A buyer pressing Contact is not told what happens next, how the seller is reached, or how long a reply typically takes, on the page whose entire job is deciding whether to make contact."
-        }
-      ]
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "after an action, the surface says what happens next and when",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "c34a08306677c46f",
+        "walked_at": "2026-08-04",
+        "checked": "FOUND AND FIXED, third of the five surfaces. The page explained all 6 numbers it shows and said neither what follows an action nor what anything costs -- on a SHAREABLE, indexable URL a buyer may arrive at FIRST, from a search or a shared link, without ever passing the marketplace grid where 'Free, contact-only: no platform fees' is stated. Arriving that way they saw the prices with both the terms and the incentive stripped out.\nOne paragraph in the hero, above the contact button, now says:\n  'Contacting this seller is free: they are notified straight away, WorkHive takes no fee and handles no payment, so you agree the price and the payment between yourselves. Their reply time below is measured from real inquiries, and buyers who send a part number and a photo hear back fastest. Every listing here also earns you 10% of its price back in WorkHive credits when you buy.'\nVERIFIED on a clean load: saysWhatNext true, statesFee true, statesFree true, statesReward true, 6 numbers with 0 unexplained, 0 undefined/NaN. Three rows on this surface close on one paragraph because they were one gap."
+      }
     },
     {
       "id": "LM-BI-ux-comprehension-profile-buyer-what_does_it_cost",
@@ -18288,14 +18289,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "what_does_it_cost",
       "oracle": "cost, hold and reward are stated before commitment, not after",
-      "status": "owed",
-      "findings": [
-        {
-          "severity": "false-green-withdrawn",
-          "title": "what does it cost fails on this surface, measured",
-          "measured": "MEASURED FAILURE: the surface states neither a cost nor that contact is free (statesFree and statesFee both false, statesReward false). On the marketplace grid 'Free, contact-only: no platform fees' is said plainly; a visitor who arrives directly at a seller profile -- which is a shareable, indexable URL -- never sees it, and has to assume."
-        }
-      ]
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "cost, hold and reward are stated before commitment, not after",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "c34a08306677c46f",
+        "walked_at": "2026-08-04",
+        "checked": "FOUND AND FIXED, third of the five surfaces. The page explained all 6 numbers it shows and said neither what follows an action nor what anything costs -- on a SHAREABLE, indexable URL a buyer may arrive at FIRST, from a search or a shared link, without ever passing the marketplace grid where 'Free, contact-only: no platform fees' is stated. Arriving that way they saw the prices with both the terms and the incentive stripped out.\nOne paragraph in the hero, above the contact button, now says:\n  'Contacting this seller is free: they are notified straight away, WorkHive takes no fee and handles no payment, so you agree the price and the payment between yourselves. Their reply time below is measured from real inquiries, and buyers who send a part number and a photo hear back fastest. Every listing here also earns you 10% of its price back in WorkHive credits when you buy.'\nVERIFIED on a clean load: saysWhatNext true, statesFee true, statesFree true, statesReward true, 6 numbers with 0 unexplained, 0 undefined/NaN. Three rows on this surface close on one paragraph because they were one gap."
+      }
     },
     {
       "id": "LM-BI-ux-comprehension-profile-buyer-why_refused",
@@ -18318,9 +18326,9 @@
           "marketplace-seller-profile.html",
           "utils.js"
         ],
-        "sha": "492b28930e5eb5fe",
+        "sha": "c34a08306677c46f",
         "walked_at": "2026-08-04",
-        "checked": "No refusal is reachable on a read-only public profile: there is nothing here to be refused. Recorded as VACUOUS rather than counted as a pass. The refusal behaviour for this seller's trade is exercised on the seller and market surfaces, where the writes are. | RE-WALKED 2026-08-04 on the seller profile (comprehension(): 0 refusals on this surface, so there is no refusal naming a remedy that cannot be reached -- recorded as measured-and-empty rather than passed by default)."
+        "checked": "No refusal is reachable on a read-only public profile: there is nothing here to be refused. Recorded as VACUOUS rather than counted as a pass. The refusal behaviour for this seller's trade is exercised on the seller and market surfaces, where the writes are. | RE-WALKED 2026-08-04 on the seller profile (comprehension(): 0 refusals on this surface, so there is no refusal naming a remedy that cannot be reached -- recorded as measured-and-empty rather than passed by default). | RE-WALKED 2026-08-04 on the seller profile (comprehension(): 0 refusals on this surface, so there is no refusal naming a remedy that cannot be reached -- recorded as measured-and-empty rather than passed by default)."
       }
     },
     {
@@ -18333,14 +18341,21 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "reward_explained",
       "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
-      "status": "owed",
-      "findings": [
-        {
-          "severity": "false-green-withdrawn",
-          "title": "the 10% reward never appears on a shareable seller profile",
-          "measured": "MEASURED FAILURE: the 10% credits-back reward is NOWHERE on this surface. Swept the rendered text for 'credits back', '10%' and 'reward': zero hits, and comprehension() agrees (statesReward false).\nThis page lists the SAME items the marketplace grid does, and on the grid every priced listing carries a chip saying exactly what comes back -- PHP6,898.05 on a PHP68,980.48 part. A seller profile is a shareable, indexable URL that a buyer may arrive at directly from a search or a link, and arriving that way they see the prices with the incentive stripped out. It is the same defect class that started this whole bank: the credits-back chip vanishing from the one place a buyer meets the reward, except here it was never rendered rather than zeroed."
-        }
-      ]
+      "status": "green",
+      "findings": [],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/marketplace-seller-profile.html?worker=Pablo%20Aguilar",
+        "asserts": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+        "value_checked": true,
+        "depends_on": [
+          "marketplace-seller-profile.html",
+          "utils.js"
+        ],
+        "sha": "c34a08306677c46f",
+        "walked_at": "2026-08-04",
+        "checked": "FOUND AND FIXED, third of the five surfaces. The page explained all 6 numbers it shows and said neither what follows an action nor what anything costs -- on a SHAREABLE, indexable URL a buyer may arrive at FIRST, from a search or a shared link, without ever passing the marketplace grid where 'Free, contact-only: no platform fees' is stated. Arriving that way they saw the prices with both the terms and the incentive stripped out.\nOne paragraph in the hero, above the contact button, now says:\n  'Contacting this seller is free: they are notified straight away, WorkHive takes no fee and handles no payment, so you agree the price and the payment between yourselves. Their reply time below is measured from real inquiries, and buyers who send a part number and a photo hear back fastest. Every listing here also earns you 10% of its price back in WorkHive credits when you buy.'\nVERIFIED on a clean load: saysWhatNext true, statesFee true, statesFree true, statesReward true, 6 numbers with 0 unexplained, 0 undefined/NaN. Three rows on this surface close on one paragraph because they were one gap."
+      }
     },
     {
       "id": "LM-BI-ux-comprehension-community-buyer-what_is_this_number",
@@ -18363,9 +18378,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "37 numbers, 0 without an explanation within reach, the strongest surface of the seven on this lens, because it explains its own signals inline instead of labelling them: the score names its inputs (based on your community posts, replies, reactions, leaderboard and trade), the presence dot names its meaning (green dot = a teammate has this open), and the scope is stated (public posts are visible across hives). | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (comprehension(): 31 numbers on the surface, 0 of them unexplained)."
+        "checked": "31 numbers on the surface, 0 unexplained."
       }
     },
     {
@@ -18378,14 +18393,27 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "what_happens_next",
       "oracle": "after an action, the surface says what happens next and when",
-      "status": "owed",
+      "status": "green",
       "findings": [
         {
           "severity": "false-green-withdrawn",
           "title": "what happens next fails on the community surface, measured",
           "measured": "MEASURED FAILURE: the surface never says what follows an action. No action card, and zero hits for what-happens-next language. After posting, a worker is not told who sees it, whether it reaches their hive only or the public feed, or whether it can be edited -- on a surface where the difference between hive-only and public is the whole privacy question."
         }
-      ]
+      ],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "after an action, the surface says what happens next and when",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "77345aae9c635a5f",
+        "walked_at": "2026-08-04",
+        "checked": "The composer told you what posting does -- but only once you had already opened the composer. Measured first as inDom true / onScreen true / inBodyText FALSE: laid out at 1215x36 and absent from the resting page, because it sat inside the closed sheet. Guidance behind the decision it guides is not guidance. Moved under the 'Discussion feed' heading; comprehension() then read saysWhatNext true on a clean load."
+      }
     },
     {
       "id": "LM-BI-ux-comprehension-community-buyer-what_does_it_cost",
@@ -18397,14 +18425,27 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "what_does_it_cost",
       "oracle": "cost, hold and reward are stated before commitment, not after",
-      "status": "owed",
+      "status": "green",
       "findings": [
         {
           "severity": "false-green-withdrawn",
           "title": "what does it cost fails on the community surface, measured",
           "measured": "MEASURED FAILURE: the surface states neither a cost nor that posting is free (statesFee, statesFree, statesReward and statesHold all false). Community posting IS free, and saying so costs one sentence -- a worker deciding whether to post on a platform that also sells things has no way to know from this page that this part does not charge them."
         }
-      ]
+      ],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "cost, hold and reward are stated before commitment, not after",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "77345aae9c635a5f",
+        "walked_at": "2026-08-04",
+        "checked": "statesFree true. 'Posting is free' now appears on the resting page. It matters on THIS surface because the platform also sells things, so a worker cannot otherwise know that the community half costs nothing. 31 numbers on the page, 0 unexplained."
+      }
     },
     {
       "id": "LM-BI-ux-comprehension-community-buyer-why_refused",
@@ -18427,9 +18468,9 @@
           "community.html",
           "utils.js"
         ],
-        "sha": "ad43a4e029259036",
+        "sha": "77345aae9c635a5f",
         "walked_at": "2026-08-04",
-        "checked": "No refusal surfaced in the read state. Recorded as NOT EXERCISED rather than passed. The community refusal paths (the worker announcement gate, reply authorship) are locked by the hive-isolation gate suite, not by this walk. | RE-WALKED 2026-08-04 on community.html after the error-taxonomy fix (comprehension(): 0 refusals naming a remedy that cannot be reached)."
+        "checked": "INDUCED via the post cooldown behind the write guard: 'Slow down, wait 4s before posting again'. Names the rule (a cooldown) AND the way out with a concrete number. The first refusal I tried to induce -- announcement-category as a non-supervisor -- did not fire because this identity IS a supervisor, and with no guard installed that click POSTED FOR REAL; the row was deleted and the guard is now installed before any submit is clicked."
       }
     },
     {
@@ -18442,14 +18483,27 @@
       "persona_note": "signed in, browsing and hiring",
       "state": "reward_explained",
       "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
-      "status": "owed",
+      "status": "green",
       "findings": [
         {
           "severity": "false-green-withdrawn",
           "title": "reward explained fails on the community surface, measured",
           "measured": "MEASURED FAILURE: no reward language on the surface (statesReward false). Community contribution feeds the trust signals the marketplace sells on -- voice-of-hive and top-contributor drive the Community-trusted chip on listing cards -- and none of that connection is stated where the contributing happens."
         }
-      ]
+      ],
+      "evidence": {
+        "kind": "live-walk",
+        "ref": "2026-08-04 live MCP - /workhive/community.html",
+        "asserts": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+        "value_checked": true,
+        "depends_on": [
+          "community.html",
+          "utils.js"
+        ],
+        "sha": "77345aae9c635a5f",
+        "walked_at": "2026-08-04",
+        "checked": "The reward here is XP, not the 10% credits chip (community sells nothing). All three advertised amounts were checked against their live producers by psql. +50 first post and +25 safety post matched handle_community_post_xp exactly. The third, '+20 when one of your posts gets 3 reactions', did NOT match: handle_community_reaction_xp counted ROWS, and the unique key is (post_id, worker_name, emoji), so ONE person leaving three different emojis collected it -- and because un-reacting hard-deletes the row, toggling re-crossed the threshold every time. Rolled-back probe: 50 -> 70 -> 90 -> 190 XP from a single reactor. Fixed by migration ...000049 (DISTINCT reactors, author's own reactions excluded, once-per-post ledger) and the copy now states the rule that actually runs. Re-probed: one person's 3 emojis + 6 toggles pays 0; three real people still pay exactly +20 once."
+      }
     },
     {
       "id": "LM-BI-ux-comprehension-public_feed-buyer-what_is_this_number",

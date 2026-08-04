@@ -1168,21 +1168,51 @@
   // bottom-anchored fixed element while PRESERVING its bottom value + the stack's relative spacing.
   // Nav-hub owns this because it is the stack's orchestrator (on every page; lazy-loads the feedback
   // FAB, so the rule is injected once and applies to the FAB whenever it later mounts).
+  // SAFE AREA, added 2026-08-04 and folded into this same rule rather than living beside it.
+  // Measured live at a verified innerWidth of 390: #wh-hub computed `bottom: 24px` with
+  // `inset: auto 16px 24px auto` set INLINE, which beat the stylesheet rule two hundred lines up --
+  // `@media (max-width: 480px) { #wh-hub { bottom: max(16px, env(safe-area-inset-bottom)) } }`.
+  // The media query matched and the rule was in the CSSOM; it simply never won, because
+  // loadSavedPosition() calls applyPosition('right', 24) on EVERY load when nothing is stored, which
+  // is the default path for essentially every user. So the env() rule was dead code on every page,
+  // and on a notched phone the home indicator (~34px) covered the bottom of the FAB stack.
+  // The fix belongs HERE, on the shared margin, because margin-bottom raises a bottom-anchored fixed
+  // element while preserving the stack's relative spacing -- the same reason --wh-fab-lift works.
+  // Adding env() to the hub's own bottom instead would raise the hub past the chip anchored below it.
+  // Both terms live in one calc so the two lifts add rather than one overwriting the other, and the
+  // rule is injected UNCONDITIONALLY now: the home indicator exists whether or not the page has a
+  // bottom-nav, and the old early-return meant pages without one got no clearance at all.
+  // #wh-ai-widget, not #wh-ai-trigger. The trigger is `position: relative` inside the fixed
+  // #wh-ai-widget (bottom: 24px), so the margin was being applied one level too low: driving the
+  // lift to 34px moved the hub and the guide link by 34px but the AI trigger by only 24px,
+  // inverting their order and changing the gap by 10px. That is the collision this shared-lift
+  // mechanism exists to prevent -- it was simply invisible while the rule only ever mounted on
+  // pages that have a .bottom-nav. A lift has to land on the element that owns the `bottom`.
+  const FAB_STACK_SEL = '#wh-hub, .wh-conn-chip, .wh-conn-popover, .wh-fb-fab, #wh-guide-link, '
+    + '#wh-ai-widget, #fab, .wh-companion-trigger';
+
+  function ensureFabStackLiftStyle() {
+    if (document.getElementById('wh-fab-lift-style')) return;
+    const s = document.createElement('style');
+    s.id = 'wh-fab-lift-style';
+    s.textContent = FAB_STACK_SEL
+      + ' { margin-bottom: calc(var(--wh-fab-lift, 0px) + env(safe-area-inset-bottom)) !important; }'
+      // Belt and braces: if a stack member is ever nested inside another, it must not add a second
+      // lift on top of the one it already inherits from its moving ancestor.
+      + ' #wh-hub ' + FAB_STACK_SEL.split(', ').join(', #wh-hub ')
+      + ' { margin-bottom: 0 !important; }';
+    document.head.appendChild(s);
+  }
+
   function liftFabStackAboveBottomNav() {
     try {
+      ensureFabStackLiftStyle();   // safe-area clearance is owed regardless of any bottom-nav
       const nav = document.querySelector('.bottom-nav');
       if (!nav) return;
       const cs = getComputedStyle(nav);
       if (cs.position !== 'fixed' || cs.display === 'none' || (parseFloat(cs.bottom) || 0) >= 8) return;
       const lift = Math.round(nav.getBoundingClientRect().height) + 8;   // clear the bar + an 8px gap
       document.documentElement.style.setProperty('--wh-fab-lift', lift + 'px');
-      if (!document.getElementById('wh-fab-lift-style')) {
-        const s = document.createElement('style');
-        s.id = 'wh-fab-lift-style';
-        s.textContent = '#wh-hub, .wh-conn-chip, .wh-conn-popover, .wh-fb-fab, #wh-guide-link, '
-          + '#wh-ai-trigger, #fab, .wh-companion-trigger { margin-bottom: var(--wh-fab-lift, 0px) !important; }';
-        document.head.appendChild(s);
-      }
     } catch (_) { /* empty-catch-allow: best-effort stack lift */ }
   }
 
@@ -1194,6 +1224,10 @@
 
     hub.style.left   = side === 'left'  ? '16px' : 'auto';
     hub.style.right  = side === 'right' ? '16px' : 'auto';
+    // NOTE: this stays a plain px value ON PURPOSE. Raising the hub alone breaks the stack -- the
+    // conn-chip and friends are anchored relative to hub bottom:24px, so lifting one member makes it
+    // collide with the next (that regression is recorded above). The home-indicator clearance the
+    // hub needs is applied to the WHOLE stack uniformly in liftFabStack() below.
     hub.style.bottom = bottomPx + 'px';
     hub.style.top    = 'auto';
 

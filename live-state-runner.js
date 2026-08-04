@@ -57,8 +57,20 @@ const RPC_READONLY = new Set(('auth_worker_names,check_username_available,export
 const SUPA = /\/rest\/v1\/|\/functions\/v1\/|\/storage\/v1\//;
 const MUTV = /^(POST|PATCH|PUT|DELETE)$/i;
 const _verbOf = (i, x) => ((x && x.method) || (i && i.method) || 'GET').toUpperCase();
-const _stub = () => new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
-// Returns a synthetic response for any mutating call to Supabase, or null to let the caller proceed.
+const _stubResponse = () => new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
+// A GUARD THAT LEAKED THE WRITES IT REPORTED BLOCKING (found + fixed 2026-08-04).
+// This used to return the bare Response. fetch() returns a PROMISE of a Response, so a caller doing
+// the documented thing -- `const stub = blockWrite(i, x, sink); if (stub) return stub;` inside a
+// window.fetch wrapper -- handed supabase-js a Response where it expected a thenable. postgrest-js
+// then hit `TypeError: fetch(...).finally is not a function`, fell back to dynamically importing a
+// fetch polyfill, and RE-ISSUED THE POST FOR REAL. The write landed roughly 35 seconds later, long
+// after the walk had moved on, while `sink` cheerfully recorded it as blocked. Three probe rows
+// reached the shared community_posts table today under a guard that reported 1 blocked / 0 written;
+// each was found only by a delayed re-count and deleted by hand.
+// The lesson generalises past this file: a test double must satisfy the FULL contract of what it
+// replaces. Half a fetch is not a fetch, and the failure mode was not a visible error -- it was a
+// silent success somewhere else, later, which is the worst shape a guard can fail in.
+// Returns a Promise<Response> for any mutating call to Supabase, or null to let the caller proceed.
 // `sink` (optional) records what was stopped so a walk can prove the guard fired.
 export function blockWrite(i, x, sink) {
   const u = typeof i === 'string' ? i : (i && i.url) || '';
@@ -66,8 +78,10 @@ export function blockWrite(i, x, sink) {
   const rpc = u.match(/\/rest\/v1\/rpc\/([A-Za-z0-9_]+)/);
   if (rpc && RPC_READONLY.has(rpc[1])) return null;      // provably write-incapable; forward it
   if (sink) sink.push(_verbOf(i, x) + ' ' + u.replace(/^https?:\/\/[^/]+/, '').slice(0, 64));
-  return _stub();
+  return Promise.resolve(_stubResponse());
 }
+// Kept for the in-module callers that already wrap the value in their own Promise/timeout.
+const _stub = () => _stubResponse();
 const LONG = 'Emergency Switchgear Overhaul and Transformer Oil Regeneration for the Southern Tagalog Industrial Estate Incorporated';
 const BAYBAYIN = 'ᜋᜄᜈ᜔ᜆᜅ᜔ ᜃᜄᜋᜒᜆᜈ᜔ ᜐ ᜉᜎᜒᜃ';
 const ERR = /couldn['’]?t load|could not load|failed to load|unavailable|something went wrong|error/i;
@@ -837,11 +851,22 @@ export function layout(target) {
   // SAFE AREA. Fixed bottom chrome on a notched phone must clear the home indicator. The honest
   // check is whether the rule is EXPRESSED — env(safe-area-inset-bottom) resolves to 0 on this
   // desktop browser, so a measured gap of 0 here proves nothing either way.
+  // INSTRUMENT FIX 2026-08-04: this filter demanded `r.bottom >= innerHeight - 4`, i.e. chrome FLUSH
+  // against the viewport edge. That silently excluded the single most common piece of mobile bottom
+  // chrome — an inset floating action button. community.html's #fab-post sits at
+  // `bottom: calc(24px + env(safe-area-inset-bottom))`, so its rect bottom was 24px short of the edge
+  // and the lens collected NOTHING, returning bottomFixed: [] and passing safe_area vacuously. The
+  // page happened to be correct; an identical FAB with a bare `bottom: 24px` would have read exactly
+  // the same green. A lens that cannot see the element it is judging is not measuring the page.
+  // The band is now the plausible home-indicator zone: anything fixed and ending within 80px of the
+  // bottom is bottom chrome and owes an env() declaration. insetFromBottom is reported so a reader
+  // can see WHY each element qualified rather than trusting the band.
   const bottomFixed = [...document.querySelectorAll('*')].filter(el => {
     const cs = getComputedStyle(el);
     if (cs.position !== 'fixed' || !vis(el)) return false;
     const r = el.getBoundingClientRect();
-    return r.bottom >= window.innerHeight - 4 && r.height > 0 && r.height < window.innerHeight / 2;
+    const inset = window.innerHeight - r.bottom;
+    return inset >= -4 && inset <= 80 && r.height > 0 && r.height < window.innerHeight / 2;
   }).map(el => {
     const cs = getComputedStyle(el);
     // getComputedStyle RESOLVES env(), and on a desktop browser it resolves to 0 — so a sheet that
@@ -866,7 +891,9 @@ export function layout(target) {
         if (declaresSafeArea) break;
       }
     }
-    return { el: name(el), padBottom: cs.paddingBottom, declaresSafeArea };
+    const r = el.getBoundingClientRect();
+    return { el: name(el), padBottom: cs.paddingBottom, declaresSafeArea,
+             insetFromBottom: Math.round(window.innerHeight - r.bottom) };
   });
 
   const verifiedWidth = window.innerWidth;

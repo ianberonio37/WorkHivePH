@@ -440,6 +440,23 @@
       <!-- ── LEFT: Feed ── -->
       <div>
         <h2 class="wh-section-title" data-i="comm_feed_heading">Discussion feed</h2>
+
+        <!-- WHO SEES IT IS THE WHOLE QUESTION ON THIS PAGE. Measured 2026-08-04: this surface
+             explained all 31 numbers it shows and said neither what follows posting nor what it
+             costs. Where the difference between hive-only and public IS the privacy decision, that
+             silence is the one that matters -- and posting is free, which a worker on a platform
+             that also SELLS things cannot otherwise know.
+             This paragraph first shipped inside the composer, where it measured as present in the
+             DOM and laid out (rect 1215x36) yet absent from document.body.innerText: it only
+             existed once you had already decided to post. Guidance behind the decision it guides
+             is not guidance. It lives on the resting page now, under the heading, where the
+             question is actually being asked. -->
+        <p style="font-size:0.78rem; color:rgba(255,255,255,0.82); line-height:1.55; margin:-0.25rem 0 1rem; max-width:62ch;">
+          Posting is free. Your post appears in this hive's feed straight away and everyone in the
+          hive can see it; anyone you @mention is notified. You can edit or delete it afterwards,
+          and doing so updates what everyone sees. Helpful posts build the community-trust signal
+          that buyers see on your marketplace listings.
+        </p>
         <!-- Tabs (feed / mod queue) -->
         <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:1rem;">
           <button class="tab-btn active" id="tab-feed" onclick="switchTab('feed')" data-i="c_feed">Feed</button>
@@ -538,7 +555,14 @@
             <ul style="font-size:0.72rem; color:rgba(255,255,255,0.86); line-height:1.65; margin:0.5rem 0 0; padding-left:1.1rem;">
               <li><b>+50</b> for your first post: welcome to the hive</li>
               <li><b>+25</b> for a safety post: keeping the team safe matters</li>
-              <li><b>+20</b> when one of your posts gets 3 reactions: the team found it useful</li>
+              <!-- Was "+20 when one of your posts gets 3 reactions". Measured 2026-08-04: the
+                   trigger counted ROWS, and the unique key is (post_id, worker_name, emoji), so
+                   one person leaving three different emojis paid the award -- and because
+                   un-reacting hard-deletes the row, toggling it re-crossed the threshold every
+                   time (probe: 50 -> 70 -> 90 -> 190 XP from a single reactor). Migration
+                   ...000049 counts DISTINCT people, ignores the author's own reactions, and pays
+                   once per post via a ledger. The copy now states the rule that actually runs. -->
+              <li><b>+20</b> the first time three different people react to one of your posts: the team found it useful. Once per post, and your own reactions do not count.</li>
               <li><b>🐝 Voice of the Hive</b> badge at your 10th post</li>
             </ul>
             <p style="font-size:0.68rem; color:rgba(255,255,255,0.80); margin:0.5rem 0 0; line-height:1.5;">XP rewards real help, never logins, streaks, or giving reactions.</p>
@@ -619,6 +643,7 @@
       <div id="mention-dropdown" role="listbox" aria-label="Mention suggestions"></div>
     </div>
     <p id="post-char-count" style="text-align:right; font-size:0.7rem; color:rgba(255,255,255,0.80); margin:4px 0 1rem;">0 / 2000</p>
+
 
     <details class="wh-help" style="font-size:0.78rem; color:rgba(255,255,255,0.83);">
       <summary style="cursor:pointer; font-weight:600; color:rgba(255,255,255,0.85); list-style:none; display:flex; align-items:center; gap:6px; min-height:44px;">
@@ -2288,7 +2313,17 @@
   }
 
   // ── Realtime: presence ────────────────────────────────────────────────────────
+  // RE-ENTRY GUARD (2026-08-04). A channel is keyed by TOPIC inside supabase-js, so a second
+  // db.channel('hive-community-presence:<hive>') returns the SAME already-subscribed instance --
+  // and .on() after .subscribe() is illegal, so the second call throws
+  // "cannot add `presence` callbacks for realtime:... after `subscribe()`". Reproduced live by
+  // invoking startPresence() a second time: it threw synchronously, and in normal walking it
+  // surfaced as an unhandled rejection logged through whLogError, with presence left half-wired.
+  // "Start" is idempotent by name, so starting twice is a no-op rather than a re-subscribe.
+  // The same shape is guarded in startFeedChannel and startGlobalFeedChannel below -- all three
+  // were written identically, so all three carried the identical hole.
   function startPresence() {
+    if (presenceChannel) return;
     let connTimeout = setTimeout(() => setConn('offline'), 8000);
 
     presenceChannel = db.channel('hive-community-presence:' + HIVE_ID, {
@@ -2328,6 +2363,7 @@
 
   // ── Realtime: live feed ───────────────────────────────────────────────────────
   function startFeedChannel() {
+    if (feedChannel) return;   // see the re-entry note on startPresence
     feedChannel = db.channel('hive-community-feed:' + HIVE_ID)
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'community_posts',
@@ -2476,6 +2512,7 @@
   }
 
   function startGlobalFeedChannel() {
+    if (globalFeedChannel) return;   // see the re-entry note on startPresence
     globalFeedChannel = db.channel('community-global-feed')
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'community_posts',
