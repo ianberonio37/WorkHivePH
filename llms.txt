@@ -75,6 +75,8 @@ OEE (Overall Equipment Effectiveness), MTBF (Mean Time Between Failures), MTTR (
 - [How to start digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/): Cluster hub for going paperless on zero budget. Four ordered steps - digital logbook, ISO 14224 asset register, PM schedule, structured shift handover - with a 30-day rollout for one critical line. Preventive maintenance costs 3-9x less than the reactive repair it prevents.
 - [Philippine plant compliance: DOLE OSHS, LOTO and RA 11285](https://workhiveph.com/learn/ph-plant-compliance-guide/): Cluster hub for Philippine regulatory compliance. What DOLE OSHS (RA 11058 / DO 198-18, fines to PHP 100,000/day), lockout-tagout, and RA 11285 energy reporting actually require, and why a dated digital audit trail is what passes an inspection.
 
+- [How to reduce unplanned equipment downtime](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/): Four ordered steps with numbers: measure downtime by cause, fix the recurring few at root cause, hold PM compliance above the SMRP 90% benchmark, then monitor only the critical assets. Typical result 15-25% less unplanned downtime by month 18; preventive maintenance costs 3-9x less than the reactive repair it replaces.
+
 ## Comparisons and alternatives
 
 - [WorkHive vs UpKeep](https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/): Honest feature matrix and verdict. UpKeep wins on mature compliance workflows, integration catalogue and contractual support (~$20/user/month); WorkHive wins on zero seat cost, offline capture, Filipino/Taglish entry and Philippine compliance records.
@@ -86,6 +88,8 @@ OEE (Overall Equipment Effectiveness), MTBF (Mean Time Between Failures), MTTR (
 
 Every calculator below is a standalone page with the formula, a worked numeric example, and the standard it follows. Full index: [all 60 calculators](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/).
 
+- [OEE calculator](https://workhiveph.com/tools/oee-calculator/): Overall Equipment Effectiveness = Availability x Performance x Quality, with the arithmetic shown (0.90 x 0.95 x 0.98 = 83.8%; world-class 85%).
+- [MTBF and MTTR calculator](https://workhiveph.com/tools/mtbf-calculator/): MTBF = operating hours / failures, MTTR = repair time / repairs, Availability = MTBF/(MTBF+MTTR) — worked as 4000/5 = 800 h, 40/5 = 8 h, 99.0%.
 - [Pump TDH calculator](https://workhiveph.com/tools/pump-tdh-calculator/): total dynamic head and motor sizing for a pump (ISO 9906 / PSME).
 - [OEE-supporting bearing life (L10) calculator](https://workhiveph.com/tools/bearing-life-calculator/): rated bearing fatigue life in hours (ISO 281).
 - [HVAC cooling load calculator](https://workhiveph.com/tools/hvac-cooling-load-calculator/): cooling load in kW and tons of refrigeration (ASHRAE).
