@@ -237,42 +237,42 @@
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 139832
+          "offset": 139831
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 140775
+          "offset": 140774
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 142612
+          "offset": 142611
         },
         {
           "table": "community_replies",
           "allowed": false,
-          "offset": 142927
+          "offset": 142926
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 143621
+          "offset": 143620
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 144392
+          "offset": 144391
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 147381
+          "offset": 147380
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 147641
+          "offset": 147640
         }
       ],
       "drift": []

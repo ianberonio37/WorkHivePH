@@ -372,9 +372,16 @@ def build_docs(check_only: bool):
     skip = {"MEMORY.md"}
     # Index DURABLE knowledge docs (roadmaps/guides/strategy), NOT regenerable artifacts — a generated
     # report changes every miner run and would drift the chunk constantly (noise). Skip generated names.
+    # `promotion_queue` is generated but does not LOOK it, and that cost three release-gate cycles.
+    # The flywheel rewrites promotion_queue.md during the suite's own run — measured 2026-08-06, the
+    # suite left 16 tracked files modified, that one among them — and the substrate freshness gate
+    # runs afterwards, so the chunk anchored to it was always stale by the time it was checked. No
+    # amount of rebuilding beforehand could fix that: the run itself invalidated the rebuild. It is an
+    # OUTPUT, not a durable knowledge doc, which is exactly what this skip list is for; every other
+    # artifact the suite rewrites already matches on `_report` or `_manifest`.
     GEN = re.compile(r"(_report|_baseline|_manifest|_candidates|_map|_provenance|_ladder|_scorecard|"
                      r"_audit_report|canonical_registry|canonical_anchor|display_|column_terminus|"
-                     r"_terminus|_registry|_catalog|_results|content_substrate)", re.I)
+                     r"_terminus|_registry|_catalog|_results|content_substrate|promotion_queue)", re.I)
     files = sorted(p for p in ROOT.glob("*.md")
                    if p.name not in skip and p.stat().st_size > 400 and not GEN.search(p.name))
     w = sum(_toc_chunk(f, "doc", f"file:{f.name}", check_only, SUB / "doc") for f in files)

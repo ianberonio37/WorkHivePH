@@ -30,10 +30,25 @@ INSCOPE = {
     "voice_journal_entries", "worker_achievements", "worker_profiles",
 }
 
+# A LEADING UNDERSCORE AT ROOT MEANS "TRANSIENT FIXTURE", NEVER PRODUCT CODE.
+# Several validators prove their own teeth by WRITING a temporary file into ROOT and deleting it
+# again — `_r4b_selftest.js`, `_r4b_selftest.html`, `_r4b_v1_selftest.js` and friends. This gate globs
+# ROOT/*.html and ROOT/*.js, and the suite runs gates concurrently, so one of those fixtures can exist
+# for the moment this scan reads the directory. That is not hypothetical: it FAILED inside the release
+# gate three runs in a row while passing every standalone run, and the mechanism was reproduced
+# exactly — dropping one `_probe_selftest.js` containing an unattributed insert into ROOT turns this
+# gate red naming that file, and removing it turns it green again.
+# `-test` in the existing skip list does not catch them, because the fixtures spell it `_selftest`
+# with an underscore. Keying on the leading underscore is safe and checked: no ROOT product file
+# starts with one, and git tracks none.
+def _transient(p):
+    return p.name.startswith("_")
+
+
 def app_pages():
     skip = ("backup", "-test", "index-", "offline-fallback")
     for p in sorted(ROOT.glob("*.html")):
-        if any(s in p.name for s in skip):
+        if _transient(p) or any(s in p.name for s in skip):
             continue
         yield p
 
@@ -43,7 +58,7 @@ def page_scripts():
     P2/I-1 bug) was never caught. Scan root *.js too; skip minified vendor bundles + tools."""
     skip_sub = (".min.", "backup", "-test", "vendor")
     for p in sorted(ROOT.glob("*.js")):
-        if any(s in p.name for s in skip_sub):
+        if _transient(p) or any(s in p.name for s in skip_sub):
             continue
         yield p
 
