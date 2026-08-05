@@ -768,7 +768,14 @@ def _jsonld(data: dict, url: str) -> str:
            "operatingSystem": "Web", "url": url, "description": data["blurb"],
            "offers": {"@type": "Offer", "price": "0", "priceCurrency": "PHP"},
            "publisher": {"@type": "Organization", "name": "WorkHive", "url": SITE}}
-    return json.dumps({"@context": "https://schema.org", "@graph": [app, howto, faq]}, indent=2, ensure_ascii=False)
+    # The page renders a breadcrumb in HTML; without BreadcrumbList a crawler has to infer the
+    # hierarchy from markup position. Every /learn article declares one — these did not.
+    crumbs = {"@type": "BreadcrumbList", "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": SITE + "/"},
+        {"@type": "ListItem", "position": 2, "name": PILLAR[1], "item": SITE + PILLAR[0]},
+        {"@type": "ListItem", "position": 3, "name": data["title"], "item": url}]}
+    return json.dumps({"@context": "https://schema.org", "@graph": [app, howto, faq, crumbs]},
+                      indent=2, ensure_ascii=False)
 
 
 def _html_page(slug: str, data: dict) -> tuple[str, list]:
