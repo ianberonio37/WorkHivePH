@@ -2488,7 +2488,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           : _authExpired
           ? 'Your session expired, so the marketplace could not be read. Sign in again to continue. Nothing you did was lost.'
           : _accessDenied
-          ? 'This account does not have access to the marketplace listings. Your session is fine, so signing in again will not change it — ask a supervisor if you need access.'
+          ? 'This account does not have access to the marketplace listings. Your session is fine, so signing in again will not change it. Ask a supervisor if you need access.'
           : "Couldn't load listings. Check your connection and try again.", 'error');
       }
     }
@@ -2740,7 +2740,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             cash, on the screen where someone decides to contact a stranger and pay them off-platform,
             has to carry its own meaning rather than rely on a panel nobody opened. */''}
       ${creditsBack(item.price)
-        ? `<p style="font-size:0.7rem;color:var(--wh-text-muted);margin:-0.25rem 0 0.5rem;">Credits are spent on WorkHive services — they are not cash and cannot be withdrawn. You get them when the job settles.</p>`
+        ? `<p style="font-size:0.7rem;color:var(--wh-text-muted);margin:-0.25rem 0 0.5rem;">Credits are spent on WorkHive services. They are not cash and cannot be withdrawn. You get them when the job settles.</p>`
         : ''}
       <div class="detail-title">${e(item.title)}</div>
 
@@ -4625,7 +4625,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         slot.innerHTML = '<div style="font-size:0.76rem;opacity:0.9;display:flex;align-items:center;'
           + 'gap:0.4rem;flex-wrap:wrap;"><span aria-hidden="true">⚠</span><span>Couldn’t '
           + 'check who’s online right now, so this is unknown rather than nobody. You can still '
-          + 'send a request — it will reach providers when the connection is back.</span></div>';
+          + 'send a request. It will reach providers when the connection is back.</span></div>';
         return;
       }
       if (!data || !data.length) return;

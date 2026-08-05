@@ -2,7 +2,7 @@
 name: page-platform-actions
 type: page
 source: file:platform-actions.html
-source_sha: d592dd9e11feedba
+source_sha: 27113e971c8b2aff
 last_verified: 2026-07-13
 supersedes: null
 ---

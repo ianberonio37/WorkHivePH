@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:672-files
-source_sha: 489cb13b70c36a7d
+source_sha: 9c09d83ab16948d7
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -45,7 +45,7 @@ Entries (name · type · sha):
 - `feedback_a_silently_failed_edit_becomes_a_false_report` · feedback · 7975acad3596a373
 - `feedback_a_skipped_partition_reads_as_a_covered_one` · feedback · 7ed63cc64e09df23
 - `feedback_a_stranded_read_is_invisible_to_a_write_gate` · feedback · b077adcb12adc6cb
-- `feedback_a_teeth_test_left_a_poisoned_report` · feedback · e0f088a05b85f91d
+- `feedback_a_teeth_test_left_a_poisoned_report` · feedback · bdb6223db9e591d5
 - `feedback_a_test_asserting_a_state_it_does_not_control` · feedback · 1699da8f8a49120f
 - `feedback_a_timeout_that_does_not_kill_the_tree` · feedback · ad28cde6ddd29e48
 - `feedback_a_trust_claim_no_query_enforces` · feedback · 1dc78df3956fb47b

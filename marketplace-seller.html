@@ -775,7 +775,7 @@
     if (st === 403 || code === '42501') {
       _lastFailReason = 'This account does not have access to that. Your session is fine.';
       return 'This account does not have access to ' + what + '. Your session is fine, so signing in '
-             + 'again will not change it — ask a supervisor if you need access.';
+             + 'again will not change it. Ask a supervisor if you need access.';
     }
     return "Couldn't load " + what + '. Check your connection and retry.';
   }
@@ -2793,8 +2793,8 @@
        cheapest write is the one not made. Same shape as the no-change Save fixed on the listing form. */
     const _currentHandle = (_seller && _seller.messenger_username) || '';
     if ((raw || '') === _currentHandle) {
-      showToast(raw ? 'That is already your saved handle — nothing to change.'
-                    : 'No handle saved, and none entered — nothing to change.', 'info');
+      showToast(raw ? 'That is already your saved handle, so there is nothing to change.'
+                    : 'No handle saved, and none entered, so there is nothing to change.', 'info');
       return;
     }
 

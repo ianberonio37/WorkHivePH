@@ -1534,8 +1534,19 @@ function whIsAuthFailure(err) {
   var msg = String(err.message || '');
   if (status === '401') return true;
   if (status === '403') return false;          // authenticated, and refused. Not a session problem.
-  // A bare Postgres denial with no HTTP status attached is ambiguous. It reaches here from paths that
-  // never saw a response object, and historically meant a dead session, so it keeps that reading.
+  // 42501 IS NOT AMBIGUOUS, even with no HTTP status attached. Postgres raises it for
+  // insufficient_privilege, which by definition means the caller WAS identified and was refused; a
+  // dead session surfaces as PGRST301 / "JWT expired" instead. The comment above this regex says the
+  // 42501-tells-a-signed-in-person-to-sign-in bug "was fixed once on the inquiry path" and that "the
+  // shared helper kept the bug for every other path" — it still did, because the message that comes
+  // with a 42501 is "permission denied for table ...", which _WH_PG_DENIAL matches. Measured live
+  // 2026-08-06: whIsAuthFailure({code:'42501', message:'permission denied for table
+  // marketplace_sellers'}) returned TRUE and whReadError answered "Your session expired ... Sign in
+  // again", to someone whose session was perfectly healthy. They sign in again, and it changes
+  // nothing, because the thing simply is not theirs to see.
+  if (String((err && err.code) || '') === '42501') return false;
+  // Anything else with no status is genuinely ambiguous. It reaches here from paths that never saw a
+  // response object, and historically meant a dead session, so it keeps that reading.
   return _WH_PG_DENIAL.test(msg);
 }
 if (typeof window !== 'undefined') window.whIsAuthFailure = whIsAuthFailure;
@@ -1562,7 +1573,7 @@ function whWriteError(err, fallback) {
   if (whIsAccessDenied(err) && !(err && err.message && String(err.message).length <= 300
                                  && !_WH_RAW_PG.test(String(err.message)))) {
     return 'You are not allowed to do that with this account, so nothing was saved. Your session is '
-         + 'fine — ask a supervisor if you need this.';
+         + 'fine. Ask a supervisor if you need this.';
   }
   // A GUARD THAT TOOK THE TROUBLE TO EXPLAIN ITSELF MUST NOT BE REPLACED BY "TRY AGAIN". The reservation
   // guard says "Listing needs PHP50 credits held (10% of the price) and you have 0 available" — a seller
@@ -1603,7 +1614,7 @@ function whReadError(err, what) {
   // Authenticated, and refused. Naming the boundary is the whole point: "not visible with this
   // session" is a different fact from "nothing here", and neither of them is "sign in again".
   if (whIsAccessDenied(err)) {
-    return 'You do not have access to ' + thing + ' with this account. Your session is fine — ask a '
+    return 'You do not have access to ' + thing + ' with this account. Your session is fine. Ask a '
          + 'supervisor if you need it.';
   }
   if (st === 429 || code === '429' || /rate ?limit|too many/i.test(msg)) {

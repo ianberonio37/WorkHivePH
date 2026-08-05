@@ -396,7 +396,7 @@
       }
       if (st === 403 || code === '42501') {
         return 'This account is not allowed to load this queue. Your session is fine, so signing in '
-             + 'again will not change it — this queue needs moderator access.';
+             + 'again will not change it. This queue needs moderator access.';
       }
       return "Couldn't load this queue: " + raw;
     }
@@ -844,7 +844,7 @@
         // The busy state must not outlive the attempt. A stamp stuck on "Refreshing…" says the
         // console is working on it, which is the one thing that is definitely not true.
         console.error('refreshQueues failed:', err);
-        if (_sync) _sync.textContent = 'Could not refresh — press Refresh queues to try again';
+        if (_sync) _sync.textContent = 'Could not refresh. Press Refresh queues to try again';
       } finally {
         _boxes.forEach(b => b.removeAttribute('aria-busy'));
       }
