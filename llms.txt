@@ -75,6 +75,13 @@ OEE (Overall Equipment Effectiveness), MTBF (Mean Time Between Failures), MTTR (
 - [How to start digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/): Cluster hub for going paperless on zero budget. Four ordered steps - digital logbook, ISO 14224 asset register, PM schedule, structured shift handover - with a 30-day rollout for one critical line. Preventive maintenance costs 3-9x less than the reactive repair it prevents.
 - [Philippine plant compliance: DOLE OSHS, LOTO and RA 11285](https://workhiveph.com/learn/ph-plant-compliance-guide/): Cluster hub for Philippine regulatory compliance. What DOLE OSHS (RA 11058 / DO 198-18, fines to PHP 100,000/day), lockout-tagout, and RA 11285 energy reporting actually require, and why a dated digital audit trail is what passes an inspection.
 
+## Comparisons and alternatives
+
+- [WorkHive vs UpKeep](https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/): Honest feature matrix and verdict. UpKeep wins on mature compliance workflows, integration catalogue and contractual support (~$20/user/month); WorkHive wins on zero seat cost, offline capture, Filipino/Taglish entry and Philippine compliance records.
+- [WorkHive vs MaintainX](https://workhiveph.com/learn/workhive-vs-maintainx-comparison/): MaintainX leads on in-app messaging and native mobile polish (~$20/user/month, capped free tier); WorkHive is free at the worker tier and offline-first for plants with connectivity dead spots.
+- [Best free CMMS software for Philippine plants](https://workhiveph.com/learn/best-free-cmms-software-philippines/): What each free tier actually caps. Coast, MaintainX, Limble, Fiix and Maintenance Care are freemium funnels; WorkHive is free at the worker tier as its model. Includes published entry pricing for UpKeep, Fiix (~$45), eMaint (~$69) and Tractian (~$60).
+- [CMMS vs Excel spreadsheet for maintenance](https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/): When a spreadsheet is genuinely fine (one person, under ~50 assets) and the four failure modes that force a switch (single owner, no triggers, concurrent edits, no audit trail). Preventive maintenance costs 3-9x less than the reactive repair it prevents.
+
 ## Free calculators (no signup, work offline)
 
 Every calculator below is a standalone page with the formula, a worked numeric example, and the standard it follows. Full index: [all 58 calculators](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/).
