@@ -8,6 +8,10 @@ Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
 Disallow: /logbook.backup.html
 Disallow: /index-v3-test.html
+Disallow: /*.log$
+Disallow: /*_baseline.json$
+Disallow: /*_report.json$
+Disallow: /*-output.txt$
 
 # ── AI crawlers ───────────────────────────────────────────────────────────────
 # Explicit allow signals intent and helps AEO/GEO citation eligibility. Each vendor
@@ -34,6 +38,10 @@ Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
 Disallow: /logbook.backup.html
 Disallow: /index-v3-test.html
+Disallow: /*.log$
+Disallow: /*_baseline.json$
+Disallow: /*_report.json$
+Disallow: /*-output.txt$
 
 # Anthropic: three INDEPENDENT tokens (training / search index / user fetch).
 #   Anthropic also honours Crawl-delay on all three.
@@ -46,6 +54,10 @@ Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
 Disallow: /logbook.backup.html
 Disallow: /index-v3-test.html
+Disallow: /*.log$
+Disallow: /*_baseline.json$
+Disallow: /*_report.json$
+Disallow: /*-output.txt$
 
 # legacy Anthropic tokens, kept for older crawler builds
 User-agent: Claude-Web
@@ -56,6 +68,10 @@ Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
 Disallow: /logbook.backup.html
 Disallow: /index-v3-test.html
+Disallow: /*.log$
+Disallow: /*_baseline.json$
+Disallow: /*_report.json$
+Disallow: /*-output.txt$
 
 # Google: Google-Extended governs AI training use; Vertex grounding is separate
 User-agent: Google-Extended
@@ -66,6 +82,10 @@ Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
 Disallow: /logbook.backup.html
 Disallow: /index-v3-test.html
+Disallow: /*.log$
+Disallow: /*_baseline.json$
+Disallow: /*_report.json$
+Disallow: /*-output.txt$
 
 # Perplexity: retrieval + user-initiated fetch
 User-agent: PerplexityBot
@@ -76,6 +96,10 @@ Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
 Disallow: /logbook.backup.html
 Disallow: /index-v3-test.html
+Disallow: /*.log$
+Disallow: /*_baseline.json$
+Disallow: /*_report.json$
+Disallow: /*-output.txt$
 
 # Apple: Applebot crawls; Applebot-Extended only governs training use
 User-agent: Applebot
@@ -86,6 +110,10 @@ Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
 Disallow: /logbook.backup.html
 Disallow: /index-v3-test.html
+Disallow: /*.log$
+Disallow: /*_baseline.json$
+Disallow: /*_report.json$
+Disallow: /*-output.txt$
 
 # Common Crawl — feeds many downstream models
 User-agent: CCBot
@@ -95,6 +123,10 @@ Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
 Disallow: /logbook.backup.html
 Disallow: /index-v3-test.html
+Disallow: /*.log$
+Disallow: /*_baseline.json$
+Disallow: /*_report.json$
+Disallow: /*-output.txt$
 
 # Other answer engines / assistants
 User-agent: Bytespider
@@ -110,6 +142,10 @@ Disallow: /index.backup2.html
 Disallow: /checklist.backup.html
 Disallow: /logbook.backup.html
 Disallow: /index-v3-test.html
+Disallow: /*.log$
+Disallow: /*_baseline.json$
+Disallow: /*_report.json$
+Disallow: /*-output.txt$
 
 # NOTE: Cloudflare's "Block AI training bots" toggle OVERRIDES this file. It must stay on
 # "Do not block (allow crawlers)" with "Instruct AI bot traffic with robots.txt" selected,

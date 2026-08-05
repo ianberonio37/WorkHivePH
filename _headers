@@ -24,6 +24,22 @@
 /index-v3-test.html
   X-Robots-Tag: noindex, nofollow
 
+# Netlify publishes the repo root verbatim (publish = "."), so every gate baseline,
+# audit report and platform-check log in the root is reachable at workhiveph.com/<name>
+# — ~276 files, several over 70KB, whose text narrates internal architecture, table
+# names and security findings. These are not blocked at the edge because the internal
+# dashboards legitimately read a few (design-system.html reads *_baseline.json), so
+# this marks them unindexable rather than unreachable. robots.txt carries matching
+# Disallow rules. The real fix is excluding them from the publish step.
+/*.log
+  X-Robots-Tag: noindex, nofollow
+/*_baseline.json
+  X-Robots-Tag: noindex, nofollow
+/*_report.json
+  X-Robots-Tag: noindex, nofollow
+/*-output.txt
+  X-Robots-Tag: noindex, nofollow
+
 # Cache policy (Maturity Phase 2 — CA). HTML + the service worker must always
 # revalidate so a deploy is picked up immediately; the SW's CACHE_NAME bump is
 # the shell-invalidation mechanism. Static immutable media caches long.
