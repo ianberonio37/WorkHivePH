@@ -182,21 +182,54 @@ def db_credits_conserved():
 
 
 def db_no_orphan_ledger():
-    """A ledger row whose account does not exist is money attributed to nobody."""
+    """A ledger row whose account does not exist is money attributed to nobody.
+
+    TWO account kinds, resolved against DIFFERENT tables, which is the whole reason this cannot be one
+    join. A `provider` row's account_id is a `service_providers.id`; a `consumer` row's account_id is
+    an AUTH_UID — the person who was granted starter credits or paid cashback. Checking a consumer
+    against service_providers would report every consumer row as an orphan, and checking a provider
+    against auth.users would report every provider row as one.
+
+    Consumers resolve against `auth.users`, not `worker_profiles`: the ledger records who may SPEND
+    the credits, and that is the identity that can sign in. A worker_profiles row can be removed while
+    the auth user survives, and the credits would still be spendable — so auth.users is the honest
+    denominator for 'attributed to somebody'.
+
+    A THIRD account_type still FAILS this check rather than being waved through. That refusal is what
+    caught this: `consumer` appeared with the starter-grant migration and the check said it did not
+    know how to resolve it instead of quietly counting it as fine. Keep that property — the cost of a
+    loud unknown is one edit here; the cost of a silent one is money attributed to nobody.
+    """
+    KNOWN = ("provider", "consumer")
     total = one("select count(*) from service_credit_ledger")
+    unknown_kind = one("select count(*) from service_credit_ledger where account_type not in %s"
+                       % str(KNOWN))
+    if int(unknown_kind) > 0:
+        kinds = one("""select coalesce(string_agg(distinct account_type, ', '), '?')
+                         from service_credit_ledger where account_type not in %s""" % str(KNOWN))
+        return "fail", (f"{unknown_kind} ledger row(s) use account_type {kinds!r}, which this check "
+                        f"does not know how to resolve — extend it before trusting it")
     resolved = one("""
         select count(*) from service_credit_ledger l
          where (l.account_type = 'provider'
                 and exists (select 1 from service_providers p where p.id = l.account_id))
-            or l.account_type <> 'provider'""")
-    unknown_kind = one("""select count(*) from service_credit_ledger
-                           where account_type not in ('provider')""")
-    if int(unknown_kind) > 0:
-        return "fail", (f"{unknown_kind} ledger row(s) use an account_type this check does not know "
-                        f"how to resolve — extend the check before trusting it")
+            or (l.account_type = 'consumer'
+                and exists (select 1 from auth.users u where u.id = l.account_id))""")
     if int(resolved) != int(total):
-        return "fail", f"only {resolved} of {total} ledger rows resolve to a live account"
-    return "pass", f"all {total} ledger rows resolve to a live provider account"
+        orphans = one("""
+            select coalesce(string_agg(l.account_type || ':' || left(l.account_id::text, 8), ', '), '')
+              from service_credit_ledger l
+             where not ((l.account_type = 'provider'
+                         and exists (select 1 from service_providers p where p.id = l.account_id))
+                     or (l.account_type = 'consumer'
+                         and exists (select 1 from auth.users u where u.id = l.account_id)))""")
+        return "fail", (f"only {resolved} of {total} ledger rows resolve to a live account — "
+                        f"unresolved: {orphans}")
+    by_kind = one("""select coalesce(string_agg(k || ' ' || n, ', '), 'none')
+                       from (select account_type k, count(*)::text n from service_credit_ledger
+                              group by account_type order by 1) t""")
+    return "pass", (f"all {total} ledger rows resolve to a live account ({by_kind}) — providers "
+                    f"against service_providers, consumers against auth.users")
 
 
 def db_cap_respected():
