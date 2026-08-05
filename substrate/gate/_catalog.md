@@ -2,7 +2,7 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: d71dbcd39ccb32c6
+source_sha: 733e9d3d157c4ca8
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -674,7 +674,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `service-hailing-scoreboard` ⚡ [regression] — SERVICE_HAILING arc compass (forward-only ratchet over service_hailing_state.json). The P0-P9 phase table went green while three axes the roadmap ALSO names wer
 - `service-idempotency` [fail] — C14 (SERVICE_HAILING_ROADMAP §4b) once-only on the money/dispatch paths. The roadmap originally asked for an `Idempotency-Key` header contract; reading the code
 - `service-roadmap-executed` [regression] — SERVICE_HAILING itemized execution audit (Ian 2026-07-29: 'itemize everything written in the roadmap, then check one by one if we have executed it'). 85 concret
-- `service-role-exposure` ⚡ [fail] — Service-Role Key Exposure (4-layer: service_role identifier + JWT in client + secret env + anon-key inventory)
+- `service-role-exposure` ⚡ [fail] — Service-Role Key Exposure (5-layer: service_role identifier + JWT in client + secret env + anon-key inventory + JWT in the live DB catalog)
 - `service-state-machine` [fail] — SERVICE_HAILING C1 lock (LIVE, rolled-back psql as a runtime-resolved NON-admin worker — an admin identity legitimately bypasses every guard, so an admin-run su
 - `service-ufai-deep` [regression] — SERVICE_HAILING UFAI DEEP (LIVE browser): the verification ufai_pillar_map.py explicitly excludes from its coarse lens slice - measured 44px tap targets at 390,
 - `service-worker-shell` ⚡ [fail] — Service Worker SHELL_FILES (every precache path must exist; forward-only ratchet)

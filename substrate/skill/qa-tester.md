@@ -2,7 +2,7 @@
 name: skill-qa-tester
 type: skill
 source: skill:qa-tester
-source_sha: 70529cf0e6aeaf06
+source_sha: a0226c4b7dfa6565
 last_verified: 2026-07-13
 supersedes: null
 ---

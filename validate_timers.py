@@ -280,6 +280,14 @@ def check_pages_in_scope():
         # so flagging it standalone here is a false positive.
         if fname == "engineering-design.js":
             continue
+        # live-state-runner.js is the live-MCP WALK HARNESS, not a page. It sits in the web root so an
+        # MCP session can `import()` it, and MEASURED 2026-08-06: no HTML references it, it is not in
+        # the service-worker shell, and its single setInterval is a 100ms poll inside a probe, stored
+        # in a named handle and cleared by that probe. It cannot leak a timer for a user because no
+        # user's browser ever loads it. Scoping it as a live page would mean either a permanent false
+        # FAIL or padding LIVE_PAGES with a file no visitor fetches.
+        if fname == "live-state-runner.js":
+            continue
         if any(s in fname for s in ["-test", ".backup", "platform-health", "guardian",
                                      "parts-tracker", "symbol-gallery", "architecture"]):
             continue

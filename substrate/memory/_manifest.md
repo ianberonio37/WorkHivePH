@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:665-files
-source_sha: 43a324cdd2eeb55c
+source: memory-curated:671-files
+source_sha: 94dc6efb59f2b08b
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (665 durable topic files)
+## memory · curated auto-memory (671 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=286 · project=290 · reference=89
+**By type:** feedback=292 · project=290 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -22,12 +22,18 @@ Entries (name · type · sha):
 - `feedback_a_claim_must_name_what_it_rests_on` · feedback · 90937f8fd4a8ff60
 - `feedback_a_click_that_changes_nothing_logs_as_ok` · feedback · bbb54b4a275f0fd9
 - `feedback_a_config_change_froze_the_marketplace` · feedback · c121cc5285824442
+- `feedback_a_contrast_reading_needs_the_canvas_the_page_paints` · feedback · 9c6d99afad924b13
 - `feedback_a_crashlooping_sidecar_failed_26_tests` · feedback · 5d9635f833659a4e
+- `feedback_a_credential_lived_where_no_gate_looked` · feedback · 89ae2e7af003f369
 - `feedback_a_dead_fixture_invents_page_defects` · feedback · 4132e64aeb98e099
 - `feedback_a_declaration_is_not_a_registration` · feedback · 26077d77981fc728
+- `feedback_a_degraded_instrument_is_a_pivot_not_a_ceiling` · feedback · 6019f6569a1dfbd2
+- `feedback_a_demo_that_films_an_empty_state` · feedback · 7341c21a91abf999
 - `feedback_a_false_red_hides_which_cell_broke` · feedback · 38921d8dbd6c2b2f
+- `feedback_a_forced_choice_outlived_its_reason` · feedback · df2a5f116b8b1d29
 - `feedback_a_gate_reddened_because_the_code_improved` · feedback · 7e92f10d3882b6f5
 - `feedback_a_gate_that_exhausts_its_own_rate_budget` · feedback · 225cf26e51228b75
+- `feedback_a_hand_set_fixture_is_not_a_reachable_state` · feedback · d597a08046039864
 - `feedback_a_metamorphic_relation_needs_a_non_vacuity_check` · feedback · 3ef9b3ad98824df5
 - `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 2a14bd543da8cc63
 - `feedback_a_new_guard_breaks_the_triggers_that_already_write` · feedback · d3dfa188021986ae
@@ -510,12 +516,6 @@ Entries (name · type · sha):
 - `project_platform_guardian` · project · 99dc0a95ef5952d1
 - `project_platform_health_retired` · project · 4d84212fa49efefb
 - `project_platform_knowledge_substrate` · project · 3a0ee763068336d9
-- `project_platform_pack_tool` · project · e48ca839501f2f74
-- `project_platform_positioning` · project · 4f7002574cb43443
-- `project_platform_quality_loop` · project · 7b41aca36e15fc07
-- `project_pm_roadmap` · project · 4244056b88215f6b
-- `project_pm_scheduler_deep_arc` · project · f7006b3c0b1d87b9
-- `project_prod_push_prep_2026_07_06` · project · 8e9820f1faa5c85a
-- … +165 more (all included in the fingerprint)
+- … +171 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

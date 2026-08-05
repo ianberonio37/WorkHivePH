@@ -231,6 +231,12 @@ RESET_TABLES_NON_ID = {
     # 2026-05-26 P1 substrate: 4 new tables, none have an `id` PK.
     # 2026-08-03 credits: PK is auth_uid (one grant per person, ever), not `id`.
     "credit_starter_grants": ("auth_uid", "00000000-0000-0000-0000-000000000000"),
+    # 2026-08-04 (mig …049): the once-per-post XP award ledger that stopped a single person toggling one
+    # reaction from minting unbounded XP. PK is post_id, so it belongs here rather than RESET_TABLES.
+    # It MUST be cleared: leaving rows behind after a reset means a reseeded post is already recorded as
+    # having paid out, so the reaction that should award XP silently awards none — a seeded platform
+    # that looks right and behaves as though its XP had already been claimed.
+    "community_reaction_xp_awards": ("post_id", "00000000-0000-0000-0000-000000000000"),
     # THE TREASURY SINGLETON SURVIVES A RESET, deliberately. Row id=1 carries authorised_credits =
     # 10,000,000, which is the liability cap the whole economy rests on, and reset.py only ever DELETEs -
     # nothing here re-inserts it. Clearing it would leave a local stack with no cap until someone

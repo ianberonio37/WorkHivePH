@@ -125,7 +125,9 @@
   <!-- Gate: not signed in or not admin -->
   <div id="no-access-gate" class="gate" hidden>
     <h2>Platform Actions</h2>
-    <p>This surface is restricted to platform admins. If you should have access, ask the current admin to grant you via <code>marketplace_platform_admins</code>.</p>
+    <!-- The person who hits this screen is, by definition, NOT an admin — so a database table name is
+         the one thing they can do nothing with. Say who can let them in instead. -->
+    <p>This page is for platform admins only. If you think you should have access, ask an existing platform admin to add you.</p>
     <a href="index.html" class="btn">Back to WorkHive</a>
   </div>
   <div id="checking-gate" class="gate">Checking access…</div>

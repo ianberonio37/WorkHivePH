@@ -1,18 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:533
-source_sha: 84f8ecd5f91aeaa7
+source: dir:supabase/migrations:536
+source_sha: 86efbf9871096057
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (533 migrations)
+## migration · catalog (536 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260717000002_analytics_events_attribution_pin` — fns:bind_analytics_events_submitter · triggers:trg_bind_analytics_events_submitter
-- `20260717000003_community_reputation_membership_or_seller_gate` — fns:get_community_reputation,get_community_reputation_by_auth
-- `20260717000004_marketplace_sellers_authuid_hardening` — fns:get_seller_community_reputation
 - `20260717000005_pm_assets_updated_at_oc` — triggers:tg_pm_assets_touch_updated · tables:pm_assets
 - `20260717000006_marketplace_disputes_updated_at` — triggers:tg_marketplace_disputes_touch_updated · tables:marketplace_disputes
 - `20260717000007_anomaly_signals_forward_status` — fns:anomaly_signals_forward_only_status · triggers:tg_anomaly_signals_forward_status
@@ -210,6 +207,9 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260805000051_an_anonymous_visitor_could_run_the_nightly_sweep` — (misc DDL/DML)
 - `20260805000052_the_platforms_ai_spend_was_readable_by_strangers` — (misc DDL/DML)
 - `20260805000053_commission_took_credits_out_of_the_ledger_but_not_the_treasury` — fns:mint_settlement_commission
+- `20260805000054_a_commission_took_credits_the_provider_never_had` — fns:mint_settlement_commission
+- `20260805000055_three_settled_jobs_predate_the_payment_guard` — (misc DDL/DML)
+- `20260805000056_two_triggers_still_carried_the_service_role_key` — triggers:trg_embed_outbox_pm_completions,trg_embed_outbox_skill_badges
 
 (showing last 200)
 
