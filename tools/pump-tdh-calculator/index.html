@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pump TDH Calculator — Free Online + Worked Example | WorkHive</title>
-<meta name="description" content="Free pump TDH (total dynamic head) calculator with a worked example. Size a pump and motor from flow, static head, pipe, and fittings — ISO 9906 / PSME Code. Built for Philippine plants by WorkHive.">
+<meta name="description" content="The Pump TDH Calculator sizes a pump and motor from Total Dynamic Head (TDH) = static head + friction head + velocity head. Free online, with a worked example. Built for Philippine plants by WorkHive.">
 <link rel="canonical" href="https://workhiveph.com/tools/pump-tdh-calculator/">
 <meta property="og:title" content="Pump TDH Calculator | WorkHive">
-<meta property="og:description" content="Free pump TDH (total dynamic head) calculator with a worked example. Size a pump and motor from flow, static head, pipe, and fittings — ISO 9906 / PSME Code. Built for Philippine plants by WorkHive.">
+<meta property="og:description" content="The Pump TDH Calculator sizes a pump and motor from Total Dynamic Head (TDH) = static head + friction head + velocity head. Free online, with a worked example. Built for Philippine plants by WorkHive.">
 <meta property="og:url" content="https://workhiveph.com/tools/pump-tdh-calculator/">
 <meta property="og:type" content="website">
 <script type="application/ld+json">
@@ -20,7 +20,7 @@
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "Web",
       "url": "https://workhiveph.com/tools/pump-tdh-calculator/",
-      "description": "Free pump TDH (total dynamic head) calculator with a worked example. Size a pump and motor from flow, static head, pipe, and fittings — ISO 9906 / PSME Code. Built for Philippine plants by WorkHive.",
+      "description": "The Pump TDH Calculator sizes a pump and motor from Total Dynamic Head (TDH) = static head + friction head + velocity head.",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -39,27 +39,17 @@
         {
           "@type": "HowToStep",
           "position": 1,
-          "text": "Measure the required flow rate (L/min) and the vertical static lift (m)."
+          "text": "Enter your inputs (flow_rate, static_head, pipe_diameter, pipe_length, pipe_material...)."
         },
         {
           "@type": "HowToStep",
           "position": 2,
-          "text": "Record the pipe: diameter (mm), total length (m), and material (for roughness)."
+          "text": "The calculator computes Total Dynamic Head, Pipe velocity, Recommended motor, NPSH available per ISO 9906 | PSME Code | ASHRAE 2021 Ch.22."
         },
         {
           "@type": "HowToStep",
           "position": 3,
-          "text": "Compute friction head from Darcy–Weisbach + Colebrook–White (velocity, Reynolds number, friction factor)."
-        },
-        {
-          "@type": "HowToStep",
-          "position": 4,
-          "text": "Add static + friction + velocity head to get TDH (m)."
-        },
-        {
-          "@type": "HowToStep",
-          "position": 5,
-          "text": "Size the motor from hydraulic power ÷ pump efficiency ÷ motor efficiency, then round up to the next standard IEC/PEC size."
+          "text": "Read the worked example on this page to check the method, then run your own numbers in the interactive tool."
         }
       ]
     },
@@ -107,14 +97,13 @@
 <body>
   <main>
     <nav aria-label="Breadcrumb"><a href="/learn/free-engineering-calculators-philippine-plants/">Free Engineering Calculators for Philippine Plants</a> &rsaquo; Pump TDH Calculator</nav>
-    <h1>Pump Total Dynamic Head (TDH) Calculator</h1>
+    <h1>Pump TDH Calculator</h1>
 
-    <!-- answer-first: the worked-example stat AI cites -->
-    <p class="answer-first"><strong>To size a pump, calculate Total Dynamic Head (TDH) = static head + friction head + velocity head. For a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe, TDH ≈ 18.12 m at 1.54 m/s (standard velocity), needing about a 1.1 kW (1.5 HP) motor and NPSH available of 9.44 m (per ISO 9906 | PSME Code | ASHRAE 2021 Ch.22).</strong></p>
+    <p class="answer-first"><strong>The Pump TDH Calculator sizes a pump and motor from Total Dynamic Head (TDH) = static head + friction head + velocity head. Example: for a 200 L/min pump lifting water 15 m through 60 m of 50 mm PVC pipe, Total Dynamic Head = 18.12 m, Pipe velocity = 1.54 m/s, Recommended motor = 1.1 kW, NPSH available = 9.44 m (per ISO 9906 | PSME Code | ASHRAE 2021 Ch.22).</strong></p>
 
     <section aria-labelledby="formula">
-      <h2 id="formula">The formula</h2>
-      <p>TDH = H_static + H_friction + H_velocity, where friction head uses Darcy–Weisbach with the Colebrook–White friction factor and real water properties (density, viscosity) at the operating temperature.</p>
+      <h2 id="formula">How it works</h2>
+      <p>TDH = H_static + H_friction + H_velocity, where friction head uses Darcy–Weisbach with the Colebrook–White friction factor and real water properties at the operating temperature.</p>
     </section>
 
     <section aria-labelledby="worked">
@@ -123,25 +112,13 @@
       <table>
         <thead><tr><th>Result</th><th>Value</th></tr></thead>
         <tbody>
-          <tr><td>Total Dynamic Head (TDH)</td><td>18.12 m</td></tr>
-          <tr><td>Pipe velocity</td><td>1.54 m/s (Standard - acceptable)</td></tr>
-          <tr><td>Friction head</td><td>3.001 m</td></tr>
-          <tr><td>Recommended motor</td><td>1.1 kW (1.5 HP)</td></tr>
+          <tr><td>Total Dynamic Head</td><td>18.12 m</td></tr>
+          <tr><td>Pipe velocity</td><td>1.54 m/s</td></tr>
+          <tr><td>Recommended motor</td><td>1.1 kW</td></tr>
           <tr><td>NPSH available</td><td>9.44 m</td></tr>
         </tbody>
       </table>
-      <p><small>Computed with python/fluids+iapws; standard: ISO 9906 | PSME Code | ASHRAE 2021 Ch.22.</small></p>
-    </section>
-
-    <section aria-labelledby="howto">
-      <h2 id="howto">How to calculate it</h2>
-      <ol>
-        <li>Measure the required flow rate (L/min) and the vertical static lift (m).</li>
-        <li>Record the pipe: diameter (mm), total length (m), and material (for roughness).</li>
-        <li>Compute friction head from Darcy–Weisbach + Colebrook–White (velocity, Reynolds number, friction factor).</li>
-        <li>Add static + friction + velocity head to get TDH (m).</li>
-        <li>Size the motor from hydraulic power ÷ pump efficiency ÷ motor efficiency, then round up to the next standard IEC/PEC size.</li>
-      </ol>
+      <p><small>Computed live by WorkHive's calculation engine; standard: ISO 9906 | PSME Code | ASHRAE 2021 Ch.22.</small></p>
     </section>
 
     <section aria-labelledby="faq">
@@ -154,15 +131,15 @@
 
     <section aria-labelledby="try">
       <h2 id="try">Run it on your own numbers</h2>
-      <p><a href="/#/tools/engineering-design" class="cta">Open the interactive Pump TDH Calculator in WorkHive</a> — free, no sign-up needed for the calculators.</p>
+      <p><a href="/engineering-design.html" class="cta">Open the interactive Pump TDH Calculator in WorkHive</a> — free, no sign-up needed for the calculators.</p>
     </section>
 
     <section aria-labelledby="related">
-      <h2 id="related">Related</h2>
+      <h2 id="related">Related calculators</h2>
       <ul>
         <li><a href="/learn/free-engineering-calculators-philippine-plants/">Free Engineering Calculators for Philippine Plants</a> (pillar)</li>
         <li><a href="/tools/pipe-sizing-calculator/">Pipe Sizing Calculator</a></li>
-        <li><a href="/tools/duct-sizing-calculator/">Duct Sizing Calculator</a></li>
+        <li><a href="/tools/roof-drain-calculator/">Roof Drain Sizing Calculator</a></li>
         <li><a href="/learn/predictive-maintenance-on-a-budget-philippines/">Predictive maintenance on a budget</a></li>
       </ul>
     </section>
