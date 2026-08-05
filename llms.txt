@@ -104,6 +104,10 @@ Every calculator below is a standalone page with the formula, a worked numeric e
 - [Compressed air calculator](https://workhiveph.com/tools/compressed-air-calculator/): compressor kW/HP and air receiver size (ISO 1217).
 - [Boiler steam duty calculator](https://workhiveph.com/tools/boiler-steam-calculator/): boiler heat duty in kW and boiler HP (ASME BPVC I).
 
+## Markdown versions
+
+Every page on this site is also available as clean markdown at the same URL with `.md` appended — for a directory URL, append `index.html.md`. Example: `https://workhiveph.com/learn/what-is-oee-how-to-calculate/index.html.md`. The markdown carries the page's heading structure, tables, worked examples and links with none of the navigation, styling or scripts, so it costs roughly a third of the tokens to read.
+
 ## Contact
 
 For partnerships, press, association memberships, corrections, or general inquiries, email **admin@workhiveph.com**. The platform is operated by WorkHive Engineering Services (DTI Business Name Registration No. 8080496), founder Ian Lumayno Beronio.

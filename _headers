@@ -40,6 +40,19 @@
 /*-output.txt
   X-Robots-Tag: noindex, nofollow
 
+# Markdown twins (llms.txt convention): every page also exists at <page>.md as clean
+# markdown — 2.66MB of HTML across the site becomes 845KB, with no nav, no inline CSS
+# and no scripts for an agent to parse around. Served as text/markdown so a fetch gets
+# text rather than a download prompt.
+#
+# noindex is deliberate: these are an ALTERNATE REPRESENTATION of pages that are
+# already indexed, so leaving them indexable would enter 119 near-duplicates into
+# classic search competing with the canonical HTML. noindex does not stop an agent
+# fetching them, which is the entire point of the convention.
+/*.md
+  Content-Type: text/markdown; charset=utf-8
+  X-Robots-Tag: noindex
+
 # Cache policy (Maturity Phase 2 — CA). HTML + the service worker must always
 # revalidate so a deploy is picked up immediately; the SW's CACHE_NAME bump is
 # the shell-invalidation mechanism. Static immutable media caches long.
