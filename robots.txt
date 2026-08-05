@@ -11,7 +11,15 @@ Disallow: /index-v3-test.html
 
 # Explicit allow for known AI crawlers (signals intent, helps with AEO/GEO citation eligibility)
 # Sources: OpenAI, Anthropic, Google, Perplexity, Common Crawl public crawler docs (2026)
+#
+# Updated 2026-08-05. Each vendor runs SEPARATE tokens for training vs retrieval vs
+# user-initiated fetch, and they do NOT inherit from one another — a directive for
+# ClaudeBot says nothing about Claude-SearchBot. The retrieval/user tokens are the ones
+# that produce CITATIONS, so they matter most for AEO/GEO. Every bot is allowed here
+# deliberately: a blocked bot forfeits an estimated 18-34% of that engine's potential
+# citations (see substrate/external/external-robots-txt-for-ai-bots-blocking-cost-*).
 
+# — OpenAI: GPTBot=training, OAI-SearchBot=search index, ChatGPT-User=user-initiated
 User-agent: GPTBot
 Allow: /
 
@@ -21,9 +29,17 @@ Allow: /
 User-agent: ChatGPT-User
 Allow: /
 
+# — Anthropic: three INDEPENDENT tokens (training / search index / user fetch)
 User-agent: ClaudeBot
 Allow: /
 
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+# legacy Anthropic tokens, kept for older crawler builds
 User-agent: Claude-Web
 Allow: /
 
@@ -47,5 +63,41 @@ Allow: /
 
 User-agent: Applebot-Extended
 Allow: /
+
+# — Apple: Applebot is the crawler itself (Applebot-Extended only governs training use)
+User-agent: Applebot
+Allow: /
+
+# — Google Vertex / Gemini grounding
+User-agent: Google-CloudVertexBot
+Allow: /
+
+# — Meta AI
+User-agent: meta-externalagent
+Allow: /
+
+# — Amazon (Rufus / Alexa answers)
+User-agent: Amazonbot
+Allow: /
+
+# — DuckDuckGo AI answers (DuckAssist)
+User-agent: DuckAssistBot
+Allow: /
+
+# — Mistral (user-initiated fetch)
+User-agent: MistralAI-User
+Allow: /
+
+# — Cohere
+User-agent: cohere-ai
+Allow: /
+
+# — You.com
+User-agent: YouBot
+Allow: /
+
+# NOTE: Cloudflare's "Block AI training bots" toggle OVERRIDES this file. It must stay on
+# "Do not block (allow crawlers)" with "Instruct AI bot traffic with robots.txt" selected,
+# or every Allow above is silently ignored at the edge.
 
 Sitemap: https://workhiveph.com/sitemap.xml
