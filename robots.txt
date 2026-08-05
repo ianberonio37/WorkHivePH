@@ -28,9 +28,15 @@ Disallow: /*-output.txt$
 # stale backup copies of the homepage to precisely the engines we want citing the live
 # one. Add a bot here => copy the Disallow block with it.
 
-# OpenAI: GPTBot=training, OAI-SearchBot=search index, ChatGPT-User=user-initiated
+# OpenAI (verified against developers.openai.com/api/docs/bots, 2026-08-05):
+#   GPTBot        = trains foundation models
+#   OAI-SearchBot = surfaces sites in ChatGPT search results  <- the citation path
+#   OAI-AdsBot    = validates pages submitted as ChatGPT ads; NOT used for training
+#   ChatGPT-User  = user-initiated fetch. OpenAI states robots.txt rules MAY NOT
+#                   APPLY to it, since a person asked for the page directly.
 User-agent: GPTBot
 User-agent: OAI-SearchBot
+User-agent: OAI-AdsBot
 User-agent: ChatGPT-User
 Allow: /
 Disallow: /index.backup.html
@@ -44,7 +50,9 @@ Disallow: /*_report.json$
 Disallow: /*-output.txt$
 
 # Anthropic: three INDEPENDENT tokens (training / search index / user fetch).
-#   Anthropic also honours Crawl-delay on all three.
+#   Verified against support.claude.com article 8896518 (2026-08-05): all three
+#   honour robots.txt and support Crawl-delay. Claude-Web and anthropic-ai are
+#   NOT in Anthropic's current docs — kept below only for older crawler builds.
 User-agent: ClaudeBot
 User-agent: Claude-SearchBot
 User-agent: Claude-User
