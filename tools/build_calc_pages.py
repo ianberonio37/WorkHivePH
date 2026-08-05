@@ -753,15 +753,33 @@ def _siblings(slug: str, data: dict) -> list[tuple[str, str]]:
     return sibs[:2]
 
 
+def _steps(data: dict) -> list[str]:
+    """The HowTo steps — used by BOTH the JSON-LD and the rendered page.
+
+    Google's structured-data policy requires marked-up content to be VISIBLE on the page
+    [external-google-structured-data-general-guidelines-polici]. Emitting a HowTo whose
+    steps appear only in JSON-LD is a policy violation, and it was true of all 60 pages
+    until this was shared. Deriving both from one list makes divergence impossible.
+
+    The default wording deliberately avoids raw input keys (`cooling_load_kW`): variable
+    names are internal jargon and do not belong on the glass.
+    """
+    if data.get("steps"):
+        return list(data["steps"])
+    labels = ", ".join(l for l, *_ in data["headline"])
+    std = data.get("standard", "the applicable standard")
+    return [
+        f"Enter the figures for the duty you are sizing — the worked example below uses {data['example_desc']}.",
+        f"The calculator returns {labels}, computed per {std}.",
+        "Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.",
+    ]
+
+
 def _jsonld(data: dict, url: str) -> str:
     faqs = data.get("faqs") or _default_faqs(data)
     faq = {"@type": "FAQPage", "mainEntity": [
         {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faqs]}
-    steps = data.get("steps") or [
-        f"Enter your inputs ({', '.join(list(data['example_inputs'].keys())[:5])}...).",
-        f"The calculator computes {', '.join(l for l, *_ in data['headline'])} per {data.get('standard', 'the applicable standard')}.",
-        "Read the worked example on this page to check the method, then run your own numbers in the interactive tool.",
-    ]
+    steps = _steps(data)
     howto = {"@type": "HowTo", "name": f"How to use the {data['title']}",
              "step": [{"@type": "HowToStep", "position": i + 1, "text": s} for i, s in enumerate(steps)]}
     app = {"@type": "SoftwareApplication", "name": data["title"], "applicationCategory": "BusinessApplication",
@@ -791,6 +809,8 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
         f"          <tr><td>{e(l)}</td><td>{e(v)}{(' ' + e(u)) if u else ''}</td></tr>" for l, v, u in rows)
     faq_html = "\n".join(
         f'      <details class="faq"><summary>{e(q)}</summary><p>{e(a)}</p></details>' for q, a in faqs)
+    # same list the JSON-LD HowTo uses — rendered, so the markup describes visible content
+    steps_html = "\n".join(f"        <li>{e(x)}</li>" for x in _steps(data))
     sibs = data.get("siblings") or _siblings(slug, data)
     rel = data.get("related_article", PILLAR)
     sib_html = "\n".join(f'        <li><a href="{e(u)}">{e(t)}</a></li>' for u, t in sibs)
@@ -836,6 +856,13 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
         </tbody>
       </table>
       <p><small>Computed live by WorkHive's calculation engine; standard: {e(std)}.</small></p>
+    </section>
+
+    <section aria-labelledby="howto">
+      <h2 id="howto">How to use this calculator</h2>
+      <ol>
+{steps_html}
+      </ol>
     </section>
 
     <section aria-labelledby="faq">
