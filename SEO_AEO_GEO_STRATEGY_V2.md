@@ -165,7 +165,7 @@ V1 graded code it controlled. V2 grades **observed reality**. Honest starting tr
 
 | Axis | V1 (self-graded code) | V2 metric (observed) | Baseline | 90-day target |
 |---|---|---|---|---|
-| **Layer-A hygiene** | "SEO ~90" | Gates green + calc surface indexable + entity resolvable | 6 gates green; calc surface 0; entity 0 | 8 gates green; 58 calc pages live; entity resolved |
+| **Layer-A hygiene** | "SEO ~90" | Gates green + calc surface indexable + entity resolvable | ~~6 gates green; calc surface 0; entity 0~~ → **2026-08-05: 7 gates green + `calc-pages` added; 60 calc pages built + gated; entity still 0 (`sameAs` empty, needs live profile URLs)** | 8 gates green; calc surface live in prod; entity resolved |
 | **AEO (on-page answerability)** | "~55" | Answer-first + stat-rich + schema coverage across pillars | M1 done (5 articles) | all 8 pillars answer-first + stat-rich |
 | **GEO (earned citation share)** | "~32" | **Live SOV cited-rate** across 55×5 | **unmeasured → establish** | measurable SoM > 0, rising velocity |
 | **Off-site authority** | taxonomy only | brand mentions + Reddit/YouTube/G2 presence + entity | ~0 | entity resolved; Reddit 90/10 active; 3 long-form videos; G2 claimed |
@@ -176,11 +176,17 @@ V1 graded code it controlled. V2 grades **observed reality**. Honest starting tr
 
 ## 8. Execution sequence (what happens next, in order)
 
-1. **Entity layer first** (precondition for everything): Organization schema audit + `sameAs` targets + Wikidata draft + LinkedIn/Crunchbase/GitHub consistency. *(playbook §4.1)*
-2. **Programmatic calculator surface**: static-HTML `/tools/<calc>-calculator/` generator + template + schema + gate + sitemap; batch all 58. *(playbook §3, this doc §4.2)*
-3. **Pillar pages + cluster links**: build the ~8 missing pillar pages, wire cluster back-links, start the 3–20-position refresh queue. *(playbook §3.3)*
-4. **Off-site kickoff**: Reddit 90/10 presence, first long-form YouTube explainer, G2/Capterra claim, first linkable asset (PH OEE benchmark study). *(playbook §4)*
-5. **First live SOV baseline** (Ian-gated) → first real GEO number → recompute the scoreboard from observation.
+**Build log — 2026-08-05.** Steps 2 and 3 are BUILT and committed locally (gate-green, awaiting Ian's deploy). Step 1 is prepared to the limit of what is local. Steps 4 and 5 are Ian-only by nature.
+
+1. **Entity layer** (precondition for everything): **PREPARED** — `seo_assets/entity_layer_package.md` holds the Wikidata statements and the `sameAs` block; the homepage `sameAs` is still `[]` because it can only be filled with **live** profile URLs (a broken `sameAs` is worse than none). *Blocked on Ian creating LinkedIn / Crunchbase / GitHub; I wire it the moment the URLs exist.* *(playbook §4.1)*
+2. **Programmatic calculator surface**: **DONE** — `tools/build_calc_pages.py` emits **60** static pages (58 engine-backed, each running its real calc module at build time, plus OEE and MTBF/MTTR as precomputed KPI specs). Gated by `tools/validate_calc_pages.py`, registered in `run_platform_checks` as `calc-pages`, linked from the pillar hub and the sitemap. *(this doc §4.2)*
+3. **Pillar pages + cluster links**: **DONE** — three cluster hubs built (`maintenance-metrics-reliability-guide`, `start-digital-maintenance-guide`, `ph-plant-compliance-guide`) plus four comparison pages and the downtime problem-guide; 17 cluster articles now carry keyword-rich back-links to their pillar, so the clusters run in both directions. The 3–20-position refresh queue still needs GSC data to rank. *(playbook §3.3)*
+4. **Off-site kickoff**: **DRAFTED, Ian-gated** — Reddit 90/10 value-posts, three long-form YouTube briefs, and G2/Capterra profile copy are written in `seo_assets/offsite_kickoff_assets.md`. Posting must come from Ian's accounts; Reddit and G2 penalise automation. *(playbook §4)*
+5. **First live SOV baseline** (Ian-gated) → first real GEO number → recompute the scoreboard from observation. Template generated at `seo_assets/geo_sov_baseline_template.json` (55 queries × 5 engines); all 18 demand queries now have a page behind them, so the audit measures *citation*, not *absence of content*.
+
+**Also shipped 2026-08-05 (technical AEO):** `robots.txt` now names the retrieval bots that actually produce citations — `Claude-SearchBot` and `Claude-User` were missing entirely (they inherit nothing from `ClaudeBot`, which is training-only), alongside Applebot, Google-CloudVertexBot, meta-externalagent, Amazonbot, DuckAssistBot, MistralAI-User, cohere-ai and YouBot. A blocked bot forfeits an estimated 18–34% of that engine's citations. `llms.txt` was rebuilt: it advertised "30+ calculators" against 60 real ones and its `## Contact` heading sat mid-list, so ~20 pages parsed as contact information.
+
+**Post-deploy, do not forget:** run `python tools/indexnow_submit.py --submit` once the new pages are live — the sitemap grew 51 → 119 URLs and IndexNow single-sources from it. Running it before deploy would submit 404s.
 
 **Ian-gated inputs this unlocks** (the plan preps each so they become fill-in-the-blank): profile URLs + bio (`sameAs`/Person), registered address (optional LocalBusiness), GSC/Bing re-confirm, the live SOV run, and the outward off-site posting. Everything else is local and proceeds.
 
