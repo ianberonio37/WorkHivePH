@@ -74,7 +74,7 @@
           "name": "How much can unplanned downtime realistically be reduced?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Programmes that measure first, fix root causes, and hold PM compliance above 90% typically report a 15 to 25% reduction in unplanned downtime by month 18, with mature programmes reaching 35 to 50% against SMRP benchmarks."
+            "text": "Programmes that measure first, fix root causes, and hold PM compliance above 90% commonly report a 15 to 25% reduction in unplanned downtime by month 18, with mature programmes reaching 35 to 50%. Treat those as widely-reported industry ranges rather than a published standard — the figure that IS standardised is the SMRP PM-compliance benchmark of 90%."
           }
         },
         {
@@ -250,10 +250,10 @@
       <h4>On this page</h4>
       <ol>
           <li><a href="#why-it-persists">Why downtime persists in most plants</a></li>
-          <li><a href="#step-1-measure">Step 1 &amp;mdash; measure downtime by cause</a></li>
-          <li><a href="#step-2-root-cause">Step 2 &amp;mdash; fix the recurring few at root cause</a></li>
-          <li><a href="#step-3-pm-compliance">Step 3 &amp;mdash; hold PM compliance above 90%</a></li>
-          <li><a href="#step-4-condition-monitoring">Step 4 &amp;mdash; monitor the critical assets only</a></li>
+          <li><a href="#step-1-measure">Step 1 — measure downtime by cause</a></li>
+          <li><a href="#step-2-root-cause">Step 2 — fix the recurring few at root cause</a></li>
+          <li><a href="#step-3-pm-compliance">Step 3 — hold PM compliance above 90%</a></li>
+          <li><a href="#step-4-condition-monitoring">Step 4 — monitor the critical assets only</a></li>
           <li><a href="#what-to-expect">What to expect, and in what order</a></li>
           <li><a href="#faq">Frequently asked questions</a></li>
       </ol>
@@ -264,16 +264,16 @@
       <h2 id="why-it-persists">Why downtime persists in most plants</h2>
       <p>Unplanned downtime rarely persists because nobody is working hard. It persists because the work is aimed by memory rather than by data. The senior mechanic knows which machine is &ldquo;always a problem,&rdquo; so attention flows there &mdash; but nobody can say how many hours it actually cost last quarter, or whether it was one failure mode or six.</p><p>Three patterns keep it in place: failures get restored but never diagnosed, so the same one returns; preventive work slips quietly because nothing chases it; and the plant has no downtime record, so improvement cannot be proven and therefore cannot be funded.</p>
 
-      <h2 id="step-1-measure">Step 1 &amp;mdash; measure downtime by cause</h2>
+      <h2 id="step-1-measure">Step 1 — measure downtime by cause</h2>
       <p>You cannot Pareto what you have not recorded. Capture, for every stoppage: the asset, the start and end time, and the cause. That is enough to rank losses. The discipline that makes it survivable is capturing it <em>at the asset, when it happens</em> &mdash; see <a href="/learn/start-digital-logbook-philippine-factory/">how to start a digital logbook</a>.</p><p>After four weeks you will have a ranked list, and it is almost always lopsided: a small set of assets and failure modes accounts for most of the hours. That list is your work order for the next quarter. Track the result with the metrics in the <a href="/learn/maintenance-metrics-reliability-guide/">maintenance metrics guide</a>.</p>
 
-      <h2 id="step-2-root-cause">Step 2 &amp;mdash; fix the recurring few at root cause</h2>
+      <h2 id="step-2-root-cause">Step 2 — fix the recurring few at root cause</h2>
       <p>Restoring a machine is not the same as fixing it. For each top failure mode, ask what condition produced it: lubrication, alignment, contamination, operating outside design, or a deferred PM. <a href="/learn/fmea-worked-example-philippine-bottling-line/">FMEA</a> gives a structured way to rank by risk, and <a href="/learn/reliability-centered-maintenance-philippine-plants/">RCM</a> picks the right strategy per mode instead of applying the same PM to everything.</p><p>The test of a root-cause fix is simple: the interval to the next identical failure gets longer. If MTBF is flat, the cause was not addressed.</p>
 
-      <h2 id="step-3-pm-compliance">Step 3 &amp;mdash; hold PM compliance above 90%</h2>
-      <p>PM compliance is the leading indicator &mdash; it moves before MTBF does. The SMRP benchmark is at least <strong>90%</strong> of preventive tasks completed on or before their due date. Below that, the schedule is decorative.</p><p>Two rules make it stick: schedule work the crew can actually do (an over-ambitious plan produces 40% compliance and cynicism), and make overdue work visible to a named owner. Start from <a href="/learn/free-pm-checklist-templates/">free PM checklist templates</a> rather than a blank sheet.</p>
+      <h2 id="step-3-pm-compliance">Step 3 — hold PM compliance above 90%</h2>
+      <p>PM compliance is the leading indicator &mdash; it moves before MTBF does. The SMRP benchmark is at least <strong>90%</strong> of preventive tasks completed on time, and <strong>95%+</strong> for critical assets. &ldquo;On time&rdquo; has a precise definition worth knowing: completed by the due date plus 20% of the task's own frequency, capped at 28 days &mdash; so a monthly PM has roughly a six-day window, not a whole month. Below 80% the programme is not functioning; below 90% it is not protective.</p><p>Two rules make it stick: schedule work the crew can actually do (an over-ambitious plan produces 40% compliance and cynicism), and make overdue work visible to a named owner. Start from <a href="/learn/free-pm-checklist-templates/">free PM checklist templates</a> rather than a blank sheet.</p>
 
-      <h2 id="step-4-condition-monitoring">Step 4 &amp;mdash; monitor the critical assets only</h2>
+      <h2 id="step-4-condition-monitoring">Step 4 — monitor the critical assets only</h2>
       <p>Condition monitoring is where plants overspend first and benefit last. Applied to the critical few from step 1, it catches failures before they stop the line; applied everywhere, it produces alerts nobody reads.</p><p>Start at the cheapest tier that answers a real question &mdash; phone-based vibration screening and thermography cover a lot of ground before any sensor purchase. See <a href="/learn/predictive-maintenance-on-a-budget-philippines/">predictive maintenance on a budget</a> and set bands using <a href="/learn/predictive-alert-thresholds-plants/">ISO 10816 alert thresholds</a>.</p>
 
       <h2 id="what-to-expect">What to expect, and in what order</h2>
@@ -287,7 +287,7 @@
       </details>
       <details class="faq-item">
         <summary>How much can unplanned downtime realistically be reduced?</summary>
-        <div class="faq-answer">Programmes that measure first, fix root causes, and hold PM compliance above 90% typically report a 15 to 25% reduction in unplanned downtime by month 18, with mature programmes reaching 35 to 50% against SMRP benchmarks.</div>
+        <div class="faq-answer">Programmes that measure first, fix root causes, and hold PM compliance above 90% commonly report a 15 to 25% reduction in unplanned downtime by month 18, with mature programmes reaching 35 to 50%. Treat those as widely-reported industry ranges rather than a published standard — the figure that IS standardised is the SMRP PM-compliance benchmark of 90%.</div>
       </details>
       <details class="faq-item">
         <summary>Is preventive maintenance actually cheaper than fixing breakdowns?</summary>
@@ -304,7 +304,7 @@
 
       <h2 id="sources">Sources</h2>
       <ul>
-        <li>SMRP, <strong>Best Practices Metrics</strong> (PM compliance benchmark; downtime reduction ranges).</li>
+        <li>SMRP, <strong>Best Practices Metrics, 6th Edition</strong> — PM schedule compliance benchmark 90% (95%+ for critical assets); a PM counts as on time if completed by the due date + 20% of its frequency, capped at 28 days. Downtime-reduction ranges quoted here are widely-reported industry outcomes, not an SMRP-published figure.</li>
         <li>US Department of Energy / PNNL, <strong>Operations &amp; Maintenance Best Practices Guide, Release 3.0</strong> (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).</li>
         <li>ISO 14224, <strong>Reliability and maintenance data collection</strong>; ISO 10816-3 (vibration severity).</li>
         <li>Related: <a href="/learn/maintenance-metrics-reliability-guide/">Maintenance metrics guide</a> &middot; <a href="/learn/predictive-maintenance-on-a-budget-philippines/">Predictive maintenance on a budget</a>.</li>

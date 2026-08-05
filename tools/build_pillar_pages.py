@@ -21,6 +21,7 @@ RUN:  python tools/build_pillar_pages.py
 """
 from __future__ import annotations
 
+import re
 import html
 import json
 from pathlib import Path
@@ -146,7 +147,35 @@ def _jsonld(p: dict) -> str:
     return json.dumps({"@context": "https://schema.org", "@graph": graph}, indent=2, ensure_ascii=False)
 
 
+_ENTITY_RE = re.compile(r"&(?:[a-zA-Z][a-zA-Z0-9]{1,10}|#\d{2,5});")
+
+# Fields below are html.escape()d before they reach the page, so an HTML entity written
+# into one renders as LITERAL TEXT ("Step 1 &mdash; measure" instead of "Step 1 — measure").
+# Body `html` is NOT escaped, so entities there are correct — which is exactly why the
+# mistake is easy to make and invisible in the source. Caught live on the downtime guide
+# (8 occurrences). Fail loudly rather than ship it.
+_ESCAPED_FIELDS = ("title", "h1", "crumb", "pill", "description")
+
+
+def _assert_no_entities(p: dict) -> None:
+    bad = []
+    for f in _ESCAPED_FIELDS:
+        if isinstance(p.get(f), str) and _ENTITY_RE.search(p[f]):
+            bad.append(f"{f}={p[f]!r}")
+    for s in p.get("sections", []):
+        if _ENTITY_RE.search(s.get("h2", "")):
+            bad.append(f"section h2={s['h2']!r}")
+    for q, _a in p.get("faqs", []):
+        if _ENTITY_RE.search(q):
+            bad.append(f"faq question={q!r}")
+    if bad:
+        raise ValueError(
+            f"{p['slug']}: HTML entity in an escaped field — it will render as literal text. "
+            f"Use the character itself (— … ’). Offenders: " + "; ".join(bad))
+
+
 def _page(p: dict) -> str:
+    _assert_no_entities(p)
     e = html.escape
     url = f"{SITE}/learn/{p['slug']}/"
     toc = "\n".join(f'          <li><a href="#{s["id"]}">{e(s["h2"])}</a></li>' for s in p["sections"]) \
