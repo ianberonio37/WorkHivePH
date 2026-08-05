@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:672-files
-source_sha: 9c09d83ab16948d7
+source: memory-curated:674-files
+source_sha: 6c29dc55107858b3
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (672 durable topic files)
+## memory · curated auto-memory (674 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=293 · project=290 · reference=89
+**By type:** feedback=295 · project=290 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -71,6 +71,7 @@ Entries (name · type · sha):
 - `feedback_authuid_attribution_on_every_write` · feedback · a41d4a16653d03c5
 - `feedback_availability_was_write_once_so_supply_vanished` · feedback · 0f07c9881465ae4a
 - `feedback_axe_incomplete_is_a_false_100` · feedback · 1ee90dac3d5ad978
+- `feedback_banking_by_state_name_collapsed_distinct_oracles` · feedback · f032828a96ed114e
 - `feedback_banner_adoption_is_not_write_refusal` · feedback · 526d97dbdf5b1bdc
 - `feedback_be_proactive_flywheel` · feedback · d90540cf6e6308f8
 - `feedback_bge_local_false_ceiling_own_embedder` · feedback · 0ee89e886beab70e
@@ -189,6 +190,7 @@ Entries (name · type · sha):
 - `feedback_my_probe_crashed_the_db_not_the_product` · feedback · 7d7b2fd0f13f83de
 - `feedback_native_ui_approach` · feedback · b8163279e8813ae5
 - `feedback_nav_hub_two_tier` · feedback · 9f6aef5ce98db0d2
+- `feedback_never_compare_timestamps_across_two_clocks` · feedback · 348979dfdfca38bf
 - `feedback_never_git_checkout_uncommitted_work` · feedback · 46dbe3287f73d537
 - `feedback_never_write_probe_user_tokens` · feedback · f00a92bccbd5d1f5
 - `feedback_new_feature_playbook` · feedback · 8c4644e6e9b25441
@@ -514,8 +516,6 @@ Entries (name · type · sha):
 - `project_phase_a_safety_wiring_2026_05_21` · project · b0428c7f5d13dcdf
 - `project_plain_read_contract` · project · 1507dc4a3af8a6cb
 - `project_platform_alignment_arc` · project · a959a75de883d731
-- `project_platform_guardian` · project · 99dc0a95ef5952d1
-- `project_platform_health_retired` · project · 4d84212fa49efefb
-- … +172 more (all included in the fingerprint)
+- … +174 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

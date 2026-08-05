@@ -48,6 +48,55 @@
 
 ---
 
+# Production Deploy Runbook — release `709018ff` (2026-08-06)
+
+> **✅ DEPLOYED 2026-08-06 (executed by Claude on Ian's instruction "commit, deploy and push to production").**
+> Release commit **`709018ff`** (`da358bc9..709018ff`, **541 commits** — the whole local-only backlog since
+> the July release, including 13 from this session).
+>
+> - **Leg A — `db push` applied 141 migrations.** Prod was at `20260728000020`; it is now at
+>   `20260806000058`, and `migration list --linked` shows local and remote matching on every row. This
+>   was not a patch: it carried the **entire service-hailing feature** and the **credit economy**
+>   (wallets, treasury, commission, top-ups, cashback, tiers) plus ~20 security fixes. The migrations'
+>   own DO-block guards reported as they ran, and two are worth recording because they state facts
+>   about production rather than intentions:
+>   `mig 51` — *"revoked EXECUTE on 95 SECURITY DEFINER trigger functions"*;
+>   `mig 56` — *"no trigger carries a credential"*, which is what makes the service-role key rotation
+>   safe. `mig 55` reported *"reconstructed 0 payment row(s)"* — prod simply had no pre-guard settled
+>   jobs where local had 3. An honest zero, not a forced match.
+> - **Leg B — `functions deploy` deployed ALL 60 edge functions.** Not a selective deploy: `_shared`
+>   changed this cycle and every one of the 60 imports it, so a partial deploy would have left
+>   functions running against a stale tenancy helper. Two shipped at **version 1** for the first time —
+>   `gcash-receipt-inbound` and `gcash-receipt-ocr`, the receipt intake the credit economy needs.
+>   `notify-push` went 404 → 204 during the run, which is how its arrival was confirmed.
+> - **Leg C — frontend via Netlify auto-build from the push**, verified in the DEPLOYED BYTES rather
+>   than by a 200: community's announcement lock states why and releases the forced tick
+>   (`post-public-lock-why`, `ownChoice`); marketplace carries the read timeout; public-feed carries
+>   the what-happens-next line; `utils.js` carries the bare-42501 fix; the admin gate no longer prints
+>   `marketplace_platform_admins` at a locked-out person (count 0); `sw.js` = `workhive-shell-v233`.
+>   **Note for next time: production serves at the ROOT (`/marketplace.html`).** `/workhive/` is the
+>   LOCAL-only prefix — a first smoke pass 404'd on all four pages and nearly got reported as a broken
+>   deploy.
+> - **Post-deploy security verified AGAINST PRODUCTION, four checks, all pass:** anon/authenticated
+>   `TRUNCATE` grants in `public` = **0**; `credit_treasury` readable by anon = **0**; SECURITY DEFINER
+>   trigger functions executable by anon/authenticated = **0**; and `voice_journal_entries` returns
+>   **0 rows** to `set local role anon`. That last one first read as a FAIL from a structural check
+>   (anon holds broad SELECT/INSERT/UPDATE/DELETE grants on it) — the behavioural probe settled it,
+>   because all four of its policies require `auth.uid() IS NOT NULL AND auth.uid() = auth_uid`, so an
+>   anonymous caller fails the first conjunct. **A grant is not an exposure until RLS fails to refuse
+>   it** ([[feedback_banner_adoption_is_not_write_refusal]]).
+> - **⚠ STILL OPEN — rotate the exposed `service_role` key.** It has been public in `origin/master`
+>   since the April baseline (`20260420000000_baseline.sql`, 3 occurrences, decodes to
+>   `iss=supabase, ref=hzyvnjtisfgbksicrouu, role=service_role`) and it bypasses every RLS policy this
+>   release just tightened. Rotation is now **schema-safe**: mig 56 retired the two triggers that
+>   carried the key in their own definitions, and prod confirms no trigger, function, view or cron job
+>   holds a JWT — so rotating will not break the embedding writeback the way it would have before.
+>   Dashboard action, Ian's to take.
+> - **Not verified:** the Railway/Render-hosted `python-api` (same caveat as the July release — no
+>   in-repo config, no local creds).
+
+---
+
 # Production Deploy Runbook — release `7401c59` (2026-07-23) ← history
 
 > **✅ DEPLOYED 2026-07-23 (executed by Claude with Ian's live authorization "ok we commit deploy and push to production, we own it all").** Release commit **`7401c59`** (`1ff7193..7401c59`, fast-forwarded master, 9 commits + the 147-file working set: UFAI board→stable 100%, X2 interruption-resilience dim, 5 gate-regression fixes, accumulated arc work).
