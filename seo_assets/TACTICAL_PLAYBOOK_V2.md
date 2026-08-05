@@ -112,6 +112,8 @@ Every cluster page must link its pillar with keyword-rich anchor text; pillars 3
 
 `[external-content-refresh-cadence-topical-authority-freshn]` — once GSC is wired: rank all 45 articles by GSC position; **refresh positions 3–20 first** (fastest to page 1), pillars before clusters, add fresh stats/entities each pass, measure at 30/60/90 days. Until GSC data lands, refresh the 8 pillars on a rolling 30-day cycle so Perplexity always sees <30-day content.
 
+**Instrument (2026-08-05):** `python tools/content_freshness_gate.py` ranks the refresh queue by staleness x page value (pillar/comparison target 30d, article 90d, calculator 365d) and writes `content_freshness_report.json`. Advisory by design — a blocking gate here would push toward bumping `dateModified` without changing anything, which is the one thing that must never happen. **Still to register** in `run_platform_checks.py` as `content_freshness` (skip_if_fast: True, group "AI Validation", report `content_freshness_report.json`) once the concurrent session's edit to that file lands.
+
 ---
 
 ## §4 — Off-site authority (the 82–96%): named targets + cadence
