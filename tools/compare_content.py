@@ -21,7 +21,7 @@ name cases where a competitor is the better choice, because that is true and bec
 page that only flatters itself does not get cited.
 """
 
-_STAMP = "Published pricing and tiers as of August 2026, taken from vendor and directory listings; verify current terms with each vendor before deciding."
+_STAMP = "Published pricing and tiers as of August 2026, taken from vendor and directory listings; verify current terms with each vendor before deciding. This comparison is reviewed quarterly for pricing and feature accuracy."
 
 COMPARISONS = [
     # ── 1. vs UpKeep ─────────────────────────────────────────────────────────
@@ -49,7 +49,7 @@ COMPARISONS = [
             "summary: UpKeep is the more established product with the deeper enterprise feature "
             "set; WorkHive removes the per-seat cost and the connectivity assumption."),
         "sections": [
-            {"id": "matrix", "h2": "Feature matrix",
+            {"id": "matrix", "h2": "WorkHive vs UpKeep: feature and pricing comparison",
              "html": f"""<table><thead><tr><th>Attribute</th><th>WorkHive</th><th>UpKeep</th></tr></thead><tbody>
         <tr><td>Entry pricing</td><td>Free (worker tier)</td><td>~$20/user/month (published entry tier)</td></tr>
         <tr><td>Free tier</td><td>Yes — free at the worker tier, not time-limited</td><td>Freemium, feature-capped</td></tr>
@@ -61,20 +61,20 @@ COMPARISONS = [
         <tr><td>Integrations</td><td>SAP / Maximo patterns documented; smaller catalogue</td><td>Large third-party integration catalogue</td></tr>
         <tr><td>Best for</td><td>Small Philippine plants, zero budget, patchy wifi</td><td>Teams needing mature compliance workflows and vendor support</td></tr>
         </tbody></table><p><small>{_STAMP}</small></p>"""},
-            {"id": "where-upkeep-wins", "h2": "Where UpKeep is the better choice",
+            {"id": "where-upkeep-wins", "h2": "Where UpKeep is the better choice than WorkHive",
              "html": "<p>Being straight about this matters. UpKeep is a mature, well-resourced product, and there are real cases where it is the right buy:</p><ul>"
                      "<li><strong>You need vendor support with an SLA.</strong> UpKeep has a commercial support organisation you can escalate to. WorkHive is free, and support is best-effort by email.</li>"
                      "<li><strong>You need a broad integration catalogue out of the box.</strong> UpKeep connects to many third-party systems without custom work.</li>"
                      "<li><strong>You are standardising a multi-site enterprise</strong> with procurement, audit, and vendor-management requirements that go beyond maintenance execution.</li>"
                      "<li><strong>Your organisation requires a paid vendor relationship</strong> for compliance or accountability reasons — some do, and \"free\" can be a procurement obstacle rather than a benefit.</li></ul>"},
-            {"id": "where-workhive-wins", "h2": "Where WorkHive is the better choice",
+            {"id": "where-workhive-wins", "h2": "Where WorkHive is the better choice than UpKeep",
              "html": "<p>Equally straight in the other direction:</p><ul>"
                      "<li><strong>Cost per seat is the blocker.</strong> At ~$20/user/month, a 10-technician team is about $2,400/year before anything else. WorkHive is free at the worker tier, so cost does not scale with headcount.</li>"
                      "<li><strong>The plant floor has unreliable wifi.</strong> WorkHive is offline-first: entries are captured locally and sync when a connection returns. If capture waits for signal, it does not happen.</li>"
                      "<li><strong>Your team works in Filipino or Taglish.</strong> Voice-to-text capture in Tagalog/Taglish removes the \"I'll write it later\" failure mode. See <a href=\"/learn/voice-to-text-maintenance-philippine-plant-floor/\">voice-to-text on the plant floor</a>.</li>"
                      "<li><strong>You need Philippine compliance records</strong> — DOLE OSHS audit trails, LOTO permits, RA 11285 energy reporting. See the <a href=\"/learn/ph-plant-compliance-guide/\">PH plant compliance guide</a>.</li>"
                      "<li><strong>Your engineers also do design work.</strong> The <a href=\"/learn/free-engineering-calculators-philippine-plants/\">58 engineering calculators</a> are included, not a separate purchase.</li></ul>"},
-            {"id": "switching", "h2": "Switching, and running both",
+            {"id": "switching", "h2": "Switching from UpKeep, or running both together",
              "html": "<p>These are not mutually exclusive. A common pattern is to keep the incumbent system as the system of record for enterprise reporting while using WorkHive for floor-level capture where seats are expensive or connectivity is poor — the same coexistence pattern documented for <a href=\"/learn/connecting-workhive-to-sap-maximo-cmms/\">SAP and IBM Maximo</a>.</p>"
                      "<p>If you are starting from spreadsheets rather than switching, the ordered path is in <a href=\"/learn/start-digital-maintenance-guide/\">how to start digital maintenance</a>: logbook first, then asset register, then PM schedule, then handover.</p>"},
         ],
@@ -115,7 +115,7 @@ COMPARISONS = [
             "handle work orders, PM scheduling, and asset history competently; the deciding factors "
             "are usually cost per seat and connectivity."),
         "sections": [
-            {"id": "matrix", "h2": "Feature matrix",
+            {"id": "matrix", "h2": "WorkHive vs MaintainX: feature and pricing comparison",
              "html": f"""<table><thead><tr><th>Attribute</th><th>WorkHive</th><th>MaintainX</th></tr></thead><tbody>
         <tr><td>Entry pricing</td><td>Free (worker tier)</td><td>~$20/user/month (published entry tier)</td></tr>
         <tr><td>Free tier</td><td>Yes — free at the worker tier</td><td>Yes — feature-capped freemium</td></tr>
@@ -126,11 +126,11 @@ COMPARISONS = [
         <tr><td>Language</td><td>English, Filipino, Taglish (voice)</td><td>Multiple locales</td></tr>
         <tr><td>Best for</td><td>Zero-budget PH plants, poor connectivity</td><td>Teams prioritising mobile UX and messaging</td></tr>
         </tbody></table><p><small>{_STAMP}</small></p>"""},
-            {"id": "where-maintainx-wins", "h2": "Where MaintainX is the better choice",
+            {"id": "where-maintainx-wins", "h2": "Where MaintainX is the better choice than WorkHive",
              "html": "<ul><li><strong>In-app communication.</strong> MaintainX's messaging around work orders is genuinely best-in-class; if your team coordinates chat-first, that is a real advantage.</li>"
                      "<li><strong>Native mobile polish.</strong> A native app experience beats a browser PWA on ergonomics for heavy daily use.</li>"
                      "<li><strong>Procurement comfort.</strong> A funded vendor with support commitments is easier to justify in some organisations.</li></ul>"},
-            {"id": "where-workhive-wins", "h2": "Where WorkHive is the better choice",
+            {"id": "where-workhive-wins", "h2": "Where WorkHive is the better choice than MaintainX",
              "html": "<ul><li><strong>No per-seat cost.</strong> Free at the worker tier means adding technicians does not add cost — the opposite of per-seat pricing.</li>"
                      "<li><strong>Dead-spot capture.</strong> Offline-first is the difference between a record written at the asset and a record written from memory hours later.</li>"
                      "<li><strong>Filipino-language capture</strong> including Taglish voice-to-text.</li>"
@@ -171,7 +171,7 @@ COMPARISONS = [
             "enterprise depth and have budget, the paid products are more mature; if the binding "
             "constraint is cost per seat or plant-floor connectivity, start free and stay free."),
         "sections": [
-            {"id": "matrix", "h2": "The options compared",
+            {"id": "matrix", "h2": "Free and freemium CMMS options compared",
              "html": f"""<table><thead><tr><th>Product</th><th>Free tier</th><th>Paid entry</th><th>Best for</th></tr></thead><tbody>
         <tr><td><strong>WorkHive</strong></td><td>Free at worker tier (the model, not a funnel)</td><td>None at worker tier</td><td>Philippine plants, zero budget, offline floors</td></tr>
         <tr><td>Coast</td><td>Freemium</td><td>~$20/user/mo</td><td>Value for small teams, flexible workflows</td></tr>
@@ -182,7 +182,7 @@ COMPARISONS = [
         <tr><td>eMaint</td><td>No free tier</td><td>~$69/user/mo</td><td>Fluke condition-monitoring integration</td></tr>
         <tr><td>Tractian</td><td>No free tier</td><td>~$60/user/mo</td><td>AI predictive with sensor hardware</td></tr>
         </tbody></table><p><small>{_STAMP}</small></p>"""},
-            {"id": "freemium-trap", "h2": "What \"free\" usually means",
+            {"id": "freemium-trap", "h2": "What a free CMMS tier usually caps",
              "html": "<p>Read a free tier by what it <em>caps</em>, not what it advertises. The usual limits are the number of users, the number of assets or work orders, history retention, and whether reporting or PM automation is included at all. Those caps are deliberate: the free tier is the top of a sales funnel, and the cap is placed exactly where a growing plant will hit it.</p>"
                      "<p>That is not dishonest — it is a business model, and for a funded plant the paid product may well be worth it. But it means \"free CMMS\" and \"free forever for my whole crew\" are different questions. Ask specifically: how many users, how many assets, and what happens to my history if I stop paying?</p>"},
             {"id": "philippine-fit", "h2": "The Philippine-specific criteria most lists ignore",
@@ -191,7 +191,7 @@ COMPARISONS = [
                      "<li><strong>Language.</strong> Technicians who work in Filipino or Taglish record more, and more accurately, when they can capture in their own language.</li>"
                      "<li><strong>Local compliance.</strong> DOLE OSHS audit trails, LOTO permits, and RA 11285 energy reporting are what an inspector asks for — see the <a href=\"/learn/ph-plant-compliance-guide/\">compliance guide</a>.</li>"
                      "<li><strong>Cost in pesos per seat.</strong> $20/user/month is a different decision in a Philippine plant than in a US one.</li></ul>"},
-            {"id": "how-to-choose", "h2": "How to choose",
+            {"id": "how-to-choose", "h2": "How to choose a free CMMS for a Philippine plant",
              "html": "<p><strong>Choose a paid product if</strong> you need vendor support with an SLA, a broad integration catalogue, or multi-site enterprise reporting, and you have the budget for per-seat licensing.</p>"
                      "<p><strong>Choose WorkHive if</strong> cost per seat is the blocker, your floor has connectivity dead spots, your team works in Filipino/Taglish, or you need Philippine regulatory records. Start with the ordered rollout in <a href=\"/learn/start-digital-maintenance-guide/\">how to start digital maintenance</a>.</p>"
                      "<p><strong>Either way, do not stay on spreadsheets</strong> — that is the option with the highest hidden cost. See <a href=\"/learn/cmms-vs-excel-spreadsheet-maintenance/\">CMMS vs spreadsheet</a>.</p>"},
@@ -243,7 +243,7 @@ COMPARISONS = [
                      "<li><strong>No triggers.</strong> A due-date in a cell does not notify anyone. PM compliance quietly drops because nothing chases it — and PM compliance is the leading indicator that drives MTBF (see the <a href=\"/learn/maintenance-metrics-reliability-guide/\">metrics guide</a>).</li>"
                      "<li><strong>Concurrent edits.</strong> Two people editing means version conflicts, and the fix is usually \"send me the latest copy,\" which is how history diverges.</li>"
                      "<li><strong>No audit trail.</strong> A cell can be changed with no record of who changed it or when. That is exactly what a DOLE OSHS or ISO auditor is trying to verify — see <a href=\"/learn/ph-plant-compliance-guide/\">PH plant compliance</a>.</li></ol>"},
-            {"id": "matrix", "h2": "Side by side",
+            {"id": "matrix", "h2": "Spreadsheet vs CMMS: side-by-side comparison",
              "html": """<table><thead><tr><th>Attribute</th><th>Spreadsheet</th><th>CMMS</th></tr></thead><tbody>
         <tr><td>Cost</td><td>Effectively free</td><td>Free (WorkHive worker tier) to ~$20+/user/month</td></tr>
         <tr><td>Setup time</td><td>Minutes</td><td>Days to weeks</td></tr>
@@ -254,7 +254,7 @@ COMPARISONS = [
         <tr><td>Offline floor capture</td><td>Phone notes, retyped later</td><td>Direct capture (offline-first in WorkHive)</td></tr>
         <tr><td>Best for</td><td>One person, few assets, short horizon</td><td>Teams, PM discipline, audits, retained history</td></tr>
         </tbody></table>"""},
-            {"id": "migrating", "h2": "Migrating without pain",
+            {"id": "migrating", "h2": "Migrating from a spreadsheet to a CMMS",
              "html": "<p>Do not attempt a full-plant migration. The pattern that works is one critical line first: logbook in week 1, asset register in week 2, PM schedule in week 3, handover in week 4 — then expand. The full sequence is in <a href=\"/learn/start-digital-maintenance-guide/\">how to start digital maintenance</a>, and the asset hierarchy method is in <a href=\"/learn/building-asset-register-zero-budget/\">building an asset register on zero budget</a>.</p>"
                      "<p>Keep the spreadsheet running in parallel for the first month. It costs almost nothing and it removes the fear that stalls most rollouts.</p>"},
         ],

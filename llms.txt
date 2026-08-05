@@ -21,8 +21,7 @@ OEE (Overall Equipment Effectiveness), MTBF (Mean Time Between Failures), MTTR (
 
 - [Home](https://workhiveph.com/): Free industrial tools for every Filipino worker. Landing page with feature overview, Learn teaser, early-access signup, and FAQ.
 - [About](https://workhiveph.com/about/): About WorkHive Engineering Services (DTI 8080496). Founder Ian Lumayno Beronio. Mission, positioning, and contact.
-- [Privacy Policy](https://workhiveph.com/privacy-policy/): Philippine Data Privacy Act-compliant. No selling, no advertising tracking, AI provider terms, user rights.
-- [Terms of Service](https://workhiveph.com/terms-of-service/): Free at worker tier forever. User data ownership. AI suggestion verification disclaimers. Philippine governing law.
+
 - [Learn hub](https://workhiveph.com/learn/): Free guides on industrial maintenance for Philippine plants. Lists all published articles.
 - [How to start a digital logbook in a Philippine factory](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/): ~3500-word zero-budget rollout playbook for replacing paper logbooks. Covers Chronicle May 2026 ERP-failure analysis, 6 offline non-negotiables, 3-step 12-week rollout, SAP/Maximo/Excel coexistence, 6 pitfalls, AI/career-protection angle for Filipino workers, free-tools comparison, 7 FAQs.
 - [What is OEE and how do I calculate it?](https://workhiveph.com/learn/what-is-oee-how-to-calculate/): ~2700-word OEE explainer with worked Philippine chocolate-bar-line example. Covers Nakajima formula (A × P × Q), 6 big losses mapped to components, no-sensor measurement, world-class vs PH benchmarks, common calculation mistakes, 12-18 month path from 50 to 75 percent, 6 FAQs. Sources: Nakajima TPM, ISO 22400, SMRP, Chronicle.
@@ -108,6 +107,11 @@ Every calculator below is a standalone page with the formula, a worked numeric e
 ## Contact
 
 For partnerships, press, association memberships, corrections, or general inquiries, email **admin@workhiveph.com**. The platform is operated by WorkHive Engineering Services (DTI Business Name Registration No. 8080496), founder Ian Lumayno Beronio.
+
+## Optional
+
+- [Privacy Policy](https://workhiveph.com/privacy-policy/): Philippine Data Privacy Act-compliant. No selling, no advertising tracking, AI provider terms, user rights.
+- [Terms of Service](https://workhiveph.com/terms-of-service/): Free at worker tier forever. User data ownership. AI suggestion verification disclaimers. Philippine governing law.
 
 ## Notes for AI assistants
 
