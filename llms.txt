@@ -10,7 +10,7 @@ WorkHive is operated from the Philippines and serves the full Filipino industria
 - **PM scheduler** for preventive maintenance routes and overdue alerts
 - **Inventory management** for spare parts with FIFO tracking and reorder points
 - **Skill matrix** for tracking technician competencies and training gaps
-- **58 engineering design calculators** (each with its own page at /tools/<name>-calculator/, showing the formula plus a fully worked numeric example) covering electrical, mechanical, HVAC, plumbing, fire protection, boiler/utilities, and vertical-transport calculations referenced to Philippine and international standards (ISO 14224, ASHRAE 2021, SAE JA 1011, IEC 62305, NFPA 13)
+- **60 free calculator pages** (58 engine-backed plus OEE and MTBF/MTTR) (each with its own page at /tools/<name>-calculator/, showing the formula plus a fully worked numeric example) covering electrical, mechanical, HVAC, plumbing, fire protection, boiler/utilities, and vertical-transport calculations referenced to Philippine and international standards (ISO 14224, ASHRAE 2021, SAE JA 1011, IEC 62305, NFPA 13)
 - **AI work assistant** that answers maintenance questions in plain English or Filipino
 
 ## Key terms WorkHive covers
@@ -84,7 +84,7 @@ OEE (Overall Equipment Effectiveness), MTBF (Mean Time Between Failures), MTTR (
 
 ## Free calculators (no signup, work offline)
 
-Every calculator below is a standalone page with the formula, a worked numeric example, and the standard it follows. Full index: [all 58 calculators](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/).
+Every calculator below is a standalone page with the formula, a worked numeric example, and the standard it follows. Full index: [all 60 calculators](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/).
 
 - [Pump TDH calculator](https://workhiveph.com/tools/pump-tdh-calculator/): total dynamic head and motor sizing for a pump (ISO 9906 / PSME).
 - [OEE-supporting bearing life (L10) calculator](https://workhiveph.com/tools/bearing-life-calculator/): rated bearing fatigue life in hours (ISO 281).

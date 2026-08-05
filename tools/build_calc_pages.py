@@ -69,6 +69,52 @@ for _s in (sys.stdout, sys.stderr):
 #   related_article? (url, text),
 # }
 CALC_DATA: dict[str, dict] = {
+    # ── KPI head terms (no calc module — precomputed, see _run_calc) ──────────
+    "oee-calculator": {
+        "module": None, "title": "OEE Calculator", "discipline": "Reliability & Metrics",
+        "keyword": "OEE calculator online free",
+        "standard": "Nakajima TPM | ISO 22400-2",
+        "blurb": "The OEE Calculator computes Overall Equipment Effectiveness as Availability x Performance x Quality, the single number for how much saleable output a line actually produced versus its maximum.",
+        "example_inputs": {},
+        "computed": {"oee_pct": 83.8, "availability_pct": 90.0, "performance_pct": 95.0,
+                     "quality_pct": 98.0, "world_class_pct": 85.0,
+                     "standard": "Nakajima TPM | ISO 22400-2"},
+        "example_desc": "a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles",
+        "headline": [("OEE", "oee_pct", "%"), ("Availability", "availability_pct", "%"),
+                     ("Performance", "performance_pct", "%"), ("Quality", "quality_pct", "%"),
+                     ("World-class benchmark", "world_class_pct", "%")],
+        "formula": "OEE = Availability x Performance x Quality. Availability = run time / planned production time; Performance = (ideal cycle time x total count) / run time; Quality = good count / total count. For the example: 0.90 x 0.95 x 0.98 = 0.838, i.e. 83.8%.",
+        "faqs": [
+            ("How do you calculate OEE?", "Multiply the three factors: OEE = Availability x Performance x Quality. For a line available 90% of planned time, running at 95% of rated speed, and producing 98% good units, OEE = 0.90 x 0.95 x 0.98 = 83.8%."),
+            ("What is a good OEE score?", "85% is considered world-class. Most plants start between 40% and 60%, so there is usually a large and inexpensive gap to close — attack availability losses (unplanned downtime, changeovers) first, then speed, then quality."),
+            ("Why is my OEE lower than my availability?", "Because availability is only one of three factors. A line that is available 90% of the time but runs slow and scraps 5% of output lands near 80% OEE. Measuring availability alone is the most common OEE mistake."),
+            ("Do I need sensors to measure OEE?", "No. You can calculate OEE from shift records: planned time, downtime, counts produced, and rejects. A disciplined logbook is enough to start; sensors improve resolution later."),
+        ],
+        "related_article": ("/learn/what-is-oee-how-to-calculate/", "What is OEE and how to calculate it"),
+        "siblings": [("/tools/mtbf-calculator/", "MTBF & MTTR Calculator")],
+    },
+    "mtbf-calculator": {
+        "module": None, "title": "MTBF & MTTR Calculator", "discipline": "Reliability & Metrics",
+        "keyword": "MTBF and MTTR calculator",
+        "standard": "ISO 14224 | IEC 60050-192 | SMRP",
+        "blurb": "The MTBF & MTTR Calculator computes Mean Time Between Failures, Mean Time To Repair, and the availability they produce together.",
+        "example_inputs": {},
+        "computed": {"mtbf_h": 800.0, "mttr_h": 8.0, "availability_pct": 99.0,
+                     "operating_h": 4000.0, "failures": 5, "repair_h": 40.0,
+                     "standard": "ISO 14224 | IEC 60050-192 | SMRP"},
+        "example_desc": "a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total",
+        "headline": [("MTBF", "mtbf_h", "h"), ("MTTR", "mttr_h", "h"),
+                     ("Availability", "availability_pct", "%"), ("Failures", "failures", "")],
+        "formula": "MTBF = operating hours / number of failures. MTTR = total repair time / number of repairs. Availability = MTBF / (MTBF + MTTR). For the example: MTBF = 4000/5 = 800 h, MTTR = 40/5 = 8 h, Availability = 800/808 = 99.0%.",
+        "faqs": [
+            ("How do you calculate MTBF?", "Divide total operating hours by the number of failures in that period. A pump that ran 4,000 hours and failed 5 times has an MTBF of 800 hours."),
+            ("How do you calculate MTTR?", "Divide total repair time by the number of repairs. Five repairs totalling 40 hours gives an MTTR of 8 hours."),
+            ("What is the difference between MTBF and MTTR?", "MTBF measures reliability — how long the asset runs before failing. MTTR measures maintainability — how long it takes to restore. You raise MTBF with better preventive maintenance and root-cause fixes; you lower MTTR with spares availability and standard work."),
+            ("How do MTBF and MTTR give availability?", "Availability = MTBF / (MTBF + MTTR). With MTBF 800 h and MTTR 8 h, availability is 99.0%. That figure is also what feeds the availability factor inside OEE."),
+        ],
+        "related_article": ("/learn/mtbf-vs-mttr-for-supervisors/", "MTBF vs MTTR for supervisors"),
+        "siblings": [("/tools/oee-calculator/", "OEE Calculator")],
+    },
     "pump-tdh-calculator": {
         "module": "pump_tdh", "title": "Pump TDH Calculator", "discipline": "Plumbing & Pumps",
         "keyword": "pump total dynamic head calculator",
@@ -631,6 +677,18 @@ CALC_DATA: dict[str, dict] = {
 
 
 def _run_calc(data: dict) -> dict:
+    """Return the worked-example result dict.
+
+    Normally this IMPORTS the real calc module and runs it, so the numbers on the page
+    are the engine's own output and cannot drift from the product. A few high-demand
+    head terms (OEE, MTBF/MTTR) are KPIs computed inside the analytics surface rather
+    than standalone modules in python-api/calcs, so those specs carry `module: None`
+    plus a `computed` dict whose values are hand-derived from the published formula and
+    stated in full on the page. Everything downstream (template, schema, gate) is
+    identical either way.
+    """
+    if not data.get("module"):
+        return dict(data["computed"])
     mod = importlib.import_module(f"calcs.{data['module']}")
     return mod.calculate(dict(data["example_inputs"]))
 

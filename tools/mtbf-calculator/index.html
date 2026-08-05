@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MTBF &amp; MTTR Calculator — Free Online + Worked Example | WorkHive</title>
+<meta name="description" content="The MTBF &amp; MTTR Calculator computes Mean Time Between Failures, Mean Time To Repair, and the availability they produce together. Free online, with a worked example. Built for Philippine plants by WorkHive.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://workhiveph.com/tools/mtbf-calculator/">
+<meta property="og:title" content="MTBF &amp; MTTR Calculator | WorkHive">
+<meta property="og:description" content="The MTBF &amp; MTTR Calculator computes Mean Time Between Failures, Mean Time To Repair, and the availability they produce together. Free online, with a worked example. Built for Philippine plants by WorkHive.">
+<meta property="og:url" content="https://workhiveph.com/tools/mtbf-calculator/">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "MTBF & MTTR Calculator",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "url": "https://workhiveph.com/tools/mtbf-calculator/",
+      "description": "The MTBF & MTTR Calculator computes Mean Time Between Failures, Mean Time To Repair, and the availability they produce together.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "PHP"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "WorkHive",
+        "url": "https://workhiveph.com"
+      }
+    },
+    {
+      "@type": "HowTo",
+      "name": "How to use the MTBF & MTTR Calculator",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "text": "Enter your inputs (...)."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "text": "The calculator computes MTBF, MTTR, Availability, Failures per ISO 14224 | IEC 60050-192 | SMRP."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "text": "Read the worked example on this page to check the method, then run your own numbers in the interactive tool."
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do you calculate MTBF?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Divide total operating hours by the number of failures in that period. A pump that ran 4,000 hours and failed 5 times has an MTBF of 800 hours."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you calculate MTTR?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Divide total repair time by the number of repairs. Five repairs totalling 40 hours gives an MTTR of 8 hours."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the difference between MTBF and MTTR?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "MTBF measures reliability — how long the asset runs before failing. MTTR measures maintainability — how long it takes to restore. You raise MTBF with better preventive maintenance and root-cause fixes; you lower MTTR with spares availability and standard work."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do MTBF and MTTR give availability?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Availability = MTBF / (MTBF + MTTR). With MTBF 800 h and MTTR 8 h, availability is 99.0%. That figure is also what feeds the availability factor inside OEE."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+  <main>
+    <nav aria-label="Breadcrumb"><a href="/learn/free-engineering-calculators-philippine-plants/">Free Engineering Calculators for Philippine Plants</a> &rsaquo; MTBF &amp; MTTR Calculator</nav>
+    <h1>MTBF &amp; MTTR Calculator</h1>
+
+    <p class="answer-first"><strong>The MTBF &amp; MTTR Calculator computes Mean Time Between Failures, Mean Time To Repair, and the availability they produce together. Example: for a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total, MTBF = 800 h, MTTR = 8 h, Availability = 99 %, Failures = 5 (per ISO 14224 | IEC 60050-192 | SMRP).</strong></p>
+
+    <section aria-labelledby="formula">
+      <h2 id="formula">How it works</h2>
+      <p>MTBF = operating hours / number of failures. MTTR = total repair time / number of repairs. Availability = MTBF / (MTBF + MTTR). For the example: MTBF = 4000/5 = 800 h, MTTR = 40/5 = 8 h, Availability = 800/808 = 99.0%.</p>
+    </section>
+
+    <section aria-labelledby="worked">
+      <h2 id="worked">Worked example (Reliability &amp; Metrics)</h2>
+      <p>Inputs: a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total.</p>
+      <table>
+        <thead><tr><th>Result</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>MTBF</td><td>800 h</td></tr>
+          <tr><td>MTTR</td><td>8 h</td></tr>
+          <tr><td>Availability</td><td>99 %</td></tr>
+          <tr><td>Failures</td><td>5</td></tr>
+        </tbody>
+      </table>
+      <p><small>Computed live by WorkHive's calculation engine; standard: ISO 14224 | IEC 60050-192 | SMRP.</small></p>
+    </section>
+
+    <section aria-labelledby="faq">
+      <h2 id="faq">FAQ</h2>
+      <details class="faq"><summary>How do you calculate MTBF?</summary><p>Divide total operating hours by the number of failures in that period. A pump that ran 4,000 hours and failed 5 times has an MTBF of 800 hours.</p></details>
+      <details class="faq"><summary>How do you calculate MTTR?</summary><p>Divide total repair time by the number of repairs. Five repairs totalling 40 hours gives an MTTR of 8 hours.</p></details>
+      <details class="faq"><summary>What is the difference between MTBF and MTTR?</summary><p>MTBF measures reliability — how long the asset runs before failing. MTTR measures maintainability — how long it takes to restore. You raise MTBF with better preventive maintenance and root-cause fixes; you lower MTTR with spares availability and standard work.</p></details>
+      <details class="faq"><summary>How do MTBF and MTTR give availability?</summary><p>Availability = MTBF / (MTBF + MTTR). With MTBF 800 h and MTTR 8 h, availability is 99.0%. That figure is also what feeds the availability factor inside OEE.</p></details>
+    </section>
+
+    <section aria-labelledby="try">
+      <h2 id="try">Run it on your own numbers</h2>
+      <p><a href="/engineering-design.html" class="cta">Open the interactive MTBF &amp; MTTR Calculator in WorkHive</a> — free, no sign-up needed for the calculators.</p>
+    </section>
+
+    <section aria-labelledby="related">
+      <h2 id="related">Related calculators</h2>
+      <ul>
+        <li><a href="/learn/free-engineering-calculators-philippine-plants/">Free Engineering Calculators for Philippine Plants</a> (pillar)</li>
+        <li><a href="/tools/oee-calculator/">OEE Calculator</a></li>
+        <li><a href="/learn/mtbf-vs-mttr-for-supervisors/">MTBF vs MTTR for supervisors</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

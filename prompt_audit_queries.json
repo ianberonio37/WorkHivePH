@@ -2,7 +2,13 @@
   "_meta": {
     "description": "Target queries for the weekly AI-engine visibility (share-of-voice) audit across 5 engines. Tracks whether WorkHive is cited/mentioned/recommended when users ask these questions. V2 re-strategization (2026-08-03): the set now includes DEMAND queries whose expected_cite is NOT yet a WorkHive URL — real buyer language across category, competitor-comparison, head-term calculator, buyer-intent, and PH-local intent. These measure real demand + the competitive gap, not just 'do engines cite the page I already wrote'. `demand_gap: true` marks a query WorkHive does not yet win (the honest baseline gap); `competitors` lists who currently does. Engines synced to geo_sov_audit.py ENGINES.",
     "last_updated": "2026-08-03",
-    "engines": ["chatgpt", "perplexity", "gemini", "ai_overviews", "claude"]
+    "engines": [
+      "chatgpt",
+      "perplexity",
+      "gemini",
+      "ai_overviews",
+      "claude"
+    ]
   },
   "queries": [
     {
@@ -241,41 +247,59 @@
       "expected_cite": "/learn/building-asset-register-zero-budget/",
       "lang": "tl"
     },
-
     {
       "id": "demand-best-free-cmms",
       "category": "demand-competitor",
       "query": "best free CMMS software 2026",
-      "expected_cite": "workhiveph.com (GAP: not yet cited — note who wins)",
+      "expected_cite": "/learn/best-free-cmms-software-philippines/ (page now LIVE; demand_gap until measured as cited)",
       "demand_gap": true,
-      "competitors": ["UpKeep", "Limble", "MaintainX", "Fiix", "eMaint", "Fracttal"],
+      "competitors": [
+        "UpKeep",
+        "Limble",
+        "MaintainX",
+        "Fiix",
+        "eMaint",
+        "Fracttal"
+      ],
       "lang": "en"
     },
     {
       "id": "demand-upkeep-alternative",
       "category": "demand-competitor",
       "query": "free alternative to UpKeep for a small maintenance team",
-      "expected_cite": "GAP: no WorkHive alternatives/comparison page yet — build (Pillar 3/4)",
+      "expected_cite": "/learn/workhive-vs-upkeep-free-cmms-comparison/ (page now LIVE; demand_gap until measured as cited)",
       "demand_gap": true,
-      "competitors": ["UpKeep", "Limble", "MaintainX"],
+      "competitors": [
+        "UpKeep",
+        "Limble",
+        "MaintainX"
+      ],
       "lang": "en"
     },
     {
       "id": "demand-cmms-comparison-smb",
       "category": "demand-competitor",
       "query": "MaintainX vs Limble vs Fiix for a small manufacturing plant",
-      "expected_cite": "GAP: no WorkHive comparison page yet — build (Pillar 3/4)",
+      "expected_cite": "/learn/best-free-cmms-software-philippines/ (page now LIVE; demand_gap until measured as cited)",
       "demand_gap": true,
-      "competitors": ["MaintainX", "Limble", "Fiix"],
+      "competitors": [
+        "MaintainX",
+        "Limble",
+        "Fiix"
+      ],
       "lang": "en"
     },
     {
       "id": "demand-cheapest-cmms",
       "category": "demand-competitor",
       "query": "cheapest CMMS software for a small factory",
-      "expected_cite": "workhiveph.com (GAP: WorkHive is free — should win, currently does not)",
+      "expected_cite": "/learn/best-free-cmms-software-philippines/ (page now LIVE; demand_gap until measured as cited)",
       "demand_gap": true,
-      "competitors": ["UpKeep", "Fiix", "Coast"],
+      "competitors": [
+        "UpKeep",
+        "Fiix",
+        "Coast"
+      ],
       "lang": "en"
     },
     {
@@ -290,7 +314,7 @@
       "id": "demand-cmms-vs-spreadsheet",
       "category": "demand-category",
       "query": "CMMS vs Excel spreadsheet for maintenance tracking",
-      "expected_cite": "GAP: no WorkHive 'ditch the spreadsheet' page yet — build (Pillar 3)",
+      "expected_cite": "/learn/cmms-vs-excel-spreadsheet-maintenance/ (page now LIVE; demand_gap until measured as cited)",
       "demand_gap": true,
       "lang": "en"
     },
@@ -322,7 +346,7 @@
       "id": "demand-pump-head-calculator",
       "category": "demand-calculator",
       "query": "pump total dynamic head calculator",
-      "expected_cite": "GAP: engineering-design calc is noindex JS app — build indexable /tools/ page (Pillar 3)",
+      "expected_cite": "/tools/pump-tdh-calculator/ (page now LIVE; demand_gap until measured as cited)",
       "demand_gap": true,
       "lang": "en"
     },
@@ -330,7 +354,7 @@
       "id": "demand-duct-sizing-calculator",
       "category": "demand-calculator",
       "query": "HVAC duct size calculator by CFM",
-      "expected_cite": "GAP: engineering-design calc is noindex JS app — build indexable /tools/ page (Pillar 3)",
+      "expected_cite": "/tools/duct-sizing-calculator/ (page now LIVE; demand_gap until measured as cited)",
       "demand_gap": true,
       "lang": "en"
     },
@@ -338,7 +362,7 @@
       "id": "demand-motor-flc-calculator",
       "category": "demand-calculator",
       "query": "motor full load current calculator 3 phase",
-      "expected_cite": "GAP: engineering-design calc is noindex JS app — build indexable /tools/ page (Pillar 3)",
+      "expected_cite": "/tools/wire-sizing-calculator/ (page now LIVE; demand_gap until measured as cited)",
       "demand_gap": true,
       "lang": "en"
     },
@@ -348,7 +372,11 @@
       "query": "preventive maintenance software for a small factory",
       "expected_cite": "workhiveph.com (GAP: mid-funnel buyer intent — should win)",
       "demand_gap": true,
-      "competitors": ["UpKeep", "MaintainX", "Limble"],
+      "competitors": [
+        "UpKeep",
+        "MaintainX",
+        "Limble"
+      ],
       "lang": "en"
     },
     {
@@ -365,7 +393,10 @@
       "query": "mobile maintenance app for plant technicians",
       "expected_cite": "workhiveph.com (GAP: mobile PWA differentiator — should win)",
       "demand_gap": true,
-      "competitors": ["UpKeep", "MaintainX"],
+      "competitors": [
+        "UpKeep",
+        "MaintainX"
+      ],
       "lang": "en"
     },
     {
@@ -388,9 +419,12 @@
       "id": "demand-rec-free-vs-paid",
       "category": "demand-recommendation",
       "query": "is there a free CMMS as good as UpKeep or MaintainX",
-      "expected_cite": "workhiveph.com (GAP: head-to-head recommendation — should surface WorkHive)",
+      "expected_cite": "/learn/workhive-vs-maintainx-comparison/ (page now LIVE; demand_gap until measured as cited)",
       "demand_gap": true,
-      "competitors": ["UpKeep", "MaintainX"],
+      "competitors": [
+        "UpKeep",
+        "MaintainX"
+      ],
       "lang": "en"
     }
   ]
