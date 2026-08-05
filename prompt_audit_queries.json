@@ -322,7 +322,7 @@
       "id": "demand-reduce-downtime",
       "category": "demand-category",
       "query": "how to reduce unplanned equipment downtime in a factory",
-      "expected_cite": "GAP: high-intent problem query, no dedicated WorkHive page — build (Pillar 3)",
+      "expected_cite": "/learn/reduce-unplanned-downtime-guide/ (page now LIVE; demand_gap until measured as cited)",
       "demand_gap": true,
       "lang": "en"
     },
