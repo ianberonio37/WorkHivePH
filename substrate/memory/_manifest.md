@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:671-files
-source_sha: 94dc6efb59f2b08b
+source: memory-curated:672-files
+source_sha: 489cb13b70c36a7d
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (671 durable topic files)
+## memory · curated auto-memory (672 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=292 · project=290 · reference=89
+**By type:** feedback=293 · project=290 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -45,6 +45,7 @@ Entries (name · type · sha):
 - `feedback_a_silently_failed_edit_becomes_a_false_report` · feedback · 7975acad3596a373
 - `feedback_a_skipped_partition_reads_as_a_covered_one` · feedback · 7ed63cc64e09df23
 - `feedback_a_stranded_read_is_invisible_to_a_write_gate` · feedback · b077adcb12adc6cb
+- `feedback_a_teeth_test_left_a_poisoned_report` · feedback · e0f088a05b85f91d
 - `feedback_a_test_asserting_a_state_it_does_not_control` · feedback · 1699da8f8a49120f
 - `feedback_a_timeout_that_does_not_kill_the_tree` · feedback · ad28cde6ddd29e48
 - `feedback_a_trust_claim_no_query_enforces` · feedback · 1dc78df3956fb47b
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_platform_alignment_arc` · project · a959a75de883d731
 - `project_platform_guardian` · project · 99dc0a95ef5952d1
 - `project_platform_health_retired` · project · 4d84212fa49efefb
-- `project_platform_knowledge_substrate` · project · 3a0ee763068336d9
-- … +171 more (all included in the fingerprint)
+- … +172 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

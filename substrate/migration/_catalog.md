@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:536
-source_sha: 86efbf9871096057
+source: dir:supabase/migrations:538
+source_sha: 2db9e46f883343a5
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (536 migrations)
+## migration · catalog (538 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260717000005_pm_assets_updated_at_oc` — triggers:tg_pm_assets_touch_updated · tables:pm_assets
-- `20260717000006_marketplace_disputes_updated_at` — triggers:tg_marketplace_disputes_touch_updated · tables:marketplace_disputes
 - `20260717000007_anomaly_signals_forward_status` — fns:anomaly_signals_forward_only_status · triggers:tg_anomaly_signals_forward_status
 - `20260717000008_integration_configs_updated_at_oc` — triggers:tg_integration_configs_touch_updated · tables:integration_configs
 - `20260717000009_shift_plans_forward_status` — fns:shift_plans_forward_only_status · triggers:tg_shift_plans_forward_status
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260805000054_a_commission_took_credits_the_provider_never_had` — fns:mint_settlement_commission
 - `20260805000055_three_settled_jobs_predate_the_payment_guard` — (misc DDL/DML)
 - `20260805000056_two_triggers_still_carried_the_service_role_key` — triggers:trg_embed_outbox_pm_completions,trg_embed_outbox_skill_badges
+- `20260806000057_voice_response_queue_grant_was_never_declared` — (misc DDL/DML)
+- `20260806000058_anchor_the_reaction_xp_award_ledger` — (misc DDL/DML)
 
 (showing last 200)
 
