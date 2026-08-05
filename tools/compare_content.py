@@ -27,6 +27,8 @@ COMPARISONS = [
     # ── 1. vs UpKeep ─────────────────────────────────────────────────────────
     {
         "slug": "workhive-vs-upkeep-free-cmms-comparison",
+        "item_list_name": "CMMS products compared",
+        "item_list": [("WorkHive", "https://workhiveph.com"), ("UpKeep", None)],
         "title": "WorkHive vs UpKeep: Free Alternative Compared (2026)",
         "description": "An honest WorkHive vs UpKeep comparison for small maintenance teams: pricing, free tier, offline capability, and who each one is genuinely best for.",
         "keywords": "WorkHive vs UpKeep, UpKeep alternative, free CMMS alternative, UpKeep pricing, free maintenance software, small maintenance team",
@@ -92,6 +94,8 @@ COMPARISONS = [
     # ── 2. vs MaintainX ──────────────────────────────────────────────────────
     {
         "slug": "workhive-vs-maintainx-comparison",
+        "item_list_name": "CMMS products compared",
+        "item_list": [("WorkHive", "https://workhiveph.com"), ("MaintainX", None)],
         "title": "WorkHive vs MaintainX: Free vs Mobile-First CMMS (2026)",
         "description": "WorkHive vs MaintainX compared for small plants: pricing, free tier limits, offline capture, and an honest verdict on which suits which team.",
         "keywords": "WorkHive vs MaintainX, MaintainX alternative, free CMMS, MaintainX pricing, mobile maintenance app, offline CMMS",
@@ -147,6 +151,8 @@ COMPARISONS = [
     # ── 3. plural alternatives page ──────────────────────────────────────────
     {
         "slug": "best-free-cmms-software-philippines",
+        "item_list_name": "Free and freemium CMMS options compared",
+        "item_list": [("WorkHive", "https://workhiveph.com"), ("Coast", None), ("MaintainX", None), ("Limble", None), ("Fiix", None), ("Maintenance Care", None), ("UpKeep", None), ("eMaint", None), ("Tractian", None)],
         "title": "Best Free CMMS Software for Philippine Plants (2026 Comparison)",
         "description": "A comparison of free and freemium CMMS options for small Philippine plants — WorkHive, Coast, MaintainX, Limble, Fiix and Maintenance Care — with what each free tier actually gives you.",
         "keywords": "best free CMMS software, free CMMS Philippines, free maintenance software, freemium CMMS, CMMS comparison 2026, cheapest CMMS",

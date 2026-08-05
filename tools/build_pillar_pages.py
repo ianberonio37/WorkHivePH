@@ -126,6 +126,23 @@ def _jsonld(p: dict) -> str:
             {"@type": "ListItem", "position": 2, "name": "Learn", "item": SITE + "/learn/"},
             {"@type": "ListItem", "position": 3, "name": p["crumb"], "item": url}]},
     ]
+    # Comparison pages carry an ItemList of the products compared: an explicit machine-
+    # readable matrix beats making the model reconstruct the comparison from prose
+    # [external-programmatic-seo-pages-step-by-step-implementati].
+    if p.get("item_list"):
+        graph.append({
+            "@type": "ItemList",
+            "@id": url + "#itemlist",
+            "name": p.get("item_list_name", "Products compared"),
+            "itemListOrder": "https://schema.org/ItemListUnordered",
+            "numberOfItems": len(p["item_list"]),
+            "itemListElement": [
+                {"@type": "ListItem", "position": i + 1,
+                 "item": {"@type": "SoftwareApplication", "name": name,
+                          "applicationCategory": "BusinessApplication",
+                          "operatingSystem": "Web", **({"url": u} if u else {})}}
+                for i, (name, u) in enumerate(p["item_list"])],
+        })
     return json.dumps({"@context": "https://schema.org", "@graph": graph}, indent=2, ensure_ascii=False)
 
 
