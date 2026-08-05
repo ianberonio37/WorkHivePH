@@ -9,92 +9,107 @@ Disallow: /checklist.backup.html
 Disallow: /logbook.backup.html
 Disallow: /index-v3-test.html
 
-# Explicit allow for known AI crawlers (signals intent, helps with AEO/GEO citation eligibility)
-# Sources: OpenAI, Anthropic, Google, Perplexity, Common Crawl public crawler docs (2026)
+# ── AI crawlers ───────────────────────────────────────────────────────────────
+# Explicit allow signals intent and helps AEO/GEO citation eligibility. Each vendor
+# runs SEPARATE tokens for training vs retrieval vs user-initiated fetch, and they do
+# NOT inherit from one another — a directive for ClaudeBot says nothing about
+# Claude-SearchBot. The retrieval/user tokens are the ones that produce CITATIONS.
+# Every bot is allowed deliberately: a blocked bot forfeits an estimated 18-34% of
+# that engine's potential citations.
 #
-# Updated 2026-08-05. Each vendor runs SEPARATE tokens for training vs retrieval vs
-# user-initiated fetch, and they do NOT inherit from one another — a directive for
-# ClaudeBot says nothing about Claude-SearchBot. The retrieval/user tokens are the ones
-# that produce CITATIONS, so they matter most for AEO/GEO. Every bot is allowed here
-# deliberately: a blocked bot forfeits an estimated 18-34% of that engine's potential
-# citations (see substrate/external/external-robots-txt-for-ai-bots-blocking-cost-*).
+# WHY EVERY GROUP REPEATS THE DISALLOWS (RFC 9309): a crawler obeys the group matching
+# its product token, and falls back to "*" ONLY when no group matches it. So a named
+# group containing just "Allow: /" does not inherit the "*" group's Disallow lines — it
+# silently re-opens them. Naming these bots without repeating the rules exposed the
+# stale backup copies of the homepage to precisely the engines we want citing the live
+# one. Add a bot here => copy the Disallow block with it.
 
-# — OpenAI: GPTBot=training, OAI-SearchBot=search index, ChatGPT-User=user-initiated
+# OpenAI: GPTBot=training, OAI-SearchBot=search index, ChatGPT-User=user-initiated
 User-agent: GPTBot
-Allow: /
-
 User-agent: OAI-SearchBot
-Allow: /
-
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /index.backup.html
+Disallow: /index.backup2.html
+Disallow: /checklist.backup.html
+Disallow: /logbook.backup.html
+Disallow: /index-v3-test.html
 
-# — Anthropic: three INDEPENDENT tokens (training / search index / user fetch)
+# Anthropic: three INDEPENDENT tokens (training / search index / user fetch).
+#   Anthropic also honours Crawl-delay on all three.
 User-agent: ClaudeBot
-Allow: /
-
 User-agent: Claude-SearchBot
-Allow: /
-
 User-agent: Claude-User
 Allow: /
+Disallow: /index.backup.html
+Disallow: /index.backup2.html
+Disallow: /checklist.backup.html
+Disallow: /logbook.backup.html
+Disallow: /index-v3-test.html
 
 # legacy Anthropic tokens, kept for older crawler builds
 User-agent: Claude-Web
-Allow: /
-
 User-agent: anthropic-ai
 Allow: /
+Disallow: /index.backup.html
+Disallow: /index.backup2.html
+Disallow: /checklist.backup.html
+Disallow: /logbook.backup.html
+Disallow: /index-v3-test.html
 
+# Google: Google-Extended governs AI training use; Vertex grounding is separate
 User-agent: Google-Extended
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Perplexity-User
-Allow: /
-
-User-agent: CCBot
-Allow: /
-
-User-agent: Bytespider
-Allow: /
-
-User-agent: Applebot-Extended
-Allow: /
-
-# — Apple: Applebot is the crawler itself (Applebot-Extended only governs training use)
-User-agent: Applebot
-Allow: /
-
-# — Google Vertex / Gemini grounding
 User-agent: Google-CloudVertexBot
 Allow: /
+Disallow: /index.backup.html
+Disallow: /index.backup2.html
+Disallow: /checklist.backup.html
+Disallow: /logbook.backup.html
+Disallow: /index-v3-test.html
 
-# — Meta AI
+# Perplexity: retrieval + user-initiated fetch
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+Allow: /
+Disallow: /index.backup.html
+Disallow: /index.backup2.html
+Disallow: /checklist.backup.html
+Disallow: /logbook.backup.html
+Disallow: /index-v3-test.html
+
+# Apple: Applebot crawls; Applebot-Extended only governs training use
+User-agent: Applebot
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /index.backup.html
+Disallow: /index.backup2.html
+Disallow: /checklist.backup.html
+Disallow: /logbook.backup.html
+Disallow: /index-v3-test.html
+
+# Common Crawl — feeds many downstream models
+User-agent: CCBot
+Allow: /
+Disallow: /index.backup.html
+Disallow: /index.backup2.html
+Disallow: /checklist.backup.html
+Disallow: /logbook.backup.html
+Disallow: /index-v3-test.html
+
+# Other answer engines / assistants
+User-agent: Bytespider
 User-agent: meta-externalagent
-Allow: /
-
-# — Amazon (Rufus / Alexa answers)
 User-agent: Amazonbot
-Allow: /
-
-# — DuckDuckGo AI answers (DuckAssist)
 User-agent: DuckAssistBot
-Allow: /
-
-# — Mistral (user-initiated fetch)
 User-agent: MistralAI-User
-Allow: /
-
-# — Cohere
 User-agent: cohere-ai
-Allow: /
-
-# — You.com
 User-agent: YouBot
 Allow: /
+Disallow: /index.backup.html
+Disallow: /index.backup2.html
+Disallow: /checklist.backup.html
+Disallow: /logbook.backup.html
+Disallow: /index-v3-test.html
 
 # NOTE: Cloudflare's "Block AI training bots" toggle OVERRIDES this file. It must stay on
 # "Do not block (allow crawlers)" with "Instruct AI bot traffic with robots.txt" selected,
