@@ -65,7 +65,7 @@ Each engine is a distinct game (11% domain overlap `[external-ai-citation-11-per
 
 ---
 
-## §3 — Content architecture + the 58-calculator programmatic surface
+## §3 — Content architecture + the 60-page calculator surface
 
 ### §3.1 The static-HTML calculator page template
 
@@ -96,15 +96,15 @@ Deploy all **58 in one batch** (within the 50–200 crawl-budget guidance), in a
 
 | Cluster | Existing articles (sample) | Pillar page status |
 |---|---|---|
-| Reliability & Metrics | mtbf-vs-mttr, what-is-oee, rcm, fmea-worked-example, power-plant-reliability-metrics, predictive-alert-thresholds, four-phases-analytics | **MISSING — build "Maintenance Metrics & Reliability" pillar** |
-| Getting-Started / Digital Logbook | start-digital-logbook, building-asset-register, shift-handover-template, free-pm-checklist | **MISSING — build "Start Digital Maintenance" pillar** |
+| Reliability & Metrics | mtbf-vs-mttr, what-is-oee, rcm, fmea-worked-example, power-plant-reliability-metrics, predictive-alert-thresholds, four-phases-analytics | **BUILT** `/learn/maintenance-metrics-reliability-guide/` (7 cluster articles back-link it) |
+| Getting-Started / Digital Logbook | start-digital-logbook, building-asset-register, shift-handover-template, free-pm-checklist | **BUILT** `/learn/start-digital-maintenance-guide/` (7 cluster articles back-link it) |
 | Predictive & Condition-Monitoring | predictive-maintenance-on-a-budget, vibration-analysis-phone, thermography, sensor-cmms-gateway | partial (pdm-budget can anchor) |
 | Planning & Scheduling | dilo-wilo, project-planning-template, autonomous-shift-planning | partial |
 | Skills & Career (OFW) | skill-matrix, tesda-nc-mapping, ofw-portable-portfolio, resume-builder, psme-iiee-piche | partial (skill-matrix anchors) |
-| PH-Compliance | dole-iso-audit-trail, loto-procedures-dole-oshs, ra-11285-energy | **MISSING — build "PH Plant Compliance" pillar** |
+| PH-Compliance | dole-iso-audit-trail, loto-procedures-dole-oshs, ra-11285-energy | **BUILT** `/learn/ph-plant-compliance-guide/` (3 cluster articles back-link it) |
 | AI-Companion | ai-work-assistant, ai-companion-personas, companion-capabilities, ai-quality-roi, voice-to-text | partial (capabilities anchors) |
 | Platform/Ecosystem | what-is-workhive-guide, marketplace, community, joining-hive, gamifying, alert-inbox | what-is-workhive-guide = pillar |
-| **Engineering Calculators** | free-engineering-calculators (ONE article for 58 calcs) | **build pillar → link all 58 `/tools/` pages** |
+| **Engineering Calculators** | free-engineering-calculators (ONE article for 58 calcs) | ****BUILT** — hub section links all 60 `/tools/` pages** |
 
 Every cluster page must link its pillar with keyword-rich anchor text; pillars 3,000–5,000 words, clusters 1,500–2,500 `[external-topic-cluster-pillar-page-topical-authority-cont]`.
 
