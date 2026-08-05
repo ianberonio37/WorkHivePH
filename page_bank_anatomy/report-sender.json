@@ -1,0 +1,65 @@
+{
+ "page": "report-sender",
+ "url": "/workhive/report-sender.html",
+ "_ground": "2026-08-05 static read + substrate page/report-sender.md. The only roster page whose primary action is OUTWARD and irreversible - a sent report cannot be un-sent. The transport IS grounded: send-report-email edge fn (doSend/sendReportEmail/resendReport), plus scheduled-agents and a VOICE send path (voice-report-intent + voice-transcribe, startListening/transcribeAndParse). validate_report_sender.py (32 checks, registered) already gates 4 layers of this feature.",
+ "views": [
+  {"key": "V1", "name": "report list", "seen": {"how": "static-read", "ref": "report-sender.html:1033-1042 v_ai_reports_truth"}},
+  {"key": "V2", "name": "contacts", "seen": {"how": "static-read", "ref": "report-sender.html:1168-1285 report_contacts CRUD"}},
+  {"key": "V3", "name": "send sheet", "seen": {"how": "static-read", "ref": "report-sender.html:697 #sheet-overlay role=dialog"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "report row", "seen": {"how": "static-read", "ref": "report-sender.html:1033"}},
+  {"key": "C2", "name": "contact row", "seen": {"how": "static-read", "ref": "report-sender.html:1168"}},
+  {"key": "C3", "name": "send form", "seen": {"how": "static-read", "ref": "report-sender.html:697"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "report-sender.html:1033 list load"}},
+  {"key": "L2", "name": "gateway", "seen": {"how": "static-read", "ref": "report-sender.html:1168 contacts read"}},
+  {"key": "L3", "name": "db (reports + contacts)", "seen": {"how": "static-read", "ref": "report-sender.html:1033-1285"}},
+  {"key": "L4", "name": "external-send (send-report-email + scheduled-agents + voice pair)", "seen": {"how": "doc+static", "ref": "substrate page/report-sender.md edge list (doSend/sendReportEmail/resendReport fns) + report-sender.html:697 send sheet"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "report <-> recipient (the outward, irreversible send via send-report-email)", "seen": {"how": "doc+static", "ref": "substrate page/report-sender.md (send-report-email) + report-sender.html:697"}},
+  {"key": "S2", "name": "contacts <-> send (a wrong contact = a plant's numbers to the wrong person)", "seen": {"how": "static-read", "ref": "report-sender.html:1168-1285"}},
+  {"key": "S3", "name": "ai-report <-> source (the report's figures vs their views)", "seen": {"how": "static-read", "ref": "report-sender.html:1033 v_ai_reports_truth"}},
+  {"key": "S4", "name": "trigger <-> view", "seen": {"how": "static-read", "ref": "report-sender.html:1042"}},
+  {"key": "S5", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "report-sender.html:1168"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "supervisor (the sender)", "seen": {"how": "static-read", "ref": "report-sender.html:697 send authority"}},
+  {"key": "P2", "name": "worker", "seen": {"how": "static-read", "ref": "report-sender.html:1033 list read"}},
+  {"key": "P3", "name": "two_context", "seen": {"how": "static-read", "ref": "report-sender.html:1244 contact edits"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (may read, not send)", "seen": {"how": "static-read", "ref": "report-sender.html:697"}},
+  {"key": "IB", "name": "two_context (contact-list race)", "seen": {"how": "static-read", "ref": "report-sender.html:1244-1285"}}
+ ],
+ "invariants": [
+  {"key": "send_exactly_once", "name": "a send happens exactly once - including via resendReport", "seen": {"how": "doc+static", "ref": "substrate page/report-sender.md (doSend + resendReport both exist) + report-sender.html:697"}, "oracle": "a double-tap on the send control must not send twice, and resendReport is a DELIBERATE second send that says so - the expected human error on a queue worked at speed, and here it is unrecoverable"},
+  {"key": "failed_send_visible", "name": "a failed send is visible as failed", "seen": {"how": "doc+static", "ref": "send-report-email path + setEmailStatus fn (substrate)"}, "oracle": "a failed send is visible as failed, never silently dropped"},
+  {"key": "preview_equals_send", "name": "the recipient list shown is the list used", "seen": {"how": "static-read", "ref": "report-sender.html:697 + :1168"}, "oracle": "no divergence between the preview's recipient list and the send's"},
+  {"key": "outsider_confirmed", "name": "sending outside the hive requires naming the outsider", "seen": {"how": "static-read", "ref": "report-sender.html:1168 contact scope"}, "oracle": "sending outside the hive requires an explicit confirmation naming the outsider"},
+  {"key": "send_audited", "name": "every send leaves an audit row", "seen": {"how": "doc+static", "ref": "send-report-email edge fn (substrate) - assert its write from the DB side"}, "oracle": "every send leaves an audit row: sender, recipients, report id, time - and the VOICE-initiated send (voice-report-intent) leaves the same trail as the tapped one"},
+  {"key": "tenant_isolation", "name": "reports + contacts isolation", "seen": {"how": "static-read", "ref": "report-sender.html:1033,1168"}, "oracle": "a foreign hive's reports and contacts are invisible"}
+ ],
+ "domain_truths": [
+  {"key": "period_and_generated", "name": "the report states its period and generation time", "seen": {"how": "static-read", "ref": "report-sender.html:1033"}, "oracle": "the report states its period and generation time"},
+  {"key": "recipient_sees_preview", "name": "recipients see the sender's numbers", "seen": {"how": "static-partial", "ref": "send transport (live-enumerate)"}, "oracle": "recipients see the same numbers the sender previewed"},
+  {"key": "ai_labelled", "name": "an AI-generated report says so", "seen": {"how": "static-read", "ref": "report-sender.html:1033 v_ai_reports_truth"}, "oracle": "an AI-generated report is labelled as AI-generated"},
+  {"key": "cost_before_commit", "name": "what + to whom is stated BEFORE sending", "seen": {"how": "static-read", "ref": "report-sender.html:697 send sheet"}, "oracle": "what will be sent, and to whom, is stated before sending - the one place this platform cannot offer an undo"},
+  {"key": "bounces_reported", "name": "bounces come back to the sender", "seen": {"how": "static-partial", "ref": "send transport (live-enumerate)"}, "oracle": "bounces and undeliverables are reported back"},
+  {"key": "invalid_contacts_marked", "name": "invalid contacts are marked, not skipped", "seen": {"how": "static-read", "ref": "report-sender.html:1168"}, "oracle": "invalid or unsubscribed contacts are marked, not silently skipped"},
+  {"key": "format_stated", "name": "format and attachments are stated", "seen": {"how": "static-read", "ref": "report-sender.html:697"}, "oracle": "format and attachments are stated"},
+  {"key": "empty_report_refused", "name": "insufficient data refuses to send emptiness", "seen": {"how": "static-read", "ref": "report-sender.html:1033"}, "oracle": "a report with insufficient data says so instead of sending an empty one"}
+ ],
+ "writes": [
+  {"fn": "report_contacts", "class": "contact-list online-only", "seen": {"how": "static-read", "ref": "report-sender.html:1244,1285"}},
+  {"fn": "send-report-email (the send itself; also voice-initiated via voice-report-intent)", "class": "IRREVERSIBLE OUTWARD", "seen": {"how": "doc+static", "ref": "substrate page/report-sender.md edge list + report-sender.html:697"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "the report list renders titles/dates, no money (report-sender.html:1033)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "contacts render identities, no money (report-sender.html:1168)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V1/reward_explained", "reason": "no reward figure on the report list", "replace_with": {"oracle_key": "longest"}},
+  {"cell": "CM-ux-comprehension/V2/reward_explained", "reason": "no reward figure on contacts", "replace_with": {"oracle_key": "back_nav"}}
+ ]
+}

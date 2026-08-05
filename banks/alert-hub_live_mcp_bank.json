@@ -1,0 +1,4470 @@
+{
+ "_doc": "Page live-MCP bank, derived from page_bank_anatomy/alert-hub.json by tools/build_page_live_mcp_bank.py -- do not hand-edit rows; edit the anatomy and regenerate. `status` moves owed -> green only via a LIVE MCP walk with typed evidence (validate_live_mcp_bank rules R1-R7); findings accumulate so a re-walk proves a fix rather than re-discovering it.",
+ "page": "alert-hub",
+ "url": "/workhive/alert-hub.html",
+ "frame": "PAGE_TESTBANK_ROADMAP.md section 1 (60 arch + 50 UFAI + 45 UI + 45 UX = 200)",
+ "declared_na": [
+  {
+   "cell": "CF-ufai-F/V1/money_matches_ledger",
+   "reason": "the inbox renders no peso/credit figure (alert-hub.html:1097)",
+   "replace_with": {
+    "oracle_key": "reload"
+   }
+  },
+  {
+   "cell": "CF-ufai-F/V2/money_matches_ledger",
+   "reason": "the AMC brief renders counts and findings, no money (alert-hub.html:565)",
+   "replace_with": {
+    "oracle_key": "zoom200"
+   }
+  },
+  {
+   "cell": "CM-ux-comprehension/V1/reward_explained",
+   "reason": "the inbox surfaces no reward figure (alert-hub.html:1097)",
+   "replace_with": {
+    "oracle_key": "longest"
+   }
+  },
+  {
+   "cell": "CM-ux-comprehension/V3/reward_explained",
+   "reason": "the anomaly panel surfaces no reward figure (alert-hub.html:903)",
+   "replace_with": {
+    "oracle_key": "back_nav"
+   }
+  }
+ ],
+ "deferred": [],
+ "writes_classified": [
+  {
+   "fn": "alert_dismissals upsert/delete",
+   "class": "user state, ordering-sensitive",
+   "seen": {
+    "how": "doc+static",
+    "ref": "substrate page/alert-hub.md write list + alert-hub.html:1444-1478"
+   }
+  },
+  {
+   "fn": "amc_briefings.update (actOnAmcBrief) + anomaly_signals.update (acknowledge)",
+   "class": "state-transition online-only",
+   "seen": {
+    "how": "doc+static",
+    "ref": "substrate page/alert-hub.md write list (fns actOnAmcBrief/acknowledgeAlert)"
+   }
+  },
+  {
+   "fn": "hive_audit_log.insert (writeAuditLog)",
+   "class": "audit append-only",
+   "seen": {
+    "how": "doc+static",
+    "ref": "substrate page/alert-hub.md + alert-hub.html:860"
+   }
+  }
+ ],
+ "total": 200,
+ "scenarios": [
+  {
+   "id": "PB-alert-hub-001-CA-layer-contract-L1-envelope_shape",
+   "n": 1,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:269 summary render"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-002-CA-layer-contract-L1-status_body_agreement",
+   "n": 2,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:269 summary render"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-003-CA-layer-contract-L1-idempotency",
+   "n": 3,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:269 summary render"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-004-CA-layer-contract-L1-ordering_totality",
+   "n": 4,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:269 summary render"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-005-CA-layer-contract-L1-units_declared",
+   "n": 5,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:269 summary render"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-006-CA-layer-contract-L2-envelope_shape",
+   "n": 6,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (analytics-orchestrator)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:636 functions.invoke"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-007-CA-layer-contract-L2-status_body_agreement",
+   "n": 7,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (analytics-orchestrator)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:636 functions.invoke"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-008-CA-layer-contract-L2-idempotency",
+   "n": 8,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (analytics-orchestrator)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:636 functions.invoke"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-009-CA-layer-contract-L2-ordering_totality",
+   "n": 9,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (analytics-orchestrator)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:636 functions.invoke"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-010-CA-layer-contract-L2-units_declared",
+   "n": 10,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (analytics-orchestrator)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:636 functions.invoke"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-011-CA-layer-contract-L3-envelope_shape",
+   "n": 11,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (10 tables/views)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-1478 reads"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-012-CA-layer-contract-L3-status_body_agreement",
+   "n": 12,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (10 tables/views)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-1478 reads"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-013-CA-layer-contract-L3-idempotency",
+   "n": 13,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (10 tables/views)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-1478 reads"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-014-CA-layer-contract-L3-ordering_totality",
+   "n": 14,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (10 tables/views)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-1478 reads"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-015-CA-layer-contract-L3-units_declared",
+   "n": 15,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (10 tables/views)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-1478 reads"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-016-CA-layer-contract-L4-envelope_shape",
+   "n": 16,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L4",
+    "name": "cron (brief + automation log are schedule-produced)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565 amc_briefings + :1081 automation_log"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-017-CA-layer-contract-L4-status_body_agreement",
+   "n": 17,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L4",
+    "name": "cron (brief + automation log are schedule-produced)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565 amc_briefings + :1081 automation_log"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-018-CA-layer-contract-L4-idempotency",
+   "n": 18,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L4",
+    "name": "cron (brief + automation log are schedule-produced)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565 amc_briefings + :1081 automation_log"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-019-CA-layer-contract-L4-ordering_totality",
+   "n": 19,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L4",
+    "name": "cron (brief + automation log are schedule-produced)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565 amc_briefings + :1081 automation_log"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-020-CA-layer-contract-L4-units_declared",
+   "n": 20,
+   "page": "alert-hub",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "L4",
+    "name": "cron (brief + automation log are schedule-produced)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565 amc_briefings + :1081 automation_log"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-021-CB-seam-S1-value_survives",
+   "n": 21,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S1",
+    "name": "cron <-> db (the brief and the automation log)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565,1081"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-022-CB-seam-S1-name_survives",
+   "n": 22,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S1",
+    "name": "cron <-> db (the brief and the automation log)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565,1081"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-023-CB-seam-S1-null_semantics",
+   "n": 23,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S1",
+    "name": "cron <-> db (the brief and the automation log)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565,1081"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-024-CB-seam-S1-partial_write",
+   "n": 24,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S1",
+    "name": "cron <-> db (the brief and the automation log)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565,1081"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-025-CB-seam-S2-value_survives",
+   "n": 25,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S2",
+    "name": "edge <-> db",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:636"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-026-CB-seam-S2-name_survives",
+   "n": 26,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S2",
+    "name": "edge <-> db",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:636"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-027-CB-seam-S2-null_semantics",
+   "n": 27,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S2",
+    "name": "edge <-> db",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:636"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-028-CB-seam-S2-partial_write",
+   "n": 28,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S2",
+    "name": "edge <-> db",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:636"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-029-CB-seam-S3-value_survives",
+   "n": 29,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S3",
+    "name": "rpc <-> view (compute_anomaly_signals -> v_anomaly_truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:912 rpc + :914 read-back"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-030-CB-seam-S3-name_survives",
+   "n": 30,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S3",
+    "name": "rpc <-> view (compute_anomaly_signals -> v_anomaly_truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:912 rpc + :914 read-back"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-031-CB-seam-S3-null_semantics",
+   "n": 31,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S3",
+    "name": "rpc <-> view (compute_anomaly_signals -> v_anomaly_truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:912 rpc + :914 read-back"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-032-CB-seam-S3-partial_write",
+   "n": 32,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S3",
+    "name": "rpc <-> view (compute_anomaly_signals -> v_anomaly_truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:912 rpc + :914 read-back"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-033-CB-seam-S4-value_survives",
+   "n": 33,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S4",
+    "name": "trigger <-> view (alert/risk/inventory/pm feeds)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1048,1061,1073,1097"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-034-CB-seam-S4-name_survives",
+   "n": 34,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S4",
+    "name": "trigger <-> view (alert/risk/inventory/pm feeds)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1048,1061,1073,1097"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-035-CB-seam-S4-null_semantics",
+   "n": 35,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S4",
+    "name": "trigger <-> view (alert/risk/inventory/pm feeds)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1048,1061,1073,1097"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-036-CB-seam-S4-partial_write",
+   "n": 36,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S4",
+    "name": "trigger <-> view (alert/risk/inventory/pm feeds)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1048,1061,1073,1097"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-037-CB-seam-S5-value_survives",
+   "n": 37,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S5",
+    "name": "realtime <-> client (4 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "alert-hub.html - 4 .channel( occurrences (2026-08-05 grep)"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-038-CB-seam-S5-name_survives",
+   "n": 38,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S5",
+    "name": "realtime <-> client (4 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "alert-hub.html - 4 .channel( occurrences (2026-08-05 grep)"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-039-CB-seam-S5-null_semantics",
+   "n": 39,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S5",
+    "name": "realtime <-> client (4 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "alert-hub.html - 4 .channel( occurrences (2026-08-05 grep)"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-040-CB-seam-S5-partial_write",
+   "n": 40,
+   "page": "alert-hub",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "S5",
+    "name": "realtime <-> client (4 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "alert-hub.html - 4 .channel( occurrences (2026-08-05 grep)"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-041-CC-failure-injection-V1-fail_500",
+   "n": 41,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-042-CC-failure-injection-V1-fail_401",
+   "n": 42,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-043-CC-failure-injection-V1-fail_timeout",
+   "n": 43,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-044-CC-failure-injection-V1-fail_partial",
+   "n": 44,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-045-CC-failure-injection-V1-fail_slow",
+   "n": 45,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-046-CC-failure-injection-V1-fail_offline",
+   "n": 46,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-047-CC-failure-injection-V1-fail_null_field",
+   "n": 47,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-048-CC-failure-injection-V2-fail_500",
+   "n": 48,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-049-CC-failure-injection-V2-fail_401",
+   "n": 49,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-050-CC-failure-injection-V2-fail_timeout",
+   "n": 50,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-051-CC-failure-injection-V2-fail_partial",
+   "n": 51,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-052-CC-failure-injection-V2-fail_slow",
+   "n": 52,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-053-CC-failure-injection-V2-fail_offline",
+   "n": 53,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-054-CC-failure-injection-V2-fail_null_field",
+   "n": 54,
+   "page": "alert-hub",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-055-CD-invariant-dismissal_durable-dismissal_durable",
+   "n": 55,
+   "page": "alert-hub",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "dismissal_durable",
+    "name": "dismissed stays dismissed; undo restores one",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1346-1478"
+    }
+   },
+   "oracle_key": "dismissal_durable",
+   "oracle": "a dismissed alert stays dismissed across reload and across a realtime push; un-dismissing restores exactly one",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-056-CD-invariant-anomaly_idempotent-anomaly_idempotent",
+   "n": 56,
+   "page": "alert-hub",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "anomaly_idempotent",
+    "name": "compute_anomaly_signals is idempotent per window",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:912"
+    }
+   },
+   "oracle_key": "anomaly_idempotent",
+   "oracle": "running compute_anomaly_signals twice for one window does not double the signals",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-057-CD-invariant-critical_count_true-critical_count_true",
+   "n": 57,
+   "page": "alert-hub",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "critical_count_true",
+    "name": "the critical hero counts undismissed rows",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:281 #ah-critical-hero + :1346"
+    }
+   },
+   "oracle_key": "critical_count_true",
+   "oracle": "the critical hero count equals what its own predicate returns over UNDISMISSED rows",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-058-CD-invariant-one_brief_per_day-one_brief_per_day",
+   "n": 58,
+   "page": "alert-hub",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "one_brief_per_day",
+    "name": "one AMC brief per hive per day, dated",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-572"
+    }
+   },
+   "oracle_key": "one_brief_per_day",
+   "oracle": "an AMC briefing is one per hive per day, for a stated date - no duplicate brief",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-059-CD-invariant-dismissal_scope_stated-dismissal_scope_stated",
+   "n": 59,
+   "page": "alert-hub",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "dismissal_scope_stated",
+    "name": "a dismissal's scope is stated",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1444 dismissal write"
+    }
+   },
+   "oracle_key": "dismissal_scope_stated",
+   "oracle": "a dismissal is scoped to its dismisser, or explicitly to the hive, AND the surface says which - one person quietly blinding the team is the failure mode",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-060-CD-invariant-tenant_isolation_e2e-tenant_isolation_e2e",
+   "n": 60,
+   "page": "alert-hub",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "tenant_isolation_e2e",
+    "name": "alerts/anomalies/briefings isolation incl. realtime",
+    "seen": {
+     "how": "grep-count",
+     "ref": "alert-hub.html 4 .channel( + hive-scoped reads"
+    }
+   },
+   "oracle_key": "tenant_isolation_e2e",
+   "oracle": "a foreign hive's alerts, anomalies and briefings are invisible - including through the realtime channel",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-061-CE-ufai-U-V1-one_vocabulary",
+   "n": 61,
+   "page": "alert-hub",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-062-CE-ufai-U-V1-source_chip_true",
+   "n": 62,
+   "page": "alert-hub",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-063-CE-ufai-U-V1-units_visible",
+   "n": 63,
+   "page": "alert-hub",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-064-CE-ufai-U-V1-no_raw_enum",
+   "n": 64,
+   "page": "alert-hub",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-065-CE-ufai-U-V1-number_explained",
+   "n": 65,
+   "page": "alert-hub",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-066-CE-ufai-U-V2-one_vocabulary",
+   "n": 66,
+   "page": "alert-hub",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-067-CE-ufai-U-V2-source_chip_true",
+   "n": 67,
+   "page": "alert-hub",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-068-CE-ufai-U-V2-units_visible",
+   "n": 68,
+   "page": "alert-hub",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-069-CE-ufai-U-V2-no_raw_enum",
+   "n": 69,
+   "page": "alert-hub",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-070-CE-ufai-U-V2-number_explained",
+   "n": 70,
+   "page": "alert-hub",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-071-CF-ufai-F-V1-effect_in_db",
+   "n": 71,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-072-CF-ufai-F-V1-effect_visible",
+   "n": 72,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-073-CF-ufai-F-V1-count_matches_source",
+   "n": 73,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-074-CF-ufai-F-V1-reload",
+   "n": 74,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "reload",
+   "oracle": "reload MID-FLOW and the surface returns to a truthful state - a half-filled sheet either survives intact or is gone, never restored into a state the person did not leave it in",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CF-ufai-F/V1/money_matches_ledger: the inbox renders no peso/credit figure (alert-hub.html:1097)"
+  },
+  {
+   "id": "PB-alert-hub-075-CF-ufai-F-V1-idempotent_repeat",
+   "n": 75,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-076-CF-ufai-F-V1-cross_surface_agreement",
+   "n": 76,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-077-CF-ufai-F-V2-effect_in_db",
+   "n": 77,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-078-CF-ufai-F-V2-effect_visible",
+   "n": 78,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-079-CF-ufai-F-V2-count_matches_source",
+   "n": 79,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-080-CF-ufai-F-V2-zoom200",
+   "n": 80,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "zoom200",
+   "oracle": "at 200% browser zoom every control stays reachable and no text is clipped (WCAG 1.4.4)",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CF-ufai-F/V2/money_matches_ledger: the AMC brief renders counts and findings, no money (alert-hub.html:565)"
+  },
+  {
+   "id": "PB-alert-hub-081-CF-ufai-F-V2-idempotent_repeat",
+   "n": 81,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-082-CF-ufai-F-V2-cross_surface_agreement",
+   "n": 82,
+   "page": "alert-hub",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-083-CG-ufai-A-V1-offline_refusal",
+   "n": 83,
+   "page": "alert-hub",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-084-CG-ufai-A-V1-retry_path",
+   "n": 84,
+   "page": "alert-hub",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-085-CG-ufai-A-V1-rate_limit_legible",
+   "n": 85,
+   "page": "alert-hub",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-086-CG-ufai-A-V1-fallback_engaged",
+   "n": 86,
+   "page": "alert-hub",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-087-CG-ufai-A-V1-slow_honest",
+   "n": 87,
+   "page": "alert-hub",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-088-CG-ufai-A-V2-offline_refusal",
+   "n": 88,
+   "page": "alert-hub",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-089-CG-ufai-A-V2-retry_path",
+   "n": 89,
+   "page": "alert-hub",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-090-CG-ufai-A-V2-rate_limit_legible",
+   "n": 90,
+   "page": "alert-hub",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-091-CG-ufai-A-V2-fallback_engaged",
+   "n": 91,
+   "page": "alert-hub",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-092-CG-ufai-A-V2-slow_honest",
+   "n": 92,
+   "page": "alert-hub",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-093-CH-ufai-I-IA-bola_object",
+   "n": 93,
+   "page": "alert-hub",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (tenant boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-094-CH-ufai-I-IA-bfla_function",
+   "n": 94,
+   "page": "alert-hub",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (tenant boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-095-CH-ufai-I-IA-tenant_boundary",
+   "n": 95,
+   "page": "alert-hub",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (tenant boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-096-CH-ufai-I-IA-jwt_not_body",
+   "n": 96,
+   "page": "alert-hub",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (tenant boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-097-CH-ufai-I-IA-boundary_not_emptiness",
+   "n": 97,
+   "page": "alert-hub",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (tenant boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-098-CH-ufai-I-IB-bola_object",
+   "n": 98,
+   "page": "alert-hub",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (dismissal scope)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1444"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-099-CH-ufai-I-IB-bfla_function",
+   "n": 99,
+   "page": "alert-hub",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (dismissal scope)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1444"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-100-CH-ufai-I-IB-tenant_boundary",
+   "n": 100,
+   "page": "alert-hub",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (dismissal scope)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1444"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-101-CH-ufai-I-IB-jwt_not_body",
+   "n": 101,
+   "page": "alert-hub",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (dismissal scope)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1444"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-102-CH-ufai-I-IB-boundary_not_emptiness",
+   "n": 102,
+   "page": "alert-hub",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (dismissal scope)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1444"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-103-CI-domain-truth-one_severity_vocabulary-one_severity_vocabulary",
+   "n": 103,
+   "page": "alert-hub",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "one_severity_vocabulary",
+    "name": "severity means the same here as on hive/analytics",
+    "seen": {
+     "how": "cross-page",
+     "ref": "alert-hub.html:279 critical vs hive.html:5081 v_alert_truth"
+    }
+   },
+   "oracle_key": "one_severity_vocabulary",
+   "oracle": "severity vocabulary is one vocabulary shared with hive and analytics - critical here is critical there",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-104-CI-domain-truth-anomaly_baseline_stated-anomaly_baseline_stated",
+   "n": 104,
+   "page": "alert-hub",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "anomaly_baseline_stated",
+    "name": "an anomaly states what, baseline, window",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1006"
+    }
+   },
+   "oracle_key": "anomaly_baseline_stated",
+   "oracle": "an anomaly states WHAT was anomalous, against WHAT baseline, over WHAT window",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-105-CI-domain-truth-brief_cutoff_stated-brief_cutoff_stated",
+   "n": 105,
+   "page": "alert-hub",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "brief_cutoff_stated",
+    "name": "the brief states generation time AND data cutoff",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763"
+    }
+   },
+   "oracle_key": "brief_cutoff_stated",
+   "oracle": "the AMC brief states its generation time and its data cutoff - they are not the same instant",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-106-CI-domain-truth-threshold_and_value-threshold_and_value",
+   "n": 106,
+   "page": "alert-hub",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "threshold_and_value",
+    "name": "a threshold alert names threshold and current value",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097"
+    }
+   },
+   "oracle_key": "threshold_and_value",
+   "oracle": "a threshold alert names the threshold crossed and the current value",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-107-CI-domain-truth-zero_disambiguated-zero_disambiguated",
+   "n": 107,
+   "page": "alert-hub",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "zero_disambiguated",
+    "name": "0 alerts distinguishes clear from not-computed",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:279-283 hero"
+    }
+   },
+   "oracle_key": "zero_disambiguated",
+   "oracle": "'0 alerts' distinguishes 'nothing wrong' from 'nothing computed yet'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-108-CI-domain-truth-automation_attributable-automation_attributable",
+   "n": 108,
+   "page": "alert-hub",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "automation_attributable",
+    "name": "every automation action names rule/when/what",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1081 automation_log"
+    }
+   },
+   "oracle_key": "automation_attributable",
+   "oracle": "every automation_log action is attributable: which rule, when, on what",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-109-CI-domain-truth-alert_age_shown-alert_age_shown",
+   "n": 109,
+   "page": "alert-hub",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "alert_age_shown",
+    "name": "alert age is shown",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097"
+    }
+   },
+   "oracle_key": "alert_age_shown",
+   "oracle": "alert age is shown - a 40-day-old alert must not read like a fresh one",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-110-CI-domain-truth-staging_reco_why-staging_reco_why",
+   "n": 110,
+   "page": "alert-hub",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "staging_reco_why",
+    "name": "a parts-staging recommendation says why",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1105 parts_staging_recommendations"
+    }
+   },
+   "oracle_key": "staging_reco_why",
+   "oracle": "a parts-staging recommendation says WHY that part - which asset, which failure mode",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-111-CJ-ui-layout-V1-w390_overflow",
+   "n": 111,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-112-CJ-ui-layout-V1-w641_overflow",
+   "n": 112,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-113-CJ-ui-layout-V1-w1280_overflow",
+   "n": 113,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-114-CJ-ui-layout-V1-tap_target_44",
+   "n": 114,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-115-CJ-ui-layout-V1-safe_area",
+   "n": 115,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-116-CJ-ui-layout-V2-w390_overflow",
+   "n": 116,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-117-CJ-ui-layout-V2-w641_overflow",
+   "n": 117,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-118-CJ-ui-layout-V2-w1280_overflow",
+   "n": 118,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-119-CJ-ui-layout-V2-tap_target_44",
+   "n": 119,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-120-CJ-ui-layout-V2-safe_area",
+   "n": 120,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-121-CJ-ui-layout-V3-w390_overflow",
+   "n": 121,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-122-CJ-ui-layout-V3-w641_overflow",
+   "n": 122,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-123-CJ-ui-layout-V3-w1280_overflow",
+   "n": 123,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-124-CJ-ui-layout-V3-tap_target_44",
+   "n": 124,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-125-CJ-ui-layout-V3-safe_area",
+   "n": 125,
+   "page": "alert-hub",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-126-CK-ui-state-C1-component_loading",
+   "n": 126,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C1",
+    "name": "verdict hero trio (ah- cohort chrome)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:279 #ah-card-critical, :285 #ah-card-anomaly, :291 #ah-card-amc"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-127-CK-ui-state-C1-component_skeleton",
+   "n": 127,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C1",
+    "name": "verdict hero trio (ah- cohort chrome)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:279 #ah-card-critical, :285 #ah-card-anomaly, :291 #ah-card-amc"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-128-CK-ui-state-C1-component_disabled",
+   "n": 128,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C1",
+    "name": "verdict hero trio (ah- cohort chrome)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:279 #ah-card-critical, :285 #ah-card-anomaly, :291 #ah-card-amc"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-129-CK-ui-state-C1-component_busy",
+   "n": 129,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C1",
+    "name": "verdict hero trio (ah- cohort chrome)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:279 #ah-card-critical, :285 #ah-card-anomaly, :291 #ah-card-amc"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-130-CK-ui-state-C1-component_populated",
+   "n": 130,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C1",
+    "name": "verdict hero trio (ah- cohort chrome)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:279 #ah-card-critical, :285 #ah-card-anomaly, :291 #ah-card-amc"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-131-CK-ui-state-C2-component_loading",
+   "n": 131,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C2",
+    "name": "dismissible alert row",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1346-1478 alert_dismissals CRUD"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-132-CK-ui-state-C2-component_skeleton",
+   "n": 132,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C2",
+    "name": "dismissible alert row",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1346-1478 alert_dismissals CRUD"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-133-CK-ui-state-C2-component_disabled",
+   "n": 133,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C2",
+    "name": "dismissible alert row",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1346-1478 alert_dismissals CRUD"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-134-CK-ui-state-C2-component_busy",
+   "n": 134,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C2",
+    "name": "dismissible alert row",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1346-1478 alert_dismissals CRUD"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-135-CK-ui-state-C2-component_populated",
+   "n": 135,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C2",
+    "name": "dismissible alert row",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1346-1478 alert_dismissals CRUD"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-136-CK-ui-state-C3-component_loading",
+   "n": 136,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C3",
+    "name": "anomaly signal row",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1006"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-137-CK-ui-state-C3-component_skeleton",
+   "n": 137,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C3",
+    "name": "anomaly signal row",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1006"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-138-CK-ui-state-C3-component_disabled",
+   "n": 138,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C3",
+    "name": "anomaly signal row",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1006"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-139-CK-ui-state-C3-component_busy",
+   "n": 139,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C3",
+    "name": "anomaly signal row",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1006"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-140-CK-ui-state-C3-component_populated",
+   "n": 140,
+   "page": "alert-hub",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "C3",
+    "name": "anomaly signal row",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1006"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-141-CL-ui-visual-V1-contrast_wcag",
+   "n": 141,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-142-CL-ui-visual-V1-contrast_apca",
+   "n": 142,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-143-CL-ui-visual-V1-focus_visible",
+   "n": 143,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-144-CL-ui-visual-V1-reduced_motion",
+   "n": 144,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-145-CL-ui-visual-V1-icon_only_name",
+   "n": 145,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-146-CL-ui-visual-V2-contrast_wcag",
+   "n": 146,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-147-CL-ui-visual-V2-contrast_apca",
+   "n": 147,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-148-CL-ui-visual-V2-focus_visible",
+   "n": 148,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-149-CL-ui-visual-V2-reduced_motion",
+   "n": 149,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-150-CL-ui-visual-V2-icon_only_name",
+   "n": 150,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-151-CL-ui-visual-V3-contrast_wcag",
+   "n": 151,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-152-CL-ui-visual-V3-contrast_apca",
+   "n": 152,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-153-CL-ui-visual-V3-focus_visible",
+   "n": 153,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-154-CL-ui-visual-V3-reduced_motion",
+   "n": 154,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-155-CL-ui-visual-V3-icon_only_name",
+   "n": 155,
+   "page": "alert-hub",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-156-CM-ux-comprehension-V1-what_is_this_number",
+   "n": 156,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-157-CM-ux-comprehension-V1-what_happens_next",
+   "n": 157,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-158-CM-ux-comprehension-V1-what_does_it_cost",
+   "n": 158,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-159-CM-ux-comprehension-V1-why_refused",
+   "n": 159,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-160-CM-ux-comprehension-V1-longest",
+   "n": 160,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "longest",
+   "oracle": "the longest realistic title truncates visibly rather than overflowing its card or pushing the price out of view",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CM-ux-comprehension/V1/reward_explained: the inbox surfaces no reward figure (alert-hub.html:1097)"
+  },
+  {
+   "id": "PB-alert-hub-161-CM-ux-comprehension-V2-what_is_this_number",
+   "n": 161,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-162-CM-ux-comprehension-V2-what_happens_next",
+   "n": 162,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-163-CM-ux-comprehension-V2-what_does_it_cost",
+   "n": 163,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-164-CM-ux-comprehension-V2-why_refused",
+   "n": 164,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-165-CM-ux-comprehension-V2-reward_explained",
+   "n": 165,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "reward_explained",
+   "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-166-CM-ux-comprehension-V3-what_is_this_number",
+   "n": 166,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-167-CM-ux-comprehension-V3-what_happens_next",
+   "n": 167,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-168-CM-ux-comprehension-V3-what_does_it_cost",
+   "n": 168,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-169-CM-ux-comprehension-V3-why_refused",
+   "n": 169,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-170-CM-ux-comprehension-V3-back_nav",
+   "n": 170,
+   "page": "alert-hub",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "back_nav",
+   "oracle": "browser Back out of a sheet leaves no orphaned overlay and no write half-applied; the underlying list reflects what actually happened",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CM-ux-comprehension/V3/reward_explained: the anomaly panel surfaces no reward figure (alert-hub.html:903)"
+  },
+  {
+   "id": "PB-alert-hub-171-CN-ux-journey-P1-first_run_to_value",
+   "n": 171,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 hive-scoped inbox"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-172-CN-ux-journey-P1-repeat_visit",
+   "n": 172,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 hive-scoped inbox"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-173-CN-ux-journey-P1-cross_surface_handoff",
+   "n": 173,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 hive-scoped inbox"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-174-CN-ux-journey-P1-two_sided_same_object",
+   "n": 174,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 hive-scoped inbox"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-175-CN-ux-journey-P1-abandon_resume",
+   "n": 175,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 hive-scoped inbox"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-176-CN-ux-journey-P2-first_run_to_value",
+   "n": 176,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:302 #ah-action-btn"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-177-CN-ux-journey-P2-repeat_visit",
+   "n": 177,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:302 #ah-action-btn"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-178-CN-ux-journey-P2-cross_surface_handoff",
+   "n": 178,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:302 #ah-action-btn"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-179-CN-ux-journey-P2-two_sided_same_object",
+   "n": 179,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:302 #ah-action-btn"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-180-CN-ux-journey-P2-abandon_resume",
+   "n": 180,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:302 #ah-action-btn"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-181-CN-ux-journey-P3-first_run_to_value",
+   "n": 181,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two people, one alert)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1444-1478 dismissal writes"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-182-CN-ux-journey-P3-repeat_visit",
+   "n": 182,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two people, one alert)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1444-1478 dismissal writes"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-183-CN-ux-journey-P3-cross_surface_handoff",
+   "n": 183,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two people, one alert)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1444-1478 dismissal writes"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-184-CN-ux-journey-P3-two_sided_same_object",
+   "n": 184,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two people, one alert)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1444-1478 dismissal writes"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-185-CN-ux-journey-P3-abandon_resume",
+   "n": 185,
+   "page": "alert-hub",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two people, one alert)",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1444-1478 dismissal writes"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-186-CO-ux-recovery-V1-double_tap",
+   "n": 186,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-187-CO-ux-recovery-V1-back_out",
+   "n": 187,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-188-CO-ux-recovery-V1-session_died",
+   "n": 188,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-189-CO-ux-recovery-V1-wrong_then_fix",
+   "n": 189,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-190-CO-ux-recovery-V1-did_it_land",
+   "n": 190,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V1",
+    "name": "alert inbox",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-191-CO-ux-recovery-V2-double_tap",
+   "n": 191,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-192-CO-ux-recovery-V2-back_out",
+   "n": 192,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-193-CO-ux-recovery-V2-session_died",
+   "n": 193,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-194-CO-ux-recovery-V2-wrong_then_fix",
+   "n": 194,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-195-CO-ux-recovery-V2-did_it_land",
+   "n": 195,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V2",
+    "name": "AMC daily brief",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:565-763 amc_briefings reads"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-196-CO-ux-recovery-V3-double_tap",
+   "n": 196,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-197-CO-ux-recovery-V3-back_out",
+   "n": 197,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-198-CO-ux-recovery-V3-session_died",
+   "n": 198,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-199-CO-ux-recovery-V3-wrong_then_fix",
+   "n": 199,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-alert-hub-200-CO-ux-recovery-V3-did_it_land",
+   "n": 200,
+   "page": "alert-hub",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "alert-hub",
+   "url": "/workhive/alert-hub.html",
+   "subject": {
+    "key": "V3",
+    "name": "anomaly panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  }
+ ]
+}

@@ -1,0 +1,66 @@
+{
+ "page": "pm-scheduler",
+ "url": "/workhive/pm-scheduler.html",
+ "_ground": "2026-08-05 static read. The compliance denominator is this page's verdict: pm_scope_items -> completions -> v_pm_compliance_truth, mirrored to logbook from the other end.",
+ "views": [
+  {"key": "V1", "name": "schedule (default)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1348-1372 pm_assets + scope + completions reads"}},
+  {"key": "V2", "name": "completion-sheet", "seen": {"how": "static-read", "ref": "pm-scheduler.html:754 #completion-sheet role=dialog"}},
+  {"key": "V3", "name": "pm-edit-modal", "seen": {"how": "static-read", "ref": "pm-scheduler.html:715 #pm-edit-modal role=dialog"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "PM task row", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1367 v_pm_scope_items_truth feed"}},
+  {"key": "C2", "name": "completion form", "seen": {"how": "static-read", "ref": "pm-scheduler.html:754"}},
+  {"key": "C3", "name": "scope-item checklist", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1801,1930 pm_scope_items"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1348 schedule load"}},
+  {"key": "L2", "name": "gateway (2 canonical compliance RPCs)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1386 get_pm_compliance_smrp + :1387 get_pm_ontime_delivery (p_period_days: 90)"}},
+  {"key": "L3", "name": "db (9 tables/views)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:843-2209 reads"}},
+  {"key": "L4", "name": "edge (embed-entry via raw fetchWithTimeout - bypasses functions.invoke)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:2271-2295 embedPMEntry -> :2279 fetch /functions/v1/embed-entry with user JWT"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "trigger <-> view (scope/completions -> truth views)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1367 v_pm_scope_items_truth + :1372 pm_completions"}},
+  {"key": "S2", "name": "pm <-> logbook (the completion mirror, other end)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:2209 from('logbook')"}},
+  {"key": "S3", "name": "offline-queue <-> db (field-trio adopter)", "seen": {"how": "doc+static", "ref": "PDDA Y1b measured baseline names pm-scheduler as a queue adopter"}},
+  {"key": "S4", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1150"}},
+  {"key": "S5", "name": "edge <-> db (embed-entry under the USER's JWT - Pillar I tenancy)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:2273-2279 forwards the session JWT; failure is swallowed at :2295 (console.warn 'skipped')"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker (completes PMs)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:2134 pm_completions write"}},
+  {"key": "P2", "name": "supervisor (schedules/approves)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1150 role read + :2047 pm_assets write"}},
+  {"key": "P3", "name": "two_context (two techs, one PM)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:2134 completion write on shared row"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (role floor on scheduling)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1801 scope write"}},
+  {"key": "IB", "name": "two_context (double completion race)", "seen": {"how": "static-read", "ref": "pm-scheduler.html:2134"}}
+ ],
+ "invariants": [
+  {"key": "no_recomplete", "name": "a completed PM cannot be re-completed", "seen": {"how": "static-read", "ref": "pm-scheduler.html:2134 pm_completions"}, "oracle": "a completed PM cannot be re-completed - terminal state frozen, proven by attempting the transition and reading the refusal"},
+  {"key": "one_completion_one_mirror", "name": "one completion writes one row + one mirror", "seen": {"how": "cross-page", "ref": "pm-scheduler.html:2134 vs logbook.html:4150,4446"}, "oracle": "completing a PM writes exactly one pm_completions row and exactly one logbook mirror - not zero, not two (trigger_fires_once)"},
+  {"key": "compliance_recomputes", "name": "tile and view agree after a completion", "seen": {"how": "doc+static", "ref": "v_pm_compliance_truth + pm-scheduler.html:2134"}, "oracle": "compliance % recomputes from completions; the tile and the view never disagree after a completion, including across the cron sweep"},
+  {"key": "scope_bound", "name": "a scope item cannot be ticked out of scope", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1801,1930 scope writes"}, "oracle": "a scope item cannot be ticked for an asset outside the PM's own scope"},
+  {"key": "overdue_from_due_date", "name": "overdue derives from the schedule's due date", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1348-1372 schedule computation"}, "oracle": "overdue is computed from the schedule's own due date, not from now() - created_at"},
+  {"key": "tenant_isolation_e2e", "name": "pm_* isolation end to end", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1348 reads + 2 .channel( sites"}, "oracle": "a foreign hive's PM rows are invisible through the views, the reads and the realtime channel"}
+ ],
+ "domain_truths": [
+  {"key": "smrp_denominator", "name": "compliance = the canonical SMRP RPC, labelled", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1038-1041 + :1386 get_pm_compliance_smrp (SAME source as Analytics, the file's own comment)"}, "oracle": "SMRP PM compliance comes from get_pm_compliance_smrp - the SAME number Analytics shows - and the label names the denominator; the metric's-label-is-a-claim class"},
+  {"key": "ontime_window_stated", "name": "on-time names its tolerance window", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1348 schedule fields"}, "oracle": "on-time is defined against a stated tolerance window, and the window is on screen"},
+  {"key": "deferred_not_completed", "name": "deferred is not completed", "seen": {"how": "static-read", "ref": "pm-scheduler.html:715 edit states"}, "oracle": "a PM deferred is not a PM completed, and the surface distinguishes them"},
+  {"key": "frequency_basis_stated", "name": "calendar vs runtime frequency is stated", "seen": {"how": "static-read", "ref": "pm-scheduler.html:2047 pm_assets fields"}, "oracle": "PM frequency (calendar vs runtime-based) is stated per task; a runtime PM on a calendar without its hours is misleading"},
+  {"key": "window_named", "name": "the compliance window is named beside the %", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1386-1387 p_period_days: 90"}, "oracle": "the compliance window (90 days, per the RPC call the page actually makes) is named wherever the % appears"},
+  {"key": "completion_attributed", "name": "a completion records who, from the JWT", "seen": {"how": "static-read", "ref": "pm-scheduler.html:2134"}, "oracle": "a completion records who performed it, from the JWT, never from a typed name"},
+  {"key": "na_excluded_explicitly", "name": "skipped/NA scope items exit the denominator visibly", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1930 scope updates"}, "oracle": "skipped/NA scope items are recorded with a reason and excluded from the denominator explicitly - vacuity recorded, not counted"},
+  {"key": "missed_pm_traceable", "name": "a PM-missed breakdown traces back", "seen": {"how": "cross-page", "ref": "pm-scheduler.html:2209 logbook read"}, "oracle": "PM-driven findings that become breakdowns are traceable back to the PM that missed them"}
+ ],
+ "writes": [
+  {"fn": "pm_completions insert", "class": "locked online-only", "seen": {"how": "static-read", "ref": "pm-scheduler.html:2134"}},
+  {"fn": "pm_scope_items / pm_assets update", "class": "approval online-only", "seen": {"how": "static-read", "ref": "pm-scheduler.html:1801,1930,2047"}},
+  {"fn": "logbook mirror", "class": "capture", "seen": {"how": "static-read", "ref": "pm-scheduler.html:2209"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "the schedule renders no peso/credit figure (pm-scheduler.html:1348-1372)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the completion sheet renders no money (pm-scheduler.html:754)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V2/reward_explained", "reason": "the completion sheet surfaces no reward figure (pm-scheduler.html:754)", "replace_with": {"oracle_key": "back_nav"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the edit modal surfaces no reward figure (pm-scheduler.html:715)", "replace_with": {"oracle_key": "session_expiry"}}
+ ]
+}

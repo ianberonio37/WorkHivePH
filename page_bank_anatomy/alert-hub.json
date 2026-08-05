@@ -1,0 +1,66 @@
+{
+ "page": "alert-hub",
+ "url": "/workhive/alert-hub.html",
+ "_ground": "2026-08-05 static read. An inbox over v_alert_truth + alert_dismissals, a cron-produced AMC daily brief, and an anomaly panel behind compute_anomaly_signals. Chart chrome shared with analytics and shift-brain (an-/ah-/sb- cohort).",
+ "views": [
+  {"key": "V1", "name": "alert inbox", "seen": {"how": "static-read", "ref": "alert-hub.html:1097 v_alert_truth + :1346 alert_dismissals"}},
+  {"key": "V2", "name": "AMC daily brief", "seen": {"how": "static-read", "ref": "alert-hub.html:565-763 amc_briefings reads"}},
+  {"key": "V3", "name": "anomaly panel", "seen": {"how": "static-read", "ref": "alert-hub.html:903 v_anomaly_truth + :1006 anomaly_signals"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "verdict hero trio (ah- cohort chrome)", "seen": {"how": "static-read", "ref": "alert-hub.html:279 #ah-card-critical, :285 #ah-card-anomaly, :291 #ah-card-amc"}},
+  {"key": "C2", "name": "dismissible alert row", "seen": {"how": "static-read", "ref": "alert-hub.html:1346-1478 alert_dismissals CRUD"}},
+  {"key": "C3", "name": "anomaly signal row", "seen": {"how": "static-read", "ref": "alert-hub.html:1006"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "alert-hub.html:269 summary render"}},
+  {"key": "L2", "name": "edge (analytics-orchestrator)", "seen": {"how": "static-read", "ref": "alert-hub.html:636 functions.invoke"}},
+  {"key": "L3", "name": "db (10 tables/views)", "seen": {"how": "static-read", "ref": "alert-hub.html:565-1478 reads"}},
+  {"key": "L4", "name": "cron (brief + automation log are schedule-produced)", "seen": {"how": "static-read", "ref": "alert-hub.html:565 amc_briefings + :1081 automation_log"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "cron <-> db (the brief and the automation log)", "seen": {"how": "static-read", "ref": "alert-hub.html:565,1081"}},
+  {"key": "S2", "name": "edge <-> db", "seen": {"how": "static-read", "ref": "alert-hub.html:636"}},
+  {"key": "S3", "name": "rpc <-> view (compute_anomaly_signals -> v_anomaly_truth)", "seen": {"how": "static-read", "ref": "alert-hub.html:912 rpc + :914 read-back"}},
+  {"key": "S4", "name": "trigger <-> view (alert/risk/inventory/pm feeds)", "seen": {"how": "static-read", "ref": "alert-hub.html:1048,1061,1073,1097"}},
+  {"key": "S5", "name": "realtime <-> client (4 channels)", "seen": {"how": "grep-count", "ref": "alert-hub.html - 4 .channel( occurrences (2026-08-05 grep)"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker", "seen": {"how": "static-read", "ref": "alert-hub.html:1097 hive-scoped inbox"}},
+  {"key": "P2", "name": "supervisor", "seen": {"how": "static-read", "ref": "alert-hub.html:302 #ah-action-btn"}},
+  {"key": "P3", "name": "two_context (two people, one alert)", "seen": {"how": "static-read", "ref": "alert-hub.html:1444-1478 dismissal writes"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (tenant boundary)", "seen": {"how": "static-read", "ref": "alert-hub.html:1097"}},
+  {"key": "IB", "name": "two_context (dismissal scope)", "seen": {"how": "static-read", "ref": "alert-hub.html:1444"}}
+ ],
+ "invariants": [
+  {"key": "dismissal_durable", "name": "dismissed stays dismissed; undo restores one", "seen": {"how": "static-read", "ref": "alert-hub.html:1346-1478"}, "oracle": "a dismissed alert stays dismissed across reload and across a realtime push; un-dismissing restores exactly one"},
+  {"key": "anomaly_idempotent", "name": "compute_anomaly_signals is idempotent per window", "seen": {"how": "static-read", "ref": "alert-hub.html:912"}, "oracle": "running compute_anomaly_signals twice for one window does not double the signals"},
+  {"key": "critical_count_true", "name": "the critical hero counts undismissed rows", "seen": {"how": "static-read", "ref": "alert-hub.html:281 #ah-critical-hero + :1346"}, "oracle": "the critical hero count equals what its own predicate returns over UNDISMISSED rows"},
+  {"key": "one_brief_per_day", "name": "one AMC brief per hive per day, dated", "seen": {"how": "static-read", "ref": "alert-hub.html:565-572"}, "oracle": "an AMC briefing is one per hive per day, for a stated date - no duplicate brief"},
+  {"key": "dismissal_scope_stated", "name": "a dismissal's scope is stated", "seen": {"how": "static-read", "ref": "alert-hub.html:1444 dismissal write"}, "oracle": "a dismissal is scoped to its dismisser, or explicitly to the hive, AND the surface says which - one person quietly blinding the team is the failure mode"},
+  {"key": "tenant_isolation_e2e", "name": "alerts/anomalies/briefings isolation incl. realtime", "seen": {"how": "grep-count", "ref": "alert-hub.html 4 .channel( + hive-scoped reads"}, "oracle": "a foreign hive's alerts, anomalies and briefings are invisible - including through the realtime channel"}
+ ],
+ "domain_truths": [
+  {"key": "one_severity_vocabulary", "name": "severity means the same here as on hive/analytics", "seen": {"how": "cross-page", "ref": "alert-hub.html:279 critical vs hive.html:5081 v_alert_truth"}, "oracle": "severity vocabulary is one vocabulary shared with hive and analytics - critical here is critical there"},
+  {"key": "anomaly_baseline_stated", "name": "an anomaly states what, baseline, window", "seen": {"how": "static-read", "ref": "alert-hub.html:1006"}, "oracle": "an anomaly states WHAT was anomalous, against WHAT baseline, over WHAT window"},
+  {"key": "brief_cutoff_stated", "name": "the brief states generation time AND data cutoff", "seen": {"how": "static-read", "ref": "alert-hub.html:565-763"}, "oracle": "the AMC brief states its generation time and its data cutoff - they are not the same instant"},
+  {"key": "threshold_and_value", "name": "a threshold alert names threshold and current value", "seen": {"how": "static-read", "ref": "alert-hub.html:1097"}, "oracle": "a threshold alert names the threshold crossed and the current value"},
+  {"key": "zero_disambiguated", "name": "0 alerts distinguishes clear from not-computed", "seen": {"how": "static-read", "ref": "alert-hub.html:279-283 hero"}, "oracle": "'0 alerts' distinguishes 'nothing wrong' from 'nothing computed yet'"},
+  {"key": "automation_attributable", "name": "every automation action names rule/when/what", "seen": {"how": "static-read", "ref": "alert-hub.html:1081 automation_log"}, "oracle": "every automation_log action is attributable: which rule, when, on what"},
+  {"key": "alert_age_shown", "name": "alert age is shown", "seen": {"how": "static-read", "ref": "alert-hub.html:1097"}, "oracle": "alert age is shown - a 40-day-old alert must not read like a fresh one"},
+  {"key": "staging_reco_why", "name": "a parts-staging recommendation says why", "seen": {"how": "static-read", "ref": "alert-hub.html:1105 parts_staging_recommendations"}, "oracle": "a parts-staging recommendation says WHY that part - which asset, which failure mode"}
+ ],
+ "writes": [
+  {"fn": "alert_dismissals upsert/delete", "class": "user state, ordering-sensitive", "seen": {"how": "doc+static", "ref": "substrate page/alert-hub.md write list + alert-hub.html:1444-1478"}},
+  {"fn": "amc_briefings.update (actOnAmcBrief) + anomaly_signals.update (acknowledge)", "class": "state-transition online-only", "seen": {"how": "doc+static", "ref": "substrate page/alert-hub.md write list (fns actOnAmcBrief/acknowledgeAlert)"}},
+  {"fn": "hive_audit_log.insert (writeAuditLog)", "class": "audit append-only", "seen": {"how": "doc+static", "ref": "substrate page/alert-hub.md + alert-hub.html:860"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "the inbox renders no peso/credit figure (alert-hub.html:1097)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the AMC brief renders counts and findings, no money (alert-hub.html:565)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V1/reward_explained", "reason": "the inbox surfaces no reward figure (alert-hub.html:1097)", "replace_with": {"oracle_key": "longest"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the anomaly panel surfaces no reward figure (alert-hub.html:903)", "replace_with": {"oracle_key": "back_nav"}}
+ ]
+}

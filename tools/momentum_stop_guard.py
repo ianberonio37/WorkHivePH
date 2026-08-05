@@ -118,6 +118,43 @@ def _log_release(session, count, claim):
         pass
 
 
+
+def _queue_depth():
+    """How much LOCAL work the bank still owes — asked of the GATE, not re-derived here.
+
+    This exists because the sentinel was, until 2026-08-05, taken entirely on trust: the guard read
+    whatever letter I typed and released. I typed `b: measured host OOM` — and the OOM was real, but
+    it had degraded ONE INSTRUMENT (the browser), not the queue: hundreds of rows were still stale,
+    and the psql-backed harnesses that settle many of them need no browser at all. A claim the guard
+    cannot check is not a check.
+
+    The first version of this function reimplemented the freshness hash and reported 870 stale where
+    the real gate said 423 — it knew nothing of R4b function-scoped digests. A guard that disagrees
+    with the thing it guards is a second source of truth. So it calls validate_live_mcp_bank.classify
+    directly and inherits every rule, including the ones added after this was written.
+    """
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_vlmb_guard", os.path.join(ROOT, "tools", "validate_live_mcp_bank.py"))
+        V = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(V)
+        with open(os.path.join(ROOT, "live_mcp_registry.json"), encoding="utf-8") as f:
+            reg = json.load(f)
+        rows = reg["scenarios"] if isinstance(reg, dict) and "scenarios" in reg else reg
+        gates, urls = V.gate_ids(), V.surface_urls(reg)
+        owed = stale = 0
+        for r in rows:
+            st, _why = V.classify(r, gates, urls)
+            if st == "owed":
+                owed += 1
+            elif st == "stale":
+                stale += 1
+        return {"owed": owed, "stale": stale, "total": owed + stale}
+    except Exception:
+        return None          # cannot read it -> cannot refute the claim -> do not block on a guess
+
+
 def main():
     try:
         raw = sys.stdin.read()
@@ -144,6 +181,40 @@ def main():
             os.remove(SENTINEL)
         except OSError:
             pass
+        # ── THE CLAIM IS NOW CHECKED, NOT TRUSTED ────────────────────────────────────────────
+        # (b) "hard external ceiling" and (d) "queue empty" are the two enders that make a factual
+        # assertion about the WORLD, so they are the two the guard can refute. A degraded instrument
+        # — a browser that times out, a slow host, an OOM — is a PIVOT trigger, never a ceiling:
+        # the psql harnesses, the file work and the gate all run without a browser. If rows remain,
+        # switch instruments; do not end the turn.
+        letter = (claim or "").strip()[:1].lower()
+        depth = _queue_depth()
+        if letter in ("b", "d") and depth and depth["total"] > 0:
+            _write_count(session, count + 1)
+            _log_release(session, count, "REFUSED " + claim)
+            msg = [
+                "MOMENTUM STOP GUARD - SENTINEL REFUSED.",
+                "",
+                "You claimed ender (%s), but the bank still owes %d rows (%d stale + %d owed)."
+                % (letter, depth["total"], depth["stale"], depth["owed"]),
+                "",
+                "(b) is a HARD EXTERNAL ceiling - something no local action can reach. A browser",
+                "that times out, a slow host, an OOM, a flaky instrument is NOT that: it degrades",
+                "ONE instrument while every other one still runs. The doctrine answers a degraded",
+                "instrument with PIVOT, never with stop:",
+                "  - verify_layer_invariants / verify_identity_boundaries / verify_money_lifecycle",
+                "    are psql-backed and need no browser at all",
+                "  - writing the missing per-surface truth ORACLES is file work",
+                "  - re-running the gate and stamping fn_digests is file work",
+                "",
+                "(d) means the queue is EMPTY. That many rows is not empty.",
+                "",
+                "Go do the non-blocked work. If the browser is truly unusable, do the half that",
+                "never needed it.",
+            ]
+            sys.stderr.write(chr(10).join(msg) + chr(10))
+            sys.exit(2)
+
         _log_release(session, count, claim)
         _write_count(session, 0)
         allow()

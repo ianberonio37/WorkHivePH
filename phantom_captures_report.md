@@ -18,7 +18,7 @@ as an HTML comment on the capture page.
 _None — every capture has at least one downstream consumer. Schema discipline is currently good; the gate locks this in against future drift._
 
 
-## Low-usage candidates — `consumer_count == 1` (26)
+## Low-usage candidates — `consumer_count == 1` (22)
 
 Fields read in exactly one place. Likely fine (single-purpose),
 but worth a scan for vestigial half-wired fields.
@@ -38,13 +38,9 @@ but worth a scan for vestigial half-wired fields.
 | `promote-dedupe` | resume.html |
 | `rfq-contact` | marketplace.html |
 | `save-search-email` | marketplace.html |
-| `svc-hail-address` | marketplace.html |
 | `svc-pay-credits-amt-` | marketplace.html |
 | `svc-pay-why-` | marketplace.html |
 | `svc-prate-comment-` | marketplace-seller.html |
-| `svc-q-` | marketplace-seller.html |
-| `svc-quote-address` | marketplace.html |
-| `svc-quote-budget` | marketplace.html |
 | `svc-rate-comment-` | marketplace.html |
 | `svc-reg-name` | marketplace-seller.html |
 | `svc-vcode-` | marketplace.html |

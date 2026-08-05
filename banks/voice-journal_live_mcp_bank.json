@@ -1,0 +1,4462 @@
+{
+ "_doc": "Page live-MCP bank, derived from page_bank_anatomy/voice-journal.json by tools/build_page_live_mcp_bank.py -- do not hand-edit rows; edit the anatomy and regenerate. `status` moves owed -> green only via a LIVE MCP walk with typed evidence (validate_live_mcp_bank rules R1-R7); findings accumulate so a re-walk proves a fix rather than re-discovering it.",
+ "page": "voice-journal",
+ "url": "/workhive/voice-journal.html",
+ "frame": "PAGE_TESTBANK_ROADMAP.md section 1 (60 arch + 50 UFAI + 45 UI + 45 UX = 200)",
+ "declared_na": [
+  {
+   "cell": "CF-ufai-F/V1/money_matches_ledger",
+   "reason": "the capture panel renders no money (voice-journal.html:342)",
+   "replace_with": {
+    "oracle_key": "reload"
+   }
+  },
+  {
+   "cell": "CF-ufai-F/V2/money_matches_ledger",
+   "reason": "the entries list renders transcripts, no money (voice-journal.html:822)",
+   "replace_with": {
+    "oracle_key": "zoom200"
+   }
+  },
+  {
+   "cell": "CM-ux-comprehension/V1/reward_explained",
+   "reason": "the capture panel surfaces no reward figure (voice-journal.html:342)",
+   "replace_with": {
+    "oracle_key": "longest"
+   }
+  },
+  {
+   "cell": "CM-ux-comprehension/V3/reward_explained",
+   "reason": "the review view surfaces no reward figure (voice-journal.html:822)",
+   "replace_with": {
+    "oracle_key": "back_nav"
+   }
+  }
+ ],
+ "deferred": [],
+ "writes_classified": [
+  {
+   "fn": "voice_journal_entries (via the voice-journal-agent edge path, callJournalAgent - NOT a direct page insert)",
+   "class": "capture",
+   "seen": {
+    "how": "doc+static",
+    "ref": "substrate page/voice-journal.md (direct write = worker_profiles.update only; callJournalAgent fn) + RLS insert policy auth_uid = auth.uid()"
+   }
+  },
+  {
+   "fn": "worker_profiles.update",
+   "class": "identity online-only",
+   "seen": {
+    "how": "static-read",
+    "ref": "voice-journal.html:763"
+   }
+  }
+ ],
+ "total": 200,
+ "scenarios": [
+  {
+   "id": "PB-voice-journal-001-CA-layer-contract-L1-envelope_shape",
+   "n": 1,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L1",
+    "name": "client (mic/media)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-002-CA-layer-contract-L1-status_body_agreement",
+   "n": 2,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L1",
+    "name": "client (mic/media)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-003-CA-layer-contract-L1-idempotency",
+   "n": 3,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L1",
+    "name": "client (mic/media)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-004-CA-layer-contract-L1-ordering_totality",
+   "n": 4,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L1",
+    "name": "client (mic/media)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-005-CA-layer-contract-L1-units_declared",
+   "n": 5,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L1",
+    "name": "client (mic/media)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-006-CA-layer-contract-L2-envelope_shape",
+   "n": 6,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (ai-gateway + voice-transcribe + tts-speak)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "voice-journal.html:1138 invoke('ai-gateway') + substrate page/voice-journal.md edge list (transcribeBlob -> voice-transcribe; speak* -> tts-speak)"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-007-CA-layer-contract-L2-status_body_agreement",
+   "n": 7,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (ai-gateway + voice-transcribe + tts-speak)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "voice-journal.html:1138 invoke('ai-gateway') + substrate page/voice-journal.md edge list (transcribeBlob -> voice-transcribe; speak* -> tts-speak)"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-008-CA-layer-contract-L2-idempotency",
+   "n": 8,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (ai-gateway + voice-transcribe + tts-speak)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "voice-journal.html:1138 invoke('ai-gateway') + substrate page/voice-journal.md edge list (transcribeBlob -> voice-transcribe; speak* -> tts-speak)"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-009-CA-layer-contract-L2-ordering_totality",
+   "n": 9,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (ai-gateway + voice-transcribe + tts-speak)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "voice-journal.html:1138 invoke('ai-gateway') + substrate page/voice-journal.md edge list (transcribeBlob -> voice-transcribe; speak* -> tts-speak)"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-010-CA-layer-contract-L2-units_declared",
+   "n": 10,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (ai-gateway + voice-transcribe + tts-speak)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "voice-journal.html:1138 invoke('ai-gateway') + substrate page/voice-journal.md edge list (transcribeBlob -> voice-transcribe; speak* -> tts-speak)"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-011-CA-layer-contract-L3-envelope_shape",
+   "n": 11,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (entries + profiles + worker truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:763,789,822"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-012-CA-layer-contract-L3-status_body_agreement",
+   "n": 12,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (entries + profiles + worker truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:763,789,822"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-013-CA-layer-contract-L3-idempotency",
+   "n": 13,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (entries + profiles + worker truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:763,789,822"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-014-CA-layer-contract-L3-ordering_totality",
+   "n": 14,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (entries + profiles + worker truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:763,789,822"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-015-CA-layer-contract-L3-units_declared",
+   "n": 15,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (entries + profiles + worker truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:763,789,822"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-016-CA-layer-contract-L4-envelope_shape",
+   "n": 16,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai (transcription + post-processing)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-017-CA-layer-contract-L4-status_body_agreement",
+   "n": 17,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai (transcription + post-processing)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-018-CA-layer-contract-L4-idempotency",
+   "n": 18,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai (transcription + post-processing)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-019-CA-layer-contract-L4-ordering_totality",
+   "n": 19,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai (transcription + post-processing)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-020-CA-layer-contract-L4-units_declared",
+   "n": 20,
+   "page": "voice-journal",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai (transcription + post-processing)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-021-CB-seam-S1-value_survives",
+   "n": 21,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S1",
+    "name": "mic <-> transcript (audio to text - unique to this page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 capture -> :1138 gateway"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-022-CB-seam-S1-name_survives",
+   "n": 22,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S1",
+    "name": "mic <-> transcript (audio to text - unique to this page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 capture -> :1138 gateway"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-023-CB-seam-S1-null_semantics",
+   "n": 23,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S1",
+    "name": "mic <-> transcript (audio to text - unique to this page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 capture -> :1138 gateway"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-024-CB-seam-S1-partial_write",
+   "n": 24,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S1",
+    "name": "mic <-> transcript (audio to text - unique to this page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 capture -> :1138 gateway"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-025-CB-seam-S2-value_survives",
+   "n": 25,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S2",
+    "name": "ai-gateway <-> entry (model output becoming a stored record)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138 -> :822 entries"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-026-CB-seam-S2-name_survives",
+   "n": 26,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S2",
+    "name": "ai-gateway <-> entry (model output becoming a stored record)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138 -> :822 entries"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-027-CB-seam-S2-null_semantics",
+   "n": 27,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S2",
+    "name": "ai-gateway <-> entry (model output becoming a stored record)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138 -> :822 entries"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-028-CB-seam-S2-partial_write",
+   "n": 28,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S2",
+    "name": "ai-gateway <-> entry (model output becoming a stored record)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138 -> :822 entries"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-029-CB-seam-S3-value_survives",
+   "n": 29,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S3",
+    "name": "trigger <-> view (v_worker_truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:789"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-030-CB-seam-S3-name_survives",
+   "n": 30,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S3",
+    "name": "trigger <-> view (v_worker_truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:789"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-031-CB-seam-S3-null_semantics",
+   "n": 31,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S3",
+    "name": "trigger <-> view (v_worker_truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:789"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-032-CB-seam-S3-partial_write",
+   "n": 32,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S3",
+    "name": "trigger <-> view (v_worker_truth)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:789"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-033-CB-seam-S4-value_survives",
+   "n": 33,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:763 worker_profiles"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-034-CB-seam-S4-name_survives",
+   "n": 34,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:763 worker_profiles"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-035-CB-seam-S4-null_semantics",
+   "n": 35,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:763 worker_profiles"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-036-CB-seam-S4-partial_write",
+   "n": 36,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:763 worker_profiles"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-037-CB-seam-S5-value_survives",
+   "n": 37,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S5",
+    "name": "journal <-> search (search_voice_journal_entries)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "search_voice_journal_entries is in the platform's read-only RPC set (live-state-runner.js RPC_READONLY)"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-038-CB-seam-S5-name_survives",
+   "n": 38,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S5",
+    "name": "journal <-> search (search_voice_journal_entries)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "search_voice_journal_entries is in the platform's read-only RPC set (live-state-runner.js RPC_READONLY)"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-039-CB-seam-S5-null_semantics",
+   "n": 39,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S5",
+    "name": "journal <-> search (search_voice_journal_entries)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "search_voice_journal_entries is in the platform's read-only RPC set (live-state-runner.js RPC_READONLY)"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-040-CB-seam-S5-partial_write",
+   "n": 40,
+   "page": "voice-journal",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "S5",
+    "name": "journal <-> search (search_voice_journal_entries)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "search_voice_journal_entries is in the platform's read-only RPC set (live-state-runner.js RPC_READONLY)"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-041-CC-failure-injection-V1-fail_500",
+   "n": 41,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-042-CC-failure-injection-V1-fail_401",
+   "n": 42,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-043-CC-failure-injection-V1-fail_timeout",
+   "n": 43,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-044-CC-failure-injection-V1-fail_partial",
+   "n": 44,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-045-CC-failure-injection-V1-fail_slow",
+   "n": 45,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-046-CC-failure-injection-V1-fail_offline",
+   "n": 46,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-047-CC-failure-injection-V1-fail_null_field",
+   "n": 47,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-048-CC-failure-injection-V2-fail_500",
+   "n": 48,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-049-CC-failure-injection-V2-fail_401",
+   "n": 49,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-050-CC-failure-injection-V2-fail_timeout",
+   "n": 50,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-051-CC-failure-injection-V2-fail_partial",
+   "n": 51,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-052-CC-failure-injection-V2-fail_slow",
+   "n": 52,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-053-CC-failure-injection-V2-fail_offline",
+   "n": 53,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-054-CC-failure-injection-V2-fail_null_field",
+   "n": 54,
+   "page": "voice-journal",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-055-CD-invariant-failed_transcribe_no_ghost-failed_transcribe_no_ghost",
+   "n": 55,
+   "page": "voice-journal",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "failed_transcribe_no_ghost",
+    "name": "a failed transcription creates no real-looking entry",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138 gateway path"
+    }
+   },
+   "oracle_key": "failed_transcribe_no_ghost",
+   "oracle": "a recording that fails to transcribe creates no entry that looks like a real one",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-056-CD-invariant-stored_is_shown-stored_is_shown",
+   "n": 56,
+   "page": "voice-journal",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "stored_is_shown",
+    "name": "the stored transcript IS the shown transcript",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "stored_is_shown",
+   "oracle": "the stored transcript is the transcript shown - no silent truncation between them",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-057-CD-invariant-raw_survives_polish-raw_survives_polish",
+   "n": 57,
+   "page": "voice-journal",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "raw_survives_polish",
+    "name": "the raw transcript survives any polish",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138 post-processing"
+    }
+   },
+   "oracle_key": "raw_survives_polish",
+   "oracle": "AI post-processing is reversible: the raw transcript survives beside any polished version",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-058-CD-invariant-attributed_from_jwt-attributed_from_jwt",
+   "n": 58,
+   "page": "voice-journal",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "attributed_from_jwt",
+    "name": "attribution from the JWT, not the audio",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:763 profile + :822 entry write"
+    }
+   },
+   "oracle_key": "attributed_from_jwt",
+   "oracle": "the entry is attributed from the JWT, never from a name spoken in the audio",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-059-CD-invariant-double_submit_one_entry-double_submit_one_entry",
+   "n": 59,
+   "page": "voice-journal",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "double_submit_one_entry",
+    "name": "two rapid submissions create one entry",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 capture flow"
+    }
+   },
+   "oracle_key": "double_submit_one_entry",
+   "oracle": "two rapid submissions create one entry",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-060-CD-invariant-journal_private-journal_private",
+   "n": 60,
+   "page": "voice-journal",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "journal_private",
+    "name": "a journal is private unless shared",
+    "seen": {
+     "how": "doc+static",
+     "ref": "substrate table-rls/voice_journal_entries.md: all four policies auth_uid = auth.uid() + trg_bind_submitter guard trigger"
+    }
+   },
+   "oracle_key": "journal_private",
+   "oracle": "a worker cannot read another's journal - all four RLS policies pin auth_uid = auth.uid() and the bind trigger pins the submitter; proven live, not from the policy text",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-061-CE-ufai-U-V1-one_vocabulary",
+   "n": 61,
+   "page": "voice-journal",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-062-CE-ufai-U-V1-source_chip_true",
+   "n": 62,
+   "page": "voice-journal",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-063-CE-ufai-U-V1-units_visible",
+   "n": 63,
+   "page": "voice-journal",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-064-CE-ufai-U-V1-no_raw_enum",
+   "n": 64,
+   "page": "voice-journal",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-065-CE-ufai-U-V1-number_explained",
+   "n": 65,
+   "page": "voice-journal",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-066-CE-ufai-U-V2-one_vocabulary",
+   "n": 66,
+   "page": "voice-journal",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-067-CE-ufai-U-V2-source_chip_true",
+   "n": 67,
+   "page": "voice-journal",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-068-CE-ufai-U-V2-units_visible",
+   "n": 68,
+   "page": "voice-journal",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-069-CE-ufai-U-V2-no_raw_enum",
+   "n": 69,
+   "page": "voice-journal",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-070-CE-ufai-U-V2-number_explained",
+   "n": 70,
+   "page": "voice-journal",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-071-CF-ufai-F-V1-effect_in_db",
+   "n": 71,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-072-CF-ufai-F-V1-effect_visible",
+   "n": 72,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-073-CF-ufai-F-V1-count_matches_source",
+   "n": 73,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-074-CF-ufai-F-V1-reload",
+   "n": 74,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "reload",
+   "oracle": "reload MID-FLOW and the surface returns to a truthful state - a half-filled sheet either survives intact or is gone, never restored into a state the person did not leave it in",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CF-ufai-F/V1/money_matches_ledger: the capture panel renders no money (voice-journal.html:342)"
+  },
+  {
+   "id": "PB-voice-journal-075-CF-ufai-F-V1-idempotent_repeat",
+   "n": 75,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-076-CF-ufai-F-V1-cross_surface_agreement",
+   "n": 76,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-077-CF-ufai-F-V2-effect_in_db",
+   "n": 77,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-078-CF-ufai-F-V2-effect_visible",
+   "n": 78,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-079-CF-ufai-F-V2-count_matches_source",
+   "n": 79,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-080-CF-ufai-F-V2-zoom200",
+   "n": 80,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "zoom200",
+   "oracle": "at 200% browser zoom every control stays reachable and no text is clipped (WCAG 1.4.4)",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CF-ufai-F/V2/money_matches_ledger: the entries list renders transcripts, no money (voice-journal.html:822)"
+  },
+  {
+   "id": "PB-voice-journal-081-CF-ufai-F-V2-idempotent_repeat",
+   "n": 81,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-082-CF-ufai-F-V2-cross_surface_agreement",
+   "n": 82,
+   "page": "voice-journal",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-083-CG-ufai-A-V1-offline_refusal",
+   "n": 83,
+   "page": "voice-journal",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-084-CG-ufai-A-V1-retry_path",
+   "n": 84,
+   "page": "voice-journal",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-085-CG-ufai-A-V1-rate_limit_legible",
+   "n": 85,
+   "page": "voice-journal",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-086-CG-ufai-A-V1-fallback_engaged",
+   "n": 86,
+   "page": "voice-journal",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-087-CG-ufai-A-V1-slow_honest",
+   "n": 87,
+   "page": "voice-journal",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-088-CG-ufai-A-V2-offline_refusal",
+   "n": 88,
+   "page": "voice-journal",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-089-CG-ufai-A-V2-retry_path",
+   "n": 89,
+   "page": "voice-journal",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-090-CG-ufai-A-V2-rate_limit_legible",
+   "n": 90,
+   "page": "voice-journal",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-091-CG-ufai-A-V2-fallback_engaged",
+   "n": 91,
+   "page": "voice-journal",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-092-CG-ufai-A-V2-slow_honest",
+   "n": 92,
+   "page": "voice-journal",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-093-CH-ufai-I-IA-bola_object",
+   "n": 93,
+   "page": "voice-journal",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (own-journal boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-094-CH-ufai-I-IA-bfla_function",
+   "n": 94,
+   "page": "voice-journal",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (own-journal boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-095-CH-ufai-I-IA-tenant_boundary",
+   "n": 95,
+   "page": "voice-journal",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (own-journal boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-096-CH-ufai-I-IA-jwt_not_body",
+   "n": 96,
+   "page": "voice-journal",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (own-journal boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-097-CH-ufai-I-IA-boundary_not_emptiness",
+   "n": 97,
+   "page": "voice-journal",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (own-journal boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-098-CH-ufai-I-IB-bola_object",
+   "n": 98,
+   "page": "voice-journal",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (foreign journal unreachable)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-099-CH-ufai-I-IB-bfla_function",
+   "n": 99,
+   "page": "voice-journal",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (foreign journal unreachable)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-100-CH-ufai-I-IB-tenant_boundary",
+   "n": 100,
+   "page": "voice-journal",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (foreign journal unreachable)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-101-CH-ufai-I-IB-jwt_not_body",
+   "n": 101,
+   "page": "voice-journal",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (foreign journal unreachable)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-102-CH-ufai-I-IB-boundary_not_emptiness",
+   "n": 102,
+   "page": "voice-journal",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (foreign journal unreachable)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-103-CI-domain-truth-audio_fate_stated-audio_fate_stated",
+   "n": 103,
+   "page": "voice-journal",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "audio_fate_stated",
+    "name": "audio stored-or-discarded is stated",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 capture panel copy"
+    }
+   },
+   "oracle_key": "audio_fate_stated",
+   "oracle": "the surface states whether audio is stored or discarded after transcription - people act on that claim",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-104-CI-domain-truth-language_handled-language_handled",
+   "n": 104,
+   "page": "voice-journal",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "language_handled",
+    "name": "language handling is stated (Taglish reality)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138 gateway prompt path"
+    }
+   },
+   "oracle_key": "language_handled",
+   "oracle": "language handling is stated; the field reality is Filipino/Taglish, not clean English",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-105-CI-domain-truth-low_confidence_surfaced-low_confidence_surfaced",
+   "n": 105,
+   "page": "voice-journal",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "low_confidence_surfaced",
+    "name": "low confidence is surfaced, not quoted",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render"
+    }
+   },
+   "oracle_key": "low_confidence_surfaced",
+   "oracle": "low transcription confidence is surfaced rather than a guess presented as a quote",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-106-CI-domain-truth-pii_rule_holds-pii_rule_holds",
+   "n": 106,
+   "page": "voice-journal",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "pii_rule_holds",
+    "name": "PII in a transcript follows the stated rule",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138 - the PII-egress class"
+    }
+   },
+   "oracle_key": "pii_rule_holds",
+   "oracle": "PII in a transcript is handled per the stated rule - this is the page most likely to capture a name or number nobody meant to record",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-107-CI-domain-truth-capture_time_not_save_time-capture_time_not_save_time",
+   "n": 107,
+   "page": "voice-journal",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "capture_time_not_save_time",
+    "name": "timestamp = capture time",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "capture_time_not_save_time",
+   "oracle": "an entry's timestamp is capture time, not save time - they differ by exactly the offline gap",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-108-CI-domain-truth-promoted_is_linked-promoted_is_linked",
+   "n": 108,
+   "page": "voice-journal",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "promoted_is_linked",
+    "name": "a promoted entry links to the logbook entry",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry actions"
+    }
+   },
+   "oracle_key": "promoted_is_linked",
+   "oracle": "a journal entry promoted to a logbook entry is linked, not copied",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-109-CI-domain-truth-search_scope_stated-search_scope_stated",
+   "n": 109,
+   "page": "voice-journal",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "search_scope_stated",
+    "name": "search states its window and hive",
+    "seen": {
+     "how": "doc+static",
+     "ref": "search_voice_journal_entries RPC"
+    }
+   },
+   "oracle_key": "search_scope_stated",
+   "oracle": "search results state what was searched - window and hive",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-110-CI-domain-truth-summary_counts_inputs-summary_counts_inputs",
+   "n": 110,
+   "page": "voice-journal",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "summary_counts_inputs",
+    "name": "an AI summary states how many entries it read",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:1138"
+    }
+   },
+   "oracle_key": "summary_counts_inputs",
+   "oracle": "an AI summary states how many entries it read",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-111-CJ-ui-layout-V1-w390_overflow",
+   "n": 111,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-112-CJ-ui-layout-V1-w641_overflow",
+   "n": 112,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-113-CJ-ui-layout-V1-w1280_overflow",
+   "n": 113,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-114-CJ-ui-layout-V1-tap_target_44",
+   "n": 114,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-115-CJ-ui-layout-V1-safe_area",
+   "n": 115,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-116-CJ-ui-layout-V2-w390_overflow",
+   "n": 116,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-117-CJ-ui-layout-V2-w641_overflow",
+   "n": 117,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-118-CJ-ui-layout-V2-w1280_overflow",
+   "n": 118,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-119-CJ-ui-layout-V2-tap_target_44",
+   "n": 119,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-120-CJ-ui-layout-V2-safe_area",
+   "n": 120,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-121-CJ-ui-layout-V3-w390_overflow",
+   "n": 121,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-122-CJ-ui-layout-V3-w641_overflow",
+   "n": 122,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-123-CJ-ui-layout-V3-w1280_overflow",
+   "n": 123,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-124-CJ-ui-layout-V3-tap_target_44",
+   "n": 124,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-125-CJ-ui-layout-V3-safe_area",
+   "n": 125,
+   "page": "voice-journal",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-126-CK-ui-state-C1-component_loading",
+   "n": 126,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C1",
+    "name": "record control + mic state",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 capture panel"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-127-CK-ui-state-C1-component_skeleton",
+   "n": 127,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C1",
+    "name": "record control + mic state",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 capture panel"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-128-CK-ui-state-C1-component_disabled",
+   "n": 128,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C1",
+    "name": "record control + mic state",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 capture panel"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-129-CK-ui-state-C1-component_busy",
+   "n": 129,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C1",
+    "name": "record control + mic state",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 capture panel"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-130-CK-ui-state-C1-component_populated",
+   "n": 130,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C1",
+    "name": "record control + mic state",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 capture panel"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-131-CK-ui-state-C2-component_loading",
+   "n": 131,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C2",
+    "name": "transcript block",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry body"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-132-CK-ui-state-C2-component_skeleton",
+   "n": 132,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C2",
+    "name": "transcript block",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry body"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-133-CK-ui-state-C2-component_disabled",
+   "n": 133,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C2",
+    "name": "transcript block",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry body"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-134-CK-ui-state-C2-component_busy",
+   "n": 134,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C2",
+    "name": "transcript block",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry body"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-135-CK-ui-state-C2-component_populated",
+   "n": 135,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C2",
+    "name": "transcript block",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry body"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-136-CK-ui-state-C3-component_loading",
+   "n": 136,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C3",
+    "name": "entry row",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-137-CK-ui-state-C3-component_skeleton",
+   "n": 137,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C3",
+    "name": "entry row",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-138-CK-ui-state-C3-component_disabled",
+   "n": 138,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C3",
+    "name": "entry row",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-139-CK-ui-state-C3-component_busy",
+   "n": 139,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C3",
+    "name": "entry row",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-140-CK-ui-state-C3-component_populated",
+   "n": 140,
+   "page": "voice-journal",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "C3",
+    "name": "entry row",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-141-CL-ui-visual-V1-contrast_wcag",
+   "n": 141,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-142-CL-ui-visual-V1-contrast_apca",
+   "n": 142,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-143-CL-ui-visual-V1-focus_visible",
+   "n": 143,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-144-CL-ui-visual-V1-reduced_motion",
+   "n": 144,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-145-CL-ui-visual-V1-icon_only_name",
+   "n": 145,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-146-CL-ui-visual-V2-contrast_wcag",
+   "n": 146,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-147-CL-ui-visual-V2-contrast_apca",
+   "n": 147,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-148-CL-ui-visual-V2-focus_visible",
+   "n": 148,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-149-CL-ui-visual-V2-reduced_motion",
+   "n": 149,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-150-CL-ui-visual-V2-icon_only_name",
+   "n": 150,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-151-CL-ui-visual-V3-contrast_wcag",
+   "n": 151,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-152-CL-ui-visual-V3-contrast_apca",
+   "n": 152,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-153-CL-ui-visual-V3-focus_visible",
+   "n": 153,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-154-CL-ui-visual-V3-reduced_motion",
+   "n": 154,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-155-CL-ui-visual-V3-icon_only_name",
+   "n": 155,
+   "page": "voice-journal",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-156-CM-ux-comprehension-V1-what_is_this_number",
+   "n": 156,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-157-CM-ux-comprehension-V1-what_happens_next",
+   "n": 157,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-158-CM-ux-comprehension-V1-what_does_it_cost",
+   "n": 158,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-159-CM-ux-comprehension-V1-why_refused",
+   "n": 159,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-160-CM-ux-comprehension-V1-longest",
+   "n": 160,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "longest",
+   "oracle": "the longest realistic title truncates visibly rather than overflowing its card or pushing the price out of view",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CM-ux-comprehension/V1/reward_explained: the capture panel surfaces no reward figure (voice-journal.html:342)"
+  },
+  {
+   "id": "PB-voice-journal-161-CM-ux-comprehension-V2-what_is_this_number",
+   "n": 161,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-162-CM-ux-comprehension-V2-what_happens_next",
+   "n": 162,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-163-CM-ux-comprehension-V2-what_does_it_cost",
+   "n": 163,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-164-CM-ux-comprehension-V2-why_refused",
+   "n": 164,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-165-CM-ux-comprehension-V2-reward_explained",
+   "n": 165,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "reward_explained",
+   "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-166-CM-ux-comprehension-V3-what_is_this_number",
+   "n": 166,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-167-CM-ux-comprehension-V3-what_happens_next",
+   "n": 167,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-168-CM-ux-comprehension-V3-what_does_it_cost",
+   "n": 168,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-169-CM-ux-comprehension-V3-why_refused",
+   "n": 169,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-170-CM-ux-comprehension-V3-back_nav",
+   "n": 170,
+   "page": "voice-journal",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "back_nav",
+   "oracle": "browser Back out of a sheet leaves no orphaned overlay and no write half-applied; the underlying list reflects what actually happened",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CM-ux-comprehension/V3/reward_explained: the review view surfaces no reward figure (voice-journal.html:822)"
+  },
+  {
+   "id": "PB-voice-journal-171-CN-ux-journey-P1-first_run_to_value",
+   "n": 171,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker (records)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 own entries"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-172-CN-ux-journey-P1-repeat_visit",
+   "n": 172,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker (records)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 own entries"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-173-CN-ux-journey-P1-cross_surface_handoff",
+   "n": 173,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker (records)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 own entries"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-174-CN-ux-journey-P1-two_sided_same_object",
+   "n": 174,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker (records)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 own entries"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-175-CN-ux-journey-P1-abandon_resume",
+   "n": 175,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker (records)",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 own entries"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-176-CN-ux-journey-P2-first_run_to_value",
+   "n": 176,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:789 v_worker_truth"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-177-CN-ux-journey-P2-repeat_visit",
+   "n": 177,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:789 v_worker_truth"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-178-CN-ux-journey-P2-cross_surface_handoff",
+   "n": 178,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:789 v_worker_truth"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-179-CN-ux-journey-P2-two_sided_same_object",
+   "n": 179,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:789 v_worker_truth"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-180-CN-ux-journey-P2-abandon_resume",
+   "n": 180,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:789 v_worker_truth"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-181-CN-ux-journey-P3-first_run_to_value",
+   "n": 181,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 shared-view boundary"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-182-CN-ux-journey-P3-repeat_visit",
+   "n": 182,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 shared-view boundary"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-183-CN-ux-journey-P3-cross_surface_handoff",
+   "n": 183,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 shared-view boundary"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-184-CN-ux-journey-P3-two_sided_same_object",
+   "n": 184,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 shared-view boundary"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-185-CN-ux-journey-P3-abandon_resume",
+   "n": 185,
+   "page": "voice-journal",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 shared-view boundary"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-186-CO-ux-recovery-V1-double_tap",
+   "n": 186,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-187-CO-ux-recovery-V1-back_out",
+   "n": 187,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-188-CO-ux-recovery-V1-session_died",
+   "n": 188,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-189-CO-ux-recovery-V1-wrong_then_fix",
+   "n": 189,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-190-CO-ux-recovery-V1-did_it_land",
+   "n": 190,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V1",
+    "name": "capture panel",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:342 <section id=capture-panel>"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-191-CO-ux-recovery-V2-double_tap",
+   "n": 191,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-192-CO-ux-recovery-V2-back_out",
+   "n": 192,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-193-CO-ux-recovery-V2-session_died",
+   "n": 193,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-194-CO-ux-recovery-V2-wrong_then_fix",
+   "n": 194,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-195-CO-ux-recovery-V2-did_it_land",
+   "n": 195,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V2",
+    "name": "entries list",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 voice_journal_entries read"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-196-CO-ux-recovery-V3-double_tap",
+   "n": 196,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-197-CO-ux-recovery-V3-back_out",
+   "n": 197,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-198-CO-ux-recovery-V3-session_died",
+   "n": 198,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-199-CO-ux-recovery-V3-wrong_then_fix",
+   "n": 199,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-voice-journal-200-CO-ux-recovery-V3-did_it_land",
+   "n": 200,
+   "page": "voice-journal",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "voice-journal",
+   "url": "/workhive/voice-journal.html",
+   "subject": {
+    "key": "V3",
+    "name": "review / edit",
+    "seen": {
+     "how": "static-read",
+     "ref": "voice-journal.html:822 entry render + edit affordances"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  }
+ ]
+}

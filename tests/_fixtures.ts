@@ -38,26 +38,60 @@ async function resolveTestIdentity(): Promise<{ username: string; workerName: st
     return { username: _resolvedUsername, workerName: _resolvedWorkerName, hiveId: _resolvedHiveId };
   }
   const db = adminClient();
+
+  // A FAILED READ IS NOT AN EMPTY TABLE — the same conflation this suite exists to catch in the
+  // product, and it was sitting in the harness. Every lookup below used `const { data }`, discarding
+  // `error`, so a read that failed under load produced the identical message as a genuinely unseeded
+  // database: "No worker_profiles row — run the test-data-seeder first." Three tests failed with that
+  // sentence on 2026-08-05 while `worker_profiles` held 15 rows the whole time, and it sent me to the
+  // seeder instead of to the real cause. Retry transient failures, and when it is finally hopeless,
+  // say WHICH of the two things happened.
+  let lastErr = '';
+  const read = async <T>(label: string, run: () => Promise<{ data: T | null; error: any }>) => {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const { data, error } = await run();
+      if (!error) return data;
+      lastErr = `${label}: ${error.message || error.code || String(error)}`;
+      if (attempt < 3) await new Promise(r => setTimeout(r, 400 * attempt));
+    }
+    return null;
+  };
+
   // Prefer the env-provided username; else pick the first seeded worker.
   let username = TEST_USERNAME;
   let workerName = '';
   if (username) {
-    const { data } = await db.from('worker_profiles')
-      .select('username, display_name').eq('username', username).maybeSingle();
-    workerName = data?.display_name || '';
+    const data = await read('by username', () => db.from('worker_profiles')
+      .select('username, display_name').eq('username', username).maybeSingle());
+    workerName = (data as any)?.display_name || '';
   } else {
     // Fallback: prefer Pablo Aguilar (seeded supervisor), else any worker
-    const { data: pablo } = await db.from('worker_profiles')
-      .select('username, display_name').eq('display_name', 'Pablo Aguilar').maybeSingle();
+    const pablo: any = await read('by display_name', () => db.from('worker_profiles')
+      .select('username, display_name').eq('display_name', 'Pablo Aguilar').maybeSingle());
     if (pablo?.username) {
       username = pablo.username; workerName = pablo.display_name;
     } else {
-      const { data: any1 } = await db.from('worker_profiles')
-        .select('username, display_name').limit(1).maybeSingle();
+      const any1: any = await read('any worker', () => db.from('worker_profiles')
+        .select('username, display_name').limit(1).maybeSingle());
       username = any1?.username || ''; workerName = any1?.display_name || '';
     }
   }
-  if (!username) throw new Error('No worker_profiles row — run the test-data-seeder first.');
+  if (!username) {
+    // Ask the question the two cases answer differently: is the table empty, or could we not read it?
+    const { count, error: countErr } = await db.from('worker_profiles')
+      .select('username', { count: 'exact', head: true });
+    if (countErr || count === null) {
+      throw new Error(
+        `could not READ worker_profiles (${lastErr || countErr?.message || 'unknown'}) — this is a ` +
+        `failed read, NOT an unseeded database. Check the stack is up and not under load before ` +
+        `reaching for the seeder.`);
+    }
+    if (count === 0) throw new Error('worker_profiles is genuinely EMPTY — run the test-data-seeder.');
+    throw new Error(
+      `worker_profiles holds ${count} row(s) but none matched` +
+      (TEST_USERNAME ? ` username="${TEST_USERNAME}"` : ' the fallback lookups') +
+      `${lastErr ? ` (last read error: ${lastErr})` : ''} — a fixture/identity mismatch, not a seeding gap.`);
+  }
 
   // Find an active hive for this worker (env override wins).
   // PREFER THE HIVE WHERE THEY ARE A SUPERVISOR, and order deterministically. The fixture
@@ -85,7 +119,31 @@ async function resolveTestIdentity(): Promise<{ username: string; workerName: st
 
 /** Drive the platform's sign-in modal to get a real Supabase Auth session.
  *  Mirrors test-data-seeder/flows/harness.py#sign_in but in Node. */
+// A SIGN-IN THAT FAILS ONCE IS NOT A PRODUCT SIGNAL, AND IT MUST NOT BECOME 26 OF THEM.
+// A 43-test run reported 27 failures on 2026-08-05; 26 carried one identical error — this function's
+// wait timing out — and none of the oracles beneath them ever ran. The cause was a crash-looping
+// sidecar (supabase_vector_workhive, 1,898 restarts) starving the stack, and every test paid for it
+// separately because each one signs in from scratch. The sidecar is stopped; this is the belt to go
+// with it. One retry, with the browser state cleared between attempts so the second try is genuinely
+// fresh rather than a repeat against a half-signed-in page.
 async function signIn(page: Page) {
+  try {
+    return await signInOnce(page);
+  } catch (first) {
+    await page.evaluate(() => { try { localStorage.clear(); sessionStorage.clear(); } catch (_e) {} })
+      .catch(() => {});
+    await page.waitForTimeout(1500);
+    try {
+      return await signInOnce(page);
+    } catch (second) {
+      throw new Error(
+        `sign-in failed twice — this is the HARNESS, not the surface under test. ` +
+        `first: ${(first as Error).message}; second: ${(second as Error).message}`);
+    }
+  }
+}
+
+async function signInOnce(page: Page) {
   const { username } = await resolveTestIdentity();
   await page.goto('/workhive/index.html?signin=1', { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#signin-modal:not(.hidden)', { timeout: 12000 });

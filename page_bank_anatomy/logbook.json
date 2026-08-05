@@ -1,0 +1,66 @@
+{
+ "page": "logbook",
+ "url": "/workhive/logbook.html",
+ "_ground": "2026-08-05 static read. The widest blast radius on the platform: v_logbook_truth feeds ~11 consumers (asset-hub, analytics, pm-scheduler, project-manager, resume, assistant, dayplanner, hive, integrations, index + infra). Two edit paths, an offline WRITE cache, and three AI capture paths.",
+ "views": [
+  {"key": "V1", "name": "team feed (default)", "seen": {"how": "static-read", "ref": "logbook.html:1502-1601 logbook feed reads"}},
+  {"key": "V2", "name": "capture modal", "seen": {"how": "static-read", "ref": "logbook.html:1054 #modal role=dialog"}},
+  {"key": "V3", "name": "embedded asset manager", "seen": {"how": "static-read", "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "entry row", "seen": {"how": "static-read", "ref": "logbook.html:1765-1832 entry render reads"}},
+  {"key": "C2", "name": "capture form", "seen": {"how": "static-read", "ref": "logbook.html:1054 wizard modal"}},
+  {"key": "C3", "name": "parts picker", "seen": {"how": "static-read", "ref": "logbook.html:1294 #parts-picker-modal + :2651 inventory_items read"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "logbook.html:1502 feed load path"}},
+  {"key": "L2", "name": "edge (4 fns)", "seen": {"how": "static-read", "ref": "logbook.html:2016 cmms-push-completion, :3375 equipment-label-ocr, :4705 voice-logbook-entry, :4913 visual-defect-capture"}},
+  {"key": "L3", "name": "db (17 tables/views)", "seen": {"how": "static-read", "ref": "logbook.html:1357-5502 reads incl. logbook, asset_nodes, pm_*, inventory"}},
+  {"key": "L4", "name": "ai (voice + OCR + vision capture)", "seen": {"how": "static-read", "ref": "logbook.html:4705,3375,4913"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "offline-queue <-> db (a WRITE cache)", "seen": {"how": "doc+static", "ref": "logbook.html wh_logbook_offline queue - LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 names it; drain paths in-page"}},
+  {"key": "S2", "name": "edge <-> db (OCR/voice output becoming an entry)", "seen": {"how": "static-read", "ref": "logbook.html:3375,4705 invoke -> entry insert"}},
+  {"key": "S3", "name": "trigger <-> view (logbook -> v_logbook_truth -> 11 consumers)", "seen": {"how": "doc+static", "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 consumer table + logbook.html:1502"}},
+  {"key": "S4", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "logbook.html:1407 hive_members read"}},
+  {"key": "S5", "name": "logbook <-> pm_completions (the PM mirror)", "seen": {"how": "static-read", "ref": "logbook.html:4145-4150 v_pm_scope_items_truth + pm_completions, :4446"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker (own entries)", "seen": {"how": "static-read", "ref": "logbook.html:1407 membership read"}},
+  {"key": "P2", "name": "supervisor (sign-off)", "seen": {"how": "static-read", "ref": "logbook.html:1647 hive_members role read"}},
+  {"key": "P3", "name": "two_context (two workers, one entry)", "seen": {"how": "static-read", "ref": "logbook.html:1765,1770 edit paths on shared rows"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (own-row boundary)", "seen": {"how": "static-read", "ref": "logbook.html:1765-1832 update paths"}},
+  {"key": "IB", "name": "two_context (foreign-entry refusal)", "seen": {"how": "static-read", "ref": "logbook.html:1853 delete path"}}
+ ],
+ "invariants": [
+  {"key": "both_edit_paths_same_contract", "name": "modal saveEdit and in-place edit apply one contract", "seen": {"how": "doc+static", "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 ('both UPDATE paths omit auth_uid - candidate, never resolved') + logbook.html:1765,1770"}, "oracle": "both edit paths write the same columns with the same guards, auth_uid included - the PDDA arc measured the omission and left it a candidate; this invariant closes it"},
+  {"key": "queue_drains_once", "name": "the offline queue drains exactly once per entry", "seen": {"how": "doc+static", "ref": "wh_logbook_offline - LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0"}, "oracle": "an offline entry drains exactly once, and an offline-create-then-offline-edit collapses to ONE row - the keyPath/upsert class already proven for dayplanner"},
+  {"key": "no_silent_amend_after_signoff", "name": "a late drain cannot silently amend a closed record", "seen": {"how": "doc+static", "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 lifecycle axis"}, "oracle": "a queued entry that drains AFTER sign-off does not silently amend the closed record - it lands as an amendment or is refused with a reason"},
+  {"key": "consumers_reconcile", "name": "a mutation reconciles the truth-view consumers", "seen": {"how": "doc+static", "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 consumer table"}, "oracle": "an entry mutation reconciles v_logbook_truth's consumers - asserted on the three highest-stakes: MTBF (analytics), PM compliance (pm-scheduler), resume evidence"},
+  {"key": "foreign_entry_refused_as_data", "name": "editing another's entry is refused by DATA", "seen": {"how": "static-read", "ref": "logbook.html:1853 delete + :1765 update"}, "oracle": "a worker cannot edit or delete another worker's entry, and the refusal is data (RLS/guard), not CSS"},
+  {"key": "pm_mirror_idempotent", "name": "the PM completion mirror is idempotent", "seen": {"how": "static-read", "ref": "logbook.html:4150,4446 pm_completions writes"}, "oracle": "completing the same PM twice writes one completion - not zero, not two"}
+ ],
+ "domain_truths": [
+  {"key": "mtbf_iso14224", "name": "MTBF from these entries follows ISO 14224", "seen": {"how": "static-read", "ref": "logbook.html:3483-3484 metric reads"}, "oracle": "MTBF derived from these entries is operating time / failure count per ISO 14224, and the label names the standard"},
+  {"key": "mttr_repair_time", "name": "MTTR counts repair time", "seen": {"how": "static-read", "ref": "logbook.html:3655 downtime fields"}, "oracle": "MTTR counts repair time, not calendar time between entries"},
+  {"key": "loto_from_column", "name": "LOTO reads the column, not a regex", "seen": {"how": "doc+static", "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 (lotoRx leftover -> LB12)"}, "oracle": "LOTO status is read from the loto_applied column, never re-derived from a free-text regex"},
+  {"key": "amendment_visible", "name": "a post-signoff edit is a visible amendment", "seen": {"how": "static-read", "ref": "logbook.html:1357 hive_audit_log read"}, "oracle": "an amendment after sign-off is visible as an amendment with its own audit row, not an in-place overwrite"},
+  {"key": "export_complete_windowed", "name": "the DOLE/ISO export is complete and windowed", "seen": {"how": "static-read", "ref": "logbook.html:3765,4007 export reads"}, "oracle": "the export contains every entry in the window and states the window"},
+  {"key": "parts_decrement_exact", "name": "parts consumed decrement exactly", "seen": {"how": "static-read", "ref": "logbook.html:2651-2712 inventory reads + v_inventory_transactions_truth"}, "oracle": "parts consumed decrement inventory_items by the exact recorded quantity - one entry, one decrement, proven from v_inventory_transactions_truth"},
+  {"key": "entry_kind_stated", "name": "entry-kind is stated and echoed", "seen": {"how": "static-read", "ref": "logbook.html:1054 wizard kind step"}, "oracle": "entry kind (breakdown/PM/inspection) is stated at capture and echoed on the row - a miscoded kind is a silently wrong MTBF"},
+  {"key": "ai_never_invents", "name": "AI capture never invents a code or reading", "seen": {"how": "static-read", "ref": "logbook.html:3375 OCR, :4705 voice, :4913 vision"}, "oracle": "the AI capture paths never invent an asset code or a reading - an unresolved reference is surfaced for confirmation, not guessed"}
+ ],
+ "writes": [
+  {"fn": "logbook insert/update (modal + in-place)", "class": "capture QUEUED", "seen": {"how": "static-read", "ref": "logbook.html:1765,1770,1832,1853,1996,2099"}},
+  {"fn": "asset_nodes upsert/update/delete", "class": "capture", "seen": {"how": "static-read", "ref": "logbook.html:2164-2459"}},
+  {"fn": "pm_completions", "class": "locked online-only", "seen": {"how": "static-read", "ref": "logbook.html:4150,4446"}},
+  {"fn": "inventory_items decrement", "class": "stock-critical online-only", "seen": {"how": "static-read", "ref": "logbook.html:2651-2669"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "the feed renders no peso/credit figure (logbook.html:1502-1601)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the capture wizard renders no money (logbook.html:1054)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the asset manager surfaces no reward/benefit figure (logbook.html:1064)", "replace_with": {"oracle_key": "back_nav"}}
+ ]
+}

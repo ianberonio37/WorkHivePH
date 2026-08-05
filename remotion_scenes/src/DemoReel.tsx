@@ -64,35 +64,34 @@ type Beat =
   | {kind: 'title'; lines: string[]; frames: number}
   | {kind: 'section'; seg: number; frames: number}
   | {kind: 'whip'; frames: number}
+  | {kind: 'hero'; frames: number}
   | {kind: 'end'; frames: number};
 
 export const DEMO_BEATS: Beat[] = [
-  // HOOK - the poster's own headline, delivered one line at a time.
-  {kind: 'word', text: 'Track every machine.', frames: 34},
-  {kind: 'word', text: 'Stop breakdowns', frames: 30},
-  {kind: 'word', text: 'before they cost you.', accent: true, frames: 44},
-  {kind: 'logo', frames: 56},
+  // PRIMARY SCENE: the poster, animated - brand, promise, scope and the
+  // mascot all inside the first four seconds.
+  {kind: 'hero', frames: 132},
   {kind: 'device', seg: 0, frames: 170},
 
   // The poster names the product's parts; each becomes a chapter.
   {kind: 'whip', frames: 18},
   {kind: 'title', lines: ['Digital', 'Logbook'], frames: 104},
-  {kind: 'section', seg: 0, frames: 540},
-  {kind: 'section', seg: 1, frames: 450},
-  {kind: 'section', seg: 2, frames: 660},
-  {kind: 'section', seg: 3, frames: 240},
+  {kind: 'section', seg: 0, frames: 480},
+  {kind: 'section', seg: 1, frames: 360},
+  {kind: 'section', seg: 2, frames: 930},
+  {kind: 'section', seg: 3, frames: 210},
 
   {kind: 'whip', frames: 18},
   {kind: 'title', lines: ['Spare-parts', 'Inventory'], frames: 104},
-  {kind: 'section', seg: 4, frames: 690},
+  {kind: 'section', seg: 4, frames: 630},
 
   {kind: 'whip', frames: 18},
   {kind: 'title', lines: ['PM', 'Scheduler'], frames: 104},
-  {kind: 'section', seg: 5, frames: 570},
+  {kind: 'section', seg: 5, frames: 450},
 
   {kind: 'whip', frames: 18},
   {kind: 'title', lines: ['Your', 'Day Planner'], frames: 104},
-  {kind: 'section', seg: 6, frames: 420},
+  {kind: 'section', seg: 6, frames: 390},
 
   {kind: 'end', frames: 280},
 ];
@@ -166,6 +165,86 @@ const Mascot: React.FC<{
                    transform: side === 'left' ? 'scaleX(-1)' : undefined,
                    filter: 'drop-shadow(0 18px 40px rgba(0,0,0,.55))'}} />
     </div>
+  );
+};
+
+// THE PRIMARY SCENE - the poster itself, animated (Ian: "the whole image of
+// the mascot ... you didn't include it in the primary scene").
+//
+// Until now the mascot only appeared on chapter cards, so the video opened on
+// bare type and the character showed up late. The poster's own composition IS
+// the hero: logo, headline, the named feature list, and the bee standing to
+// the right. Staging it as the first beat means the brand, the promise, the
+// product's scope and the character all land in the opening seconds - which
+// is also where a third of viewers decide whether to keep watching.
+const FEATURES = ['Digital Logbook', 'PM Scheduler', 'Spare-parts Inventory',
+                  'Engineering Calculators', 'AI Work Assistant'];
+
+const PosterHero: React.FC<{frames: number}> = ({frames}) => {
+  const f = useCurrentFrame();
+  const {fps, width, height: frameH} = useVideoConfig();
+  const height = useU();
+  const portrait = frameH > width;
+  const out = interpolate(f, [frames - 10, frames], [1, 0],
+    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const rise = (d: number) => spring({frame: f - d, fps,
+    config: {damping: 17, stiffness: 110, mass: 0.7}});
+  const hx = (sz: number) => {
+    const pts = Array.from({length: 6}, (_, k) => {
+      const a2 = (Math.PI / 180) * (60 * k - 30);
+      return `${sz / 2 + (sz / 2) * Math.cos(a2)},${sz / 2 + (sz / 2) * Math.sin(a2)}`;
+    }).join(' ');
+    return <svg width={sz} height={sz} style={{flex: '0 0 auto'}}>
+      <polygon points={pts} fill="none" stroke={CYAN} strokeWidth={sz * 0.09} /></svg>;
+  };
+  const head = rise(0), sub = rise(8);
+  return (
+    <AbsoluteFill style={{background: CLOUD, opacity: out}}>
+      <HexField opacity={0.55} />
+      <Mascot side="right" heightFrac={portrait ? 0.62 : 0.94} delay={6} />
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'flex-start',
+                            padding: `0 ${height * 0.085}px`}}>
+        <div style={{maxWidth: portrait ? '92%' : '58%'}}>
+          <Img src={staticFile('workhive-logo-clean.png')}
+               style={{height: height * 0.15, display: 'block',
+                       marginBottom: height * 0.045,
+                       opacity: head,
+                       transform: `translateY(${(1 - head) * height * 0.05}px)`}} />
+          <div style={{fontFamily: FONT, fontWeight: 800, color: INK,
+                       fontSize: height * 0.093, lineHeight: 1.08,
+                       letterSpacing: '-0.015em',
+                       opacity: head,
+                       transform: `translateY(${(1 - head) * height * 0.07}px)`}}>
+            Track every machine.
+          </div>
+          <div style={{fontFamily: FONT, fontWeight: 800, color: AMBER,
+                       fontSize: height * 0.093, lineHeight: 1.08,
+                       letterSpacing: '-0.015em',
+                       opacity: sub,
+                       transform: `translateY(${(1 - sub) * height * 0.07}px)`}}>
+            Stop breakdowns before they cost you.
+          </div>
+          <div style={{marginTop: height * 0.05}}>
+            {FEATURES.map((t, i) => {
+              const r = rise(20 + i * 5);
+              return (
+                <div key={t} style={{
+                  display: 'flex', alignItems: 'center',
+                  gap: height * 0.024, marginBottom: height * 0.022,
+                  opacity: r,
+                  transform: `translateX(${(1 - r) * -height * 0.06}px)`,
+                }}>
+                  {hx(height * 0.048)}
+                  <span style={{fontFamily: FONT, fontWeight: 600,
+                                color: INK_DIM, fontSize: height * 0.039,
+                                letterSpacing: '0.02em'}}>{t}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </AbsoluteFill>
+    </AbsoluteFill>
   );
 };
 
@@ -524,11 +603,11 @@ const Blur: React.FC<{samples: number; angle: number; children: React.ReactNode}
 
 // ── assembly ────────────────────────────────────────────────────────────
 
-export const DemoReel: React.FC = () => {
+const Reel: React.FC<{beats: Beat[]}> = ({beats}) => {
   let at = 0;
   return (
     <AbsoluteFill style={{background: CLOUD}}>
-      {DEMO_BEATS.map((b, i) => {
+      {beats.map((b, i) => {
         const from = at;
         at += b.frames;
         return (
@@ -537,6 +616,7 @@ export const DemoReel: React.FC = () => {
               <Blur samples={6} angle={200}>
                 <Word text={b.text} accent={b.accent} frames={b.frames} />
               </Blur>)}
+            {b.kind === 'hero' && <PosterHero frames={b.frames} />}
             {b.kind === 'logo' && <Logo frames={b.frames} />}
             {b.kind === 'device' && (
               <Blur samples={4} angle={180}>
@@ -563,3 +643,33 @@ export const DemoReel: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+export const DemoReel: React.FC = () => <Reel beats={DEMO_BEATS} />;
+
+// ── the SHORT cut ───────────────────────────────────────────────────────
+// External research on demo videos is consistent and unkind about length: a
+// third of viewers drop off by 30s, nearly half before a minute, and the
+// recommendation is to stay under ~90s. The full reel is 2m30s because it
+// walks four products end to end - the right artefact for a landing page or
+// a sales call, the wrong one for a feed.
+//
+// So this is not a trim of the master; it is a different edit with the same
+// parts: the poster hero, ONE product told properly (the logbook - capture
+// the fix, then the LESSON, which is the whole promise), the day planner as
+// proof it adds up, and the end card. Same components, same captions, same
+// world - about a minute.
+export const SHORT_BEATS: Beat[] = [
+  {kind: 'hero', frames: 120},
+  {kind: 'whip', frames: 16},
+  {kind: 'title', lines: ['Digital', 'Logbook'], frames: 86},
+  {kind: 'section', seg: 0, frames: 300},   // pick the machine
+  {kind: 'section', seg: 2, frames: 420},   // the fix, and the lesson
+  {kind: 'whip', frames: 16},
+  {kind: 'title', lines: ['Your', 'Day Planner'], frames: 86},
+  {kind: 'section', seg: 6, frames: 300},
+  {kind: 'end', frames: 190},
+];
+
+export const SHORT_DURATION = SHORT_BEATS.reduce((a, b) => a + b.frames, 0);
+
+export const ShortReel: React.FC = () => <Reel beats={SHORT_BEATS} />;

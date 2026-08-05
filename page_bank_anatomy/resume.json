@@ -1,0 +1,65 @@
+{
+ "page": "resume",
+ "url": "/workhive/resume.html",
+ "_ground": "2026-08-05 static read. The single highest-stakes domain truth in the roster is this page's explicit privacy promise ('your files are read just to fill in your resume, then discarded' - stated in English AND Taglish). resume-extract is reached by a RAW fetchWithTimeout (:1140), bypassing the shared invoke wrapper - the same pattern as pm-scheduler's embed-entry. Anon persona marked static-partial (A7): the upload card renders pre-auth per markup, confirm live.",
+ "views": [
+  {"key": "V1", "name": "builder (upload + sections)", "seen": {"how": "static-read", "ref": "resume.html:211 #upload-card + :218 multi-file input"}},
+  {"key": "V2", "name": "review sheet (extract -> checklist confirm)", "seen": {"how": "static-read", "ref": "resume.html:256 #review-sheet role=dialog + :999 checklist comment"}},
+  {"key": "V3", "name": "resume manager (versions)", "seen": {"how": "static-read", "ref": "resume.html:272 #resume-manager role=dialog + :666 resume_versions"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "upload card + multi-file input", "seen": {"how": "static-read", "ref": "resume.html:218 accept= images/PDF/Word/Excel/text, multiple"}},
+  {"key": "C2", "name": "checklist review row", "seen": {"how": "static-read", "ref": "resume.html:999 generic checklist review sheet"}},
+  {"key": "C3", "name": "resume version row", "seen": {"how": "static-read", "ref": "resume.html:666-671 resume_versions"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client (pdf.js + XLSX parse in-browser)", "seen": {"how": "static-read", "ref": "resume.html:1109 pdfjsLib + :1134 wb.SheetNames"}},
+  {"key": "L2", "name": "edge (resume-extract via RAW fetchWithTimeout)", "seen": {"how": "static-read", "ref": "resume.html:1140 fetch /functions/v1/resume-extract - bypasses functions.invoke"}},
+  {"key": "L3", "name": "db (documents + versions + profile + evidence)", "seen": {"how": "static-read", "ref": "resume.html:666-914 reads"}},
+  {"key": "L4", "name": "ai (extraction)", "seen": {"how": "static-read", "ref": "resume.html:1140"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "file <-> extract (browser parse -> edge -> checklist)", "seen": {"how": "static-read", "ref": "resume.html:1109-1157 parse + extract + partial-read toast"}},
+  {"key": "S2", "name": "extract <-> profile", "seen": {"how": "static-read", "ref": "resume.html:906 worker_profiles"}},
+  {"key": "S3", "name": "evidence <-> resume (badges + logbook as portfolio)", "seen": {"how": "static-read", "ref": "resume.html:910 v_skill_badges_truth + :913 skill_badges + :914 v_logbook_truth"}},
+  {"key": "S4", "name": "client <-> gateway (the hand-rolled fetch path)", "seen": {"how": "static-read", "ref": "resume.html:1140"}},
+  {"key": "S5", "name": "cross-file dedupe (two uploads -> one job entry)", "seen": {"how": "static-read", "ref": "resume.html:1163-1188 dedupe comments name the exact case"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker (builds own resume)", "seen": {"how": "static-read", "ref": "resume.html:906 own profile"}},
+  {"key": "P2", "name": "anon (pre-auth upload?)", "seen": {"how": "static-partial", "ref": "resume.html:218 upload card renders per markup; whether extraction works signed-out must be confirmed LIVE (A7 hold)"}},
+  {"key": "P3", "name": "two_context", "seen": {"how": "static-read", "ref": "resume.html:692-759 resume_documents rows"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (own-documents boundary)", "seen": {"how": "static-read", "ref": "resume.html:692 resume_documents"}},
+  {"key": "IB", "name": "two_context (foreign resume unreachable)", "seen": {"how": "static-read", "ref": "resume.html:666 resume_versions"}}
+ ],
+ "invariants": [
+  {"key": "crossfile_dedupe", "name": "the same job uploaded twice yields one entry, longest wins", "seen": {"how": "static-read", "ref": "resume.html:1163-1188 ('PM rollout' vs 'SAP PM rollout for 400 assets')"}, "oracle": "cross-file dedupe holds: the same job uploaded twice yields ONE entry, and the longer variant replaces the shorter rather than sitting beside it"},
+  {"key": "nothing_without_confirm", "name": "nothing enters the resume without confirmation", "seen": {"how": "static-read", "ref": "resume.html:220 'Nothing is added until you tap to confirm' + :229 Taglish twin"}, "oracle": "nothing enters the resume without confirmation - the page promises it in two languages; the invariant is that the promise holds"},
+  {"key": "partial_read_reaches_person", "name": "a partial read reaches the person", "seen": {"how": "static-read", "ref": "resume.html:1115 'read the first N of M pages' + :1134 sheets + :1157 chunks toast"}, "oracle": "a partial read reaches the person, not just _uploadNotes - 'read 6 of 9 sheets' is the difference between a resume with a gap and one the owner thinks is complete"},
+  {"key": "exported_version_immutable", "name": "an exported version is immutable", "seen": {"how": "static-read", "ref": "resume.html:666-671,864 resume_versions"}, "oracle": "a resume version is immutable once exported; editing creates a new version"},
+  {"key": "evidence_own_and_verifiable", "name": "pulled evidence is the user's own", "seen": {"how": "static-read", "ref": "resume.html:910-914 badges + logbook reads"}, "oracle": "evidence pulled from logbook and badges is the user's own, and verifiable"},
+  {"key": "source_delete_stated", "name": "deleting a source resolves its contributions visibly", "seen": {"how": "static-read", "ref": "resume.html:750-759 resume_documents delete paths"}, "oracle": "deleting a source document either removes its contributions or keeps them with a stated reason - never silently leaves orphaned claims"}
+ ],
+ "domain_truths": [
+  {"key": "privacy_claim_true", "name": "THE privacy claim is TRUE", "seen": {"how": "static-read", "ref": "resume.html:220 'read just to fill in your resume, then discarded' + :229 Taglish"}, "oracle": "uploaded files are read to fill the resume and then discarded - an explicit, checkable promise about someone's personal documents; the single highest-stakes domain truth in the roster, proven at the storage/network layer"},
+  {"key": "json_resume_conformance", "name": "JSON Resume conformance where claimed", "seen": {"how": "doc+static", "ref": "resume-builder skill (JSON Resume data model)"}, "oracle": "JSON Resume schema conformance wherever claimed"},
+  {"key": "ats_safe", "name": "ATS-safety rules hold", "seen": {"how": "doc+static", "ref": "resume-builder skill (ATS format standards)"}, "oracle": "no layout construct that breaks an ATS parser - the whole point is passing a machine screen"},
+  {"key": "dates_consistent", "name": "dates consistent, overlaps explicit", "seen": {"how": "static-read", "ref": "resume.html:999 checklist review"}, "oracle": "dates are consistent and non-overlapping unless explicitly concurrent"},
+  {"key": "badge_vs_selfclaim", "name": "badge-skills and self-claims look different", "seen": {"how": "static-read", "ref": "resume.html:910-913"}, "oracle": "a skill from a badge and a self-claim look different, and are labelled as such"},
+  {"key": "i18n_resolves", "name": "Taglish strings resolve", "seen": {"how": "static-read", "ref": "resume.html:223-229 data-i dictionary"}, "oracle": "Taglish / Filipino strings resolve - an unresolved data-i marker is a broken translation, not cosmetic"},
+  {"key": "extraction_attributed", "name": "extracted content is attributed to its source file", "seen": {"how": "static-read", "ref": "resume.html:1104 _uploadNotes per-file"}, "oracle": "extracted content is attributed to its source file, so a wrong import can be found and undone"},
+  {"key": "gaps_not_hidden", "name": "employment gaps are neither invented nor hidden", "seen": {"how": "doc+static", "ref": "resume-builder skill checklist"}, "oracle": "employment gaps are the person's to explain - the tool neither invents nor hides them"}
+ ],
+ "writes": [
+  {"fn": "resume_documents / resume_versions", "class": "capture", "seen": {"how": "static-read", "ref": "resume.html:666-759,864-865"}},
+  {"fn": "worker_profiles", "class": "identity online-only", "seen": {"how": "static-read", "ref": "resume.html:906"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "the builder renders career content, no money (resume.html:211)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the review sheet renders extracted items, no money (resume.html:256)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V2/reward_explained", "reason": "the review sheet surfaces no reward figure (resume.html:256)", "replace_with": {"oracle_key": "back_nav"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the version manager surfaces no reward figure (resume.html:272)", "replace_with": {"oracle_key": "longest"}}
+ ]
+}

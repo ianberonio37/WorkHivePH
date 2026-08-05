@@ -689,7 +689,7 @@
   async function loadListings() {
     showSkeletons();
     try {
-      const { data, error, status } = await db
+      const _q = db
         .from('v_marketplace_listings_truth')
         // MK2 (deepwalk 2026-07-24): moderation_reason/_at come with the row so a rejected listing can
         // TELL the seller why (previously they saw only a bare red "Removed" chip). RLS keeps these
@@ -699,6 +699,12 @@
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500); // limit-as-count-allow: list cap only; _listingsTotal head-count query below drives the badge
+      /* Bounded, or showSkeletons() above never ends. supabase-js does not pass through
+         fetchWithTimeout, so a stalled read just stays stalled while the page shimmers at a seller
+         who has already decided it is broken. whQueryTimeout resolves in supabase's own {data,error}
+         shape, so the throw below and the _readFailed path handle it unchanged. */
+      const { data, error, status } = await (typeof whQueryTimeout === 'function'
+        ? whQueryTimeout(_q, 15000, 'your listings') : _q);
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       _readFailed.listings = false; _readFailErr.listings = null;
       _listings = data || [];
@@ -755,10 +761,21 @@
       return 'Too many requests, so ' + what + " couldn't be read. Your connection is fine: wait about "
              + wait + ', then retry.';
     }
-    if (st === 401 || st === 403 || code === '42501' || /jwt|token/i.test(String((err && err.message) || ''))) {
+    /* 401 IS A DEAD SESSION; 403 IS A LIVE SESSION AND A REFUSED ROW. PostgREST answers 401 when the
+       caller is anonymous or the token is dead, 403 when they are authenticated and the row was
+       refused. Answering both with "sign in again" sends the second group to fix the one thing that
+       is not broken — and they land on the same 403. Measured 2026-08-05 by injecting each status at
+       the route layer; five of six surfaces conflated them. Same lesson as the 429 branch above. */
+    if (st === 401 || /jwt|token/i.test(String((err && err.message) || ''))
+        || (st == null && code === '42501')) {
       _lastFailReason = 'Your session expired. Sign in again to continue; nothing you did was lost.';
       return 'Your session expired, so ' + what + " couldn't be read. Sign in again to continue. "
              + 'Nothing you did was lost.';
+    }
+    if (st === 403 || code === '42501') {
+      _lastFailReason = 'This account does not have access to that. Your session is fine.';
+      return 'This account does not have access to ' + what + '. Your session is fine, so signing in '
+             + 'again will not change it — ask a supervisor if you need access.';
     }
     return "Couldn't load " + what + '. Check your connection and retry.';
   }
@@ -769,13 +786,17 @@
   async function loadInquiries() {
     showSkeletons();
     try {
-      const { data, error, status } = await db
+      const _q = db
         .from('v_marketplace_inquiries_truth')
         .select('id,listing_id,buyer_name,buyer_contact,message,status,reply_text,replied_at,created_at,listing_title')
         .eq('seller_name', WORKER_NAME)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(50); // limit-as-count-allow: list cap only; tile counts come from the head-count queries below
+      // Bounded for the same reason as loadListings above: an unbounded read under a stalled
+      // connection leaves the inquiries skeleton shimmering with nothing ever said.
+      const { data, error, status } = await (typeof whQueryTimeout === 'function'
+        ? whQueryTimeout(_q, 15000, 'your inquiries') : _q);
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       _readFailed.inquiries = false; _readFailErr.inquiries = null;
       _inquiries = data || [];
@@ -2760,6 +2781,20 @@
 
     if (raw && !/^[a-zA-Z0-9_.\-]{3,50}$/.test(raw)) {
       showToast('Invalid handle. Use only letters, numbers, periods, underscores, hyphens (3-50 chars).', 'error');
+      return;
+    }
+
+    /* A SAVE THAT CHANGES NOTHING SHOULD WRITE NOTHING. The button is already _lockClick-guarded, but
+       a lock only holds while the request is in flight — on a fast connection the first save returns
+       in milliseconds, the lock releases, and a double-tap lands a SECOND upsert plus a second
+       writeAuditLog. Measured 2026-08-05: two presses produced 5 writes against a one-press baseline
+       of 3. The upsert itself is harmless (same values), but the audit trail then records an edit
+       that never happened, and "edited" is a claim about a person's actions. Compare first; the
+       cheapest write is the one not made. Same shape as the no-change Save fixed on the listing form. */
+    const _currentHandle = (_seller && _seller.messenger_username) || '';
+    if ((raw || '') === _currentHandle) {
+      showToast(raw ? 'That is already your saved handle — nothing to change.'
+                    : 'No handle saved, and none entered — nothing to change.', 'info');
       return;
     }
 

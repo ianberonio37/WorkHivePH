@@ -1,0 +1,65 @@
+{
+ "page": "project-manager",
+ "url": "/workhive/project-manager.html",
+ "_ground": "2026-08-05 static read. The budget ledger and the six-domain link fan-out are the verdicts: original + approved change orders = current budget, and project_links reaches assets, logbook, PM, inventory, calcs and marketplace.",
+ "views": [
+  {"key": "V1", "name": "project list (default)", "seen": {"how": "static-read", "ref": "project-manager.html:1014-1041 projects + truth views"}},
+  {"key": "V2", "name": "project detail", "seen": {"how": "static-read", "ref": "project-manager.html:1935-1940 items+links+progress+roles+change-orders load"}},
+  {"key": "V3", "name": "change-order panel", "seen": {"how": "static-read", "ref": "project-manager.html:2724-2781 project_change_orders"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "project row", "seen": {"how": "static-read", "ref": "project-manager.html:1014 list feed"}},
+  {"key": "C2", "name": "item/WBS row", "seen": {"how": "static-read", "ref": "project-manager.html:1734 project_items"}},
+  {"key": "C3", "name": "change-order row", "seen": {"how": "static-read", "ref": "project-manager.html:2724"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "project-manager.html:1014 list load"}},
+  {"key": "L2", "name": "edge (project-orchestrator, embed-entry, project-progress)", "seen": {"how": "static-read", "ref": "project-manager.html:1760,2874,2943,2971"}},
+  {"key": "L3", "name": "db (14 tables/views)", "seen": {"how": "static-read", "ref": "project-manager.html:938-2960 reads"}},
+  {"key": "L4", "name": "realtime (4 channels)", "seen": {"how": "grep-count", "ref": "project-manager.html - 4 .channel( occurrences (2026-08-05 grep)"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "edge <-> db (orchestrator writes, board reads)", "seen": {"how": "static-read", "ref": "project-manager.html:1760 invoke + :1014 read-back"}},
+  {"key": "S2", "name": "trigger <-> view (projects/items/progress truth views)", "seen": {"how": "static-read", "ref": "project-manager.html:1022 v_project_items_truth, :1041 v_project_truth, :1937 v_project_progress_truth"}},
+  {"key": "S3", "name": "realtime <-> client", "seen": {"how": "grep-count", "ref": "project-manager.html 4 .channel( sites"}},
+  {"key": "S4", "name": "client <-> gateway (4 RPCs)", "seen": {"how": "static-read", "ref": "project-manager.html:1675 generate_project_code, :1818 get_project_budget, :1863 set_project_budget, :2722 generate_change_order_number"}},
+  {"key": "S5", "name": "project <-> six linked domains", "seen": {"how": "static-read", "ref": "project-manager.html:2345-2351 asset_nodes, v_logbook_truth, pm_completions, v_inventory_items_truth, engineering_calcs, v_marketplace_listings_truth"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "member", "seen": {"how": "static-read", "ref": "project-manager.html:938 hive_members read"}},
+  {"key": "P2", "name": "project manager (budget + CO authority)", "seen": {"how": "static-read", "ref": "project-manager.html:2646-2660 project_roles"}},
+  {"key": "P3", "name": "two_context (two managers, one change order)", "seen": {"how": "static-read", "ref": "project-manager.html:2756 CO decision write"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "member (role floor on budget)", "seen": {"how": "static-read", "ref": "project-manager.html:1863 set_project_budget"}},
+  {"key": "IB", "name": "two_context (CO approval race)", "seen": {"how": "static-read", "ref": "project-manager.html:2756"}}
+ ],
+ "invariants": [
+  {"key": "codes_collision_free", "name": "generated codes are collision-free under concurrency", "seen": {"how": "static-read", "ref": "project-manager.html:1675,2722 generator RPCs"}, "oracle": "generate_project_code and generate_change_order_number are collision-free under concurrency - two creations at the same instant produce two codes, proven by racing them"},
+  {"key": "budget_ledger_balances", "name": "original + approved COs = current budget", "seen": {"how": "static-read", "ref": "project-manager.html:1818 get_project_budget + :2724 change orders"}, "oracle": "original budget plus the sum of approved change orders equals the current budget - a change order that moves the budget without a ledger row is the one-sided-write class"},
+  {"key": "co_terminal", "name": "an approved change order is frozen", "seen": {"how": "static-read", "ref": "project-manager.html:2756 CO decision"}, "oracle": "an approved change order cannot be re-approved or edited - terminal state frozen, proven by attempting the transition"},
+  {"key": "links_tenant_bound", "name": "project_links cannot cross a tenant", "seen": {"how": "static-read", "ref": "project-manager.html:2345-2351 fan-out reads"}, "oracle": "every linked object across all six domains resolves in the project's own hive"},
+  {"key": "progress_one_source", "name": "list and detail progress cannot disagree", "seen": {"how": "static-read", "ref": "project-manager.html:1937 v_project_progress_truth"}, "oracle": "progress % on the list and the detail derive from the same v_project_progress_truth row and cannot disagree"},
+  {"key": "no_orphans_on_archive", "name": "archiving leaves no orphans", "seen": {"how": "static-read", "ref": "project-manager.html:1900-1916 project lifecycle writes"}, "oracle": "deleting or archiving a project leaves no orphan item, link, role, progress log or change order"}
+ ],
+ "domain_truths": [
+  {"key": "progress_basis_stated", "name": "progress % states its basis", "seen": {"how": "static-read", "ref": "project-manager.html:1937"}, "oracle": "progress % states its basis - weighted by cost, item count, or planned hours; a bare % is a claim nobody can check"},
+  {"key": "currency_vat_stated", "name": "budget carries currency and VAT treatment", "seen": {"how": "static-read", "ref": "project-manager.html:1818 budget RPC"}, "oracle": "budget figures carry their currency and whether they include VAT"},
+  {"key": "planned_committed_actual", "name": "planned/committed/actual are three labelled numbers", "seen": {"how": "static-read", "ref": "project-manager.html:1818,2481 budget + progress logs"}, "oracle": "planned, committed and actual are three distinct numbers, each labelled; none renders in another's place"},
+  {"key": "co_states_both_effects", "name": "a change order states budget AND schedule effect", "seen": {"how": "static-read", "ref": "project-manager.html:2724 CO fields"}, "oracle": "a change order states its effect on both budget and schedule - a cost-only change order hides half its consequence"},
+  {"key": "rollup_respects_children", "name": "an on-track parent has no overdue child", "seen": {"how": "static-read", "ref": "project-manager.html:1734 WBS items"}, "oracle": "an item shown on-track cannot have an overdue child item; the rollup respects its children"},
+  {"key": "approver_stated", "name": "who may approve is stated; the approver is named", "seen": {"how": "static-read", "ref": "project-manager.html:2646 project_roles + :2756 decision"}, "oracle": "who may approve a change order is stated on the surface, and the approver is named on the approved row"},
+  {"key": "evidence_counted_once", "name": "linked evidence counts once", "seen": {"how": "static-read", "ref": "project-manager.html:2292,2379-2388 project_links"}, "oracle": "the same logbook entry linked twice is one piece of evidence, not two"},
+  {"key": "code_stable", "name": "the displayed code equals the stored code", "seen": {"how": "static-read", "ref": "project-manager.html:1675 generate_project_code"}, "oracle": "the project code displayed equals the code stored, and its format is stable per hive"}
+ ],
+ "writes": [
+  {"fn": "project_change_orders + set_project_budget", "class": "financial/approval online-only", "seen": {"how": "static-read", "ref": "project-manager.html:2724-2781,1863,1888"}},
+  {"fn": "project_roles", "class": "role online-only", "seen": {"how": "static-read", "ref": "project-manager.html:2646,2660"}},
+  {"fn": "project_progress_logs", "class": "capture", "seen": {"how": "static-read", "ref": "project-manager.html:2481,2500"}},
+  {"fn": "projects/project_items/project_links", "class": "capture", "seen": {"how": "static-read", "ref": "project-manager.html:1693,1734,2124-2261,2292"}}
+ ],
+ "na": [
+  {"cell": "CM-ux-comprehension/V1/reward_explained", "reason": "the project list surfaces no reward/benefit figure (project-manager.html:1014)", "replace_with": {"oracle_key": "longest"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the change-order panel surfaces no reward figure (project-manager.html:2724)", "replace_with": {"oracle_key": "back_nav"}}
+ ]
+}

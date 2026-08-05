@@ -1,0 +1,64 @@
+{
+ "page": "community",
+ "url": "/workhive/community.html",
+ "_ground": "2026-08-05 static read. 12 realtime channels (second only to hive), a reputation seam feeding COMMERCIAL trust (v_marketplace_sellers_truth), and R9 inheritance: this surface already carries marketplace-bank rows (W-surface-breadth + AZ/BB/BD/BF/BG/BH/BI/BK), which arrive with their original evidence and expire with it.",
+ "views": [
+  {"key": "V1", "name": "feed", "seen": {"how": "static-read", "ref": "community.html:931 v_community_posts_truth"}},
+  {"key": "V2", "name": "thread-overlay", "seen": {"how": "static-read", "ref": "community.html:675 #thread-overlay role=dialog"}},
+  {"key": "V3", "name": "composer-overlay", "seen": {"how": "static-read", "ref": "community.html:614 #composer-overlay role=dialog"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "post card", "seen": {"how": "static-read", "ref": "community.html:1225-1255 post renders"}},
+  {"key": "C2", "name": "reply row", "seen": {"how": "static-read", "ref": "community.html:1316 community_replies"}},
+  {"key": "C3", "name": "reaction bar", "seen": {"how": "static-read", "ref": "community.html:1495-1544 community_reactions"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "community.html:931 feed load"}},
+  {"key": "L2", "name": "gateway (reputation + peers RPCs)", "seen": {"how": "static-read", "ref": "community.html:2105 get_community_reputation + :1128 get_hive_trade_peers + :2301 set_community_best_answer"}},
+  {"key": "L3", "name": "db (posts/replies/reactions/xp)", "seen": {"how": "static-read", "ref": "community.html:931-2670 reads"}},
+  {"key": "L4", "name": "realtime (12 channels)", "seen": {"how": "grep-count", "ref": "community.html - 12 .channel( occurrences (2026-08-05 grep)"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "realtime <-> client (12 channels)", "seen": {"how": "grep-count", "ref": "community.html 12 .channel( sites"}},
+  {"key": "S2", "name": "trigger <-> view (posts -> truth view)", "seen": {"how": "static-read", "ref": "community.html:1726 community_posts write vs :931 truth read"}},
+  {"key": "S3", "name": "community <-> marketplace (reputation feeding commercial trust)", "seen": {"how": "static-read", "ref": "community.html:2106 v_marketplace_sellers_truth + :2319 v_marketplace_listings_truth"}},
+  {"key": "S4", "name": "xp <-> achievements", "seen": {"how": "static-read", "ref": "community.html:933,1065 community_xp"}},
+  {"key": "S5", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "community.html:2105"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "anon (public boundary)", "seen": {"how": "static-read", "ref": "community.html:931 feed under anon key"}},
+  {"key": "P2", "name": "member", "seen": {"how": "static-read", "ref": "community.html:1726 post write"}},
+  {"key": "P3", "name": "two_context (two members, one thread)", "seen": {"how": "static-read", "ref": "community.html:2256-2352 reply writes + 12 channels"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "anon (read boundary)", "seen": {"how": "static-read", "ref": "community.html:931"}},
+  {"key": "IB", "name": "two_context (moderation + best-answer authority)", "seen": {"how": "static-read", "ref": "community.html:2301"}}
+ ],
+ "invariants": [
+  {"key": "reaction_count_distinct", "name": "reaction count = distinct reactors", "seen": {"how": "static-read", "ref": "community.html:1495-1544"}, "oracle": "one person cannot react twice to one post; the count equals distinct reactors"},
+  {"key": "best_answer_single", "name": "best answer is single-valued", "seen": {"how": "static-read", "ref": "community.html:2301 set_community_best_answer"}, "oracle": "re-setting best answer moves it rather than adding a second"},
+  {"key": "xp_once_and_reverses", "name": "XP awards once, reverses on removal, and cannot be minted client-side", "seen": {"how": "doc+static", "ref": "reference_community_xp_write_hole (the client-write BOLA: any authed user could mint any XP) + community.html:933,1065"}, "oracle": "XP for a post or reply is awarded once, reverses if the content is removed, and CANNOT be minted by a client write - the community_xp BOLA class, proven by attempting the mint"},
+  {"key": "no_orphan_replies", "name": "a deleted post leaves no contextless reply", "seen": {"how": "static-read", "ref": "community.html:2627 post delete + :1316 replies"}, "oracle": "a deleted post leaves no reply rendered without its context"},
+  {"key": "reputation_live", "name": "reputation shown = the RPC right now", "seen": {"how": "static-read", "ref": "community.html:2105"}, "oracle": "reputation shown equals get_community_reputation right now, not at some earlier render"},
+  {"key": "report_one_record_no_selfclear", "name": "a report is one record the reported cannot clear", "seen": {"how": "static-read", "ref": "community.html:700 #report-overlay + :2659 hive_audit_log"}, "oracle": "a report creates exactly one moderation record and cannot be self-cleared by the reported party"}
+ ],
+ "domain_truths": [
+  {"key": "reputation_defined", "name": "reputation states what it counts", "seen": {"how": "static-read", "ref": "community.html:2105"}, "oracle": "reputation states what it counts and over what window"},
+  {"key": "xp_thresholds_stated", "name": "XP-to-level thresholds are stated", "seen": {"how": "static-read", "ref": "community.html:933"}, "oracle": "XP-to-level thresholds are stated"},
+  {"key": "seller_badge_one_meaning", "name": "a seller badge means the same as in the marketplace", "seen": {"how": "static-read", "ref": "community.html:2106 v_marketplace_sellers_truth"}, "oracle": "a seller badge here means the same thing as in the marketplace - one vocabulary across the community<->commerce seam, where a trust claim can quietly change meaning"},
+  {"key": "best_answer_names_chooser", "name": "best answer names who chose it", "seen": {"how": "static-read", "ref": "community.html:2301"}, "oracle": "'best answer' names who chose it"},
+  {"key": "visibility_before_posting", "name": "visibility is stated BEFORE posting", "seen": {"how": "static-read", "ref": "community.html:614 composer"}, "oracle": "post visibility (hive-only vs public feed) is stated before posting - the thing you cannot take back"},
+  {"key": "peers_basis_stated", "name": "trade-peer suggestions state their basis", "seen": {"how": "static-read", "ref": "community.html:1128 get_hive_trade_peers"}, "oracle": "trade-peer suggestions state their basis"},
+  {"key": "edited_shows_edited", "name": "an edited post shows it was edited", "seen": {"how": "static-read", "ref": "community.html:1987-2035 post updates"}, "oracle": "an edited post shows that it was edited"},
+  {"key": "anon_limits_stated", "name": "anon limits are stated as limits", "seen": {"how": "static-read", "ref": "community.html:931 anon feed"}, "oracle": "an anon reader's limits are stated as limits, never rendered as emptiness"}
+ ],
+ "writes": [
+  {"fn": "community_posts / community_replies / community_reactions", "class": "capture", "seen": {"how": "static-read", "ref": "community.html:1726-1822,2256-2352,1495-1544"}},
+  {"fn": "set_community_best_answer", "class": "moderation online-only", "seen": {"how": "static-read", "ref": "community.html:2301"}},
+  {"fn": "hive_audit_log", "class": "audit append-only", "seen": {"how": "static-read", "ref": "community.html:2659"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the thread overlay renders discussion; prices appear only via the V1-adjacent related-listings strip which the V1 row covers (community.html:2319)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the composer states visibility, not rewards (community.html:614)", "replace_with": {"oracle_key": "back_nav"}}
+ ]
+}

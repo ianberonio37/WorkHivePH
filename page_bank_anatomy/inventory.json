@@ -1,0 +1,65 @@
+{
+ "page": "inventory",
+ "url": "/workhive/inventory.html",
+ "_ground": "2026-08-05 static read. Stock conservation is this page's whole verdict: inventory_items + inventory_transactions is a parts LEDGER, and parts_staged_reservations adds an on-hand-vs-available split.",
+ "views": [
+  {"key": "V1", "name": "parts list (default)", "seen": {"how": "static-read", "ref": "inventory.html:2003-2030 v_inventory_items_truth reads"}},
+  {"key": "V2", "name": "part-modal (add/edit)", "seen": {"how": "static-read", "ref": "inventory.html:400 #part-modal role=dialog"}},
+  {"key": "V3", "name": "use/restock sheets", "seen": {"how": "static-read", "ref": "inventory.html:507 #use-modal + :535 #restock-modal"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "part row (stock + reorder badge)", "seen": {"how": "static-read", "ref": "inventory.html:2003 list render feed"}},
+  {"key": "C2", "name": "use form", "seen": {"how": "static-read", "ref": "inventory.html:507"}},
+  {"key": "C3", "name": "restock form", "seen": {"how": "static-read", "ref": "inventory.html:535"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "inventory.html:2003 list load"}},
+  {"key": "L2", "name": "gateway (PostgREST)", "seen": {"how": "static-read", "ref": "inventory.html:685 inventory_items read"}},
+  {"key": "L3", "name": "db (10 tables/views)", "seen": {"how": "static-read", "ref": "inventory.html:642-2142 reads"}},
+  {"key": "L4", "name": "realtime (2 channels)", "seen": {"how": "grep-count", "ref": "inventory.html - 2 .channel( occurrences (2026-08-05 grep)"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "trigger <-> view (items + transactions truth views)", "seen": {"how": "static-read", "ref": "inventory.html:2003 v_inventory_items_truth + :2030 v_inventory_transactions_truth"}},
+  {"key": "S2", "name": "offline-queue <-> db (field-trio adopter)", "seen": {"how": "doc+static", "ref": "PDDA Y1b measured baseline: logbook/inventory/pm-scheduler route writes through a queue"}},
+  {"key": "S3", "name": "realtime <-> client", "seen": {"how": "grep-count", "ref": "inventory.html 2 .channel( sites"}},
+  {"key": "S4", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "inventory.html:685"}},
+  {"key": "S5", "name": "inventory <-> staged reservations", "seen": {"how": "static-read", "ref": "inventory.html:2082 parts_staged_reservations read"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker (uses parts)", "seen": {"how": "static-read", "ref": "inventory.html:2142 hive_members read"}},
+  {"key": "P2", "name": "supervisor (restocks/edits)", "seen": {"how": "static-read", "ref": "inventory.html:1357,1394 item edits"}},
+  {"key": "P3", "name": "two_context (two people, last unit)", "seen": {"how": "static-read", "ref": "inventory.html:1822-1828 stock update path"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (tenant boundary)", "seen": {"how": "static-read", "ref": "inventory.html:2003 hive-scoped reads"}},
+  {"key": "IB", "name": "two_context (concurrent consumption)", "seen": {"how": "static-read", "ref": "inventory.html:1822 stock write"}}
+ ],
+ "invariants": [
+  {"key": "stock_conserved", "name": "qty_on_hand equals the newest transaction's qty_after", "seen": {"how": "doc+static", "ref": "inventory-validator skill (ARC DI 10.5 balance<->ledger seesaw) + inventory.html:2061-2071"}, "oracle": "a part's qty_on_hand equals the NEWEST inventory_transactions.qty_after, and every qty change goes through inventory_deduct/inventory_restock leaving a transaction row - the one-sided-ledger-write class, in parts instead of pesos"},
+  {"key": "no_negative_stock", "name": "no silent negative stock", "seen": {"how": "static-read", "ref": "inventory.html:1822 stock update"}, "oracle": "a part cannot go below zero silently - a would-be-negative write is refused or lands in an explicit backorder state"},
+  {"key": "last_unit_race", "name": "two concurrent takes of the last unit cannot double-spend", "seen": {"how": "static-read", "ref": "inventory.html:1822-1828"}, "oracle": "two concurrent consumptions of the last unit: one succeeds, one is refused with a reason; the total never double-spends"},
+  {"key": "reservations_released", "name": "staged reservations release on close/cancel", "seen": {"how": "static-read", "ref": "inventory.html:2082 parts_staged_reservations"}, "oracle": "a staged reservation is released when its job closes or cancels - no orphan holds"},
+  {"key": "movement_leaves_row", "name": "every movement leaves an attributed transaction row", "seen": {"how": "static-read", "ref": "inventory.html:695 inventory_transactions insert"}, "oracle": "every stock movement leaves an inventory_transactions row naming who and why - a quantity change with no transaction row is a defect"},
+  {"key": "tenant_isolation_e2e", "name": "foreign hive parts invisible end to end", "seen": {"how": "static-read", "ref": "inventory.html:2003 view + 2 realtime channels"}, "oracle": "a foreign hive's parts are invisible through the view, the RPC and the realtime channel - end to end, not merely the base table"}
+ ],
+ "domain_truths": [
+  {"key": "reorder_point_is_trigger", "name": "low-stock triggers at the reorder point", "seen": {"how": "static-read", "ref": "inventory.html:2003 list badges"}, "oracle": "the low-stock badge triggers at the part's reorder point, not a hardcoded threshold, and says which point it crossed"},
+  {"key": "lead_time_beside_reorder", "name": "lead time is stated where reorder is suggested", "seen": {"how": "static-read", "ref": "inventory.html:400 part fields"}, "oracle": "lead time is stated wherever a reorder is suggested - a reorder point without lead time is half a recommendation"},
+  {"key": "uom_travels", "name": "unit of measure travels with every quantity", "seen": {"how": "static-read", "ref": "inventory.html:400 part-modal fields"}, "oracle": "the unit of measure travels with every quantity (pcs vs metres vs litres) - a bare number is the units_declared class"},
+  {"key": "unit_vs_total_value", "name": "unit cost and total value are distinguished", "seen": {"how": "static-read", "ref": "inventory.html:2003 value renders"}, "oracle": "unit cost and total value are distinguishable and neither is presented as the other"},
+  {"key": "consumption_names_part", "name": "logbook consumption decrements the named part", "seen": {"how": "cross-page", "ref": "inventory.html:695 vs logbook.html:2651-2669"}, "oracle": "a consumption recorded from a logbook entry decrements the same part the entry names"},
+  {"key": "criticality_drives_policy", "name": "criticality drives the reorder policy, stated", "seen": {"how": "static-read", "ref": "inventory.html:400 part fields"}, "oracle": "a part's criticality drives its reorder policy and the surface states which"},
+  {"key": "onhand_vs_available", "name": "on-hand and available are two labelled numbers", "seen": {"how": "static-read", "ref": "inventory.html:2082 staged reservations"}, "oracle": "stock-on-hand and available (on-hand minus staged reservations) are two numbers, both labelled"},
+  {"key": "no_stale_last_used", "name": "no movement reads as no movement", "seen": {"how": "static-read", "ref": "inventory.html:2030 transactions read"}, "oracle": "a part with no movement in the window says so, rather than rendering a stale 'last used' as current"}
+ ],
+ "writes": [
+  {"fn": "inventory_deduct / inventory_restock RPCs + inventory_items update", "class": "stock-critical online-only", "seen": {"how": "doc+static", "ref": "substrate page/inventory.md RPC list + inventory.html:1357,1394,1822,1828,2061"}},
+  {"fn": "inventory_transactions insert", "class": "ledger append-only", "seen": {"how": "static-read", "ref": "inventory.html:695,2064"}},
+  {"fn": "asset_nodes / project_links", "class": "capture", "seen": {"how": "static-read", "ref": "inventory.html:2117,2121,1658-1683"}}
+ ],
+ "na": [
+  {"cell": "CM-ux-comprehension/V1/reward_explained", "reason": "the parts list surfaces no reward/benefit figure (inventory.html:2003)", "replace_with": {"oracle_key": "longest"}},
+  {"cell": "CM-ux-comprehension/V2/reward_explained", "reason": "the part-modal surfaces no reward (inventory.html:400)", "replace_with": {"oracle_key": "back_nav"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "use/restock sheets surface no reward (inventory.html:507,535)", "replace_with": {"oracle_key": "session_expiry"}}
+ ]
+}

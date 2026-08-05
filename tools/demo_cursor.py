@@ -79,27 +79,17 @@ CURSOR_JS = r"""
         100% { transform: scale(5.0); opacity: 0; }
       }
       #__wh_ripple.__go { animation: __wh_pulse 620ms ease-out forwards; }
-      /* SCROLL AFFORDANCE: a wheel badge pinned beside the pointer while the
-         page is scrolling, so a moving page is legible as "being scrolled"
-         rather than "lurching on its own". */
-      #__wh_scroll {
+      /* the travelling highlight - sits UNDER the arrow, above the page */
+      #__wh_halo {
         position: fixed; top: 0; left: 0; pointer-events: none;
-        z-index: 2147483647; opacity: 0; transition: opacity 140ms ease-out;
-        transform: translate(-9999px, -9999px);
+        z-index: 2147483645; width: 150px; height: 150px;
+        margin: -75px 0 0 -75px; border-radius: 50%;
+        background: radial-gradient(circle,
+          rgba(255,214,140,.22) 0%,
+          rgba(255,200,110,.13) 42%,
+          rgba(255,200,110,0) 70%);
+        will-change: transform;
       }
-      #__wh_scroll.__on { opacity: 1; }
-      #__wh_scroll .__pill {
-        width: 30px; height: 46px; border-radius: 16px;
-        border: 3px solid #fff; background: rgba(11,17,26,.72);
-        box-shadow: 0 3px 10px rgba(0,0,0,.5); position: relative;
-      }
-      #__wh_scroll .__dot {
-        position: absolute; left: 50%; margin-left: -3.5px; top: 8px;
-        width: 7px; height: 11px; border-radius: 4px; background: #F7A21B;
-        animation: __wh_wheel 900ms ease-in-out infinite;
-      }
-      @keyframes __wh_wheel {
-        0%   { top: 8px;  opacity: 0; }
         30%  { opacity: 1; }
         100% { top: 26px; opacity: 0; }
       }
@@ -117,16 +107,15 @@ CURSOR_JS = r"""
         'fill="#fff" stroke="#16202f" stroke-width="1.6" stroke-linejoin="round"/></svg>';
       document.body.appendChild(cur);
     }
+    if (!document.getElementById('__wh_halo')) {
+      const h = document.createElement('div');
+      h.id = '__wh_halo';
+      document.body.appendChild(h);
+    }
     if (!document.getElementById('__wh_ripple')) {
       const rip = document.createElement('div');
       rip.id = '__wh_ripple';
       document.body.appendChild(rip);
-    }
-    if (!document.getElementById('__wh_scroll')) {
-      const sc = document.createElement('div');
-      sc.id = '__wh_scroll';
-      sc.innerHTML = '<div class="__pill"><div class="__dot"></div></div>';
-      document.body.appendChild(sc);
     }
 
     // Position lives on window so it survives a body/document swap - otherwise
@@ -138,6 +127,8 @@ CURSOR_JS = r"""
     const draw = () => {
       const c = document.getElementById('__wh_cursor');
       if (c) c.style.transform = `translate(${window.__whX}px, ${window.__whY}px)`;
+      const h = document.getElementById('__wh_halo');
+      if (h) h.style.transform = `translate(${window.__whX}px, ${window.__whY}px)`;
     };
     draw();
 
@@ -176,19 +167,13 @@ CURSOR_JS = r"""
       window.__whX = nx; window.__whY = ny;
       const c = document.getElementById('__wh_cursor');
       if (c) c.style.transform = `translate(${nx}px, ${ny}px)`;
-      const sc = document.getElementById('__wh_scroll');
-      if (sc && sc.classList.contains('__on'))
-        sc.style.transform = `translate(${nx + 26}px, ${ny - 12}px)`;
+      const h = document.getElementById('__wh_halo');
+      if (h) h.style.transform = `translate(${nx}px, ${ny}px)`;
     };
-    // The scroll badge rides just right of the pointer for the whole scroll.
-    window.__whScroll = (on) => {
-      const sc = document.getElementById('__wh_scroll');
-      if (!sc) return;
-      sc.classList.toggle('__on', !!on);
-      if (on) sc.style.transform =
-        `translate(${window.__whX + 26}px, ${window.__whY - 12}px)`;
-      else sc.style.transform = 'translate(-9999px, -9999px)';
-    };
+    // No scroll badge. A floating pill beside the pointer read as a stray
+    // artifact rather than an affordance; the paced wheel motion already
+    // communicates scrolling. Kept as a no-op so callers stay unchanged.
+    window.__whScroll = () => {};
     window.__whCursorPress = (down) => {
       const c = document.getElementById('__wh_cursor');
       if (!c) return;

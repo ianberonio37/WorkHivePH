@@ -1,0 +1,65 @@
+{
+ "page": "dayplanner",
+ "url": "/workhive/dayplanner.html",
+ "_ground": "2026-08-05 static read. Four period lenses over one truth (DILO/WILO/MILO/YILO) and a proven offline upsert queue (wh_dayplanner_offline, PDDA Y1b adopter #2).",
+ "views": [
+  {"key": "V1", "name": "DILO (day)", "seen": {"how": "static-read", "ref": "dayplanner.html:296 #tab-dilo + :633 schedule_items read"}},
+  {"key": "V2", "name": "WILO (week)", "seen": {"how": "static-read", "ref": "dayplanner.html:297 #tab-wilo"}},
+  {"key": "V3", "name": "MILO (month)", "seen": {"how": "static-read", "ref": "dayplanner.html:298 #tab-milo"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "schedule item row", "seen": {"how": "static-read", "ref": "dayplanner.html:633-736 schedule_items CRUD"}},
+  {"key": "C2", "name": "item modal", "seen": {"how": "static-read", "ref": "dayplanner.html:383 #modal role=dialog"}},
+  {"key": "C3", "name": "period switcher (4-tab bar)", "seen": {"how": "static-read", "ref": "dayplanner.html:296-299 tab ids"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "dayplanner.html:633 load path"}},
+  {"key": "L2", "name": "gateway", "seen": {"how": "static-read", "ref": "dayplanner.html:774 v_logbook_truth read"}},
+  {"key": "L3", "name": "db (schedule_items + truth views)", "seen": {"how": "static-read", "ref": "dayplanner.html:633,774,791,1676"}},
+  {"key": "L4", "name": "realtime (2 channels)", "seen": {"how": "grep-count", "ref": "dayplanner.html - 2 .channel( occurrences (2026-08-05 grep)"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "offline-queue <-> db (upsert branch)", "seen": {"how": "doc+static", "ref": "PDDA Y1b adopter #2: wh_dayplanner_offline -> schedule_items, op:'upsert' drains once; probe .tmp/probe_y1b_dayplanner_offline.mjs PASSED"}},
+  {"key": "S2", "name": "dayplanner <-> logbook (plan becomes entry)", "seen": {"how": "static-read", "ref": "dayplanner.html:1676 from('logbook')"}},
+  {"key": "S3", "name": "trigger <-> view (logbook + PM scope feeds)", "seen": {"how": "static-read", "ref": "dayplanner.html:774 v_logbook_truth + :791 v_pm_scope_items_truth"}},
+  {"key": "S4", "name": "realtime <-> client", "seen": {"how": "grep-count", "ref": "dayplanner.html 2 .channel( sites"}},
+  {"key": "S5", "name": "period lens <-> one truth (DILO/WILO/MILO/YILO re-bucketing)", "seen": {"how": "static-read", "ref": "dayplanner.html:296-299 tabs over :633 one schedule_items source"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker (own day)", "seen": {"how": "static-read", "ref": "dayplanner.html:633 own-scope read"}},
+  {"key": "P2", "name": "supervisor (plans others)", "seen": {"how": "static-read", "ref": "dayplanner.html:691 item write with assignee"}},
+  {"key": "P3", "name": "two_context (two supervisors, one worker's hour)", "seen": {"how": "static-read", "ref": "dayplanner.html:691-736 concurrent item writes"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (own-plan boundary)", "seen": {"how": "static-read", "ref": "dayplanner.html:633"}},
+  {"key": "IB", "name": "two_context (planning race)", "seen": {"how": "static-read", "ref": "dayplanner.html:691"}}
+ ],
+ "invariants": [
+  {"key": "offline_upsert_collapses", "name": "offline create-then-edit drains as ONE row", "seen": {"how": "doc+static", "ref": "PDDA Y1b adopter #2 probe PASS (upsert branch added to offline-queue.js drain)"}, "oracle": "an offline create then offline edit share the keyPath id, the pending item is REPLACED, and the drain lands one row - insert would 409 a re-edit, update would 0-row-no-op a never-synced row"},
+  {"key": "offline_delete_drains", "name": "an offline delete of a never-synced item drains cleanly", "seen": {"how": "doc+static", "ref": "PDDA Y1b adopter #2: offline delete queues op:'delete', probe PASS"}, "oracle": "an offline delete of a never-synced item drains cleanly rather than 0-row-no-op'ing forever"},
+  {"key": "rebucket_not_requery", "name": "period switch re-buckets one truth", "seen": {"how": "static-read", "ref": "dayplanner.html:296-299 tabs + :633 single source"}, "oracle": "an item visible in DILO appears inside its WILO/MILO parent and none vanishes between levels - the switch is a re-bucketing, not a re-query with different truth"},
+  {"key": "plan_links_not_duplicates", "name": "a plan item becoming a logbook entry is linked", "seen": {"how": "static-read", "ref": "dayplanner.html:1676"}, "oracle": "a planned item that becomes a logbook entry is linked, not duplicated"},
+  {"key": "planning_race_stated", "name": "a planning collision is refused with a reason", "seen": {"how": "static-read", "ref": "dayplanner.html:691-736"}, "oracle": "two supervisors planning the same worker's hour: one write wins, the other is refused with a reason - never a silent last-write-wins"},
+  {"key": "tenant_isolation_e2e", "name": "schedule_items isolation incl. realtime", "seen": {"how": "static-read", "ref": "dayplanner.html:633 + 2 .channel( sites"}, "oracle": "a foreign hive's schedule rows are invisible through the read and the realtime channel"}
+ ],
+ "domain_truths": [
+  {"key": "acronyms_expanded", "name": "DILO/WILO/MILO/YILO expand on the surface", "seen": {"how": "static-read", "ref": "dayplanner.html:296-299 tab labels"}, "oracle": "DILO/WILO/MILO/YILO are expanded on the surface - an acronym nobody can expand is jargon at the moment it costs someone their day"},
+  {"key": "capacity_stated", "name": "planned vs available hours both shown", "seen": {"how": "static-read", "ref": "dayplanner.html:633 day view totals"}, "oracle": "planned hours and available hours are both shown, and a plan exceeding capacity says so"},
+  {"key": "shift_boundary_stated", "name": "a day states its shift boundary and timezone", "seen": {"how": "static-read", "ref": "dayplanner.html:633 day windowing"}, "oracle": "a 'day' states its shift boundary and timezone - on a 3-shift plant a day is not midnight-to-midnight"},
+  {"key": "wrench_vs_total", "name": "wrench time vs total time distinguished", "seen": {"how": "static-read", "ref": "dayplanner.html item duration fields (:383 modal)"}, "oracle": "wrench time and total time are distinguished wherever both appear"},
+  {"key": "pm_item_carries_due", "name": "a PM-sourced item carries the PM's due date", "seen": {"how": "static-read", "ref": "dayplanner.html:791 v_pm_scope_items_truth pull"}, "oracle": "an item pulled from PM scope carries the PM's due date, not the date it was planned"},
+  {"key": "complete_updates_both", "name": "completing updates the plan AND its source", "seen": {"how": "static-read", "ref": "dayplanner.html:1676 logbook write"}, "oracle": "completing a planned item updates the plan and its source (logbook / PM scope) - not one of the two"},
+  {"key": "utilisation_denominator", "name": "utilisation % states its denominator", "seen": {"how": "static-read", "ref": "dayplanner.html:633 totals"}, "oracle": "utilisation % states its denominator"},
+  {"key": "carryover_visible", "name": "a carried-over item is visibly carried over", "seen": {"how": "static-read", "ref": "dayplanner.html:633-736 item dates"}, "oracle": "a carried-over item is visibly carried over, never silently re-dated - the difference between 'not done yet' and 'was never due until today'"}
+ ],
+ "writes": [
+  {"fn": "schedule_items insert/update/delete", "class": "capture QUEUED (upsert)", "seen": {"how": "static-read", "ref": "dayplanner.html:649,691,736"}},
+  {"fn": "logbook insert", "class": "capture", "seen": {"how": "static-read", "ref": "dayplanner.html:1676"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "no peso/credit figure in the day plan (dayplanner.html:633)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "no money in the week lens (dayplanner.html:297)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V2/reward_explained", "reason": "the week lens surfaces no reward figure (dayplanner.html:297)", "replace_with": {"oracle_key": "back_nav"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the month lens surfaces no reward figure (dayplanner.html:298)", "replace_with": {"oracle_key": "session_expiry"}}
+ ]
+}

@@ -1,7 +1,7 @@
 {
   "generator": "platform_catalog.py",
   "version": 1,
-  "generated_at": "2026-07-07T11:16:15+00:00",
+  "generated_at": "2026-08-05T02:54:12+00:00",
   "features": [
     {
       "id": "index",
@@ -29,8 +29,10 @@
         "ai-work-assistant-maintenance-technicians",
         "asset-brain-360-one-machine-history-philippine-plant",
         "autonomous-shift-planning-philippine-plants",
+        "best-free-cmms-software-philippines",
         "bms-facilities-maintenance-peza-buildings",
         "building-asset-register-zero-budget",
+        "cmms-vs-excel-spreadsheet-maintenance",
         "connecting-workhive-to-sap-maximo-cmms",
         "dilo-wilo-day-planner-supervisors",
         "dole-iso-audit-trail-from-logbook",
@@ -44,11 +46,13 @@
         "industrial-marketplace-philippine-specialists",
         "joining-and-growing-your-hive",
         "loto-procedures-dole-oshs-template",
+        "maintenance-metrics-reliability-guide",
         "maintenance-project-planning-template",
         "maintenance-shift-handover-template",
         "mtbf-vs-mttr-for-supervisors",
         "ofw-engineer-portable-portfolio",
         "ph-industrial-benchmarks-intelligence",
+        "ph-plant-compliance-guide",
         "plant-alert-inbox-amc-daily-brief",
         "power-plant-reliability-metrics-philippines",
         "predictive-alert-thresholds-plants",
@@ -56,19 +60,23 @@
         "print-ready-maintenance-analytics-report",
         "psme-iiee-piche-which-association-to-join",
         "ra-11285-energy-efficiency-plant-checklist",
+        "reduce-unplanned-downtime-guide",
         "reliability-centered-maintenance-philippine-plants",
         "resume-builder-for-filipino-industrial-workers",
         "sensor-cmms-gateway-operations",
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
         "start-digital-logbook-philippine-factory",
+        "start-digital-maintenance-guide",
         "tesda-nc-mapping-to-skill-matrix",
         "thermography-for-pm-philippine-plants",
         "vibration-analysis-on-a-phone-budget",
         "voice-to-text-maintenance-philippine-plant-floor",
         "what-is-oee-how-to-calculate",
         "what-is-workhive-complete-platform-guide",
-        "workhive-ai-companion-complete-capabilities"
+        "workhive-ai-companion-complete-capabilities",
+        "workhive-vs-maintainx-comparison",
+        "workhive-vs-upkeep-free-cmms-comparison"
       ]
     },
     {
@@ -118,24 +126,33 @@
       ],
       "articles": [
         "ai-work-assistant-maintenance-technicians",
+        "best-free-cmms-software-philippines",
         "building-asset-register-zero-budget",
+        "cmms-vs-excel-spreadsheet-maintenance",
         "connecting-workhive-to-sap-maximo-cmms",
+        "dilo-wilo-day-planner-supervisors",
         "dole-iso-audit-trail-from-logbook",
         "free-engineering-calculators-philippine-plants",
         "free-pm-checklist-templates",
         "gamifying-maintenance-for-engagement",
         "industrial-community-of-practice-philippines",
         "joining-and-growing-your-hive",
+        "maintenance-metrics-reliability-guide",
+        "maintenance-project-planning-template",
         "maintenance-shift-handover-template",
         "mtbf-vs-mttr-for-supervisors",
         "ph-industrial-benchmarks-intelligence",
+        "ph-plant-compliance-guide",
         "predictive-maintenance-on-a-budget-philippines",
+        "reduce-unplanned-downtime-guide",
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
         "start-digital-logbook-philippine-factory",
+        "start-digital-maintenance-guide",
         "voice-to-text-maintenance-philippine-plant-floor",
         "what-is-oee-how-to-calculate",
-        "what-is-workhive-complete-platform-guide"
+        "what-is-workhive-complete-platform-guide",
+        "workhive-vs-upkeep-free-cmms-comparison"
       ]
     },
     {
@@ -340,7 +357,9 @@
         "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
+        "best-free-cmms-software-philippines",
         "building-asset-register-zero-budget",
+        "cmms-vs-excel-spreadsheet-maintenance",
         "connecting-workhive-to-sap-maximo-cmms",
         "dilo-wilo-day-planner-supervisors",
         "dole-iso-audit-trail-from-logbook",
@@ -350,22 +369,28 @@
         "industrial-community-of-practice-philippines",
         "industrial-marketplace-philippine-specialists",
         "joining-and-growing-your-hive",
+        "maintenance-metrics-reliability-guide",
         "maintenance-project-planning-template",
         "maintenance-shift-handover-template",
         "mtbf-vs-mttr-for-supervisors",
         "ph-industrial-benchmarks-intelligence",
+        "ph-plant-compliance-guide",
         "predictive-alert-thresholds-plants",
         "predictive-maintenance-on-a-budget-philippines",
+        "reduce-unplanned-downtime-guide",
         "reliability-centered-maintenance-philippine-plants",
         "sensor-cmms-gateway-operations",
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
         "start-digital-logbook-philippine-factory",
+        "start-digital-maintenance-guide",
         "thermography-for-pm-philippine-plants",
         "voice-to-text-maintenance-philippine-plant-floor",
         "what-is-oee-how-to-calculate",
         "what-is-workhive-complete-platform-guide",
-        "workhive-ai-companion-complete-capabilities"
+        "workhive-ai-companion-complete-capabilities",
+        "workhive-vs-maintainx-comparison",
+        "workhive-vs-upkeep-free-cmms-comparison"
       ]
     },
     {
@@ -428,7 +453,8 @@
         "voice-to-text-maintenance-philippine-plant-floor",
         "what-is-oee-how-to-calculate",
         "what-is-workhive-complete-platform-guide",
-        "workhive-ai-companion-complete-capabilities"
+        "workhive-ai-companion-complete-capabilities",
+        "workhive-vs-maintainx-comparison"
       ]
     },
     {
@@ -458,6 +484,7 @@
         "four-phases-maintenance-analytics-philippine-plants",
         "free-engineering-calculators-philippine-plants",
         "ph-industrial-benchmarks-intelligence",
+        "ph-plant-compliance-guide",
         "power-plant-reliability-metrics-philippines",
         "what-is-workhive-complete-platform-guide"
       ]
@@ -549,6 +576,7 @@
         "industrial-community-of-practice-philippines",
         "industrial-marketplace-philippine-specialists",
         "joining-and-growing-your-hive",
+        "maintenance-metrics-reliability-guide",
         "maintenance-project-planning-template",
         "maintenance-shift-handover-template",
         "mtbf-vs-mttr-for-supervisors",
@@ -607,7 +635,9 @@
         "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
+        "best-free-cmms-software-philippines",
         "building-asset-register-zero-budget",
+        "cmms-vs-excel-spreadsheet-maintenance",
         "connecting-workhive-to-sap-maximo-cmms",
         "dilo-wilo-day-planner-supervisors",
         "dole-iso-audit-trail-from-logbook",
@@ -617,20 +647,26 @@
         "industrial-community-of-practice-philippines",
         "industrial-marketplace-philippine-specialists",
         "joining-and-growing-your-hive",
+        "maintenance-metrics-reliability-guide",
         "maintenance-project-planning-template",
         "maintenance-shift-handover-template",
         "mtbf-vs-mttr-for-supervisors",
         "ph-industrial-benchmarks-intelligence",
+        "ph-plant-compliance-guide",
         "predictive-alert-thresholds-plants",
         "predictive-maintenance-on-a-budget-philippines",
+        "reduce-unplanned-downtime-guide",
         "sensor-cmms-gateway-operations",
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
         "start-digital-logbook-philippine-factory",
+        "start-digital-maintenance-guide",
         "voice-to-text-maintenance-philippine-plant-floor",
         "what-is-oee-how-to-calculate",
         "what-is-workhive-complete-platform-guide",
-        "workhive-ai-companion-complete-capabilities"
+        "workhive-ai-companion-complete-capabilities",
+        "workhive-vs-maintainx-comparison",
+        "workhive-vs-upkeep-free-cmms-comparison"
       ]
     },
     {
@@ -727,7 +763,9 @@
         "ai-work-assistant-maintenance-technicians",
         "asset-brain-360-one-machine-history-philippine-plant",
         "autonomous-shift-planning-philippine-plants",
+        "best-free-cmms-software-philippines",
         "building-asset-register-zero-budget",
+        "cmms-vs-excel-spreadsheet-maintenance",
         "connecting-workhive-to-sap-maximo-cmms",
         "dilo-wilo-day-planner-supervisors",
         "dole-iso-audit-trail-from-logbook",
@@ -740,6 +778,7 @@
         "industrial-community-of-practice-philippines",
         "industrial-marketplace-philippine-specialists",
         "joining-and-growing-your-hive",
+        "maintenance-metrics-reliability-guide",
         "maintenance-project-planning-template",
         "maintenance-shift-handover-template",
         "mtbf-vs-mttr-for-supervisors",
@@ -748,15 +787,19 @@
         "plant-alert-inbox-amc-daily-brief",
         "predictive-alert-thresholds-plants",
         "predictive-maintenance-on-a-budget-philippines",
+        "reduce-unplanned-downtime-guide",
         "reliability-centered-maintenance-philippine-plants",
         "sensor-cmms-gateway-operations",
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
         "start-digital-logbook-philippine-factory",
+        "start-digital-maintenance-guide",
         "voice-to-text-maintenance-philippine-plant-floor",
         "what-is-oee-how-to-calculate",
         "what-is-workhive-complete-platform-guide",
-        "workhive-ai-companion-complete-capabilities"
+        "workhive-ai-companion-complete-capabilities",
+        "workhive-vs-maintainx-comparison",
+        "workhive-vs-upkeep-free-cmms-comparison"
       ]
     },
     {
@@ -812,6 +855,7 @@
         "industrial-community-of-practice-philippines",
         "industrial-marketplace-philippine-specialists",
         "joining-and-growing-your-hive",
+        "maintenance-metrics-reliability-guide",
         "maintenance-project-planning-template",
         "maintenance-shift-handover-template",
         "mtbf-vs-mttr-for-supervisors",
@@ -819,6 +863,7 @@
         "plant-alert-inbox-amc-daily-brief",
         "predictive-alert-thresholds-plants",
         "predictive-maintenance-on-a-budget-philippines",
+        "reduce-unplanned-downtime-guide",
         "sensor-cmms-gateway-operations",
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
@@ -870,7 +915,9 @@
         "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
+        "best-free-cmms-software-philippines",
         "building-asset-register-zero-budget",
+        "cmms-vs-excel-spreadsheet-maintenance",
         "connecting-workhive-to-sap-maximo-cmms",
         "dilo-wilo-day-planner-supervisors",
         "dole-iso-audit-trail-from-logbook",
@@ -885,6 +932,7 @@
         "maintenance-shift-handover-template",
         "mtbf-vs-mttr-for-supervisors",
         "ph-industrial-benchmarks-intelligence",
+        "ph-plant-compliance-guide",
         "predictive-alert-thresholds-plants",
         "predictive-maintenance-on-a-budget-philippines",
         "print-ready-maintenance-analytics-report",
@@ -896,7 +944,8 @@
         "voice-to-text-maintenance-philippine-plant-floor",
         "what-is-oee-how-to-calculate",
         "what-is-workhive-complete-platform-guide",
-        "workhive-ai-companion-complete-capabilities"
+        "workhive-ai-companion-complete-capabilities",
+        "workhive-vs-upkeep-free-cmms-comparison"
       ]
     },
     {
@@ -1053,6 +1102,8 @@
       ],
       "articles": [
         "free-engineering-calculators-philippine-plants",
+        "maintenance-metrics-reliability-guide",
+        "ph-plant-compliance-guide",
         "what-is-workhive-complete-platform-guide"
       ]
     },
@@ -1460,6 +1511,7 @@
         "ai-companion-hezekiah-zaniah-personas",
         "ai-quality-and-roi-stage-2-plants",
         "ai-work-assistant-maintenance-technicians",
+        "best-free-cmms-software-philippines",
         "building-asset-register-zero-budget",
         "connecting-workhive-to-sap-maximo-cmms",
         "dilo-wilo-day-planner-supervisors",
@@ -1471,12 +1523,14 @@
         "industrial-community-of-practice-philippines",
         "industrial-marketplace-philippine-specialists",
         "joining-and-growing-your-hive",
+        "maintenance-metrics-reliability-guide",
         "maintenance-project-planning-template",
         "maintenance-shift-handover-template",
         "mtbf-vs-mttr-for-supervisors",
         "ph-industrial-benchmarks-intelligence",
         "predictive-alert-thresholds-plants",
         "predictive-maintenance-on-a-budget-philippines",
+        "reduce-unplanned-downtime-guide",
         "sensor-cmms-gateway-operations",
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
@@ -1602,7 +1656,7 @@
     },
     {
       "slug": "asset-brain-360-one-machine-history-philippine-plant",
-      "title": "Asset Brain 360: Every Machine's Full History in One QR Scan",
+      "title": "Equipment History in One QR Scan: Asset Brain 360",
       "url": "/learn/asset-brain-360-one-machine-history-philippine-plant/",
       "date_modified": "2026-07-02",
       "maps_to": null,
@@ -1627,6 +1681,23 @@
         "asset-hub",
         "alert-hub",
         "shift-brain"
+      ]
+    },
+    {
+      "slug": "best-free-cmms-software-philippines",
+      "title": "Best Free CMMS Software for Philippine Plants (2026 Comparison)",
+      "url": "/learn/best-free-cmms-software-philippines/",
+      "date_modified": "2026-08-05",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "pm-scheduler",
+        "assistant",
+        "asset-hub",
+        "audit-log",
+        "predictive"
       ]
     },
     {
@@ -1672,6 +1743,22 @@
       ]
     },
     {
+      "slug": "cmms-vs-excel-spreadsheet-maintenance",
+      "title": "CMMS vs Excel Spreadsheet for Maintenance: When to Switch",
+      "url": "/learn/cmms-vs-excel-spreadsheet-maintenance/",
+      "date_modified": "2026-08-05",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "pm-scheduler",
+        "assistant",
+        "asset-hub",
+        "audit-log"
+      ]
+    },
+    {
       "slug": "connecting-workhive-to-sap-maximo-cmms",
       "title": "Connecting WorkHive to SAP, IBM Maximo, and Other CMMS",
       "url": "/learn/connecting-workhive-to-sap-maximo-cmms/",
@@ -1706,6 +1793,7 @@
       "maps_to_label": "Day Planner",
       "features_referenced": [
         "index",
+        "logbook",
         "dayplanner",
         "pm-scheduler",
         "community",
@@ -1928,7 +2016,7 @@
     },
     {
       "slug": "joining-and-growing-your-hive",
-      "title": "Joining and Growing Your WorkHive Hive (Multi-Tenant Guide)",
+      "title": "How to Join WorkHive and Grow Your Hive (Multi-Tenant Guide)",
       "url": "/learn/joining-and-growing-your-hive/",
       "date_modified": "2026-05-17",
       "maps_to": "hive",
@@ -1966,14 +2054,34 @@
       ]
     },
     {
+      "slug": "maintenance-metrics-reliability-guide",
+      "title": "Maintenance Metrics Guide: OEE, MTBF, MTTR & Reliability for Philippine Plants",
+      "url": "/learn/maintenance-metrics-reliability-guide/",
+      "date_modified": "2026-08-05",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "pm-scheduler",
+        "ai-quality",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "engineering-design",
+        "predictive"
+      ]
+    },
+    {
       "slug": "maintenance-project-planning-template",
-      "title": "Maintenance Project Planning (Free Template for Philippine Plants)",
+      "title": "Plant Turnaround and Maintenance Project Planning (Free Template)",
       "url": "/learn/maintenance-project-planning-template/",
       "date_modified": "2026-05-17",
       "maps_to": "project-manager",
       "maps_to_label": "Project Manager",
       "features_referenced": [
         "index",
+        "logbook",
         "inventory",
         "dayplanner",
         "pm-scheduler",
@@ -2092,6 +2200,23 @@
       ]
     },
     {
+      "slug": "ph-plant-compliance-guide",
+      "title": "Philippine Plant Compliance Guide: DOLE OSHS, LOTO & RA 11285 Records",
+      "url": "/learn/ph-plant-compliance-guide/",
+      "date_modified": "2026-08-05",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "pm-scheduler",
+        "analytics-report",
+        "assistant",
+        "audit-log",
+        "engineering-design"
+      ]
+    },
+    {
       "slug": "plant-alert-inbox-amc-daily-brief",
       "title": "One Alert Inbox for the Whole Plant: Risk, PM, Stock, and the 6 AM Brief",
       "url": "/learn/plant-alert-inbox-amc-daily-brief/",
@@ -2120,7 +2245,7 @@
     },
     {
       "slug": "predictive-alert-thresholds-plants",
-      "title": "Predictive Alert Thresholds for Industrial Plants (Practical Guide)",
+      "title": "ISO 10816 Vibration Thresholds and Predictive Alert Limits for Plants",
       "url": "/learn/predictive-alert-thresholds-plants/",
       "date_modified": "2026-05-17",
       "maps_to": "alert-hub",
@@ -2210,6 +2335,23 @@
       ]
     },
     {
+      "slug": "reduce-unplanned-downtime-guide",
+      "title": "How to Reduce Unplanned Equipment Downtime in a Factory",
+      "url": "/learn/reduce-unplanned-downtime-guide/",
+      "date_modified": "2026-08-05",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "pm-scheduler",
+        "assistant",
+        "asset-hub",
+        "alert-hub",
+        "predictive"
+      ]
+    },
+    {
       "slug": "reliability-centered-maintenance-philippine-plants",
       "title": "Reliability-Centered Maintenance (RCM) for Philippine Plants",
       "url": "/learn/reliability-centered-maintenance-philippine-plants/",
@@ -2238,7 +2380,7 @@
     },
     {
       "slug": "sensor-cmms-gateway-operations",
-      "title": "Sensor and CMMS Gateway Operations for Industrial Plants",
+      "title": "Connecting IoT Sensors to a CMMS: Gateway Operations Guide",
       "url": "/learn/sensor-cmms-gateway-operations/",
       "date_modified": "2026-05-17",
       "maps_to": "integrations",
@@ -2342,6 +2484,21 @@
         "achievements",
         "predictive",
         "shift-handover-report"
+      ]
+    },
+    {
+      "slug": "start-digital-maintenance-guide",
+      "title": "How to Start Digital Maintenance in a Philippine Factory (Zero-Budget Guide)",
+      "url": "/learn/start-digital-maintenance-guide/",
+      "date_modified": "2026-08-05",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "pm-scheduler",
+        "assistant",
+        "asset-hub"
       ]
     },
     {
@@ -2498,6 +2655,37 @@
         "predictive",
         "shift-handover-report"
       ]
+    },
+    {
+      "slug": "workhive-vs-maintainx-comparison",
+      "title": "WorkHive vs MaintainX: Free vs Mobile-First CMMS (2026)",
+      "url": "/learn/workhive-vs-maintainx-comparison/",
+      "date_modified": "2026-08-05",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "pm-scheduler",
+        "community",
+        "assistant",
+        "asset-hub"
+      ]
+    },
+    {
+      "slug": "workhive-vs-upkeep-free-cmms-comparison",
+      "title": "WorkHive vs UpKeep: Free Alternative Compared (2026)",
+      "url": "/learn/workhive-vs-upkeep-free-cmms-comparison/",
+      "date_modified": "2026-08-05",
+      "maps_to": null,
+      "maps_to_label": null,
+      "features_referenced": [
+        "index",
+        "logbook",
+        "pm-scheduler",
+        "assistant",
+        "asset-hub",
+        "audit-log"
+      ]
     }
   ],
   "public_surface": {
@@ -2531,6 +2719,7 @@
         "AI Work Assistant",
         "Philippine Industrial Intelligence Report",
         "Asset Hub",
+        "Predictive Analytics",
         "Alert Hub",
         "Audit Log",
         "Voice Journal",
@@ -2578,6 +2767,7 @@
         "https://workhiveph.com/",
         "https://workhiveph.com/learn/",
         "https://workhiveph.com/about/",
+        "https://workhiveph.com/feedback/",
         "https://workhiveph.com/privacy-policy/",
         "https://workhiveph.com/terms-of-service/",
         "https://workhiveph.com/learn/start-digital-logbook-philippine-factory/",
@@ -2624,10 +2814,78 @@
         "https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/",
         "https://workhiveph.com/learn/print-ready-maintenance-analytics-report/",
         "https://workhiveph.com/learn/what-is-workhive-complete-platform-guide/",
-        "https://workhiveph.com/learn/workhive-ai-companion-complete-capabilities/"
+        "https://workhiveph.com/learn/workhive-ai-companion-complete-capabilities/",
+        "https://workhiveph.com/tools/ahu-sizing-calculator/",
+        "https://workhiveph.com/tools/beam-design-calculator/",
+        "https://workhiveph.com/tools/bearing-life-calculator/",
+        "https://workhiveph.com/tools/boiler-steam-calculator/",
+        "https://workhiveph.com/tools/boiler-system-calculator/",
+        "https://workhiveph.com/tools/bolt-torque-calculator/",
+        "https://workhiveph.com/tools/cable-tray-sizing-calculator/",
+        "https://workhiveph.com/tools/chiller-sizing-calculator/",
+        "https://workhiveph.com/tools/clean-agent-suppression-calculator/",
+        "https://workhiveph.com/tools/compressed-air-calculator/",
+        "https://workhiveph.com/tools/cooling-tower-calculator/",
+        "https://workhiveph.com/tools/domestic-water-demand-calculator/",
+        "https://workhiveph.com/tools/drainage-pipe-sizing-calculator/",
+        "https://workhiveph.com/tools/duct-sizing-calculator/",
+        "https://workhiveph.com/tools/earthing-grounding-calculator/",
+        "https://workhiveph.com/tools/elevator-traffic-calculator/",
+        "https://workhiveph.com/tools/expansion-tank-calculator/",
+        "https://workhiveph.com/tools/fcu-selection-calculator/",
+        "https://workhiveph.com/tools/fire-alarm-battery-calculator/",
+        "https://workhiveph.com/tools/fire-pump-calculator/",
+        "https://workhiveph.com/tools/fire-sprinkler-calculator/",
+        "https://workhiveph.com/tools/generator-sizing-calculator/",
+        "https://workhiveph.com/tools/grease-trap-calculator/",
+        "https://workhiveph.com/tools/harmonic-distortion-calculator/",
+        "https://workhiveph.com/tools/heat-exchanger-calculator/",
+        "https://workhiveph.com/tools/hoist-capacity-calculator/",
+        "https://workhiveph.com/tools/hot-water-demand-calculator/",
+        "https://workhiveph.com/tools/hvac-cooling-load-calculator/",
+        "https://workhiveph.com/tools/hydraulic-cylinder-calculator/",
+        "https://workhiveph.com/tools/lighting-design-calculator/",
+        "https://workhiveph.com/tools/lightning-protection-calculator/",
+        "https://workhiveph.com/tools/load-estimation-calculator/",
+        "https://workhiveph.com/tools/load-schedule-calculator/",
+        "https://workhiveph.com/tools/noise-acoustics-calculator/",
+        "https://workhiveph.com/tools/pipe-sizing-calculator/",
+        "https://workhiveph.com/tools/power-factor-correction-calculator/",
+        "https://workhiveph.com/tools/pressure-vessel-calculator/",
+        "https://workhiveph.com/tools/pump-tdh-calculator/",
+        "https://workhiveph.com/tools/refrigerant-pipe-calculator/",
+        "https://workhiveph.com/tools/roof-drain-calculator/",
+        "https://workhiveph.com/tools/septic-tank-calculator/",
+        "https://workhiveph.com/tools/sewer-drainage-calculator/",
+        "https://workhiveph.com/tools/shaft-design-calculator/",
+        "https://workhiveph.com/tools/short-circuit-calculator/",
+        "https://workhiveph.com/tools/solar-pv-calculator/",
+        "https://workhiveph.com/tools/stairwell-pressurization-calculator/",
+        "https://workhiveph.com/tools/storm-drain-calculator/",
+        "https://workhiveph.com/tools/transformer-sizing-calculator/",
+        "https://workhiveph.com/tools/ups-sizing-calculator/",
+        "https://workhiveph.com/tools/v-belt-drive-calculator/",
+        "https://workhiveph.com/tools/ventilation-ach-calculator/",
+        "https://workhiveph.com/tools/vibration-isolation-calculator/",
+        "https://workhiveph.com/tools/voltage-drop-calculator/",
+        "https://workhiveph.com/tools/wastewater-stp-calculator/",
+        "https://workhiveph.com/tools/water-softener-calculator/",
+        "https://workhiveph.com/tools/water-supply-pipe-calculator/",
+        "https://workhiveph.com/tools/water-treatment-calculator/",
+        "https://workhiveph.com/tools/wire-sizing-calculator/",
+        "https://workhiveph.com/learn/maintenance-metrics-reliability-guide/",
+        "https://workhiveph.com/learn/start-digital-maintenance-guide/",
+        "https://workhiveph.com/learn/ph-plant-compliance-guide/",
+        "https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/",
+        "https://workhiveph.com/learn/workhive-vs-maintainx-comparison/",
+        "https://workhiveph.com/learn/best-free-cmms-software-philippines/",
+        "https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/",
+        "https://workhiveph.com/tools/oee-calculator/",
+        "https://workhiveph.com/tools/mtbf-calculator/",
+        "https://workhiveph.com/learn/reduce-unplanned-downtime-guide/"
       ],
-      "count": 50,
-      "learn_count": 45
+      "count": 119,
+      "learn_count": 53
     },
     "llms_txt": {
       "present": true,
@@ -2636,7 +2894,7 @@
         "PM scheduler",
         "Inventory management",
         "Skill matrix",
-        "Engineering design calculators",
+        "60 free calculator pages",
         "AI work assistant"
       ],
       "articles": [
@@ -2684,7 +2942,14 @@
         "four-phases-maintenance-analytics-philippine-plants",
         "print-ready-maintenance-analytics-report",
         "what-is-workhive-complete-platform-guide",
-        "workhive-ai-companion-complete-capabilities"
+        "workhive-ai-companion-complete-capabilities",
+        "maintenance-metrics-reliability-guide",
+        "start-digital-maintenance-guide",
+        "ph-plant-compliance-guide",
+        "workhive-vs-upkeep-free-cmms-comparison",
+        "workhive-vs-maintainx-comparison",
+        "best-free-cmms-software-philippines",
+        "cmms-vs-excel-spreadsheet-maintenance"
       ],
       "maps": {
         "maintenance-shift-handover-template": {
@@ -2784,9 +3049,9 @@
     "features_total": 27,
     "features_active": 27,
     "features_routed": 26,
-    "learn_articles": 45,
-    "sitemap_urls": 50,
-    "sitemap_learn_urls": 45,
+    "learn_articles": 53,
+    "sitemap_urls": 119,
+    "sitemap_learn_urls": 53,
     "faqs_index": 15,
     "intel_features": 22
   },

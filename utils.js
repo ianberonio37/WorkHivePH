@@ -659,7 +659,81 @@ function escJsAttr(str) {
 // canonical name, the worker reads plain language. Keep this map current when a new
 // canonical view ships (validate_user_facing_jargon.py exempts the source: arg precisely
 // because it is machine-translated here; it FAILs raw view/RPC/SQL jargon everywhere else).
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+// THE CREDITS-BACK CHIP — one implementation, every surface that shows a price
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+// marketplace.html carried this locally, with a comment warning that "two copies of this markup
+// would drift the same way again, so both sites call this" — about its own two call sites. A live
+// MCP walk on 2026-08-05 found the THIRD site: marketplace-seller-profile.html renders priced
+// listing cards (₱68,980.48, ₱236,110.53) and showed no chip at all, while the marketplace showed
+// ₱6,898 back on that same listing. One object, two surfaces, two different answers to "what do I
+// get?" — and a buyer who arrives via a seller's profile never learns the reward exists at all.
+//
+// So it lives here now. The knobs are passed IN rather than read from a page-local variable, because
+// the loader is async and each page owns its own load; a shared cache would silently render a chip
+// from another page's hive.
+function whCreditsBack(price, knobs) {
+  if (!knobs) return null;                       // silence beats a number we cannot stand behind
+  var n = Number(price);
+  if (!n || n <= 0) return null;                 // "Negotiable" has no 10% of anything
+  // service_knob_pct returns a WHOLE percent (10.00 = 10%); reading it as a fraction would promise
+  // ten times the price.
+  var raw = Math.round(n * knobs.pct) / 100;
+  return Math.max(Math.min(raw, knobs.max), knobs.min);
+}
+
+function whCreditsBackChipHtml(price, knobs, style) {
+  var cb = whCreditsBack(price, knobs);
+  if (!cb) return '';
+  var amount = escHtml((typeof whFmtPeso === 'function') ? whFmtPeso(cb, { decimals: 2 })
+                                                        : 'PHP ' + Number(cb).toFixed(2));
+  var sentence = amount + ' in WorkHive Credits back when this job is done. 1 credit equals 1 ' +
+                 'peso, and you spend them on your next booking. Credits are not cash and cannot ' +
+                 'be withdrawn.';
+  // aria-label AS WELL AS title: a title= alone is not reliably announced by a screen reader and does
+  // not exist at all on touch, so the one place credits were explained was visible to desktop mouse
+  // users and nobody else.
+  return '<span class="cat-chip credits-back" role="note"' +
+         (style ? ' style="' + style + '"' : '') +
+         ' aria-label="' + sentence + '"' +
+         ' title="You get ' + sentence + '">' + amount + ' credits back</span>';
+}
+
+// The knobs themselves, read from the same accessors listing_reservation_amount() reads.
+// NULL max means NO CAP (mig 35, Ian's flat-10%-no-ceiling rule) — and Number(null) is 0, which once
+// inverted that rule into a cap of zero and deleted the chip from every priced listing.
+async function whLoadRewardKnobs(dbClient) {
+  try {
+    var res = await Promise.all([
+      dbClient.rpc('service_knob_pct', { p_hive: null, p_key: 'reward_pct' }),
+      dbClient.rpc('service_knob',     { p_hive: null, p_key: 'reward_max_per_listing' }),
+      dbClient.rpc('service_knob',     { p_hive: null, p_key: 'reward_min_per_listing' })
+    ]);
+    var pct = res[0], max = res[1], min = res[2];
+    if (pct.error || max.error || min.error) return null;
+    var capRaw = max.data;
+    return {
+      pct: Number(pct.data),
+      max: (capRaw === null || capRaw === undefined) ? Infinity : Number(capRaw),
+      min: Number(min.data),
+    };
+  } catch (_e) { return null; }   // empty-catch-allow: no knobs means no chip, never a wrong chip
+}
+
 var WH_SOURCE_LABELS = {
+  // ── THE MONEY VOCABULARY (added 2026-08-05, from a live MCP walk of platform-actions) ─────────
+  // Without these the generic fallback (strip v_/_truth, underscores -> spaces) rendered the
+  // provenance chip as "service credit topups" and "gcash receipts needing eyes" — on a page whose
+  // own copy says "GCash top-ups awaiting verification" and "Cash enters once, as a top-up". One
+  // screen, two spellings of one concept, and a proper noun in lower case. The chip is user-facing
+  // prose, so it has to speak the product's vocabulary, not the schema's.
+  'service_credit_topups':          'GCash top-ups',
+  'v_service_credit_topups_truth':  'GCash top-ups',
+  'service_credit_ledger':          'credit ledger',
+  'v_service_credit_ledger_truth':  'credit ledger',
+  'v_gcash_receipts_needing_eyes':  'GCash receipts awaiting review',
+  'v_credit_posture':               'credit posture',
+  'credit_treasury':                'credit treasury',
   'v_logbook_truth':            'logbook',
   'v_pm_scope_items_truth':     'PM schedule',
   'v_pm_compliance_truth':      'PM compliance',
@@ -1443,14 +1517,36 @@ if (typeof window !== 'undefined') window.whCertBadgeEarned = whCertBadgeEarned;
 // had expired; the shared helper kept the bug for every other path.
 var _WH_PG_DENIAL = /row-level security|permission denied|not authenticated|JWT|invalid token|session expired/i;
 
+// 401 AND 403 ARE NOT THE SAME EVENT, AND ANSWERING BOTH WITH "SIGN IN AGAIN" SENDS HALF OF THEM TO
+// FIX THE ONE THING THAT IS NOT BROKEN. PostgREST distinguishes them precisely:
+//   401  the caller is ANONYMOUS or the token is dead  -> the session really is the problem
+//   403  the caller is AUTHENTICATED and a row/table was refused -> the session is perfectly fine
+// Measured 2026-08-05 by injecting each status at the route layer across six surfaces. On a 403 the
+// marketplace rendered "Your session expired, so the marketplace could not be read. Sign in again to
+// continue." with a Sign in again button — on five of six surfaces. Signing out and back in lands on
+// the same 403, so the remedy offered is the one that cannot work. The 401 wording, by contrast, was
+// exactly right, which is why only the discrimination needed changing and not the sentences.
+// This file already records the same defect being fixed once on the inquiry WRITE path while "the
+// shared helper kept the bug for every other path" — this is that helper.
 function whIsAuthFailure(err) {
   if (!err) return false;
   var status = err.status != null ? String(err.status) : '';
   var msg = String(err.message || '');
-  if (status === '401' || status === '403') return true;
+  if (status === '401') return true;
+  if (status === '403') return false;          // authenticated, and refused. Not a session problem.
+  // A bare Postgres denial with no HTTP status attached is ambiguous. It reaches here from paths that
+  // never saw a response object, and historically meant a dead session, so it keeps that reading.
   return _WH_PG_DENIAL.test(msg);
 }
 if (typeof window !== 'undefined') window.whIsAuthFailure = whIsAuthFailure;
+
+// The other half of that split: authenticated, and this particular thing is not yours to see.
+function whIsAccessDenied(err) {
+  if (!err) return false;
+  var status = err.status != null ? String(err.status) : '';
+  return status === '403' || String((err && err.code) || '') === '42501';
+}
+if (typeof window !== 'undefined') window.whIsAccessDenied = whIsAccessDenied;
 
 // Raw Postgres shapes. These name a constraint or a table and mean nothing to the person reading them, so
 // they stay behind the caller's friendlier fallback.
@@ -1459,6 +1555,14 @@ var _WH_RAW_PG = /violates .*constraint|duplicate key|syntax error|does not exis
 function whWriteError(err, fallback) {
   if (whIsAuthFailure(err)) {
     return 'Your session expired, so nothing was saved. Sign in again and redo this step.';
+  }
+  // A 403 write is a refusal, not a dead session — but a DELIBERATE guard's own sentence is better
+  // than any generic wording, so let those through below rather than answering them here. Only a
+  // 403 with no human sentence behind it lands on this line.
+  if (whIsAccessDenied(err) && !(err && err.message && String(err.message).length <= 300
+                                 && !_WH_RAW_PG.test(String(err.message)))) {
+    return 'You are not allowed to do that with this account, so nothing was saved. Your session is '
+         + 'fine — ask a supervisor if you need this.';
   }
   // A GUARD THAT TOOK THE TROUBLE TO EXPLAIN ITSELF MUST NOT BE REPLACED BY "TRY AGAIN". The reservation
   // guard says "Listing needs PHP50 credits held (10% of the price) and you have 0 available" — a seller
@@ -1488,7 +1592,19 @@ function whReadError(err, what) {
   var code = err && err.code != null ? String(err.code) : '';
   var st   = err && (err._httpStatus || err.status);
   if (whIsAuthFailure(err)) {
-    return 'Your session expired, so ' + thing + ' could not be loaded. Sign in again to see it.';
+    // "Nothing you did was lost" belongs here, not only in the pages that happened to write it.
+    // A person whose session dies mid-page cannot tell whether the thing they just tapped went
+    // through; saying the session expired without answering that leaves them to guess, and the
+    // guess is usually "do it again", which is how a duplicate gets created. This is a READ
+    // failure, so the reassurance is simply true: nothing was being written.
+    return 'Your session expired, so ' + thing + ' could not be loaded. Sign in again to see it. '
+         + 'Nothing you did was lost.';
+  }
+  // Authenticated, and refused. Naming the boundary is the whole point: "not visible with this
+  // session" is a different fact from "nothing here", and neither of them is "sign in again".
+  if (whIsAccessDenied(err)) {
+    return 'You do not have access to ' + thing + ' with this account. Your session is fine — ask a '
+         + 'supervisor if you need it.';
   }
   if (st === 429 || code === '429' || /rate ?limit|too many/i.test(msg)) {
     var secs = (msg + ' ' + hint).match(/(\d+)\s*(s|sec|secs|seconds?)\b/i);

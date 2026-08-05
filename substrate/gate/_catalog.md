@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: e965b787aa9ac18d
+source_sha: d71dbcd39ccb32c6
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (732) — the 'what's already gated' brain
+## gate · registered validators (735) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -228,7 +228,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (517)
+### Platform (520)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -479,6 +479,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `i18n-coverage` [warn] — i18n coverage — P11 EN/FIL adoption of the shared data-i/_t localization system (bug-hunt denominator v2, 2026-07-17). Counts i18n markers (data-i= + _t( + whT(
 - `icon-button-label` ⚡ [fail] — Icon-Only Button aria-label (svg-only <button> has aria-label/title/sr-only; forward-only ratchet)
 - `idempotency` ⚡ [fail] — Webhook and Integration Idempotency Validator (5-layer, +UPDATE col exists, +backfill timing)
+- `identity_boundaries` [fail] — Identity boundaries (another person's draft is invisible; their listing is unwritable; a forged seller_name in the body is refused; an admin-gated function is r
 - `image-asset-existence` ⚡ [fail] — Image / Asset Existence (every local asset ref must resolve to a file; forward-only ratchet)
 - `img-alt-coverage` ⚡ [fail] — <img> alt Coverage (every <img> declares an alt attribute; forward-only ratchet)
 - `index-coverage` ⚡ [fail] — Index Coverage (4-layer: high-freq unindexed + med-freq unindexed + coverage matrix + tables-with-only-PK)
@@ -509,6 +510,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `kpi-chip-coverage` ⚡ [blocker] — KPI Chip Coverage Validator (pages reading v_*_truth must render renderSourceChip)
 - `kpi-count-query-safety` ⚡ [fail] — KPI Count-Query Safety (no .limit(N) + .length as canonical KPI count; forward-only ratchet)
 - `kpi-source-registry` ⚡ [blocker] — KPI Source Registry (one metric = one official derivation; consumers must read it and never re-derive a documented wrong way — catches the F4 26-vs-4 class)
+- `layer_invariants` [fail] — Layer + seam invariants asserted against the live system (ledger conserves against the treasury; every grant has a caller-aware policy; DEFINER cron helpers are
 - `leave-audit-ordering` ⚡ [fail] — Leave-audit ordering (hive.html writeAuditLog is awaitable + performLeave AWAITS the member_left audit BEFORE the hive_members self-delete — locks the race foun
 - `legacy-worker-decommission` ⚡ [fail] — Legacy Worker Decommission Validator (no production JS calls workhive-assistant.workers.dev)
 - `lifecycle-state-reachability` [fail] — LIFECYCLE STATE REACHABILITY (§10 MK4) — every state in a `status` CHECK must be both SURFACED and REACHABLE. A CHECK vocabulary is a promise about what the pro
@@ -545,6 +547,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `model-router` ⚡ [fail] — Tiered Model Router Phase 4 (9-layer: TASK_PROFILES + 11 profiles + free-tier values + reorderChain + callAI signature + reorderChain usage + Phase 1 stages wir
 - `module-scope-state` ⚡ [fail] — Module-Scope Mutable State (4-layer: unbounded growth + eviction adoption + inventory + clean fns)
 - `money-economy-board` ⚡ [fail] — MONEY ECONOMY BOARD (M1-M8) - the anti-drift compass for the credit-economy arc, per [[feedback_follow_framework_antidrift_before_building]]: the structure is l
+- `money_lifecycle` [fail] — The money lifecycle asked of the database (a verified top-up mints exactly once and an unverified one mints nothing; a verification cannot be undone by UPDATE; 
 - `multilingual-support` ⚡ [fail] — Multilingual Support (Phase 11: term translation, language prefs)
 - `native-dialog-calls` ⚡ [fail] — Native alert/confirm/prompt (production code must use the platform toast/modal stack; forward-only ratchet)
 - `nav-registry` ⚡ [fail] — Nav Hub Registry Validator

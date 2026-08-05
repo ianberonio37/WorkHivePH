@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 29,
-    "total_channels": 22,
+    "total_channels": 24,
     "unsafe_pages": 0,
     "baseline": 0
   },
@@ -56,7 +56,7 @@
     },
     {
       "page": "community.html",
-      "channels": 3,
+      "channels": 4,
       "removes": 3,
       "has_unmount": true
     },
@@ -68,8 +68,8 @@
     },
     {
       "page": "marketplace.html",
-      "channels": 1,
-      "removes": 3,
+      "channels": 2,
+      "removes": 4,
       "has_unmount": true
     },
     {

@@ -1,0 +1,65 @@
+{
+ "page": "analytics",
+ "url": "/workhive/analytics.html",
+ "_ground": "2026-08-05 static read - DELIBERATELY PART-GROUNDED (A7). Static reading finds three data paths (batch-risk-scoring :854, get_pm_ontime_delivery :953, analytics_snapshots :1073) for a 194KB Plotly board; the remaining chart sources MUST be enumerated from the live network tab before their rows bank green. Chart chrome shared with alert-hub and shift-brain (an-/ah-/sb- cohort).",
+ "views": [
+  {"key": "V1", "name": "Phase 1 board", "seen": {"how": "static-read", "ref": "analytics.html:656,805 Phase 1 sections"}},
+  {"key": "V2", "name": "Phase 4 executive summary", "seen": {"how": "static-read", "ref": "analytics.html:535 #an-summary + :536 #an-verdict + :518 Phase 4"}},
+  {"key": "V3", "name": "Phase 2/3 boards", "seen": {"how": "static-read", "ref": "analytics.html:806-807 Phase 2/3 sections"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "KPI hero card (an- cohort chrome)", "seen": {"how": "static-read", "ref": "analytics.html:541 #an-card-oee, :548 #an-card-mtbf, :555 #an-card-pm"}},
+  {"key": "C2", "name": "Plotly chart", "seen": {"how": "static-read", "ref": "analytics.html:17 plotly-basic-2.26.0 script"}},
+  {"key": "C3", "name": "verdict + action block", "seen": {"how": "static-read", "ref": "analytics.html:538 #an-verdict-label + :571 #an-action-btn"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client (Plotly render)", "seen": {"how": "static-read", "ref": "analytics.html:17 CDN chart lib"}},
+  {"key": "L2", "name": "edge (batch-risk-scoring)", "seen": {"how": "static-read", "ref": "analytics.html:854 functions.invoke"}},
+  {"key": "L3", "name": "db (analytics_snapshots + live sources TO ENUMERATE LIVE)", "seen": {"how": "static-partial", "ref": "analytics.html:1073 from('analytics_snapshots'); remaining chart sources need the live network tab (A7 hold)"}},
+  {"key": "L4", "name": "gateway (canonical metric RPCs)", "seen": {"how": "static-read", "ref": "analytics.html:953 rpc get_pm_ontime_delivery"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "edge <-> db (risk scoring -> chart rows)", "seen": {"how": "static-read", "ref": "analytics.html:854 invoke with hive_id"}},
+  {"key": "S2", "name": "snapshot <-> live (materialised period vs live truth)", "seen": {"how": "static-read", "ref": "analytics.html:1064-1073 snapshot comment + read"}},
+  {"key": "S3", "name": "rpc <-> view (one definition shared with pm-scheduler)", "seen": {"how": "cross-page", "ref": "analytics.html:953 vs pm-scheduler.html:1387 same get_pm_ontime_delivery"}},
+  {"key": "S4", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "analytics.html:953"}},
+  {"key": "S5", "name": "chart <-> datum (the mark vs the number under it)", "seen": {"how": "static-read", "ref": "analytics.html:17 Plotly + :541-563 hero numbers"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker", "seen": {"how": "static-read", "ref": "analytics.html:854 hive-scoped invoke"}},
+  {"key": "P2", "name": "supervisor", "seen": {"how": "static-read", "ref": "analytics.html:571 action CTA"}},
+  {"key": "P3", "name": "two_context", "seen": {"how": "static-read", "ref": "analytics.html:1073 shared snapshot rows"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (tenant boundary on aggregates)", "seen": {"how": "static-read", "ref": "analytics.html:1073 hive+phase+period snapshot key"}},
+  {"key": "IB", "name": "two_context (same snapshot, two readers)", "seen": {"how": "static-read", "ref": "analytics.html:1073"}}
+ ],
+ "invariants": [
+  {"key": "mark_equals_datum", "name": "every rendered series equals its payload", "seen": {"how": "static-read", "ref": "analytics.html:17 Plotly render path"}, "oracle": "every chart's rendered series equals the payload it was fed - a chart is a claim about numbers, and a mark that does not match its datum is a lie no screenshot can catch"},
+  {"key": "closed_snapshot_frozen", "name": "a closed period's snapshot never changes", "seen": {"how": "static-read", "ref": "analytics.html:1064-1073"}, "oracle": "a closed period's analytics_snapshots row never changes; re-running produces the same row"},
+  {"key": "snapshot_vs_live_stated", "name": "snapshot and live agree or the surface says which it shows", "seen": {"how": "static-read", "ref": "analytics.html:1064 'first view' comment"}, "oracle": "a snapshot and the live truth views agree for the same period, or the surface states which of the two it is showing"},
+  {"key": "insufficient_not_zero", "name": "insufficient data never renders as zero", "seen": {"how": "static-read", "ref": "analytics.html:541-563 hero cards"}, "oracle": "insufficient data renders as insufficient, never as zero - a zero OEE and an unknown OEE are opposite things to a plant manager"},
+  {"key": "risk_scoring_idempotent", "name": "batch-risk-scoring is idempotent", "seen": {"how": "static-read", "ref": "analytics.html:854"}, "oracle": "batch-risk-scoring is idempotent per hive + period"},
+  {"key": "aggregate_tenant_bound", "name": "no chart aggregates a foreign hive", "seen": {"how": "static-read", "ref": "analytics.html:854,1073 hive-keyed paths"}, "oracle": "no chart aggregates another hive's rows - tenant isolation through the aggregate path, where it is easiest to lose"}
+ ],
+ "domain_truths": [
+  {"key": "oee_iso22400", "name": "OEE = A x P x Q and names the drag", "seen": {"how": "static-read", "ref": "analytics.html:541 #an-card-oee"}, "oracle": "OEE = availability x performance x quality per ISO 22400, and the surface says which of the three is dragging it down"},
+  {"key": "partial_labelled", "name": "a partial OEE is labelled partial", "seen": {"how": "doc+static", "ref": "audit_partial_label_honesty.py covers analytics.html; oee_iso_22400_partial formula id"}, "oracle": "an OEE computed without a quality input is labelled partial - the metric's-label-is-a-claim class"},
+  {"key": "mtbf_matches_pages", "name": "MTBF/MTTR match logbook and hive", "seen": {"how": "cross-page", "ref": "analytics.html:548 vs hive.html:3759 vs logbook.html:3483"}, "oracle": "MTBF/MTTR follow ISO 14224 and match logbook and hive to the same decimal"},
+  {"key": "ontime_window", "name": "PM on-time states its tolerance window", "seen": {"how": "static-read", "ref": "analytics.html:953 get_pm_ontime_delivery p_period_days"}, "oracle": "PM on-time delivery states its tolerance window"},
+  {"key": "axes_carry_units", "name": "every chart axis carries units", "seen": {"how": "static-read", "ref": "analytics.html:17 Plotly axes"}, "oracle": "every chart axis carries its units"},
+  {"key": "trend_period_stated", "name": "a trend states rolling vs calendar and its period", "seen": {"how": "static-read", "ref": "analytics.html:805-808 phase boards"}, "oracle": "a trend states its period and whether it is rolling or calendar"},
+  {"key": "benchmark_cohort", "name": "a percentile states cohort and n", "seen": {"how": "cross-page", "ref": "hive.html:5178-5184 benchmark tables feed the comparison"}, "oracle": "any benchmark or percentile states its cohort and n"},
+  {"key": "verdict_states_rule", "name": "the Phase-4 verdict states its rule", "seen": {"how": "static-read", "ref": "analytics.html:536-538 verdict block"}, "oracle": "the Phase-4 verdict states the rule that produced it, not only the conclusion - an unexplained verdict is an opinion wearing a metric's clothes"}
+ ],
+ "writes": [
+  {"fn": "batch-risk-scoring invoke (server-side write)", "class": "recompute online-only", "seen": {"how": "static-read", "ref": "analytics.html:854"}},
+  {"fn": "analytics_snapshots (read here; written by the snapshot path)", "class": "materialised period row", "seen": {"how": "static-read", "ref": "analytics.html:1073"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "the phase boards render metrics, no peso/credit figures (analytics.html:541-563)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the executive summary renders no money (analytics.html:535)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V1/reward_explained", "reason": "no reward/benefit figure on the boards (analytics.html:656)", "replace_with": {"oracle_key": "longest"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "no reward figure on Phase 2/3 (analytics.html:806-807)", "replace_with": {"oracle_key": "back_nav"}}
+ ]
+}

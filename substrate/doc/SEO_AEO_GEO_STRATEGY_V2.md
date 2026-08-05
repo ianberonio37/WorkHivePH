@@ -2,7 +2,7 @@
 name: doc-SEO_AEO_GEO_STRATEGY_V2
 type: doc
 source: file:SEO_AEO_GEO_STRATEGY_V2.md
-source_sha: c5232ee6114e4d99
+source_sha: 6c91a50c3efca407
 last_verified: 2026-07-13
 supersedes: null
 ---

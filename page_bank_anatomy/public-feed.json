@@ -1,0 +1,75 @@
+{
+ "page": "public-feed",
+ "url": "/workhive/public-feed.html",
+ "_ground": "2026-08-05 static read. The thinnest page in the roster and A10's proving ground: ONE read (v_community_posts_truth :229), ZERO writes, 19KB. Commit 3ddef99d fixed 'pressing Retry answered No-public-posts-yet on a feed with 15 posts' - the error/empty discrimination IS this page's history. Also R9: carries marketplace-bank W-surface-breadth rows.",
+ "views": [
+  {"key": "V1", "name": "feed populated", "seen": {"how": "static-read", "ref": "public-feed.html:229 v_community_posts_truth"}},
+  {"key": "V2", "name": "error / retry", "seen": {"how": "doc+static", "ref": "commit 3ddef99d fix(public-feed): Retry vs 'No public posts yet' - the states exist and were once conflated"}},
+  {"key": "V3", "name": "empty", "seen": {"how": "doc+static", "ref": "same commit - empty is a real, distinct state"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "post card", "seen": {"how": "static-read", "ref": "public-feed.html:229 render feed"}},
+  {"key": "C2", "name": "retry control", "seen": {"how": "doc+static", "ref": "commit 3ddef99d names the Retry control"}},
+  {"key": "C3", "name": "feed header / loader", "seen": {"how": "static-read", "ref": "public-feed.html:229 load path"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "public-feed.html:229"}},
+  {"key": "L2", "name": "gateway", "seen": {"how": "static-read", "ref": "public-feed.html:229 PostgREST read"}},
+  {"key": "L3", "name": "db (the public filter inside the truth view)", "seen": {"how": "static-read", "ref": "public-feed.html:229"}},
+  {"key": "L4", "name": "auth (the anon boundary - the page's entire risk)", "seen": {"how": "static-read", "ref": "public-feed.html:229 under the publishable key"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "anon <-> RLS (what the publishable key may read)", "seen": {"how": "static-read", "ref": "public-feed.html:229"}},
+  {"key": "S2", "name": "trigger <-> view (the public filter)", "seen": {"how": "static-read", "ref": "public-feed.html:229 v_community_posts_truth"}},
+  {"key": "S3", "name": "public <-> community (the same post on two surfaces)", "seen": {"how": "cross-page", "ref": "public-feed.html:229 vs community.html:931 same truth view"}},
+  {"key": "S4", "name": "cursor <-> page (keyset pagination)", "seen": {"how": "doc+static", "ref": "MARKETPLACE_ITERATION_ROADMAP section 4: public-feed's keyset cursor defeated the re-run (loadInitial paginated past the end, 0 rows)"}},
+  {"key": "S5", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "public-feed.html:229"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "anon (the primary reader)", "seen": {"how": "static-read", "ref": "public-feed.html:229"}},
+  {"key": "P2", "name": "member (same URL, signed in)", "seen": {"how": "static-read", "ref": "public-feed.html:229 - session changes nothing it may read"}},
+  {"key": "P3", "name": "crawler (the SEO reader)", "seen": {"how": "static-read", "ref": "public-feed.html meta/SEO head - a bot is a real reader here"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "anon (public-set boundary)", "seen": {"how": "static-read", "ref": "public-feed.html:229"}},
+  {"key": "IB", "name": "crawler (no-session read)", "seen": {"how": "static-read", "ref": "public-feed.html:229"}}
+ ],
+ "invariants": [
+  {"key": "only_public_appears", "name": "only explicitly-public posts appear", "seen": {"how": "static-read", "ref": "public-feed.html:229 the view's public filter"}, "oracle": "only posts explicitly marked public appear - proven by planting a hive-only post and confirming its ABSENCE, not by reading the filter"},
+  {"key": "keyset_total_order", "name": "keyset pagination is a total order", "seen": {"how": "doc+static", "ref": "the cursor re-run defect in MARKETPLACE_ITERATION_ROADMAP section 4"}, "oracle": "no post on two pages, none skipped - the pagination is a TOTAL order"},
+  {"key": "rls_not_client_filter", "name": "the public set is enforced by RLS", "seen": {"how": "static-read", "ref": "public-feed.html:229 anon read"}, "oracle": "anon reads the public set through RLS, not through a client-side filter"},
+  {"key": "error_not_empty", "name": "a failed read never renders the empty state", "seen": {"how": "doc+static", "ref": "commit 3ddef99d - this exact defect shipped"}, "oracle": "a failed read renders an error, never 'No public posts yet' - the invariant that stops the shipped defect returning"},
+  {"key": "public_identity_only", "name": "authors appear by public identity only", "seen": {"how": "static-read", "ref": "public-feed.html:229 author render"}, "oracle": "the author identity shown is the author's public identity - never their internal name or hive"},
+  {"key": "retry_reattempts", "name": "Retry re-attempts the request", "seen": {"how": "doc+static", "ref": "commit 3ddef99d Retry fix"}, "oracle": "Retry re-attempts the request rather than re-rendering the previous failure"}
+ ],
+ "domain_truths": [
+  {"key": "timestamps_zoned", "name": "timestamps state their zone or are correctly relative", "seen": {"how": "static-read", "ref": "public-feed.html:229 date renders"}, "oracle": "timestamps state their timezone, or are relative and correct"},
+  {"key": "feed_scope_stated", "name": "the feed says what it is a feed of", "seen": {"how": "static-read", "ref": "public-feed.html header"}, "oracle": "the feed states what it is a feed of - which community, what scope"},
+  {"key": "truncation_stated", "name": "a truncated post says so", "seen": {"how": "static-read", "ref": "public-feed.html:229 card render"}, "oracle": "a truncated post says it is truncated and how to read the rest"},
+  {"key": "counts_match_community", "name": "reply/reaction counts match the community page", "seen": {"how": "cross-page", "ref": "public-feed.html:229 vs community.html:931"}, "oracle": "reply / reaction counts match the community page for the same post"},
+  {"key": "empty_promises_signedout", "name": "the empty state promises only signed-out reality", "seen": {"how": "doc+static", "ref": "commit 3ddef99d empty-state copy"}, "oracle": "the empty state promises only what a signed-out visitor can actually get"},
+  {"key": "seo_reflects_posts", "name": "structured data reflects the actual posts", "seen": {"how": "static-read", "ref": "public-feed.html meta head"}, "oracle": "structured data and meta tags reflect the actual posts - an SEO claim is still a claim"},
+  {"key": "signin_adds_stated", "name": "what signing in adds is stated, no doomed controls", "seen": {"how": "static-read", "ref": "public-feed.html:229 anon affordances"}, "oracle": "an anon reader is told what signing in would add, never shown a control that will fail"},
+  {"key": "moderation_not_local", "name": "a removed post is gone here too", "seen": {"how": "cross-page", "ref": "public-feed.html:229 vs community moderation"}, "oracle": "a removed post is gone here too - moderation is not surface-local"}
+ ],
+ "writes": [],
+ "na": [
+  {"cell": "CC-failure-injection/V2/fail_401", "reason": "the error view is anon by construction - there is no session to expire (public-feed.html:229)", "replace_with": {"oracle_key": "longest"}},
+  {"cell": "CF-ufai-F/V1/effect_in_db", "reason": "zero writes on this page - no effect to assert (grep: no insert/update/upsert/delete)", "replace_with": {"oracle_key": "bulk50"}},
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "no money renders (public-feed.html:229)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V1/idempotent_repeat", "reason": "no mutating action exists to repeat", "replace_with": {"oracle_key": "script_name"}},
+  {"cell": "CF-ufai-F/V2/effect_in_db", "reason": "zero writes on this page", "replace_with": {"oracle_key": "zero_price"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "no money renders", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CF-ufai-F/V2/idempotent_repeat", "reason": "no mutating action exists to repeat (Retry is a READ and is covered by retry_path + the retry_reattempts invariant)", "replace_with": {"oracle_key": "back_nav"}},
+  {"cell": "CG-ufai-A/V1/offline_refusal", "reason": "zero writes - nothing to refuse; the offline READ posture is covered by CC fail_offline", "replace_with": {"oracle_key": "session_expiry"}},
+  {"cell": "CG-ufai-A/V2/offline_refusal", "reason": "zero writes - nothing to refuse", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CM-ux-comprehension/V1/what_does_it_cost", "reason": "nothing on this page costs anything - read-only public content", "replace_with": {"oracle_key": "longest"}},
+  {"cell": "CM-ux-comprehension/V1/reward_explained", "reason": "no reward concept on a public read-only feed", "replace_with": {"oracle_key": "bulk50"}},
+  {"cell": "CM-ux-comprehension/V2/what_does_it_cost", "reason": "read-only - nothing costs", "replace_with": {"oracle_key": "zero_price"}},
+  {"cell": "CM-ux-comprehension/V2/reward_explained", "reason": "no reward concept", "replace_with": {"oracle_key": "script_name"}},
+  {"cell": "CM-ux-comprehension/V3/what_does_it_cost", "reason": "read-only - nothing costs", "replace_with": {"oracle_key": "back_nav"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "no reward concept", "replace_with": {"oracle_key": "session_expiry"}},
+  {"cell": "CO-ux-recovery/V1/session_died", "reason": "no session is required to read the public feed", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CO-ux-recovery/V3/session_died", "reason": "no session is required", "replace_with": {"oracle_key": "zoom200"}}
+ ]
+}

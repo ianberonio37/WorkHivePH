@@ -168,9 +168,15 @@
     .cat-general     { background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.83); }
     .cat-safety      { background: rgba(239,68,68,0.15); color: var(--wh-red-text); }
     .cat-technical   { background: rgba(41,182,217,0.12); color: #4fc3e8; }   /* C2: AA-safe blue on the 12% tint (was --wh-blue #29B6D9 @ 4.03:1 → #4fc3e8 ~4.7:1) */
-    .cat-marketplace { background: rgba(247,162,27,0.14); color: var(--wh-orange); }
+    /* C2/BH: --wh-orange (#F7A21B) measures 4.06:1 on this tint at 10px, under the 4.5 AA floor.
+       The card underneath is itself a SEMI-TRANSPARENT gradient (rgba(42,61,88,0.5) ->
+       rgba(31,46,69,0.7)), so the effective background is page -> translucent card -> tint, and a
+       calculation against an opaque card reads ~5:1 and misses it. --wh-orange-text (#FDB94A) is the
+       token that exists for text on dark and clears the floor. Same move .cat-technical already made
+       (--wh-blue 4.03:1 -> #4fc3e8). */
+    .cat-marketplace { background: rgba(247,162,27,0.14); color: var(--wh-orange-text); }
     .cat-announcement{ background: rgba(168,85,247,0.12); color: var(--wh-violet); }
-    .badge-pinned    { background: rgba(247,162,27,0.15); color: var(--wh-orange); }
+    .badge-pinned    { background: rgba(247,162,27,0.15); color: var(--wh-orange-text); }
     .badge-mod       { background: rgba(239,68,68,0.12); color: var(--wh-red-text); }
 
     /* ── Avatar initials ── */
@@ -640,6 +646,10 @@
       <span style="flex:1; font-size:0.8rem; color:rgba(255,255,255,0.85);">
         🌐 Share with all WorkHive teams
         <span style="display:block; font-size:0.65rem; color:rgba(255,255,255,0.80); font-weight:400; margin-top:2px;">Public posts appear on the Global tab for every hive.</span>
+        <!-- A locked control has to say WHY it is locked. Dimming to 0.85 is not a reason: the live
+             walk found this box silently tick itself and grey out, with nothing on screen explaining
+             it. This line is written by the category handler and cleared when the lock lifts. -->
+        <span id="post-public-lock-why" style="display:none; font-size:0.65rem; color:var(--wh-green); font-weight:600; margin-top:3px;"></span>
       </span>
     </label>
 
@@ -1281,9 +1291,16 @@
         _inline = 'Too many requests, so the community feed could not be read. Your connection is fine: wait about '
                 + _wait + ', then retry.';
         _toast  = 'Too many requests. Wait about ' + _wait + ', then retry.';
-      } else if (_st === 401 || _st === 403 || _code === '42501' || /jwt|token/i.test(_msgRaw)) {
+      /* 401 = dead session; 403 = live session, refused row. PostgREST answers 401 for anonymous or
+         dead tokens and 403 for an authenticated caller whose row was refused, so answering both
+         with "sign in again" sends the second group to fix the one thing that is not broken — and
+         the retry lands on the same 403. Measured 2026-08-05 across six surfaces. */
+      } else if (_st === 401 || /jwt|token/i.test(_msgRaw) || (_st == null && _code === '42501')) {
         _inline = 'Your session expired, so the community feed could not be read. Sign in again to continue. Nothing you posted was lost.';
         _toast  = 'Your session expired. Sign in again.';
+      } else if (_st === 403 || _code === '42501') {
+        _inline = 'This account does not have access to the community feed. Your session is fine, so signing in again will not change it — ask a supervisor if you need access.';
+        _toast  = 'No access to the community feed with this account.';
       } else {
         _inline = 'Couldn’t load the community feed. Check your connection and try again.';
         _toast  = 'Could not load posts';
@@ -1851,9 +1868,11 @@
     const _mh = document.getElementById('marketplace-hint');
     if (_mh) _mh.style.display = 'none';
     const cb = document.getElementById('post-public');
-    if (cb) { cb.checked = false; cb.disabled = false; }
+    if (cb) { cb.checked = false; cb.disabled = false; delete cb.dataset.ownChoice; }
     const row = document.getElementById('post-public-row');
     if (row) row.style.opacity = '1';
+    const _why = document.getElementById('post-public-lock-why');   // the lock reason is per-post
+    if (_why) { _why.textContent = ''; _why.style.display = 'none'; }
     document.getElementById('composer-overlay').classList.add('open');
     if (_focusTrapCleanup) _focusTrapCleanup();
     _focusTrapCleanup = trapFocus(document.getElementById('composer-sheet'));
@@ -1891,13 +1910,24 @@
     const cb  = document.getElementById('post-public');
     const row = document.getElementById('post-public-row');
     if (!cb || !row) return;
+    // Announcements are always hive-wide, so this box is forced on and locked. Two things the live
+    // walk caught it getting wrong: it never SAID why it was locked (a 0.85 dim is not a reason),
+    // and switching back to another category left the forced tick behind — so a post the supervisor
+    // now believes is hive-only would still publish to the Global tab of every hive. A forced choice
+    // must not outlive the reason that forced it, and it must not overwrite a choice of their own.
+    const why = document.getElementById('post-public-lock-why');
     if (this.value === 'announcement') {
+      if (!cb.disabled) cb.dataset.ownChoice = cb.checked ? '1' : '0';  // remember what THEY picked
       cb.checked = true;
       cb.disabled = true;
       row.style.opacity = '0.85';
+      if (why) { why.textContent = 'Announcements always reach every hive, so this stays on.';
+                 why.style.display = 'block'; }
     } else {
+      if (cb.disabled) cb.checked = cb.dataset.ownChoice === '1';       // restore theirs, not the forced one
       cb.disabled = false;
       row.style.opacity = '1';
+      if (why) { why.textContent = ''; why.style.display = 'none'; }
     }
     // Knowledge->commerce: surface the free-marketplace pointer for a Parts/Service/Wanted post
     const mh = document.getElementById('marketplace-hint');

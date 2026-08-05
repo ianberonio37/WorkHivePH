@@ -1147,7 +1147,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let _loadingMore   = false;
   let _loadError     = false;  // P7: a FAILED listings fetch must render an error state, not the first-run "be the first to sell" CTA
   let _rateLimited   = null;   // when the failure was a 429, the human-readable wait ("60 seconds") — null otherwise
-  let _authExpired   = false;  // ...and when it was a 401/403, the remedy is signing in, not retrying
+  let _authExpired   = false;  // ...and when it was a 401, the remedy is signing in, not retrying
+  let _accessDenied  = false;  // ...while a 403 is a REFUSED ROW with a perfectly good session, and
+                               // signing in again cannot fix it — a different fact needing different words
 
   /* PostgREST/most gateways answer a rate limit with Retry-After, in seconds or as an HTTP date.
      Without it there is still an honest thing to say ("a moment"), which beats a bare error. */
@@ -1294,7 +1296,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      of commitment, which is the moment the oracle asks about ("cost, hold and reward are stated
      before commitment, not after"). Found on a live comprehension walk 2026-08-04.
      Two copies of this markup would drift the same way again, so both sites call this. */
+  /* NOW A DELEGATE. The implementation moved to utils.js on 2026-08-05 when a live walk found the
+     seller PROFILE rendering priced listings with no chip at all — a third call site the local copy
+     could never reach. Kept as a thin wrapper so this page's two call sites read unchanged. */
   function creditsBackChipHtml(price, style) {
+    return whCreditsBackChipHtml(price, _rewardKnobs, style);
+  }
+
+  function _creditsBackChipHtml_LOCAL_RETIRED(price, style) {
     const cb = creditsBack(price);
     if (!cb) return '';
     const amount = escHtml(fmtPrice(cb));
@@ -2420,7 +2429,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       /* keyset: skip already-seen rows */
       if (append && _lastCreatedAt) q = q.lt('created_at', _lastCreatedAt);
 
-      const { data, error, status } = await q;
+      /* BOUND THE READ, or the skeleton above is the eternal one. A supabase-js query never passes
+         through fetchWithTimeout, so a stalled listings read had no ceiling: measured live here
+         2026-08-05 by holding every REST read open — at 4s the grid still showed a skel-pulse, the
+         page said NOTHING had failed, and it never mentioned a timeout. whQueryTimeout resolves in
+         supabase's own {data,error} shape, so the throw below and the P7 error grid already know
+         what to do with it. The helper has existed since 2026-08-04 and community/profile/public-feed
+         adopted it; this page, the seller dashboard and the admin console never did. */
+      const { data, error, status } = await (typeof whQueryTimeout === 'function'
+        ? whQueryTimeout(q, 15000, 'the marketplace listings') : q);
       if (error) { if (status) error._httpStatus = status; throw error; }
 
       const rows = data || [];
@@ -2429,6 +2446,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _loadError = false;   // P7: a clean fetch clears any prior error state
       _rateLimited = null;  // ...and so does the rate-limit copy, or it outlives the limit itself
       _authExpired = false;
+      _accessDenied = false;   // ...and so does the refusal, or a since-granted permission still reads as denied
       if (rows.length) _lastCreatedAt = rows[rows.length - 1].created_at;
     } catch (_err) {
       if (!append) _listings = [];
@@ -2449,14 +2467,28 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          person blames on their own signal, while the actual remedy (sign in again) is never named.
          Three failures, three different remedies: wait (429), sign in (401), check the line (the
          rest). One message for all of them was only ever right a third of the time. */
-      _authExpired = !!(_err && (_err._httpStatus === 401 || _err._httpStatus === 403 ||
+      /* ...BUT 401 AND 403 ARE TWO DIFFERENT EVENTS AND ONLY ONE OF THEM IS THE SESSION.
+         PostgREST answers 401 when the caller is ANONYMOUS or the token is dead, and 403 when the
+         caller is AUTHENTICATED and the row was refused. Treating them alike told a signed-in person
+         "Your session expired… Sign in again" for a permission problem — and signing out and back in
+         lands on the same 403, so the one remedy offered is the one that cannot work. Measured
+         2026-08-05 by injecting each status at the route layer: five of six surfaces did this.
+         Same shape as the 429 lesson directly above — a wrong remedy sends someone to fix the one
+         thing that is not broken. `42501` stays with the session branch only when no HTTP status
+         came with it, since a bare Postgres denial from a path that never saw a response is
+         ambiguous and has always been read that way. */
+      _authExpired = !!(_err && (_err._httpStatus === 401 ||
                                  /jwt|token/i.test(String(_err.message || '')) ||
-                                 String(_err.code) === '42501'));
+                                 (_err._httpStatus == null && String(_err.code) === '42501')));
+      _accessDenied = !_authExpired && !!(_err && (_err._httpStatus === 403 ||
+                                 (_err._httpStatus === 403 && String(_err.code) === '42501')));
       if (typeof showToast === 'function') {
         showToast(_rateLimited
           ? `Too many requests. The marketplace is limiting how often it can be read. Try again in ${_rateLimited}.`
           : _authExpired
           ? 'Your session expired, so the marketplace could not be read. Sign in again to continue. Nothing you did was lost.'
+          : _accessDenied
+          ? 'This account does not have access to the marketplace listings. Your session is fine, so signing in again will not change it — ask a supervisor if you need access.'
           : "Couldn't load listings. Check your connection and try again.", 'error');
       }
     }
@@ -4582,7 +4614,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // MR4 tiebreaker: providers_online is a COUNT, so ties are the norm, not the exception (several areas
         // with the same number online). service_area is unique in this view, making the order total.
         .order('providers_online', { ascending: false }).order('service_area').limit(6);
-      if (error || !data || !data.length) return;
+      /* A FAILED READ IS NOT AN EMPTY ONE, AND ON THIS SURFACE THE DIFFERENCE DECIDES WHETHER
+         SOMEONE WAITS. `if (error || !data.length) return;` sent both down the same silent path, so
+         with the backend refusing, the services pane rendered EXACTLY what it renders when nobody is
+         online — measured 2026-08-05, indistinguishableFromEmpty=true. A person then hails into a
+         void and waits for an answer that cannot come, because "no providers online" and "we cannot
+         tell you who is online" look identical. The hint stays additive when the answer is a genuine
+         zero; it speaks only when the read itself failed. */
+      if (error) {
+        slot.innerHTML = '<div style="font-size:0.76rem;opacity:0.9;display:flex;align-items:center;'
+          + 'gap:0.4rem;flex-wrap:wrap;"><span aria-hidden="true">⚠</span><span>Couldn’t '
+          + 'check who’s online right now, so this is unknown rather than nobody. You can still '
+          + 'send a request — it will reach providers when the connection is back.</span></div>';
+        return;
+      }
+      if (!data || !data.length) return;
       /* COUNT PEOPLE, NOT AREA-ROWS. `service_areas` is an ARRAY, so a provider covering
          {Batangas, Manila} appears in BOTH rows of this view — correct for the per-area breakdown,
          and double-counting when those rows are summed into a headline. Measured 2026-08-02: the line

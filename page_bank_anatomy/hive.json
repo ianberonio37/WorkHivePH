@@ -1,0 +1,66 @@
+{
+ "page": "hive",
+ "url": "/workhive/hive.html",
+ "_ground": "2026-08-05 static read. 21 .channel( subscriptions - the most of any page. 4 edge fns. Role-gated supervisor actions. The verdict on this page is the realtime lifecycle across hive switches.",
+ "views": [
+  {"key": "V1", "name": "live board (default)", "seen": {"how": "static-read", "ref": "hive.html:1653 v_logbook_truth board load"}},
+  {"key": "V2", "name": "handover-sheet", "seen": {"how": "static-read", "ref": "hive.html:1375 #handover-sheet role=dialog"}},
+  {"key": "V3", "name": "intent-capture", "seen": {"how": "static-read", "ref": "hive.html:915 #intent-capture role=dialog"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "readiness/KPI tile", "seen": {"how": "static-read", "ref": "hive.html:4106 v_pm_compliance_truth tile feed"}},
+  {"key": "C2", "name": "member roster row", "seen": {"how": "static-read", "ref": "hive.html:2008 hive_members read"}},
+  {"key": "C3", "name": "benchmark panel", "seen": {"how": "static-read", "ref": "hive.html:5178 hive_benchmarks + :5184 network_benchmarks"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "hive.html:1653 board render path"}},
+  {"key": "L2", "name": "edge (4 fns)", "seen": {"how": "static-read", "ref": "hive.html:3703 supervisor-reset-password, :5256 benchmark-compute, :5302 ai-gateway, :5313 ai-orchestrator"}},
+  {"key": "L3", "name": "db (18 tables/views)", "seen": {"how": "static-read", "ref": "hive.html:1653-5481 reads incl. 9 v_*_truth"}},
+  {"key": "L4", "name": "realtime (21 channels)", "seen": {"how": "grep-count", "ref": "hive.html - 21 .channel( occurrences (2026-08-05 grep)"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "realtime <-> client (21 subscriptions)", "seen": {"how": "grep-count", "ref": "hive.html 21 .channel( sites"}},
+  {"key": "S2", "name": "edge <-> db (benchmark-compute writes, board reads)", "seen": {"how": "static-read", "ref": "hive.html:5256 invoke + :5178 read-back"}},
+  {"key": "S3", "name": "trigger <-> view (9 v_*_truth)", "seen": {"how": "static-read", "ref": "hive.html:4106,3932,3376,4984,5081"}},
+  {"key": "S4", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "hive.html:1815 v_worker_truth"}},
+  {"key": "S5", "name": "hive-switch <-> every panel + channel", "seen": {"how": "static-read", "ref": "hive.html:1479 #modal-hive-switch"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker", "seen": {"how": "static-read", "ref": "hive.html:2008 membership-scoped board"}},
+  {"key": "P2", "name": "supervisor", "seen": {"how": "static-read", "ref": "hive.html:3703 supervisor-reset-password + :1490 modal-sup-leave"}},
+  {"key": "P3", "name": "two_context (two members, one board)", "seen": {"how": "grep-count", "ref": "hive.html 21 realtime channels = shared-object races"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (role floor)", "seen": {"how": "static-read", "ref": "hive.html:2008 hive_members role read"}},
+  {"key": "IB", "name": "two_context (cross-member visibility)", "seen": {"how": "static-read", "ref": "hive.html:2240,2268,2311 member mutations"}}
+ ],
+ "invariants": [
+  {"key": "channels_rekey_on_switch", "name": "all 21 subscriptions re-key on hive switch", "seen": {"how": "grep-count", "ref": "hive.html 21 .channel( + :1479 switch modal"}, "oracle": "every realtime subscription is torn down on hive switch and re-opened against the new hive - a surviving channel is a cross-tenant leak with a live wire, not a stale render"},
+  {"key": "no_duplicate_topics", "name": "getChannels() has no duplicate topic after switch-return", "seen": {"how": "grep-count", "ref": "hive.html 21 .channel( sites"}, "oracle": "after switching away and back, getChannels() returns no duplicate topic - the listener-lifecycle class"},
+  {"key": "bfla_at_edge", "name": "supervisor actions refused at the edge fn", "seen": {"how": "static-read", "ref": "hive.html:3703 supervisor-reset-password invoke"}, "oracle": "a supervisor-only action is refused AT THE SERVER for a worker token, not merely hidden in the UI"},
+  {"key": "audit_names_actor", "name": "membership mutations leave attributed audit rows", "seen": {"how": "static-read", "ref": "hive.html:4593,4758 hive_audit_log"}, "oracle": "every hive_audit_log write names its actor from the JWT, and no board action that mutates membership completes without one"},
+  {"key": "benchmark_aggregate_only", "name": "network benchmarks expose no foreign hive row", "seen": {"how": "static-read", "ref": "hive.html:5184 network_benchmarks read"}, "oracle": "the page never shows another hive's identifiable row - the network figure is aggregate-only, proven from the payload rather than the label"},
+  {"key": "readiness_reproducible", "name": "readiness is reproducible", "seen": {"how": "static-read", "ref": "hive.html:4106-4107 compliance+scope inputs"}, "oracle": "the readiness score is reproducible: same inputs, same score, across a reload and a realtime-driven repaint"}
+ ],
+ "domain_truths": [
+  {"key": "readiness_decomposable", "name": "readiness states its inputs and weights", "seen": {"how": "static-read", "ref": "hive.html:4106 compliance feed"}, "oracle": "the readiness composite states its inputs and weights on the surface - a 67/100 nobody can decompose is a vibe with a number attached"},
+  {"key": "pm_overdue_vs_compliance", "name": "PM-overdue and PM-compliance cannot disagree", "seen": {"how": "static-read", "ref": "hive.html:4106-4107,4328-4332"}, "oracle": "PM-overdue count and PM-compliance % on the same board derive from one denominator and cannot disagree"},
+  {"key": "freshness_threshold_named", "name": "a fresh badge names its threshold", "seen": {"how": "static-read", "ref": "hive.html:3376 v_knowledge_freshness_truth"}, "oracle": "a 'fresh' badge names the age threshold it passed"},
+  {"key": "mtbf_iso14224", "name": "MTBF/MTTR match analytics under ISO 14224", "seen": {"how": "cross-page", "ref": "hive.html:3759-3765 v_logbook_truth vs analytics.html KPIs"}, "oracle": "MTBF/MTTR on the board follow ISO 14224 definitions and match analytics to the same decimal"},
+  {"key": "xp_agrees", "name": "board XP equals achievements", "seen": {"how": "cross-page", "ref": "hive.html:3933 community_xp vs achievements.html:1027 achievement_xp_log"}, "oracle": "community_xp on the board equals the achievements page for the same worker"},
+  {"key": "low_stock_by_reorder", "name": "low-stock equals inventory's reorder predicate", "seen": {"how": "cross-page", "ref": "hive.html:4175 v_inventory_items_truth vs inventory.html:2003"}, "oracle": "the low-stock count equals inventory's own reorder-point predicate"},
+  {"key": "benchmark_cohort_stated", "name": "benchmarks state cohort and n", "seen": {"how": "static-read", "ref": "hive.html:5178-5184"}, "oracle": "the benchmark panel states whether the cohort is network-wide or same-industry, and the cohort's n - a percentile against 3 hives is not a benchmark"},
+  {"key": "handover_is_shift_truth", "name": "handover carries the SHIFT's entries", "seen": {"how": "static-read", "ref": "hive.html:1375 handover-sheet + :2199 v_logbook_truth window"}, "oracle": "the handover sheet contains the shift window's entries, not 'recent 20', and states the window"}
+ ],
+ "writes": [
+  {"fn": "hives/hive_members role+membership", "class": "approval/locked online-only", "seen": {"how": "static-read", "ref": "hive.html:1999,2008,2100,2240,2268,2311,3562,3612,3724"}},
+  {"fn": "logbook.insert", "class": "capture", "seen": {"how": "static-read", "ref": "hive.html:5423"}},
+  {"fn": "hive_audit_log.insert", "class": "audit append-only", "seen": {"how": "static-read", "ref": "hive.html:4593,4758"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "no peso/credit figure on the live board - counts, scores and badges only (hive.html:1653-5481 reads)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the handover sheet renders entries and counts, no money (hive.html:1375)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V2/reward_explained", "reason": "the handover sheet surfaces no reward/benefit figure (hive.html:1375)", "replace_with": {"oracle_key": "back_nav"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "intent-capture surfaces no reward/benefit figure (hive.html:915)", "replace_with": {"oracle_key": "session_expiry"}}
+ ]
+}

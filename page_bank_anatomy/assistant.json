@@ -1,0 +1,61 @@
+{
+ "page": "assistant",
+ "url": "/workhive/assistant.html",
+ "_ground": "2026-08-05 static read - panel ids marked static-partial (A7): the chat structure is functionally certain (two ai-gateway invokes, a 7-view context bundle, a feedback table) but element ids must be confirmed live before UI rows bank. It reads SIX other pages' truth, so a wrong scope here leaks six ways.",
+ "views": [
+  {"key": "V1", "name": "chat thread", "seen": {"how": "static-partial", "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"}},
+  {"key": "V2", "name": "context bundle (the grounding read)", "seen": {"how": "static-read", "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"}},
+  {"key": "V3", "name": "reply feedback", "seen": {"how": "static-read", "ref": "assistant.html:863 ai_reply_feedback"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "message bubble", "seen": {"how": "static-partial", "ref": "assistant.html:1032 reply render path; ids to confirm live"}},
+  {"key": "C2", "name": "source/provenance chip", "seen": {"how": "static-partial", "ref": "assistant.html:489,759 v_logbook_truth cites; chip markup to confirm live"}},
+  {"key": "C3", "name": "composer", "seen": {"how": "static-partial", "ref": "assistant.html:1032 send path; input id to confirm live"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "assistant.html:534 bundle assembly"}},
+  {"key": "L2", "name": "edge (ai-gateway, the ONE front door)", "seen": {"how": "static-read", "ref": "assistant.html:1032,1060"}},
+  {"key": "L3", "name": "db (7-view bundle + feedback)", "seen": {"how": "static-read", "ref": "assistant.html:534-543,863"}},
+  {"key": "L4", "name": "ai", "seen": {"how": "static-read", "ref": "assistant.html:1032"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "context <-> answer (the grounding seam)", "seen": {"how": "static-read", "ref": "assistant.html:534-543 bundle feeds the prompt"}},
+  {"key": "S2", "name": "ai-gateway <-> model", "seen": {"how": "static-read", "ref": "assistant.html:1032,1060"}},
+  {"key": "S3", "name": "feedback <-> db", "seen": {"how": "static-read", "ref": "assistant.html:863"}},
+  {"key": "S4", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "assistant.html:489"}},
+  {"key": "S5", "name": "assistant <-> six domains (logbook, dayplanner, skills, inventory, PM, journal)", "seen": {"how": "static-read", "ref": "assistant.html:534-543"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker", "seen": {"how": "static-read", "ref": "assistant.html:534 own-context bundle"}},
+  {"key": "P2", "name": "supervisor", "seen": {"how": "static-read", "ref": "assistant.html:541 compliance context"}},
+  {"key": "P3", "name": "two_context", "seen": {"how": "static-read", "ref": "assistant.html:863 feedback rows"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (bundle scoped to own hive)", "seen": {"how": "static-read", "ref": "assistant.html:534-543"}},
+  {"key": "IB", "name": "two_context (citation reachability)", "seen": {"how": "static-read", "ref": "assistant.html:489,759"}}
+ ],
+ "invariants": [
+  {"key": "citations_resolve_lawfully", "name": "every cited source resolves to a row this asker may read", "seen": {"how": "static-read", "ref": "assistant.html:489,759 cite reads"}, "oracle": "every cited source resolves to a row this asker may read - a citation they cannot open is unverifiable; one they should not see is a leak; both fail"},
+  {"key": "bundle_hive_scoped", "name": "the context bundle is hive-scoped", "seen": {"how": "static-read", "ref": "assistant.html:534-543"}, "oracle": "no cross-hive row enters the prompt"},
+  {"key": "pii_egress_rule", "name": "PII egress stays within the stated rule", "seen": {"how": "static-read", "ref": "assistant.html:543 voice_journal_entries in the bundle - the most PII-laden source"}, "oracle": "PII egress stays within the stated rule, including journal content entering prompts"},
+  {"key": "failure_renders_as_failure", "name": "a gateway failure is a failure, not an empty answer", "seen": {"how": "static-read", "ref": "assistant.html:1060 error path"}, "oracle": "a gateway failure renders as a failure, never as a confident empty answer"},
+  {"key": "feedback_attributable", "name": "feedback is attributable and self-scoped", "seen": {"how": "static-read", "ref": "assistant.html:863"}, "oracle": "feedback is attributable and cannot be filed against another user's reply"},
+  {"key": "gateway_only_path", "name": "the gateway is the only path to a model", "seen": {"how": "static-read", "ref": "assistant.html:1032,1060 - and the no-ai-gateway-bypass gate"}, "oracle": "no page-level bypass reaches a model - proven from the network, not the code"}
+ ],
+ "domain_truths": [
+  {"key": "scope_stated", "name": "the answer states its hive and window", "seen": {"how": "static-read", "ref": "assistant.html:534 bundle build"}, "oracle": "the answer states which hive and window it drew on"},
+  {"key": "numbers_match_views", "name": "a stated number matches its source view", "seen": {"how": "static-read", "ref": "assistant.html:534-543"}, "oracle": "a number in an answer matches its source view to the same decimal, or is not stated as fact"},
+  {"key": "grounded_vs_general", "name": "found-in-your-data vs general knowledge distinguished", "seen": {"how": "static-read", "ref": "assistant.html:489 grounding reads"}, "oracle": "it distinguishes 'I found this in your data' from 'this is general knowledge'"},
+  {"key": "no_fabricated_identifiers", "name": "no fabricated asset codes or names", "seen": {"how": "doc+static", "ref": "the LLM-parrots-fewshot lesson (fake P-103/David Velasco) + assistant.html:1032"}, "oracle": "it does not fabricate asset codes or worker names - the parroted-example class that has bitten this platform before"},
+  {"key": "terms_per_platform", "name": "MTBF/OEE/compliance per platform definitions", "seen": {"how": "static-read", "ref": "assistant.html:541 v_pm_compliance_truth context"}, "oracle": "domain terms are used per platform definitions, not the model's"},
+  {"key": "refusal_names_reason", "name": "a non-answer names which reason", "seen": {"how": "static-read", "ref": "assistant.html:1060 error handling"}, "oracle": "when it cannot answer it says WHICH reason: no data, not permitted, out of scope"},
+  {"key": "persona_voice_not_facts", "name": "persona changes the voice, not the facts", "seen": {"how": "doc+static", "ref": "Hezekiah/Zaniah personas (COMPANION_DEPLOYMENT_READY) + assistant.html:1032"}, "oracle": "persona is labelled, and switching persona changes the voice, not the facts"},
+  {"key": "quota_legible", "name": "quota/cost state is legible when it constrains", "seen": {"how": "static-read", "ref": "assistant.html:1060 429 path"}, "oracle": "quota / cost state is legible when it constrains the answer"}
+ ],
+ "writes": [
+  {"fn": "ai_reply_feedback", "class": "capture", "seen": {"how": "static-read", "ref": "assistant.html:863"}}
+ ],
+ "na": [
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the feedback affordance surfaces no reward figure (assistant.html:863)", "replace_with": {"oracle_key": "back_nav"}}
+ ]
+}

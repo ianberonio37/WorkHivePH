@@ -5469,6 +5469,67 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        # THE INSTRUMENT BEHIND 136 OF THAT BANK'S ROWS. Those rows assert things no page can show you
+        # — the ledger conserves credits, every grant has a caller-aware policy behind it, a DEFINER
+        # helper is not callable by a stranger — and until now each was walked BY HAND, which proves
+        # only that it held on the afternoon someone looked. Making each one a QUERY found three real
+        # holes on its first honest run: voice transcripts readable by anon (mig 50), a nightly sweep
+        # any visitor could fire — it returned 3, three real records expired on demand (mig 51), and
+        # the platform's own AI spend counters world-readable (mig 52).
+        #
+        # It is also why the bank's rows now declare `supabase/migrations` instead of whichever page
+        # was open during the walk: a DB claim must expire when a MIGRATION lands, and under the old
+        # declaration mig 50 would have expired nothing (gate rule R7).
+        # BOLA / BFLA / JWT-not-body / tenant boundary, asked of the SERVER with a real session.
+        # It probes as a verified NON-ADMIN, because the standing test account (pabloaguilar) is in
+        # marketplace_platform_admins — probing as him showed a "critical" listing takeover that was
+        # simply moderation working, since the policy reads
+        #   USING ((seller_name IN (SELECT auth_worker_names())) OR is_marketplace_admin())
+        # Every write runs inside a rolled-back transaction: the first version of this probe proved a
+        # read boundary by writing, and left a live listing titled "TAKEN OVER BY A STRANGER" with no
+        # recoverable original.
+        "id":      "identity_boundaries",
+        "script":  "tools/verify_identity_boundaries.py",
+        "args":    [],
+        "label":   "Identity boundaries (another person's draft is invisible; their listing is "
+                   "unwritable; a forged seller_name in the body is refused; an admin-gated function "
+                   "is refused at the server — probed as a verified non-admin, all writes rolled back)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,          # needs the local database and gateway up
+    },
+    {
+        # THE MONEY LIFECYCLE. Registered the day a commission was found debiting the ledger and never
+        # retiring the credits, so `issued_credits` published a supply 360.00 larger than the credits
+        # that existed. That defect lived on the DB side of every screen, which is why it survived
+        # every hand-walk: the page showed a balance, and the claim was about what the ledger did.
+        # Every probe that writes runs inside a single psql call ending in rollback.
+        "id":      "money_lifecycle",
+        "script":  "tools/verify_money_lifecycle.py",
+        "args":    [],
+        "label":   "The money lifecycle asked of the database (a verified top-up mints exactly once "
+                   "and an unverified one mints nothing; a verification cannot be undone by UPDATE; "
+                   "commission is paired with retirement; credits cover at most the knob's share of a "
+                   "purchase and a spend AT the cap is still accepted; a job earns or spends, never "
+                   "both; credits cannot be moved between accounts and there is no cash-out function; "
+                   "no account is overdrawn; an auto-confirmed payment never also names a human)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,          # needs the local database up
+    },
+    {
+        "id":      "layer_invariants",
+        "script":  "tools/verify_layer_invariants.py",
+        "args":    [],
+        "label":   "Layer + seam invariants asserted against the live system (ledger conserves against "
+                   "the treasury; every grant has a caller-aware policy; DEFINER cron helpers are not "
+                   "user-callable; realtime publishes nothing RLS-free; NULL keeps its meaning across "
+                   "the client seam; pg_cron is not allowed more jobs than there are workers)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,          # needs the local database up
+    },
+    {
         # The READ-side sibling of client_write_grants, and it exists because three gates each asked
         # a neighbouring question and left this one uncovered. credit_treasury — one row holding the
         # platform's whole money position — was granted SELECT to anon AND authenticated under

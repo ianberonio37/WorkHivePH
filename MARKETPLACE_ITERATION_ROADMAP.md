@@ -26,46 +26,20 @@ mechanism is a wish.
 
 ---
 
-## §1 · SCOREBOARD (measured 2026-08-04, after the BF walk)
+## §1 · SCOREBOARD (measured 2026-08-05, after the harness re-runs and mig 53)
 
-| | scenarios | green | owed | green% |
-|---|---|---|---|---|
-| **Existing A–W bank** | 364 | 123 | 241 | 33.8% |
-| **F1 · Architecture** (AX/AY/AZ/BA) | 178 | 32 | 146 | 18.0% |
-| **F2 · UFAI** (BB/BC/BD/BE) | 120 | 18 | 102 | 15.0% |
-| **F3 · UI** (BF/BG/BH) | 105 | 91 | 14 | **86.7%** |
-| **F4 · UX** (BI/BJ/BK) | 110 | 35 | 75 | 31.8% |
-| **TOTAL** | **877** | **300** | **577** | **34.2%** |
+| | scenarios | green | stale | owed | green% |
+|---|---|---|---|---|---|
+| **A-W** | 364 | 323 | 37 | 4 | 88.7% |
+| **F1** | 178 | 146 | 29 | 3 | 82.0% |
+| **F2** | 120 | 29 | 90 | 1 | 24.2% |
+| **F3** | 105 | 104 | 0 | 1 | 99.0% |
+| **F4** | 110 | 72 | 36 | 2 | 65.5% |
+| **TOTAL** | 877 | 674 | 192 | 11 | 76.9% |
 
-**The AZ null-field lens is the highest-yield probe built so far — three defects on three surfaces:**
-the seller's wallet rendering **₱0** for a balance it could not read (and a second reader that would
-have told them they were *short* on that same phantom zero); the admin's solvency badge showing
-**0** at the moment it knew nothing, where 0 reads as *insolvent*; and the marketplace card showing
-**nothing at all** where a price belongs, when the platform already had "Negotiable" and used it on
-the seller profile.
+**Stale is not owed and not green.** A stale row was true when it was walked and its ground has since moved — the sha over its `depends_on` no longer matches. It is the honest cost of editing the code the bank measures, and the reason the number moves DOWN when a page is fixed. Driving it to zero means re-running the harness that produced it, not re-declaring the row.
 
-**And the lens taught the discipline it needed.** On three of five surfaces the induction did not
-land on the first try — `DOMContentLoaded` re-dispatch touches nothing, and every loader on
-marketplace.html and community.html is closure-scoped. Each of those non-landings produced a
-*clean-looking* reading that would have banked as a pass. `community/fail_null_field` is left
-**owed** for exactly that reason.
-
-**The 14 open F3 rows are one question, not fourteen.** `BH contrast_wcag` (7) and
-`BH contrast_apca` (7) are both blocked on the same decision — see §5.
-
-**Rule 5 was tested and held.** The two fixes below touched `marketplace.html` and
-`platform-actions.html`, which expired **95 rows** on the spot and failed the ratchet with *"re-walk, do
-not re-baseline"*. They were re-walked, not absorbed: every affected surface re-loaded in the live MCP
-browser with all six states re-run, and each of the 11 layer/seam rows re-proved with its own probe
-(base-vs-view from psql + browser, status/body on the wire under an authenticated token, a realtime
-commit observed from a subscribed browser, a byte-identical storage round-trip). Then 152 → 187.
-
-**Why the number fell from 343 to 124.** 220 rows were re-opened because a structural probe had been
-answering a behavioural oracle. Each carries the reason in its findings. The 124 that survived cite psql or
-a named source value. This is the honest starting line, and it is the point — a bank that cannot go down
-is a bank that cannot be trusted when it goes up.
-
----
+**What the re-runs bought this session:** the 124 layer/seam rows and 6 identity rows were re-earned from harnesses that actually ran again (`verify_layer_invariants.py`, `verify_identity_boundaries.py`) rather than re-stamped, and the identity rows were re-anchored to `supabase/migrations` — they had named three HTML pages for a boundary the database enforces, which expired them for nothing and would have kept them green through a migration that mattered.
 
 ## §2 · WHAT EACH FAMILY ASKS
 
@@ -128,6 +102,32 @@ NEXT: F3 BF-ui-layout CLOSED — 35/35, all seven surfaces at three VERIFIED wid
         public-feed was a false green under the old rule, and is a real one under the new.
         Its keyset cursor also defeated the re-run (loadInitial paginated past the end, 0 rows);
         the runner now drops the cursor filter from the request so the re-run asks for page one.
+  DONE 2026-08-05 (harness re-runs, mig 53, and four new instruments):
+    · MIG 53 — a REAL money defect. mint_settlement_commission() inserted a negative ledger row and
+      never called retire_credits(), while both other money paths pair their write. The treasury
+      published issued_credits 1500.00 against a ledger totalling 1140.00 — a gap of exactly 360.00,
+      the whole commission history. Trigger now pairs; the drift is reconciled by a DO block that
+      REFUSES to run if the gap is not exactly the un-retired commission, so it cannot paper over a
+      different unbalanced writer.
+    · The gate that should have caught it was blind BY CONSTRUCTION. db_credits_conserved compared
+      issued_credits against `sum(amount) where entry_type='topup'` — the ONE entry type whose two
+      sides are written by the same trigger, so a one-sided write was impossible there. It now sums
+      the WHOLE ledger and names the net per entry_type when it fails. Teeth-tested by perturbing
+      the treasury +7.50 and restoring in a finally.
+    · Re-earned rather than re-stamped: 124 layer/seam rows (verify_layer_invariants.py re-run) and
+      6 identity rows (verify_identity_boundaries.py, 5/5 hold as a verified NON-admin). The identity
+      rows were re-anchored from three HTML pages to supabase/migrations — a page edit cannot move a
+      server-side refusal, and naming the page kept them green through migrations that could.
+    · Four new instruments built, none of them yet banked: tools/verify_money_lifecycle.py (13
+      checks), tests/ux-journeys.spec.ts (12), tests/effect-and-agreement.spec.ts (3, writes and
+      restores in finally), and five walker probes — no_raw_enum, units_visible, one_vocabulary,
+      source_chip_true, boundary_not_emptiness — covering 36 of the 90 stale F2 rows.
+    · INSTRUMENT DISCIPLINE RE-EARNED: a "20 passed" from the failure-injection spec was a TRUNCATED
+      capture of a 43-test file, and the 2 failures found when re-running one group were a sign-in
+      fixture timing out while psql work ran on the same machine. Never bank on a run whose count
+      does not reconcile with the file's inventory, and never run psql or a second suite alongside a
+      browser suite.
+
   DONE 2026-08-04 (live MCP + psql, every row value-backed):
     · AY-seam ALL SEVEN: client<->gateway, gateway<->edge, edge<->DB, trigger<->view,
       realtime<->client (subscribed in the browser, committed from psql, value + names + 20 columns

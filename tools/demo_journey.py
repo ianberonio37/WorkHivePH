@@ -523,9 +523,15 @@ def act6_inventory(page, rep):
                  caption="Filter to just what needs re-ordering"):
         dwell(page, 900)
         try:
-            page.select_option("#filter-status", index=1)
+            # MEASURED, not guessed: index=1 is "Out of stock" and this hive has
+            # ZERO out-of-stock parts, so the demo filmed an empty result list
+            # and then an empty search on top of it - exactly the "no seeded
+            # info on the screenshot" Ian called out. "low" has real rows
+            # (Bearing 6310 C3 at 3/4, fuel filter 2/4, thread sealant 2/4),
+            # and the later "bearing" search then finds one of them.
+            page.select_option("#filter-status", value="low")
             rep.add("6-inventory", "select", "#filter-status", True,
-                    caption="Show only low and out-of-stock parts",
+                    caption="Show the parts running low",
                     xy=_xy_of(page, "#filter-status"))
         except Exception as e:
             rep.add("6-inventory", "select", "#filter-status", False, str(e)[:60])
@@ -535,10 +541,17 @@ def act6_inventory(page, rep):
     if page.query_selector("#search-input"):
         try:
             type_into(page, "#search-input", "bearing", per_char_ms=110)
-            rep.add("6-inventory", "type", "#search-input", True,
+            dwell(page, 1100)
+            # ASSERT THE SCREEN IS NOT EMPTY. A demo that films "no parts match"
+            # is worse than one that skips the step, and nothing was checking.
+            shown = page.evaluate(
+                "() => (document.body.innerText || '').toLowerCase()"
+                ".includes('no parts match') ? 0 : 1")
+            rep.add("6-inventory", "type", "#search-input", bool(shown),
+                    "" if shown else "search rendered an EMPTY result",
                     caption="Search a part by name",
                     xy=_xy_of(page, "#search-input"))
-            dwell(page, 1300)
+            dwell(page, 900)
         except Exception as e:
             rep.add("6-inventory", "type", "#search-input", False, str(e)[:60])
 

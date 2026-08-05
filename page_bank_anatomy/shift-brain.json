@@ -1,0 +1,64 @@
+{
+ "page": "shift-brain",
+ "url": "/workhive/shift-brain.html",
+ "_ground": "2026-08-05 static read. Every write on this page is AI-authored (shift-planner-orchestrator -> shift_plans), which makes accountability the page's central verdict. Chart chrome shared with analytics and alert-hub (an-/ah-/sb- cohort).",
+ "views": [
+  {"key": "V1", "name": "shift plan", "seen": {"how": "static-read", "ref": "shift-brain.html:407 shift_plans read"}},
+  {"key": "V2", "name": "verdict summary (sb- cohort chrome)", "seen": {"how": "static-read", "ref": "shift-brain.html:211 #sb-verdict + :216-232 sb-card-risk/pms/carry"}},
+  {"key": "V3", "name": "generate / plan detail", "seen": {"how": "static-read", "ref": "shift-brain.html:488 shift-planner-orchestrator invoke"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "verdict hero trio", "seen": {"how": "static-read", "ref": "shift-brain.html:216 #sb-card-risk, :222 #sb-card-pms, :228 #sb-card-carry"}},
+  {"key": "C2", "name": "plan row", "seen": {"how": "static-read", "ref": "shift-brain.html:407-906 shift_plans CRUD"}},
+  {"key": "C3", "name": "action block", "seen": {"how": "static-read", "ref": "shift-brain.html:237 #sb-action-text + :239 #sb-action-btn"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "shift-brain.html:211 summary render"}},
+  {"key": "L2", "name": "edge (2 orchestrators)", "seen": {"how": "static-read", "ref": "shift-brain.html:488,844 shift-planner-orchestrator + :606 analytics-orchestrator"}},
+  {"key": "L3", "name": "db (shift_plans + v_worker_truth)", "seen": {"how": "static-read", "ref": "shift-brain.html:382,407,883,906"}},
+  {"key": "L4", "name": "ai (the plan is model output)", "seen": {"how": "static-read", "ref": "shift-brain.html:488 orchestrator = LLM-backed"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "ai <-> plan (LLM output becoming a stored, actionable plan)", "seen": {"how": "static-read", "ref": "shift-brain.html:488 invoke -> :883 shift_plans"}},
+  {"key": "S2", "name": "edge <-> db", "seen": {"how": "static-read", "ref": "shift-brain.html:844 re-generate + :906 read-back"}},
+  {"key": "S3", "name": "trigger <-> view (v_worker_truth availability)", "seen": {"how": "static-read", "ref": "shift-brain.html:382"}},
+  {"key": "S4", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "shift-brain.html:407"}},
+  {"key": "S5", "name": "shift-brain <-> dayplanner/pm (carry-over + PM counts sourced elsewhere)", "seen": {"how": "cross-page", "ref": "shift-brain.html:228 sb-card-carry vs dayplanner items; :222 sb-card-pms vs pm-scheduler schedule"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "supervisor (the primary user)", "seen": {"how": "static-read", "ref": "shift-brain.html:488 generate control"}},
+  {"key": "P2", "name": "worker (the planned-for)", "seen": {"how": "static-read", "ref": "shift-brain.html:382 v_worker_truth roster"}},
+  {"key": "P3", "name": "two_context (regenerate vs manual edit)", "seen": {"how": "static-read", "ref": "shift-brain.html:844 regenerate + :883 stored plan"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (may read, not generate)", "seen": {"how": "static-read", "ref": "shift-brain.html:488"}},
+  {"key": "IB", "name": "two_context (plan overwrite race)", "seen": {"how": "static-read", "ref": "shift-brain.html:883"}}
+ ],
+ "invariants": [
+  {"key": "plan_attributable", "name": "a generated plan is attributable", "seen": {"how": "static-read", "ref": "shift-brain.html:488 invoke + :883 stored row"}, "oracle": "a generated plan records which orchestrator run, which inputs, which model - an AI write with no accountability record is the AI6 class, and every write on this page is AI-authored"},
+  {"key": "regen_respects_edits", "name": "regeneration does not silently overwrite manual edits", "seen": {"how": "static-read", "ref": "shift-brain.html:844"}, "oracle": "re-generating does not silently overwrite a supervisor's manual edits - it merges or asks, and says which"},
+  {"key": "carry_count_true", "name": "carry-over count equals its own predicate", "seen": {"how": "static-read", "ref": "shift-brain.html:228 sb-card-carry"}, "oracle": "the carry-over count equals what its own predicate returns"},
+  {"key": "members_only", "name": "a plan never assigns a non-member", "seen": {"how": "static-read", "ref": "shift-brain.html:382 roster read"}, "oracle": "a plan never assigns a non-member of the hive"},
+  {"key": "generate_idempotent", "name": "two presses produce one plan", "seen": {"how": "static-read", "ref": "shift-brain.html:488"}, "oracle": "generation is idempotent per shift - two presses produce one plan"},
+  {"key": "tenant_isolation", "name": "shift_plans isolation", "seen": {"how": "static-read", "ref": "shift-brain.html:407"}, "oracle": "a foreign hive's plans are invisible"}
+ ],
+ "domain_truths": [
+  {"key": "shift_window_stated", "name": "the plan states its shift window and timezone", "seen": {"how": "static-read", "ref": "shift-brain.html:407"}, "oracle": "the plan states its shift window and timezone"},
+  {"key": "risk_inputs_named", "name": "the risk hero names its inputs", "seen": {"how": "static-read", "ref": "shift-brain.html:216-220"}, "oracle": "the risk hero names its inputs"},
+  {"key": "carryover_defined", "name": "carry-over distinguishes not-done / deferred / blocked", "seen": {"how": "static-read", "ref": "shift-brain.html:228-232"}, "oracle": "carry-over is defined on screen - not-done, deferred and blocked are three different states"},
+  {"key": "pm_count_agrees", "name": "the PM count agrees with pm-scheduler", "seen": {"how": "cross-page", "ref": "shift-brain.html:222 vs pm-scheduler.html:1348 schedule"}, "oracle": "the PM count agrees with pm-scheduler for the same shift"},
+  {"key": "rest_days_respected", "name": "availability respects leave and rest days", "seen": {"how": "static-read", "ref": "shift-brain.html:382 v_worker_truth"}, "oracle": "availability respects leave and rest days; scheduling someone on a rest day is stated, not silent"},
+  {"key": "suggestions_labelled", "name": "AI assignments are suggestions until accepted", "seen": {"how": "static-read", "ref": "shift-brain.html:488 generate flow"}, "oracle": "AI-suggested assignments are labelled as suggestions until accepted"},
+  {"key": "confidence_stated", "name": "the plan states its coverage/confidence", "seen": {"how": "static-read", "ref": "shift-brain.html:211-213 verdict"}, "oracle": "the plan states its coverage/confidence rather than implying it by looking complete"},
+  {"key": "loto_flagged_in_plan", "name": "LOTO/permit tasks are flagged in the plan", "seen": {"how": "static-read", "ref": "shift-brain.html:407 plan items"}, "oracle": "LOTO / permit-bearing tasks are flagged in the plan, not discovered at the machine"}
+ ],
+ "writes": [
+  {"fn": "shift_plans (AI-authored)", "class": "accountability-bearing online-only", "seen": {"how": "static-read", "ref": "shift-brain.html:883,906"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "the plan renders assignments and counts, no money (shift-brain.html:407)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the verdict summary renders no money (shift-brain.html:211)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V2/reward_explained", "reason": "the verdict chrome surfaces no reward figure (shift-brain.html:211-232)", "replace_with": {"oracle_key": "back_nav"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the generate flow surfaces no reward figure (shift-brain.html:488)", "replace_with": {"oracle_key": "session_expiry"}}
+ ]
+}

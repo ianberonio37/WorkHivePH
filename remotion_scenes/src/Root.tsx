@@ -8,7 +8,7 @@ import {WorkHiveInfographic} from './Infographic';
 import {WorkHiveMindmap} from './Mindmap';
 import {WorkHiveStoryboard, calculateStoryboardMetadata} from './Storyboard';
 import {FlagshipReel, FLAGSHIP_DURATION} from './FlagshipReel';
-import {DemoReel, DEMO_DURATION} from './DemoReel';
+import {DemoReel, DEMO_DURATION, ShortReel, SHORT_DURATION} from './DemoReel';
 
 // 1280x720 matches what video_assembler.py normalises the scene clip to,
 // so this renders straight into the existing scene_clip slot with no rescale.
@@ -162,6 +162,23 @@ export const RemotionRoot: React.FC = () => {
         compose here because every component sizes off the normalized unit
         (useU), and the mascot poster this design comes from is portrait to
         begin with, so the vertical is arguably its natural shape. */}
+    {/* SHORT CUT for feeds - see SHORT_BEATS for why it exists. */}
+    <Composition
+      id="WorkHiveDemoReelShort"
+      component={ShortReel}
+      durationInFrames={SHORT_DURATION}
+      fps={30}
+      width={1280}
+      height={720}
+    />
+    <Composition
+      id="WorkHiveDemoReelShortVertical"
+      component={ShortReel}
+      durationInFrames={SHORT_DURATION}
+      fps={30}
+      width={1080}
+      height={1920}
+    />
     <Composition
       id="WorkHiveDemoReelVertical"
       component={DemoReel}

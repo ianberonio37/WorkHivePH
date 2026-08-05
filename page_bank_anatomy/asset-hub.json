@@ -1,0 +1,66 @@
+{
+ "page": "asset-hub",
+ "url": "/workhive/asset-hub.html",
+ "_ground": "2026-08-05 static read. Six derived truth views (asset/risk/fmea/rcm/weibull/pf), nine realtime channels, five edge invokes, and the platform's first offline-queue adopter (wh_assethub_offline -> rcm_fmea_modes).",
+ "views": [
+  {"key": "V1", "name": "asset detail (default)", "seen": {"how": "static-read", "ref": "asset-hub.html:1653 v_asset_truth + :1062-1363 asset_nodes"}},
+  {"key": "V2", "name": "FMEA tab", "seen": {"how": "static-read", "ref": "asset-hub.html:673 data-tab=fmea + :855 #fmea-modal"}},
+  {"key": "V3", "name": "Weibull tab", "seen": {"how": "static-read", "ref": "asset-hub.html:674 data-tab=weibull + :3089 v_weibull_truth"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "asset node row", "seen": {"how": "static-read", "ref": "asset-hub.html:1096-1146 asset_nodes renders"}},
+  {"key": "C2", "name": "FMEA mode row", "seen": {"how": "static-read", "ref": "asset-hub.html:2419 rcm_fmea_modes read"}},
+  {"key": "C3", "name": "sensor panel", "seen": {"how": "static-read", "ref": "asset-hub.html:2171 v_sensor_truth + :2198 v_sensor_recent"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "asset-hub.html:1062 tree load"}},
+  {"key": "L2", "name": "edge (5 invokes)", "seen": {"how": "grep-count", "ref": "asset-hub.html - 5 functions.invoke occurrences (2026-08-05 grep)"}},
+  {"key": "L3", "name": "db (6 truth views + rcm tables)", "seen": {"how": "static-read", "ref": "asset-hub.html:3344-3357 v_fmea/v_rcm/v_weibull/v_pf/v_logbook + :2419,2445"}},
+  {"key": "L4", "name": "realtime (9 channels)", "seen": {"how": "grep-count", "ref": "asset-hub.html - 9 .channel( occurrences (2026-08-05 grep)"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "offline-queue <-> db (adopter #1: FMEA add)", "seen": {"how": "doc+static", "ref": "PDDA Y1b adopter #1: wh_assethub_offline -> rcm_fmea_modes, probe .tmp/probe_y1b_fmea_offline.mjs PASSED"}},
+  {"key": "S2", "name": "trigger <-> view (six derived views)", "seen": {"how": "static-read", "ref": "asset-hub.html:3344-3357"}},
+  {"key": "S3", "name": "realtime <-> client (9 channels)", "seen": {"how": "grep-count", "ref": "asset-hub.html 9 .channel( sites"}},
+  {"key": "S4", "name": "edge <-> db", "seen": {"how": "grep-count", "ref": "asset-hub.html 5 invokes + read-backs"}},
+  {"key": "S5", "name": "asset <-> consumers (PM scope, staging, marketplace, external sync)", "seen": {"how": "static-read", "ref": "asset-hub.html:2958 pm_scope_items, :1863 parts_staging_recommendations, :2017 parts_staged_reservations, :3644 v_marketplace_listings_truth, :3700 v_external_sync_truth"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker (reads the brain)", "seen": {"how": "static-read", "ref": "asset-hub.html:1035 hive_members read"}},
+  {"key": "P2", "name": "reliability engineer (FMEA/RCM authority)", "seen": {"how": "static-read", "ref": "asset-hub.html:2655-2703 fmea writes + :2849-2898 strategy writes"}},
+  {"key": "P3", "name": "two_context (two engineers, one FMEA)", "seen": {"how": "static-read", "ref": "asset-hub.html:2685,2703 concurrent mode edits"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (tenant boundary on the tree)", "seen": {"how": "static-read", "ref": "asset-hub.html:1062 hive-scoped asset_nodes"}},
+  {"key": "IB", "name": "two_context (FMEA edit race)", "seen": {"how": "static-read", "ref": "asset-hub.html:2685"}}
+ ],
+ "invariants": [
+  {"key": "rpn_recomputed", "name": "RPN = S x O x D at render", "seen": {"how": "static-read", "ref": "asset-hub.html:2419 mode rows"}, "oracle": "RPN equals S x O x D exactly, recomputed at render rather than trusted from a stored column that can drift from its factors"},
+  {"key": "fmea_queue_once", "name": "a queued FMEA mode drains exactly once", "seen": {"how": "doc+static", "ref": "Y1b adopter #1 probe PASS"}, "oracle": "an FMEA mode queued offline drains exactly once and appears exactly once - adopter #1's own invariant, kept"},
+  {"key": "strategy_generates_once", "name": "strategy -> PM scope generates once", "seen": {"how": "static-read", "ref": "asset-hub.html:2958 pm_scope_items write from :2974 strategies"}, "oracle": "an RCM strategy generating PM scope items generates them once; re-running replaces rather than duplicates"},
+  {"key": "weibull_reproducible", "name": "a Weibull fit is reproducible from this asset's failures", "seen": {"how": "static-read", "ref": "asset-hub.html:3089 v_weibull_truth"}, "oracle": "a Weibull fit is reproducible from the same failure set, and that set is this asset's failures only"},
+  {"key": "delete_orphans_nothing", "name": "deleting a node orphans nothing", "seen": {"how": "static-read", "ref": "asset-hub.html:1324-1363 node lifecycle + substrate FK graph (asset_edges/embeddings CASCADE)"}, "oracle": "deleting an asset node orphans nothing - FMEA modes, strategies, sensor links and staged reservations all resolve or the delete is refused"},
+  {"key": "hierarchy_acyclic", "name": "the asset hierarchy has no cycles", "seen": {"how": "static-read", "ref": "asset-hub.html:1096-1097 parent/child reads"}, "oracle": "a node cannot become its own ancestor through any edit path"}
+ ],
+ "domain_truths": [
+  {"key": "sod_scales_stated", "name": "S/O/D scales and the critical band are stated", "seen": {"how": "static-read", "ref": "asset-hub.html:855 fmea-modal fields"}, "oracle": "the S/O/D scales (1-10) are stated and the threshold that makes an RPN critical is named - an RPN of 120 means nothing without its bands"},
+  {"key": "beta_interpreted", "name": "beta is interpreted on the surface", "seen": {"how": "static-read", "ref": "asset-hub.html:3089 weibull render"}, "oracle": "beta is interpreted on the surface - <1 infant mortality, ~1 random, >1 wear-out; a bare beta is a number nobody can act on"},
+  {"key": "eta_units", "name": "eta carries its unit", "seen": {"how": "static-read", "ref": "asset-hub.html:3089"}, "oracle": "eta carries its unit (hours vs cycles vs starts)"},
+  {"key": "pf_interval_actionable", "name": "P-F states its unit and implied inspection frequency", "seen": {"how": "static-read", "ref": "asset-hub.html:3235 v_pf_truth"}, "oracle": "the P-F interval states its unit and the inspection frequency it implies (frequency <= P-F/2)"},
+  {"key": "criticality_model_named", "name": "criticality names its model", "seen": {"how": "static-read", "ref": "asset-hub.html:1110 v_risk_truth"}, "oracle": "criticality drives strategy selection and the surface names which criticality model"},
+  {"key": "sensor_age_stated", "name": "sensor readings state their age", "seen": {"how": "static-read", "ref": "asset-hub.html:2198-2305 v_sensor_recent"}, "oracle": "sensor readings state their age, and v_sensor_recent vs v_sensor_truth are visibly different questions"},
+  {"key": "mtbf_own_failures", "name": "asset MTBF uses only its own failures, windowed", "seen": {"how": "static-read", "ref": "asset-hub.html:2066 v_logbook_truth per-asset"}, "oracle": "an asset's MTBF uses only that asset's failures and states its window"},
+  {"key": "iso14224_taxonomy", "name": "failure modes follow ISO 14224 where claimed", "seen": {"how": "static-read", "ref": "asset-hub.html:2419 mode categories"}, "oracle": "the failure-mode taxonomy follows ISO 14224 categories wherever the surface claims it does"}
+ ],
+ "writes": [
+  {"fn": "rcm_fmea_modes", "class": "capture QUEUED (adopter #1)", "seen": {"how": "static-read", "ref": "asset-hub.html:2655,2685,2703"}},
+  {"fn": "rcm_strategies / asset_nodes", "class": "capture", "seen": {"how": "static-read", "ref": "asset-hub.html:2849-2898,1324-1363"}},
+  {"fn": "pm_scope_items (strategy -> PM)", "class": "approval online-only", "seen": {"how": "static-read", "ref": "asset-hub.html:2958"}},
+  {"fn": "parts_staged_reservations", "class": "stock-critical online-only", "seen": {"how": "static-read", "ref": "asset-hub.html:2017"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the FMEA tab renders no money; prices appear only on the V1 marketplace strip (asset-hub.html:3644)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V2/reward_explained", "reason": "the FMEA tab surfaces no reward figure (asset-hub.html:673)", "replace_with": {"oracle_key": "back_nav"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the Weibull tab surfaces no reward figure (asset-hub.html:674)", "replace_with": {"oracle_key": "session_expiry"}}
+ ]
+}

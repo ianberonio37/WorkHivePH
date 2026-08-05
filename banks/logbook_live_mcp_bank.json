@@ -1,0 +1,4470 @@
+{
+ "_doc": "Page live-MCP bank, derived from page_bank_anatomy/logbook.json by tools/build_page_live_mcp_bank.py -- do not hand-edit rows; edit the anatomy and regenerate. `status` moves owed -> green only via a LIVE MCP walk with typed evidence (validate_live_mcp_bank rules R1-R7); findings accumulate so a re-walk proves a fix rather than re-discovering it.",
+ "page": "logbook",
+ "url": "/workhive/logbook.html",
+ "frame": "PAGE_TESTBANK_ROADMAP.md section 1 (60 arch + 50 UFAI + 45 UI + 45 UX = 200)",
+ "declared_na": [
+  {
+   "cell": "CF-ufai-F/V1/money_matches_ledger",
+   "reason": "the feed renders no peso/credit figure (logbook.html:1502-1601)",
+   "replace_with": {
+    "oracle_key": "reload"
+   }
+  },
+  {
+   "cell": "CF-ufai-F/V2/money_matches_ledger",
+   "reason": "the capture wizard renders no money (logbook.html:1054)",
+   "replace_with": {
+    "oracle_key": "zoom200"
+   }
+  },
+  {
+   "cell": "CM-ux-comprehension/V3/reward_explained",
+   "reason": "the asset manager surfaces no reward/benefit figure (logbook.html:1064)",
+   "replace_with": {
+    "oracle_key": "back_nav"
+   }
+  }
+ ],
+ "deferred": [],
+ "writes_classified": [
+  {
+   "fn": "logbook insert/update (modal + in-place)",
+   "class": "capture QUEUED",
+   "seen": {
+    "how": "static-read",
+    "ref": "logbook.html:1765,1770,1832,1853,1996,2099"
+   }
+  },
+  {
+   "fn": "asset_nodes upsert/update/delete",
+   "class": "capture",
+   "seen": {
+    "how": "static-read",
+    "ref": "logbook.html:2164-2459"
+   }
+  },
+  {
+   "fn": "pm_completions",
+   "class": "locked online-only",
+   "seen": {
+    "how": "static-read",
+    "ref": "logbook.html:4150,4446"
+   }
+  },
+  {
+   "fn": "inventory_items decrement",
+   "class": "stock-critical online-only",
+   "seen": {
+    "how": "static-read",
+    "ref": "logbook.html:2651-2669"
+   }
+  }
+ ],
+ "total": 200,
+ "scenarios": [
+  {
+   "id": "PB-logbook-001-CA-layer-contract-L1-envelope_shape",
+   "n": 1,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502 feed load path"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-002-CA-layer-contract-L1-status_body_agreement",
+   "n": 2,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502 feed load path"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-003-CA-layer-contract-L1-idempotency",
+   "n": 3,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502 feed load path"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-004-CA-layer-contract-L1-ordering_totality",
+   "n": 4,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502 feed load path"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-005-CA-layer-contract-L1-units_declared",
+   "n": 5,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502 feed load path"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-006-CA-layer-contract-L2-envelope_shape",
+   "n": 6,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (4 fns)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:2016 cmms-push-completion, :3375 equipment-label-ocr, :4705 voice-logbook-entry, :4913 visual-defect-capture"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-007-CA-layer-contract-L2-status_body_agreement",
+   "n": 7,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (4 fns)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:2016 cmms-push-completion, :3375 equipment-label-ocr, :4705 voice-logbook-entry, :4913 visual-defect-capture"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-008-CA-layer-contract-L2-idempotency",
+   "n": 8,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (4 fns)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:2016 cmms-push-completion, :3375 equipment-label-ocr, :4705 voice-logbook-entry, :4913 visual-defect-capture"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-009-CA-layer-contract-L2-ordering_totality",
+   "n": 9,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (4 fns)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:2016 cmms-push-completion, :3375 equipment-label-ocr, :4705 voice-logbook-entry, :4913 visual-defect-capture"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-010-CA-layer-contract-L2-units_declared",
+   "n": 10,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (4 fns)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:2016 cmms-push-completion, :3375 equipment-label-ocr, :4705 voice-logbook-entry, :4913 visual-defect-capture"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-011-CA-layer-contract-L3-envelope_shape",
+   "n": 11,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (17 tables/views)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1357-5502 reads incl. logbook, asset_nodes, pm_*, inventory"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-012-CA-layer-contract-L3-status_body_agreement",
+   "n": 12,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (17 tables/views)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1357-5502 reads incl. logbook, asset_nodes, pm_*, inventory"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-013-CA-layer-contract-L3-idempotency",
+   "n": 13,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (17 tables/views)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1357-5502 reads incl. logbook, asset_nodes, pm_*, inventory"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-014-CA-layer-contract-L3-ordering_totality",
+   "n": 14,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (17 tables/views)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1357-5502 reads incl. logbook, asset_nodes, pm_*, inventory"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-015-CA-layer-contract-L3-units_declared",
+   "n": 15,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (17 tables/views)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1357-5502 reads incl. logbook, asset_nodes, pm_*, inventory"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-016-CA-layer-contract-L4-envelope_shape",
+   "n": 16,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai (voice + OCR + vision capture)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:4705,3375,4913"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-017-CA-layer-contract-L4-status_body_agreement",
+   "n": 17,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai (voice + OCR + vision capture)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:4705,3375,4913"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-018-CA-layer-contract-L4-idempotency",
+   "n": 18,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai (voice + OCR + vision capture)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:4705,3375,4913"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-019-CA-layer-contract-L4-ordering_totality",
+   "n": 19,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai (voice + OCR + vision capture)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:4705,3375,4913"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-020-CA-layer-contract-L4-units_declared",
+   "n": 20,
+   "page": "logbook",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai (voice + OCR + vision capture)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:4705,3375,4913"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-021-CB-seam-S1-value_survives",
+   "n": 21,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S1",
+    "name": "offline-queue <-> db (a WRITE cache)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "logbook.html wh_logbook_offline queue - LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 names it; drain paths in-page"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-022-CB-seam-S1-name_survives",
+   "n": 22,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S1",
+    "name": "offline-queue <-> db (a WRITE cache)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "logbook.html wh_logbook_offline queue - LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 names it; drain paths in-page"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-023-CB-seam-S1-null_semantics",
+   "n": 23,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S1",
+    "name": "offline-queue <-> db (a WRITE cache)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "logbook.html wh_logbook_offline queue - LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 names it; drain paths in-page"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-024-CB-seam-S1-partial_write",
+   "n": 24,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S1",
+    "name": "offline-queue <-> db (a WRITE cache)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "logbook.html wh_logbook_offline queue - LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 names it; drain paths in-page"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-025-CB-seam-S2-value_survives",
+   "n": 25,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S2",
+    "name": "edge <-> db (OCR/voice output becoming an entry)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:3375,4705 invoke -> entry insert"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-026-CB-seam-S2-name_survives",
+   "n": 26,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S2",
+    "name": "edge <-> db (OCR/voice output becoming an entry)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:3375,4705 invoke -> entry insert"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-027-CB-seam-S2-null_semantics",
+   "n": 27,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S2",
+    "name": "edge <-> db (OCR/voice output becoming an entry)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:3375,4705 invoke -> entry insert"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-028-CB-seam-S2-partial_write",
+   "n": 28,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S2",
+    "name": "edge <-> db (OCR/voice output becoming an entry)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:3375,4705 invoke -> entry insert"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-029-CB-seam-S3-value_survives",
+   "n": 29,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S3",
+    "name": "trigger <-> view (logbook -> v_logbook_truth -> 11 consumers)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 consumer table + logbook.html:1502"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-030-CB-seam-S3-name_survives",
+   "n": 30,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S3",
+    "name": "trigger <-> view (logbook -> v_logbook_truth -> 11 consumers)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 consumer table + logbook.html:1502"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-031-CB-seam-S3-null_semantics",
+   "n": 31,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S3",
+    "name": "trigger <-> view (logbook -> v_logbook_truth -> 11 consumers)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 consumer table + logbook.html:1502"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-032-CB-seam-S3-partial_write",
+   "n": 32,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S3",
+    "name": "trigger <-> view (logbook -> v_logbook_truth -> 11 consumers)",
+    "seen": {
+     "how": "doc+static",
+     "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 consumer table + logbook.html:1502"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-033-CB-seam-S4-value_survives",
+   "n": 33,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1407 hive_members read"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-034-CB-seam-S4-name_survives",
+   "n": 34,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1407 hive_members read"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-035-CB-seam-S4-null_semantics",
+   "n": 35,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1407 hive_members read"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-036-CB-seam-S4-partial_write",
+   "n": 36,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1407 hive_members read"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-037-CB-seam-S5-value_survives",
+   "n": 37,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S5",
+    "name": "logbook <-> pm_completions (the PM mirror)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:4145-4150 v_pm_scope_items_truth + pm_completions, :4446"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-038-CB-seam-S5-name_survives",
+   "n": 38,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S5",
+    "name": "logbook <-> pm_completions (the PM mirror)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:4145-4150 v_pm_scope_items_truth + pm_completions, :4446"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-039-CB-seam-S5-null_semantics",
+   "n": 39,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S5",
+    "name": "logbook <-> pm_completions (the PM mirror)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:4145-4150 v_pm_scope_items_truth + pm_completions, :4446"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-040-CB-seam-S5-partial_write",
+   "n": 40,
+   "page": "logbook",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "S5",
+    "name": "logbook <-> pm_completions (the PM mirror)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:4145-4150 v_pm_scope_items_truth + pm_completions, :4446"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-041-CC-failure-injection-V1-fail_500",
+   "n": 41,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-042-CC-failure-injection-V1-fail_401",
+   "n": 42,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-043-CC-failure-injection-V1-fail_timeout",
+   "n": 43,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-044-CC-failure-injection-V1-fail_partial",
+   "n": 44,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-045-CC-failure-injection-V1-fail_slow",
+   "n": 45,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-046-CC-failure-injection-V1-fail_offline",
+   "n": 46,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-047-CC-failure-injection-V1-fail_null_field",
+   "n": 47,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-048-CC-failure-injection-V2-fail_500",
+   "n": 48,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-049-CC-failure-injection-V2-fail_401",
+   "n": 49,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-050-CC-failure-injection-V2-fail_timeout",
+   "n": 50,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-051-CC-failure-injection-V2-fail_partial",
+   "n": 51,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-052-CC-failure-injection-V2-fail_slow",
+   "n": 52,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-053-CC-failure-injection-V2-fail_offline",
+   "n": 53,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-054-CC-failure-injection-V2-fail_null_field",
+   "n": 54,
+   "page": "logbook",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-055-CD-invariant-both_edit_paths_same_contract-both_edit_paths_same_contract",
+   "n": 55,
+   "page": "logbook",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "both_edit_paths_same_contract",
+    "name": "modal saveEdit and in-place edit apply one contract",
+    "seen": {
+     "how": "doc+static",
+     "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 ('both UPDATE paths omit auth_uid - candidate, never resolved') + logbook.html:1765,1770"
+    }
+   },
+   "oracle_key": "both_edit_paths_same_contract",
+   "oracle": "both edit paths write the same columns with the same guards, auth_uid included - the PDDA arc measured the omission and left it a candidate; this invariant closes it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-056-CD-invariant-queue_drains_once-queue_drains_once",
+   "n": 56,
+   "page": "logbook",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "queue_drains_once",
+    "name": "the offline queue drains exactly once per entry",
+    "seen": {
+     "how": "doc+static",
+     "ref": "wh_logbook_offline - LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0"
+    }
+   },
+   "oracle_key": "queue_drains_once",
+   "oracle": "an offline entry drains exactly once, and an offline-create-then-offline-edit collapses to ONE row - the keyPath/upsert class already proven for dayplanner",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-057-CD-invariant-no_silent_amend_after_signoff-no_silent_amend_after_signoff",
+   "n": 57,
+   "page": "logbook",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "no_silent_amend_after_signoff",
+    "name": "a late drain cannot silently amend a closed record",
+    "seen": {
+     "how": "doc+static",
+     "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 lifecycle axis"
+    }
+   },
+   "oracle_key": "no_silent_amend_after_signoff",
+   "oracle": "a queued entry that drains AFTER sign-off does not silently amend the closed record - it lands as an amendment or is refused with a reason",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-058-CD-invariant-consumers_reconcile-consumers_reconcile",
+   "n": 58,
+   "page": "logbook",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "consumers_reconcile",
+    "name": "a mutation reconciles the truth-view consumers",
+    "seen": {
+     "how": "doc+static",
+     "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 consumer table"
+    }
+   },
+   "oracle_key": "consumers_reconcile",
+   "oracle": "an entry mutation reconciles v_logbook_truth's consumers - asserted on the three highest-stakes: MTBF (analytics), PM compliance (pm-scheduler), resume evidence",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-059-CD-invariant-foreign_entry_refused_as_data-foreign_entry_refused_as_data",
+   "n": 59,
+   "page": "logbook",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "foreign_entry_refused_as_data",
+    "name": "editing another's entry is refused by DATA",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1853 delete + :1765 update"
+    }
+   },
+   "oracle_key": "foreign_entry_refused_as_data",
+   "oracle": "a worker cannot edit or delete another worker's entry, and the refusal is data (RLS/guard), not CSS",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-060-CD-invariant-pm_mirror_idempotent-pm_mirror_idempotent",
+   "n": 60,
+   "page": "logbook",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "pm_mirror_idempotent",
+    "name": "the PM completion mirror is idempotent",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:4150,4446 pm_completions writes"
+    }
+   },
+   "oracle_key": "pm_mirror_idempotent",
+   "oracle": "completing the same PM twice writes one completion - not zero, not two",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-061-CE-ufai-U-V1-one_vocabulary",
+   "n": 61,
+   "page": "logbook",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-062-CE-ufai-U-V1-source_chip_true",
+   "n": 62,
+   "page": "logbook",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-063-CE-ufai-U-V1-units_visible",
+   "n": 63,
+   "page": "logbook",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-064-CE-ufai-U-V1-no_raw_enum",
+   "n": 64,
+   "page": "logbook",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-065-CE-ufai-U-V1-number_explained",
+   "n": 65,
+   "page": "logbook",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-066-CE-ufai-U-V2-one_vocabulary",
+   "n": 66,
+   "page": "logbook",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-067-CE-ufai-U-V2-source_chip_true",
+   "n": 67,
+   "page": "logbook",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-068-CE-ufai-U-V2-units_visible",
+   "n": 68,
+   "page": "logbook",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-069-CE-ufai-U-V2-no_raw_enum",
+   "n": 69,
+   "page": "logbook",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-070-CE-ufai-U-V2-number_explained",
+   "n": 70,
+   "page": "logbook",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-071-CF-ufai-F-V1-effect_in_db",
+   "n": 71,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-072-CF-ufai-F-V1-effect_visible",
+   "n": 72,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-073-CF-ufai-F-V1-count_matches_source",
+   "n": 73,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-074-CF-ufai-F-V1-reload",
+   "n": 74,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "reload",
+   "oracle": "reload MID-FLOW and the surface returns to a truthful state - a half-filled sheet either survives intact or is gone, never restored into a state the person did not leave it in",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CF-ufai-F/V1/money_matches_ledger: the feed renders no peso/credit figure (logbook.html:1502-1601)"
+  },
+  {
+   "id": "PB-logbook-075-CF-ufai-F-V1-idempotent_repeat",
+   "n": 75,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-076-CF-ufai-F-V1-cross_surface_agreement",
+   "n": 76,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-077-CF-ufai-F-V2-effect_in_db",
+   "n": 77,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-078-CF-ufai-F-V2-effect_visible",
+   "n": 78,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-079-CF-ufai-F-V2-count_matches_source",
+   "n": 79,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-080-CF-ufai-F-V2-zoom200",
+   "n": 80,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "zoom200",
+   "oracle": "at 200% browser zoom every control stays reachable and no text is clipped (WCAG 1.4.4)",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CF-ufai-F/V2/money_matches_ledger: the capture wizard renders no money (logbook.html:1054)"
+  },
+  {
+   "id": "PB-logbook-081-CF-ufai-F-V2-idempotent_repeat",
+   "n": 81,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-082-CF-ufai-F-V2-cross_surface_agreement",
+   "n": 82,
+   "page": "logbook",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-083-CG-ufai-A-V1-offline_refusal",
+   "n": 83,
+   "page": "logbook",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-084-CG-ufai-A-V1-retry_path",
+   "n": 84,
+   "page": "logbook",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-085-CG-ufai-A-V1-rate_limit_legible",
+   "n": 85,
+   "page": "logbook",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-086-CG-ufai-A-V1-fallback_engaged",
+   "n": 86,
+   "page": "logbook",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-087-CG-ufai-A-V1-slow_honest",
+   "n": 87,
+   "page": "logbook",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-088-CG-ufai-A-V2-offline_refusal",
+   "n": 88,
+   "page": "logbook",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-089-CG-ufai-A-V2-retry_path",
+   "n": 89,
+   "page": "logbook",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-090-CG-ufai-A-V2-rate_limit_legible",
+   "n": 90,
+   "page": "logbook",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-091-CG-ufai-A-V2-fallback_engaged",
+   "n": 91,
+   "page": "logbook",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-092-CG-ufai-A-V2-slow_honest",
+   "n": 92,
+   "page": "logbook",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-093-CH-ufai-I-IA-bola_object",
+   "n": 93,
+   "page": "logbook",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (own-row boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765-1832 update paths"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-094-CH-ufai-I-IA-bfla_function",
+   "n": 94,
+   "page": "logbook",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (own-row boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765-1832 update paths"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-095-CH-ufai-I-IA-tenant_boundary",
+   "n": 95,
+   "page": "logbook",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (own-row boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765-1832 update paths"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-096-CH-ufai-I-IA-jwt_not_body",
+   "n": 96,
+   "page": "logbook",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (own-row boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765-1832 update paths"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-097-CH-ufai-I-IA-boundary_not_emptiness",
+   "n": 97,
+   "page": "logbook",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (own-row boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765-1832 update paths"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-098-CH-ufai-I-IB-bola_object",
+   "n": 98,
+   "page": "logbook",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (foreign-entry refusal)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1853 delete path"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-099-CH-ufai-I-IB-bfla_function",
+   "n": 99,
+   "page": "logbook",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (foreign-entry refusal)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1853 delete path"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-100-CH-ufai-I-IB-tenant_boundary",
+   "n": 100,
+   "page": "logbook",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (foreign-entry refusal)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1853 delete path"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-101-CH-ufai-I-IB-jwt_not_body",
+   "n": 101,
+   "page": "logbook",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (foreign-entry refusal)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1853 delete path"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-102-CH-ufai-I-IB-boundary_not_emptiness",
+   "n": 102,
+   "page": "logbook",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (foreign-entry refusal)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1853 delete path"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-103-CI-domain-truth-mtbf_iso14224-mtbf_iso14224",
+   "n": 103,
+   "page": "logbook",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "mtbf_iso14224",
+    "name": "MTBF from these entries follows ISO 14224",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:3483-3484 metric reads"
+    }
+   },
+   "oracle_key": "mtbf_iso14224",
+   "oracle": "MTBF derived from these entries is operating time / failure count per ISO 14224, and the label names the standard",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-104-CI-domain-truth-mttr_repair_time-mttr_repair_time",
+   "n": 104,
+   "page": "logbook",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "mttr_repair_time",
+    "name": "MTTR counts repair time",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:3655 downtime fields"
+    }
+   },
+   "oracle_key": "mttr_repair_time",
+   "oracle": "MTTR counts repair time, not calendar time between entries",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-105-CI-domain-truth-loto_from_column-loto_from_column",
+   "n": 105,
+   "page": "logbook",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "loto_from_column",
+    "name": "LOTO reads the column, not a regex",
+    "seen": {
+     "how": "doc+static",
+     "ref": "LOGBOOK_DEEPWALK_EXPANSION_ROADMAP.md section 0 (lotoRx leftover -> LB12)"
+    }
+   },
+   "oracle_key": "loto_from_column",
+   "oracle": "LOTO status is read from the loto_applied column, never re-derived from a free-text regex",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-106-CI-domain-truth-amendment_visible-amendment_visible",
+   "n": 106,
+   "page": "logbook",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "amendment_visible",
+    "name": "a post-signoff edit is a visible amendment",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1357 hive_audit_log read"
+    }
+   },
+   "oracle_key": "amendment_visible",
+   "oracle": "an amendment after sign-off is visible as an amendment with its own audit row, not an in-place overwrite",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-107-CI-domain-truth-export_complete_windowed-export_complete_windowed",
+   "n": 107,
+   "page": "logbook",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "export_complete_windowed",
+    "name": "the DOLE/ISO export is complete and windowed",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:3765,4007 export reads"
+    }
+   },
+   "oracle_key": "export_complete_windowed",
+   "oracle": "the export contains every entry in the window and states the window",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-108-CI-domain-truth-parts_decrement_exact-parts_decrement_exact",
+   "n": 108,
+   "page": "logbook",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "parts_decrement_exact",
+    "name": "parts consumed decrement exactly",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:2651-2712 inventory reads + v_inventory_transactions_truth"
+    }
+   },
+   "oracle_key": "parts_decrement_exact",
+   "oracle": "parts consumed decrement inventory_items by the exact recorded quantity - one entry, one decrement, proven from v_inventory_transactions_truth",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-109-CI-domain-truth-entry_kind_stated-entry_kind_stated",
+   "n": 109,
+   "page": "logbook",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "entry_kind_stated",
+    "name": "entry-kind is stated and echoed",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 wizard kind step"
+    }
+   },
+   "oracle_key": "entry_kind_stated",
+   "oracle": "entry kind (breakdown/PM/inspection) is stated at capture and echoed on the row - a miscoded kind is a silently wrong MTBF",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-110-CI-domain-truth-ai_never_invents-ai_never_invents",
+   "n": 110,
+   "page": "logbook",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "ai_never_invents",
+    "name": "AI capture never invents a code or reading",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:3375 OCR, :4705 voice, :4913 vision"
+    }
+   },
+   "oracle_key": "ai_never_invents",
+   "oracle": "the AI capture paths never invent an asset code or a reading - an unresolved reference is surfaced for confirmation, not guessed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-111-CJ-ui-layout-V1-w390_overflow",
+   "n": 111,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-112-CJ-ui-layout-V1-w641_overflow",
+   "n": 112,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-113-CJ-ui-layout-V1-w1280_overflow",
+   "n": 113,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-114-CJ-ui-layout-V1-tap_target_44",
+   "n": 114,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-115-CJ-ui-layout-V1-safe_area",
+   "n": 115,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-116-CJ-ui-layout-V2-w390_overflow",
+   "n": 116,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-117-CJ-ui-layout-V2-w641_overflow",
+   "n": 117,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-118-CJ-ui-layout-V2-w1280_overflow",
+   "n": 118,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-119-CJ-ui-layout-V2-tap_target_44",
+   "n": 119,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-120-CJ-ui-layout-V2-safe_area",
+   "n": 120,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-121-CJ-ui-layout-V3-w390_overflow",
+   "n": 121,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-122-CJ-ui-layout-V3-w641_overflow",
+   "n": 122,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-123-CJ-ui-layout-V3-w1280_overflow",
+   "n": 123,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-124-CJ-ui-layout-V3-tap_target_44",
+   "n": 124,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-125-CJ-ui-layout-V3-safe_area",
+   "n": 125,
+   "page": "logbook",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-126-CK-ui-state-C1-component_loading",
+   "n": 126,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C1",
+    "name": "entry row",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765-1832 entry render reads"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-127-CK-ui-state-C1-component_skeleton",
+   "n": 127,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C1",
+    "name": "entry row",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765-1832 entry render reads"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-128-CK-ui-state-C1-component_disabled",
+   "n": 128,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C1",
+    "name": "entry row",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765-1832 entry render reads"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-129-CK-ui-state-C1-component_busy",
+   "n": 129,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C1",
+    "name": "entry row",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765-1832 entry render reads"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-130-CK-ui-state-C1-component_populated",
+   "n": 130,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C1",
+    "name": "entry row",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765-1832 entry render reads"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-131-CK-ui-state-C2-component_loading",
+   "n": 131,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C2",
+    "name": "capture form",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 wizard modal"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-132-CK-ui-state-C2-component_skeleton",
+   "n": 132,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C2",
+    "name": "capture form",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 wizard modal"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-133-CK-ui-state-C2-component_disabled",
+   "n": 133,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C2",
+    "name": "capture form",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 wizard modal"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-134-CK-ui-state-C2-component_busy",
+   "n": 134,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C2",
+    "name": "capture form",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 wizard modal"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-135-CK-ui-state-C2-component_populated",
+   "n": 135,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C2",
+    "name": "capture form",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 wizard modal"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-136-CK-ui-state-C3-component_loading",
+   "n": 136,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C3",
+    "name": "parts picker",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1294 #parts-picker-modal + :2651 inventory_items read"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-137-CK-ui-state-C3-component_skeleton",
+   "n": 137,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C3",
+    "name": "parts picker",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1294 #parts-picker-modal + :2651 inventory_items read"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-138-CK-ui-state-C3-component_disabled",
+   "n": 138,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C3",
+    "name": "parts picker",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1294 #parts-picker-modal + :2651 inventory_items read"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-139-CK-ui-state-C3-component_busy",
+   "n": 139,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C3",
+    "name": "parts picker",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1294 #parts-picker-modal + :2651 inventory_items read"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-140-CK-ui-state-C3-component_populated",
+   "n": 140,
+   "page": "logbook",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "C3",
+    "name": "parts picker",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1294 #parts-picker-modal + :2651 inventory_items read"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-141-CL-ui-visual-V1-contrast_wcag",
+   "n": 141,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-142-CL-ui-visual-V1-contrast_apca",
+   "n": 142,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-143-CL-ui-visual-V1-focus_visible",
+   "n": 143,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-144-CL-ui-visual-V1-reduced_motion",
+   "n": 144,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-145-CL-ui-visual-V1-icon_only_name",
+   "n": 145,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-146-CL-ui-visual-V2-contrast_wcag",
+   "n": 146,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-147-CL-ui-visual-V2-contrast_apca",
+   "n": 147,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-148-CL-ui-visual-V2-focus_visible",
+   "n": 148,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-149-CL-ui-visual-V2-reduced_motion",
+   "n": 149,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-150-CL-ui-visual-V2-icon_only_name",
+   "n": 150,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-151-CL-ui-visual-V3-contrast_wcag",
+   "n": 151,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-152-CL-ui-visual-V3-contrast_apca",
+   "n": 152,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-153-CL-ui-visual-V3-focus_visible",
+   "n": 153,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-154-CL-ui-visual-V3-reduced_motion",
+   "n": 154,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-155-CL-ui-visual-V3-icon_only_name",
+   "n": 155,
+   "page": "logbook",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-156-CM-ux-comprehension-V1-what_is_this_number",
+   "n": 156,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-157-CM-ux-comprehension-V1-what_happens_next",
+   "n": 157,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-158-CM-ux-comprehension-V1-what_does_it_cost",
+   "n": 158,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-159-CM-ux-comprehension-V1-why_refused",
+   "n": 159,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-160-CM-ux-comprehension-V1-reward_explained",
+   "n": 160,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "reward_explained",
+   "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-161-CM-ux-comprehension-V2-what_is_this_number",
+   "n": 161,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-162-CM-ux-comprehension-V2-what_happens_next",
+   "n": 162,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-163-CM-ux-comprehension-V2-what_does_it_cost",
+   "n": 163,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-164-CM-ux-comprehension-V2-why_refused",
+   "n": 164,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-165-CM-ux-comprehension-V2-reward_explained",
+   "n": 165,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "reward_explained",
+   "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-166-CM-ux-comprehension-V3-what_is_this_number",
+   "n": 166,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-167-CM-ux-comprehension-V3-what_happens_next",
+   "n": 167,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-168-CM-ux-comprehension-V3-what_does_it_cost",
+   "n": 168,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-169-CM-ux-comprehension-V3-why_refused",
+   "n": 169,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-170-CM-ux-comprehension-V3-back_nav",
+   "n": 170,
+   "page": "logbook",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "back_nav",
+   "oracle": "browser Back out of a sheet leaves no orphaned overlay and no write half-applied; the underlying list reflects what actually happened",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CM-ux-comprehension/V3/reward_explained: the asset manager surfaces no reward/benefit figure (logbook.html:1064)"
+  },
+  {
+   "id": "PB-logbook-171-CN-ux-journey-P1-first_run_to_value",
+   "n": 171,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker (own entries)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1407 membership read"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-172-CN-ux-journey-P1-repeat_visit",
+   "n": 172,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker (own entries)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1407 membership read"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-173-CN-ux-journey-P1-cross_surface_handoff",
+   "n": 173,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker (own entries)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1407 membership read"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-174-CN-ux-journey-P1-two_sided_same_object",
+   "n": 174,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker (own entries)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1407 membership read"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-175-CN-ux-journey-P1-abandon_resume",
+   "n": 175,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker (own entries)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1407 membership read"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-176-CN-ux-journey-P2-first_run_to_value",
+   "n": 176,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor (sign-off)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1647 hive_members role read"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-177-CN-ux-journey-P2-repeat_visit",
+   "n": 177,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor (sign-off)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1647 hive_members role read"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-178-CN-ux-journey-P2-cross_surface_handoff",
+   "n": 178,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor (sign-off)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1647 hive_members role read"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-179-CN-ux-journey-P2-two_sided_same_object",
+   "n": 179,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor (sign-off)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1647 hive_members role read"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-180-CN-ux-journey-P2-abandon_resume",
+   "n": 180,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor (sign-off)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1647 hive_members role read"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-181-CN-ux-journey-P3-first_run_to_value",
+   "n": 181,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two workers, one entry)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765,1770 edit paths on shared rows"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-182-CN-ux-journey-P3-repeat_visit",
+   "n": 182,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two workers, one entry)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765,1770 edit paths on shared rows"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-183-CN-ux-journey-P3-cross_surface_handoff",
+   "n": 183,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two workers, one entry)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765,1770 edit paths on shared rows"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-184-CN-ux-journey-P3-two_sided_same_object",
+   "n": 184,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two workers, one entry)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765,1770 edit paths on shared rows"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-185-CN-ux-journey-P3-abandon_resume",
+   "n": 185,
+   "page": "logbook",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two workers, one entry)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1765,1770 edit paths on shared rows"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-186-CO-ux-recovery-V1-double_tap",
+   "n": 186,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-187-CO-ux-recovery-V1-back_out",
+   "n": 187,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-188-CO-ux-recovery-V1-session_died",
+   "n": 188,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-189-CO-ux-recovery-V1-wrong_then_fix",
+   "n": 189,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-190-CO-ux-recovery-V1-did_it_land",
+   "n": 190,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V1",
+    "name": "team feed (default)",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1502-1601 logbook feed reads"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-191-CO-ux-recovery-V2-double_tap",
+   "n": 191,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-192-CO-ux-recovery-V2-back_out",
+   "n": 192,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-193-CO-ux-recovery-V2-session_died",
+   "n": 193,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-194-CO-ux-recovery-V2-wrong_then_fix",
+   "n": 194,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-195-CO-ux-recovery-V2-did_it_land",
+   "n": 195,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V2",
+    "name": "capture modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1054 #modal role=dialog"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-196-CO-ux-recovery-V3-double_tap",
+   "n": 196,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-197-CO-ux-recovery-V3-back_out",
+   "n": 197,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-198-CO-ux-recovery-V3-session_died",
+   "n": 198,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-199-CO-ux-recovery-V3-wrong_then_fix",
+   "n": 199,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-logbook-200-CO-ux-recovery-V3-did_it_land",
+   "n": 200,
+   "page": "logbook",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "logbook",
+   "url": "/workhive/logbook.html",
+   "subject": {
+    "key": "V3",
+    "name": "embedded asset manager",
+    "seen": {
+     "how": "static-read",
+     "ref": "logbook.html:1064 #asset-modal + :1181 #asset-edit-modal + :1227 #asset-detail-modal"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  }
+ ]
+}

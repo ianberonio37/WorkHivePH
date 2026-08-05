@@ -1,0 +1,64 @@
+{
+ "page": "index",
+ "url": "/workhive/index.html",
+ "_ground": "2026-08-05 static read. index.html is TWO products behind one URL: a pre-body inline script stamps html.wh-signed-in, CSS at :947 hides #mkt-wrap and reveals #ops-home (:1050), DOMContentLoaded then runs _showOpsHome()/_initDashboard() (:944). The file's own comment records the swap once cost CLS 0.24 (:874-877).",
+ "views": [
+  {"key": "V1", "name": "ops-home (signed-in dashboard)", "seen": {"how": "static-read", "ref": "index.html:1050 #ops-home + :944 _showOpsHome"}},
+  {"key": "V2", "name": "landing-anon (#mkt-wrap marketing page)", "seen": {"how": "static-read", "ref": "index.html:1533-2049 sections what-is-workhive..join"}},
+  {"key": "V3", "name": "signin-modal", "seen": {"how": "static-read", "ref": "index.html:2640 #signin-modal role=dialog"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "oh-tile KPI tile", "seen": {"how": "static-read", "ref": "index.html:1067 .oh-tile-num"}},
+  {"key": "C2", "name": "oh-job-row open-job row", "seen": {"how": "static-read", "ref": "index.html:1054 .oh-job-row"}},
+  {"key": "C3", "name": "oh-more details disclosure", "seen": {"how": "static-read", "ref": "index.html:1091 .oh-more summary"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client (pre-body auth swap + render)", "seen": {"how": "static-read", "ref": "index.html:947 wh-signed-in CSS gate"}},
+  {"key": "L2", "name": "gateway (PostgREST reads)", "seen": {"how": "static-read", "ref": "index.html:2922 from('v_worker_truth')"}},
+  {"key": "L3", "name": "db (13 tables/views read)", "seen": {"how": "static-read", "ref": "index.html:3979-4058 v_logbook/v_risk/v_inventory/v_pm reads"}},
+  {"key": "L4", "name": "cron (sweep-fed briefing + alerts)", "seen": {"how": "static-read", "ref": "index.html:4229 v_amc_truth + :4254 v_alert_truth"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "auth-session <-> render (the CLS-0.24 swap)", "seen": {"how": "static-read", "ref": "index.html:874-877 CLS comment + :947 gate"}},
+  {"key": "S2", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "index.html:2922-2932 worker+hives reads"}},
+  {"key": "S3", "name": "gateway <-> db (writes)", "seen": {"how": "static-read", "ref": "index.html:3687 early_access_emails insert"}},
+  {"key": "S4", "name": "trigger <-> view (9 v_*_truth reads)", "seen": {"how": "static-read", "ref": "index.html:3979-4058"}},
+  {"key": "S5", "name": "cron <-> db (brief/alert freshness)", "seen": {"how": "static-read", "ref": "index.html:4229,4254"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "anon visitor", "seen": {"how": "static-read", "ref": "index.html:1533 landing renders pre-auth"}},
+  {"key": "P2", "name": "signed-in worker", "seen": {"how": "static-read", "ref": "index.html:947 wh-signed-in gates ops-home"}},
+  {"key": "P3", "name": "multi-hive worker", "seen": {"how": "static-read", "ref": "index.html:2932 v_hives_truth (plural) read"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "anon (publishable-key RLS boundary)", "seen": {"how": "static-read", "ref": "index.html:3979-4058 hive reads under anon"}},
+  {"key": "IB", "name": "multi-hive worker (deterministic hive resolution)", "seen": {"how": "static-read", "ref": "index.html:2932 v_hives_truth + :3043 worker_profiles"}}
+ ],
+ "invariants": [
+  {"key": "swap_atomic", "name": "the landing/ops-home swap is atomic", "seen": {"how": "static-read", "ref": "index.html:947,1050,944"}, "oracle": "no frame ever paints #mkt-wrap and #ops-home both visible, and none paints neither - measured across the pre-body class, the CSS override and the DOMContentLoaded populate, not asserted from the comment that says it was fixed"},
+  {"key": "cls_budget", "name": "signed-in first paint holds CLS <= 0.1", "seen": {"how": "static-read", "ref": "index.html:874-877 records the historical 0.24"}, "oracle": "CLS <= 0.1 on the signed-in first paint at all three verified widths - the file records a historical 0.24; the invariant is that it stays fixed"},
+  {"key": "tile_equals_view", "name": "every ops-home tile equals its own source view", "seen": {"how": "static-read", "ref": "index.html:3979-4058 nine v_*_truth reads"}, "oracle": "every ops-home tile's number equals its own source view under the same identity - 9 v_* reads, so 9 chances for a tile to outlive its query"},
+  {"key": "hive_deterministic", "name": "multi-hive resolves to ONE hive, everywhere", "seen": {"how": "static-read", "ref": "index.html:2932 v_hives_truth read"}, "oracle": "a multi-hive worker resolves to exactly one hive deterministically, and the tiles all name the SAME one - the .maybeSingle()/limit(1) class that bounced multi-hive users before"},
+  {"key": "profile_identity_pinned", "name": "worker_profiles upsert is identity-pinned", "seen": {"how": "static-read", "ref": "index.html:3043,3138,3338,3447,3855 upserts"}, "oracle": "the worker_profiles row written is the caller's own, proven by auth_uid, never by the name in the form"},
+  {"key": "anon_zero_rows", "name": "anon reaches zero hive rows through every read", "seen": {"how": "static-read", "ref": "index.html:3979-4058 the 13 reads"}, "oracle": "an anonymous session receives zero hive rows through every one of the 13 reads - not 'the tiles are empty' but refused-or-0-by-policy, proven at the request layer"}
+ ],
+ "domain_truths": [
+  {"key": "amc_brief_dated", "name": "the daily brief is for TODAY and says so", "seen": {"how": "static-read", "ref": "index.html:4229 v_amc_truth"}, "oracle": "v_amc_truth's daily-brief figure is for today, and the surface states which day - a cron-fed number with no date is a stale number waiting to happen"},
+  {"key": "alert_count_agrees", "name": "alert tile equals alert-hub", "seen": {"how": "cross-page", "ref": "index.html:4254 v_alert_truth vs alert-hub.html:1097"}, "oracle": "the v_alert_truth count on the tile equals the count alert-hub shows for the same hive at the same instant"},
+  {"key": "risk_same_formula", "name": "risk score = analytics' formula", "seen": {"how": "cross-page", "ref": "index.html:3991 v_risk_truth vs analytics batch-risk-scoring"}, "oracle": "the composite risk on the landing tile uses the same formula version as analytics - one score, one definition, two surfaces"},
+  {"key": "pm_denominator", "name": "PM tile states its denominator", "seen": {"how": "static-read", "ref": "index.html:4017 v_pm_scope_items_truth + :4041 pm_completions"}, "oracle": "the PM-compliance tile states its denominator - SMRP compliance is completed/scheduled, and a label that omits the half is a claim"},
+  {"key": "low_stock_by_reorder", "name": "low-stock counts by reorder point", "seen": {"how": "static-read", "ref": "index.html:4004 v_inventory_items_truth"}, "oracle": "the low-stock tile counts by reorder point, not by a hardcoded 'quantity < N'"},
+  {"key": "open_jobs_same_predicate", "name": "open-jobs equals logbook's own filter", "seen": {"how": "cross-page", "ref": "index.html:3979 v_logbook_truth vs logbook.html feed filter"}, "oracle": "the open-jobs count matches the logbook page's own filter, run with the page's predicate rather than a guess at it"},
+  {"key": "sensor_freshness", "name": "a stale sensor tile states its age", "seen": {"how": "static-read", "ref": "index.html:4241 v_sensor_truth"}, "oracle": "a sensor tile that has not updated says when it last did, rather than rendering an old number as current"},
+  {"key": "early_access_honest", "name": "the early-access form promises only capture", "seen": {"how": "static-read", "ref": "index.html:3687 early_access_emails insert + :2049 join section"}, "oracle": "an email captured is an email, not an account, and the copy does not imply access the product will not grant"}
+ ],
+ "writes": [
+  {"fn": "early_access_emails.insert", "class": "capture", "seen": {"how": "static-read", "ref": "index.html:3687"}},
+  {"fn": "worker_profiles.upsert x5", "class": "identity/online-only", "seen": {"how": "static-read", "ref": "index.html:3043,3138,3338,3447,3855"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "no peso or credit figure renders on ops-home - its tiles are counts and scores (index.html:3979-4058)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the anon landing renders no money figures (index.html:1533-2049)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V1/reward_explained", "reason": "ops-home surfaces no reward/benefit figure to explain (index.html:1050-1100)", "replace_with": {"oracle_key": "back_nav"}}
+ ]
+}

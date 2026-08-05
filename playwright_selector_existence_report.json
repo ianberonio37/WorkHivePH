@@ -1,6 +1,6 @@
 {
   "summary": {
-    "specs_scanned": 52,
+    "specs_scanned": 53,
     "total_lookups": 232,
     "total_drift": 2,
     "baseline": 2
@@ -553,6 +553,13 @@
       "spec": "shift-brain-freshness.spec.ts",
       "targets": [
         "shift-brain.html"
+      ],
+      "misses": []
+    },
+    {
+      "spec": "ux-journeys.spec.ts",
+      "targets": [
+        "marketplace.html"
       ],
       "misses": []
     }

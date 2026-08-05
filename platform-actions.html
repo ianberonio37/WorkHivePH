@@ -376,8 +376,25 @@
           : 'a moment';
         return 'Too many requests. Your connection is fine: wait about ' + wait + ', then refresh.';
       }
-      if (st === 401 || st === 403 || code === '42501' || /jwt|token|expired/i.test(raw)) {
-        return 'Your session expired. Sign in again to load this queue.';
+      /* 401 = dead session; 403 = live session, refused row. On a moderation queue the difference is
+         especially sharp: a 403 usually means this account is not a moderator, and "sign in again"
+         invites them to keep trying an account that will never be allowed. Measured 2026-08-05 by
+         injecting each status at the route layer across six surfaces. */
+      /* A BARE 42501 IS A PERMISSION PROBLEM, NOT A SESSION ONE. Postgres raises 42501 for
+         insufficient_privilege; a dead session surfaces as PGRST301 or a JWT message. Defaulting an
+         unknown-status 42501 to "your session expired" put the session sentence in front of an admin
+         whose session was fine — and it kept doing so even after the status started being carried,
+         because the queue that renders this one still reports no status at all. */
+      if (st === 401 || /jwt|token|expired/i.test(raw)) {
+        // ...and say what happened to their work. A moderator mid-review needs to know whether the
+        // decision they were about to make went anywhere; "your session expired" alone leaves them
+        // guessing whether they approved something on the way out.
+        return 'Your session expired. Sign in again to load this queue. Nothing was approved or '
+             + 'rejected while it was expired.';
+      }
+      if (st === 403 || code === '42501') {
+        return 'This account is not allowed to load this queue. Your session is fine, so signing in '
+             + 'again will not change it — this queue needs moderator access.';
       }
       return "Couldn't load this queue: " + raw;
     }
@@ -393,9 +410,18 @@
             .select('worker_name,tier,kyb_verified,cert_verified,certifications,active_listings_count,created_at')
             .or('kyb_verified.eq.false,cert_verified.eq.false').order('created_at', { ascending: false }).order('id').limit(50),
         ]);
+        /* CARRY THE CODE AND STATUS, NOT JUST THE SENTENCE. supabase-js reports a PostgREST failure
+           through `error` rather than by throwing, so only the catch below was populating _code and
+           _status — and _queueErr, which decides between "your session expired", "you are not allowed"
+           and "check your connection", was left with neither. Every 401 and 403 therefore fell through
+           to the generic "Couldn't load this queue: permission denied", naming no cause and no remedy.
+           Measured 2026-08-05 by injecting a 401 at the route layer. */
+        const _e = drafts.error || sellers.error;
         return {
           drafts: drafts.data || [], sellers: sellers.data || [],
-          _error: (drafts.error || sellers.error) ? (drafts.error || sellers.error).message : null,
+          _error: _e ? _e.message : null,
+          _code: _e ? (_e.code || null) : null,
+          _status: _e ? (_e.status || _e._httpStatus || null) : null,
         };
       } catch (err) { return { _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
     }
@@ -408,11 +434,18 @@
       try {
         // Truth view, not the raw table: it folds in provider_display_name so the queue does not N+1
         // the provider directory to name who is waiting.
-        const { data, error } = await db.from('v_service_credit_topups_truth')
+        /* Bounded: this queue decides whether real money becomes credits, and an unbounded read left
+           the founder staring at a queue that never resolves and never says why. whQueryTimeout hands
+           back supabase's own {data,error} shape, so the _error/_code plumbing below is unchanged. */
+        const _q = db.from('v_service_credit_topups_truth')
           .select('id, account_type, account_id, amount, gcash_ref, created_at, provider_display_name')
           .eq('status', 'pending_verification')
           .order('created_at', { ascending: true }).order('id').limit(50);
-        return { rows: data || [], _error: error ? error.message : null };
+        const { data, error } = await (typeof whQueryTimeout === 'function'
+          ? whQueryTimeout(_q, 15000, 'the top-up queue') : _q);
+        return { rows: data || [], _error: error ? error.message : null,
+                 _code: error ? (error.code || null) : null,
+                 _status: error ? (error.status || error._httpStatus || null) : null };
       } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
     }
 
@@ -463,7 +496,19 @@
         const btn = ev.target.closest('button[data-topup-act]');
         if (!btn) return;
         const verify = btn.dataset.topupAct === 'verify';
+        /* A DEAD BUTTON THAT SAYS NOTHING. This one greyed out with no label change and no aria-busy
+           while the write was in flight -- on the founder's money queue, where the next thing that
+           happens is credits minted to a provider's wallet. Its sibling handler (listing moderation)
+           already announces itself; this one did not, so a slow round-trip read as "my press did
+           nothing". Same treatment here: say what is happening, and restore on EVERY path, not only
+           the error one -- the success path relied on refreshQueues() replacing the node, which is
+           true until a refresh fails and leaves a permanently dead control behind. */
+        const _label = btn.textContent;
+        const _restore = () => { btn.disabled = false; btn.removeAttribute('aria-busy');
+                                 btn.textContent = _label; };
         btn.disabled = true;
+        btn.setAttribute('aria-busy', 'true');
+        btn.textContent = verify ? 'Verifying…' : 'Rejecting…';
         try {
           /* Optimistic lock on the ORIGINATING status: the founder works this queue by hand at speed,
              so a double-press is the expected human error, not an exotic one. Filtering on
@@ -483,13 +528,14 @@
               : 'Rejected. No credits were minted.', verify ? 'success' : 'info');
           }
           await refreshQueues();
+          _restore();
         } catch (err) {
           console.error('top-up decision failed:', err);
           showToast(refusalMessage(err)
             || (whIsAuthFailure(err)
                 ? 'Your admin session expired, so nothing was changed. Sign in again to continue.'
                 : 'Could not record that decision, and nothing was minted. Try again.'), 'error');
-          btn.disabled = false;
+          _restore();
         }
       });
     }
@@ -568,12 +614,18 @@
        reporting view had a bad day. */
     async function fetchGcashLeftovers() {
       try {
-        const { data, error } = await db.from('v_gcash_receipts_needing_eyes')
+        // Bounded, same as the top-up queue above: unreviewed GCash receipts are money waiting on a
+        // human, and a stalled read that never resolves reads as "nothing to review".
+        const _q = db.from('v_gcash_receipts_needing_eyes')
           .select('reference, amount, sender_name, match_state, match_note, created_at').limit(20);
+        const { data, error } = await (typeof whQueryTimeout === 'function'
+          ? whQueryTimeout(_q, 15000, 'the GCash receipts') : _q);
         // Carry the CODE, not just the message: the renderer distinguishes a permission boundary
         // (42501, expected for anyone who is not a platform admin) from a genuine load failure, and
         // a message string alone would force it to pattern-match English.
-        return { rows: data || [], _error: error ? error.message : null, _code: error ? error.code : null };
+        return { rows: data || [], _error: error ? error.message : null,
+                 _code: error ? (error.code || null) : null,
+                 _status: error ? (error.status || error._httpStatus || null) : null };
       } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
     }
 
@@ -936,7 +988,9 @@
           .order('created_at', { ascending: false })
           .order('id')                       // MR4: the sort above is not total on its own
           .limit(500);
-        return { rows: data || [], _error: error ? error.message : null };
+        return { rows: data || [], _error: error ? error.message : null,
+                 _code: error ? (error.code || null) : null,
+                 _status: error ? (error.status || error._httpStatus || null) : null };
       } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
     }
 

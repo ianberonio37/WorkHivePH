@@ -1,0 +1,4454 @@
+{
+ "_doc": "Page live-MCP bank, derived from page_bank_anatomy/index.json by tools/build_page_live_mcp_bank.py -- do not hand-edit rows; edit the anatomy and regenerate. `status` moves owed -> green only via a LIVE MCP walk with typed evidence (validate_live_mcp_bank rules R1-R7); findings accumulate so a re-walk proves a fix rather than re-discovering it.",
+ "page": "index",
+ "url": "/workhive/index.html",
+ "frame": "PAGE_TESTBANK_ROADMAP.md section 1 (60 arch + 50 UFAI + 45 UI + 45 UX = 200)",
+ "declared_na": [
+  {
+   "cell": "CF-ufai-F/V1/money_matches_ledger",
+   "reason": "no peso or credit figure renders on ops-home - its tiles are counts and scores (index.html:3979-4058)",
+   "replace_with": {
+    "oracle_key": "reload"
+   }
+  },
+  {
+   "cell": "CF-ufai-F/V2/money_matches_ledger",
+   "reason": "the anon landing renders no money figures (index.html:1533-2049)",
+   "replace_with": {
+    "oracle_key": "zoom200"
+   }
+  },
+  {
+   "cell": "CM-ux-comprehension/V1/reward_explained",
+   "reason": "ops-home surfaces no reward/benefit figure to explain (index.html:1050-1100)",
+   "replace_with": {
+    "oracle_key": "back_nav"
+   }
+  }
+ ],
+ "deferred": [],
+ "writes_classified": [
+  {
+   "fn": "early_access_emails.insert",
+   "class": "capture",
+   "seen": {
+    "how": "static-read",
+    "ref": "index.html:3687"
+   }
+  },
+  {
+   "fn": "worker_profiles.upsert x5",
+   "class": "identity/online-only",
+   "seen": {
+    "how": "static-read",
+    "ref": "index.html:3043,3138,3338,3447,3855"
+   }
+  }
+ ],
+ "total": 200,
+ "scenarios": [
+  {
+   "id": "PB-index-001-CA-layer-contract-L1-envelope_shape",
+   "n": 1,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L1",
+    "name": "client (pre-body auth swap + render)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:947 wh-signed-in CSS gate"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-002-CA-layer-contract-L1-status_body_agreement",
+   "n": 2,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L1",
+    "name": "client (pre-body auth swap + render)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:947 wh-signed-in CSS gate"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-003-CA-layer-contract-L1-idempotency",
+   "n": 3,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L1",
+    "name": "client (pre-body auth swap + render)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:947 wh-signed-in CSS gate"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-004-CA-layer-contract-L1-ordering_totality",
+   "n": 4,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L1",
+    "name": "client (pre-body auth swap + render)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:947 wh-signed-in CSS gate"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-005-CA-layer-contract-L1-units_declared",
+   "n": 5,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L1",
+    "name": "client (pre-body auth swap + render)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:947 wh-signed-in CSS gate"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-006-CA-layer-contract-L2-envelope_shape",
+   "n": 6,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L2",
+    "name": "gateway (PostgREST reads)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2922 from('v_worker_truth')"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-007-CA-layer-contract-L2-status_body_agreement",
+   "n": 7,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L2",
+    "name": "gateway (PostgREST reads)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2922 from('v_worker_truth')"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-008-CA-layer-contract-L2-idempotency",
+   "n": 8,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L2",
+    "name": "gateway (PostgREST reads)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2922 from('v_worker_truth')"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-009-CA-layer-contract-L2-ordering_totality",
+   "n": 9,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L2",
+    "name": "gateway (PostgREST reads)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2922 from('v_worker_truth')"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-010-CA-layer-contract-L2-units_declared",
+   "n": 10,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L2",
+    "name": "gateway (PostgREST reads)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2922 from('v_worker_truth')"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-011-CA-layer-contract-L3-envelope_shape",
+   "n": 11,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (13 tables/views read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 v_logbook/v_risk/v_inventory/v_pm reads"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-012-CA-layer-contract-L3-status_body_agreement",
+   "n": 12,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (13 tables/views read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 v_logbook/v_risk/v_inventory/v_pm reads"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-013-CA-layer-contract-L3-idempotency",
+   "n": 13,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (13 tables/views read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 v_logbook/v_risk/v_inventory/v_pm reads"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-014-CA-layer-contract-L3-ordering_totality",
+   "n": 14,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (13 tables/views read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 v_logbook/v_risk/v_inventory/v_pm reads"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-015-CA-layer-contract-L3-units_declared",
+   "n": 15,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (13 tables/views read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 v_logbook/v_risk/v_inventory/v_pm reads"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-016-CA-layer-contract-L4-envelope_shape",
+   "n": 16,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L4",
+    "name": "cron (sweep-fed briefing + alerts)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4229 v_amc_truth + :4254 v_alert_truth"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-017-CA-layer-contract-L4-status_body_agreement",
+   "n": 17,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L4",
+    "name": "cron (sweep-fed briefing + alerts)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4229 v_amc_truth + :4254 v_alert_truth"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-018-CA-layer-contract-L4-idempotency",
+   "n": 18,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L4",
+    "name": "cron (sweep-fed briefing + alerts)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4229 v_amc_truth + :4254 v_alert_truth"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-019-CA-layer-contract-L4-ordering_totality",
+   "n": 19,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L4",
+    "name": "cron (sweep-fed briefing + alerts)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4229 v_amc_truth + :4254 v_alert_truth"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-020-CA-layer-contract-L4-units_declared",
+   "n": 20,
+   "page": "index",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "L4",
+    "name": "cron (sweep-fed briefing + alerts)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4229 v_amc_truth + :4254 v_alert_truth"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-021-CB-seam-S1-value_survives",
+   "n": 21,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S1",
+    "name": "auth-session <-> render (the CLS-0.24 swap)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:874-877 CLS comment + :947 gate"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-022-CB-seam-S1-name_survives",
+   "n": 22,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S1",
+    "name": "auth-session <-> render (the CLS-0.24 swap)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:874-877 CLS comment + :947 gate"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-023-CB-seam-S1-null_semantics",
+   "n": 23,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S1",
+    "name": "auth-session <-> render (the CLS-0.24 swap)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:874-877 CLS comment + :947 gate"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-024-CB-seam-S1-partial_write",
+   "n": 24,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S1",
+    "name": "auth-session <-> render (the CLS-0.24 swap)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:874-877 CLS comment + :947 gate"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-025-CB-seam-S2-value_survives",
+   "n": 25,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S2",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2922-2932 worker+hives reads"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-026-CB-seam-S2-name_survives",
+   "n": 26,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S2",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2922-2932 worker+hives reads"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-027-CB-seam-S2-null_semantics",
+   "n": 27,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S2",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2922-2932 worker+hives reads"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-028-CB-seam-S2-partial_write",
+   "n": 28,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S2",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2922-2932 worker+hives reads"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-029-CB-seam-S3-value_survives",
+   "n": 29,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S3",
+    "name": "gateway <-> db (writes)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3687 early_access_emails insert"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-030-CB-seam-S3-name_survives",
+   "n": 30,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S3",
+    "name": "gateway <-> db (writes)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3687 early_access_emails insert"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-031-CB-seam-S3-null_semantics",
+   "n": 31,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S3",
+    "name": "gateway <-> db (writes)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3687 early_access_emails insert"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-032-CB-seam-S3-partial_write",
+   "n": 32,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S3",
+    "name": "gateway <-> db (writes)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3687 early_access_emails insert"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-033-CB-seam-S4-value_survives",
+   "n": 33,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S4",
+    "name": "trigger <-> view (9 v_*_truth reads)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-034-CB-seam-S4-name_survives",
+   "n": 34,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S4",
+    "name": "trigger <-> view (9 v_*_truth reads)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-035-CB-seam-S4-null_semantics",
+   "n": 35,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S4",
+    "name": "trigger <-> view (9 v_*_truth reads)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-036-CB-seam-S4-partial_write",
+   "n": 36,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S4",
+    "name": "trigger <-> view (9 v_*_truth reads)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-037-CB-seam-S5-value_survives",
+   "n": 37,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S5",
+    "name": "cron <-> db (brief/alert freshness)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4229,4254"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-038-CB-seam-S5-name_survives",
+   "n": 38,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S5",
+    "name": "cron <-> db (brief/alert freshness)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4229,4254"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-039-CB-seam-S5-null_semantics",
+   "n": 39,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S5",
+    "name": "cron <-> db (brief/alert freshness)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4229,4254"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-040-CB-seam-S5-partial_write",
+   "n": 40,
+   "page": "index",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "S5",
+    "name": "cron <-> db (brief/alert freshness)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4229,4254"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-041-CC-failure-injection-V1-fail_500",
+   "n": 41,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-042-CC-failure-injection-V1-fail_401",
+   "n": 42,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-043-CC-failure-injection-V1-fail_timeout",
+   "n": 43,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-044-CC-failure-injection-V1-fail_partial",
+   "n": 44,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-045-CC-failure-injection-V1-fail_slow",
+   "n": 45,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-046-CC-failure-injection-V1-fail_offline",
+   "n": 46,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-047-CC-failure-injection-V1-fail_null_field",
+   "n": 47,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-048-CC-failure-injection-V2-fail_500",
+   "n": 48,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-049-CC-failure-injection-V2-fail_401",
+   "n": 49,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-050-CC-failure-injection-V2-fail_timeout",
+   "n": 50,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-051-CC-failure-injection-V2-fail_partial",
+   "n": 51,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-052-CC-failure-injection-V2-fail_slow",
+   "n": 52,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-053-CC-failure-injection-V2-fail_offline",
+   "n": 53,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-054-CC-failure-injection-V2-fail_null_field",
+   "n": 54,
+   "page": "index",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-055-CD-invariant-swap_atomic-swap_atomic",
+   "n": 55,
+   "page": "index",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "swap_atomic",
+    "name": "the landing/ops-home swap is atomic",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:947,1050,944"
+    }
+   },
+   "oracle_key": "swap_atomic",
+   "oracle": "no frame ever paints #mkt-wrap and #ops-home both visible, and none paints neither - measured across the pre-body class, the CSS override and the DOMContentLoaded populate, not asserted from the comment that says it was fixed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-056-CD-invariant-cls_budget-cls_budget",
+   "n": 56,
+   "page": "index",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "cls_budget",
+    "name": "signed-in first paint holds CLS <= 0.1",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:874-877 records the historical 0.24"
+    }
+   },
+   "oracle_key": "cls_budget",
+   "oracle": "CLS <= 0.1 on the signed-in first paint at all three verified widths - the file records a historical 0.24; the invariant is that it stays fixed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-057-CD-invariant-tile_equals_view-tile_equals_view",
+   "n": 57,
+   "page": "index",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "tile_equals_view",
+    "name": "every ops-home tile equals its own source view",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 nine v_*_truth reads"
+    }
+   },
+   "oracle_key": "tile_equals_view",
+   "oracle": "every ops-home tile's number equals its own source view under the same identity - 9 v_* reads, so 9 chances for a tile to outlive its query",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-058-CD-invariant-hive_deterministic-hive_deterministic",
+   "n": 58,
+   "page": "index",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "hive_deterministic",
+    "name": "multi-hive resolves to ONE hive, everywhere",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2932 v_hives_truth read"
+    }
+   },
+   "oracle_key": "hive_deterministic",
+   "oracle": "a multi-hive worker resolves to exactly one hive deterministically, and the tiles all name the SAME one - the .maybeSingle()/limit(1) class that bounced multi-hive users before",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-059-CD-invariant-profile_identity_pinned-profile_identity_pinned",
+   "n": 59,
+   "page": "index",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "profile_identity_pinned",
+    "name": "worker_profiles upsert is identity-pinned",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3043,3138,3338,3447,3855 upserts"
+    }
+   },
+   "oracle_key": "profile_identity_pinned",
+   "oracle": "the worker_profiles row written is the caller's own, proven by auth_uid, never by the name in the form",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-060-CD-invariant-anon_zero_rows-anon_zero_rows",
+   "n": 60,
+   "page": "index",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "anon_zero_rows",
+    "name": "anon reaches zero hive rows through every read",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 the 13 reads"
+    }
+   },
+   "oracle_key": "anon_zero_rows",
+   "oracle": "an anonymous session receives zero hive rows through every one of the 13 reads - not 'the tiles are empty' but refused-or-0-by-policy, proven at the request layer",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-061-CE-ufai-U-V1-one_vocabulary",
+   "n": 61,
+   "page": "index",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-062-CE-ufai-U-V1-source_chip_true",
+   "n": 62,
+   "page": "index",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-063-CE-ufai-U-V1-units_visible",
+   "n": 63,
+   "page": "index",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-064-CE-ufai-U-V1-no_raw_enum",
+   "n": 64,
+   "page": "index",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-065-CE-ufai-U-V1-number_explained",
+   "n": 65,
+   "page": "index",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-066-CE-ufai-U-V2-one_vocabulary",
+   "n": 66,
+   "page": "index",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-067-CE-ufai-U-V2-source_chip_true",
+   "n": 67,
+   "page": "index",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-068-CE-ufai-U-V2-units_visible",
+   "n": 68,
+   "page": "index",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-069-CE-ufai-U-V2-no_raw_enum",
+   "n": 69,
+   "page": "index",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-070-CE-ufai-U-V2-number_explained",
+   "n": 70,
+   "page": "index",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-071-CF-ufai-F-V1-effect_in_db",
+   "n": 71,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-072-CF-ufai-F-V1-effect_visible",
+   "n": 72,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-073-CF-ufai-F-V1-count_matches_source",
+   "n": 73,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-074-CF-ufai-F-V1-reload",
+   "n": 74,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "reload",
+   "oracle": "reload MID-FLOW and the surface returns to a truthful state - a half-filled sheet either survives intact or is gone, never restored into a state the person did not leave it in",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CF-ufai-F/V1/money_matches_ledger: no peso or credit figure renders on ops-home - its tiles are counts and scores (index.html:3979-4058)"
+  },
+  {
+   "id": "PB-index-075-CF-ufai-F-V1-idempotent_repeat",
+   "n": 75,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-076-CF-ufai-F-V1-cross_surface_agreement",
+   "n": 76,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-077-CF-ufai-F-V2-effect_in_db",
+   "n": 77,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-078-CF-ufai-F-V2-effect_visible",
+   "n": 78,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-079-CF-ufai-F-V2-count_matches_source",
+   "n": 79,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-080-CF-ufai-F-V2-zoom200",
+   "n": 80,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "zoom200",
+   "oracle": "at 200% browser zoom every control stays reachable and no text is clipped (WCAG 1.4.4)",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CF-ufai-F/V2/money_matches_ledger: the anon landing renders no money figures (index.html:1533-2049)"
+  },
+  {
+   "id": "PB-index-081-CF-ufai-F-V2-idempotent_repeat",
+   "n": 81,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-082-CF-ufai-F-V2-cross_surface_agreement",
+   "n": 82,
+   "page": "index",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-083-CG-ufai-A-V1-offline_refusal",
+   "n": 83,
+   "page": "index",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-084-CG-ufai-A-V1-retry_path",
+   "n": 84,
+   "page": "index",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-085-CG-ufai-A-V1-rate_limit_legible",
+   "n": 85,
+   "page": "index",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-086-CG-ufai-A-V1-fallback_engaged",
+   "n": 86,
+   "page": "index",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-087-CG-ufai-A-V1-slow_honest",
+   "n": 87,
+   "page": "index",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-088-CG-ufai-A-V2-offline_refusal",
+   "n": 88,
+   "page": "index",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-089-CG-ufai-A-V2-retry_path",
+   "n": 89,
+   "page": "index",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-090-CG-ufai-A-V2-rate_limit_legible",
+   "n": 90,
+   "page": "index",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-091-CG-ufai-A-V2-fallback_engaged",
+   "n": 91,
+   "page": "index",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-092-CG-ufai-A-V2-slow_honest",
+   "n": 92,
+   "page": "index",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-093-CH-ufai-I-IA-bola_object",
+   "n": 93,
+   "page": "index",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "IA",
+    "name": "anon (publishable-key RLS boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 hive reads under anon"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-094-CH-ufai-I-IA-bfla_function",
+   "n": 94,
+   "page": "index",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "IA",
+    "name": "anon (publishable-key RLS boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 hive reads under anon"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-095-CH-ufai-I-IA-tenant_boundary",
+   "n": 95,
+   "page": "index",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "IA",
+    "name": "anon (publishable-key RLS boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 hive reads under anon"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-096-CH-ufai-I-IA-jwt_not_body",
+   "n": 96,
+   "page": "index",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "IA",
+    "name": "anon (publishable-key RLS boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 hive reads under anon"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-097-CH-ufai-I-IA-boundary_not_emptiness",
+   "n": 97,
+   "page": "index",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "IA",
+    "name": "anon (publishable-key RLS boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3979-4058 hive reads under anon"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-098-CH-ufai-I-IB-bola_object",
+   "n": 98,
+   "page": "index",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "IB",
+    "name": "multi-hive worker (deterministic hive resolution)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2932 v_hives_truth + :3043 worker_profiles"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-099-CH-ufai-I-IB-bfla_function",
+   "n": 99,
+   "page": "index",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "IB",
+    "name": "multi-hive worker (deterministic hive resolution)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2932 v_hives_truth + :3043 worker_profiles"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-100-CH-ufai-I-IB-tenant_boundary",
+   "n": 100,
+   "page": "index",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "IB",
+    "name": "multi-hive worker (deterministic hive resolution)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2932 v_hives_truth + :3043 worker_profiles"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-101-CH-ufai-I-IB-jwt_not_body",
+   "n": 101,
+   "page": "index",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "IB",
+    "name": "multi-hive worker (deterministic hive resolution)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2932 v_hives_truth + :3043 worker_profiles"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-102-CH-ufai-I-IB-boundary_not_emptiness",
+   "n": 102,
+   "page": "index",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "IB",
+    "name": "multi-hive worker (deterministic hive resolution)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2932 v_hives_truth + :3043 worker_profiles"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-103-CI-domain-truth-amc_brief_dated-amc_brief_dated",
+   "n": 103,
+   "page": "index",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "amc_brief_dated",
+    "name": "the daily brief is for TODAY and says so",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4229 v_amc_truth"
+    }
+   },
+   "oracle_key": "amc_brief_dated",
+   "oracle": "v_amc_truth's daily-brief figure is for today, and the surface states which day - a cron-fed number with no date is a stale number waiting to happen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-104-CI-domain-truth-alert_count_agrees-alert_count_agrees",
+   "n": 104,
+   "page": "index",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "alert_count_agrees",
+    "name": "alert tile equals alert-hub",
+    "seen": {
+     "how": "cross-page",
+     "ref": "index.html:4254 v_alert_truth vs alert-hub.html:1097"
+    }
+   },
+   "oracle_key": "alert_count_agrees",
+   "oracle": "the v_alert_truth count on the tile equals the count alert-hub shows for the same hive at the same instant",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-105-CI-domain-truth-risk_same_formula-risk_same_formula",
+   "n": 105,
+   "page": "index",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "risk_same_formula",
+    "name": "risk score = analytics' formula",
+    "seen": {
+     "how": "cross-page",
+     "ref": "index.html:3991 v_risk_truth vs analytics batch-risk-scoring"
+    }
+   },
+   "oracle_key": "risk_same_formula",
+   "oracle": "the composite risk on the landing tile uses the same formula version as analytics - one score, one definition, two surfaces",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-106-CI-domain-truth-pm_denominator-pm_denominator",
+   "n": 106,
+   "page": "index",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "pm_denominator",
+    "name": "PM tile states its denominator",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4017 v_pm_scope_items_truth + :4041 pm_completions"
+    }
+   },
+   "oracle_key": "pm_denominator",
+   "oracle": "the PM-compliance tile states its denominator - SMRP compliance is completed/scheduled, and a label that omits the half is a claim",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-107-CI-domain-truth-low_stock_by_reorder-low_stock_by_reorder",
+   "n": 107,
+   "page": "index",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "low_stock_by_reorder",
+    "name": "low-stock counts by reorder point",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4004 v_inventory_items_truth"
+    }
+   },
+   "oracle_key": "low_stock_by_reorder",
+   "oracle": "the low-stock tile counts by reorder point, not by a hardcoded 'quantity < N'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-108-CI-domain-truth-open_jobs_same_predicate-open_jobs_same_predicate",
+   "n": 108,
+   "page": "index",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "open_jobs_same_predicate",
+    "name": "open-jobs equals logbook's own filter",
+    "seen": {
+     "how": "cross-page",
+     "ref": "index.html:3979 v_logbook_truth vs logbook.html feed filter"
+    }
+   },
+   "oracle_key": "open_jobs_same_predicate",
+   "oracle": "the open-jobs count matches the logbook page's own filter, run with the page's predicate rather than a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-109-CI-domain-truth-sensor_freshness-sensor_freshness",
+   "n": 109,
+   "page": "index",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "sensor_freshness",
+    "name": "a stale sensor tile states its age",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:4241 v_sensor_truth"
+    }
+   },
+   "oracle_key": "sensor_freshness",
+   "oracle": "a sensor tile that has not updated says when it last did, rather than rendering an old number as current",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-110-CI-domain-truth-early_access_honest-early_access_honest",
+   "n": 110,
+   "page": "index",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "early_access_honest",
+    "name": "the early-access form promises only capture",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:3687 early_access_emails insert + :2049 join section"
+    }
+   },
+   "oracle_key": "early_access_honest",
+   "oracle": "an email captured is an email, not an account, and the copy does not imply access the product will not grant",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-111-CJ-ui-layout-V1-w390_overflow",
+   "n": 111,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-112-CJ-ui-layout-V1-w641_overflow",
+   "n": 112,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-113-CJ-ui-layout-V1-w1280_overflow",
+   "n": 113,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-114-CJ-ui-layout-V1-tap_target_44",
+   "n": 114,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-115-CJ-ui-layout-V1-safe_area",
+   "n": 115,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-116-CJ-ui-layout-V2-w390_overflow",
+   "n": 116,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-117-CJ-ui-layout-V2-w641_overflow",
+   "n": 117,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-118-CJ-ui-layout-V2-w1280_overflow",
+   "n": 118,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-119-CJ-ui-layout-V2-tap_target_44",
+   "n": 119,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-120-CJ-ui-layout-V2-safe_area",
+   "n": 120,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-121-CJ-ui-layout-V3-w390_overflow",
+   "n": 121,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-122-CJ-ui-layout-V3-w641_overflow",
+   "n": 122,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-123-CJ-ui-layout-V3-w1280_overflow",
+   "n": 123,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-124-CJ-ui-layout-V3-tap_target_44",
+   "n": 124,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-125-CJ-ui-layout-V3-safe_area",
+   "n": 125,
+   "page": "index",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-126-CK-ui-state-C1-component_loading",
+   "n": 126,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C1",
+    "name": "oh-tile KPI tile",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1067 .oh-tile-num"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-127-CK-ui-state-C1-component_skeleton",
+   "n": 127,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C1",
+    "name": "oh-tile KPI tile",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1067 .oh-tile-num"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-128-CK-ui-state-C1-component_disabled",
+   "n": 128,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C1",
+    "name": "oh-tile KPI tile",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1067 .oh-tile-num"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-129-CK-ui-state-C1-component_busy",
+   "n": 129,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C1",
+    "name": "oh-tile KPI tile",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1067 .oh-tile-num"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-130-CK-ui-state-C1-component_populated",
+   "n": 130,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C1",
+    "name": "oh-tile KPI tile",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1067 .oh-tile-num"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-131-CK-ui-state-C2-component_loading",
+   "n": 131,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C2",
+    "name": "oh-job-row open-job row",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1054 .oh-job-row"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-132-CK-ui-state-C2-component_skeleton",
+   "n": 132,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C2",
+    "name": "oh-job-row open-job row",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1054 .oh-job-row"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-133-CK-ui-state-C2-component_disabled",
+   "n": 133,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C2",
+    "name": "oh-job-row open-job row",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1054 .oh-job-row"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-134-CK-ui-state-C2-component_busy",
+   "n": 134,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C2",
+    "name": "oh-job-row open-job row",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1054 .oh-job-row"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-135-CK-ui-state-C2-component_populated",
+   "n": 135,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C2",
+    "name": "oh-job-row open-job row",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1054 .oh-job-row"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-136-CK-ui-state-C3-component_loading",
+   "n": 136,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C3",
+    "name": "oh-more details disclosure",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1091 .oh-more summary"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-137-CK-ui-state-C3-component_skeleton",
+   "n": 137,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C3",
+    "name": "oh-more details disclosure",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1091 .oh-more summary"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-138-CK-ui-state-C3-component_disabled",
+   "n": 138,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C3",
+    "name": "oh-more details disclosure",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1091 .oh-more summary"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-139-CK-ui-state-C3-component_busy",
+   "n": 139,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C3",
+    "name": "oh-more details disclosure",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1091 .oh-more summary"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-140-CK-ui-state-C3-component_populated",
+   "n": 140,
+   "page": "index",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "C3",
+    "name": "oh-more details disclosure",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1091 .oh-more summary"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-141-CL-ui-visual-V1-contrast_wcag",
+   "n": 141,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-142-CL-ui-visual-V1-contrast_apca",
+   "n": 142,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-143-CL-ui-visual-V1-focus_visible",
+   "n": 143,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-144-CL-ui-visual-V1-reduced_motion",
+   "n": 144,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-145-CL-ui-visual-V1-icon_only_name",
+   "n": 145,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-146-CL-ui-visual-V2-contrast_wcag",
+   "n": 146,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-147-CL-ui-visual-V2-contrast_apca",
+   "n": 147,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-148-CL-ui-visual-V2-focus_visible",
+   "n": 148,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-149-CL-ui-visual-V2-reduced_motion",
+   "n": 149,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-150-CL-ui-visual-V2-icon_only_name",
+   "n": 150,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-151-CL-ui-visual-V3-contrast_wcag",
+   "n": 151,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-152-CL-ui-visual-V3-contrast_apca",
+   "n": 152,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-153-CL-ui-visual-V3-focus_visible",
+   "n": 153,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-154-CL-ui-visual-V3-reduced_motion",
+   "n": 154,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-155-CL-ui-visual-V3-icon_only_name",
+   "n": 155,
+   "page": "index",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-156-CM-ux-comprehension-V1-what_is_this_number",
+   "n": 156,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-157-CM-ux-comprehension-V1-what_happens_next",
+   "n": 157,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-158-CM-ux-comprehension-V1-what_does_it_cost",
+   "n": 158,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-159-CM-ux-comprehension-V1-why_refused",
+   "n": 159,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-160-CM-ux-comprehension-V1-back_nav",
+   "n": 160,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "back_nav",
+   "oracle": "browser Back out of a sheet leaves no orphaned overlay and no write half-applied; the underlying list reflects what actually happened",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CM-ux-comprehension/V1/reward_explained: ops-home surfaces no reward/benefit figure to explain (index.html:1050-1100)"
+  },
+  {
+   "id": "PB-index-161-CM-ux-comprehension-V2-what_is_this_number",
+   "n": 161,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-162-CM-ux-comprehension-V2-what_happens_next",
+   "n": 162,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-163-CM-ux-comprehension-V2-what_does_it_cost",
+   "n": 163,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-164-CM-ux-comprehension-V2-why_refused",
+   "n": 164,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-165-CM-ux-comprehension-V2-reward_explained",
+   "n": 165,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "reward_explained",
+   "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-166-CM-ux-comprehension-V3-what_is_this_number",
+   "n": 166,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-167-CM-ux-comprehension-V3-what_happens_next",
+   "n": 167,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-168-CM-ux-comprehension-V3-what_does_it_cost",
+   "n": 168,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-169-CM-ux-comprehension-V3-why_refused",
+   "n": 169,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-170-CM-ux-comprehension-V3-reward_explained",
+   "n": 170,
+   "page": "index",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "reward_explained",
+   "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-171-CN-ux-journey-P1-first_run_to_value",
+   "n": 171,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P1",
+    "name": "anon visitor",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533 landing renders pre-auth"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-172-CN-ux-journey-P1-repeat_visit",
+   "n": 172,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P1",
+    "name": "anon visitor",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533 landing renders pre-auth"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-173-CN-ux-journey-P1-cross_surface_handoff",
+   "n": 173,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P1",
+    "name": "anon visitor",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533 landing renders pre-auth"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-174-CN-ux-journey-P1-two_sided_same_object",
+   "n": 174,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P1",
+    "name": "anon visitor",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533 landing renders pre-auth"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-175-CN-ux-journey-P1-abandon_resume",
+   "n": 175,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P1",
+    "name": "anon visitor",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533 landing renders pre-auth"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-176-CN-ux-journey-P2-first_run_to_value",
+   "n": 176,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P2",
+    "name": "signed-in worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:947 wh-signed-in gates ops-home"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-177-CN-ux-journey-P2-repeat_visit",
+   "n": 177,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P2",
+    "name": "signed-in worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:947 wh-signed-in gates ops-home"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-178-CN-ux-journey-P2-cross_surface_handoff",
+   "n": 178,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P2",
+    "name": "signed-in worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:947 wh-signed-in gates ops-home"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-179-CN-ux-journey-P2-two_sided_same_object",
+   "n": 179,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P2",
+    "name": "signed-in worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:947 wh-signed-in gates ops-home"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-180-CN-ux-journey-P2-abandon_resume",
+   "n": 180,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P2",
+    "name": "signed-in worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:947 wh-signed-in gates ops-home"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-181-CN-ux-journey-P3-first_run_to_value",
+   "n": 181,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P3",
+    "name": "multi-hive worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2932 v_hives_truth (plural) read"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-182-CN-ux-journey-P3-repeat_visit",
+   "n": 182,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P3",
+    "name": "multi-hive worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2932 v_hives_truth (plural) read"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-183-CN-ux-journey-P3-cross_surface_handoff",
+   "n": 183,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P3",
+    "name": "multi-hive worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2932 v_hives_truth (plural) read"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-184-CN-ux-journey-P3-two_sided_same_object",
+   "n": 184,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P3",
+    "name": "multi-hive worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2932 v_hives_truth (plural) read"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-185-CN-ux-journey-P3-abandon_resume",
+   "n": 185,
+   "page": "index",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "P3",
+    "name": "multi-hive worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2932 v_hives_truth (plural) read"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-186-CO-ux-recovery-V1-double_tap",
+   "n": 186,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-187-CO-ux-recovery-V1-back_out",
+   "n": 187,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-188-CO-ux-recovery-V1-session_died",
+   "n": 188,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-189-CO-ux-recovery-V1-wrong_then_fix",
+   "n": 189,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-190-CO-ux-recovery-V1-did_it_land",
+   "n": 190,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V1",
+    "name": "ops-home (signed-in dashboard)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1050 #ops-home + :944 _showOpsHome"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-191-CO-ux-recovery-V2-double_tap",
+   "n": 191,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-192-CO-ux-recovery-V2-back_out",
+   "n": 192,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-193-CO-ux-recovery-V2-session_died",
+   "n": 193,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-194-CO-ux-recovery-V2-wrong_then_fix",
+   "n": 194,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-195-CO-ux-recovery-V2-did_it_land",
+   "n": 195,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V2",
+    "name": "landing-anon (#mkt-wrap marketing page)",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:1533-2049 sections what-is-workhive..join"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-196-CO-ux-recovery-V3-double_tap",
+   "n": 196,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-197-CO-ux-recovery-V3-back_out",
+   "n": 197,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-198-CO-ux-recovery-V3-session_died",
+   "n": 198,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-199-CO-ux-recovery-V3-wrong_then_fix",
+   "n": 199,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-index-200-CO-ux-recovery-V3-did_it_land",
+   "n": 200,
+   "page": "index",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "index",
+   "url": "/workhive/index.html",
+   "subject": {
+    "key": "V3",
+    "name": "signin-modal",
+    "seen": {
+     "how": "static-read",
+     "ref": "index.html:2640 #signin-modal role=dialog"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  }
+ ]
+}

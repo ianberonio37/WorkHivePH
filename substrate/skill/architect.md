@@ -2,7 +2,7 @@
 name: skill-architect
 type: skill
 source: skill:architect
-source_sha: f186c7080a16b533
+source_sha: d9de53af9ed9b044
 last_verified: 2026-07-13
 supersedes: null
 ---

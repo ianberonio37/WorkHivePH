@@ -1,7 +1,7 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-08-04T04:49:47.710887+00:00",
-  "surfaces": 182,
+  "generated": "2026-08-05T11:40:55.677175+00:00",
+  "surfaces": 183,
   "rows": [
     {
       "id": "D1",
@@ -9,8 +9,8 @@
       "name": "RLS enabled on tenant tables",
       "satisfies": "tenant isolation floor",
       "mode": "measured",
-      "adopters_n": 108,
-      "need_n": 108,
+      "adopters_n": 109,
+      "need_n": 109,
       "pct": 100,
       "adopters": [
         "agent_episodic_memory",
@@ -45,6 +45,7 @@
         "client_errors",
         "cmms_audit_log",
         "community_posts",
+        "community_reaction_xp_awards",
         "community_reactions",
         "community_replies",
         "community_xp",
@@ -130,8 +131,8 @@
       "name": "hive-membership scoping policy",
       "satisfies": "multitenant isolation",
       "mode": "measured",
-      "adopters_n": 102,
-      "need_n": 104,
+      "adopters_n": 103,
+      "need_n": 105,
       "pct": 98,
       "adopters": [
         "agent_episodic_memory",
@@ -165,6 +166,7 @@
         "client_errors",
         "cmms_audit_log",
         "community_posts",
+        "community_reaction_xp_awards",
         "community_reactions",
         "community_replies",
         "community_xp",
@@ -393,8 +395,8 @@
     }
   ],
   "floors": {
-    "D1": 108,
-    "D2": 102,
+    "D1": 109,
+    "D2": 103,
     "D3": 31,
     "D4": 58
   }

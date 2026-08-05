@@ -1,20 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:528
-source_sha: bf3d0ed0607d126a
+source: dir:supabase/migrations:533
+source_sha: 84f8ecd5f91aeaa7
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (528 migrations)
+## migration · catalog (533 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260713000010_pm_attribution_pin` — fns:bind_pm_asset_submitter,bind_pm_completion_submitter · triggers:trg_bind_submitter_pm_asset,trg_bind_submitter_pm_completion
-- `20260713000011_post_inventory_attribution_pin` — fns:bind_community_post_submitter,bind_inventory_item_submitter · triggers:trg_bind_submitter_community_post,trg_bind_submitter_inventory_item
-- `20260713000012_calc_parts_voice_attribution_pin` — fns:bind_engineering_calc_submitter,bind_parts_record_submitter,bind_voice_journal_submitter · triggers:trg_bind_submitter_engineering_calc,trg_bind_submitter_parts_record,trg_bind_submitter_voice_journal
-- `20260713000013_index_unindexed_cascade_fks` — (misc DDL/DML)
-- `20260717000001_platform_feedback_attribution_pin` — fns:bind_platform_feedback_submitter · triggers:trg_bind_platform_feedback_submitter
 - `20260717000002_analytics_events_attribution_pin` — fns:bind_analytics_events_submitter · triggers:trg_bind_analytics_events_submitter
 - `20260717000003_community_reputation_membership_or_seller_gate` — fns:get_community_reputation,get_community_reputation_by_auth
 - `20260717000004_marketplace_sellers_authuid_hardening` — fns:get_seller_community_reputation
@@ -210,6 +205,11 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260803000046_restore_the_explicit_security_invoker_declaration` — (misc DDL/DML)
 - `20260804000047_the_platforms_money_position_was_world_readable` — policies:credit_treasury_read
 - `20260804000048_any_signed_in_user_could_list_who_the_admins_are` — policies:mkt_admins_read,mkt_admins_read_self
+- `20260804000049_one_person_toggling_one_reaction_minted_unbounded_xp` — fns:handle_community_reaction_xp · tables:community_reaction_xp_awards
+- `20260805000050_anyone_at_all_could_read_the_voice_transcripts` — policies:voice_queue_own_rows · tables:voice_response_queue
+- `20260805000051_an_anonymous_visitor_could_run_the_nightly_sweep` — (misc DDL/DML)
+- `20260805000052_the_platforms_ai_spend_was_readable_by_strangers` — (misc DDL/DML)
+- `20260805000053_commission_took_credits_out_of_the_ledger_but_not_the_treasury` — fns:mint_settlement_commission
 
 (showing last 200)
 

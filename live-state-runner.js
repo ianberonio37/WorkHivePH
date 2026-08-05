@@ -774,8 +774,16 @@ export async function states(opts) {
     out.component_loading = {
       // A state that never reached the screen is not a state that failed, either. Report the
       // vacuum rather than a verdict when nothing was in flight to look at.
-      ok: held === 0 ? null
-        : (skel.length > 0 || /loading|loadingâ€¦|…/i.test(txt) || /\bloading\b/i.test(txt)),
+      // THE VERDICT IS THE ORACLE, NOT ONE WAY OF SATISFYING IT. The row this settles reads "the
+      // component's loading state is distinguishable from its empty state" — and this used to answer
+      // a narrower question: "is there a skeleton, or does it say the word loading?". A surface that
+      // paints its shell immediately, so a person never sees an empty state while 4 reads are in
+      // flight, satisfies the claim with neither. marketplace-seller-profile does exactly that and was
+      // scored false with looksEmptyInstead=false and distinguishableFromEmpty=true sitting in the
+      // same object. An instrument stricter than its own oracle manufactures defects.
+      // Teeth are intact: this is FALSE whenever the surface shows an empty/invitation message with no
+      // skeleton while requests are still outstanding, which is the defect the row exists for.
+      ok: held === 0 ? null : !(INVITE.test(txt) && skel.length === 0),
       inconclusive: held === 0,
       requestsInFlight: held,
       skeletonNodes: skel.length,

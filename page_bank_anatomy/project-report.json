@@ -1,0 +1,64 @@
+{
+ "page": "project-report",
+ "url": "/workhive/project-report.html",
+ "_ground": "2026-08-05 static read. A read/generate surface over project-manager's truth: same project, two surfaces, and the executive numbers must equal the detail beneath them.",
+ "views": [
+  {"key": "V1", "name": "report render", "seen": {"how": "static-read", "ref": "project-report.html:283-286 v_project_truth + items + links + progress"}},
+  {"key": "V2", "name": "budget block", "seen": {"how": "static-read", "ref": "project-report.html:319 rpc get_project_budget"}},
+  {"key": "V3", "name": "generate / refresh", "seen": {"how": "static-read", "ref": "project-report.html:373 project-orchestrator invoke"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "exec summary block", "seen": {"how": "static-read", "ref": "project-report.html:283 render head"}},
+  {"key": "C2", "name": "progress / items table", "seen": {"how": "static-read", "ref": "project-report.html:284 v_project_items_truth"}},
+  {"key": "C3", "name": "budget block", "seen": {"how": "static-read", "ref": "project-report.html:319"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "project-report.html:283"}},
+  {"key": "L2", "name": "edge (project-orchestrator)", "seen": {"how": "static-read", "ref": "project-report.html:373"}},
+  {"key": "L3", "name": "db (4 truth sources)", "seen": {"how": "static-read", "ref": "project-report.html:283-286"}},
+  {"key": "L4", "name": "gateway (budget RPC)", "seen": {"how": "static-read", "ref": "project-report.html:319"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "edge <-> report (orchestrator output -> rendered report)", "seen": {"how": "static-read", "ref": "project-report.html:373"}},
+  {"key": "S2", "name": "report <-> project-manager (one project, two surfaces)", "seen": {"how": "cross-page", "ref": "project-report.html:283-286 vs project-manager.html:1935-1940 same views"}},
+  {"key": "S3", "name": "rpc <-> budget", "seen": {"how": "static-read", "ref": "project-report.html:319 vs project-manager.html:1818 same RPC"}},
+  {"key": "S4", "name": "trigger <-> view", "seen": {"how": "static-read", "ref": "project-report.html:286 v_project_progress_truth"}},
+  {"key": "S5", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "project-report.html:283"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "project manager", "seen": {"how": "static-read", "ref": "project-report.html:373 generate authority"}},
+  {"key": "P2", "name": "member", "seen": {"how": "static-read", "ref": "project-report.html:283 read"}},
+  {"key": "P3", "name": "two_context", "seen": {"how": "static-read", "ref": "project-report.html:286 shared truth rows"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "member (tenant boundary)", "seen": {"how": "static-read", "ref": "project-report.html:283"}},
+  {"key": "IB", "name": "two_context (regenerate race)", "seen": {"how": "static-read", "ref": "project-report.html:373"}}
+ ],
+ "invariants": [
+  {"key": "figures_equal_pm", "name": "report figures equal project-manager's", "seen": {"how": "cross-page", "ref": "project-report.html:283-286 vs project-manager same views"}, "oracle": "report figures equal project-manager's for the same project at the same instant"},
+  {"key": "budget_is_rpc", "name": "budget = get_project_budget, not a recomputation", "seen": {"how": "static-read", "ref": "project-report.html:319"}, "oracle": "budget in the report equals get_project_budget - not a client-side recomputation"},
+  {"key": "regen_stable", "name": "regenerating unchanged data reproduces the report", "seen": {"how": "static-read", "ref": "project-report.html:373"}, "oracle": "regenerating produces the same report for unchanged data"},
+  {"key": "cutoff_named", "name": "the report names its data cutoff", "seen": {"how": "static-read", "ref": "project-report.html:283"}, "oracle": "the report names its data cutoff"},
+  {"key": "evidence_counts_match", "name": "linked-evidence counts match project-manager", "seen": {"how": "cross-page", "ref": "project-report.html:285 project_links vs project-manager.html:2292"}, "oracle": "linked-evidence counts match project-manager's"},
+  {"key": "tenant_isolation", "name": "report isolation", "seen": {"how": "static-read", "ref": "project-report.html:283"}, "oracle": "a foreign hive's projects are invisible"}
+ ],
+ "domain_truths": [
+  {"key": "progress_same_basis", "name": "progress basis = project-manager's basis", "seen": {"how": "cross-page", "ref": "project-report.html:286 vs project-manager.html:1937"}, "oracle": "progress basis is stated and is the same basis project-manager uses"},
+  {"key": "currency_vat", "name": "currency and VAT treatment stated", "seen": {"how": "static-read", "ref": "project-report.html:319"}, "oracle": "currency and VAT treatment are stated"},
+  {"key": "planned_committed_actual", "name": "planned/committed/actual distinguished", "seen": {"how": "static-read", "ref": "project-report.html:319 budget block"}, "oracle": "planned, committed and actual are distinguished"},
+  {"key": "variance_signed_baselined", "name": "variance carries sign and baseline", "seen": {"how": "static-read", "ref": "project-report.html:283 exec block"}, "oracle": "variance carries its sign and its baseline"},
+  {"key": "schedule_baseline_named", "name": "schedule status names its baseline date", "seen": {"how": "static-read", "ref": "project-report.html:284"}, "oracle": "schedule status names the baseline date it is measured against"},
+  {"key": "ai_narrative_traceable", "name": "AI narrative labelled; claims trace to tables", "seen": {"how": "static-read", "ref": "project-report.html:373 orchestrator output"}, "oracle": "the AI narrative is labelled as generated, and each claim traces to a table above it"},
+  {"key": "summary_matches_detail", "name": "the exec summary equals the detail below", "seen": {"how": "static-read", "ref": "project-report.html:283-286"}, "oracle": "the executive summary's numbers match the detail below them - the classic report defect, where the summary is written once and the detail keeps moving"},
+  {"key": "incomplete_reported", "name": "an incomplete project reports incompleteness", "seen": {"how": "static-read", "ref": "project-report.html:286"}, "oracle": "an incomplete project reports incompleteness rather than extrapolating past it"}
+ ],
+ "writes": [],
+ "na": [
+  {"cell": "CF-ufai-F/V1/effect_in_db", "reason": "a read/generate surface - no direct page write; generation's effect is covered by regen_stable + the orchestrator's own bank", "replace_with": {"oracle_key": "longest"}},
+  {"cell": "CF-ufai-F/V1/idempotent_repeat", "reason": "no user-mutating action on the render view; regenerate idempotency is the CD regen_stable invariant", "replace_with": {"oracle_key": "bulk50"}},
+  {"cell": "CG-ufai-A/V1/offline_refusal", "reason": "no writes on the render view - nothing to refuse; offline READ posture covered by CC fail_offline", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CM-ux-comprehension/V1/reward_explained", "reason": "no reward figure on an executive report", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V2/reward_explained", "reason": "the budget block states costs, not rewards", "replace_with": {"oracle_key": "back_nav"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the generate flow surfaces no reward figure", "replace_with": {"oracle_key": "session_expiry"}}
+ ]
+}

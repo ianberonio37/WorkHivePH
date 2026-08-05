@@ -1,0 +1,4430 @@
+{
+ "_doc": "Page live-MCP bank, derived from page_bank_anatomy/assistant.json by tools/build_page_live_mcp_bank.py -- do not hand-edit rows; edit the anatomy and regenerate. `status` moves owed -> green only via a LIVE MCP walk with typed evidence (validate_live_mcp_bank rules R1-R7); findings accumulate so a re-walk proves a fix rather than re-discovering it.",
+ "page": "assistant",
+ "url": "/workhive/assistant.html",
+ "frame": "PAGE_TESTBANK_ROADMAP.md section 1 (60 arch + 50 UFAI + 45 UI + 45 UX = 200)",
+ "declared_na": [
+  {
+   "cell": "CM-ux-comprehension/V3/reward_explained",
+   "reason": "the feedback affordance surfaces no reward figure (assistant.html:863)",
+   "replace_with": {
+    "oracle_key": "back_nav"
+   }
+  }
+ ],
+ "deferred": [],
+ "writes_classified": [
+  {
+   "fn": "ai_reply_feedback",
+   "class": "capture",
+   "seen": {
+    "how": "static-read",
+    "ref": "assistant.html:863"
+   }
+  }
+ ],
+ "total": 200,
+ "scenarios": [
+  {
+   "id": "PB-assistant-001-CA-layer-contract-L1-envelope_shape",
+   "n": 1,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534 bundle assembly"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-002-CA-layer-contract-L1-status_body_agreement",
+   "n": 2,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534 bundle assembly"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-003-CA-layer-contract-L1-idempotency",
+   "n": 3,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534 bundle assembly"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-004-CA-layer-contract-L1-ordering_totality",
+   "n": 4,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534 bundle assembly"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-005-CA-layer-contract-L1-units_declared",
+   "n": 5,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534 bundle assembly"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-006-CA-layer-contract-L2-envelope_shape",
+   "n": 6,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (ai-gateway, the ONE front door)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032,1060"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-007-CA-layer-contract-L2-status_body_agreement",
+   "n": 7,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (ai-gateway, the ONE front door)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032,1060"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-008-CA-layer-contract-L2-idempotency",
+   "n": 8,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (ai-gateway, the ONE front door)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032,1060"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-009-CA-layer-contract-L2-ordering_totality",
+   "n": 9,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (ai-gateway, the ONE front door)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032,1060"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-010-CA-layer-contract-L2-units_declared",
+   "n": 10,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L2",
+    "name": "edge (ai-gateway, the ONE front door)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032,1060"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-011-CA-layer-contract-L3-envelope_shape",
+   "n": 11,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (7-view bundle + feedback)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543,863"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-012-CA-layer-contract-L3-status_body_agreement",
+   "n": 12,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (7-view bundle + feedback)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543,863"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-013-CA-layer-contract-L3-idempotency",
+   "n": 13,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (7-view bundle + feedback)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543,863"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-014-CA-layer-contract-L3-ordering_totality",
+   "n": 14,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (7-view bundle + feedback)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543,863"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-015-CA-layer-contract-L3-units_declared",
+   "n": 15,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (7-view bundle + feedback)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543,863"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-016-CA-layer-contract-L4-envelope_shape",
+   "n": 16,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-017-CA-layer-contract-L4-status_body_agreement",
+   "n": 17,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-018-CA-layer-contract-L4-idempotency",
+   "n": 18,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-019-CA-layer-contract-L4-ordering_totality",
+   "n": 19,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-020-CA-layer-contract-L4-units_declared",
+   "n": 20,
+   "page": "assistant",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "L4",
+    "name": "ai",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-021-CB-seam-S1-value_survives",
+   "n": 21,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S1",
+    "name": "context <-> answer (the grounding seam)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 bundle feeds the prompt"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-022-CB-seam-S1-name_survives",
+   "n": 22,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S1",
+    "name": "context <-> answer (the grounding seam)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 bundle feeds the prompt"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-023-CB-seam-S1-null_semantics",
+   "n": 23,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S1",
+    "name": "context <-> answer (the grounding seam)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 bundle feeds the prompt"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-024-CB-seam-S1-partial_write",
+   "n": 24,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S1",
+    "name": "context <-> answer (the grounding seam)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 bundle feeds the prompt"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-025-CB-seam-S2-value_survives",
+   "n": 25,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S2",
+    "name": "ai-gateway <-> model",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032,1060"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-026-CB-seam-S2-name_survives",
+   "n": 26,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S2",
+    "name": "ai-gateway <-> model",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032,1060"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-027-CB-seam-S2-null_semantics",
+   "n": 27,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S2",
+    "name": "ai-gateway <-> model",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032,1060"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-028-CB-seam-S2-partial_write",
+   "n": 28,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S2",
+    "name": "ai-gateway <-> model",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032,1060"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-029-CB-seam-S3-value_survives",
+   "n": 29,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S3",
+    "name": "feedback <-> db",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-030-CB-seam-S3-name_survives",
+   "n": 30,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S3",
+    "name": "feedback <-> db",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-031-CB-seam-S3-null_semantics",
+   "n": 31,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S3",
+    "name": "feedback <-> db",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-032-CB-seam-S3-partial_write",
+   "n": 32,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S3",
+    "name": "feedback <-> db",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-033-CB-seam-S4-value_survives",
+   "n": 33,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:489"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-034-CB-seam-S4-name_survives",
+   "n": 34,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:489"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-035-CB-seam-S4-null_semantics",
+   "n": 35,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:489"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-036-CB-seam-S4-partial_write",
+   "n": 36,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S4",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:489"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-037-CB-seam-S5-value_survives",
+   "n": 37,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S5",
+    "name": "assistant <-> six domains (logbook, dayplanner, skills, inventory, PM, journal)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-038-CB-seam-S5-name_survives",
+   "n": 38,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S5",
+    "name": "assistant <-> six domains (logbook, dayplanner, skills, inventory, PM, journal)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-039-CB-seam-S5-null_semantics",
+   "n": 39,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S5",
+    "name": "assistant <-> six domains (logbook, dayplanner, skills, inventory, PM, journal)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-040-CB-seam-S5-partial_write",
+   "n": 40,
+   "page": "assistant",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "S5",
+    "name": "assistant <-> six domains (logbook, dayplanner, skills, inventory, PM, journal)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-041-CC-failure-injection-V1-fail_500",
+   "n": 41,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-042-CC-failure-injection-V1-fail_401",
+   "n": 42,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-043-CC-failure-injection-V1-fail_timeout",
+   "n": 43,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-044-CC-failure-injection-V1-fail_partial",
+   "n": 44,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-045-CC-failure-injection-V1-fail_slow",
+   "n": 45,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-046-CC-failure-injection-V1-fail_offline",
+   "n": 46,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-047-CC-failure-injection-V1-fail_null_field",
+   "n": 47,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-048-CC-failure-injection-V2-fail_500",
+   "n": 48,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-049-CC-failure-injection-V2-fail_401",
+   "n": 49,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-050-CC-failure-injection-V2-fail_timeout",
+   "n": 50,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-051-CC-failure-injection-V2-fail_partial",
+   "n": 51,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-052-CC-failure-injection-V2-fail_slow",
+   "n": 52,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-053-CC-failure-injection-V2-fail_offline",
+   "n": 53,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-054-CC-failure-injection-V2-fail_null_field",
+   "n": 54,
+   "page": "assistant",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-055-CD-invariant-citations_resolve_lawfully-citations_resolve_lawfully",
+   "n": 55,
+   "page": "assistant",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "citations_resolve_lawfully",
+    "name": "every cited source resolves to a row this asker may read",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:489,759 cite reads"
+    }
+   },
+   "oracle_key": "citations_resolve_lawfully",
+   "oracle": "every cited source resolves to a row this asker may read - a citation they cannot open is unverifiable; one they should not see is a leak; both fail",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-056-CD-invariant-bundle_hive_scoped-bundle_hive_scoped",
+   "n": 56,
+   "page": "assistant",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "bundle_hive_scoped",
+    "name": "the context bundle is hive-scoped",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543"
+    }
+   },
+   "oracle_key": "bundle_hive_scoped",
+   "oracle": "no cross-hive row enters the prompt",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-057-CD-invariant-pii_egress_rule-pii_egress_rule",
+   "n": 57,
+   "page": "assistant",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "pii_egress_rule",
+    "name": "PII egress stays within the stated rule",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:543 voice_journal_entries in the bundle - the most PII-laden source"
+    }
+   },
+   "oracle_key": "pii_egress_rule",
+   "oracle": "PII egress stays within the stated rule, including journal content entering prompts",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-058-CD-invariant-failure_renders_as_failure-failure_renders_as_failure",
+   "n": 58,
+   "page": "assistant",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "failure_renders_as_failure",
+    "name": "a gateway failure is a failure, not an empty answer",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1060 error path"
+    }
+   },
+   "oracle_key": "failure_renders_as_failure",
+   "oracle": "a gateway failure renders as a failure, never as a confident empty answer",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-059-CD-invariant-feedback_attributable-feedback_attributable",
+   "n": 59,
+   "page": "assistant",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "feedback_attributable",
+    "name": "feedback is attributable and self-scoped",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863"
+    }
+   },
+   "oracle_key": "feedback_attributable",
+   "oracle": "feedback is attributable and cannot be filed against another user's reply",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-060-CD-invariant-gateway_only_path-gateway_only_path",
+   "n": 60,
+   "page": "assistant",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "gateway_only_path",
+    "name": "the gateway is the only path to a model",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1032,1060 - and the no-ai-gateway-bypass gate"
+    }
+   },
+   "oracle_key": "gateway_only_path",
+   "oracle": "no page-level bypass reaches a model - proven from the network, not the code",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-061-CE-ufai-U-V1-one_vocabulary",
+   "n": 61,
+   "page": "assistant",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-062-CE-ufai-U-V1-source_chip_true",
+   "n": 62,
+   "page": "assistant",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-063-CE-ufai-U-V1-units_visible",
+   "n": 63,
+   "page": "assistant",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-064-CE-ufai-U-V1-no_raw_enum",
+   "n": 64,
+   "page": "assistant",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-065-CE-ufai-U-V1-number_explained",
+   "n": 65,
+   "page": "assistant",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-066-CE-ufai-U-V2-one_vocabulary",
+   "n": 66,
+   "page": "assistant",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-067-CE-ufai-U-V2-source_chip_true",
+   "n": 67,
+   "page": "assistant",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-068-CE-ufai-U-V2-units_visible",
+   "n": 68,
+   "page": "assistant",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-069-CE-ufai-U-V2-no_raw_enum",
+   "n": 69,
+   "page": "assistant",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-070-CE-ufai-U-V2-number_explained",
+   "n": 70,
+   "page": "assistant",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-071-CF-ufai-F-V1-effect_in_db",
+   "n": 71,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-072-CF-ufai-F-V1-effect_visible",
+   "n": 72,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-073-CF-ufai-F-V1-count_matches_source",
+   "n": 73,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-074-CF-ufai-F-V1-money_matches_ledger",
+   "n": 74,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "money_matches_ledger",
+   "oracle": "every peso and credit figure equals the canonical view, to the centavo",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-075-CF-ufai-F-V1-idempotent_repeat",
+   "n": 75,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-076-CF-ufai-F-V1-cross_surface_agreement",
+   "n": 76,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-077-CF-ufai-F-V2-effect_in_db",
+   "n": 77,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-078-CF-ufai-F-V2-effect_visible",
+   "n": 78,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-079-CF-ufai-F-V2-count_matches_source",
+   "n": 79,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-080-CF-ufai-F-V2-money_matches_ledger",
+   "n": 80,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "money_matches_ledger",
+   "oracle": "every peso and credit figure equals the canonical view, to the centavo",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-081-CF-ufai-F-V2-idempotent_repeat",
+   "n": 81,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-082-CF-ufai-F-V2-cross_surface_agreement",
+   "n": 82,
+   "page": "assistant",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-083-CG-ufai-A-V1-offline_refusal",
+   "n": 83,
+   "page": "assistant",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-084-CG-ufai-A-V1-retry_path",
+   "n": 84,
+   "page": "assistant",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-085-CG-ufai-A-V1-rate_limit_legible",
+   "n": 85,
+   "page": "assistant",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-086-CG-ufai-A-V1-fallback_engaged",
+   "n": 86,
+   "page": "assistant",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-087-CG-ufai-A-V1-slow_honest",
+   "n": 87,
+   "page": "assistant",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-088-CG-ufai-A-V2-offline_refusal",
+   "n": 88,
+   "page": "assistant",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-089-CG-ufai-A-V2-retry_path",
+   "n": 89,
+   "page": "assistant",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-090-CG-ufai-A-V2-rate_limit_legible",
+   "n": 90,
+   "page": "assistant",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-091-CG-ufai-A-V2-fallback_engaged",
+   "n": 91,
+   "page": "assistant",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-092-CG-ufai-A-V2-slow_honest",
+   "n": 92,
+   "page": "assistant",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-093-CH-ufai-I-IA-bola_object",
+   "n": 93,
+   "page": "assistant",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (bundle scoped to own hive)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-094-CH-ufai-I-IA-bfla_function",
+   "n": 94,
+   "page": "assistant",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (bundle scoped to own hive)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-095-CH-ufai-I-IA-tenant_boundary",
+   "n": 95,
+   "page": "assistant",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (bundle scoped to own hive)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-096-CH-ufai-I-IA-jwt_not_body",
+   "n": 96,
+   "page": "assistant",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (bundle scoped to own hive)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-097-CH-ufai-I-IA-boundary_not_emptiness",
+   "n": 97,
+   "page": "assistant",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "IA",
+    "name": "worker (bundle scoped to own hive)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-098-CH-ufai-I-IB-bola_object",
+   "n": 98,
+   "page": "assistant",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (citation reachability)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:489,759"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-099-CH-ufai-I-IB-bfla_function",
+   "n": 99,
+   "page": "assistant",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (citation reachability)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:489,759"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-100-CH-ufai-I-IB-tenant_boundary",
+   "n": 100,
+   "page": "assistant",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (citation reachability)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:489,759"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-101-CH-ufai-I-IB-jwt_not_body",
+   "n": 101,
+   "page": "assistant",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (citation reachability)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:489,759"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-102-CH-ufai-I-IB-boundary_not_emptiness",
+   "n": 102,
+   "page": "assistant",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (citation reachability)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:489,759"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-103-CI-domain-truth-scope_stated-scope_stated",
+   "n": 103,
+   "page": "assistant",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "scope_stated",
+    "name": "the answer states its hive and window",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534 bundle build"
+    }
+   },
+   "oracle_key": "scope_stated",
+   "oracle": "the answer states which hive and window it drew on",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-104-CI-domain-truth-numbers_match_views-numbers_match_views",
+   "n": 104,
+   "page": "assistant",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "numbers_match_views",
+    "name": "a stated number matches its source view",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543"
+    }
+   },
+   "oracle_key": "numbers_match_views",
+   "oracle": "a number in an answer matches its source view to the same decimal, or is not stated as fact",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-105-CI-domain-truth-grounded_vs_general-grounded_vs_general",
+   "n": 105,
+   "page": "assistant",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "grounded_vs_general",
+    "name": "found-in-your-data vs general knowledge distinguished",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:489 grounding reads"
+    }
+   },
+   "oracle_key": "grounded_vs_general",
+   "oracle": "it distinguishes 'I found this in your data' from 'this is general knowledge'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-106-CI-domain-truth-no_fabricated_identifiers-no_fabricated_identifiers",
+   "n": 106,
+   "page": "assistant",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "no_fabricated_identifiers",
+    "name": "no fabricated asset codes or names",
+    "seen": {
+     "how": "doc+static",
+     "ref": "the LLM-parrots-fewshot lesson (fake P-103/David Velasco) + assistant.html:1032"
+    }
+   },
+   "oracle_key": "no_fabricated_identifiers",
+   "oracle": "it does not fabricate asset codes or worker names - the parroted-example class that has bitten this platform before",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-107-CI-domain-truth-terms_per_platform-terms_per_platform",
+   "n": 107,
+   "page": "assistant",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "terms_per_platform",
+    "name": "MTBF/OEE/compliance per platform definitions",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:541 v_pm_compliance_truth context"
+    }
+   },
+   "oracle_key": "terms_per_platform",
+   "oracle": "domain terms are used per platform definitions, not the model's",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-108-CI-domain-truth-refusal_names_reason-refusal_names_reason",
+   "n": 108,
+   "page": "assistant",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "refusal_names_reason",
+    "name": "a non-answer names which reason",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1060 error handling"
+    }
+   },
+   "oracle_key": "refusal_names_reason",
+   "oracle": "when it cannot answer it says WHICH reason: no data, not permitted, out of scope",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-109-CI-domain-truth-persona_voice_not_facts-persona_voice_not_facts",
+   "n": 109,
+   "page": "assistant",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "persona_voice_not_facts",
+    "name": "persona changes the voice, not the facts",
+    "seen": {
+     "how": "doc+static",
+     "ref": "Hezekiah/Zaniah personas (COMPANION_DEPLOYMENT_READY) + assistant.html:1032"
+    }
+   },
+   "oracle_key": "persona_voice_not_facts",
+   "oracle": "persona is labelled, and switching persona changes the voice, not the facts",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-110-CI-domain-truth-quota_legible-quota_legible",
+   "n": 110,
+   "page": "assistant",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "quota_legible",
+    "name": "quota/cost state is legible when it constrains",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:1060 429 path"
+    }
+   },
+   "oracle_key": "quota_legible",
+   "oracle": "quota / cost state is legible when it constrains the answer",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-111-CJ-ui-layout-V1-w390_overflow",
+   "n": 111,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-112-CJ-ui-layout-V1-w641_overflow",
+   "n": 112,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-113-CJ-ui-layout-V1-w1280_overflow",
+   "n": 113,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-114-CJ-ui-layout-V1-tap_target_44",
+   "n": 114,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-115-CJ-ui-layout-V1-safe_area",
+   "n": 115,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-116-CJ-ui-layout-V2-w390_overflow",
+   "n": 116,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-117-CJ-ui-layout-V2-w641_overflow",
+   "n": 117,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-118-CJ-ui-layout-V2-w1280_overflow",
+   "n": 118,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-119-CJ-ui-layout-V2-tap_target_44",
+   "n": 119,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-120-CJ-ui-layout-V2-safe_area",
+   "n": 120,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-121-CJ-ui-layout-V3-w390_overflow",
+   "n": 121,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-122-CJ-ui-layout-V3-w641_overflow",
+   "n": 122,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-123-CJ-ui-layout-V3-w1280_overflow",
+   "n": 123,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-124-CJ-ui-layout-V3-tap_target_44",
+   "n": 124,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-125-CJ-ui-layout-V3-safe_area",
+   "n": 125,
+   "page": "assistant",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-126-CK-ui-state-C1-component_loading",
+   "n": 126,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C1",
+    "name": "message bubble",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032 reply render path; ids to confirm live"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-127-CK-ui-state-C1-component_skeleton",
+   "n": 127,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C1",
+    "name": "message bubble",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032 reply render path; ids to confirm live"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-128-CK-ui-state-C1-component_disabled",
+   "n": 128,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C1",
+    "name": "message bubble",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032 reply render path; ids to confirm live"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-129-CK-ui-state-C1-component_busy",
+   "n": 129,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C1",
+    "name": "message bubble",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032 reply render path; ids to confirm live"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-130-CK-ui-state-C1-component_populated",
+   "n": 130,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C1",
+    "name": "message bubble",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032 reply render path; ids to confirm live"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-131-CK-ui-state-C2-component_loading",
+   "n": 131,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C2",
+    "name": "source/provenance chip",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:489,759 v_logbook_truth cites; chip markup to confirm live"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-132-CK-ui-state-C2-component_skeleton",
+   "n": 132,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C2",
+    "name": "source/provenance chip",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:489,759 v_logbook_truth cites; chip markup to confirm live"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-133-CK-ui-state-C2-component_disabled",
+   "n": 133,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C2",
+    "name": "source/provenance chip",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:489,759 v_logbook_truth cites; chip markup to confirm live"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-134-CK-ui-state-C2-component_busy",
+   "n": 134,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C2",
+    "name": "source/provenance chip",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:489,759 v_logbook_truth cites; chip markup to confirm live"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-135-CK-ui-state-C2-component_populated",
+   "n": 135,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C2",
+    "name": "source/provenance chip",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:489,759 v_logbook_truth cites; chip markup to confirm live"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-136-CK-ui-state-C3-component_loading",
+   "n": 136,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C3",
+    "name": "composer",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032 send path; input id to confirm live"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-137-CK-ui-state-C3-component_skeleton",
+   "n": 137,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C3",
+    "name": "composer",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032 send path; input id to confirm live"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-138-CK-ui-state-C3-component_disabled",
+   "n": 138,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C3",
+    "name": "composer",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032 send path; input id to confirm live"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-139-CK-ui-state-C3-component_busy",
+   "n": 139,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C3",
+    "name": "composer",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032 send path; input id to confirm live"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-140-CK-ui-state-C3-component_populated",
+   "n": 140,
+   "page": "assistant",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "C3",
+    "name": "composer",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032 send path; input id to confirm live"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-141-CL-ui-visual-V1-contrast_wcag",
+   "n": 141,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-142-CL-ui-visual-V1-contrast_apca",
+   "n": 142,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-143-CL-ui-visual-V1-focus_visible",
+   "n": 143,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-144-CL-ui-visual-V1-reduced_motion",
+   "n": 144,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-145-CL-ui-visual-V1-icon_only_name",
+   "n": 145,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-146-CL-ui-visual-V2-contrast_wcag",
+   "n": 146,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-147-CL-ui-visual-V2-contrast_apca",
+   "n": 147,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-148-CL-ui-visual-V2-focus_visible",
+   "n": 148,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-149-CL-ui-visual-V2-reduced_motion",
+   "n": 149,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-150-CL-ui-visual-V2-icon_only_name",
+   "n": 150,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-151-CL-ui-visual-V3-contrast_wcag",
+   "n": 151,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-152-CL-ui-visual-V3-contrast_apca",
+   "n": 152,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-153-CL-ui-visual-V3-focus_visible",
+   "n": 153,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-154-CL-ui-visual-V3-reduced_motion",
+   "n": 154,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-155-CL-ui-visual-V3-icon_only_name",
+   "n": 155,
+   "page": "assistant",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-156-CM-ux-comprehension-V1-what_is_this_number",
+   "n": 156,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-157-CM-ux-comprehension-V1-what_happens_next",
+   "n": 157,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-158-CM-ux-comprehension-V1-what_does_it_cost",
+   "n": 158,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-159-CM-ux-comprehension-V1-why_refused",
+   "n": 159,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-160-CM-ux-comprehension-V1-reward_explained",
+   "n": 160,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "reward_explained",
+   "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-161-CM-ux-comprehension-V2-what_is_this_number",
+   "n": 161,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-162-CM-ux-comprehension-V2-what_happens_next",
+   "n": 162,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-163-CM-ux-comprehension-V2-what_does_it_cost",
+   "n": 163,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-164-CM-ux-comprehension-V2-why_refused",
+   "n": 164,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-165-CM-ux-comprehension-V2-reward_explained",
+   "n": 165,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "reward_explained",
+   "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-166-CM-ux-comprehension-V3-what_is_this_number",
+   "n": 166,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-167-CM-ux-comprehension-V3-what_happens_next",
+   "n": 167,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-168-CM-ux-comprehension-V3-what_does_it_cost",
+   "n": 168,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-169-CM-ux-comprehension-V3-why_refused",
+   "n": 169,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-170-CM-ux-comprehension-V3-back_nav",
+   "n": 170,
+   "page": "assistant",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "back_nav",
+   "oracle": "browser Back out of a sheet leaves no orphaned overlay and no write half-applied; the underlying list reflects what actually happened",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CM-ux-comprehension/V3/reward_explained: the feedback affordance surfaces no reward figure (assistant.html:863)"
+  },
+  {
+   "id": "PB-assistant-171-CN-ux-journey-P1-first_run_to_value",
+   "n": 171,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534 own-context bundle"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-172-CN-ux-journey-P1-repeat_visit",
+   "n": 172,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534 own-context bundle"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-173-CN-ux-journey-P1-cross_surface_handoff",
+   "n": 173,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534 own-context bundle"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-174-CN-ux-journey-P1-two_sided_same_object",
+   "n": 174,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534 own-context bundle"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-175-CN-ux-journey-P1-abandon_resume",
+   "n": 175,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P1",
+    "name": "worker",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534 own-context bundle"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-176-CN-ux-journey-P2-first_run_to_value",
+   "n": 176,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:541 compliance context"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-177-CN-ux-journey-P2-repeat_visit",
+   "n": 177,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:541 compliance context"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-178-CN-ux-journey-P2-cross_surface_handoff",
+   "n": 178,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:541 compliance context"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-179-CN-ux-journey-P2-two_sided_same_object",
+   "n": 179,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:541 compliance context"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-180-CN-ux-journey-P2-abandon_resume",
+   "n": 180,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P2",
+    "name": "supervisor",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:541 compliance context"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-181-CN-ux-journey-P3-first_run_to_value",
+   "n": 181,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 feedback rows"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-182-CN-ux-journey-P3-repeat_visit",
+   "n": 182,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 feedback rows"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-183-CN-ux-journey-P3-cross_surface_handoff",
+   "n": 183,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 feedback rows"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-184-CN-ux-journey-P3-two_sided_same_object",
+   "n": 184,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 feedback rows"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-185-CN-ux-journey-P3-abandon_resume",
+   "n": 185,
+   "page": "assistant",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 feedback rows"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-186-CO-ux-recovery-V1-double_tap",
+   "n": 186,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-187-CO-ux-recovery-V1-back_out",
+   "n": 187,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-188-CO-ux-recovery-V1-session_died",
+   "n": 188,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-189-CO-ux-recovery-V1-wrong_then_fix",
+   "n": 189,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-190-CO-ux-recovery-V1-did_it_land",
+   "n": 190,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V1",
+    "name": "chat thread",
+    "seen": {
+     "how": "static-partial",
+     "ref": "assistant.html:1032,1060 ai-gateway invokes anchor the thread; panel ids to confirm live"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-191-CO-ux-recovery-V2-double_tap",
+   "n": 191,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-192-CO-ux-recovery-V2-back_out",
+   "n": 192,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-193-CO-ux-recovery-V2-session_died",
+   "n": 193,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-194-CO-ux-recovery-V2-wrong_then_fix",
+   "n": 194,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-195-CO-ux-recovery-V2-did_it_land",
+   "n": 195,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V2",
+    "name": "context bundle (the grounding read)",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:534-543 v_logbook/schedule_items/v_skill_badges/v_inventory/v_pm_compliance/voice_journal_entries"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-196-CO-ux-recovery-V3-double_tap",
+   "n": 196,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-197-CO-ux-recovery-V3-back_out",
+   "n": 197,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-198-CO-ux-recovery-V3-session_died",
+   "n": 198,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-199-CO-ux-recovery-V3-wrong_then_fix",
+   "n": 199,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-assistant-200-CO-ux-recovery-V3-did_it_land",
+   "n": 200,
+   "page": "assistant",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "assistant",
+   "url": "/workhive/assistant.html",
+   "subject": {
+    "key": "V3",
+    "name": "reply feedback",
+    "seen": {
+     "how": "static-read",
+     "ref": "assistant.html:863 ai_reply_feedback"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  }
+ ]
+}

@@ -27,6 +27,8 @@ THE RULES (each with a self-test that proves it fires):
   R4  evidence.sha still matches a fresh hash of evidence.depends_on -> else the row is STALE
   R5  forward-only ratchet on green, with STALE excluded from the denominator so drift is visible
   R6  a behavioural `asserts` may not rest on purely structural evidence (the exact false-343 defect)
+  R7  a LAYER or SEAM row must depend on the artifacts its layer actually rests on, not on whichever
+      page was open when someone walked it
 
 STALE is a first-class state and deliberately not "owed": it WAS true, the ground moved, re-walk it.
 This is the same source_sha idea validate_substrate_freshness.py already uses for substrate chunks — a
@@ -38,6 +40,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import sys
 
 GREEN, RED, YEL, DIM, BOLD, RST = "\033[92m", "\033[91m", "\033[93m", "\033[2m", "\033[1m", "\033[0m"
@@ -70,14 +73,62 @@ def rows_of(reg):
     return reg["scenarios"] if isinstance(reg, dict) and "scenarios" in reg else reg
 
 
+# ── R7 · WHAT EACH LAYER ACTUALLY RESTS ON ──────────────────────────────────────────────────────
+# The single source of truth for both this gate and tools/verify_layer_invariants.py, which imports
+# it. Two copies of this map would drift, and a drifted copy means the gate enforces one thing while
+# the banker writes another.
+LAYER_DEPS = {
+    "layer_db":             ["supabase/migrations"],
+    "layer_cron":           ["supabase/migrations"],
+    "layer_realtime":       ["supabase/migrations"],
+    "layer_storage":        ["supabase/migrations"],
+    "layer_edge":           ["supabase/functions", "supabase/migrations"],
+    "layer_ai":             ["supabase/functions"],
+    "layer_gateway":        ["supabase/functions"],
+    "layer_client":         ["marketplace.html", "utils.js"],
+    "seam_edge_db":         ["supabase/functions", "supabase/migrations"],
+    "seam_trigger_view":    ["supabase/migrations"],
+    "seam_cron_db":         ["supabase/migrations"],
+    "seam_gateway_edge":    ["supabase/functions"],
+    "seam_realtime_client": ["supabase/migrations", "marketplace.html"],
+    "seam_client_gateway":  ["marketplace.html", "utils.js"],
+    "seam_storage_client":  ["supabase/migrations", "marketplace.html"],
+}
+
+
 def sha_of(paths):
     """Hash the files a claim depends on. Missing file => its own marker, so a DELETED dependency
-    invalidates the claim rather than silently hashing to nothing."""
+    invalidates the claim rather than silently hashing to nothing.
+
+    A dependency may be a DIRECTORY, and for the DB-layer rows it must be. Those rows assert things
+    like "every grant has a caller-aware policy behind it" or "the ledger conserves credits" — claims
+    about the SCHEMA, which lives in supabase/migrations, not in any page. They were declared against
+    marketplace-seller.html + utils.js, which is wrong in both directions:
+
+      noisy   — every page edit expired a claim the page cannot affect (this is most of the 124
+                layer/seam rows sitting stale right now)
+      unsafe  — and the direction that actually costs something: a MIGRATION could change a grant and
+                NOT expire the claim. Mig 50 revoked a SELECT this session; under the old declaration
+                not one grant_matches_policy row would have gone stale. A false green with no signal.
+
+    A directory hashes its files' relative paths AND contents, recursively and in sorted order, so
+    adding a migration, editing one, or deleting one all move the hash. Over-expiry is the cheap
+    direction — stale is excluded from the denominator, so it costs a re-walk, never a wrong number.
+    """
     h = hashlib.sha256()
     for p in sorted(paths or []):
         fp = os.path.join(ROOT, p)
         h.update(p.encode("utf-8"))
-        if os.path.exists(fp):
+        if os.path.isdir(fp):
+            for root, dirs, files in os.walk(fp):
+                dirs.sort()
+                for name in sorted(files):
+                    full = os.path.join(root, name)
+                    rel = os.path.relpath(full, ROOT).replace("\\", "/")
+                    h.update(rel.encode("utf-8"))
+                    with open(full, "rb") as f:
+                        h.update(f.read())
+        elif os.path.exists(fp):
             with open(fp, "rb") as f:
                 h.update(f.read())
         else:
@@ -325,6 +376,23 @@ def classify(row, gates, urls):
         return "invalid", ("R6 a behavioural claim resting on structural evidence — this is the exact "
                            "shape that produced the false 343")
     dep = ev.get("depends_on") or []
+
+    # R7 · A CLAIM MUST NAME WHAT IT ACTUALLY RESTS ON.
+    # Every one of the 136 layer/seam rows was declared to depend on marketplace.html + utils.js —
+    # the page that happened to be open during the hand walk. A DB invariant does not rest on a page,
+    # and the consequence is not cosmetic: the sha then moves when a PAGE is edited (124 rows expired
+    # for nothing) and does NOT move when a MIGRATION lands. Mig 50 revoked a SELECT this session and
+    # would not have expired a single grant_matches_policy row. That is a false green with no signal,
+    # which is worse than the noise.
+    #
+    # A mis-declared row is reported STALE rather than invalid: the claim may well still be true, but
+    # its freshness anchor never held, so it has to be re-earned rather than trusted.
+    surface = row.get("surface") or ""
+    if surface in LAYER_DEPS and status not in ("owed", "lane-reassigned"):
+        if sorted(dep) != sorted(LAYER_DEPS[surface]):
+            return "stale", (f"R7 a {surface} claim declares {dep or '[]'} but rests on "
+                             f"{LAYER_DEPS[surface]} — re-walk it against the right artifacts")
+
     if dep:
         if sha_of(dep) != ev.get("sha"):
             # R4b: before calling it stale, ask the finer question. If the row recorded which FUNCTIONS
@@ -335,28 +403,59 @@ def classify(row, gates, urls):
     return "green", ""
 
 
-def main(argv):
-    if "--selftest" in argv:
-        return selftest()
-    print(f"{BOLD}Live-MCP bank — typed evidence, and evidence that expires{RST}")
-    if selftest() != 0:
-        return 1
+# ── MULTI-BANK (2026-08-05, the page-testbank arc) ───────────────────────────────────────────────
+# The marketplace registry was this gate's only subject for its whole life; the 22 page banks under
+# banks/ now sit beside it. One registry per PAGE, not one 40MB pile, so each page's green% is
+# legible on its own and the marketplace's 97.8% is not swamped under 4,400 fresh owed rows — the
+# "one metric masks another" lesson applied structurally. The rules (R1-R7) are IDENTICAL for every
+# bank; only the iteration changed. The baseline grew from {"green": N} to {"banks": {name: {...}}},
+# and the old flat shape is read as the marketplace bank alone so no history is lost.
 
-    reg = load(REGISTRY)
+def discover_banks():
+    banks = [("marketplace", REGISTRY)]
+    bdir = os.path.join(ROOT, "banks")
+    if os.path.isdir(bdir):
+        for f in sorted(os.listdir(bdir)):
+            if f.endswith("_live_mcp_bank.json"):
+                banks.append((f[: -len("_live_mcp_bank.json")], os.path.join(bdir, f)))
+    return banks
+
+
+def load_baseline():
+    base = load(BASELINE, {}) or {}
+    if isinstance(base.get("banks"), dict):
+        return base["banks"]
+    if "green" in base:            # legacy flat shape = the marketplace bank alone
+        return {"marketplace": base}
+    return {}
+
+
+def save_baseline(banks_base):
+    with open(BASELINE, "w", encoding="utf-8") as f:
+        json.dump({"banks": banks_base,
+                   "note": "forward-only ratchet on GREEN, per bank. stale is excluded from the "
+                           "denominator."}, f, indent=1)
+
+
+def process_bank(name, path, gates, argv, entry):
+    """Run the full rule set over ONE bank. Returns (exit_code, new_baseline_entry_or_None).
+    A returned entry means the baseline for this bank should be rewritten (accept or an audited
+    withdrawal); None means leave it as it stands."""
+    reg = load(path)
     if reg is None:
-        print(f"  {RED}FAIL{RST} — live_mcp_registry.json is unreadable")
-        return 1
+        print(f"  {RED}FAIL{RST} — {os.path.relpath(path, ROOT)} is unreadable")
+        return 1, None
     rows = rows_of(reg)
-    gates, urls = gate_ids(), surface_urls(reg)
+    urls = surface_urls(reg)
 
     buckets = {"green": [], "stale": [], "owed": [], "invalid": []}
     for r in rows:
         st, why = classify(r, gates, urls)
         buckets[st].append((r.get("id"), why))
 
-    live = len(buckets["green"]) + len(buckets["stale"]) + len(buckets["owed"])
     denom = len(buckets["green"]) + len(buckets["owed"])          # stale excluded, deliberately
     pct = (100.0 * len(buckets["green"]) / denom) if denom else 0.0
+    print(f"\n  {BOLD}{name}{RST} {DIM}· {os.path.relpath(path, ROOT)}{RST}")
     print(f"  {DIM}scenarios: {len(rows)} · green {len(buckets['green'])} · stale {len(buckets['stale'])} "
           f"· owed {len(buckets['owed'])} · invalid {len(buckets['invalid'])}{RST}")
     print(f"  {DIM}green% over non-stale: {pct:.1f}%  (stale is excluded so drift shows up rather than "
@@ -364,8 +463,8 @@ def main(argv):
 
     if "--report" in argv:
         import collections
-        cats = collections.Counter(r.get("category") for r in rows)
-        print(f"\n  {BOLD}distribution{RST}")
+        cats = collections.Counter(r.get("category") or r.get("family") for r in rows)
+        print(f"  {BOLD}distribution{RST}")
         for c, n in sorted(cats.items()):
             print(f"    {n:4d}  {c}")
 
@@ -377,10 +476,10 @@ def main(argv):
             print(f"    {DIM}… and {len(buckets['invalid']) - 15} more{RST}")
         print(f"\n  {DIM}A row is green because of something. Say what, in evidence.asserts, and cite it "
               f"in evidence.ref.{RST}")
-        return 1
+        return 1, None
 
     if buckets["stale"]:
-        print(f"\n  {YEL}STALE{RST} — {len(buckets['stale'])} row(s) were true and the ground moved:")
+        print(f"  {YEL}STALE{RST} — {len(buckets['stale'])} row(s) were true and the ground moved:")
         for rid, _ in buckets["stale"][:10]:
             print(f"    · {rid}")
         if len(buckets["stale"]) > 10:
@@ -388,8 +487,7 @@ def main(argv):
         print(f"  {DIM}Re-walk them on the live MCP browser. Stale is not a failure; a stale row treated "
               f"as green is.{RST}")
 
-    base = load(BASELINE, {}) or {}
-    prev = int(base.get("green", 0))
+    prev = int((entry or {}).get("green", 0))
     if "--accept" in argv:
         now = len(buckets["green"])
         # A RATCHET THAT TURNS BOTH WAYS IS NOT A RATCHET. --accept used to overwrite the baseline
@@ -408,12 +506,9 @@ def main(argv):
                   f"evidence expired. Re-walk them — that is what stale means. To LOWER the bar you "
                   f"must withdraw specific rows with a false-green-withdrawn finding, which is "
                   f"audited and records which ids bought the decrease.{RST}")
-            return 1
-        with open(BASELINE, "w", encoding="utf-8") as f:
-            json.dump({"green": now, "note":
-                       "forward-only ratchet on GREEN. stale is excluded from the denominator."}, f, indent=1)
-        print(f"\n  {GREEN}ACCEPTED{RST} — baseline {prev} -> {now} green")
-        return 0
+            return 1, None
+        print(f"  {GREEN}ACCEPTED{RST} — baseline {prev} -> {now} green")
+        return 0, {**(entry or {}), "green": now}
     # WITHDRAWING A FALSE GREEN IS NOT A REGRESSION. The ratchet exists so a walk cannot be quietly
     # un-done, and it was right to fire the first time it saw this drop. But it could not tell a lost
     # walk from an honest retraction, and on 2026-08-04 it blocked exactly the correction the bank
@@ -433,7 +528,7 @@ def main(argv):
     # had done. Nothing had been withdrawn that run.
     # A withdrawal may only pay for a drop ONCE. The ids that bought a decrease are recorded in the
     # baseline and are not counted again.
-    spent = set(base.get("withdrawn_ids") or [])
+    spent = set((entry or {}).get("withdrawn_ids") or [])
     withdrawn = [s for s in rows
                  if s.get("status") == "owed"
                  and s.get("id") not in spent
@@ -449,21 +544,39 @@ def main(argv):
             title = next((f.get("title") for f in (s.get("findings") or [])
                           if isinstance(f, dict) and f.get("severity") == "false-green-withdrawn"), "")
             print(f"    · {s['id']}\n        {title}")
-        with open(BASELINE, "w", encoding="utf-8") as f:
-            json.dump({"green": len(buckets["green"]),
-                       "note": "lowered by an audited false-green withdrawal, not by absorbing drift",
-                       # the ids that bought this decrease; they cannot buy another one
-                       "withdrawn_ids": sorted(spent | {s["id"] for s in withdrawn})},
-                      f, indent=1)
-        return 0
+        return 0, {"green": len(buckets["green"]),
+                   "note": "lowered by an audited false-green withdrawal, not by absorbing drift",
+                   # the ids that bought this decrease; they cannot buy another one
+                   "withdrawn_ids": sorted(spent | {s["id"] for s in withdrawn})}
     if len(buckets["green"]) < prev:
         print(f"\n  {RED}FAIL{RST} — green went backwards: {prev} -> {len(buckets['green'])}. Either a walk "
               f"was undone or evidence expired; re-walk, do not re-baseline.")
+        return 1, None
+
+    print(f"  {GREEN}PASS{RST} — every non-owed row carries typed, unexpired evidence "
+          f"(baseline {prev} green)")
+    return 0, None
+
+
+def main(argv):
+    if "--selftest" in argv:
+        return selftest()
+    print(f"{BOLD}Live-MCP bank — typed evidence, and evidence that expires{RST}")
+    if selftest() != 0:
         return 1
 
-    print(f"\n  {GREEN}PASS{RST} — every non-owed row carries typed, unexpired evidence "
-          f"(baseline {prev} green)")
-    return 0
+    gates = gate_ids()
+    banks_base = load_baseline()
+    rc, dirty = 0, False
+    for name, path in discover_banks():
+        brc, new_entry = process_bank(name, path, gates, argv, banks_base.get(name))
+        rc = max(rc, brc)
+        if new_entry is not None:
+            banks_base[name] = new_entry
+            dirty = True
+    if dirty and rc == 0:
+        save_baseline(banks_base)
+    return rc
 
 
 def selftest():
@@ -503,6 +616,22 @@ def selftest():
                                           "asserts": "a", "depends_on": [DEP], "sha": good_sha}},
          "green", "a well-formed, unexpired row"),
         ({"status": "owed"}, "owed", "an owed row needs no evidence"),
+
+        # R7 — the exact shape all 136 layer/seam rows carried: a DB invariant anchored to a page.
+        ({"status": "green", "surface": "layer_db",
+          "evidence": {"kind": "psql", "ref": "psql 2026-08-05", "asserts": "the ledger conserves",
+                       "depends_on": ["marketplace.html", "utils.js"], "sha": "whatever"}},
+         "stale", "R7 a layer_db claim anchored to a page"),
+        ({"status": "green", "surface": "seam_edge_db",
+          "evidence": {"kind": "psql", "ref": "psql 2026-08-05", "asserts": "edge fns scope by hive",
+                       "depends_on": ["supabase/migrations"], "sha": "whatever"}},
+         "stale", "R7 a seam that names only half of what it rests on"),
+        # and the other direction: layer_client genuinely DOES rest on the page, so it must pass
+        ({"status": "green", "surface": "layer_client",
+          "evidence": {"kind": "psql", "ref": "psql 2026-08-05", "asserts": "the client envelope",
+                       "depends_on": ["marketplace.html", "utils.js"],
+                       "sha": sha_of(["marketplace.html", "utils.js"])}},
+         "green", "R7 must NOT fire on a client-layer row that legitimately depends on the page"),
     ]
     for row, want, label in cases:
         got, _ = classify(row, gates, urls)
@@ -676,8 +805,57 @@ def selftest():
             print(f"  {RED}FAIL{RST} — R5: {label} (prev={prev}, now={now})")
             ok = False
 
+    # ── R4c · A DIRECTORY DEPENDENCY MUST MOVE ON EVERY KIND OF CHANGE ───────────────────────────
+    # The DB-layer rows depend on the migration SET, not on any page. That only protects them if the
+    # hash moves when a migration is ADDED (the common case — a new grant), when one is EDITED, and
+    # when one is DELETED. Testing only "edit" would let a new migration slip past a green row, which
+    # is precisely the false green this dependency exists to prevent.
+    dtmp = os.path.join(ROOT, "_r4c_selftest_dir")
+    try:
+        # Clean at the START, not only in the finally. The first run of this test died on a missing
+        # import INSIDE the finally, so the scratch directory survived with the nested file already
+        # in it — and the next run's `base` therefore already contained the file the test was about
+        # to add, so "adding it changed nothing" read as a hash defect in sha_of. The code was fine;
+        # the test was reading leftover state. A test that assumes a clean slate it did not create
+        # reports the previous run's crash as this run's bug.
+        shutil.rmtree(dtmp, ignore_errors=True)
+        os.makedirs(os.path.join(dtmp, "nested"), exist_ok=True)
+        one = os.path.join(dtmp, "0001_first.sql")
+        open(one, "w", encoding="utf-8").write("grant select on t to authenticated;\n")
+        base = sha_of(["_r4c_selftest_dir"])
+
+        if sha_of(["_r4c_selftest_dir"]) != base:
+            print(f"  {RED}FAIL{RST} — R4c: an untouched directory hashed differently twice")
+            ok = False
+
+        two = os.path.join(dtmp, "0002_added.sql")
+        open(two, "w", encoding="utf-8").write("revoke select on t from anon;\n")
+        if sha_of(["_r4c_selftest_dir"]) == base:
+            print(f"  {RED}FAIL{RST} — R4c: ADDING a migration left the hash unchanged")
+            ok = False
+        added = sha_of(["_r4c_selftest_dir"])
+
+        open(two, "w", encoding="utf-8").write("revoke select on t from anon, authenticated;\n")
+        if sha_of(["_r4c_selftest_dir"]) == added:
+            print(f"  {RED}FAIL{RST} — R4c: EDITING a migration left the hash unchanged")
+            ok = False
+
+        os.remove(two)
+        if sha_of(["_r4c_selftest_dir"]) != base:
+            print(f"  {RED}FAIL{RST} — R4c: DELETING the added migration did not return the hash")
+            ok = False
+
+        # a nested file must count too — migrations sit flat today, but a hash that ignores
+        # subdirectories would silently stop covering them the day someone nests one
+        open(os.path.join(dtmp, "nested", "0003_deep.sql"), "w", encoding="utf-8").write("-- x\n")
+        if sha_of(["_r4c_selftest_dir"]) == base:
+            print(f"  {RED}FAIL{RST} — R4c: a file in a SUBDIRECTORY did not move the hash")
+            ok = False
+    finally:
+        shutil.rmtree(dtmp, ignore_errors=True)
+
     if ok:
-        print(f"  {GREEN}PASS{RST} — R1/R2/R3/R4/R4b/R5/R6 all fire; a well-formed row passes; owed is exempt")
+        print(f"  {GREEN}PASS{RST} — R1/R2/R3/R4/R4b/R4c/R5/R6/R7 all fire; a well-formed row passes; owed is exempt")
     return 0 if ok else 1
 
 

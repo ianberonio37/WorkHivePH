@@ -1,0 +1,4454 @@
+{
+ "_doc": "Page live-MCP bank, derived from page_bank_anatomy/community.json by tools/build_page_live_mcp_bank.py -- do not hand-edit rows; edit the anatomy and regenerate. `status` moves owed -> green only via a LIVE MCP walk with typed evidence (validate_live_mcp_bank rules R1-R7); findings accumulate so a re-walk proves a fix rather than re-discovering it.",
+ "page": "community",
+ "url": "/workhive/community.html",
+ "frame": "PAGE_TESTBANK_ROADMAP.md section 1 (60 arch + 50 UFAI + 45 UI + 45 UX = 200)",
+ "declared_na": [
+  {
+   "cell": "CF-ufai-F/V2/money_matches_ledger",
+   "reason": "the thread overlay renders discussion; prices appear only via the V1-adjacent related-listings strip which the V1 row covers (community.html:2319)",
+   "replace_with": {
+    "oracle_key": "zoom200"
+   }
+  },
+  {
+   "cell": "CM-ux-comprehension/V3/reward_explained",
+   "reason": "the composer states visibility, not rewards (community.html:614)",
+   "replace_with": {
+    "oracle_key": "back_nav"
+   }
+  }
+ ],
+ "deferred": [],
+ "writes_classified": [
+  {
+   "fn": "community_posts / community_replies / community_reactions",
+   "class": "capture",
+   "seen": {
+    "how": "static-read",
+    "ref": "community.html:1726-1822,2256-2352,1495-1544"
+   }
+  },
+  {
+   "fn": "set_community_best_answer",
+   "class": "moderation online-only",
+   "seen": {
+    "how": "static-read",
+    "ref": "community.html:2301"
+   }
+  },
+  {
+   "fn": "hive_audit_log",
+   "class": "audit append-only",
+   "seen": {
+    "how": "static-read",
+    "ref": "community.html:2659"
+   }
+  }
+ ],
+ "total": 200,
+ "scenarios": [
+  {
+   "id": "PB-community-001-CA-layer-contract-L1-envelope_shape",
+   "n": 1,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 feed load"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-002-CA-layer-contract-L1-status_body_agreement",
+   "n": 2,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 feed load"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-003-CA-layer-contract-L1-idempotency",
+   "n": 3,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 feed load"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-004-CA-layer-contract-L1-ordering_totality",
+   "n": 4,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 feed load"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-005-CA-layer-contract-L1-units_declared",
+   "n": 5,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L1",
+    "name": "client",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 feed load"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-006-CA-layer-contract-L2-envelope_shape",
+   "n": 6,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L2",
+    "name": "gateway (reputation + peers RPCs)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2105 get_community_reputation + :1128 get_hive_trade_peers + :2301 set_community_best_answer"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-007-CA-layer-contract-L2-status_body_agreement",
+   "n": 7,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L2",
+    "name": "gateway (reputation + peers RPCs)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2105 get_community_reputation + :1128 get_hive_trade_peers + :2301 set_community_best_answer"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-008-CA-layer-contract-L2-idempotency",
+   "n": 8,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L2",
+    "name": "gateway (reputation + peers RPCs)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2105 get_community_reputation + :1128 get_hive_trade_peers + :2301 set_community_best_answer"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-009-CA-layer-contract-L2-ordering_totality",
+   "n": 9,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L2",
+    "name": "gateway (reputation + peers RPCs)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2105 get_community_reputation + :1128 get_hive_trade_peers + :2301 set_community_best_answer"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-010-CA-layer-contract-L2-units_declared",
+   "n": 10,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L2",
+    "name": "gateway (reputation + peers RPCs)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2105 get_community_reputation + :1128 get_hive_trade_peers + :2301 set_community_best_answer"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-011-CA-layer-contract-L3-envelope_shape",
+   "n": 11,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (posts/replies/reactions/xp)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931-2670 reads"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-012-CA-layer-contract-L3-status_body_agreement",
+   "n": 12,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (posts/replies/reactions/xp)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931-2670 reads"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-013-CA-layer-contract-L3-idempotency",
+   "n": 13,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (posts/replies/reactions/xp)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931-2670 reads"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-014-CA-layer-contract-L3-ordering_totality",
+   "n": 14,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (posts/replies/reactions/xp)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931-2670 reads"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-015-CA-layer-contract-L3-units_declared",
+   "n": 15,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L3",
+    "name": "db (posts/replies/reactions/xp)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931-2670 reads"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-016-CA-layer-contract-L4-envelope_shape",
+   "n": 16,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L4",
+    "name": "realtime (12 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "community.html - 12 .channel( occurrences (2026-08-05 grep)"
+    }
+   },
+   "oracle_key": "envelope_shape",
+   "oracle": "the layer returns its declared envelope on BOTH paths - success and failure - and a caller can tell which without parsing prose",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-017-CA-layer-contract-L4-status_body_agreement",
+   "n": 17,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L4",
+    "name": "realtime (12 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "community.html - 12 .channel( occurrences (2026-08-05 grep)"
+    }
+   },
+   "oracle_key": "status_body_agreement",
+   "oracle": "the HTTP status and the body agree: no 200 carrying an error, no 4xx carrying data. Disagreement is measured on the wire, not inferred",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-018-CA-layer-contract-L4-idempotency",
+   "n": 18,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L4",
+    "name": "realtime (12 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "community.html - 12 .channel( occurrences (2026-08-05 grep)"
+    }
+   },
+   "oracle_key": "idempotency",
+   "oracle": "the same call twice produces ONE effect; the second is refused or absorbed, and the count in the DB proves which",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-019-CA-layer-contract-L4-ordering_totality",
+   "n": 19,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L4",
+    "name": "realtime (12 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "community.html - 12 .channel( occurrences (2026-08-05 grep)"
+    }
+   },
+   "oracle_key": "ordering_totality",
+   "oracle": "a paginated or sorted read has a TOTAL order - re-running it does not reshuffle equal keys, so page 2 cannot repeat or skip a row from page 1",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-020-CA-layer-contract-L4-units_declared",
+   "n": 20,
+   "page": "community",
+   "category": "CA-layer-contract",
+   "mandate": "F1-architecture",
+   "question": "does each layer this page rests on honour its own contract - envelope, status/body agreement, idempotency, total ordering, declared units?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "L4",
+    "name": "realtime (12 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "community.html - 12 .channel( occurrences (2026-08-05 grep)"
+    }
+   },
+   "oracle_key": "units_declared",
+   "oracle": "the value carries its unit at the boundary (pesos vs credits vs percent vs whole-percent) - the class that made a knob of 10 mean 1000%",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-021-CB-seam-S1-value_survives",
+   "n": 21,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S1",
+    "name": "realtime <-> client (12 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "community.html 12 .channel( sites"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-022-CB-seam-S1-name_survives",
+   "n": 22,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S1",
+    "name": "realtime <-> client (12 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "community.html 12 .channel( sites"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-023-CB-seam-S1-null_semantics",
+   "n": 23,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S1",
+    "name": "realtime <-> client (12 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "community.html 12 .channel( sites"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-024-CB-seam-S1-partial_write",
+   "n": 24,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S1",
+    "name": "realtime <-> client (12 channels)",
+    "seen": {
+     "how": "grep-count",
+     "ref": "community.html 12 .channel( sites"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-025-CB-seam-S2-value_survives",
+   "n": 25,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S2",
+    "name": "trigger <-> view (posts -> truth view)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1726 community_posts write vs :931 truth read"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-026-CB-seam-S2-name_survives",
+   "n": 26,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S2",
+    "name": "trigger <-> view (posts -> truth view)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1726 community_posts write vs :931 truth read"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-027-CB-seam-S2-null_semantics",
+   "n": 27,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S2",
+    "name": "trigger <-> view (posts -> truth view)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1726 community_posts write vs :931 truth read"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-028-CB-seam-S2-partial_write",
+   "n": 28,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S2",
+    "name": "trigger <-> view (posts -> truth view)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1726 community_posts write vs :931 truth read"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-029-CB-seam-S3-value_survives",
+   "n": 29,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S3",
+    "name": "community <-> marketplace (reputation feeding commercial trust)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2106 v_marketplace_sellers_truth + :2319 v_marketplace_listings_truth"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-030-CB-seam-S3-name_survives",
+   "n": 30,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S3",
+    "name": "community <-> marketplace (reputation feeding commercial trust)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2106 v_marketplace_sellers_truth + :2319 v_marketplace_listings_truth"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-031-CB-seam-S3-null_semantics",
+   "n": 31,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S3",
+    "name": "community <-> marketplace (reputation feeding commercial trust)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2106 v_marketplace_sellers_truth + :2319 v_marketplace_listings_truth"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-032-CB-seam-S3-partial_write",
+   "n": 32,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S3",
+    "name": "community <-> marketplace (reputation feeding commercial trust)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2106 v_marketplace_sellers_truth + :2319 v_marketplace_listings_truth"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-033-CB-seam-S4-value_survives",
+   "n": 33,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S4",
+    "name": "xp <-> achievements",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:933,1065 community_xp"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-034-CB-seam-S4-name_survives",
+   "n": 34,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S4",
+    "name": "xp <-> achievements",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:933,1065 community_xp"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-035-CB-seam-S4-null_semantics",
+   "n": 35,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S4",
+    "name": "xp <-> achievements",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:933,1065 community_xp"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-036-CB-seam-S4-partial_write",
+   "n": 36,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S4",
+    "name": "xp <-> achievements",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:933,1065 community_xp"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-037-CB-seam-S5-value_survives",
+   "n": 37,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S5",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2105"
+    }
+   },
+   "oracle_key": "value_survives",
+   "oracle": "what one side of the seam WRITES is what the other side READS - compared value-to-value against psql, never screen-to-screen",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-038-CB-seam-S5-name_survives",
+   "n": 38,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S5",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2105"
+    }
+   },
+   "oracle_key": "name_survives",
+   "oracle": "the field keeps its name and meaning across the seam; a rename on one side that the other still reads by the old name is a silent null",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-039-CB-seam-S5-null_semantics",
+   "n": 39,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S5",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2105"
+    }
+   },
+   "oracle_key": "null_semantics",
+   "oracle": "NULL means the SAME thing on both sides. The reward cap proved the cost: NULL meant 'no cap' in the DB and arrived as a cap of ZERO in the client",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-040-CB-seam-S5-partial_write",
+   "n": 40,
+   "page": "community",
+   "category": "CB-seam",
+   "mandate": "F1-architecture",
+   "question": "does what one side of this page's seams writes arrive intact, named the same, meaning the same, on the other side?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "S5",
+    "name": "client <-> gateway",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2105"
+    }
+   },
+   "oracle_key": "partial_write",
+   "oracle": "a multi-row or multi-table write either lands whole or not at all; a half-applied write is visible as an inconsistency in the ledger",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-041-CC-failure-injection-V1-fail_500",
+   "n": 41,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-042-CC-failure-injection-V1-fail_401",
+   "n": 42,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-043-CC-failure-injection-V1-fail_timeout",
+   "n": 43,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-044-CC-failure-injection-V1-fail_partial",
+   "n": 44,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-045-CC-failure-injection-V1-fail_slow",
+   "n": 45,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-046-CC-failure-injection-V1-fail_offline",
+   "n": 46,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-047-CC-failure-injection-V1-fail_null_field",
+   "n": 47,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-048-CC-failure-injection-V2-fail_500",
+   "n": 48,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "fail_500",
+   "oracle": "the layer above renders a failure, never an emptiness, and offers a way back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-049-CC-failure-injection-V2-fail_401",
+   "n": 49,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "fail_401",
+   "oracle": "an expired session says so AND says nothing was sent - never a bare retry, and never a sign-in instruction to someone already signed in",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-050-CC-failure-injection-V2-fail_timeout",
+   "n": 50,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "fail_timeout",
+   "oracle": "a hung dependency ends in a stated timeout, not an indefinite skeleton",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-051-CC-failure-injection-V2-fail_partial",
+   "n": 51,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "fail_partial",
+   "oracle": "when half the reads succeed, what loaded is kept and what did not is NAMED - no silent blanks beside real data",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-052-CC-failure-injection-V2-fail_slow",
+   "n": 52,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "fail_slow",
+   "oracle": "a slow response keeps the surface honest: a busy state that resolves, never a control that looks ready while nothing is behind it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-053-CC-failure-injection-V2-fail_offline",
+   "n": 53,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "fail_offline",
+   "oracle": "the write is refused BEFORE it fires, the person is told nothing was sent, and reconnecting does not silently replay it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-054-CC-failure-injection-V2-fail_null_field",
+   "n": 54,
+   "page": "community",
+   "category": "CC-failure-injection",
+   "mandate": "F1-architecture",
+   "question": "when a dependency fails under this view, does the page degrade honestly - or invent a number, an emptiness, or a fake all-clear?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "fail_null_field",
+   "oracle": "a NULL field in an otherwise valid row renders as a stated gap, never as 0, 'undefined', or a fabricated default",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-055-CD-invariant-reaction_count_distinct-reaction_count_distinct",
+   "n": 55,
+   "page": "community",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "reaction_count_distinct",
+    "name": "reaction count = distinct reactors",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1495-1544"
+    }
+   },
+   "oracle_key": "reaction_count_distinct",
+   "oracle": "one person cannot react twice to one post; the count equals distinct reactors",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-056-CD-invariant-best_answer_single-best_answer_single",
+   "n": 56,
+   "page": "community",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "best_answer_single",
+    "name": "best answer is single-valued",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2301 set_community_best_answer"
+    }
+   },
+   "oracle_key": "best_answer_single",
+   "oracle": "re-setting best answer moves it rather than adding a second",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-057-CD-invariant-xp_once_and_reverses-xp_once_and_reverses",
+   "n": 57,
+   "page": "community",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "xp_once_and_reverses",
+    "name": "XP awards once, reverses on removal, and cannot be minted client-side",
+    "seen": {
+     "how": "doc+static",
+     "ref": "reference_community_xp_write_hole (the client-write BOLA: any authed user could mint any XP) + community.html:933,1065"
+    }
+   },
+   "oracle_key": "xp_once_and_reverses",
+   "oracle": "XP for a post or reply is awarded once, reverses if the content is removed, and CANNOT be minted by a client write - the community_xp BOLA class, proven by attempting the mint",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-058-CD-invariant-no_orphan_replies-no_orphan_replies",
+   "n": 58,
+   "page": "community",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "no_orphan_replies",
+    "name": "a deleted post leaves no contextless reply",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2627 post delete + :1316 replies"
+    }
+   },
+   "oracle_key": "no_orphan_replies",
+   "oracle": "a deleted post leaves no reply rendered without its context",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-059-CD-invariant-reputation_live-reputation_live",
+   "n": 59,
+   "page": "community",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "reputation_live",
+    "name": "reputation shown = the RPC right now",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2105"
+    }
+   },
+   "oracle_key": "reputation_live",
+   "oracle": "reputation shown equals get_community_reputation right now, not at some earlier render",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-060-CD-invariant-report_one_record_no_selfclear-report_one_record_no_selfclear",
+   "n": 60,
+   "page": "community",
+   "category": "CD-invariant",
+   "mandate": "F1-architecture",
+   "question": "the cross-layer facts about THIS page that must hold at every instant, asserted from the source of truth rather than from a screen",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "report_one_record_no_selfclear",
+    "name": "a report is one record the reported cannot clear",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:700 #report-overlay + :2659 hive_audit_log"
+    }
+   },
+   "oracle_key": "report_one_record_no_selfclear",
+   "oracle": "a report creates exactly one moderation record and cannot be self-cleared by the reported party",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-061-CE-ufai-U-V1-one_vocabulary",
+   "n": 61,
+   "page": "community",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-062-CE-ufai-U-V1-source_chip_true",
+   "n": 62,
+   "page": "community",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-063-CE-ufai-U-V1-units_visible",
+   "n": 63,
+   "page": "community",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-064-CE-ufai-U-V1-no_raw_enum",
+   "n": 64,
+   "page": "community",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-065-CE-ufai-U-V1-number_explained",
+   "n": 65,
+   "page": "community",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-066-CE-ufai-U-V2-one_vocabulary",
+   "n": 66,
+   "page": "community",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "one_vocabulary",
+   "oracle": "one concept, one word, across every surface that shows it - 'credits' is not 'points' three screens later",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-067-CE-ufai-U-V2-source_chip_true",
+   "n": 67,
+   "page": "community",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "source_chip_true",
+   "oracle": "the source chip names the view the number actually came from, and that view returns that number right now",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-068-CE-ufai-U-V2-units_visible",
+   "n": 68,
+   "page": "community",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "units_visible",
+   "oracle": "the unit is on screen beside the number, not implied by position",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-069-CE-ufai-U-V2-no_raw_enum",
+   "n": 69,
+   "page": "community",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "no_raw_enum",
+   "oracle": "no lowercase_with_underscores status reaches a person",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-070-CE-ufai-U-V2-number_explained",
+   "n": 70,
+   "page": "community",
+   "category": "CE-ufai-U",
+   "mandate": "F2-ufai",
+   "question": "UNDERSTANDABLE - one vocabulary, visible units, no raw enums, and every number explicable from the surface alone",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "number_explained",
+   "oracle": "a person can say what the number MEANS without leaving the surface",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-071-CF-ufai-F-V1-effect_in_db",
+   "n": 71,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-072-CF-ufai-F-V1-effect_visible",
+   "n": 72,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-073-CF-ufai-F-V1-count_matches_source",
+   "n": 73,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-074-CF-ufai-F-V1-money_matches_ledger",
+   "n": 74,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "money_matches_ledger",
+   "oracle": "every peso and credit figure equals the canonical view, to the centavo",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-075-CF-ufai-F-V1-idempotent_repeat",
+   "n": 75,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-076-CF-ufai-F-V1-cross_surface_agreement",
+   "n": 76,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-077-CF-ufai-F-V2-effect_in_db",
+   "n": 77,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "effect_in_db",
+   "oracle": "the happy path's effect is present in the database, asserted by psql",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-078-CF-ufai-F-V2-effect_visible",
+   "n": 78,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "effect_visible",
+   "oracle": "that same effect is visible to the person who caused it, on the surface where they caused it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-079-CF-ufai-F-V2-count_matches_source",
+   "n": 79,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "count_matches_source",
+   "oracle": "every count on screen equals the count its own predicate returns - measured with the page's OWN filter, not a guess at it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-080-CF-ufai-F-V2-zoom200",
+   "n": 80,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "zoom200",
+   "oracle": "at 200% browser zoom every control stays reachable and no text is clipped (WCAG 1.4.4)",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CF-ufai-F/V2/money_matches_ledger: the thread overlay renders discussion; prices appear only via the V1-adjacent related-listings strip which the V1 row covers (community.html:2319)"
+  },
+  {
+   "id": "PB-community-081-CF-ufai-F-V2-idempotent_repeat",
+   "n": 81,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "idempotent_repeat",
+   "oracle": "repeating the action changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-082-CF-ufai-F-V2-cross_surface_agreement",
+   "n": 82,
+   "page": "community",
+   "category": "CF-ufai-F",
+   "mandate": "F2-ufai",
+   "question": "FUNCTIONAL - the happy-path effect is real in the database and visible to the person who caused it, counts and money matching their source",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "cross_surface_agreement",
+   "oracle": "the same fact reads the same on every surface that shows it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-083-CG-ufai-A-V1-offline_refusal",
+   "n": 83,
+   "page": "community",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-084-CG-ufai-A-V1-retry_path",
+   "n": 84,
+   "page": "community",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-085-CG-ufai-A-V1-rate_limit_legible",
+   "n": 85,
+   "page": "community",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-086-CG-ufai-A-V1-fallback_engaged",
+   "n": 86,
+   "page": "community",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-087-CG-ufai-A-V1-slow_honest",
+   "n": 87,
+   "page": "community",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-088-CG-ufai-A-V2-offline_refusal",
+   "n": 88,
+   "page": "community",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "offline_refusal",
+   "oracle": "offline, the write is refused before firing and the person is told nothing was sent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-089-CG-ufai-A-V2-retry_path",
+   "n": 89,
+   "page": "community",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "retry_path",
+   "oracle": "a failure offers a retry that actually re-attempts, and succeeds when the cause is gone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-090-CG-ufai-A-V2-rate_limit_legible",
+   "n": 90,
+   "page": "community",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "rate_limit_legible",
+   "oracle": "a rate limit states what was limited and when it clears - never a bare error",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-091-CG-ufai-A-V2-fallback_engaged",
+   "n": 91,
+   "page": "community",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "fallback_engaged",
+   "oracle": "when the primary is down the fallback engages and the surface says which it used, rather than pretending nothing happened",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-092-CG-ufai-A-V2-slow_honest",
+   "n": 92,
+   "page": "community",
+   "category": "CG-ufai-A",
+   "mandate": "F2-ufai",
+   "question": "AVAILABLE - offline, slow, failing or limited, the surface refuses out loud and recovers honestly",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "slow_honest",
+   "oracle": "under a slow dependency the surface stays honest: busy where busy, no control that implies readiness it does not have",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-093-CH-ufai-I-IA-bola_object",
+   "n": 93,
+   "page": "community",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "IA",
+    "name": "anon (read boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-094-CH-ufai-I-IA-bfla_function",
+   "n": 94,
+   "page": "community",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "IA",
+    "name": "anon (read boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-095-CH-ufai-I-IA-tenant_boundary",
+   "n": 95,
+   "page": "community",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "IA",
+    "name": "anon (read boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-096-CH-ufai-I-IA-jwt_not_body",
+   "n": 96,
+   "page": "community",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "IA",
+    "name": "anon (read boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-097-CH-ufai-I-IA-boundary_not_emptiness",
+   "n": 97,
+   "page": "community",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "IA",
+    "name": "anon (read boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-098-CH-ufai-I-IB-bola_object",
+   "n": 98,
+   "page": "community",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (moderation + best-answer authority)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2301"
+    }
+   },
+   "oracle_key": "bola_object",
+   "oracle": "another person's object id is refused, and the refusal is legible",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-099-CH-ufai-I-IB-bfla_function",
+   "n": 99,
+   "page": "community",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (moderation + best-answer authority)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2301"
+    }
+   },
+   "oracle_key": "bfla_function",
+   "oracle": "a function above this role is refused at the server, not merely hidden in the UI",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-100-CH-ufai-I-IB-tenant_boundary",
+   "n": 100,
+   "page": "community",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (moderation + best-answer authority)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2301"
+    }
+   },
+   "oracle_key": "tenant_boundary",
+   "oracle": "a foreign hive's row is invisible, and its absence is stated as a boundary rather than shown as an emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-101-CH-ufai-I-IB-jwt_not_body",
+   "n": 101,
+   "page": "community",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (moderation + best-answer authority)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2301"
+    }
+   },
+   "oracle_key": "jwt_not_body",
+   "oracle": "identity comes from the JWT; a forged identity in the body changes nothing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-102-CH-ufai-I-IB-boundary_not_emptiness",
+   "n": 102,
+   "page": "community",
+   "category": "CH-ufai-I",
+   "mandate": "F2-ufai",
+   "question": "IDENTITY - authN from the JWT, authZ at the server, boundaries stated as boundaries and never rendered as emptiness",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "IB",
+    "name": "two_context (moderation + best-answer authority)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2301"
+    }
+   },
+   "oracle_key": "boundary_not_emptiness",
+   "oracle": "a permission boundary reads as 'not visible with this session', never as 'nothing here' - the difference between 'you may not look' and 'all clear'",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-103-CI-domain-truth-reputation_defined-reputation_defined",
+   "n": 103,
+   "page": "community",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "reputation_defined",
+    "name": "reputation states what it counts",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2105"
+    }
+   },
+   "oracle_key": "reputation_defined",
+   "oracle": "reputation states what it counts and over what window",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-104-CI-domain-truth-xp_thresholds_stated-xp_thresholds_stated",
+   "n": 104,
+   "page": "community",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "xp_thresholds_stated",
+    "name": "XP-to-level thresholds are stated",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:933"
+    }
+   },
+   "oracle_key": "xp_thresholds_stated",
+   "oracle": "XP-to-level thresholds are stated",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-105-CI-domain-truth-seller_badge_one_meaning-seller_badge_one_meaning",
+   "n": 105,
+   "page": "community",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "seller_badge_one_meaning",
+    "name": "a seller badge means the same as in the marketplace",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2106 v_marketplace_sellers_truth"
+    }
+   },
+   "oracle_key": "seller_badge_one_meaning",
+   "oracle": "a seller badge here means the same thing as in the marketplace - one vocabulary across the community<->commerce seam, where a trust claim can quietly change meaning",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-106-CI-domain-truth-best_answer_names_chooser-best_answer_names_chooser",
+   "n": 106,
+   "page": "community",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "best_answer_names_chooser",
+    "name": "best answer names who chose it",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2301"
+    }
+   },
+   "oracle_key": "best_answer_names_chooser",
+   "oracle": "'best answer' names who chose it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-107-CI-domain-truth-visibility_before_posting-visibility_before_posting",
+   "n": 107,
+   "page": "community",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "visibility_before_posting",
+    "name": "visibility is stated BEFORE posting",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 composer"
+    }
+   },
+   "oracle_key": "visibility_before_posting",
+   "oracle": "post visibility (hive-only vs public feed) is stated before posting - the thing you cannot take back",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-108-CI-domain-truth-peers_basis_stated-peers_basis_stated",
+   "n": 108,
+   "page": "community",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "peers_basis_stated",
+    "name": "trade-peer suggestions state their basis",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1128 get_hive_trade_peers"
+    }
+   },
+   "oracle_key": "peers_basis_stated",
+   "oracle": "trade-peer suggestions state their basis",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-109-CI-domain-truth-edited_shows_edited-edited_shows_edited",
+   "n": 109,
+   "page": "community",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "edited_shows_edited",
+    "name": "an edited post shows it was edited",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1987-2035 post updates"
+    }
+   },
+   "oracle_key": "edited_shows_edited",
+   "oracle": "an edited post shows that it was edited",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-110-CI-domain-truth-anon_limits_stated-anon_limits_stated",
+   "n": 110,
+   "page": "community",
+   "category": "CI-domain-truth",
+   "mandate": "F2-ufai",
+   "question": "the domain facts THIS page trades in - is every domain number computed by its stated definition and labelled with its own denominator?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "anon_limits_stated",
+    "name": "anon limits are stated as limits",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 anon feed"
+    }
+   },
+   "oracle_key": "anon_limits_stated",
+   "oracle": "an anon reader's limits are stated as limits, never rendered as emptiness",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-111-CJ-ui-layout-V1-w390_overflow",
+   "n": 111,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-112-CJ-ui-layout-V1-w641_overflow",
+   "n": 112,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-113-CJ-ui-layout-V1-w1280_overflow",
+   "n": 113,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-114-CJ-ui-layout-V1-tap_target_44",
+   "n": 114,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-115-CJ-ui-layout-V1-safe_area",
+   "n": 115,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-116-CJ-ui-layout-V2-w390_overflow",
+   "n": 116,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-117-CJ-ui-layout-V2-w641_overflow",
+   "n": 117,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-118-CJ-ui-layout-V2-w1280_overflow",
+   "n": 118,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-119-CJ-ui-layout-V2-tap_target_44",
+   "n": 119,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-120-CJ-ui-layout-V2-safe_area",
+   "n": 120,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-121-CJ-ui-layout-V3-w390_overflow",
+   "n": 121,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "w390_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~390 nothing overflows its container and the document does not scroll sideways",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-122-CJ-ui-layout-V3-w641_overflow",
+   "n": 122,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "w641_overflow",
+   "oracle": "at a VERIFIED innerWidth of ~641 (the 200%-zoom equivalent) the same holds",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-123-CJ-ui-layout-V3-w1280_overflow",
+   "n": 123,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "w1280_overflow",
+   "oracle": "at 1280 the same holds, with real content rather than seed-perfect content",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-124-CJ-ui-layout-V3-tap_target_44",
+   "n": 124,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "tap_target_44",
+   "oracle": "every interactive control is at least 44x44 CSS px at the narrow width, measured by rect and not by stylesheet intent",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-125-CJ-ui-layout-V3-safe_area",
+   "n": 125,
+   "page": "community",
+   "category": "CJ-ui-layout",
+   "mandate": "F3-ui",
+   "question": "layout under real content at three VERIFIED widths - innerWidth, never the requested viewport",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "safe_area",
+   "oracle": "fixed bottom chrome clears the home indicator via env(safe-area-inset-bottom)",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-126-CK-ui-state-C1-component_loading",
+   "n": 126,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C1",
+    "name": "post card",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1225-1255 post renders"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-127-CK-ui-state-C1-component_skeleton",
+   "n": 127,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C1",
+    "name": "post card",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1225-1255 post renders"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-128-CK-ui-state-C1-component_disabled",
+   "n": 128,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C1",
+    "name": "post card",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1225-1255 post renders"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-129-CK-ui-state-C1-component_busy",
+   "n": 129,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C1",
+    "name": "post card",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1225-1255 post renders"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-130-CK-ui-state-C1-component_populated",
+   "n": 130,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C1",
+    "name": "post card",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1225-1255 post renders"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-131-CK-ui-state-C2-component_loading",
+   "n": 131,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C2",
+    "name": "reply row",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1316 community_replies"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-132-CK-ui-state-C2-component_skeleton",
+   "n": 132,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C2",
+    "name": "reply row",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1316 community_replies"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-133-CK-ui-state-C2-component_disabled",
+   "n": 133,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C2",
+    "name": "reply row",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1316 community_replies"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-134-CK-ui-state-C2-component_busy",
+   "n": 134,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C2",
+    "name": "reply row",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1316 community_replies"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-135-CK-ui-state-C2-component_populated",
+   "n": 135,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C2",
+    "name": "reply row",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1316 community_replies"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-136-CK-ui-state-C3-component_loading",
+   "n": 136,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C3",
+    "name": "reaction bar",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1495-1544 community_reactions"
+    }
+   },
+   "oracle_key": "component_loading",
+   "oracle": "the component's loading state is distinguishable from its empty state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-137-CK-ui-state-C3-component_skeleton",
+   "n": 137,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C3",
+    "name": "reaction bar",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1495-1544 community_reactions"
+    }
+   },
+   "oracle_key": "component_skeleton",
+   "oracle": "the skeleton reserves the space the content will take, so nothing jumps",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-138-CK-ui-state-C3-component_disabled",
+   "n": 138,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C3",
+    "name": "reaction bar",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1495-1544 community_reactions"
+    }
+   },
+   "oracle_key": "component_disabled",
+   "oracle": "a disabled control looks disabled AND refuses activation - both, not either",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-139-CK-ui-state-C3-component_busy",
+   "n": 139,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C3",
+    "name": "reaction bar",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1495-1544 community_reactions"
+    }
+   },
+   "oracle_key": "component_busy",
+   "oracle": "an in-flight control is busy and cannot be re-fired",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-140-CK-ui-state-C3-component_populated",
+   "n": 140,
+   "page": "community",
+   "category": "CK-ui-state",
+   "mandate": "F3-ui",
+   "question": "every component's induced states - loading, skeleton, disabled, busy, populated - distinguishable and honest",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "C3",
+    "name": "reaction bar",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1495-1544 community_reactions"
+    }
+   },
+   "oracle_key": "component_populated",
+   "oracle": "populated renders every field it promises, with no undefined/NaN",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-141-CL-ui-visual-V1-contrast_wcag",
+   "n": 141,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-142-CL-ui-visual-V1-contrast_apca",
+   "n": 142,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-143-CL-ui-visual-V1-focus_visible",
+   "n": 143,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-144-CL-ui-visual-V1-reduced_motion",
+   "n": 144,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-145-CL-ui-visual-V1-icon_only_name",
+   "n": 145,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-146-CL-ui-visual-V2-contrast_wcag",
+   "n": 146,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-147-CL-ui-visual-V2-contrast_apca",
+   "n": 147,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-148-CL-ui-visual-V2-focus_visible",
+   "n": 148,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-149-CL-ui-visual-V2-reduced_motion",
+   "n": 149,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-150-CL-ui-visual-V2-icon_only_name",
+   "n": 150,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-151-CL-ui-visual-V3-contrast_wcag",
+   "n": 151,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "contrast_wcag",
+   "oracle": "text meets WCAG AA 4.5:1 against its ACTUAL composited background, alpha included - the trap that made every tinted pill read 1.00",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-152-CL-ui-visual-V3-contrast_apca",
+   "n": 152,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "contrast_apca",
+   "oracle": "the same text passes the APCA perceptual threshold for its size and weight",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-153-CL-ui-visual-V3-focus_visible",
+   "n": 153,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "focus_visible",
+   "oracle": "keyboard focus is visible on every interactive element, including custom ones",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-154-CL-ui-visual-V3-reduced_motion",
+   "n": 154,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "reduced_motion",
+   "oracle": "prefers-reduced-motion is honoured - no animation that ignores it",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-155-CL-ui-visual-V3-icon_only_name",
+   "n": 155,
+   "page": "community",
+   "category": "CL-ui-visual",
+   "mandate": "F3-ui",
+   "question": "contrast, focus, motion and naming - the facts a screenshot cannot confirm and a measurement can",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "icon_only_name",
+   "oracle": "an icon-only control has an accessible name that says what it DOES",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-156-CM-ux-comprehension-V1-what_is_this_number",
+   "n": 156,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-157-CM-ux-comprehension-V1-what_happens_next",
+   "n": 157,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-158-CM-ux-comprehension-V1-what_does_it_cost",
+   "n": 158,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-159-CM-ux-comprehension-V1-why_refused",
+   "n": 159,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-160-CM-ux-comprehension-V1-reward_explained",
+   "n": 160,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "reward_explained",
+   "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-161-CM-ux-comprehension-V2-what_is_this_number",
+   "n": 161,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-162-CM-ux-comprehension-V2-what_happens_next",
+   "n": 162,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-163-CM-ux-comprehension-V2-what_does_it_cost",
+   "n": 163,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-164-CM-ux-comprehension-V2-why_refused",
+   "n": 164,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-165-CM-ux-comprehension-V2-reward_explained",
+   "n": 165,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "reward_explained",
+   "oracle": "the 10% reward is discoverable and correct for THIS item - the class the vanished credits chip belongs to",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-166-CM-ux-comprehension-V3-what_is_this_number",
+   "n": 166,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "what_is_this_number",
+   "oracle": "a person can state what the number means from the surface alone",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-167-CM-ux-comprehension-V3-what_happens_next",
+   "n": 167,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "what_happens_next",
+   "oracle": "after an action, the surface says what happens next and when",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-168-CM-ux-comprehension-V3-what_does_it_cost",
+   "n": 168,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "what_does_it_cost",
+   "oracle": "cost, hold and reward are stated before commitment, not after",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-169-CM-ux-comprehension-V3-why_refused",
+   "n": 169,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "why_refused",
+   "oracle": "a refusal names the rule AND the way out - never a remedy that cannot work",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-170-CM-ux-comprehension-V3-back_nav",
+   "n": 170,
+   "page": "community",
+   "category": "CM-ux-comprehension",
+   "mandate": "F4-ux",
+   "question": "can a person say what this number means, what happens next, and what it costs, from the surface alone?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "back_nav",
+   "oracle": "browser Back out of a sheet leaves no orphaned overlay and no write half-applied; the underlying list reflects what actually happened",
+   "status": "owed",
+   "findings": [],
+   "note": "replaces na cell CM-ux-comprehension/V3/reward_explained: the composer states visibility, not rewards (community.html:614)"
+  },
+  {
+   "id": "PB-community-171-CN-ux-journey-P1-first_run_to_value",
+   "n": 171,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P1",
+    "name": "anon (public boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 feed under anon key"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-172-CN-ux-journey-P1-repeat_visit",
+   "n": 172,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P1",
+    "name": "anon (public boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 feed under anon key"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-173-CN-ux-journey-P1-cross_surface_handoff",
+   "n": 173,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P1",
+    "name": "anon (public boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 feed under anon key"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-174-CN-ux-journey-P1-two_sided_same_object",
+   "n": 174,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P1",
+    "name": "anon (public boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 feed under anon key"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-175-CN-ux-journey-P1-abandon_resume",
+   "n": 175,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P1",
+    "name": "anon (public boundary)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 feed under anon key"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-176-CN-ux-journey-P2-first_run_to_value",
+   "n": 176,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P2",
+    "name": "member",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1726 post write"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-177-CN-ux-journey-P2-repeat_visit",
+   "n": 177,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P2",
+    "name": "member",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1726 post write"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-178-CN-ux-journey-P2-cross_surface_handoff",
+   "n": 178,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P2",
+    "name": "member",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1726 post write"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-179-CN-ux-journey-P2-two_sided_same_object",
+   "n": 179,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P2",
+    "name": "member",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1726 post write"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-180-CN-ux-journey-P2-abandon_resume",
+   "n": 180,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P2",
+    "name": "member",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:1726 post write"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-181-CN-ux-journey-P3-first_run_to_value",
+   "n": 181,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two members, one thread)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2256-2352 reply writes + 12 channels"
+    }
+   },
+   "oracle_key": "first_run_to_value",
+   "oracle": "a first-time person reaches the first useful outcome without a dead end",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-182-CN-ux-journey-P3-repeat_visit",
+   "n": 182,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two members, one thread)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2256-2352 reply writes + 12 channels"
+    }
+   },
+   "oracle_key": "repeat_visit",
+   "oracle": "a returning person resumes where it matters, without redoing setup",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-183-CN-ux-journey-P3-cross_surface_handoff",
+   "n": 183,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two members, one thread)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2256-2352 reply writes + 12 channels"
+    }
+   },
+   "oracle_key": "cross_surface_handoff",
+   "oracle": "a flow that spans surfaces carries its context across the handoff",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-184-CN-ux-journey-P3-two_sided_same_object",
+   "n": 184,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two members, one thread)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2256-2352 reply writes + 12 channels"
+    }
+   },
+   "oracle_key": "two_sided_same_object",
+   "oracle": "two identities acting on the SAME object each see a truthful view of it - the half a single-identity walk cannot see",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-185-CN-ux-journey-P3-abandon_resume",
+   "n": 185,
+   "page": "community",
+   "category": "CN-ux-journey",
+   "mandate": "F4-ux",
+   "question": "multi-step flows end to end per persona, including the two-sided ones a single identity cannot walk",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "P3",
+    "name": "two_context (two members, one thread)",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:2256-2352 reply writes + 12 channels"
+    }
+   },
+   "oracle_key": "abandon_resume",
+   "oracle": "abandoning midway and returning leaves no half-applied state",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-186-CO-ux-recovery-V1-double_tap",
+   "n": 186,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-187-CO-ux-recovery-V1-back_out",
+   "n": 187,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-188-CO-ux-recovery-V1-session_died",
+   "n": 188,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-189-CO-ux-recovery-V1-wrong_then_fix",
+   "n": 189,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-190-CO-ux-recovery-V1-did_it_land",
+   "n": 190,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V1",
+    "name": "feed",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:931 v_community_posts_truth"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-191-CO-ux-recovery-V2-double_tap",
+   "n": 191,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-192-CO-ux-recovery-V2-back_out",
+   "n": 192,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-193-CO-ux-recovery-V2-session_died",
+   "n": 193,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-194-CO-ux-recovery-V2-wrong_then_fix",
+   "n": 194,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-195-CO-ux-recovery-V2-did_it_land",
+   "n": 195,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V2",
+    "name": "thread-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:675 #thread-overlay role=dialog"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-196-CO-ux-recovery-V3-double_tap",
+   "n": 196,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "double_tap",
+   "oracle": "the second press changes nothing further and the surface says so",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-197-CO-ux-recovery-V3-back_out",
+   "n": 197,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "back_out",
+   "oracle": "browser Back leaves no orphaned overlay, no scroll lock, and no half-write",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-198-CO-ux-recovery-V3-session_died",
+   "n": 198,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "session_died",
+   "oracle": "a session that dies between typing and submitting refuses the write and says nothing was sent, preserving what was typed",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-199-CO-ux-recovery-V3-wrong_then_fix",
+   "n": 199,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "wrong_then_fix",
+   "oracle": "a wrong entry can be corrected without starting over",
+   "status": "owed",
+   "findings": []
+  },
+  {
+   "id": "PB-community-200-CO-ux-recovery-V3-did_it_land",
+   "n": 200,
+   "page": "community",
+   "category": "CO-ux-recovery",
+   "mandate": "F4-ux",
+   "question": "mistakes, reversals and interruption - and after a slow tap: did my thing land?",
+   "surface": "community",
+   "url": "/workhive/community.html",
+   "subject": {
+    "key": "V3",
+    "name": "composer-overlay",
+    "seen": {
+     "how": "static-read",
+     "ref": "community.html:614 #composer-overlay role=dialog"
+    }
+   },
+   "oracle_key": "did_it_land",
+   "oracle": "after a slow action the person can tell whether it landed, without guessing",
+   "status": "owed",
+   "findings": []
+  }
+ ]
+}

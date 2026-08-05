@@ -153,6 +153,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- SERVICE_HAILING P8 (§1c acquisition): the public feed is the SEO/anon front porch —
          offer the hail door to visitors who came looking for help, not conversation. -->
     <a href="marketplace.html?section=services" class="header-btn" style="margin-top:0.5rem;margin-left:0.5rem;" data-i="pf_hail_cta">Need a technician? Hail a service →</a>
+    <!-- WHAT HAPPENS NEXT. Measured live 2026-08-05: this surface offered two doors and said nothing
+         about where either one led, so a visitor pressing "Hail a service" could not tell whether it
+         was about to charge them, post something publicly, or call someone. Both are free and
+         reversible, and saying so is the difference between a door and a trapdoor. -->
+    <p data-i="pf_next_hint" style="margin-top:0.6rem; font-size:0.75rem; color:rgba(255,255,255,0.72); line-height:1.5;">
+      Signing in takes you to your hive's board, where your posts stay private to your team unless you
+      share them here. Hailing a service opens the marketplace: you describe the job, providers reply
+      with quotes, and you choose one. Both are free, and neither posts anything until you confirm.
+    </p>
   </div>
 <details class="wh-help">
   <summary data-i="pf_how_summary">How this page works</summary>
@@ -351,6 +360,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   pf_subtitle: 'Mga pampublikong post mula sa mga maintenance team ng WorkHive. Mag-sign in para sumali sa usapan.',
   pf_join_cta: 'Mag-sign in para mag-post →',    // was marked but had NO dict entry -> stayed EN in FIL
   pf_hail_cta: 'Kailangan ng technician? Tumawag ng serbisyo →',   // SERVICE_HAILING P8 acquisition CTA
+  // A marked string with no dict entry stays English in FIL (the exact bug noted on pf_join_cta above),
+  // so the what-happens-next line gets its entry in the same change that introduces it.
+  pf_next_hint: 'Ang pag-sign in ay magdadala sa iyo sa board ng iyong hive; pribado sa team mo ang mga post mo maliban kung ibabahagi mo dito. Ang pagtawag ng serbisyo ay magbubukas ng marketplace: ilalarawan mo ang trabaho, sasagot ang mga provider ng quote, at ikaw ang pipili. Parehong libre, at walang maipo-post hangga\'t hindi mo kinukumpirma.',
   pf_feed_heading: 'Pinakabagong mga post',      // was marked but had NO dict entry -> stayed EN in FIL
   pf_how_summary: 'Paano gumagana ang page na ito',
   pf_how_body: 'Read-only ang feed na ito at nagpapakita ng mga pampublikong post ng hive. Walang personal na lumalabas dito. Mag-sign in at sumali sa isang hive para mag-post o sumagot.',

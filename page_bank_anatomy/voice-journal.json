@@ -1,0 +1,65 @@
+{
+ "page": "voice-journal",
+ "url": "/workhive/voice-journal.html",
+ "_ground": "2026-08-05 static read. The only page with a mic->transcript seam, and the page most likely to capture PII nobody meant to record. Field reality is Filipino/Taglish.",
+ "views": [
+  {"key": "V1", "name": "capture panel", "seen": {"how": "static-read", "ref": "voice-journal.html:342 <section id=capture-panel>"}},
+  {"key": "V2", "name": "entries list", "seen": {"how": "static-read", "ref": "voice-journal.html:822 voice_journal_entries read"}},
+  {"key": "V3", "name": "review / edit", "seen": {"how": "static-read", "ref": "voice-journal.html:822 entry render + edit affordances"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "record control + mic state", "seen": {"how": "static-read", "ref": "voice-journal.html:342 capture panel"}},
+  {"key": "C2", "name": "transcript block", "seen": {"how": "static-read", "ref": "voice-journal.html:822 entry body"}},
+  {"key": "C3", "name": "entry row", "seen": {"how": "static-read", "ref": "voice-journal.html:822"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client (mic/media)", "seen": {"how": "static-read", "ref": "voice-journal.html:342"}},
+  {"key": "L2", "name": "edge (ai-gateway + voice-transcribe + tts-speak)", "seen": {"how": "doc+static", "ref": "voice-journal.html:1138 invoke('ai-gateway') + substrate page/voice-journal.md edge list (transcribeBlob -> voice-transcribe; speak* -> tts-speak)"}},
+  {"key": "L3", "name": "db (entries + profiles + worker truth)", "seen": {"how": "static-read", "ref": "voice-journal.html:763,789,822"}},
+  {"key": "L4", "name": "ai (transcription + post-processing)", "seen": {"how": "static-read", "ref": "voice-journal.html:1138"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "mic <-> transcript (audio to text - unique to this page)", "seen": {"how": "static-read", "ref": "voice-journal.html:342 capture -> :1138 gateway"}},
+  {"key": "S2", "name": "ai-gateway <-> entry (model output becoming a stored record)", "seen": {"how": "static-read", "ref": "voice-journal.html:1138 -> :822 entries"}},
+  {"key": "S3", "name": "trigger <-> view (v_worker_truth)", "seen": {"how": "static-read", "ref": "voice-journal.html:789"}},
+  {"key": "S4", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "voice-journal.html:763 worker_profiles"}},
+  {"key": "S5", "name": "journal <-> search (search_voice_journal_entries)", "seen": {"how": "doc+static", "ref": "search_voice_journal_entries is in the platform's read-only RPC set (live-state-runner.js RPC_READONLY)"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker (records)", "seen": {"how": "static-read", "ref": "voice-journal.html:822 own entries"}},
+  {"key": "P2", "name": "supervisor", "seen": {"how": "static-read", "ref": "voice-journal.html:789 v_worker_truth"}},
+  {"key": "P3", "name": "two_context", "seen": {"how": "static-read", "ref": "voice-journal.html:822 shared-view boundary"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (own-journal boundary)", "seen": {"how": "static-read", "ref": "voice-journal.html:822"}},
+  {"key": "IB", "name": "two_context (foreign journal unreachable)", "seen": {"how": "static-read", "ref": "voice-journal.html:822"}}
+ ],
+ "invariants": [
+  {"key": "failed_transcribe_no_ghost", "name": "a failed transcription creates no real-looking entry", "seen": {"how": "static-read", "ref": "voice-journal.html:1138 gateway path"}, "oracle": "a recording that fails to transcribe creates no entry that looks like a real one"},
+  {"key": "stored_is_shown", "name": "the stored transcript IS the shown transcript", "seen": {"how": "static-read", "ref": "voice-journal.html:822"}, "oracle": "the stored transcript is the transcript shown - no silent truncation between them"},
+  {"key": "raw_survives_polish", "name": "the raw transcript survives any polish", "seen": {"how": "static-read", "ref": "voice-journal.html:1138 post-processing"}, "oracle": "AI post-processing is reversible: the raw transcript survives beside any polished version"},
+  {"key": "attributed_from_jwt", "name": "attribution from the JWT, not the audio", "seen": {"how": "static-read", "ref": "voice-journal.html:763 profile + :822 entry write"}, "oracle": "the entry is attributed from the JWT, never from a name spoken in the audio"},
+  {"key": "double_submit_one_entry", "name": "two rapid submissions create one entry", "seen": {"how": "static-read", "ref": "voice-journal.html:342 capture flow"}, "oracle": "two rapid submissions create one entry"},
+  {"key": "journal_private", "name": "a journal is private unless shared", "seen": {"how": "doc+static", "ref": "substrate table-rls/voice_journal_entries.md: all four policies auth_uid = auth.uid() + trg_bind_submitter guard trigger"}, "oracle": "a worker cannot read another's journal - all four RLS policies pin auth_uid = auth.uid() and the bind trigger pins the submitter; proven live, not from the policy text"}
+ ],
+ "domain_truths": [
+  {"key": "audio_fate_stated", "name": "audio stored-or-discarded is stated", "seen": {"how": "static-read", "ref": "voice-journal.html:342 capture panel copy"}, "oracle": "the surface states whether audio is stored or discarded after transcription - people act on that claim"},
+  {"key": "language_handled", "name": "language handling is stated (Taglish reality)", "seen": {"how": "static-read", "ref": "voice-journal.html:1138 gateway prompt path"}, "oracle": "language handling is stated; the field reality is Filipino/Taglish, not clean English"},
+  {"key": "low_confidence_surfaced", "name": "low confidence is surfaced, not quoted", "seen": {"how": "static-read", "ref": "voice-journal.html:822 entry render"}, "oracle": "low transcription confidence is surfaced rather than a guess presented as a quote"},
+  {"key": "pii_rule_holds", "name": "PII in a transcript follows the stated rule", "seen": {"how": "static-read", "ref": "voice-journal.html:1138 - the PII-egress class"}, "oracle": "PII in a transcript is handled per the stated rule - this is the page most likely to capture a name or number nobody meant to record"},
+  {"key": "capture_time_not_save_time", "name": "timestamp = capture time", "seen": {"how": "static-read", "ref": "voice-journal.html:822"}, "oracle": "an entry's timestamp is capture time, not save time - they differ by exactly the offline gap"},
+  {"key": "promoted_is_linked", "name": "a promoted entry links to the logbook entry", "seen": {"how": "static-read", "ref": "voice-journal.html:822 entry actions"}, "oracle": "a journal entry promoted to a logbook entry is linked, not copied"},
+  {"key": "search_scope_stated", "name": "search states its window and hive", "seen": {"how": "doc+static", "ref": "search_voice_journal_entries RPC"}, "oracle": "search results state what was searched - window and hive"},
+  {"key": "summary_counts_inputs", "name": "an AI summary states how many entries it read", "seen": {"how": "static-read", "ref": "voice-journal.html:1138"}, "oracle": "an AI summary states how many entries it read"}
+ ],
+ "writes": [
+  {"fn": "voice_journal_entries (via the voice-journal-agent edge path, callJournalAgent - NOT a direct page insert)", "class": "capture", "seen": {"how": "doc+static", "ref": "substrate page/voice-journal.md (direct write = worker_profiles.update only; callJournalAgent fn) + RLS insert policy auth_uid = auth.uid()"}},
+  {"fn": "worker_profiles.update", "class": "identity online-only", "seen": {"how": "static-read", "ref": "voice-journal.html:763"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "the capture panel renders no money (voice-journal.html:342)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the entries list renders transcripts, no money (voice-journal.html:822)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V1/reward_explained", "reason": "the capture panel surfaces no reward figure (voice-journal.html:342)", "replace_with": {"oracle_key": "longest"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the review view surfaces no reward figure (voice-journal.html:822)", "replace_with": {"oracle_key": "back_nav"}}
+ ]
+}

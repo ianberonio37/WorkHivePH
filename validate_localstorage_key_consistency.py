@@ -44,6 +44,21 @@ STORAGE_RE = re.compile(
     r"""\b(?:local|session)Storage\.(?P<action>setItem|getItem|removeItem)\(\s*['"`](?P<key>[^'"`]+)['"`]""",
 )
 
+# A KEY BUILT BY A HELPER IS STILL THAT KEY. The literal-only match above reported
+# `wh_draft_listing_desc_` as write-only in marketplace-seller.html and blocked a commit — but the
+# draft IS read, three lines away, via `getItem(_editDraftKey(item.id))`. The write happens to inline
+# its literal (`setItem('wh_draft_listing_desc_' + id, ...)`) while the read goes through the helper,
+# so the detector saw a set and no get and called a working feature a bug. A false write-only report
+# is worse than none: it invites someone to "fix" a draft-restore path that already works.
+#
+# So resolve one-line key helpers — `function _editDraftKey(id) { return 'wh_...' + id; }` — and count
+# `getItem(_editDraftKey(...))` as a read of that literal. Deliberately narrow: only a helper whose
+# body is a single `return '<literal>'...` qualifies, because anything more can branch between keys
+# and guessing which one it returns would trade a false positive for a false negative.
+KEY_HELPER_RE = re.compile(
+    r"""\bfunction\s+(?P<fn>[A-Za-z_$][\w$]*)\s*\([^)]*\)\s*\{\s*return\s+['"`](?P<key>[^'"`]+)['"`]""",
+)
+
 ALLOW_RE = re.compile(r"storage-key-allow", re.IGNORECASE)
 HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 
@@ -70,6 +85,40 @@ def main() -> int:
             win = body[max(0, m.start() - 200):m.end() + 200]
             if ALLOW_RE.search(win): continue
             key_actions[key][action].add(name)
+
+        # Second pass: keys reached through a one-line helper, in the SAME file that defines it.
+        helpers = {h.group("fn"): h.group("key") for h in KEY_HELPER_RE.finditer(body)}
+        if helpers:
+            alt = "|".join(re.escape(f) for f in sorted(helpers))
+            # (a) called inline: localStorage.getItem(_editDraftKey(item.id))
+            via = re.compile(
+                r"""\b(?:local|session)Storage\.(?P<action>setItem|getItem|removeItem)\(\s*"""
+                r"""(?P<fn>%s)\s*\(""" % alt)
+            for m in via.finditer(body):
+                win = body[max(0, m.start() - 200):m.end() + 200]
+                if ALLOW_RE.search(win): continue
+                key_actions[helpers[m.group("fn")]][m.group("action")].add(name)
+
+            # (b) parked in a local first — `const k = _errorKey(hiveId); ... setItem(k, ...)`.
+            # Resolving only (a) is worse than resolving neither: voice-handler READS the key through
+            # a direct call and WRITES it through the local, so (a) alone turned a working
+            # read-and-write pair into a fresh "get-without-set". A binding is honoured only when the
+            # variable name resolves to exactly ONE helper in this file; a name reused for two
+            # different keys is skipped rather than guessed, since merging two keys could hide a
+            # genuinely write-only one and cost the gate its teeth.
+            bind: dict[str, set[str]] = defaultdict(set)
+            for b in re.finditer(r"""\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(%s)\s*\(""" % alt,
+                                 body):
+                bind[b.group(1)].add(helpers[b.group(2)])
+            unique = {v: next(iter(ks)) for v, ks in bind.items() if len(ks) == 1}
+            if unique:
+                vre = re.compile(
+                    r"""\b(?:local|session)Storage\.(?P<action>setItem|getItem|removeItem)\(\s*"""
+                    r"""(?P<var>%s)\s*[,)]""" % "|".join(re.escape(v) for v in sorted(unique)))
+                for m in vre.finditer(body):
+                    win = body[max(0, m.start() - 200):m.end() + 200]
+                    if ALLOW_RE.search(win): continue
+                    key_actions[unique[m.group("var")]][m.group("action")].add(name)
 
     # Drift cases:
     #   1. set with no get anywhere = write-only orphan (probably real bug)

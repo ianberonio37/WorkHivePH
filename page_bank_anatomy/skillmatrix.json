@@ -1,0 +1,62 @@
+{
+ "page": "skillmatrix",
+ "url": "/workhive/skillmatrix.html",
+ "_ground": "2026-08-05 static read. Badges are IDENTITY CLAIMS about a person's livelihood: grade_skill_exam is the only lawful writer, and conflating certified / supervisor-assessed / self-assessed damages someone's employability.",
+ "views": [
+  {"key": "V1", "name": "matrix", "seen": {"how": "static-read", "ref": "skillmatrix.html:674 skill_profiles + :675 v_skill_badges_truth"}},
+  {"key": "V2", "name": "lesson-modal", "seen": {"how": "static-read", "ref": "skillmatrix.html:471 #lesson-modal role=dialog"}},
+  {"key": "V3", "name": "exam-modal", "seen": {"how": "static-read", "ref": "skillmatrix.html:495 #exam-modal role=dialog"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "skill cell", "seen": {"how": "static-read", "ref": "skillmatrix.html:674 matrix feed"}},
+  {"key": "C2", "name": "exam question", "seen": {"how": "static-read", "ref": "skillmatrix.html:495"}},
+  {"key": "C3", "name": "result / badge card", "seen": {"how": "static-read", "ref": "skillmatrix.html:523 #result-modal"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client", "seen": {"how": "static-read", "ref": "skillmatrix.html:674 matrix load"}},
+  {"key": "L2", "name": "gateway (grade_skill_exam RPC)", "seen": {"how": "static-read", "ref": "skillmatrix.html:1323 rpc('grade_skill_exam')"}},
+  {"key": "L3", "name": "db (profiles, attempts, badges truth)", "seen": {"how": "static-read", "ref": "skillmatrix.html:674-1112 reads"}},
+  {"key": "L4", "name": "edge (embed-entry via embedSkillEntry)", "seen": {"how": "doc+static", "ref": "substrate page/skillmatrix.md edge-invoke list (embedSkillEntry fn) - same raw-fetch pattern as pm-scheduler/resume"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "exam <-> badge (grade -> attempt -> badge)", "seen": {"how": "static-read", "ref": "skillmatrix.html:1323 rpc + :1112 skill_exam_attempts"}},
+  {"key": "S2", "name": "trigger <-> view (profiles -> badges truth)", "seen": {"how": "static-read", "ref": "skillmatrix.html:674-675"}},
+  {"key": "S3", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "skillmatrix.html:758-848 profile writes"}},
+  {"key": "S4", "name": "skillmatrix <-> hive board (badge render elsewhere)", "seen": {"how": "cross-page", "ref": "hive.html:3932 v_skill_badges_truth read"}},
+  {"key": "S5", "name": "skillmatrix <-> achievements/resume (badge as portfolio evidence)", "seen": {"how": "cross-page", "ref": "resume.html:910-913 v_skill_badges_truth + skill_badges reads"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "worker (learns, takes exams)", "seen": {"how": "static-read", "ref": "skillmatrix.html:1112 own attempts"}},
+  {"key": "P2", "name": "supervisor (assessor)", "seen": {"how": "static-read", "ref": "skillmatrix.html:758 profile assessment writes"}},
+  {"key": "P3", "name": "two_context", "seen": {"how": "static-read", "ref": "skillmatrix.html:848 shared profile rows"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "worker (own-credential boundary)", "seen": {"how": "static-read", "ref": "skillmatrix.html:1112 attempts read"}},
+  {"key": "IB", "name": "two_context (foreign attempts invisible)", "seen": {"how": "static-read", "ref": "skillmatrix.html:1112"}}
+ ],
+ "invariants": [
+  {"key": "no_self_award", "name": "a badge cannot be self-awarded", "seen": {"how": "static-read", "ref": "skillmatrix.html:1323 grade_skill_exam is the writer"}, "oracle": "grade_skill_exam is the only writer of a badge; a direct client write to the badge path is refused - the forge-verified-trust class, in credential form"},
+  {"key": "one_submit_one_attempt", "name": "one submission, one attempt, at most one badge", "seen": {"how": "static-read", "ref": "skillmatrix.html:1323"}, "oracle": "a double-submit creates neither a second attempt nor a second badge"},
+  {"key": "fail_stays_failed", "name": "a failed attempt cannot become a pass; cooldown on fails only", "seen": {"how": "doc+static", "ref": "skillmatrix-validator skill rule [4] cooldown-on-failed-attempts-only + skillmatrix.html:1112"}, "oracle": "a failed attempt cannot be re-graded into a pass, and the retry cooldown applies to FAILED attempts only - a pass is never cooled down"},
+  {"key": "badge_counts_agree", "name": "badge counts agree across three surfaces", "seen": {"how": "cross-page", "ref": "skillmatrix.html:675 vs hive.html:3932 vs achievements page"}, "oracle": "badge counts on skillmatrix, the hive board and achievements agree for the same worker"},
+  {"key": "attempts_private", "name": "another worker's attempts are unreachable", "seen": {"how": "static-read", "ref": "skillmatrix.html:1112"}, "oracle": "a worker can neither read nor alter another worker's attempts"},
+  {"key": "revocation_propagates", "name": "a revoked credential disappears everywhere", "seen": {"how": "cross-page", "ref": "skillmatrix.html:675 + resume.html:910 + hive.html:3932"}, "oracle": "revoking or expiring a credential removes it everywhere it is displayed, not just here"}
+ ],
+ "domain_truths": [
+  {"key": "tesda_mapping_stated", "name": "TESDA NC levels map by a stated mapping", "seen": {"how": "static-read", "ref": "skillmatrix.html:674 level fields"}, "oracle": "TESDA NC levels map to platform skill levels by a stated mapping, never an implied one"},
+  {"key": "credential_issuer_expiry", "name": "PRC/TESDA credentials show issuer and expiry", "seen": {"how": "static-read", "ref": "skillmatrix.html:674 profile fields"}, "oracle": "a PRC / TESDA credential shows its issuing body and expiry"},
+  {"key": "three_claims_distinct", "name": "certified vs supervisor-assessed vs self-assessed look different", "seen": {"how": "static-read", "ref": "skillmatrix.html:674-675 profile + badges"}, "oracle": "certified, supervisor-assessed and self-assessed are three different claims and look different - conflating them damages a person's livelihood"},
+  {"key": "gap_names_target", "name": "a skill gap names its target profile", "seen": {"how": "static-read", "ref": "skillmatrix.html:674 matrix"}, "oracle": "a skill gap is stated against a named target profile"},
+  {"key": "pass_mark_before", "name": "the pass mark is stated before the exam", "seen": {"how": "static-read", "ref": "skillmatrix.html:495 exam-modal"}, "oracle": "the exam pass mark is stated before the exam"},
+  {"key": "tier_thresholds", "name": "badge tiers state their thresholds", "seen": {"how": "static-read", "ref": "skillmatrix.html:675"}, "oracle": "badge tiers state their thresholds"},
+  {"key": "coverage_denominator", "name": "matrix coverage % states its denominator", "seen": {"how": "static-read", "ref": "skillmatrix.html:674"}, "oracle": "matrix coverage % states its denominator - which skills, which workers"},
+  {"key": "expired_reads_expired", "name": "expired reads as expired, never as absent", "seen": {"how": "static-read", "ref": "skillmatrix.html:674 profile expiry fields"}, "oracle": "an expired credential reads as expired, never as absent - boundary-not-emptiness applied to someone's qualifications"}
+ ],
+ "writes": [
+  {"fn": "skill_profiles.upsert (the ONLY direct write; attempts/badges land server-side via grade_skill_exam, conflict key includes LEVEL)", "class": "credential locked online-only", "seen": {"how": "doc+static", "ref": "substrate page/skillmatrix.md write list + skillmatrix-validator rule [3] + skillmatrix.html:758,848,1323"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "the matrix renders levels and badges, no money (skillmatrix.html:674)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "the lesson modal renders content, no money (skillmatrix.html:471)", "replace_with": {"oracle_key": "zoom200"}}
+ ]
+}

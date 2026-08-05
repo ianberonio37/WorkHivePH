@@ -1,0 +1,64 @@
+{
+ "page": "engineering-design",
+ "url": "/workhive/engineering-design.html",
+ "_ground": "2026-08-05 static read. Logic lives in engineering-design.js (~28k lines); the page's largest availability risk is THIRD-PARTY: three SRI-pinned CDN scripts (html2pdf, mermaid, supabase-js). A saved calc must reproduce from its stored inputs, and project-manager reads engineering_calcs as project evidence.",
+ "views": [
+  {"key": "V1", "name": "calculator tab", "seen": {"how": "static-read", "ref": "engineering-design.html:602 data-tab=calculator"}},
+  {"key": "V2", "name": "history tab", "seen": {"how": "static-read", "ref": "engineering-design.html:603 data-tab=history + engineering-design.js:28118 history read"}},
+  {"key": "V3", "name": "guide tab", "seen": {"how": "static-read", "ref": "engineering-design.html:604 data-tab=guide"}}
+ ],
+ "components": [
+  {"key": "C1", "name": "calc input form", "seen": {"how": "static-read", "ref": "engineering-design.html:602 calculator tab"}},
+  {"key": "C2", "name": "result / report block", "seen": {"how": "static-read", "ref": "engineering-design.html:890 html2pdf export path"}},
+  {"key": "C3", "name": "diagram (drawing-symbols + mermaid)", "seen": {"how": "static-read", "ref": "engineering-design.html:899 drawing-symbols.js + :893 mermaid"}}
+ ],
+ "layers": [
+  {"key": "L1", "name": "client (28k-line calc engine)", "seen": {"how": "static-read", "ref": "engineering-design.html:903 engineering-design.js defer"}},
+  {"key": "L2", "name": "gateway", "seen": {"how": "static-read", "ref": "engineering-design.js:28046 from('engineering_calcs')"}},
+  {"key": "L3", "name": "db (engineering_calcs)", "seen": {"how": "static-read", "ref": "engineering-design.js:28046,28081,28118,28256"}},
+  {"key": "L4", "name": "cdn (3 SRI-pinned third parties)", "seen": {"how": "static-read", "ref": "engineering-design.html:890 html2pdf + :893 mermaid + :902 supabase-js, all integrity-pinned"}}
+ ],
+ "seams": [
+  {"key": "S1", "name": "calc <-> saved record", "seen": {"how": "static-read", "ref": "engineering-design.js:28046/28081 insert vs :28118 history read"}},
+  {"key": "S2", "name": "calc <-> project (evidence consumer)", "seen": {"how": "cross-page", "ref": "project-manager.html:2350 from('engineering_calcs')"}},
+  {"key": "S3", "name": "cdn <-> render (mermaid/html2pdf unavailable)", "seen": {"how": "static-read", "ref": "engineering-design.html:890-893"}},
+  {"key": "S4", "name": "calc <-> pdf export (document vs screen)", "seen": {"how": "static-read", "ref": "engineering-design.html:890 html2pdf"}},
+  {"key": "S5", "name": "client <-> gateway", "seen": {"how": "static-read", "ref": "engineering-design.js:28046"}}
+ ],
+ "journey_personas": [
+  {"key": "P1", "name": "anon (the free public tools)", "seen": {"how": "static-read", "ref": "engineering-design.html:602 calculator usable pre-auth"}},
+  {"key": "P2", "name": "engineer (signed in, saving)", "seen": {"how": "static-read", "ref": "engineering-design.js:28046 insert"}},
+  {"key": "P3", "name": "two_context", "seen": {"how": "static-read", "ref": "engineering-design.js:28118 shared history"}}
+ ],
+ "identity_personas": [
+  {"key": "IA", "name": "anon (what saves without a session)", "seen": {"how": "static-read", "ref": "engineering-design.js:28046"}},
+  {"key": "IB", "name": "two_context (foreign calc unreachable)", "seen": {"how": "static-read", "ref": "engineering-design.js:28118"}}
+ ],
+ "invariants": [
+  {"key": "calc_reproduces", "name": "a saved calc reproduces its result from stored inputs", "seen": {"how": "static-read", "ref": "engineering-design.js:28046 insert payload"}, "oracle": "a saved calc reproduces its result exactly from its stored inputs - a stored result that cannot be recomputed is a number with no provenance"},
+  {"key": "delete_respects_links", "name": "deleting a linked calc does not break project evidence", "seen": {"how": "cross-page", "ref": "engineering-design.js:28256 delete vs project-manager.html:2350 reader"}, "oracle": "deleting a calc a project links to does not silently break the project's evidence - refused, or the link is resolved"},
+  {"key": "pdf_equals_screen", "name": "the PDF carries the same values as the screen", "seen": {"how": "static-read", "ref": "engineering-design.html:890 html2pdf"}, "oracle": "the PDF export carries the same values as the screen, units included"},
+  {"key": "units_round_trip", "name": "unit conversions round-trip without drift", "seen": {"how": "static-read", "ref": "engineering-design.js calc engine"}, "oracle": "unit conversions round-trip without drift"},
+  {"key": "standard_versioned", "name": "the governing standard + version is stored with the calc", "seen": {"how": "static-read", "ref": "engineering-design.js:28046 payload"}, "oracle": "the governing standard and its version are stored with the calc - a result under a superseded standard is not the same result"},
+  {"key": "tenant_isolation", "name": "engineering_calcs isolation", "seen": {"how": "static-read", "ref": "engineering-design.js:28118"}, "oracle": "a foreign hive's calcs are invisible"}
+ ],
+ "domain_truths": [
+  {"key": "units_everywhere", "name": "every input and output carries its unit", "seen": {"how": "static-read", "ref": "engineering-design.html:602 forms"}, "oracle": "every input and output carries its unit; SI vs imperial is explicit, never inferred"},
+  {"key": "standard_named", "name": "the governing standard is named per calc", "seen": {"how": "doc+static", "ref": "the NFPA-13 sprinkler-density change-detector lesson + API 610 pump head (audit_partial_label_honesty tokens)"}, "oracle": "the governing standard is named per calc (API 610 pump head, NFPA 13 sprinkler density, ...)"},
+  {"key": "safety_factors_shown", "name": "safety factors are shown, never folded in", "seen": {"how": "static-read", "ref": "engineering-design.html:602 result blocks"}, "oracle": "safety factors are shown, never folded silently into the result"},
+  {"key": "assumptions_editable", "name": "assumptions and defaults are visible and editable", "seen": {"how": "static-read", "ref": "engineering-design.html:602 forms"}, "oracle": "assumptions and their defaults are visible and editable"},
+  {"key": "range_refusal", "name": "out-of-range inputs are refused with the range", "seen": {"how": "static-read", "ref": "engineering-design.html:602 input validation"}, "oracle": "out-of-range inputs are refused with the valid range, not silently clamped"},
+  {"key": "sig_figs_honest", "name": "significant figures are honest", "seen": {"how": "static-read", "ref": "engineering-design.html:602 result rendering"}, "oracle": "a 3-sig-fig input does not produce a 9-decimal answer"},
+  {"key": "partial_labelled", "name": "a partial formula is labelled partial", "seen": {"how": "doc+static", "ref": "audit_partial_label_honesty.py formula ids (oee_iso_22400_partial, pump_total_head_api_610) + the CPI-on-labour-only category-error lesson"}, "oracle": "a partial or approximate formula is labelled partial - a correct number under a wrong name is still wrong"},
+  {"key": "guide_matches_calc", "name": "the guide's worked example matches the calculator", "seen": {"how": "static-read", "ref": "engineering-design.html:604 guide tab"}, "oracle": "the guide's worked example matches what the calculator produces for the same inputs"}
+ ],
+ "writes": [
+  {"fn": "engineering_calcs insert x2 / delete", "class": "capture", "seen": {"how": "static-read", "ref": "engineering-design.js:28046,28081,28256"}}
+ ],
+ "na": [
+  {"cell": "CF-ufai-F/V1/money_matches_ledger", "reason": "calculators render engineering quantities, not money (engineering-design.html:602)", "replace_with": {"oracle_key": "reload"}},
+  {"cell": "CF-ufai-F/V2/money_matches_ledger", "reason": "history renders saved calcs, no money (engineering-design.js:28118)", "replace_with": {"oracle_key": "zoom200"}},
+  {"cell": "CM-ux-comprehension/V2/reward_explained", "reason": "history surfaces no reward figure", "replace_with": {"oracle_key": "back_nav"}},
+  {"cell": "CM-ux-comprehension/V3/reward_explained", "reason": "the guide surfaces no reward figure", "replace_with": {"oracle_key": "longest"}}
+ ]
+}

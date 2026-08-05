@@ -689,6 +689,13 @@
   }
 
   /* ── Load listings (this seller, published only) ────────────────────── */
+  /* THE REWARD, ON THE SURFACE WHERE A BUYER ALSO MEETS THE PRICE (2026-08-05, live MCP walk).
+     This page rendered ₱68,980.48 and ₱236,110.53 with no credits-back chip, while the marketplace
+     showed ₱6,898 back on that same listing — one object telling a buyer two different things about
+     what they get, depending only on how they arrived. The chip now lives in utils.js so there is one
+     implementation; this page just has to load the knobs and call it. */
+  let _rewardKnobs = null;
+
   async function loadListings() {
     const grid = document.getElementById('listing-grid');
     // E2 consistent states: shimmer skeleton while listings fetch so the grid
@@ -732,6 +739,18 @@
             .limit(60));
       if (error) { if (status) error._httpStatus = status; throw error; }
       _listings = data || [];
+      // THE REWARD MUST NEVER GATE THE LISTINGS. Fetched once for the page, never per card — and
+      // deliberately NOT awaited here: awaiting it inside the listing path means a slow knob RPC
+      // delays the listings themselves, which is a worse failure than a missing chip. So it runs
+      // alongside, and re-renders once when it lands. A failure leaves _rewardKnobs null, and
+      // whCreditsBackChipHtml then renders nothing at all rather than a number we cannot stand behind.
+      if (!_rewardKnobs && typeof whLoadRewardKnobs === 'function') {
+        whLoadRewardKnobs(db).then(k => {
+          if (!k) return;                       // no knobs means no chip, never a wrong chip
+          _rewardKnobs = k;
+          if (_listings.length) renderListings();
+        });
+      }
       _listingsResolved = true;
       clearTimeout(_slowNote);
     } catch (err) {
@@ -763,8 +782,16 @@
             : 'a moment';
           msg = 'Too many requests, so this seller’s listings could not be read. Your connection is fine: wait about '
               + wait + ', then retry.';
-        } else if (st === 401 || st === 403 || code === '42501' || /jwt|token/i.test(String((err && err.message) || ''))) {
-          msg = 'Your session expired, so this seller’s listings could not be read. Sign in again to continue.';
+        /* 401 = dead session; 403 = live session, refused row. Conflating them told a signed-in
+           person to sign in again for a permission problem, and the retry lands on the same 403.
+           Measured 2026-08-05 across six surfaces by injecting each status at the route layer. */
+        } else if (st === 401 || /jwt|token/i.test(String((err && err.message) || ''))
+                   || (st == null && code === '42501')) {
+          msg = 'Your session expired, so this seller’s listings could not be read. Sign in again to '
+              + 'continue. Nothing you did was lost.';
+        } else if (st === 403 || code === '42501') {
+          msg = 'This account does not have access to this seller’s listings. Your session is fine, so '
+              + 'signing in again will not change it — ask a supervisor if you need access.';
         } else {
           msg = 'Couldn’t load this seller’s listings. Check your connection and try again.';
         }
@@ -823,6 +850,9 @@
               <span class="meta-chip">${e(item.section)}</span>
               <span class="meta-chip">${e(item.category || 'Other')}</span>
               ${item.location ? `<span class="meta-chip">${e(item.location)}</span>` : ''}
+              ${typeof whCreditsBackChipHtml === 'function'
+                  ? whCreditsBackChipHtml(item.price, _rewardKnobs)
+                  : ''}
             </div>
           </div>
         </a>`;
@@ -831,10 +861,14 @@
 
   /* ── Load reviews ───────────────────────────────────────────────────── */
   let _reviewsResolved = false;   // an invitation shown mid-read is a lie with a friendly face
+  let _reviewsFailed   = false;   // ...and one shown after a FAILED read is the same lie, arrived at
+                                  // through a different door: the read never answered, so the page
+                                  // still does not know whether this seller has reviews
   let _listingsResolved = false;  // ...and reviews cannot conclude before listings have
 
   async function loadReviews() {
     _reviewsResolved = false;   // reset per RUN: a retry must not inherit the last run's answer
+    _reviewsFailed   = false;   // ...nor inherit the last run's failure, or a recovered read still reads as broken
     try {
       const listingIds = _listings.map(l => l.id);
       /* NO LISTINGS YET IS NOT NO REVIEWS. This function derives its query from _listings, so while
@@ -850,16 +884,25 @@
         return;
       }
 
-      const { data } = await db
+      /* AND THIS READ MUST ANSWER FOR ITSELF TOO. The discipline above — "absent listings mean
+         UNKNOWN reviews; only a settled read with genuinely zero rows can conclude anything" — was
+         applied to the LISTINGS read and not to this one: `const { data }` threw the error away and
+         _reviewsResolved was then set true unconditionally. A failed read therefore rendered
+         "No reviews yet. Buyer reviews are not open on WorkHive yet…" — a confident claim ABOUT A
+         SELLER manufactured by a network failure, sitting beside 17 of their listings that loaded
+         fine. Measured 2026-08-05 by failing this one read while the rest of the page succeeded. */
+      const { data, error } = await db
         .from('marketplace_reviews')
         .select('reviewer_name, rating, comment, created_at, verified_purchase')
         .in('listing_id', listingIds)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(REVIEWS_SHOWN);
-      _reviews = data || [];
-    } catch (_) { _reviews = []; }
-    _reviewsResolved = true;
+      if (error) { _reviews = []; _reviewsFailed = true; }
+      else { _reviews = data || []; _reviewsFailed = false; }
+    } catch (_) { _reviews = []; _reviewsFailed = true; }
+    // Only a read that ANSWERED may license a conclusion about this seller.
+    _reviewsResolved = !_reviewsFailed;
     renderReviews();
   }
 
@@ -906,6 +949,18 @@
          true, and inviteAtRest FALSE, which is the tell: the invitation appeared ONLY during the slow
          state, never once the data had arrived. The markup's own "Loading reviews…" is the honest
          thing to leave on screen until then. */
+      /* FAILED IS NOT LOADING EITHER. Now that a failed read no longer counts as resolved, falling
+         through to the early return would leave "Loading reviews…" shimmering forever — trading a
+         confident lie for an endless one. Say which it is, and offer the retry that can actually
+         work, since a failed read is exactly the case where retrying is the right advice. */
+      if (_reviewsFailed) {
+        wrap.innerHTML = `<div class="empty-reviews">Couldn’t load this seller’s reviews, so whether `
+          + `they have any is unknown rather than none. Their listings above loaded fine. `
+          + `<button type="button" class="link-btn" id="reviews-retry">Retry</button></div>`;
+        const rb = document.getElementById('reviews-retry');
+        if (rb) rb.addEventListener('click', () => { wrap.innerHTML = 'Loading reviews…'; loadReviews(); });
+        return;
+      }
       if (!_reviewsResolved) return;
       /* MK13 (2026-07-24): this used to read "Reviews will appear here after buyers submit them." —
          a promise the product cannot keep. Both pages that touch marketplace_reviews only SELECT from
