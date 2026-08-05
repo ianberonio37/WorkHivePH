@@ -3182,7 +3182,7 @@ VALIDATORS = [
         "id":      "service-role-exposure",
         "script":  "validate_service_role_exposure.py",
         "args":    [],
-        "label":   "Service-Role Key Exposure (4-layer: service_role identifier + JWT in client + secret env + anon-key inventory)",
+        "label":   "Service-Role Key Exposure (5-layer: service_role identifier + JWT in client + secret env + anon-key inventory + JWT in the live DB catalog)",
         "group":   "Platform",
         "report":  "service_role_exposure_report.json",
         "skip_if_fast": False,

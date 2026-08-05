@@ -40,6 +40,7 @@ import json
 import sys
 import os
 import glob
+import subprocess          # L5 asks the live catalog; files alone missed a key for months
 from collections import defaultdict
 
 if sys.platform == "win32" and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
@@ -256,6 +257,66 @@ def check_anon_key_inventory(
     return [], rows
 
 
+def check_no_jwt_in_db_catalog() -> tuple[list[dict], list[dict]]:
+    """L5 — THE LAYER THAT WAS MISSING, AND WHY IT MATTERS.
+
+    L1-L4 read FILES. For months this validator reported green while TWO triggers in the live
+    database — `embed-pm-completions` and `embed-skill-badges` — carried a production service_role
+    JWT inside their own definitions, because a trigger definition is not a file and nothing here
+    ever asked the database. That is the same false green as parsing text instead of querying the DB.
+
+    A credential in the catalog is worse than one in a file: it is readable by anything that can
+    inspect the catalog, it travels in every dump, and it cannot be rotated without a schema change.
+    So ask Postgres directly, across every object type that can hold a literal — trigger definitions,
+    function bodies, view definitions, and cron commands.
+
+    Skips (never fails) when no local database is reachable: this is a platform gate that also runs
+    on machines with the stack down, and a missing container is not evidence of a leak. It reports
+    that it could not look, rather than claiming a pass it did not earn.
+    """
+    jwt_rx = r"eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{20,}"
+    sql = f"""
+      select 'trigger'  as kind, t.tgname       as name from pg_trigger t
+        where not t.tgisinternal and pg_get_triggerdef(t.oid) ~ '{jwt_rx}'
+      union all
+      select 'function', n.nspname||'.'||p.proname from pg_proc p
+        join pg_namespace n on n.oid = p.pronamespace
+        where p.prosrc ~ '{jwt_rx}' and n.nspname not in ('pg_catalog','information_schema')
+      union all
+      select 'view', schemaname||'.'||viewname from pg_views
+        where definition ~ '{jwt_rx}' and schemaname not in ('pg_catalog','information_schema')
+    """
+    try:
+        p = subprocess.run(
+            ["docker", "exec", "-i", "supabase_db_workhive", "psql", "-U", "postgres",
+             "-d", "postgres", "-t", "-A", "-F", "\x1f", "-c", sql],
+            capture_output=True, text=True, timeout=120,
+        )
+    except Exception as exc:                      # docker absent, daemon down, timeout
+        return [], [{"kind": "skipped", "name": f"database not reachable ({type(exc).__name__})"}]
+    if p.returncode != 0:
+        return [], [{"kind": "skipped", "name": "database not reachable"}]
+
+    found = []
+    for line in (p.stdout or "").splitlines():
+        line = line.rstrip()
+        if not line or line.startswith("("):
+            continue
+        parts = line.split("\x1f")
+        if len(parts) == 2:
+            found.append({"kind": parts[0], "name": parts[1]})
+
+    issues = [{
+        "check": "no_jwt_in_db_catalog",
+        "path":  f"{f['kind']} {f['name']}",
+        "line":  0,
+        "detail": (f"the {f['kind']} `{f['name']}` carries a JWT in its own definition — readable "
+                   f"from the catalog, present in every dump, and not rotatable without a schema "
+                   f"change"),
+    } for f in found]
+    return issues, found
+
+
 # -- Runner ------------------------------------------------------------------
 
 CHECK_NAMES = [
@@ -263,12 +324,14 @@ CHECK_NAMES = [
     "jwt_in_client",
     "suspicious_env_in_client",
     "anon_key_inventory",
+    "no_jwt_in_db_catalog",
 ]
 CHECK_LABELS = {
     "service_role_in_client":     "L1  No SERVICE_ROLE / service_role identifier in client HTML/JS  [FAIL]",
     "jwt_in_client":              "L2  No JWT-shaped string hardcoded in client HTML/JS             [FAIL]",
     "suspicious_env_in_client":   "L3  No SECRET / API_KEY env-var names referenced in client       [WARN]",
     "anon_key_inventory":         "L4  Anon-key reference inventory (informational)                 [INFO]",
+    "no_jwt_in_db_catalog":       "L5  No JWT in a live trigger/function/view definition            [FAIL]",
 }
 
 
@@ -285,8 +348,9 @@ def main():
     jwt_issues, jwt_report   = check_jwt_in_client(files)
     env_issues, env_report   = check_suspicious_env_in_client(files)
     anon_issues, anon_report = check_anon_key_inventory(files)
+    db_issues, db_report     = check_no_jwt_in_db_catalog()
 
-    all_issues = sr_issues + jwt_issues + env_issues + anon_issues
+    all_issues = sr_issues + jwt_issues + env_issues + anon_issues + db_issues
     n_pass, n_warn, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, all_issues)
 
     if anon_report:
@@ -314,6 +378,7 @@ def main():
         "jwt":            jwt_report,
         "suspicious_env": env_report,
         "anon_inventory": anon_report,
+        "db_catalog":     db_report,
         "issues":         [i for i in all_issues if not i.get("skip")],
         "warnings":       [i for i in all_issues if i.get("skip")],
     }
