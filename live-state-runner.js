@@ -957,7 +957,15 @@ export function comprehension() {
       // whether the copy uses a house phrase -- and an element-shaped test (does an .action-card
       // exist) is even further from it. Match the SHAPE of a consequence: a present-tense verb about
       // what the action does, a visibility change, a reversibility statement, or a timing promise.
-      saysWhatNext: /(what to do next|next step|we.ll|you.ll (get|receive|hear)|within \d|once (you|the)|after you|goes live|publishes|will be (sent|shown|live|notified)|can still be (removed|undone|changed)|cannot be undone|sees (that|your)|changes what|appears on|notifie[sd]|takes effect)/i.test(body),
+      // `cancelled` joins the reversibility alternatives. The comment above names four consequence
+      // SHAPES this is meant to recognise -- a present-tense verb about what the action does, a
+      // visibility change, a REVERSIBILITY STATEMENT, or a timing promise -- and cancellation is
+      // squarely the third. It was missing only as vocabulary: copy reading "the request can still be
+      // cancelled until you pick a provider" tells a person exactly what follows and how to back out,
+      // and scored as saying nothing because the list happened to know `removed`, `undone` and
+      // `changed` but not the word this product actually uses for that state (`cancelled_by_client`).
+      // Widening the vocabulary of a shape the oracle already claims is not loosening it.
+      saysWhatNext: /(what to do next|next step|we.ll|you.ll (get|receive|hear)|within \d|once (you|the)|after you|goes live|publishes|will be (sent|shown|live|notified)|can still be (removed|undone|changed|cancelled|canceled)|cannot be undone|sees (that|your)|changes what|appears on|notifie[sd]|takes effect)/i.test(body),
       hasActionCard: !!m.querySelector('.action-card, #mk-action-text, .ac-text'),
       actionText: (m.querySelector('#mk-action-text, .ac-text') || {}).innerText || null,
     },
