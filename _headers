@@ -6,6 +6,24 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co https://workhive-assistant.ian-beronio37.workers.dev; frame-ancestors 'none'
 
+# Stale backups + the v3 test page are served from the web root (publish = "."), and
+# each is a near-duplicate of the live homepage or logbook with the same <title>, no
+# canonical and no robots meta. robots.txt disallows them, but that is a request, not
+# an enforcement: a crawler that ignores it — or a stray inbound link — can put a
+# duplicate of our own front page into an index we are trying to win. X-Robots-Tag is
+# served with the response, so it applies whether or not the HTML is parsed.
+# These files should ultimately not be deployed at all; this is the safe interim.
+/index.backup.html
+  X-Robots-Tag: noindex, nofollow
+/index.backup2.html
+  X-Robots-Tag: noindex, nofollow
+/checklist.backup.html
+  X-Robots-Tag: noindex, nofollow
+/logbook.backup.html
+  X-Robots-Tag: noindex, nofollow
+/index-v3-test.html
+  X-Robots-Tag: noindex, nofollow
+
 # Cache policy (Maturity Phase 2 — CA). HTML + the service worker must always
 # revalidate so a deploy is picked up immediately; the SW's CACHE_NAME bump is
 # the shell-invalidation mechanism. Static immutable media caches long.
