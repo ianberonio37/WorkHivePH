@@ -5,25 +5,28 @@
 
 ---
 
+> **Build status — 2026-08-05.** Everything in §1 (query board) and §3 (content architecture) is BUILT and committed locally, awaiting Ian's deploy: 60 calculator pages, 3 cluster pillars, 4 comparison pages, 1 problem guide, 17 cluster back-links, robots.txt AI-bot tokens, llms.txt rebuild. All 18 demand queries now have a page behind them. §2 (per-engine) is on-page work that rides on those pages. §4 (off-site) and §5 (live SOV) are Ian-only by nature — the assets are drafted, the posting is not automatable.
+
+
 ## §1 — Query target board (real demand, priority-scored)
 
 Method: 6 revenue-first BOFU types `[external-saas-keyword-research-revenue-first-process-sql-]`, prompt-intent phrasing `[external-aeo-keyword-research-prompt-intent-guide-b2b-saa]`. Priority Score = `(Volume × CPC) / KD` — **[IAN]** fill Volume/CPC/KD from a keyword tool or GSC once wired; the **rank order below is the qualitative prior** (highest intent + lowest incumbent lock first). All 18 are already live in `prompt_audit_queries.json` as `demand_gap` queries.
 
 | # | Query | BOFU type | Current winner (gap) | WorkHive asset to build |
 |---|---|---|---|---|
-| 1 | free alternative to UpKeep for a small maintenance team | competitor-alt | UpKeep/listicles | `/compare/workhive-vs-upkeep/` |
-| 2 | MaintainX vs Limble vs Fiix for a small manufacturing plant | product-vs | review sites | `/compare/free-cmms-comparison/` |
-| 3 | best free CMMS software 2026 | best-for-case | Coast/MaintainX freemium | pillar: "genuinely free CMMS" |
-| 4 | CMMS that works offline on the plant floor | best-for-case | **nobody owns it** | offline-first landing (differentiator) |
-| 5 | cheapest CMMS software for a small factory | competitor-alt | UpKeep/Fiix | free-forever wedge page |
+| 1 | free alternative to UpKeep for a small maintenance team | competitor-alt | UpKeep/listicles | **BUILT** `/learn/workhive-vs-upkeep-free-cmms-comparison/` |
+| 2 | MaintainX vs Limble vs Fiix for a small manufacturing plant | product-vs | review sites | **BUILT** `/learn/best-free-cmms-software-philippines/` |
+| 3 | best free CMMS software 2026 | best-for-case | Coast/MaintainX freemium | **BUILT** `/learn/best-free-cmms-software-philippines/` |
+| 4 | CMMS that works offline on the plant floor | best-for-case | **nobody owns it** | **BUILT** (covered in the comparison set) |
+| 5 | cheapest CMMS software for a small factory | competitor-alt | UpKeep/Fiix | **BUILT** `/learn/best-free-cmms-software-philippines/` |
 | 6 | best maintenance management software Philippines | best-for-industry | **nobody owns it** | PH-local pillar (first-mover) |
-| 7 | CMMS vs Excel spreadsheet for maintenance tracking | how-to-solve | generic blogs | "ditch the spreadsheet" page |
-| 8 | how to reduce unplanned equipment downtime | how-to-solve | generic blogs | problem→solution pillar |
+| 7 | CMMS vs Excel spreadsheet for maintenance tracking | how-to-solve | generic blogs | **BUILT** `/learn/cmms-vs-excel-spreadsheet-maintenance/` |
+| 8 | how to reduce unplanned equipment downtime | how-to-solve | generic blogs | **BUILT** `/learn/reduce-unplanned-downtime-guide/` |
 | 9 | preventive maintenance software for a small factory | best-for-case | incumbents | PM pillar |
 | 10 | mobile maintenance app for plant technicians | best-for-case | UpKeep/MaintainX | mobile/PWA differentiator page |
-| 11–15 | OEE / MTBF / pump-TDH / duct-sizing / motor-FLC **calculator** | head-term tool | scattered calc sites | **the /tools/ programmatic pages (§3)** |
+| 11–15 | OEE / MTBF / pump-TDH / duct-sizing / motor-FLC **calculator** | head-term tool | scattered calc sites | **BUILT** — 60 pages incl. `/tools/oee-calculator/`, `/tools/mtbf-calculator/` |
 | 16 | CMMS vendor Philippines with local support | best-for-industry | nobody | PH-local page |
-| 17 | is there a free CMMS as good as UpKeep or MaintainX | recommendation | incumbents | comparison + Reddit consensus |
+| 17 | is there a free CMMS as good as UpKeep or MaintainX | recommendation | incumbents | **BUILT** `/learn/workhive-vs-maintainx-comparison/` + Reddit (§4.2) |
 
 **The wedge terms (own these first — uncontested):** *free-forever · works-offline · Philippines · Taglish/bilingual.* AI citation sets are only 3–6 domains wide `[external-ai-search-citation-analysis-2026-domains-ranked-]`, so a narrow specific win beats a crowded head term.
 
