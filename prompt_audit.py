@@ -17,6 +17,7 @@ authority signal.
 Usage:
     python prompt_audit.py             # interactive run, all engines
     python prompt_audit.py --engine chatgpt   # only one engine
+    python prompt_audit.py --demand-only      # ONLY the 18 competitive-gap queries (90 checks)
     python prompt_audit.py --resume    # resume mid-week if interrupted
     python prompt_audit.py --report    # trend report from prior weeks
 """
@@ -117,10 +118,17 @@ def prompt_one_query(q, engine, prior=None):
     }
 
 
-def run_audit(engine_filter=None, resume=False):
+def run_audit(engine_filter=None, resume=False, demand_only=False):
     """Interactive walk through every (query, engine) pair."""
     data = load_queries()
     queries = data["queries"]
+    if demand_only:
+        # The 18 `demand_gap` queries are the ones that measure the COMPETITIVE gap —
+        # real buyer language we do not yet win. The other 37 mostly confirm that engines
+        # cite pages we already wrote. At 5 engines the full set is 275 checks in one
+        # sitting, which is why it never got run; this subset is 90 and is the honest
+        # baseline. Run this weekly, the full set quarterly.
+        queries = [q for q in queries if q.get("demand_gap")]
     existing = load_existing_results() if resume else {}
 
     engines = [engine_filter] if engine_filter else ENGINES
@@ -128,6 +136,8 @@ def run_audit(engine_filter=None, resume=False):
     done = sum(1 for _ in existing.values())
 
     print(bold(f"\n  WorkHive AI Visibility Audit  ({date.today().isoformat()})"))
+    if demand_only:
+        print(yellow("  DEMAND SUBSET — the competitive-gap queries only"))
     print(f"  Queries: {len(queries)}  Engines: {', '.join(engines)}  Total checks: {total_checks}")
     if existing:
         print(yellow(f"  Resuming: {done} checks already logged today"))
@@ -202,8 +212,9 @@ def main():
     if "--report" in args:
         report_trend()
         return
+    demand_only = "--demand-only" in args
     if "--resume" in args:
-        run_audit(resume=True)
+        run_audit(resume=True, demand_only=demand_only)
         return
     engine = None
     if "--engine" in args:
@@ -213,7 +224,7 @@ def main():
             if engine not in ENGINES:
                 print(red(f"  Unknown engine: {engine}. Use one of: {', '.join(ENGINES)}"))
                 sys.exit(1)
-    run_audit(engine_filter=engine)
+    run_audit(engine_filter=engine, demand_only=demand_only)
 
 
 if __name__ == "__main__":
