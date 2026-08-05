@@ -739,6 +739,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{e(data['title'])} — Free Online + Worked Example | WorkHive</title>
 <meta name="description" content="{e(meta)}">
+<meta name="robots" content="index, follow">
 <link rel="canonical" href="{e(url)}">
 <meta property="og:title" content="{e(data['title'])} | WorkHive">
 <meta property="og:description" content="{e(meta)}">
