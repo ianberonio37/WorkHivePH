@@ -75,7 +75,7 @@ PILLARS = [
             "show preventive maintenance costs 3&ndash;9 times less than the reactive repairs it prevents."),
         "sections": [
             {"id": "why", "h2": "Why digitise maintenance at all",
-             "html": "<p>The spreadsheet a plant inherits from a departed engineer is a liability: the formulas drift, the tabs multiply, and the one person who understood it is gone. Digital maintenance replaces that with structured, searchable, portable records. The payoff is not fancy dashboards &mdash; it is that a technician can answer &ldquo;when did we last replace this seal, and why?&rdquo; in ten seconds instead of never. Preventive maintenance done on a schedule typically costs <strong>3 to 9 times less</strong> than the reactive breakdown it prevents, which is why the sequence below front-loads recording and scheduling.</p>"},
+             "html": "<p>The spreadsheet a plant inherits from a departed engineer is a liability: the formulas drift, the tabs multiply, and the one person who understood it is gone. Digital maintenance replaces that with structured, searchable, portable records. The payoff is not fancy dashboards &mdash; it is that a technician can answer &ldquo;when did we last replace this seal, and why?&rdquo; in ten seconds instead of never. The US Department of Energy puts a preventive programme at roughly <strong>12-18% cheaper</strong> than running reactive, with a further 8-12% from adding predictive maintenance, which is why the sequence below front-loads recording and scheduling.</p>"},
             {"id": "logbook", "h2": "Step 1 — the digital logbook",
              "html": "<p>Everything starts with capture. If a job is not written down the day it happens, the data is gone. A digital logbook takes 20 seconds per entry and immediately makes downtime, parts used, and repeat failures visible. The full rollout &mdash; including how to get technicians to actually use it &mdash; is in <a href=\"/learn/start-digital-logbook-philippine-factory/\">start a digital logbook in a Philippine factory</a>. For plants with spotty Wi-Fi, an offline-first logbook that syncs later is essential; that is a core WorkHive design choice.</p>"},
             {"id": "assets", "h2": "Step 2 — the asset register (ISO 14224)",
@@ -97,7 +97,7 @@ PILLARS = [
         "sources": [
             "ISO 14224, <strong>Collection and exchange of reliability and maintenance data for equipment</strong>.",
             "SMRP, <strong>Best Practices Metric 5.4 (PM Compliance)</strong>.",
-            "US Department of Energy, <strong>Operations &amp; Maintenance Best Practices Guide</strong> (preventive vs reactive cost ratio).",
+            "US Department of Energy / PNNL, <strong>Operations &amp; Maintenance Best Practices Guide, Release 3.0</strong> (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).",
             "Related WorkHive guides: <a href=\"/learn/start-digital-logbook-philippine-factory/\">Digital logbook</a> &middot; <a href=\"/learn/building-asset-register-zero-budget/\">Asset register</a> &middot; <a href=\"/learn/maintenance-shift-handover-template/\">Shift handover</a>.",
         ],
     },

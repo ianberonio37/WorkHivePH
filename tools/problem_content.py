@@ -29,7 +29,7 @@ PROBLEM_PAGES = [
             "and <strong>(4) add condition monitoring to the critical assets only</strong>. "
             "Most plants find their downtime hours concentrated in a small minority of assets, "
             "which is why measurement comes first &mdash; and preventive maintenance done on "
-            "schedule costs <strong>3 to 9 times less</strong> than the reactive repair it "
+            "schedule runs <strong>12-18% cheaper</strong> than the reactive repair it "
             "replaces. Programmes that follow this order typically report a <strong>15 to 25% "
             "reduction in unplanned downtime by month 18</strong>."),
         "sections": [
@@ -60,13 +60,13 @@ PROBLEM_PAGES = [
         "faqs": [
             ("What causes most unplanned downtime?", "In most plants the hours concentrate in a small minority of assets and a handful of repeating failure modes — commonly lubrication, misalignment, contamination, operating outside design conditions, and deferred preventive work. Recording downtime by cause for four weeks usually makes the concentration obvious."),
             ("How much can unplanned downtime realistically be reduced?", "Programmes that measure first, fix root causes, and hold PM compliance above 90% typically report a 15 to 25% reduction in unplanned downtime by month 18, with mature programmes reaching 35 to 50% against SMRP benchmarks."),
-            ("Is preventive maintenance actually cheaper than fixing breakdowns?", "Yes. Preventive maintenance performed on schedule generally costs 3 to 9 times less than the reactive repair it prevents, before counting lost production, expedited freight, and overtime."),
+            ("Is preventive maintenance actually cheaper than fixing breakdowns?", "Yes, though the honest figure is smaller than the ratios often quoted. The US Department of Energy's O&M Best Practices Guide puts a preventive programme at roughly 12-18% cheaper than running reactive, and a predictive layer adds a further 8-12%. Facilities that lean heavily on reactive work can find savings opportunities above 30-40%. None of that counts lost production, expedited freight, or overtime."),
             ("Do I need sensors to reduce downtime?", "Not to start, and buying them first is the most common mistake. Measurement and PM discipline deliver the early gains; condition monitoring pays off once you know which assets are critical and which failure modes you are hunting."),
             ("What is the single first step?", "Record every stoppage with asset, duration and cause. Without that record you cannot rank losses, prove improvement, or justify spending — and improvement that cannot be proven does not get funded."),
         ],
         "sources": [
             "SMRP, <strong>Best Practices Metrics</strong> (PM compliance benchmark; downtime reduction ranges).",
-            "US Department of Energy, <strong>Operations &amp; Maintenance Best Practices Guide</strong> (preventive vs reactive cost ratio).",
+            "US Department of Energy / PNNL, <strong>Operations &amp; Maintenance Best Practices Guide, Release 3.0</strong> (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).",
             "ISO 14224, <strong>Reliability and maintenance data collection</strong>; ISO 10816-3 (vibration severity).",
             "Related: <a href=\"/learn/maintenance-metrics-reliability-guide/\">Maintenance metrics guide</a> &middot; <a href=\"/learn/predictive-maintenance-on-a-budget-philippines/\">Predictive maintenance on a budget</a>.",
         ],

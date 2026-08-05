@@ -228,7 +228,7 @@ COMPARISONS = [
             "remembered, <strong>you need history that survives staff turnover</strong>, or "
             "<strong>an auditor will ask for dated records</strong>. The deciding factor is rarely "
             "features — it is that a spreadsheet has one owner and no memory, and preventive "
-            "maintenance run on a real schedule costs <strong>3 to 9 times less</strong> than the "
+            "maintenance run on a real schedule runs <strong>12-18% cheaper</strong> than the "
             "reactive breakdowns it prevents."),
         "sections": [
             {"id": "when-spreadsheet-ok", "h2": "When a spreadsheet is genuinely fine",
@@ -263,10 +263,10 @@ COMPARISONS = [
             ("When should I switch from a spreadsheet to a CMMS?", "Switch when any of these is true: more than one person edits the file, PM compliance is slipping because nothing chases due dates, you need history to survive staff turnover, or you face a DOLE OSHS or ISO audit."),
             ("Is a CMMS expensive?", "It does not have to be. Paid products commonly start around $20 per user per month, but WorkHive is free at the worker tier, so cost is not a reason to stay on a spreadsheet."),
             ("Can I import my existing spreadsheet?", "Yes — start by importing the asset list to build the register, then let new work accumulate in the system. Do not try to backfill years of history; it rarely survives the effort and the value is in what happens next."),
-            ("What is the real cost of staying on spreadsheets?", "Lost history and missed PMs. Preventive maintenance done on schedule typically costs 3 to 9 times less than the reactive repair it prevents, and a spreadsheet has no mechanism to make a due date chase anyone."),
+            ("What is the real cost of staying on spreadsheets?", "Lost history and missed PMs. The US Department of Energy's O&M Best Practices Guide puts a preventive programme at roughly 12-18% cheaper than running reactive, with another 8-12% available from a predictive layer — and a spreadsheet has no mechanism to make a due date chase anyone."),
         ],
         "sources": [
-            "US Department of Energy, <strong>Operations &amp; Maintenance Best Practices Guide</strong> (preventive vs reactive cost ratio).",
+            "US Department of Energy / PNNL, <strong>Operations &amp; Maintenance Best Practices Guide, Release 3.0</strong> (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).",
             "SMRP, <strong>Best Practices Metric 5.4 (PM Compliance)</strong>.",
             "Related: <a href=\"/learn/start-digital-maintenance-guide/\">Start digital maintenance</a> &middot; <a href=\"/learn/best-free-cmms-software-philippines/\">Best free CMMS options</a>.",
         ],
