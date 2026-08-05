@@ -78,12 +78,29 @@ CRITICAL_SAVES = [
 
 # ── Layer 1: Channel hygiene ──────────────────────────────────────────────────
 
+def _strip_comments(src: str) -> str:
+    """A CHANNEL NAMED IN A COMMENT IS NOT A CHANNEL. This counted `db.channel(` occurrences in raw
+    source, so a line explaining the subscription bug — `// old channel came back from
+    db.channel('marketplace-parts'), and .on() after .subscribe() is …` — counted as an opened
+    channel with nothing removing it. Both findings this produced were false: community opens 3 and
+    removes 3, marketplace opens 1 and removes 1, and each had exactly one extra mention in prose.
+    A false leak is expensive here because the plausible 'fix' is to add a removeChannel for a
+    channel that does not exist, or to delete the comment that explains the real bug."""
+    src = re.sub(r"/\*[\s\S]*?\*/", " ", src)          # /* block */
+    src = re.sub(r"<!--[\s\S]*?-->", " ", src)          # <!-- html -->
+    # Line comments only when // starts the comment — not inside a string such as 'https://…'.
+    src = re.sub(r"(?m)^\s*//.*$", " ", src)
+    src = re.sub(r"(?m)([;,{}\)]\s*)//.*$", r"\1", src)
+    return src
+
+
 def check_realtime_cleanup(pages):
     issues = []
     for page in pages:
         content = read_file(page)
         if not content:
             continue
+        content = _strip_comments(content)
         channels_opened = re.findall(r"db\.channel\s*\(", content)
         if not channels_opened:
             continue
