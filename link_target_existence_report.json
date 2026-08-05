@@ -1,16 +1,11 @@
 {
   "summary": {
-    "pages_scanned": 28,
-    "total_links": 275,
+    "pages_scanned": 27,
+    "total_links": 212,
     "total_broken": 0,
     "baseline": 0
   },
   "per_page": [
-    {
-      "page": "index.html",
-      "link_count": 63,
-      "broken": []
-    },
     {
       "page": "hive.html",
       "link_count": 27,

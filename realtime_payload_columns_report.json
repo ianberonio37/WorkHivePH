@@ -1,21 +1,13 @@
 {
   "summary": {
-    "pages_scanned": 29,
-    "total_refs": 72,
+    "pages_scanned": 24,
+    "total_refs": 38,
     "total_drift": 0,
     "baseline": 0
   },
   "per_page": [
     {
       "page": "index.html",
-      "drift": []
-    },
-    {
-      "page": "hive.html",
-      "drift": []
-    },
-    {
-      "page": "logbook.html",
       "drift": []
     },
     {
@@ -63,19 +55,7 @@
       "drift": []
     },
     {
-      "page": "engineering-design.js",
-      "drift": []
-    },
-    {
-      "page": "assistant.html",
-      "drift": []
-    },
-    {
       "page": "report-sender.html",
-      "drift": []
-    },
-    {
-      "page": "project-manager.html",
       "drift": []
     },
     {
