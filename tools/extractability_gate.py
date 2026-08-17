@@ -127,7 +127,7 @@ def analyze(html: str) -> dict:
         r"(?:[$₱€£]|\bPHP\b|\bUSD\b)\s*\d"
         r"|\d+(?:\.\d+)?\s*(?:%|percent|x|×)"
         r"|\b(?:kW|kVA|kVAR|HP|hrs?|hours?|days?|weeks?|months?|years?|mm|cm|km|kg|Hz|bar|psi|"
-        r"MTBF|MTTR|OEE|DFU|WFU|lux|CFM)\b",
+        r"MTBF|MTTR|OEE|DFU|WFU|lux|CFM|°C|°F|degC|mm/s|m/s|kWh|MW|VA)\b",
         opener, re.I))
     has_proper = bool(re.search(r"(?:[A-Z]{2,}|[A-Z][a-z]+\s+[A-Z][a-z]+)", opener))
     answer_quality = bool(opener) and has_num and has_unit and has_proper

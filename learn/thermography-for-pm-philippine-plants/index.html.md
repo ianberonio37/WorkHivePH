@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 10 min read
 
-**Short answer:** Thermography is a powerful tool for preventive maintenance in Philippine plants. By using infrared cameras, maintenance teams can detect potential issues before they become major problems. In this article, we'll cover the practical application of thermography for PH plants.
+**Short answer:** Thermography is a powerful tool for preventive maintenance in Philippine plants. By using infrared cameras, maintenance teams can detect potential issues before they become major problems. In this article, we'll cover the practical application of thermography for PH plants. The thresholds that turn a picture into a decision come from **NETA MTS**: a **ΔT of 15°C** between similar components under similar load, or **40°C** above ambient, calls for immediate action.
 
 Who this is for
 
@@ -126,9 +126,10 @@ To integrate thermography into your plant's PM Scheduler, identify critical equi
 
 ## Sources
 
+- [NETA](https://www.netaworld.org/), **Maintenance Testing Specifications (MTS)** — thermographic ΔT action criteria; and [NFPA 70B](https://www.nfpa.org/codes-and-standards), **Electrical Equipment Maintenance**.
 - IIEE Thermography Code of Practice
 - DOLE OSHS Guidelines for Preventive Maintenance
 - ISO 14224:2016 Condition monitoring and diagnostics of machines
 - SMRP CMRP BoK Section 4: Predictive Maintenance
 
-<!-- md-twin source-sha: 35d76b975bcc7a6d -->
+<!-- md-twin source-sha: 8219ec6a1ff96373 -->
