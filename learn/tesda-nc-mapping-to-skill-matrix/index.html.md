@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 10 min read
 
-**Short answer:** In the Philippines, TESDA National Certificates (NC II, NC III) are industry-recognized credentials that validate an individual's skills and competencies. For industrial maintenance, mechanical maintenance, electrical maintenance, and welding, TESDA NC II and NC III certifications are highly valued. But how do these certifications map to your plant's skill matrix? The anchor is national, not internal: **TESDA** National Certificates **NC II** and **NC III** give a plant a competency scale that transfers between employers and satisfies **PEZA** documentation.
+**Short answer:** In the Philippines, TESDA National Certificates (NC II, NC III) are industry-recognized credentials that validate an individual's skills and competencies. For industrial maintenance, mechanical maintenance, electrical maintenance, and welding, TESDA NC II and NC III certifications are highly valued. But how do these certifications map to your plant's skill matrix? The anchor is national, not internal: **TESDA** National Certificates **NC II** and **NC III** give a plant a competency scale that transfers between employers and satisfies **PEZA** documentation. The qualifications carry real training weight, which is what makes them a usable scale: **Electrical Installation and Maintenance NC II** is a **402-hour** qualification, and **SMAW NC I** and **NC II** are **268 hours** each.
 
 Who this is for
 
@@ -128,9 +128,10 @@ TESDA NC mapping is not mandatory, but it is highly recommended for Philippine i
 
 ## Sources
 
+- [TESDA](https://www.tesda.gov.ph/), **Training Regulations** (Electrical Installation and Maintenance NC II; SMAW NC I/II) — competency standards and nominal training hours.
 - TESDA. (2022). TESDA National Certificate (NC) Handbook.
 - DOLE. (2020). Occupational Safety and Health Standards (OSHS).
 - IIEE. (2019). Code of Ethics and Professional Conduct for Electrical Engineers.
 - ISO. (2016). ISO 14224:2016 Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange.
 
-<!-- md-twin source-sha: 0cd1d516f835a67c -->
+<!-- md-twin source-sha: 0e1a30ef5fc8cf9b -->

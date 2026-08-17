@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 9 min read
 
-**Short answer:** Power plants in the Philippines must balance reliability and efficiency to meet growing energy demands. Key metrics help plant operators and managers assess performance and make evidence-backed operating choices. This article explores essential reliability metrics for Philippine power plants. The reporting frame is the **ERC**, and the metrics that matter are **EAF**, **EFOR** and heat rate rather than generic uptime.
+**Short answer:** Power plants in the Philippines must balance reliability and efficiency to meet growing energy demands. Key metrics help plant operators and managers assess performance and make evidence-backed operating choices. This article explores essential reliability metrics for Philippine power plants. The reporting frame is the **ERC**, and the metrics that matter are **EAF**, **EFOR** and heat rate rather than generic uptime. The regulator defines the yardstick: the **ERC** measures **EAF** as the fraction of maximum generation obtainable but for outages and deratings, alongside **Equivalent Unplanned Outage Days per Year**.
 
 Who this is for
 
@@ -118,9 +118,10 @@ WorkHive Analytics provides a comprehensive platform for tracking and analyzing 
 
 ## Sources
 
+- [Energy Regulatory Commission (ERC)](https://www.erc.gov.ph/), **Reliability Performance Indices and Equivalent Unplanned Outage Days Per Year for Generating Units**.
 - Department of Labor and Employment. (2019). Occupational Safety and Health Standards.
 - IIEE. (2017). Code of Practice for Electrical Safety.
 - ISO. (2016). ISO 14224:2016 Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange.
 - SMRP. (2019). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: 30920d039668ead3 -->
+<!-- md-twin source-sha: b8453fd3fda64919 -->

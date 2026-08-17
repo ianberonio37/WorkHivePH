@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-17T07:13:33+00:00",
+  "generated_at": "2026-08-17T07:14:39+00:00",
   "pillars": {
     "SEO": {
       "achieved": 714,
@@ -9,10 +9,10 @@
       "ian_blocked": 3
     },
     "AEO": {
-      "achieved": 205,
+      "achieved": 206,
       "total": 212,
-      "pct": 96.7,
-      "local_pct": 96.7,
+      "pct": 97.2,
+      "local_pct": 97.2,
       "ian_blocked": 0
     },
     "GEO": {
@@ -37,16 +37,16 @@
       "ian_blocked": 0
     }
   },
-  "overall_pct": 81.9,
-  "local_pct": 99.3,
+  "overall_pct": 82.0,
+  "local_pct": 99.4,
   "weakest": "GEO",
-  "point_pct": 98.4,
+  "point_pct": 98.5,
   "overall": [
-    1345,
+    1346,
     1367
   ],
   "local": [
-    1345,
+    1346,
     1352
   ],
   "components": {
@@ -132,7 +132,7 @@
       ],
       [
         "opener carries number+unit+entity",
-        46,
+        47,
         53,
         "extractability",
         false
