@@ -6,8 +6,8 @@ and **OVERALL 82.6%**. The gap is these five actions. Nothing here needs researc
 or decisions; it is paste-and-go. Total hands-on time is roughly **35 minutes**, and the
 first item is worth more than the other four combined.
 
-Everything of mine is committed (26 commits), the IndexNow key file is in the repo, and the
-sitemap is at 119 URLs.
+Everything of mine is committed (33 commits), the IndexNow key file is in the repo, and
+the sitemap is at 119 URLs.
 
 ---
 
@@ -39,7 +39,7 @@ an empty one.
 
 ## 2. Deploy · your call · worth **1 point**, and it unblocks #3
 
-26 commits are staged and every gate is green. Nothing is half-finished.
+33 commits are staged and every gate is green. Nothing is half-finished.
 
 What lands: 60 calculator pages (now with the site shell — they were shipping unstyled),
 3 cluster pillars, 4 comparison pages, 1 problem guide, 119 markdown twins, the rebuilt
@@ -105,7 +105,7 @@ observed GEO figure in the programme's history; everything before it is code sta
 
 ## What I did so you wouldn't have to
 
-Every gate, page and instrument is built and green: 14/14 gates, 53/53 openers carrying a
+Every gate, page and instrument is built and green: 15/15 gates, 53/53 openers carrying a
 number + unit + named source, 113/113 pages with a next action, 60 calculator pages with
 real worked numbers computed at build time, 119 markdown twins for agents, and
 `tools/seo_scoreboard.py` so the percentages are computed from the gates rather than typed
