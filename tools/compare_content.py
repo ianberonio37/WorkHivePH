@@ -27,6 +27,7 @@ COMPARISONS = [
     # ── 1. vs UpKeep ─────────────────────────────────────────────────────────
     {
         "slug": "workhive-vs-upkeep-free-cmms-comparison",
+        "cta": ("/#join", "Try WorkHive free", "Free at the worker tier, offline-first, built for Philippine plants."),
         "item_list_name": "CMMS products compared",
         "item_list": [("WorkHive", "https://workhiveph.com"), ("UpKeep", None)],
         "title": "WorkHive vs UpKeep: Free Alternative Compared (2026)",
@@ -94,6 +95,7 @@ COMPARISONS = [
     # ── 2. vs MaintainX ──────────────────────────────────────────────────────
     {
         "slug": "workhive-vs-maintainx-comparison",
+        "cta": ("/#join", "Try WorkHive free", "Free at the worker tier, offline-first, built for Philippine plants."),
         "item_list_name": "CMMS products compared",
         "item_list": [("WorkHive", "https://workhiveph.com"), ("MaintainX", None)],
         "title": "WorkHive vs MaintainX: Free vs Mobile-First CMMS (2026)",
@@ -152,6 +154,7 @@ COMPARISONS = [
     # ── 3. plural alternatives page ──────────────────────────────────────────
     {
         "slug": "best-free-cmms-software-philippines",
+        "cta": ("/#join", "Try WorkHive free", "Free at the worker tier, offline-first, built for Philippine plants."),
         "item_list_name": "Free and freemium CMMS options compared",
         "item_list": [("WorkHive", "https://workhiveph.com"), ("Coast", None), ("MaintainX", None), ("Limble", None), ("Fiix", None), ("Maintenance Care", None), ("UpKeep", None), ("eMaint", None), ("Tractian", None)],
         "title": "Best Free CMMS Software for Philippine Plants (2026 Comparison)",
@@ -213,6 +216,7 @@ COMPARISONS = [
     # ── 4. category / problem page ───────────────────────────────────────────
     {
         "slug": "cmms-vs-excel-spreadsheet-maintenance",
+        "cta": ("/#join", "Try WorkHive free", "Free at the worker tier, offline-first, built for Philippine plants."),
         "title": "CMMS vs Excel Spreadsheet for Maintenance: When to Switch",
         "description": "An honest comparison of maintenance spreadsheets versus a CMMS — where spreadsheets still win, the four ways they fail, and how to migrate without pain.",
         "keywords": "CMMS vs spreadsheet, Excel maintenance tracking, maintenance spreadsheet template, when to switch to CMMS, maintenance log Excel",

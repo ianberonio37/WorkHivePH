@@ -105,6 +105,8 @@ Yes, the report provides valuable insights into maintenance performance and comp
 
 No, the report is a zero-budget solution that compiles from your existing data, with no separate reporting tool required.
 
+**[Generate your print-ready report](https://workhiveph.com/analytics.html)** — Compiled from your existing records — free at the worker tier.
+
 ## Sources
 
 - ISO 14224:2016 - Petroleum, petrochemical and natural gas industries - Reliability, availability and maintainability (RAM) data exchange
@@ -112,4 +114,4 @@ No, the report is a zero-budget solution that compiles from your existing data, 
 - DOLE OSHS - Department of Labor and Employment - Occupational Safety and Health Standards
 - Related WorkHive guides: [The 4 phases of maintenance analytics](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/) · [DOLE and ISO audit trail](https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/) · [What is OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 
-<!-- md-twin source-sha: 34df8314d59f57d7 -->
+<!-- md-twin source-sha: b6fd5b0ca29fcc13 -->

@@ -7,6 +7,7 @@ PILLARS = [
     # ── Cluster 1: Reliability & Metrics ──────────────────────────────────────
     {
         "slug": "maintenance-metrics-reliability-guide",
+        "cta": ("/analytics.html", "Track these metrics free in WorkHive Analytics", "OEE, MTBF, MTTR and PM compliance from your own logbook data."),
         "title": "Maintenance Metrics Guide: OEE, MTBF, MTTR & Reliability for Philippine Plants",
         "description": "The five maintenance metrics every Philippine plant should track — OEE, MTBF, MTTR, availability, and PM compliance — with formulas, worked examples, and free calculators.",
         "keywords": "maintenance metrics, OEE, MTBF, MTTR, availability, PM compliance, reliability KPIs, Philippine plant, SMRP, ISO 14224",
@@ -57,6 +58,7 @@ PILLARS = [
     # ── Cluster 2: Getting Started / Digital Maintenance ──────────────────────
     {
         "slug": "start-digital-maintenance-guide",
+        "cta": ("/logbook.html", "Start your digital logbook", "Free at the worker tier, works offline on the plant floor."),
         "title": "How to Start Digital Maintenance in a Philippine Factory (Zero-Budget Guide)",
         "description": "A four-step, zero-budget path to digital maintenance for a small Philippine plant — digital logbook, asset register, PM scheduling, and shift handover — with free templates and a 30-day rollout.",
         "keywords": "digital maintenance, digital logbook, asset register, CMMS, preventive maintenance schedule, shift handover, small factory Philippines, free CMMS",
@@ -104,6 +106,7 @@ PILLARS = [
     # ── Cluster 3: PH Compliance ──────────────────────────────────────────────
     {
         "slug": "ph-plant-compliance-guide",
+        "cta": ("/logbook.html", "Build your DOLE-ready audit trail", "Timestamped, attributed, append-only — free at the worker tier."),
         "title": "Philippine Plant Compliance Guide: DOLE OSHS, LOTO & RA 11285 Records",
         "description": "How Philippine plants meet DOLE OSHS, lockout/tagout (DO 198-18), and RA 11285 energy-efficiency requirements — and how a digital audit trail proves compliance during an inspection.",
         "keywords": "DOLE OSHS, lockout tagout, DO 198-18, RA 11285, energy efficiency, DENR, Philippine plant compliance, audit trail, permit to work, DOLE inspection",

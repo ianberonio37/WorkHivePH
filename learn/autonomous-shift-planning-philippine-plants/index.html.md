@@ -96,6 +96,8 @@ Shift Brain uses multiple sub-agents to gather data and prioritize tasks. The AI
 
 Yes, Shift Brain can be used for various types of maintenance operations, including preventive maintenance, corrective maintenance, and predictive maintenance.
 
+**[Let Shift Brain draft tomorrow's plan](https://workhiveph.com/dayplanner.html)** — Free at the worker tier — it reads your PMs and open faults.
+
 ## Sources
 
 - ISO 14224:2016 (Reliability-centered maintenance)
@@ -103,4 +105,4 @@ Yes, Shift Brain can be used for various types of maintenance operations, includ
 - DOLE OSHS (Occupational Safety and Health Standards)
 - Related WorkHive guides: [One alert inbox for the whole plant](https://workhiveph.com/learn/plant-alert-inbox-amc-daily-brief/) · [Shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/) · [DILO/WILO day planner](https://workhiveph.com/learn/dilo-wilo-day-planner-supervisors/)
 
-<!-- md-twin source-sha: 06d2989c9f3789fe -->
+<!-- md-twin source-sha: 010fe609bf4b4454 -->

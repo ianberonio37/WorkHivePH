@@ -124,10 +124,12 @@ To ensure compliance, conduct regular energy audits, implement energy-efficient 
 
 The WorkHive Audit Log captures energy-related actions, such as energy consumption, maintenance activities, and energy-saving initiatives. This helps plant-floor personnel track and verify compliance with RA 11285.
 
+**[Track your RA 11285 energy figures in WorkHive](https://workhiveph.com/analytics.html)** — Free at the worker tier — the reporting numbers come from your own data.
+
 ## Sources
 
 - Department of Energy (DOE). (2020). Republic Act No. 11285.
 - International Organization for Standardization (ISO). (2016). ISO 14224:2016.
 - Society for Maintenance and Reliability Professionals (SMRP). (2019). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: 62a0eb42c2aa0f40 -->
+<!-- md-twin source-sha: 365453556519e647 -->

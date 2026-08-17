@@ -54,6 +54,8 @@ ISO 14224 gives a standard plant-to-component hierarchy and failure taxonomy, so
 
 Yes, if the tool is offline-first. WorkHive captures entries locally and syncs when a connection returns, so technicians never lose data on the floor — a key requirement for Philippine plants with patchy coverage.
 
+**[Start your digital logbook](https://workhiveph.com/logbook.html)** — Free at the worker tier, works offline on the plant floor.
+
 ## Sources
 
 - [ISO 14224](https://www.iso.org/standard/64076.html), **Collection and exchange of reliability and maintenance data for equipment**.
@@ -63,4 +65,4 @@ Yes, if the tool is offline-first. WorkHive captures entries locally and syncs w
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 6e6fd1ddc2a277e0 -->
+<!-- md-twin source-sha: edd193607c98e4a0 -->

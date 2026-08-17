@@ -114,6 +114,8 @@ Improving power plant reliability requires a combination of effective maintenanc
 
 WorkHive Analytics provides a comprehensive platform for tracking and analyzing power plant reliability metrics. By using WorkHive Analytics, power plant operators can gain valuable insights and make evidence-backed operating choices to improve performance.
 
+**[Compute EAF, EFOR and MTBF from your logbook](https://workhiveph.com/analytics.html)** — Free reliability analytics, no sensors required to start.
+
 ## Sources
 
 - Department of Labor and Employment. (2019). Occupational Safety and Health Standards.
@@ -121,4 +123,4 @@ WorkHive Analytics provides a comprehensive platform for tracking and analyzing 
 - ISO. (2016). ISO 14224:2016 Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange.
 - SMRP. (2019). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: b6f1a190299aaabe -->
+<!-- md-twin source-sha: 2ad0af82acd1c203 -->

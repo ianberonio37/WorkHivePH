@@ -68,6 +68,8 @@ Most do not — they assume connectivity and degrade on a plant floor with dead 
 
 Spreadsheets work until they do not: formulas drift, one person owns the file, and history is lost when they leave. Since capable free options exist, the spreadsheet is rarely the cheapest choice once you count the lost history.
 
+**[Try WorkHive free](https://workhiveph.com/#join)** — Free at the worker tier, offline-first, built for Philippine plants.
+
 ## Sources
 
 - Independent CMMS landscape and free-tier reviews, 2026 (Coast, MaintainX, Limble, Fiix, Maintenance Care, UpKeep, eMaint, Tractian).
@@ -76,4 +78,4 @@ Spreadsheets work until they do not: formulas drift, one person owns the file, a
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: d9181ce5c3d3b80c -->
+<!-- md-twin source-sha: 0b1eae0ec7f9e0f6 -->

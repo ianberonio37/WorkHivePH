@@ -67,6 +67,8 @@ Yes — start by importing the asset list to build the register, then let new wo
 
 Lost history and missed PMs. The US Department of Energy's O&M Best Practices Guide puts a preventive programme at roughly 12-18% cheaper than running reactive, with another 8-12% available from a predictive layer — and a spreadsheet has no mechanism to make a due date chase anyone.
 
+**[Try WorkHive free](https://workhiveph.com/#join)** — Free at the worker tier, offline-first, built for Philippine plants.
+
 ## Sources
 
 - [US Department of Energy / PNNL](https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency), **Operations & Maintenance Best Practices Guide, Release 3.0** (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).
@@ -75,4 +77,4 @@ Lost history and missed PMs. The US Department of Energy's O&M Best Practices Gu
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 13721cfd879769b7 -->
+<!-- md-twin source-sha: cc7f55119ba9d093 -->

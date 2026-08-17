@@ -50,6 +50,8 @@ It can, but it fails often: missing entries, ambiguous dates, and records that c
 
 Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tags records to the applicable standard, producing the dated, searchable audit trail that DOLE OSHS, LOTO, and RA 11285 inspections require — at no software cost.
 
+**[Build your DOLE-ready audit trail](https://workhiveph.com/logbook.html)** — Timestamped, attributed, append-only — free at the worker tier.
+
 ## Sources
 
 - [Republic Act 11058](https://www.officialgazette.gov.ph/2018/08/17/republic-act-no-11058/) and [DOLE](https://www.dole.gov.ph/) **Department Order 198-18** (OSH Standards, penalties, lockout/tagout).
@@ -59,4 +61,4 @@ Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tag
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: d73addb054139dff -->
+<!-- md-twin source-sha: cb771db46012cf11 -->

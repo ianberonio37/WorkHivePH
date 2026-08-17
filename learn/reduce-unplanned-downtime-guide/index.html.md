@@ -71,6 +71,8 @@ Not to start, and buying them first is the most common mistake. Measurement and 
 
 Record every stoppage with asset, duration and cause. Without that record you cannot rank losses, prove improvement, or justify spending — and improvement that cannot be proven does not get funded.
 
+**[Try WorkHive free](https://workhiveph.com/#join)** — Free at the worker tier, offline-first, built for Philippine plants.
+
 ## Sources
 
 - [SMRP](https://smrp.org/), **Best Practices Metrics, 6th Edition** — PM schedule compliance benchmark 90% (95%+ for critical assets); a PM counts as on time if completed by the due date + 20% of its frequency, capped at 28 days. Downtime-reduction ranges quoted here are widely-reported industry outcomes, not an SMRP-published figure.
@@ -80,4 +82,4 @@ Record every stoppage with asset, duration and cause. Without that record you ca
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 8a9c852f4849cf0d -->
+<!-- md-twin source-sha: 71ac43a2aa6eba06 -->

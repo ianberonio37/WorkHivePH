@@ -219,6 +219,20 @@ def site_footer(pub: str) -> str:
 </footer>""" % (pub, pub)
 
 
+# ── The next action (SXO, V3 §6) ──────────────────────────────────────────────
+# 13 content pages ended with nowhere to go: a reader arrives from an AI answer,
+# reads to the end, and finds only more reading. Winning the citation is the
+# expensive half; losing the visitor at the bottom of the page is the cheap loss.
+# Links an ACTION surface (a tool or the join flow) — never another article.
+DEFAULT_CTA = ("/#join", "Start free with WorkHive",
+               "Free at the worker tier, works offline, no card.")
+
+
+def cta_block(p: dict) -> str:
+    href, label, sub = p.get("cta", DEFAULT_CTA)
+    return (f'<div class="callout"><strong><a href="{href}">{label}</a></strong> &mdash; {sub}</div>')
+
+
 def _page(p: dict) -> str:
     _assert_no_entities(p)
     e = html.escape
@@ -304,6 +318,8 @@ def _page(p: dict) -> str:
       <h2 id="faq">Frequently asked questions</h2>
 
 {faqs}
+
+      {cta_block(p)}
 
       <h2 id="sources">Sources</h2>
       <ul>

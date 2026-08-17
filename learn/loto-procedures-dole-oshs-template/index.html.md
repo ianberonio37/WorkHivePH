@@ -125,10 +125,12 @@ Sign-off requirements are important in LOTO procedures to ensure that all person
 
 WorkHive Audit Log helps in LOTO procedures by capturing every LOTO event for inspector review, ensuring compliance with regulatory requirements.
 
+**[Keep your LOTO permits in a dated audit trail](https://workhiveph.com/logbook.html)** — Timestamped and attributed, so a DOLE inspector sees the record, not a memory.
+
 ## Sources
 
 - DOLE OSHS Rule 1063: Occupational Safety and Health Standards
 - IIEE Code: Philippine Electrical Code
 - ISO 14224: Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange
 
-<!-- md-twin source-sha: 2c61237a73103d41 -->
+<!-- md-twin source-sha: d354998131e2f49a -->

@@ -13,6 +13,7 @@ schema graph, and every gate the other articles pass.
 PROBLEM_PAGES = [
     {
         "slug": "reduce-unplanned-downtime-guide",
+        "cta": ("/#join", "Try WorkHive free", "Free at the worker tier, offline-first, built for Philippine plants."),
         "title": "How to Reduce Unplanned Equipment Downtime in a Factory",
         "description": "A four-step, evidence-based path to cutting unplanned downtime: measure it by cause, fix the recurring few at root cause, hold PM compliance above 90%, and monitor the critical assets.",
         "keywords": "reduce unplanned downtime, equipment downtime, downtime reduction, unplanned downtime causes, Pareto downtime analysis, preventive maintenance ROI",
