@@ -137,4 +137,4 @@ Yes. Voice recordings are encrypted in transit and at rest. Transcripts are scop
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 39f751f7c6fdd6a1 -->
+<!-- md-twin source-sha: ab176ebc110d25ba -->

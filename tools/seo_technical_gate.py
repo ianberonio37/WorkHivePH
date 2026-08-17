@@ -12,8 +12,10 @@ forward-only (same convention as content_grounding_gate.py):
   jsonld_valid    every <script type="application/ld+json"> block PARSES as valid
                   JSON (validate_seo.py only checks the block exists, not that it
                   is well-formed — a malformed block earns 0 rich results silently)
-  retired_schema  a page must NOT rely on FAQPage/HowTo rich-result types, which
-                  Google retired (HowTo 2023, FAQ 2026-05-07) — keep the Q&A as
+  retired_schema  INFORMATIONAL census of FAQPage/HowTo, whose RICH RESULTS Google
+                  retired (HowTo 2023, FAQ 2026-05-07). Kept deliberately (V3 §3a):
+                  the markup targets AI extraction, not a SERP decoration. Never
+                  fails; jsonld_valid is what proves the markup works — keep the Q&A as
                   body content, not as a dead rich-result bet (2026 research)
 
 Surface list is DERIVED FROM THE CATALOG (platform_catalog.build_catalog) — never
@@ -51,6 +53,24 @@ BASELINE_PATH = ROOT / "seo_technical_baseline.json"
 REPORT_PATH = ROOT / "seo_technical_report.json"
 
 CHECK_ORDER = ["one_h1", "img_alt", "jsonld_valid", "retired_schema"]
+
+# ── retired_schema is a CENSUS, not a failure (Ian, 2026-08-05) ────────────────
+# Built as a ratchet to "block NEW dead schema", with the prune recorded as
+# "optional given mixed evidence" (project_seo_aeo_geo_100_arc). V3 resolved that
+# mixed evidence deliberately: FAQPage/HowTo no longer earn a RICH RESULT, but the
+# markup is kept because its audience is AI extraction (the AEO/GEO pillars), the
+# Q&A is real visible content, and Google's structured-data policy is therefore
+# satisfied. "No longer decorates a SERP" is not "no longer read."
+#
+# So the check must state that decision instead of drifting against it. It still
+# COUNTS every occurrence — the census is useful, and if the decision is ever
+# reversed the number is already there — but it cannot fail the build. Malformed
+# schema still fails, via jsonld_valid, which is the check that measures whether
+# the markup actually works.
+#
+# NOT re-baselined: raising the floor 58 -> 66 would have silently lowered a
+# deliberate ratchet (feedback_a_ratchet_that_turns_both_ways).
+INFO_ONLY_CHECKS = {"retired_schema"}
 
 # Non-article public surfaces (the indexable static pages). The 38 learn articles
 # are derived from the catalog and appended — never hand-listed.
@@ -120,12 +140,12 @@ def run_checks(cat: dict | None = None) -> dict:
                 checks["jsonld_valid"]["issues"].append(
                     {"page": page, "reason": f"{page} has a malformed JSON-LD block ({exc}); earns 0 rich results"})
 
-        # retired_schema — must not rely on FAQPage/HowTo rich-result types (retired)
+        # retired_schema — INFORMATIONAL census, not a failure. See RETIRED_SCHEMA_IS_INFO.
         for t in ("FAQPage", "HowTo"):
             if re.search(rf'"@type"\s*:\s*"{t}"', html):
                 checks["retired_schema"]["issues"].append(
-                    {"page": page, "reason": f"{page} declares retired rich-result @type '{t}' "
-                                             f"(HowTo retired 2023, FAQ 2026-05-07); keep the Q&A as body content"})
+                    {"page": page, "reason": f"{page} declares '{t}' — no longer earns a rich result "
+                                             f"(HowTo 2023, FAQ 2026-05-07); kept deliberately for AI extraction"})
 
     for k in CHECK_ORDER:
         checks[k]["count"] = len(checks[k]["issues"])
@@ -152,11 +172,13 @@ def evaluate(strict: bool = False, update_baseline: bool = False) -> tuple[int, 
         base = prior.get(name, cur)
         ratcheted = min(base, cur)
         new_base[name] = ratcheted
-        failing = (cur > 0) if strict else (cur > ratcheted)
+        info = name in INFO_ONLY_CHECKS
+        failing = False if info else ((cur > 0) if strict else (cur > ratcheted))
         if failing:
             fails.append(name)
         rows.append({"check": name, "current": cur, "baseline": 0 if strict else ratcheted,
-                     "status": "FAIL" if failing else ("OK" if cur == 0 else "HELD"),
+                     "informational": info,
+                     "status": "INFO" if info else ("FAIL" if failing else ("OK" if cur == 0 else "HELD")),
                      "issues": checks[name]["issues"]})
     total = sum(checks[n]["count"] for n in CHECK_ORDER)
     from datetime import datetime, timezone
@@ -182,8 +204,11 @@ def _print(report: dict):
     print(c("96", "\n  SEO TECHNICAL GATE (P1) · ratchet"))
     print("  " + "=" * 60)
     for r in report["checks"]:
-        col = "91" if r["status"] == "FAIL" else ("92" if r["status"] == "OK" else "93")
-        print(f"    {c(col, r['status'].ljust(4))} {r['check']:<16} current={r['current']}  baseline={r['baseline']}")
+        col = {"FAIL": "91", "OK": "92", "INFO": "96"}.get(r["status"], "93")
+        base_txt = "census" if r.get("informational") else f"baseline={r['baseline']}"
+        print(f"    {c(col, r['status'].ljust(4))} {r['check']:<16} current={r['current']}  {base_txt}")
+        if r.get("informational"):
+            print("          (deliberate: kept for AI extraction; rich result retired, markup still read)")
         for i in r["issues"][:4]:
             print(f"          - {i['reason']}")
         if len(r["issues"]) > 4:

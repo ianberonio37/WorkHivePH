@@ -63,4 +63,4 @@ Yes, if the tool is offline-first. WorkHive captures entries locally and syncs w
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: bf2b0f6d35102aa0 -->
+<!-- md-twin source-sha: 69af1aa0610207ec -->

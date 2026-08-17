@@ -34,23 +34,23 @@ WorkHive vs MaintainX compared for small plants: pricing, free tier limits, offl
 [Comparison
 7 min read · 5 Aug 2026
 Best free CMMS software for Philippine plants (2026)
-A comparison of free and freemium CMMS options for small Philippine plants — WorkHive, Coast, MaintainX, Limble, Fiix and Maintenance Care — with what each free tier actually gives you.](https://workhiveph.com/learn/best-free-cmms-software-philippines/)
+A comparison of free and freemium CMMS options for small Philippine plants (WorkHive, Coast, MaintainX, Limble, Fiix and Maintenance Care), with what each free tier actually gives you.](https://workhiveph.com/learn/best-free-cmms-software-philippines/)
 [Comparison
 6 min read · 5 Aug 2026
 CMMS vs Excel spreadsheet for maintenance tracking
-An honest comparison of maintenance spreadsheets versus a CMMS — where spreadsheets still win, the four ways they fail, and how to migrate without pain.](https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/)
+An honest comparison of maintenance spreadsheets versus a CMMS: where spreadsheets still win, the four ways they fail, and how to migrate without pain.](https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/)
 [Reliability
 9 min read · 5 Aug 2026
 Maintenance metrics: OEE, MTBF, MTTR & reliability
-The five metrics every Philippine plant should track — OEE, MTBF, MTTR, availability, and PM compliance — with formulas, worked examples, and free calculators.](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/)
+The five metrics every Philippine plant should track (OEE, MTBF, MTTR, availability, and PM compliance), with formulas, worked examples, and free calculators.](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/)
 [Getting Started
 8 min read · 5 Aug 2026
 How to start digital maintenance in a Philippine factory
-A four-step, zero-budget path — digital logbook, asset register, PM schedule, shift handover — with free templates and a 30-day rollout.](https://workhiveph.com/learn/start-digital-maintenance-guide/)
+A four-step, zero-budget path (digital logbook, asset register, PM schedule, shift handover), with free templates and a 30-day rollout.](https://workhiveph.com/learn/start-digital-maintenance-guide/)
 [Compliance
 8 min read · 5 Aug 2026
 Philippine plant compliance: DOLE OSHS, LOTO & RA 11285
-How to meet DOLE OSHS, lockout/tagout (DO 198-18), and RA 11285 energy rules — and how a digital audit trail proves it in an inspection.](https://workhiveph.com/learn/ph-plant-compliance-guide/)
+How to meet DOLE OSHS, lockout/tagout (DO 198-18), and RA 11285 energy rules, and how a digital audit trail proves it in an inspection.](https://workhiveph.com/learn/ph-plant-compliance-guide/)
 [Start Here
 12 min read · 7 Jul 2026
 What is WorkHive? The complete guide to the free platform for Filipino industrial teams
@@ -236,4 +236,4 @@ No guides match that search. Try a different word, or tap **All**.
 
 Show more guides
 
-<!-- md-twin source-sha: b95483bde4a4e31f -->
+<!-- md-twin source-sha: 01b773b7667e6e3a -->

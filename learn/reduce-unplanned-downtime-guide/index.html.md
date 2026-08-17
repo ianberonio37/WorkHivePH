@@ -80,4 +80,4 @@ Record every stoppage with asset, duration and cause. Without that record you ca
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 9745ce56b7b8652f -->
+<!-- md-twin source-sha: 52b7512b6c8d2579 -->

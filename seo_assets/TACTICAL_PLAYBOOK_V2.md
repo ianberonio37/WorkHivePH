@@ -183,6 +183,72 @@ The free-tier chain has no web-RAG, so it cannot self-run the audit `[external-a
 
 ---
 
+---
+
+## §6 — SXO: the experience after the click *(new pillar, V3)*
+
+The other pillars buy the click. This one decides whether it was worth buying. A citation that
+lands on a broken-looking page spends trust we earned somewhere else.
+
+### §6.1 P0 — the 60 unstyled calculator pages
+Every `/tools/<calc>-calculator/` page ships **no CSS, no header, no footer, no fonts**: 9.5KB of
+bare markup against 27-42KB for a `/learn` page. The content is right — real worked numbers computed
+at build time, standards cited, schema valid — and the shell is simply absent.
+
+**Fix:** in `tools/build_calc_pages.py`, wrap the existing body in the site chrome already defined in
+`tools/build_pillar_pages.py` (`STYLE`, header, footer). **Reuse those constants — do not author new
+CSS**, or the calculator surface drifts from the article surface the first time either changes.
+
+**Verify:** rebuild, then confirm every page reports `has_css / has_header / has_footer` true; twins
+go stale on regeneration, so `python tools/build_md_twins.py` follows.
+
+### §6.2 The gate — `page-shell`
+Fails any page in `sitemap.xml` missing site CSS, a header, or a footer. Sitemap-derived, never
+hand-listed: that is exactly how the calculator pages escaped the existing gates.
+
+### §6.3 Re-scope the instruments that already exist
+- `cwv_gate.py` and `orphan_depth_gate.py` and `seo_technical_gate.py` all derive from
+  `indexable_pages()`, which returns **58** and excludes `/tools/`. Point it at `sitemap.xml` → 119.
+- `validate_mobile.py` does not scan `/learn` or `/tools` at all. Extend it to the content surface;
+  our users are on phones in plants, which makes this the least defensible gap of the four.
+- After re-scoping, run `node tools/cwv_probe.mjs` so the 60 new pages are actually measured rather
+  than merely in scope.
+
+### §6.4 CTAs and trust signals
+No instrument today. Each public page needs one unambiguous next action, and the calculator pages
+need the branding that makes a standards-referenced result look like it came from somebody.
+
+---
+
+## §7 — AIO: AI Overviews and Copilot *(new pillar, V3)*
+
+Distinct from GEO because the surface mirrors the classic SERP: AI Overviews appear on **47-64% of
+queries**, and classic ranking still feeds them.
+
+| Lever | State | Action |
+|---|---|---|
+| Topical authority | built | hold — 8 clusters, 3 hubs, 17 back-links |
+| Semantic relevance | largely built | hold — 114/114 JSON-LD parsing |
+| Entity optimisation | blocked | **[IAN]** `sameAs` profile URLs |
+| **Multi-source credibility** | **missing** | §7.1 |
+
+### §7.1 Multi-source credibility — the lever our own pages cannot supply
+A cluster whose every citation points back to workhiveph.com reads as one unverified source. Our
+pillars cite standards bodies (SMRP, ISO, DOE, NFPA), which is the right instinct, but **no
+independent third party discusses WorkHive anywhere**.
+
+Three moves, in order of tractability:
+1. **Cite ≥2 independent external sources per pillar** — local, doable now, and it also strengthens
+   the AEO answer-quality target.
+2. **Get onto third-party "best free CMMS" listicles** — 48.7% of ChatGPT citations are third-party
+   listings. Outreach list in §4.5. **[IAN]** sends.
+3. **Publish the PH-OEE benchmark study** as an original citable asset with stated methodology and
+   sample size — the one thing that makes other people cite *us*.
+
+### §7.2 The gate — `aio-readiness`
+Per cluster: pillar exists · schema complete · **≥2 independent external citations** · entity
+resolvable. It should fail today on the last two. A gate that passes on day one is measuring nothing.
+
 ## Definition of done (per the strategy scoreboard §7)
 
 No axis is "done" until **observed**, not asserted. The board moves when: 58 `/tools/` pages live + indexed · entity resolvable in AI prompt tests · Reddit 90/10 active · 3 long-form videos up · G2 claimed · **a real SOV number exists**. That last one converts the whole program from self-estimate to measurement — the entire point of V2.

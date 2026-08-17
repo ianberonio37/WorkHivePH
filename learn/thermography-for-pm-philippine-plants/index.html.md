@@ -131,4 +131,4 @@ To integrate thermography into your plant's PM Scheduler, identify critical equi
 - ISO 14224:2016 Condition monitoring and diagnostics of machines
 - SMRP CMRP BoK Section 4: Predictive Maintenance
 
-<!-- md-twin source-sha: 9ad3070d7fc2db4d -->
+<!-- md-twin source-sha: 35d76b975bcc7a6d -->

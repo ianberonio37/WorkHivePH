@@ -129,4 +129,4 @@ Start with vendor defaults (or ISO 10816 for vibration), but tune within 90 days
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 3276bf1d0879edfe -->
+<!-- md-twin source-sha: 149eb464ddd81616 -->

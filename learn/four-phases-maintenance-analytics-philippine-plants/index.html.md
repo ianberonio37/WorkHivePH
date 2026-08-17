@@ -114,4 +114,4 @@ WorkHive provides technical support and training for Analytics Engine users. Thi
 - DOLE OSHS - Occupational Safety and Health Standards
 - Related WorkHive guides: [The print-ready analytics report](https://workhiveph.com/learn/print-ready-maintenance-analytics-report/) · [What is OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/)
 
-<!-- md-twin source-sha: aa779e8e458e08fc -->
+<!-- md-twin source-sha: f27a662b6913ef9b -->

@@ -122,4 +122,4 @@ The Department of Labor and Employment (DOLE) requires plants to implement a pre
 - DOLE OSHS, Occupational Safety and Health Standards
 - IIEE Code, Philippine Electrical Code
 
-<!-- md-twin source-sha: 6844ea2b7132f186 -->
+<!-- md-twin source-sha: dc04c5f00001ccd9 -->

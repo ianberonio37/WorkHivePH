@@ -132,4 +132,4 @@ While the portfolio is designed for OFW-track engineers, you can still use it to
 - DOLE OSHS, 'Occupational Safety and Health Standards'
 - IIEE Code, 'Code of Ethics for Electrical Engineers'
 
-<!-- md-twin source-sha: 06624114c950fa53 -->
+<!-- md-twin source-sha: 4cbdee2f13906379 -->

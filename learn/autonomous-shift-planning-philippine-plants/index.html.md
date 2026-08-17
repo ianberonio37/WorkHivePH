@@ -103,4 +103,4 @@ Yes, Shift Brain can be used for various types of maintenance operations, includ
 - DOLE OSHS (Occupational Safety and Health Standards)
 - Related WorkHive guides: [One alert inbox for the whole plant](https://workhiveph.com/learn/plant-alert-inbox-amc-daily-brief/) · [Shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/) · [DILO/WILO day planner](https://workhiveph.com/learn/dilo-wilo-day-planner-supervisors/)
 
-<!-- md-twin source-sha: 11248d1d441d3d5d -->
+<!-- md-twin source-sha: 06d2989c9f3789fe -->

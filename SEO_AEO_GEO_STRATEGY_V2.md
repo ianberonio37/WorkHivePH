@@ -1,5 +1,9 @@
 # WorkHive SEO / AEO / GEO — Strategy V2 (evidence-grounded)
 
+> **SUPERSEDED 2026-08-05 by `SEO_AEO_GEO_V3.md`**, which carries five pillars instead of three
+> (AIO and SXO were missing) and re-scopes the gates from 58 to 119 URLs. This document remains the
+> accurate record of what was BUILT and why — V3 changes the frame, not the build log.
+
 **Status:** supersedes `SEO_AEO_GEO_MAXIMIZATION_ROADMAP.md` as the strategy doc. It does **not** replace the shipped Layer-A code — that foundation stays and is built upon.
 **Built:** 2026-08-03 · **Evidence spine:** 42 `substrate/external/` chunks (24 harvested for this doc, 2026-08-03; freshness validator green).
 **Companion:** `seo_assets/TACTICAL_PLAYBOOK_V2.md` (the fill-in-the-blank execution artifacts).
