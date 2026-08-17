@@ -123,6 +123,27 @@ def validate_page(path: Path) -> list[str]:
     if len([h for h in internal if h.startswith("/learn/") or h.startswith("/tools/")]) < 2:
         fails.append("orphan-ish: <2 internal /learn or /tools links")
 
+    # 6. PAGE SHELL — the page must look like the rest of the site (V3 §6, SXO).
+    #    All 60 shipped with no CSS, header, footer or fonts: browser-default HTML,
+    #    no branding, no way to navigate onward. Every other gate passed on them,
+    #    because none of them looks at whether a human would trust the page.
+    if "cdn.tailwindcss.com" not in txt:
+        fails.append("no Tailwind — page renders unstyled")
+    if ".prose-wh" not in txt:
+        fails.append("missing the shared STYLE block (.prose-wh)")
+    if '<header class="border-b' not in txt:
+        fails.append("no site header — visitor cannot navigate onward")
+    if '<footer class="py-10' not in txt:
+        fails.append("no site footer")
+    if "Poppins" not in txt:
+        fails.append("no webfont — falls back to browser default")
+    # mobile essentials for a page arriving from a phone-sized SERP
+    m_vp = re.search(r'<meta[^>]+name=["\']viewport["\'][^>]*content=["\']([^"\']+)', txt, re.I)
+    if not m_vp:
+        fails.append("no viewport meta — unusable on mobile")
+    elif "width=device-width" not in m_vp.group(1):
+        fails.append(f"viewport lacks width=device-width ({m_vp.group(1)})")
+
     # non-thin: >= 2 KB of visible-ish text (strip tags)
     body_text = re.sub(r"<[^>]+>", " ", txt)
     body_text = re.sub(r"\s+", " ", body_text)
