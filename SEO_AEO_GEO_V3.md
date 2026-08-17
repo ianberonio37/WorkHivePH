@@ -33,11 +33,11 @@ Defect 2 is the structural one. A gate that derives its surface from a catalog i
 
 | # | Pillar | The question it answers | State | Gate |
 |---|---|---|---|---|
-| 1 | **SEO** | Do we rank on traditional engines? | Strong, **but gated over 58/119 URLs** | `seo`, `seo-technical`, `sitemap-sync`, `orphan-depth` |
+| 1 | **SEO** | Do we rank on traditional engines? | Strong; **now gated over 119/119** (was 58) | `seo`, `seo-technical`, `sitemap-sync`, `orphan-depth` |
 | 2 | **AEO** | Are we the direct answer? | Present everywhere, **depth uneven** | `extractability` (+ proposed answer-quality) |
 | 3 | **GEO** | Do the models reference us? | Built, **unmeasured + entity-blocked** | live SOV (Ian-run) |
 | 4 | **AIO** | Do we appear in AI Overviews? | *New pillar* — partial by accident | proposed `aio-readiness` |
-| 5 | **SXO** | Is the page good once they arrive? | *New pillar* — **largest gap** | proposed `page-shell` + extended `cwv`/`mobile` |
+| 5 | **SXO** | Is the page good once they arrive? | *New pillar* — **P0 shipped**; CTA still ungated | `page-shell` (built), `cwv` |
 
 ---
 
@@ -47,9 +47,7 @@ Defect 2 is the structural one. A gate that derives its surface from a catalog i
 
 **Measured state.** 119 sitemap URLs, all resolving (`sitemap-page-existence` green). `robots.txt` names 23 user-agent tokens including the three independent Anthropic bots. Self-referencing canonicals throughout; `BreadcrumbList` on 113/114 pages (homepage correctly excluded). 119 markdown twins with an anti-drift gate. 715 internal links, 0 broken.
 
-**Gap.** Two, and the first is the serious one:
-- **Gate surface is 58, content surface is 119.** `indexable_pages()` never learned about `/tools/`.
-- Nothing is deployed, and GSC/Bing are unwired — so every SEO figure remains *code state*, not observation. This is V2's original sin surviving in the one pillar we call strong.
+**Gap.** The scope defect is **fixed** — `indexable_pages()` is sitemap-derived, so all three gates now cover 119/119 (was 58). What remains: nothing is deployed, and GSC/Bing are unwired, so every SEO figure is still *code state* rather than observation. That is V2's original sin surviving in the one pillar we call strong.
 
 **90-day target.** `indexable_pages()` derived from `sitemap.xml` → all three gates cover 119/119. Deployed; GSC + Bing reporting real impressions.
 
@@ -161,7 +159,7 @@ The rule V2 established and V3 keeps: **no axis is done until it is observed.** 
 
 | Pillar | Instrument | Observed today | 90-day target |
 |---|---|---|---|
-| SEO | gate sweep | green over **58/119** URLs | green over 119/119, deployed, GSC live |
+| SEO | gate sweep | green over **119/119** URLs (was 58) | deployed, GSC + Bing live |
 | AEO | `extractability` | green; answer-first on 113 pages | + answer-quality (digit·unit·source) |
 | GEO | live SOV | **never run** | a real SoM number, rising |
 | AIO | `aio-readiness` | not built; credibility **0 independent sources** | ≥2 per pillar + 1 listicle |
