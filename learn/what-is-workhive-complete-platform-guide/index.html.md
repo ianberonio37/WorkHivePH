@@ -15,6 +15,7 @@ Updated 7 Jul 2026
 12 min read
 
 **Short answer:** WorkHive is a free platform for every Filipino industrial worker, from the technician on the floor to the plant manager. It opens in any phone browser, works offline, and puts a digital logbook, a maintenance planner, a spare-parts tracker, 60 engineering calculators, live team boards, reports, and an AI helper into one connected "hive." It does not replace the systems you already run (like SAP or IBM Maximo): it sits alongside them, and it makes every repair you log useful to the whole team. And it is genuinely free: no per-seat charge, no credit card.
+ The price is the point: **₱0** at the worker tier, permanently, with the **60** engineering calculators and every tool included rather than tiered.
 
 Who this is for
 
@@ -297,4 +298,4 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 48ce6b0efb08ede4 -->
+<!-- md-twin source-sha: 0c338b2e2e1da7a1 -->

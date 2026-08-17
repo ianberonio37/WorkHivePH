@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 5 min read
 
-**Short answer:** Imagine having an AI that plans your maintenance shifts for you, freeing up time for more critical tasks. With WorkHive's Shift Brain, you can automate shift planning and prioritize tasks based on risk and urgency. This AI brief helps your crew know what to fix first. It runs on a fixed cadence rather than on request: **Shift Brain** generates one brief per shift at **06:00, 14:00 and 22:00 PHT**, using four sub-agents to gather risk, PM, stock and open faults.
+**Short answer:** Imagine having an AI that plans your maintenance shifts for you, freeing up time for more critical tasks. With WorkHive's Shift Brain, you can automate shift planning and prioritize tasks based on risk and urgency. This AI brief helps your crew know what to fix first. It runs on a fixed cadence rather than on request: **Shift Brain** generates one brief per shift at **06:00, 14:00 and 22:00 PHT**, using four sub-agents to gather risk, PM, stock and open faults. In practice that is one brief every **8 hours**, so no shift starts without a ranked plan.
 
 Who this is for
 
@@ -105,4 +105,4 @@ Yes, Shift Brain can be used for various types of maintenance operations, includ
 - DOLE OSHS (Occupational Safety and Health Standards)
 - Related WorkHive guides: [One alert inbox for the whole plant](https://workhiveph.com/learn/plant-alert-inbox-amc-daily-brief/) · [Shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/) · [DILO/WILO day planner](https://workhiveph.com/learn/dilo-wilo-day-planner-supervisors/)
 
-<!-- md-twin source-sha: a21810c48e5ae2e3 -->
+<!-- md-twin source-sha: 1912f9ad2217d9b3 -->

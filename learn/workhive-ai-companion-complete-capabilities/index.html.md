@@ -15,6 +15,7 @@ Updated 7 July 2026
 12 min read
 
 **Short answer:** The WorkHive AI Companion is a free helper built into WorkHive that you talk to like a knowledgeable workmate. It comes as two experts you switch between with one tap: **Hezekiah**, the hands-on fix expert for the machine in front of you right now, and **Zaniah**, the planner who watches the whole team and spots the patterns. It answers from your own hive's real records and shows you where it found each answer, it never makes up a number, it remembers what you told it days ago, and you can talk to it in your own language while it reads the answer back out loud so you can keep working. Most people use one small corner of it. This guide shows you the whole thing.
+ It ships as **2** expert personas — **Hezekiah** for technical reliability and **Zaniah** for maintenance strategy — reachable from every page.
 
 Who this is for
 
@@ -177,4 +178,4 @@ It grounds its safety guidance in Philippine rules: the workplace-safety law RA 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 82b70517050a6ba5 -->
+<!-- md-twin source-sha: 11ca90a622a7f7c9 -->
