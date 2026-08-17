@@ -153,17 +153,38 @@ Both positions are defensible, which is why this needs deciding rather than assu
 
 ---
 
-## 7. The scoreboard — observed, not asserted
+## 7. The scoreboard — computed, not asserted
 
-The rule V2 established and V3 keeps: **no axis is done until it is observed.** Where a number is unobserved, the cell says so rather than estimating.
+**Run it:** `python tools/seo_scoreboard.py`. Every percentage is derived from a live gate report; none is typed by hand. That is V2's original sin made structurally impossible — a pillar cannot claim a number its instrument does not produce.
 
-| Pillar | Instrument | Observed today | 90-day target |
-|---|---|---|---|
-| SEO | gate sweep | green over **119/119** URLs (was 58) | deployed, GSC + Bing live |
-| AEO | `extractability` | green; **answer_quality 15/53** (debt 38, ratcheted) | every pillar opener carries number·unit·source |
-| GEO | live SOV | **never run** | a real SoM number, rising |
-| AIO | `aio-readiness` | built; **5/6 pillars cite ≥2 sources**; 0/6 ready (sameAs) | entity resolved → 6/6 ready + 1 listicle |
-| SXO | `page-shell`, `cwv`, `cta` | **60/60 shelled**; CWV 119/119 green; **CTA 113/113** | hold; re-measure CWV against production |
+| Pillar | Now | Local ceiling | Blocked on Ian | What closes the gap |
+|---|---:|---:|---:|---|
+| **SEO** | **99.4%** | 99.9% | 3 pts | one `<h1>` fix on index.html; then deploy + GSC/Bing |
+| **AEO** | **83.0%** | 83.0% | — | **36 openers** need a number + unit + named entity |
+| **GEO** | **50.0%** | 100% | 5 pts | entirely Ian: sameAs, live SOV, Reddit/YouTube/G2 |
+| **AIO** | **57.9%** | 91.7% | 7 pts | 1 pillar still cites <2 sources; rest is sameAs + a listicle |
+| **SXO** | **99.7%** | 99.7% | — | extend the mobile gate to the content surface |
+| | | | | |
+| **OVERALL** | **78.0%** | **94.9%** | 15 pts | mean of the five pillars |
+
+**Why the mean and not the point total.** Point-weighted, this reads **95.7%** — because 119-page checks drown the binary ones while GEO sits at 50%. That is the "one green metric masks an incomplete axis" failure this programme already made once. The mean only reaches 100 when *every* pillar does, which is what "drive to 100%" has to mean.
+
+### The drive queue
+
+**Local — everything here is mine to finish (78.0% → ~94.9%):**
+1. **AEO 83% → 100%** — the largest single lever, and the only short pillar entirely in my hands. 36 openers need a real number, unit and named entity. It is a content grind, not a code change, and each figure must be *verified* — this session already caught a fabricated DOE statistic twice, the second time hiding behind an HTML entity.
+2. **SXO 99.7% → 100%** — extend the mobile gate to `/learn` and `/tools`, or write a content-specific one (`validate_mobile.py`'s safe-area/overscroll/animation checks false-positive on static pages).
+3. **AIO 57.9% → 91.7%** — one pillar still cites fewer than 2 independent sources. The sixth, `what-is-workhive`, cites only WorkHive; it is a platform overview, and inventing external citations for it is the exact failure the pillar exists to prevent. Either find genuine third-party coverage or accept it as self-referential and exclude it from the denominator with that reason recorded.
+4. **SEO 99.4% → 99.9%** — `index.html` carries two `<h1>`.
+
+**Ian — the last ~5 points, and no local work reaches them:**
+5. **`sameAs` profiles** (LinkedIn, Crunchbase). Worth 6 points in AIO and 1 in GEO, and it gates *both* pillars entirely: entity resolution runs before content retrieval, so an unresolvable brand is refused before anything else is considered. Highest leverage remaining, by a distance.
+6. **Deploy**, then `tools/indexnow_submit.py --submit` (119 URLs).
+7. **GSC + Bing** — turns SEO from code-state into observation.
+8. **Off-site**: Reddit 90/10, a long-form YouTube explainer, G2/Capterra claim.
+9. **The live SOV baseline** — the first real GEO number.
+
+**Ceiling honesty:** 100% overall is not reachable by me alone. The local ceiling is **94.9%**, and the remaining 5.1 points are five actions only Ian can take. That is a fact about the work, not a limitation of it.
 
 ---
 

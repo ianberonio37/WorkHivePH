@@ -1,0 +1,246 @@
+{
+  "generated_at": "2026-08-17T06:53:12+00:00",
+  "pillars": {
+    "SEO": {
+      "achieved": 713,
+      "total": 717,
+      "pct": 99.4,
+      "local_pct": 99.9,
+      "ian_blocked": 3
+    },
+    "AEO": {
+      "achieved": 176,
+      "total": 212,
+      "pct": 83.0,
+      "local_pct": 83.0,
+      "ian_blocked": 0
+    },
+    "GEO": {
+      "achieved": 5,
+      "total": 10,
+      "pct": 50.0,
+      "local_pct": 100.0,
+      "ian_blocked": 5
+    },
+    "AIO": {
+      "achieved": 11,
+      "total": 19,
+      "pct": 57.9,
+      "local_pct": 91.7,
+      "ian_blocked": 7
+    },
+    "SXO": {
+      "achieved": 295,
+      "total": 296,
+      "pct": 99.7,
+      "local_pct": 99.7,
+      "ian_blocked": 0
+    }
+  },
+  "overall_pct": 78.0,
+  "local_pct": 94.9,
+  "weakest": "GEO",
+  "point_pct": 95.7,
+  "overall": [
+    1200,
+    1254
+  ],
+  "local": [
+    1200,
+    1239
+  ],
+  "components": {
+    "SEO": [
+      [
+        "exactly one H1",
+        118,
+        119,
+        "seo_technical",
+        false
+      ],
+      [
+        "every image has alt",
+        119,
+        119,
+        "seo_technical",
+        false
+      ],
+      [
+        "JSON-LD parses",
+        119,
+        119,
+        "seo_technical",
+        false
+      ],
+      [
+        "sitemap URLs resolve",
+        119,
+        119,
+        "sitemap-page-existence",
+        false
+      ],
+      [
+        "markdown twins current",
+        119,
+        119,
+        "md-twins",
+        false
+      ],
+      [
+        "no orphans / depth<=3",
+        119,
+        119,
+        "orphan-depth",
+        false
+      ],
+      [
+        "deployed to production",
+        0,
+        1,
+        "[IAN] git push",
+        true
+      ],
+      [
+        "GSC + Bing reporting",
+        0,
+        2,
+        "[IAN] console login",
+        true
+      ]
+    ],
+    "AEO": [
+      [
+        "answer-first opener",
+        53,
+        53,
+        "extractability",
+        false
+      ],
+      [
+        "a statistic present",
+        53,
+        53,
+        "extractability",
+        false
+      ],
+      [
+        "a cited source",
+        53,
+        53,
+        "extractability",
+        false
+      ],
+      [
+        "opener carries number+unit+entity",
+        17,
+        53,
+        "extractability",
+        false
+      ]
+    ],
+    "GEO": [
+      [
+        "comparison pages built",
+        4,
+        4,
+        "content",
+        false
+      ],
+      [
+        "SOV harness de-biased + ready",
+        1,
+        1,
+        "geo_sov_audit",
+        false
+      ],
+      [
+        "entity resolvable (sameAs)",
+        0,
+        1,
+        "[IAN] profile URLs",
+        true
+      ],
+      [
+        "live SOV baseline run",
+        0,
+        1,
+        "[IAN] manual, 5 engines",
+        true
+      ],
+      [
+        "off-site channels active",
+        0,
+        3,
+        "[IAN] Reddit / YouTube / G2",
+        true
+      ]
+    ],
+    "AIO": [
+      [
+        "pillar schema complete",
+        6,
+        6,
+        "aio-readiness",
+        false
+      ],
+      [
+        "pillar cites >=2 independent sources",
+        5,
+        6,
+        "aio-readiness",
+        false
+      ],
+      [
+        "entity resolvable",
+        0,
+        6,
+        "[IAN] sameAs",
+        true
+      ],
+      [
+        "third-party listicle inclusion",
+        0,
+        1,
+        "[IAN] outreach",
+        true
+      ]
+    ],
+    "SXO": [
+      [
+        "page shell (css/header/footer/font)",
+        60,
+        60,
+        "calc-pages",
+        false
+      ],
+      [
+        "a next action on every page",
+        113,
+        113,
+        "cta",
+        false
+      ],
+      [
+        "LCP / INP / CLS within threshold",
+        3,
+        3,
+        "cwv",
+        false
+      ],
+      [
+        "CWV measured across the surface",
+        119,
+        119,
+        "cwv",
+        false
+      ],
+      [
+        "mobile gate covers content surface",
+        0,
+        1,
+        "validate_mobile (app-only)",
+        false
+      ]
+    ]
+  }
+}
