@@ -69,10 +69,10 @@ Lost history and missed PMs. The US Department of Energy's O&M Best Practices Gu
 
 ## Sources
 
-- US Department of Energy / PNNL, **Operations & Maintenance Best Practices Guide, Release 3.0** (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).
+- [US Department of Energy / PNNL](https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency), **Operations & Maintenance Best Practices Guide, Release 3.0** (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).
 - SMRP, **Best Practices Metric 5.4 (PM Compliance)**.
 - Related: [Start digital maintenance](https://workhiveph.com/learn/start-digital-maintenance-guide/) · [Best free CMMS options](https://workhiveph.com/learn/best-free-cmms-software-philippines/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: f2891ff0f8e0126f -->
+<!-- md-twin source-sha: 13721cfd879769b7 -->

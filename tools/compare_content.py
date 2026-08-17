@@ -267,7 +267,7 @@ COMPARISONS = [
             ("What is the real cost of staying on spreadsheets?", "Lost history and missed PMs. The US Department of Energy's O&M Best Practices Guide puts a preventive programme at roughly 12-18% cheaper than running reactive, with another 8-12% available from a predictive layer — and a spreadsheet has no mechanism to make a due date chase anyone."),
         ],
         "sources": [
-            "US Department of Energy / PNNL, <strong>Operations &amp; Maintenance Best Practices Guide, Release 3.0</strong> (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).",
+            "<a href=\"https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency\">US Department of Energy / PNNL</a>, <strong>Operations &amp; Maintenance Best Practices Guide, Release 3.0</strong> (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).",
             "SMRP, <strong>Best Practices Metric 5.4 (PM Compliance)</strong>.",
             "Related: <a href=\"/learn/start-digital-maintenance-guide/\">Start digital maintenance</a> &middot; <a href=\"/learn/best-free-cmms-software-philippines/\">Best free CMMS options</a>.",
         ],

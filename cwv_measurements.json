@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-08T06:56:06.245Z",
+  "generated_at": "2026-08-17T06:33:46.181Z",
   "env": "local",
   "cache": "warm-median",
   "lcp_local_optimistic": true,
@@ -1162,6 +1162,1614 @@
         228,
         208,
         204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "feedback/index.html",
+      "url": "http://127.0.0.1:5000/workhive/feedback/",
+      "lcp_ms": 248,
+      "inp_ms": 24,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 984,
+      "transferKB": 19,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        212,
+        248,
+        260
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        24
+      ]
+    },
+    {
+      "surface": "tools/ahu-sizing-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/ahu-sizing-calculator/",
+      "lcp_ms": 216,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 600,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        204,
+        268
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/beam-design-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/beam-design-calculator/",
+      "lcp_ms": 256,
+      "inp_ms": 24,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 588,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        256,
+        248,
+        308
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        24
+      ]
+    },
+    {
+      "surface": "tools/bearing-life-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/bearing-life-calculator/",
+      "lcp_ms": 224,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 620,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        304,
+        212,
+        224
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/boiler-steam-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/boiler-steam-calculator/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 496,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        212,
+        212,
+        236
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/boiler-system-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/boiler-system-calculator/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 524,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        204,
+        212
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/bolt-torque-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/bolt-torque-calculator/",
+      "lcp_ms": 228,
+      "inp_ms": 16,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 584,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        232,
+        224,
+        228
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        16
+      ]
+    },
+    {
+      "surface": "tools/cable-tray-sizing-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/cable-tray-sizing-calculator/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 548,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        256,
+        212,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/chiller-sizing-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/chiller-sizing-calculator/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 532,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        208,
+        204,
+        236
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/clean-agent-suppression-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/clean-agent-suppression-calculator/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 512,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        212,
+        200,
+        212
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/compressed-air-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/compressed-air-calculator/",
+      "lcp_ms": 224,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 560,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        224,
+        252,
+        200
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/cooling-tower-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/cooling-tower-calculator/",
+      "lcp_ms": 268,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 612,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        348,
+        268,
+        240
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/domestic-water-demand-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/domestic-water-demand-calculator/",
+      "lcp_ms": 236,
+      "inp_ms": 24,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 584,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        236,
+        228,
+        428
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        24
+      ]
+    },
+    {
+      "surface": "tools/drainage-pipe-sizing-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/drainage-pipe-sizing-calculator/",
+      "lcp_ms": 248,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 496,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        248,
+        264,
+        212
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/duct-sizing-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/duct-sizing-calculator/",
+      "lcp_ms": 260,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 548,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        260,
+        208,
+        316
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/earthing-grounding-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/earthing-grounding-calculator/",
+      "lcp_ms": 204,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 640,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        204,
+        204,
+        196
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/elevator-traffic-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/elevator-traffic-calculator/",
+      "lcp_ms": 236,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 788,
+      "transferKB": 15,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        204,
+        316,
+        236
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/expansion-tank-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/expansion-tank-calculator/",
+      "lcp_ms": 220,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 600,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        384,
+        220
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/fcu-selection-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/fcu-selection-calculator/",
+      "lcp_ms": 232,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 600,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        344,
+        232,
+        208
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/fire-alarm-battery-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/fire-alarm-battery-calculator/",
+      "lcp_ms": 200,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 480,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        412,
+        200,
+        196
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/fire-pump-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/fire-pump-calculator/",
+      "lcp_ms": 240,
+      "inp_ms": 32,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 476,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        196,
+        240,
+        256
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        32
+      ]
+    },
+    {
+      "surface": "tools/fire-sprinkler-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/fire-sprinkler-calculator/",
+      "lcp_ms": 188,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 476,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        180,
+        196,
+        188
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/generator-sizing-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/generator-sizing-calculator/",
+      "lcp_ms": 260,
+      "inp_ms": 16,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 688,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        260,
+        200,
+        404
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        16
+      ]
+    },
+    {
+      "surface": "tools/grease-trap-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/grease-trap-calculator/",
+      "lcp_ms": 200,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 516,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        232,
+        180,
+        200
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/harmonic-distortion-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/harmonic-distortion-calculator/",
+      "lcp_ms": 200,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 584,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        180,
+        200,
+        256
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/heat-exchanger-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/heat-exchanger-calculator/",
+      "lcp_ms": 216,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 688,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        252,
+        216,
+        196
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/hoist-capacity-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/hoist-capacity-calculator/",
+      "lcp_ms": 220,
+      "inp_ms": 24,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 760,
+      "transferKB": 15,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        220,
+        252,
+        212
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        24
+      ]
+    },
+    {
+      "surface": "tools/hot-water-demand-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/hot-water-demand-calculator/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 552,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        248,
+        212,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/hvac-cooling-load-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/hvac-cooling-load-calculator/",
+      "lcp_ms": 216,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 616,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        252,
+        212
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/hydraulic-cylinder-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/hydraulic-cylinder-calculator/",
+      "lcp_ms": 220,
+      "inp_ms": 16,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 524,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        276,
+        220
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        16
+      ]
+    },
+    {
+      "surface": "tools/lighting-design-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/lighting-design-calculator/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 512,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        212,
+        204,
+        228
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/lightning-protection-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/lightning-protection-calculator/",
+      "lcp_ms": 232,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 484,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        232,
+        212,
+        244
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/load-estimation-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/load-estimation-calculator/",
+      "lcp_ms": 216,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 608,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        212,
+        252
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/load-schedule-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/load-schedule-calculator/",
+      "lcp_ms": 216,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 496,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        208,
+        360
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/noise-acoustics-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/noise-acoustics-calculator/",
+      "lcp_ms": 236,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 592,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        236,
+        304,
+        192
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/pipe-sizing-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/pipe-sizing-calculator/",
+      "lcp_ms": 204,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 496,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        280,
+        196,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/power-factor-correction-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/power-factor-correction-calculator/",
+      "lcp_ms": 204,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 528,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        284,
+        192,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/pressure-vessel-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/pressure-vessel-calculator/",
+      "lcp_ms": 248,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 608,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        272,
+        216,
+        248
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/pump-tdh-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/pump-tdh-calculator/",
+      "lcp_ms": 192,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 492,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        176,
+        196,
+        192
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/refrigerant-pipe-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/refrigerant-pipe-calculator/",
+      "lcp_ms": 192,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 496,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        192,
+        208,
+        172
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/roof-drain-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/roof-drain-calculator/",
+      "lcp_ms": 216,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 500,
+      "transferKB": 15,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        216,
+        196
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/septic-tank-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/septic-tank-calculator/",
+      "lcp_ms": 204,
+      "inp_ms": 16,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 560,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        204,
+        172,
+        264
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        16
+      ]
+    },
+    {
+      "surface": "tools/sewer-drainage-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/sewer-drainage-calculator/",
+      "lcp_ms": 204,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 548,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        184,
+        204,
+        216
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/shaft-design-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/shaft-design-calculator/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 540,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        220,
+        192,
+        208
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/short-circuit-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/short-circuit-calculator/",
+      "lcp_ms": 188,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 556,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        188,
+        180,
+        188
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/solar-pv-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/solar-pv-calculator/",
+      "lcp_ms": 224,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 496,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        296,
+        224,
+        188
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/stairwell-pressurization-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/stairwell-pressurization-calculator/",
+      "lcp_ms": 172,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 496,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        168,
+        188,
+        172
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/storm-drain-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/storm-drain-calculator/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 636,
+      "transferKB": 15,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        260,
+        184,
+        212
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/transformer-sizing-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/transformer-sizing-calculator/",
+      "lcp_ms": 276,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 484,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        276,
+        292
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/ups-sizing-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/ups-sizing-calculator/",
+      "lcp_ms": 204,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 548,
+      "transferKB": 15,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        216,
+        204,
+        184
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/v-belt-drive-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/v-belt-drive-calculator/",
+      "lcp_ms": 236,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 616,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        380,
+        236,
+        216
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/ventilation-ach-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/ventilation-ach-calculator/",
+      "lcp_ms": 212,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 520,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        252,
+        204,
+        212
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/vibration-isolation-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/vibration-isolation-calculator/",
+      "lcp_ms": 228,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 728,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        208,
+        264,
+        228
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/voltage-drop-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/voltage-drop-calculator/",
+      "lcp_ms": 220,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 564,
+      "transferKB": 15,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        208,
+        248,
+        220
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/wastewater-stp-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/wastewater-stp-calculator/",
+      "lcp_ms": 224,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 572,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        296,
+        216,
+        224
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/water-softener-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/water-softener-calculator/",
+      "lcp_ms": 240,
+      "inp_ms": 84,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 568,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        208,
+        244,
+        240
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        16,
+        152
+      ]
+    },
+    {
+      "surface": "tools/water-supply-pipe-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/water-supply-pipe-calculator/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 528,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        208,
+        356,
+        200
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/water-treatment-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/water-treatment-calculator/",
+      "lcp_ms": 224,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 584,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        224,
+        252,
+        220
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/wire-sizing-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/wire-sizing-calculator/",
+      "lcp_ms": 216,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 516,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        208,
+        216,
+        236
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/maintenance-metrics-reliability-guide/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/maintenance-metrics-reliability-guide/",
+      "lcp_ms": 244,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 676,
+      "transferKB": 27,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        244,
+        316,
+        224
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/start-digital-maintenance-guide/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/start-digital-maintenance-guide/",
+      "lcp_ms": 332,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 524,
+      "transferKB": 24,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        368,
+        332,
+        232
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/ph-plant-compliance-guide/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/ph-plant-compliance-guide/",
+      "lcp_ms": 236,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 564,
+      "transferKB": 25,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        228,
+        256,
+        236
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/workhive-vs-upkeep-free-cmms-comparison/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/workhive-vs-upkeep-free-cmms-comparison/",
+      "lcp_ms": 260,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 664,
+      "transferKB": 26,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        260,
+        344,
+        256
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/workhive-vs-maintainx-comparison/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/workhive-vs-maintainx-comparison/",
+      "lcp_ms": 264,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 556,
+      "transferKB": 23,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        264,
+        328,
+        220
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/best-free-cmms-software-philippines/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/best-free-cmms-software-philippines/",
+      "lcp_ms": 280,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 640,
+      "transferKB": 27,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        280,
+        256,
+        336
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/cmms-vs-excel-spreadsheet-maintenance/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/cmms-vs-excel-spreadsheet-maintenance/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 524,
+      "transferKB": 23,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        272,
+        208,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/oee-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/oee-calculator/",
+      "lcp_ms": 204,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 496,
+      "transferKB": 17,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        184,
+        256,
+        204
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "tools/mtbf-calculator/index.html",
+      "url": "http://127.0.0.1:5000/workhive/tools/mtbf-calculator/",
+      "lcp_ms": 208,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 536,
+      "transferKB": 16,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        180,
+        208,
+        292
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": []
+    },
+    {
+      "surface": "learn/reduce-unplanned-downtime-guide/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/reduce-unplanned-downtime-guide/",
+      "lcp_ms": 260,
+      "inp_ms": null,
+      "inp_measured": false,
+      "cls": 0,
+      "lcp_cold_ms": 636,
+      "transferKB": 26,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        244,
+        260,
+        268
       ],
       "cls_samples": [
         0,

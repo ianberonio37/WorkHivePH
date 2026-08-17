@@ -66,7 +66,7 @@ Availability = MTBF divided by (MTBF + MTTR). For a pump with MTBF 800 hours and
 
 ### What PM compliance should I target?
 
-The Society for Maintenance and Reliability Professionals (SMRP) benchmark is at least 90% schedule compliance — the percentage of preventive maintenance tasks completed on or before their due date. It is the leading indicator that drives MTBF and OEE upward.
+The <a href="https://smrp.org/">Society for Maintenance and Reliability Professionals (SMRP)</a> benchmark is at least 90% schedule compliance — the percentage of preventive maintenance tasks completed on or before their due date. It is the leading indicator that drives MTBF and OEE upward.
 
 ### Do I need software to track these metrics?
 
@@ -74,11 +74,11 @@ No. You can start with a disciplined logbook and a checklist. The value is in co
 
 ## Sources
 
-- Society for Maintenance and Reliability Professionals (SMRP), **Best Practices Metrics (5.4 PM Compliance, 5.1 OEE)**.
-- ISO 14224, **Collection and exchange of reliability and maintenance data for equipment**.
+- [Society for Maintenance and Reliability Professionals (SMRP)](https://smrp.org/), **Best Practices Metrics (5.4 PM Compliance, 5.1 OEE)**.
+- [ISO 14224](https://www.iso.org/standard/64076.html), **Collection and exchange of reliability and maintenance data for equipment**.
 - ISO 10816-3, **Mechanical vibration — evaluation of machine vibration**.
 - Related WorkHive guides: [OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/) · [MTBF vs MTTR](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/) · [RCM](https://workhiveph.com/learn/reliability-centered-maintenance-philippine-plants/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: bf2b021a1d25004a -->
+<!-- md-twin source-sha: 4f602e67592e5772 -->

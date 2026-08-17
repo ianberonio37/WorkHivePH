@@ -52,11 +52,11 @@ Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tag
 
 ## Sources
 
-- Republic Act 11058 and DOLE **Department Order 198-18** (OSH Standards, penalties, lockout/tagout).
-- Republic Act 11285, **Energy Efficiency and Conservation Act**, and DOE implementing rules.
-- DOLE, **Occupational Safety and Health Standards (OSHS)**, as amended.
+- [Republic Act 11058](https://www.officialgazette.gov.ph/2018/08/17/republic-act-no-11058/) and [DOLE](https://www.dole.gov.ph/) **Department Order 198-18** (OSH Standards, penalties, lockout/tagout).
+- [Republic Act 11285](https://www.officialgazette.gov.ph/2019/04/12/republic-act-no-11285/), **Energy Efficiency and Conservation Act**, and DOE implementing rules.
+- [DOLE](https://www.dole.gov.ph/), **Occupational Safety and Health Standards (OSHS)**, as amended.
 - Related WorkHive guides: [DOLE/ISO audit trail](https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/) · [LOTO procedures](https://workhiveph.com/learn/loto-procedures-dole-oshs-template/) · [RA 11285 checklist](https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 2b257b844b31822c -->
+<!-- md-twin source-sha: d73addb054139dff -->

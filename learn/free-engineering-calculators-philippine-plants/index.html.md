@@ -243,7 +243,7 @@ In the AI era, engineers whose work is documented get promoted. Engineers whose 
 
 ### What engineering disciplines do the WorkHive calculators cover?
 
-Six disciplines: HVAC and cooling (cooling load, ventilation and air changes, chilled-water flow, duct sizing per ASHRAE, FCU and AHU selection), mechanical (pump sizing and NPSH, fan sizing, bearing life, belt tension, alignment, gear ratio), electrical (transformer sizing, cable and conductor sizing per PEC 2017, motor selection, panel and load calculations, voltage drop), plumbing (pipe sizing and velocity, pump head, expansion-tank sizing, pipe slope and drainage), fire protection (sprinkler hydraulics per NFPA 13, smoke and heat detector counts, pull stations per NFPA 72, fire pump selection), and machine design (bolt and metric-thread selection, fastener torque, gear and shaft design, keyway sizing). All 53 calculators reference the relevant standard, PEC 2017, ASHRAE, PSME, NFPA, or ISO, and apply Philippine tropical constants where they matter.
+Six disciplines: HVAC and cooling (cooling load, ventilation and air changes, chilled-water flow, duct sizing per ASHRAE, FCU and AHU selection), mechanical (pump sizing and NPSH, fan sizing, bearing life, belt tension, alignment, gear ratio), electrical (transformer sizing, cable and conductor sizing per PEC 2017, motor selection, panel and load calculations, voltage drop), plumbing (pipe sizing and velocity, pump head, expansion-tank sizing, pipe slope and drainage), fire protection (sprinkler hydraulics per NFPA 13, smoke and heat detector counts, pull stations per NFPA 72, fire pump selection), and machine design (bolt and metric-thread selection, fastener torque, gear and shaft design, keyway sizing). All 60 calculators reference the relevant standard, PEC 2017, ASHRAE, PSME, NFPA, or ISO, and apply Philippine tropical constants where they matter.
 
 ### Why use tropical-climate constants instead of standard ASHRAE values?
 
@@ -267,11 +267,11 @@ Your saved calculations stay in your hive's project history and can be exported 
 
 ## Sources
 
-- ASHRAE, **2021 Fundamentals Handbook, Chapter 21 (Duct Design)**.
-- SMACNA, **HVAC Duct Construction Standards, 3rd Edition**.
-- IEC 62305, **Protection against lightning**, all parts.
-- IEEE 80, **Guide for Safety in AC Substation Grounding**.
-- NFPA 13, **Installation of Sprinkler Systems**.
+- [ASHRAE](https://www.ashrae.org/), **2021 Fundamentals Handbook, Chapter 21 (Duct Design)**.
+- [SMACNA](https://www.smacna.org/), **HVAC Duct Construction Standards, 3rd Edition**.
+- [IEC 62305](https://www.iec.ch/), **Protection against lightning**, all parts.
+- [IEEE 80](https://standards.ieee.org/), **Guide for Safety in AC Substation Grounding**.
+- [NFPA 13](https://www.nfpa.org/codes-and-standards), **Installation of Sprinkler Systems**.
 - ISO 8528-1, **Reciprocating internal combustion engine driven alternating current generating sets**.
 - NSCP 2015, **National Structural Code of the Philippines**.
 - PEC 2017, **Philippine Electrical Code**.
@@ -280,4 +280,4 @@ Your saved calculations stay in your hive's project history and can be exported 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: cbc864b734a3d0ca -->
+<!-- md-twin source-sha: 84e125102196f04a -->

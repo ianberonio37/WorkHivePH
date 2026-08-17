@@ -73,11 +73,11 @@ Record every stoppage with asset, duration and cause. Without that record you ca
 
 ## Sources
 
-- SMRP, **Best Practices Metrics, 6th Edition** — PM schedule compliance benchmark 90% (95%+ for critical assets); a PM counts as on time if completed by the due date + 20% of its frequency, capped at 28 days. Downtime-reduction ranges quoted here are widely-reported industry outcomes, not an SMRP-published figure.
-- US Department of Energy / PNNL, **Operations & Maintenance Best Practices Guide, Release 3.0** (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).
-- ISO 14224, **Reliability and maintenance data collection**; ISO 10816-3 (vibration severity).
+- [SMRP](https://smrp.org/), **Best Practices Metrics, 6th Edition** — PM schedule compliance benchmark 90% (95%+ for critical assets); a PM counts as on time if completed by the due date + 20% of its frequency, capped at 28 days. Downtime-reduction ranges quoted here are widely-reported industry outcomes, not an SMRP-published figure.
+- [US Department of Energy / PNNL](https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency), **Operations & Maintenance Best Practices Guide, Release 3.0** (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).
+- [ISO 14224](https://www.iso.org/standard/64076.html), **Reliability and maintenance data collection**; ISO 10816-3 (vibration severity).
 - Related: [Maintenance metrics guide](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 9745ce56b7b8652f -->
+<!-- md-twin source-sha: 8a9c852f4849cf0d -->

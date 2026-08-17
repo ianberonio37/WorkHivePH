@@ -65,9 +65,9 @@ PROBLEM_PAGES = [
             ("What is the single first step?", "Record every stoppage with asset, duration and cause. Without that record you cannot rank losses, prove improvement, or justify spending — and improvement that cannot be proven does not get funded."),
         ],
         "sources": [
-            "SMRP, <strong>Best Practices Metrics, 6th Edition</strong> — PM schedule compliance benchmark 90% (95%+ for critical assets); a PM counts as on time if completed by the due date + 20% of its frequency, capped at 28 days. Downtime-reduction ranges quoted here are widely-reported industry outcomes, not an SMRP-published figure.",
-            "US Department of Energy / PNNL, <strong>Operations &amp; Maintenance Best Practices Guide, Release 3.0</strong> (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).",
-            "ISO 14224, <strong>Reliability and maintenance data collection</strong>; ISO 10816-3 (vibration severity).",
+            "<a href=\"https://smrp.org/\">SMRP</a>, <strong>Best Practices Metrics, 6th Edition</strong> — PM schedule compliance benchmark 90% (95%+ for critical assets); a PM counts as on time if completed by the due date + 20% of its frequency, capped at 28 days. Downtime-reduction ranges quoted here are widely-reported industry outcomes, not an SMRP-published figure.",
+            "<a href=\"https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency\">US Department of Energy / PNNL</a>, <strong>Operations &amp; Maintenance Best Practices Guide, Release 3.0</strong> (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).",
+            "<a href=\"https://www.iso.org/standard/64076.html\">ISO 14224</a>, <strong>Reliability and maintenance data collection</strong>; ISO 10816-3 (vibration severity).",
             "Related: <a href=\"/learn/maintenance-metrics-reliability-guide/\">Maintenance metrics guide</a> &middot; <a href=\"/learn/predictive-maintenance-on-a-budget-philippines/\">Predictive maintenance on a budget</a>.",
         ],
     },

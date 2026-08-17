@@ -56,11 +56,11 @@ Yes, if the tool is offline-first. WorkHive captures entries locally and syncs w
 
 ## Sources
 
-- ISO 14224, **Collection and exchange of reliability and maintenance data for equipment**.
+- [ISO 14224](https://www.iso.org/standard/64076.html), **Collection and exchange of reliability and maintenance data for equipment**.
 - SMRP, **Best Practices Metric 5.4 (PM Compliance)**.
-- US Department of Energy / PNNL, **Operations & Maintenance Best Practices Guide, Release 3.0** (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).
+- [US Department of Energy / PNNL](https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency), **Operations & Maintenance Best Practices Guide, Release 3.0** (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).
 - Related WorkHive guides: [Digital logbook](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/) · [Asset register](https://workhiveph.com/learn/building-asset-register-zero-budget/) · [Shift handover](https://workhiveph.com/learn/maintenance-shift-handover-template/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: bf2b0f6d35102aa0 -->
+<!-- md-twin source-sha: 6e6fd1ddc2a277e0 -->
