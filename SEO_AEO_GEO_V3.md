@@ -155,6 +155,20 @@ Both positions are defensible, which is why this needs deciding rather than assu
 
 ## 7. The scoreboard — computed, not asserted
 
+> **LOCAL CEILING REACHED — 2026-08-17.** Every pillar is at 100% of what can be done without Ian. `python tools/seo_scoreboard.py`:
+>
+> | Pillar | Now | Local | Ian pts |
+> |---|---:|---:|---:|
+> | **SEO** | **99.6%** | 100.0% | 3 |
+> | **AEO** | **100.0%** | 100.0% | — |
+> | **GEO** | **50.0%** | 100.0% | 5 |
+> | **AIO** | **63.2%** | 100.0% | 7 |
+> | **SXO** | **100.0%** | 100.0% | — |
+> | **OVERALL** | **82.6%** | **100.0%** | 15 |
+>
+> The remaining 17.4 points are five actions only Ian can take. No local work reaches them.
+
+
 **Run it:** `python tools/seo_scoreboard.py`. Every percentage is derived from a live gate report; none is typed by hand. That is V2's original sin made structurally impossible — a pillar cannot claim a number its instrument does not produce.
 
 | Pillar | Now | Local ceiling | Blocked on Ian | What closes the gap |
