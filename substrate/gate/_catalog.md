@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 733e9d3d157c4ca8
+source_sha: 8b8f861cedc38719
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (735) — the 'what's already gated' brain
+## gate · registered validators (769) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (114)
+### AI Validation (119)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -20,6 +20,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `ai_rate_limit_coverage` ⚡ [fail] — Arc H: AI rate-limit coverage (no unbounded frontend-direct LLM call; LLM10)
 - `ai_retrieval_isolation` [fail] — Arc H: AI retrieval isolation (no cross-tenant DEFINER read/vector IDOR; LLM08)
 - `ai_write_provenance` ⚡ [fail] — AI6: agentic write accountability (AI writes into human-read domain tables declare machine authorship)
+- `aio-readiness` [fail] — AIO-Readiness Gate (V3 §5: per-pillar schema + >=2 LINKED independent sources + resolvable entity; multi-source credibility for AI Overviews/Copilot; forward-on
 - `analytics_correctness` ⚡ [fail] — AI Self-Improvement: Analytics Engine Value Accuracy
 - `analytics_page` ⚡ [fail] — Analytics A4/AI3/A6: page invariants (chart CLS reserve, honest label, no em-dash)
 - `analytics_synthesis_grounding` ⚡ [fail] — Analytics AI2/F5: action-plan synthesis reads real phase keys (no ungrounded AI)
@@ -44,9 +45,12 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `cmms_webhook_security_live` [fail] — CMMS: live webhook security (replay window + malformed 400 + wrong-sig 401 + fresh 200)
 - `committed_env_secret` ⚡ [fail] — Arc R: committed .env secret (no credential in a tracked dotfile; A02)
 - `companion_output_escaping` ⚡ [fail] — Arc H: companion output escaping (LLM05 — untrusted LLM output can't XSS)
+- `content-freshness` [fail] — Content-Freshness Census (V2 §4.3: staleness per page against tiered targets, ranked refresh queue; ADVISORY — never fails, so it cannot incentivise a fake date
 - `content-grounding` [fail] — Content Grounding Gate (12-check outward content drift: feature/count/link/capability/surface-render/llms-completeness; forward-only ratchet)
+- `content-mobile` [fail] — Content-Surface Mobile Gate (V3 §6 SXO: viewport + responsive + >=16px prose + no fixed width across /learn and /tools; forward-only ratchet)
 - `corrective_definition_parity` [fail] — LG2 · corrective-definition parity — one derived semantic must not carry three definitions. 'Corrective' is expressed three ways: v_logbook_truth.is_corrective 
 - `csp-ratchet` ⚡ [fail] — CSP Hardening Ratchet (index.html inline-handler/un-nonced-script debt frozen; forward-only toward strict CSP)
+- `cta` [fail] — CTA Coverage Gate (V3 §6 SXO: every public content page offers a next ACTION; in-body tool/join links only, chrome and cross-article links excluded; forward-onl
 - `cwv` [fail] — Core Web Vitals Gate (P3: warm-median mobile LCP/INP/CLS over public surfaces vs 2026 thresholds + coverage; reads cwv_measurements.json; forward-only ratchet)
 - `data_completeness` ⚡ [fail] — AI Self-Improvement: Data Completeness
 - `definer_tenant_gate` [fail] — Arc G: DEFINER tenant-gate (no un-gated cross-tenant DEFINER mutator)
@@ -64,6 +68,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `engines_live_value` [fail] — Arc Q: Engines LIVE Value-at-the-Glass (analytics MTBF/OEE/MTTR + reliability P-F + projects EVM/CPM — running API serves standard-correct)
 - `export_value_contract` [fail] — AI Self-Improvement: Export-Value Contract (§13.16 A7.2, CSV)
 - `extractability` [fail] — Extractability Gate (P2: answer-first + statistic + cited-source per article; Princeton GEO triad; forward-only ratchet)
+- `gate_milestone_ratchet` ⚡ [fail] — GATE MILESTONE RATCHET (Ian, 2026-08-17: 'save for all the platform gates if we achieve considerable percentage green, like 80% and 100%'). platform_baseline.js
 - `grounding_contract` [fail] — AI Self-Improvement: Grounding Field-Contract (§13.15 A6, forward-only)
 - `hive_board` ⚡ [fail] — Hive Board: asset write on asset_nodes + role-scoped reserve + RLS migration
 - `hive_deepwalk_ratchet` ⚡ [fail] — Hive deepwalk ANTI-DRIFT ratchet (HIVE_DEEPWALK_EXPANSION_ROADMAP.md §4) — the measured %-board (14 journeys x 5 phases G/W/O/H/R, HK classes x 6 stages) held a
@@ -228,7 +233,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (520)
+### Platform (549)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -328,20 +333,39 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `cascade-behavior` ⚡ [fail] — Cascade Behavior (4-layer: no-on-delete-clause + explicit-no-action + distribution + orphan-risk)
 - `catalog-scope` ⚡ [fail] — Catalog Approval Status Validator
 - `causal-cascade-coverage` [warn] — Causal Cascade Coverage (Phase A anti-rot: both legs — every DB-trigger AND every edge-fn cross-table data write is mapped in causal_cascades.json — surfaces a 
+- `cc_failure_injection` [fail] — CC failure-injection (500 / 401 / timeout / offline: a failed read renders a FAILURE, never an emptiness, a stuck skeleton, or silence; injection is hit-counted
 - `change_order_immutability` ⚡ [fail] — PJK1 - a raised change order is a CONTRACT, not a draft. project_change_orders carries cost_impact_php and schedule_impact_days, so approving one commits money.
+- `ci_domain_truth` [fail] — CI domain-truth (a metric names its standard AND its basis, a partial figure is labelled partial, a reorder names its threshold, a composite states its bands — 
+- `cj_dialog_layout` [fail] — CJ ui-layout inside the V2/V3 DIALOGS (each opened by its own source-read path: no unclipped horizontal overflow at 390 and every effective tap target >= 44px, 
+- `cj_safe_area` [fail] — CJ safe-area live (every piece of edge-pinned chrome declares the safe-area inset for the edge IT is pinned to, read from the authored CSS over CDP; the DECLARA
+- `cj_viewport_overflow` [fail] — CJ ui-layout live (no unclipped horizontal overflow at 390/641/1280 on any of the 22 production pages; every effective tap target >= 44px, with skipped candidat
+- `ck_component_states` [fail] — CK ui-state live (no component left stuck in a loading or skeleton state — a stuck skeleton is invisible to every other gate: 200 OK, rows returned, promise res
+- `cl_dialog_a11y` [fail] — CL ui-visual inside the V2/V3 DIALOGS (every control has an accessible name; focus is visible, verified CAUSALLY by tabbing and comparing each control against i
 - `clickable-keyboard-a11y` ⚡ [fail] — Clickable keyboard a11y (dim-8 RESOLVED, not ratcheted: a runtime polyfill in utils.js [whClickableKbdA11y] makes every mouse-only clickable div/span/li keyboar
 - `client-singleton` ⚡ [fail] — Client singleton / idle-refresh (every Supabase client routes through getDb() so it inherits the Finding-#6 token auto-refresh + visibilitychange refresh + time
 - `client-write-grants` [fail] — Client-write GRANT parity (2026-07-22) — the LOCK for the 42501 'permission denied for table' class. For every base table a client page WRITES via .from('T').in
 - `client_resilience` ⚡ [fail] — Deepwalk D20: client resilience (timeout-bounded fetch + offline/connectivity UX)
 - `clone-debt` ⚡ [fail] — Clone Debt (jscpd cross-page duplication; forward-only ratchet — redundancy critic)
+- `cls_reservations` [fail] — Late-filled blocks don't push the page (CLS <= 0.1 per surface; reports which min-height reservation has gone SHORT, because layout-shift sources name the block
+- `cm_number_labelled` [fail] — CM ux-comprehension live (every number a page renders carries a label naming what it is, proven with an injected bare-number control per page so the zero is loa
+- `cm_reward_explained` [fail] — CM ux-comprehension (a reward figure — XP, level, tier — states its criteria in its own card: what earns it or the threshold it sits at; a page with no reward o
+- `cm_why_refused` [fail] — CM ux-comprehension (a 42501/403 read refusal must be explained by NAMING permission: not blamed on identity, not left as a bare generic error, not silent. The 
 - `cmms-contracts` ⚡ [fail] — CMMS Contracts Validator (STATUS_MAP parity, DB column targets, shared imports)
 - `cmms-import-rollback` [fail] — P3 gate for integrations.html's bulk CMMS import (LIVE rolled-back SUPERVISOR-JWT psql + static teeth) — the last deferred P3-write frontier, closed 2026-07-21 
 - `cmms-reconciliation` [fail] — CMMS Reconciliation Validator (external_sync vs table counts, audit coverage, quality scores)
+- `cn_journey` [fail] — CN ux-journey (a first-timer reaches value without a dead end and a returning person is not made to redo setup, walked as each page's own grounded persona; onbo
+- `co_back_out` [fail] — CO ux-recovery live (every non-home page offers a reachable in-app way OUT that lands where the platform's own wayfinding contract says it should, proven on bot
+- `co_dialog_back_out` [fail] — CO ux-recovery for TAB/SECTION views (with each view OPEN, the page-level way out is still visible and still lands where wayfinding.js's contract says; home is 
+- `co_dialog_session_died` [fail] — CO ux-recovery at V2/V3 (with the stored session removed, no dialog, tab or section opens and presents figures that outlived it; redirect-before-open and empty-
+- `co_modal_escape_adoption` [fail] — CO ux-recovery, modal-exit ADOPTION (every V2/V3 dialog view named in page_bank_anatomy has a keyboard way out; registration with the shared whModalA11y helper 
+- `co_modal_escape_live` [fail] — CO ux-recovery, modal-exit BEHAVIOUR live (Escape closes each V2/V3 dialog and focus returns to the control that opened it; every target's open path is a source
+- `co_session_died` [fail] — CO ux-recovery live (a dead session is never presented as signed-in data: every page either redirects/prompts, states why it is empty, or is genuinely public an
 - `cold-archive` ⚡ [fail] — Cold Lakehouse Archive Phase 6 (10-layer contract: edge fn + 4 supported tables + 200 ok:true hyparquet read + storage list + hive scoping + Python exporter + -
 - `cold-archive-wiring` ⚡ [fail] — Cold Archive Wiring (Hierarchical layer: hyparquet Parquet read stays wired into cold-archive-query - _shared helpers + parquetReadObjects + bounds + ok:true)
 - `cold-start-memoization` ⚡ [fail] — Cold-Start Memoization (4-layer: createClient-in-handler + multiple-calls + adoption + budget)
 - `commission-leakage` ⚡ [fail] — COMMISSION LEAKAGE - found by ATTACKING, not by testing (TB-FRAUD-money-economy-attacks A3). Commission bills what was actually PAID, which is the honest base a
 - `community` ⚡ [fail] — Community Validator (24 checks: XSS + isolation + access + realtime + standards + feature schema completeness)
+- `community_xp_ledger` [fail] — Community XP is attributable, reversible and unfarmable (award ledger keyed (post_id, reason); reversal hangs on the deleted_at TRANSITION because the product s
 - `companion-dim-gate` ⚡ [fail] — Companion Per-Dimension Regression Gate (Phase 8 §8.3: agent/rag/memory/persona locked-test; degrade-to-SKIP without data)
 - `companion-diverse-gate` ⚡ [fail] — Companion Held-Out Diverse Gate (§0.7: novel-phrasing fabrication floor; threshold-not-zero; degrade-to-SKIP without a fresh board)
 - `companion-page-coverage` ⚡ [fail] — Companion Launcher Page Coverage (L0 — every nav-hub page has companion-launcher.js)
@@ -434,6 +458,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `faithfulness-rail` ⚡ [fail] — CL10 faithfulness rails (the assistant/chat brain is read-only advisory; two live-caught fabrication classes must stay guarded before an answer ships: (1) ACTIO
 - `fetch-error-handling` ⚡ [fail] — fetch() Error Handling (every fetch() is in try/catch or chained to .catch; forward-only ratchet)
 - `fetch-retry-contract` ⚡ [fail] — FETCH RETRY CONTRACT - one retry for idempotent READS, never for writes. fetchWithTimeout (utils.js) retries ONCE on a transport failure, because two gates flak
+- `field_names_survive` [fail] — Field names survive the seam (every literal column name a page uses still exists on the relation it is used against, resolved against the live catalog)
 - `file-upload-safety` [warn] — File-upload safety — P12 upload-safety scanner (bug-hunt denominator v2, 2026-07-17). VERIFIED the platform has NO server-side file storage (zero storage.from()
 - `filter-case-consistency` ⚡ [fail] — Filter Case Consistency (same enum-column filter must use consistent case across files; forward-only ratchet)
 - `fixture-hive-exists` [fail] — FIXTURE HIVE EXISTENCE — a pinned test hive that no longer exists is a SILENT instrument, and the worst shape a test failure can take. FOUND 2026-07-30 while tr
@@ -476,6 +501,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `home-stack-coverage` ⚡ [fail] — Home Stack Coverage Validator (primary-nav cardinality + hidden tools have deep-links)
 - `html-id-unique` ⚡ [fail] — HTML ID Uniqueness (4-layer: dup-within-file + cross-page drift + density + reserved-name)
 - `html-pattern-mining` [fail] — HTML Page Pattern Miner (L-1 Convention Mining -- informational, surfaces drift)
+- `http_envelope` [fail] — HTTP envelope at the live gateway (error bodies carry all four keys, status agrees with body; refusal-vs-absence measured across anon/member/no-key)
 - `i18n-coverage` [warn] — i18n coverage — P11 EN/FIL adoption of the shared data-i/_t localization system (bug-hunt denominator v2, 2026-07-17). Counts i18n markers (data-i= + _t( + whT(
 - `icon-button-label` ⚡ [fail] — Icon-Only Button aria-label (svg-only <button> has aria-label/title/sr-only; forward-only ratchet)
 - `idempotency` ⚡ [fail] — Webhook and Integration Idempotency Validator (5-layer, +UPDATE col exists, +backfill timing)
@@ -556,6 +582,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `no-client-counter-write` ⚡ [fail] — P6 lost-update regression gate (STATIC): asserts NO page HTML writes a value-integrity counter (qty_on_hand/xp_total/total_sales/rating_avg/votes/points/balance
 - `no-em-dash` ⚡ [blocker] — No-Em-Dash Gate (Arc P: displayed em-dash ratchet, forward-only toward 0)
 - `notifications` ⚡ [fail] — Notification and Alert Health Validator
+- `null_semantics` [fail] — NULL semantics across the seam (no view column and no client `?? 0` substitutes a value a reader could mistake for a real one, for a NULL that is present today)
 - `observability` ⚡ [fail] — Observability Validator
 - `oc-updated-at-backed` [fail] — Optimistic-concurrency backing (LIVE) — every client `updated_at` write must be backed by a real column (bug-hunt roadmap P6, 2026-07-17). Scans client pages fo
 - `offline-resilience` ⚡ [fail] — Offline Resilience (Phase 6: snapshot caching, response queue)
@@ -566,6 +593,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `optimistic-concurrency` ⚡ [fail] — Optimistic Concurrency (4-layer: content-without-guard + no-defence-available + writer matrix + adoption count)
 - `optimistic-input-restore` ⚡ [fail] — DEEPWALK D4 gate (static teeth) — a chat/message send that clears its input OPTIMISTICALLY (`input.value=''` BEFORE the async turn, to show the user bubble imme
 - `optimistic-reconciliation` ⚡ [fail] — Optimistic Update Reconciliation (4-layer: no error path + catch w/o rollback + pattern density + handler distribution)
+- `order_totality` [fail] — Order totality (every paginated read ends in a tiebreaker the CATALOG confirms is unique; a lone .limit() cap is reported, not failed)
 - `orphan-kpi-tiles` ⚡ [fail] — Orphan KPI Tiles (every default-value tile must have a JS setter; forward-only ratchet)
 - `outbox-delivery` [fail] — C12 (SERVICE_HAILING_ROADMAP §4b) durable side-effects: a boundary-crossing effect must survive a consumer that is down. 12 live invariants over `service_outbox
 - `p6-concurrency-class` [fail] — P6 concurrent-edit disposition gate (LIVE + static teeth) — locks the concurrency-safety CLASS of the 9 remaining P6-partial pages so each reaches gated-100, co
@@ -623,6 +651,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `reachable_capability` ⚡ [fail] — MK13 - reachable capability: a page that LISTS table T and shows a forward-looking empty state ("they will appear here") must have some client path that can INS
 - `reactivity-wiring` [fail] — Reactivity Wiring (Phase D anti-rot: every write surface with cross-page fan-out emits a cross-surface receipt [D1], and every high-blast surface has impact-pre
 - `read-battery` [fail] — Per-page P3 read-correctness + P7 empty-vs-error gate (LIVE headless Playwright, real Baguio supervisor). For 8 READ-heavy pages compares what the page RENDERS 
+- `read_idempotency` [fail] — Read idempotency (the same ordered read twice, over two separate connections, returns the same bytes — with a proven-sensitive digest, not a vacuous match)
 - `readonly-p6-no-edit` ⚡ [fail] — Read-only P6 lock (static) — 11 pages VERIFIED to have no client edit surface (no .update/.upsert on a shared row) were scored P6=100 covered-by-nature (no conc
 - `realtime-channel-cap` ⚡ [fail] — Q5 Realtime Cap + Graceful-429 (whRealtimeSubscribe bounds channels PER CLIENT against the verified 200-concurrent free-tier wall + degrades overflow/offline to
 - `realtime-channel-cleanup` ⚡ [fail] — Realtime Channel Cleanup (every db.channel() has cleanup; forward-only ratchet)
@@ -656,6 +685,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `rubric-coverage` [warn] — UFAI rubric coverage board (UR-P4, 2026-07-21) — aggregates the 61 single-page dims (family_rubric_scoreboard.json) + the 2 cross-page dims S2/S3 (component_con
 - `rubric-parity` ⚡ [fail] — UFAI rubric SSOT parity (UR-P0 lock, 2026-07-21) — the prose ruler (substrate/reference/ufai-ux-rubric.md) and the code lens (survey_ufai_rubric.js, which tags 
 - `saas-layer-scoreboard` [fail] — per-page SaaS-LAYER bughunt ANTI-DRIFT scoreboard (PER_PAGE_SAAS_LAYER_BUGHUNT_ROADMAP.md §0) — regenerates PER_PAGE_SAAS_LAYER_SCOREBOARD.md (every page × the 
+- `safety_field_provenance` ⚡ [fail] — Safety field provenance (LOTO / permit come from their COLUMN, never inferred from free text — an isolation record guessed from prose is true when the word appe
 - `schedule_health_falsifiable` ⚡ [fail] — PJK2 - a number that decides what may slip, or what a CLIENT is told, must be falsifiable. Half of what this gate holds is that the ENGINE IS GOOD, asserted so 
 - `schema` ⚡ [fail] — Schema Consistency Validator
 - `schema-coverage` ⚡ [blocker] — Schema Coverage Validator (auto-derived from migrations, table+column existence)
@@ -682,6 +712,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `settimeout-string` ⚡ [fail] — setTimeout/setInterval String Arg (string-form is eval-equivalent; forward-only ratchet)
 - `silo-monitor` ⚡ [fail] — Silo Monitor (4-layer: drift + orphans + unregistered hotspots + cross-system matrix)
 - `sitemap-page-existence` ⚡ [fail] — Sitemap Page Existence (every sitemap.xml URL resolves to a file; forward-only ratchet)
+- `skeleton_resolves` [fail] — Loading skeletons resolve (no shimmer may outlive its load; a stuck placeholder is invisible to console, axe and every static check — logbook's team-mode orphan
 - `skill-library-wiring` ⚡ [fail] — Skill Library Wiring (Procedural layer: embed procedural memories + match_procedural_memories cosine RPC + _shared/skill-library.ts matcher + ai-gateway injecti
 - `skill-rule-mining` [fail] — Skill-Rule Miner [L-1.5] (documented rules from SKILL.md -- informational)
 - `skillmatrix` ⚡ [fail] — Skill Matrix Validator
@@ -725,6 +756,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `tts-quality` ⚡ [fail] — TTS Quality Metrics (Phase 7: latency logging, cache)
 - `ufai-deep-u` [warn] — UFAI U-pillar deep-verification lock (2026-07-23, PDDA §11 comprehensive deepwalk) — the live per-page deep-probe found the coarse A-Z lens (Z3 = 24px WCAG floo
 - `unbounded-query` ⚡ [fail] — Unbounded Query Detection (every .from() chain has .limit/.single/.range/.eq-on-id; forward-only ratchet)
+- `units_at_boundary` [fail] — Units at the boundary (every money/credit/percent/duration column declares its unit by CHECK, comment, sibling column or name — and no column mixes two scales)
 - `user-facing-jargon` ⚡ [fail] — User-Facing Jargon (no v_*_truth / RPC / code-ident / *.md / SQL on the glass; chip source: exempt; forward-only ratchet)
 - `user-facing-kpi-canonical` ⚡ [fail] — User-Facing KPI Canonical Gate (L0: forward-only ratchet over L-1.5 TIER A footprint)
 - `ux-contract` ⚡ [fail] — WorkHive UX Contract (input labels [ratchet] + destructive confirm + page title + role-gate)
@@ -732,6 +764,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `validator-freshness` ⚡ [fail] — Validator Freshness / Decay Meta-Gate (P3: declared anchors still match target + never-fired-stale-target census)
 - `validator-pattern-mining` [fail] — Validator Pattern Miner [META] (L-1 Convention Mining -- informational)
 - `validator-self-coverage` ⚡ [fail] — Validator Self-Coverage Meta-Gate (4-layer: missing script + unregistered + report mismatch + census)
+- `values_survive_write` [fail] — Values survive the write (every BEFORE-trigger rewrite of a submitted value belongs to a named class, and no capped column has truncated stored text)
 - `vector-schema` ⚡ [fail] — Vector Knowledge Base Schema Validator
 - `verified-state-wiring` ⚡ [fail] — Verified-State Wiring (v_asset_state_truth conflict resolution stays wired into ai-gateway; forward-only ratchet)
 - `view-select-star` ⚡ [fail] — CREATE VIEW SELECT * (every view projects explicit columns; preserves canonical-registry coverage; forward-only ratchet)
@@ -748,6 +781,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `voice-routing-unification` ⚡ [fail] — Voice Routing Unification (Phase 0: router output passing)
 - `workflow_states_present` ⚡ [fail] — AHK3 - a workflow state with no rows is a state nobody has walked, and the seeder is part of the test surface. The Asset Hub arc hit this THREE times for three 
 - `write-path-monitor` ⚡ [fail] — Write Path Monitor (4-layer: shape drift + orphan RPCs + write hotspots + single-layer writers)
+- `write_atomicity` [fail] — Write atomicity (no declared ledger invariant shows a half-applied write; client-sequenced write pairs reported as structural exposure)
 - `xss` ⚡ [fail] — XSS / escHtml Coverage Validator
 
 ### Platform Feedback (1)
