@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 7 Jul 2026
 ·
-Updated 7 Jul 2026
+Updated 17 Aug 2026
 ·
 12 min read
 
@@ -116,6 +116,21 @@ Stage 4 · Act and Prove (do it, share it, leave a trail)
 | [Achievements](https://workhiveph.com/achievements.html) | Levels, points, and badges earned for real work (closed logbook entries, completed checks, helpful answers), so progress feels visible. |
 
 A few tools do double duty. The Asset Hub, for example, both records each machine (Capture) and runs the reliability workbench that studies failure modes (Analyze). That is by design: the same record is useful in more than one place.
+
+### Every calculator also has its own page — no sign-up
+
+All 60 engineering calculators now exist twice: inside the hive, and as 60 standalone pages you can open without an account. Each standalone page shows the formula, the Philippine standard it follows, and a fully worked example with real numbers — so you can check a figure in about 30 seconds, on a phone, at the machine, before you decide whether the rest of the platform is for you.
+
+They cover all six disciplines:
+
+- **Mechanical** — [pump TDH](https://workhiveph.com/tools/pump-tdh-calculator/), [bearing life (L10)](https://workhiveph.com/tools/bearing-life-calculator/), [pressure vessel shell](https://workhiveph.com/tools/pressure-vessel-calculator/)
+- **Electrical** — [voltage drop](https://workhiveph.com/tools/voltage-drop-calculator/), [transformer sizing](https://workhiveph.com/tools/transformer-sizing-calculator/), [short circuit](https://workhiveph.com/tools/short-circuit-calculator/)
+- **HVAC** — [cooling load](https://workhiveph.com/tools/hvac-cooling-load-calculator/), [duct sizing](https://workhiveph.com/tools/duct-sizing-calculator/), [chiller sizing](https://workhiveph.com/tools/chiller-sizing-calculator/)
+- **Plumbing & sanitary** — [water supply pipe sizing](https://workhiveph.com/tools/water-supply-pipe-calculator/), [septic tank sizing](https://workhiveph.com/tools/septic-tank-calculator/)
+- **Fire protection** — [sprinkler hydraulics](https://workhiveph.com/tools/fire-sprinkler-calculator/), [fire pump sizing](https://workhiveph.com/tools/fire-pump-calculator/)
+- **Reliability** — [MTBF & MTTR](https://workhiveph.com/tools/mtbf-calculator/), [OEE](https://workhiveph.com/tools/oee-calculator/)
+
+The difference between these pages and the [Engineering Design workbench](https://workhiveph.com/engineering-design.html) is what happens after the number. A standalone page answers one question. The workbench keeps the job: it produces the materials list, the scope of work, and the diagram, and it saves the result against the asset it belongs to.
 
 The platform this guide is about
 
@@ -298,4 +313,4 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 0c338b2e2e1da7a1 -->
+<!-- md-twin source-sha: 8a713655be738ef3 -->

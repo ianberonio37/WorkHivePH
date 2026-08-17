@@ -141,9 +141,16 @@ def run(as_json: bool = False) -> int:
         print("  Everything inside its target window.")
     else:
         print(f"  Refresh these first ({len(stale)} past target; top 12 by priority):\n")
-        print(f"  {'PRIO':>5}  {'AGE':>5}  {'KIND':<11} SLUG")
+        print(f"  {'PRIO':>5}  {'AGE':>5}  {'OVER':>5}  {'KIND':<11} SLUG")
+        # 2dp, not 1: an article 2 days past a 90-day target scores 0.02, and %.1f
+        # printed that as "0.0" — visually identical to the in-window score the
+        # self-test asserts is exactly 0. The ranking was correct and the column was
+        # hiding it, which is the same class of defect as a lens measuring the wrong
+        # thing: the number to distrust first is the one being displayed, not computed.
+        # `OVER` carries the days past target so the row is readable without arithmetic.
         for r in stale[:12]:
-            print(f"  {r['priority']:>5.1f}  {r['age_days']:>4}d  {r['kind']:<11} {r['slug']}")
+            print(f"  {r['priority']:>5.2f}  {r['age_days']:>4}d  {r['over_by']:>4}d  "
+                  f"{r['kind']:<11} {r['slug']}")
         print("\n  A refresh means new facts, numbers, or links — not a date bump.")
         print("  Once GSC is wired, re-rank by search position (3-20 first).")
     print("=" * 66)
