@@ -15,6 +15,7 @@ Updated 17 May 2026
 9 min read
 
 **Short answer:** WorkHive runs underneath your existing SAP PM, IBM Maximo, or other paid CMMS as the worker-facing capture layer. Four integration patterns are supported: one-way push (work-order completion to ERP), one-way pull (asset master from ERP), two-way sync, and batch CSV. Sensor data flows in via OPC-UA or MQTT through a local edge gateway. The most common mistake is integrating before you have 90 days of stable WorkHive Logbook data; the second most common is treating it as an IT project instead of a maintenance operations change.
+ The most common failure is integrating too early — wait until you have **90 days** of stable WorkHive Logbook data before connecting SAP PM or IBM Maximo.
 
 Who this is for
 
@@ -167,4 +168,4 @@ Trying to integrate everything before the WorkHive side has 90 days of stable da
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 6897f3f03dee3873 -->
+<!-- md-twin source-sha: 1a87286357f5c753 -->

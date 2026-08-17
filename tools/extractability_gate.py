@@ -124,10 +124,10 @@ def analyze(html: str) -> dict:
     # three words after. Requiring `\d+\s*unit` failed every page including ones
     # that plainly qualify — 0/53 was the detector, not the corpus.
     has_unit = bool(re.search(
-        r"(?:[$₱€£]|PHP|USD)\s*\d"
+        r"(?:[$₱€£]|\bPHP\b|\bUSD\b)\s*\d"
         r"|\d+(?:\.\d+)?\s*(?:%|percent|x|×)"
-        r"|(?:kW|kVA|kVAR|HP|hrs?|hours?|days?|weeks?|months?|years?|mm|cm|km|kg|Hz|bar|psi|"
-        r"MTBF|MTTR|OEE|DFU|WFU|lux|CFM)",
+        r"|\b(?:kW|kVA|kVAR|HP|hrs?|hours?|days?|weeks?|months?|years?|mm|cm|km|kg|Hz|bar|psi|"
+        r"MTBF|MTTR|OEE|DFU|WFU|lux|CFM)\b",
         opener, re.I))
     has_proper = bool(re.search(r"(?:[A-Z]{2,}|[A-Z][a-z]+\s+[A-Z][a-z]+)", opener))
     answer_quality = bool(opener) and has_num and has_unit and has_proper

@@ -14,7 +14,7 @@ Updated 17 May 2026
 ·
 7 min read
 
-**Short answer:** Gamification works for industrial maintenance only when the badges reward what management actually wants more of: logbook entries, useful fault diagnostics, skill-matrix progression, PM completion on time. It backfires when it rewards speed at the cost of quality or volume at the cost of usefulness. The Achievements layer in WorkHive issues XP and badges tied to behaviours that compound (documentation, mentoring, skill growth), not vanity metrics, and lets Filipino workers turn their plant-floor consistency into a visible portfolio that travels with them.
+**Short answer:** Gamification works for industrial maintenance only when the badges reward what management actually wants more of: logbook entries, useful fault diagnostics, skill-matrix progression, PM completion on time. It backfires when it rewards speed at the cost of quality or volume at the cost of usefulness. The Achievements layer in WorkHive issues XP and badges tied to behaviours that compound (documentation, mentoring, skill growth), not vanity metrics, and lets Filipino workers turn their plant-floor consistency into a visible portfolio that travels with them. The single biggest mistake is a public leaderboard: it demoralises the **bottom 40 percent** and pushes the top to game the metric, which is why private dashboards with personal targets work better.
 
 Who this is for
 
@@ -122,4 +122,4 @@ Mature WorkHive customers do not. The framing matters: do not call them "badges 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: c8c1278b174f84bf -->
+<!-- md-twin source-sha: 5d720f51ce7eaa7c -->

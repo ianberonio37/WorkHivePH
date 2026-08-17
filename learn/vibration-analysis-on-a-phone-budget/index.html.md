@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 8 min read
 
-**Short answer:** Predictive maintenance (PdM) is crucial for Philippine plants to reduce downtime and increase efficiency. However, not all plants have the budget for expensive vibration analyzers. Fortunately, phone-based vibration analysis apps can provide a cost-effective solution.
+**Short answer:** Predictive maintenance (PdM) is crucial for Philippine plants to reduce downtime and increase efficiency. However, not all plants have the budget for expensive vibration analyzers. Fortunately, phone-based vibration analysis apps can provide a cost-effective solution. Judge every reading against **ISO 10816**: on a typical medium machine a velocity above **4.5 mm/s** indicates severe vibration and warrants immediate investigation.
 
 Who this is for
 
@@ -122,4 +122,4 @@ The Department of Labor and Employment (DOLE) requires plants to implement a pre
 - DOLE OSHS, Occupational Safety and Health Standards
 - IIEE Code, Philippine Electrical Code
 
-<!-- md-twin source-sha: dc04c5f00001ccd9 -->
+<!-- md-twin source-sha: 97e946a975dbb1fc -->

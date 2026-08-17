@@ -15,6 +15,7 @@ Updated 17 May 2026
 9 min read
 
 **Short answer:** An asset register is the master list of every physical asset in a plant, with a unique identifier, location, criticality, and link to PM and fault history. Most Philippine plants do not have one (they have 3 contradictory spreadsheets). Building a clean 200 to 500 asset register takes 30 working days with one supervisor and one technician: 5 days walking and counting, 3 days hierarchy and naming, 5 days criticality, 7 days loading into WorkHive Asset Hub with photos, 10 days for the inevitable gap-filling. No software budget needed; the discipline matters more than the tool.
+ A clean **200 to 500 asset register takes about 30 working days** with one supervisor and one technician: 5 days walking and counting, 3 days on hierarchy and naming, 5 days on criticality, 7 days loading.
 
 Who this is for
 
@@ -173,4 +174,4 @@ Selectively. A contractor doing PM on the cooling water system needs to see thos
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: e923dc2eb62d3616 -->
+<!-- md-twin source-sha: 617050bc589f53eb -->
