@@ -124,7 +124,9 @@ Both positions are defensible, which is why this needs deciding rather than assu
 
 **90-day target.** Every pillar cites ≥2 independent external sources; ≥1 third-party listicle inclusion; the PH-OEE benchmark study published as a citable original asset.
 
-**The gate.** Proposed **`aio-readiness`**: per cluster — pillar exists, schema complete, ≥2 independent external citations, entity resolvable. Fails on the last two today, honestly.
+**The gate.** **`aio-readiness`** (built, registered): per cluster — pillar exists, schema complete, ≥2 independent external citations *linked* not merely named, entity resolvable. Only `entity_resolvable` is still short, and only Ian can move it.
+
+**The gate's sibling — `calc-claim-consistency` (built, registered).** Multi-source credibility has a precondition nothing was checking: *the site has to agree with itself*. It did not. The public surface claimed the calculator suite was **51, 53, 58 and 60** calculators across **6, 7 and 8** disciplines — four sizes for one product — and `learn/free-engineering-calculators` contradicted *itself*, saying 60 in four places and 53 in three, while its visible "Updated 17 May" disagreed with its own `dateModified` of 5 August. An engine quoting a figure has no way to choose among four, so the safe move for the engine is to cite somebody else. The gate pins every self-reported count to a **derived** SSOT, of which there are legitimately two — the workbench registry (`CALC_TYPES_UI`, 55/6) and the standalone pages (`CALC_DATA`, 60/8) — and requires a page's visible "Updated" to equal its schema `dateModified`. Driven to 0/0/0/0 the session it was written.
 
 ---
 
@@ -173,32 +175,36 @@ Both positions are defensible, which is why this needs deciding rather than assu
 
 | Pillar | Now | Local ceiling | Blocked on Ian | What closes the gap |
 |---|---:|---:|---:|---|
-| **SEO** | **99.4%** | 99.9% | 3 pts | one `<h1>` fix on index.html; then deploy + GSC/Bing |
-| **AEO** | **83.0%** | 83.0% | — | **36 openers** need a number + unit + named entity |
-| **GEO** | **50.0%** | 100% | 5 pts | entirely Ian: sameAs, live SOV, Reddit/YouTube/G2 |
-| **AIO** | **57.9%** | 91.7% | 7 pts | 1 pillar still cites <2 sources; rest is sameAs + a listicle |
-| **SXO** | **99.7%** | 99.7% | — | extend the mobile gate to the content surface |
+| **SEO** | **99.6%** | 100.0% | 3 pts | deploy, then GSC + Bing — the `<h1>` pair is two display-switched views, not a defect |
+| **AEO** | **100.0%** | 100.0% | — | closed |
+| **GEO** | **50.0%** | 100.0% | 5 pts | entirely Ian: sameAs, live SOV, Reddit/YouTube/G2 |
+| **AIO** | **63.2%** | 100.0% | 7 pts | `sameAs` + one third-party listicle. Every pillar now links ≥2 independent sources |
+| **SXO** | **100.0%** | 100.0% | — | closed |
 | | | | | |
-| **OVERALL** | **78.0%** | **94.9%** | 15 pts | mean of the five pillars |
+| **OVERALL** | **82.6%** | **100.0%** | 15 pts | mean of the five pillars |
 
-**Why the mean and not the point total.** Point-weighted, this reads **95.7%** — because 119-page checks drown the binary ones while GEO sits at 50%. That is the "one green metric masks an incomplete axis" failure this programme already made once. The mean only reaches 100 when *every* pillar does, which is what "drive to 100%" has to mean.
+**Why the mean and not the point total.** Point-weighted, this reads **98.9%** — because 119-page checks drown the binary ones while GEO sits at 50%. That is the "one green metric masks an incomplete axis" failure this programme already made once, and the gap between 98.9 and 82.6 is the size of the lie the point total would tell. The mean only reaches 100 when *every* pillar does, which is what "drive to 100%" has to mean.
 
 ### The drive queue
 
-**Local — everything here is mine to finish (78.0% → ~94.9%):**
-1. **AEO 83% → 100%** — the largest single lever, and the only short pillar entirely in my hands. 36 openers need a real number, unit and named entity. It is a content grind, not a code change, and each figure must be *verified* — this session already caught a fabricated DOE statistic twice, the second time hiding behind an HTML entity.
-2. **SXO 99.7% → 100%** — extend the mobile gate to `/learn` and `/tools`, or write a content-specific one (`validate_mobile.py`'s safe-area/overscroll/animation checks false-positive on static pages).
-3. **AIO 57.9% → 91.7%** — one pillar still cites fewer than 2 independent sources. The sixth, `what-is-workhive`, cites only WorkHive; it is a platform overview, and inventing external citations for it is the exact failure the pillar exists to prevent. Either find genuine third-party coverage or accept it as self-referential and exclude it from the denominator with that reason recorded.
-4. **SEO 99.4% → 99.9%** — `index.html` carries two `<h1>`.
+**Local — CLOSED. Every pillar reads `local 100.0%`.**
 
-**Ian — the last ~5 points, and no local work reaches them:**
-5. **`sameAs` profiles** (LinkedIn, Crunchbase). Worth 6 points in AIO and 1 in GEO, and it gates *both* pillars entirely: entity resolution runs before content retrieval, so an unresolvable brand is refused before anything else is considered. Highest leverage remaining, by a distance.
-6. **Deploy**, then `tools/indexnow_submit.py --submit` (119 URLs).
-7. **GSC + Bing** — turns SEO from code-state into observation.
-8. **Off-site**: Reddit 90/10, a long-form YouTube explainer, G2/Capterra claim.
-9. **The live SOV baseline** — the first real GEO number.
+| Was | Now | How |
+|---|---|---|
+| AEO 83% | **100%** | 53/53 openers carry a number, a unit and a named entity. Two were held back until the figure could be verified, then closed against real sources rather than invented ones. |
+| SXO 99.7% | **100%** | `content-mobile` written rather than extending `validate_mobile.py`, whose safe-area/overscroll/animation checks false-positive on static pages. `cta` added for the fourth lever, which had no instrument at all. |
+| AIO 57.9% | **63.2%** (local 100%) | every pillar now *links* ≥2 independent sources. The rest is `entity_resolvable` — Ian's, not mine. |
+| SEO 99.4% | **99.6%** (local 100%) | the two `<h1>` on `index.html` are two display-switched views, one `<h1>` each, both required by axe. Recorded as `MULTI_VIEW_H1` rather than "fixed" by deleting a heading a screen reader needs. |
 
-**Ceiling honesty:** 100% overall is not reachable by me alone. The local ceiling is **94.9%**, and the remaining 5.1 points are five actions only Ian can take. That is a fact about the work, not a limitation of it.
+**Ian — the whole remaining 17.4 points. No local work reaches any of them.** All five are pre-written in `seo_assets/IAN_DO_THIS.md`, in priority order, with the paste-copy and the exact commands inline:
+
+1. **`sameAs` profiles** (LinkedIn, Crunchbase) — 7 points, and it gates AIO and GEO *entirely*: entity resolution runs before content retrieval, so an unresolvable brand is refused before anything else is considered. Worth more than the other four combined.
+2. **Deploy**, then `tools/indexnow_submit.py --submit` (119 URLs — running it before the deploy submits 404s).
+3. **GSC + Bing** — turns SEO from code-state into observation.
+4. **Off-site**: Reddit 90/10, a long-form YouTube explainer, G2/Capterra claim.
+5. **The live SOV baseline** — the first real GEO number in the programme's history.
+
+**Ceiling honesty:** 100% overall is not reachable by me alone, and now demonstrably so — the local ceiling is **100.0%** and overall sits at **82.6%**. The gap is not unfinished code; it is five actions only Ian can take. That is a fact about the work, not a limitation of it.
 
 ---
 

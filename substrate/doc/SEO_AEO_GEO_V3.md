@@ -2,7 +2,7 @@
 name: doc-SEO_AEO_GEO_V3
 type: doc
 source: file:SEO_AEO_GEO_V3.md
-source_sha: 0d129bca19294eb0
+source_sha: 9a2fe76b1d290a18
 last_verified: 2026-07-13
 supersedes: null
 ---
