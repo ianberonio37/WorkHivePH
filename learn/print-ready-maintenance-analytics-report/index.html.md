@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 5 min read
 
-**Short answer:** Get a print-ready maintenance report that's automatically compiled from your existing data. The WorkHive Analytics Report helps plant managers, operations heads, and auditors assess maintenance performance and compliance. It's a one-click output of your Analytics Engine, fed by your logbook and PM completions.
+**Short answer:** Get a print-ready maintenance report that's automatically compiled from your existing data. The WorkHive Analytics Report helps plant managers, operations heads, and auditors assess maintenance performance and compliance. It's a one-click output of your Analytics Engine, fed by your logbook and PM completions. It is built to survive scrutiny: **ISO 14224** data definitions underneath, and a dated trail a **DOLE** inspector or ISO auditor can sample **years** later.
 
 Who this is for
 
@@ -114,4 +114,4 @@ No, the report is a zero-budget solution that compiles from your existing data, 
 - DOLE OSHS - Department of Labor and Employment - Occupational Safety and Health Standards
 - Related WorkHive guides: [The 4 phases of maintenance analytics](https://workhiveph.com/learn/four-phases-maintenance-analytics-philippine-plants/) · [DOLE and ISO audit trail](https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/) · [What is OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/)
 
-<!-- md-twin source-sha: b6fd5b0ca29fcc13 -->
+<!-- md-twin source-sha: a55e44fb30d56593 -->

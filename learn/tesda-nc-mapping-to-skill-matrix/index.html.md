@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 10 min read
 
-**Short answer:** In the Philippines, TESDA National Certificates (NC II, NC III) are industry-recognized credentials that validate an individual's skills and competencies. For industrial maintenance, mechanical maintenance, electrical maintenance, and welding, TESDA NC II and NC III certifications are highly valued. But how do these certifications map to your plant's skill matrix?
+**Short answer:** In the Philippines, TESDA National Certificates (NC II, NC III) are industry-recognized credentials that validate an individual's skills and competencies. For industrial maintenance, mechanical maintenance, electrical maintenance, and welding, TESDA NC II and NC III certifications are highly valued. But how do these certifications map to your plant's skill matrix? The anchor is national, not internal: **TESDA** National Certificates **NC II** and **NC III** give a plant a competency scale that transfers between employers and satisfies **PEZA** documentation.
 
 Who this is for
 
@@ -133,4 +133,4 @@ TESDA NC mapping is not mandatory, but it is highly recommended for Philippine i
 - IIEE. (2019). Code of Ethics and Professional Conduct for Electrical Engineers.
 - ISO. (2016). ISO 14224:2016 Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange.
 
-<!-- md-twin source-sha: 290f8816138769ab -->
+<!-- md-twin source-sha: 0cd1d516f835a67c -->

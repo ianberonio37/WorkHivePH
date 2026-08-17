@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 6 min read
 
-**Short answer:** Imagine having one inbox for all plant alerts, from risk and maintenance to stock and automation. WorkHive's Alert Hub makes it possible, saving supervisors and technicians time and reducing overwhelm. With AI-powered alerts and a daily brief, plant managers can prioritize and act on critical issues efficiently.
+**Short answer:** Imagine having one inbox for all plant alerts, from risk and maintenance to stock and automation. WorkHive's Alert Hub makes it possible, saving supervisors and technicians time and reducing overwhelm. With AI-powered alerts and a daily brief, plant managers can prioritize and act on critical issues efficiently. The rhythm is one inbox plus one **6 AM** brief a day, so a supervisor reads a ranked list once every **24 hours** instead of chasing scattered notifications.
 
 Who this is for
 
@@ -110,4 +110,4 @@ WorkHive provides support and training for Alert Hub, ensuring a smooth rollout 
 - TESDA (Technical Education and Skills Development Authority of the Philippines)
 - Related WorkHive guides: [Autonomous shift planning](https://workhiveph.com/learn/autonomous-shift-planning-philippine-plants/) · [Predictive alert thresholds](https://workhiveph.com/learn/predictive-alert-thresholds-plants/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/)
 
-<!-- md-twin source-sha: 8c2a7189d90ecb88 -->
+<!-- md-twin source-sha: b5f4fac125527f99 -->

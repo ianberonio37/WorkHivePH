@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 5 min read
 
-**Short answer:** In WorkHive Asset Hub, Asset Brain 360 gives you a complete history of every machine in your plant, accessible with a single QR scan. This feature helps you decide with evidence about maintenance, repairs, and operations. With Asset Brain 360, you can view a machine's timeline, relationships, and predictive risk score.
+**Short answer:** In WorkHive Asset Hub, Asset Brain 360 gives you a complete history of every machine in your plant, accessible with a single QR scan. This feature helps you decide with evidence about maintenance, repairs, and operations. With Asset Brain 360, you can view a machine's timeline, relationships, and predictive risk score. The hierarchy behind it is **ISO 14224**, the international standard for collecting reliability and maintenance data — which is what lets **10 years** of scattered records resolve to one machine.
 
 Who this is for
 
@@ -115,4 +115,4 @@ No, the information displayed in Asset Brain 360 is standardized based on ISO 14
 - DOLE OSHS - Occupational Safety and Health Standards
 - Related WorkHive guides: [Building an asset register from scratch](https://workhiveph.com/learn/building-asset-register-zero-budget/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/) · [FMEA worked example](https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/)
 
-<!-- md-twin source-sha: 6fec1f45fbfe24ca -->
+<!-- md-twin source-sha: 9a840a2fc773dcde -->

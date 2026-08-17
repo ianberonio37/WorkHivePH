@@ -15,6 +15,7 @@ Updated 12 June 2026
 8 min read
 
 **Short answer:** The WorkHive AI Companion is a cross-page, voice-capable assistant with two expert personas. **Hezekiah** is the technical reliability expert — ask him about failure modes, vibration thresholds, PM tasks, and standards. **Zaniah** is the maintenance strategist — ask her about OEE and reliability benchmarks, which KPI to chase, and where to invest next. Both ground their answers in a curated knowledge base of authoritative maintenance expertise *plus* your own hive's logbook, assets, and PM data — so the answer is specific to your plant, not a generic chatbot reply. It speaks English, Filipino, and Taglish, by text or voice.
+ There are exactly **2** personas by design — **Hezekiah** for technical reliability and **Zaniah** for maintenance strategy — because one assistant trying to be both answers neither well.
 
 Who this is for
 
@@ -135,4 +136,4 @@ Yes. It accepts English, Filipino, and Taglish and replies in the language you u
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: b08242ae9428aa2b -->
+<!-- md-twin source-sha: e8e3aff820223ff3 -->

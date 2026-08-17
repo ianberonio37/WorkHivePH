@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 6 min read
 
-**Short answer:** In the Philippines, plant managers and reliability engineers strive to maximize equipment performance and minimize downtime. A key tool in achieving this goal is WorkHive's Analytics Engine, which provides a data-driven approach to maintenance. By using this engine, plants can progress through four phases of maintenance analytics.
+**Short answer:** In the Philippines, plant managers and reliability engineers strive to maximize equipment performance and minimize downtime. A key tool in achieving this goal is WorkHive's Analytics Engine, which provides a data-driven approach to maintenance. By using this engine, plants can progress through four phases of maintenance analytics. The metrics underneath are the standard ones: **ISO 14224** for how failure data is collected, and the **SMRP** benchmark of **90 percent** PM compliance as the leading indicator that moves the rest.
 
 Who this is for
 
@@ -114,4 +114,4 @@ WorkHive provides technical support and training for Analytics Engine users. Thi
 - DOLE OSHS - Occupational Safety and Health Standards
 - Related WorkHive guides: [The print-ready analytics report](https://workhiveph.com/learn/print-ready-maintenance-analytics-report/) · [What is OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/)
 
-<!-- md-twin source-sha: f27a662b6913ef9b -->
+<!-- md-twin source-sha: de6d32e92d9abfac -->

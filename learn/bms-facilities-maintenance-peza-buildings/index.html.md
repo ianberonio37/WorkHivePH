@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 10 min read
 
-**Short answer:** Building Management Systems (BMS) play a crucial role in maintaining the efficiency and safety of PEZA-registered buildings. A well-functioning BMS ensures that various building systems operate smoothly, minimizing downtime and ensuring a comfortable environment for occupants. In this article, we will discuss the importance of BMS and facilities maintenance in PEZA buildings.
+**Short answer:** Building Management Systems (BMS) play a crucial role in maintaining the efficiency and safety of PEZA-registered buildings. A well-functioning BMS ensures that various building systems operate smoothly, minimizing downtime and ensuring a comfortable environment for occupants. In this article, we will discuss the importance of BMS and facilities maintenance in PEZA buildings. The compliance frame is specific: **PEZA**-registered buildings answer to zone requirements, and electrical work follows the **PEC** (Philippine Electrical Code).
 
 Who this is for
 
@@ -135,4 +135,4 @@ Non-compliance with PEZA regulations can result in penalties, fines, and even ca
 - ISO. (2016). ISO 14224:2016 - Petroleum, petrochemical and natural gas industries - Reliability, availability and maintainability (RAM) data exchange.
 - SMRP. (2020). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: cba157aebfaa21e7 -->
+<!-- md-twin source-sha: 2b7b3f51c14d7a64 -->
