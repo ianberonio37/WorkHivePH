@@ -6,7 +6,7 @@ Source: https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/
 
 By WorkHive Editorial Team · Updated 2026-08-05 · 6 min read
 
-**Choose UpKeep** if you need mature manufacturing-compliance and audit-readiness workflows, a large integration catalogue, and vendor support you can escalate to — its published entry pricing is about **$20 per user per month**. **Choose WorkHive** if cost per seat is the blocker and your plant floor has unreliable wifi: WorkHive is **free at the worker tier** (not a capped trial), works **offline-first**, is built for the Philippine context (DOLE OSHS records, Tagalog/Taglish voice capture, peso context), and bundles **58 engineering calculators**. The honest summary: UpKeep is the more established product with the deeper enterprise feature set; WorkHive removes the per-seat cost and the connectivity assumption.
+**Choose UpKeep** if you need mature manufacturing-compliance and audit-readiness workflows, a large integration catalogue, and vendor support you can escalate to — its published entry pricing is about **$20 per user per month**. **Choose WorkHive** if cost per seat is the blocker and your plant floor has unreliable wifi: WorkHive is **free at the worker tier** (not a capped trial), works **offline-first**, is built for the Philippine context (DOLE OSHS records, Tagalog/Taglish voice capture, peso context), and bundles **60 engineering calculators**. The honest summary: UpKeep is the more established product with the deeper enterprise feature set; WorkHive removes the per-seat cost and the connectivity assumption.
 
 ## WorkHive vs UpKeep: feature and pricing comparison
 
@@ -16,7 +16,7 @@ By WorkHive Editorial Team · Updated 2026-08-05 · 6 min read
 | Free tier | Yes — free at the worker tier, not time-limited | Freemium, feature-capped |
 | Offline capability | Offline-first; entries captured on the floor and synced later | Mobile app; generally assumes connectivity |
 | Core maintenance features | Logbook, PM scheduler, inventory, asset register, skill matrix | Work orders, PM, inventory, asset management |
-| Engineering calculators | 58 standards-referenced calculators included | Not a core focus |
+| Engineering calculators | 60 standards-referenced calculators included | Not a core focus |
 | Language | English, Filipino, Taglish (incl. voice capture) | English (plus other locales) |
 | Compliance orientation | DOLE OSHS / RA 11285 / Philippine plumbing + electrical codes | OSHA-oriented manufacturing compliance |
 | Integrations | SAP / Maximo patterns documented; smaller catalogue | Large third-party integration catalogue |
@@ -41,7 +41,7 @@ Equally straight in the other direction:
 - **The plant floor has unreliable wifi.** WorkHive is offline-first: entries are captured locally and sync when a connection returns. If capture waits for signal, it does not happen.
 - **Your team works in Filipino or Taglish.** Voice-to-text capture in Tagalog/Taglish removes the "I'll write it later" failure mode. See [voice-to-text on the plant floor](https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/).
 - **You need Philippine compliance records** — DOLE OSHS audit trails, LOTO permits, RA 11285 energy reporting. See the [PH plant compliance guide](https://workhiveph.com/learn/ph-plant-compliance-guide/).
-- **Your engineers also do design work.** The [58 engineering calculators](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) are included, not a separate purchase.
+- **Your engineers also do design work.** The [60 engineering calculators](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) are included, not a separate purchase.
 
 ## Switching from UpKeep, or running both together
 
@@ -53,7 +53,7 @@ If you are starting from spreadsheets rather than switching, the ordered path is
 
 ### Is there a genuinely free alternative to UpKeep?
 
-Yes. WorkHive is free at the worker tier — not a time-limited trial or a capped freemium funnel — and includes a digital logbook, PM scheduler, inventory, asset register, skill matrix, and 58 engineering calculators. Most other 'free' CMMS options are freemium tiers designed to convert to paid seats.
+Yes. WorkHive is free at the worker tier — not a time-limited trial or a capped freemium funnel — and includes a digital logbook, PM scheduler, inventory, asset register, skill matrix, and 60 engineering calculators. Most other 'free' CMMS options are freemium tiers designed to convert to paid seats.
 
 ### How much does UpKeep cost?
 
@@ -81,4 +81,4 @@ Yes, and many plants do. Keep the incumbent as the enterprise system of record a
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: b1f512a3887c2a8c -->
+<!-- md-twin source-sha: 09a53d150a96c497 -->

@@ -88,7 +88,7 @@ JSON-LD:  SoftwareApplication + HowTo + FAQPage, every field real data
 
 Deploy all **58 in one batch** (within the 50–200 crawl-budget guidance), in a **dedicated `/tools/` sitemap** referenced from `sitemap.xml`. URL slugs map 1:1 to `python-api/calcs/<module>.py`.
 
-### §3.2 The 58 calculators → URL map (grouped; full list in strategy §4.2)
+### §3.2 The 60 calculators → URL map (grouped; full list in strategy §4.2)
 
 `/tools/oee-calculator/` and `/tools/mtbf-calculator/` are **highest-priority** (head-term demand, existing `/learn` support to link). Then the discipline batches: Electrical (15), Plumbing (13), Mechanical (11), HVAC (9), Fire (5), Boiler/Utilities (3), Vertical-transport/Pumps (2). *(OEE/MTBF are computed KPIs surfaced in-app, not in `/calcs/` — add them as two hand-authored `/tools/` pages alongside the 58 engine pages.)*
 

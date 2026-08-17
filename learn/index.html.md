@@ -114,7 +114,7 @@ The cascading planning method (Year, Month, Week, Day In the Life Of) for plant 
 [Eng. Design
 10 min read · 17 May 2026
 Free engineering design calculators for Philippine plants
-Standards-referenced calculators across 6 disciplines (ASHRAE 2021, IEC 62305, NFPA 13, NSCP 2015). Includes tropical-climate constants and a worked HVAC duct sizing example.](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
+60 standards-referenced calculators across 8 disciplines (ASHRAE 2021, IEC 62305, NFPA 13, NSCP 2015). Includes tropical-climate constants and a worked HVAC duct sizing example.](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
 [AI Assistant
 10 min read · 17 May 2026
 AI work assistant for every industrial worker (plain-English guide)
@@ -236,4 +236,4 @@ No guides match that search. Try a different word, or tap **All**.
 
 Show more guides
 
-<!-- md-twin source-sha: 01b773b7667e6e3a -->
+<!-- md-twin source-sha: d44e73832539620a -->

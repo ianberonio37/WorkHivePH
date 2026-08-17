@@ -1,6 +1,6 @@
 # Free engineering design calculators for Philippine plants
 
-> Free, standards-referenced engineering design calculators covering HVAC and cooling, mechanical, electrical, plumbing, fire protection, and machine design. Built for Philippine plants and tropical-climate constants.
+> 60 free, standards-referenced engineering design calculators across eight disciplines: electrical and power, plumbing and pumps, HVAC and cooling, mechanical and machine design, fire protection, reliability, vertical transport, and boiler utilities. Built for Philippine plants and tropical-climate constants.
 
 Source: https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/
 
@@ -10,11 +10,11 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 17 Aug 2026
 ·
 10 min read
 
-**Short answer:** WorkHive Engineering Design is a free set of 53 standards-referenced calculators across six disciplines: HVAC and cooling, mechanical, electrical, plumbing, fire protection, and machine design. Each calculator is built on the relevant standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and applies Philippine tropical-climate constants where they matter. It replaces 30 minutes of careful spreadsheet work with 30 seconds of structured input, and produces a PDF report a licensed PME or PEE can sign off. Built for the full engineering team: junior engineers, design and project engineers, licensed engineers, consultants, contractors, and engineering students building a portfolio.
+**Short answer:** WorkHive Engineering Design is a free set of 60 standards-referenced calculators across eight disciplines: HVAC and cooling, mechanical, electrical, plumbing, fire protection, and machine design. Each calculator is built on the relevant standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and applies Philippine tropical-climate constants where they matter. It replaces 30 minutes of careful spreadsheet work with 30 seconds of structured input, and produces a PDF report a licensed PME or PEE can sign off. Built for the full engineering team: junior engineers, design and project engineers, licensed engineers, consultants, contractors, and engineering students building a portfolio.
  The pattern it replaces — three engineers, three spreadsheets, three different answers — wastes **2 to 4 hours per design** and produces inconsistent results.
 
 Who this is for
@@ -40,18 +40,20 @@ This pattern wastes 2 to 4 hours per design and produces inconsistent answers be
 
 A standards-referenced calculator fixes all four. It uses the current standard, the right tropical constants, the same formula for every junior engineer in the team, and produces a structured report the senior engineer can verify in 60 seconds. This is the same productivity case that the digital logbook makes for technicians at [Stage 1](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/): replace ad-hoc memory with structured records.
 
-## The 6 disciplines covered
+## The 8 disciplines covered
 
 | Discipline | Calculators included |
 | --- | --- |
-| **HVAC & Cooling** | Cooling load, ventilation and air changes (ACH), chilled-water flow, duct sizing (ASHRAE equal-friction), fan static pressure, FCU and AHU selection |
-| **Mechanical** | Pump sizing and NPSH, fan sizing, bearing life, V-belt tension, coupling alignment tolerance, gear ratio |
-| **Electrical** | Transformer sizing, cable and conductor sizing (PEC 2017), motor selection, panel and load calculations, voltage drop, power factor correction |
-| **Plumbing** | Pipe sizing and velocity, pump head, expansion-tank sizing, pipe slope and drainage, pressure drop (Darcy-Weisbach) |
-| **Fire Protection** | Sprinkler hydraulics (NFPA 13), smoke and heat detector counts, manual pull stations (NFPA 72), fire pump selection |
-| **Machine Design** | Bolt and metric-thread selection (M10 to M30), fastener torque, gear and shaft design, keyway sizing |
+| **Electrical & Power** (15) | [Transformer sizing](https://workhiveph.com/tools/transformer-sizing-calculator/), [cable and conductor sizing](https://workhiveph.com/tools/wire-sizing-calculator/) (PEC 2017), [voltage drop](https://workhiveph.com/tools/voltage-drop-calculator/), [short circuit](https://workhiveph.com/tools/short-circuit-calculator/), [power factor correction](https://workhiveph.com/tools/power-factor-correction-calculator/), [generator sizing](https://workhiveph.com/tools/generator-sizing-calculator/), [solar PV](https://workhiveph.com/tools/solar-pv-calculator/) |
+| **Plumbing & Pumps** (14) | [Pump TDH](https://workhiveph.com/tools/pump-tdh-calculator/), [water supply pipe sizing](https://workhiveph.com/tools/water-supply-pipe-calculator/), [pipe sizing and velocity](https://workhiveph.com/tools/pipe-sizing-calculator/), [expansion-tank sizing](https://workhiveph.com/tools/expansion-tank-calculator/), [septic tank](https://workhiveph.com/tools/septic-tank-calculator/), [storm drain](https://workhiveph.com/tools/storm-drain-calculator/) |
+| **HVAC & Cooling** (10) | [Cooling load](https://workhiveph.com/tools/hvac-cooling-load-calculator/), [ventilation and air changes (ACH)](https://workhiveph.com/tools/ventilation-ach-calculator/), [duct sizing](https://workhiveph.com/tools/duct-sizing-calculator/) (ASHRAE equal-friction), [chiller sizing](https://workhiveph.com/tools/chiller-sizing-calculator/), [FCU](https://workhiveph.com/tools/fcu-selection-calculator/) and [AHU selection](https://workhiveph.com/tools/ahu-sizing-calculator/) |
+| **Mechanical & Machine Design** (10) | [Bearing life (L10)](https://workhiveph.com/tools/bearing-life-calculator/), [V-belt drive](https://workhiveph.com/tools/v-belt-drive-calculator/), [shaft design](https://workhiveph.com/tools/shaft-design-calculator/), [bolt torque](https://workhiveph.com/tools/bolt-torque-calculator/), [pressure vessel shell](https://workhiveph.com/tools/pressure-vessel-calculator/), [heat exchanger LMTD](https://workhiveph.com/tools/heat-exchanger-calculator/) |
+| **Fire Protection** (5) | [Sprinkler hydraulics](https://workhiveph.com/tools/fire-sprinkler-calculator/) (NFPA 13), [fire alarm battery](https://workhiveph.com/tools/fire-alarm-battery-calculator/) (NFPA 72), [fire pump selection](https://workhiveph.com/tools/fire-pump-calculator/), [clean agent suppression](https://workhiveph.com/tools/clean-agent-suppression-calculator/), [stairwell pressurization](https://workhiveph.com/tools/stairwell-pressurization-calculator/) |
+| **Reliability & Metrics** (2) | [MTBF and MTTR](https://workhiveph.com/tools/mtbf-calculator/), [OEE](https://workhiveph.com/tools/oee-calculator/) |
+| **Vertical Transport** (2) | [Elevator traffic](https://workhiveph.com/tools/elevator-traffic-calculator/), [hoist capacity](https://workhiveph.com/tools/hoist-capacity-calculator/) |
+| **Boiler & Utilities** (2) | [Boiler and steam duty](https://workhiveph.com/tools/boiler-steam-calculator/), [boiler system sizing](https://workhiveph.com/tools/boiler-system-calculator/) |
 
-Total: 53 specific calculators across 6 disciplines, each tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO).
+Total: 60 specific calculators across 8 disciplines, each tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO).
 
 ## Tropical constants: why the temperate defaults are wrong here
 
@@ -90,7 +92,7 @@ The tool this guide is about
 
 #### WorkHive Engineering Design replaces 30 minutes of spreadsheet work with 30 seconds
 
-53 standards-referenced calculators across 6 disciplines (HVAC and cooling, mechanical, electrical, plumbing, fire protection, machine design). Each output is tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and Philippine tropical constants where they matter. PDF report ready for licensed PME or PEE sign-off. Saved designs build your engineering portfolio. Free at the worker tier forever.
+60 standards-referenced calculators across 8 disciplines (HVAC and cooling, mechanical, electrical, plumbing, fire protection, machine design). Each output is tagged with its applied standard (PEC 2017, ASHRAE, PSME, NFPA, ISO) and Philippine tropical constants where they matter. PDF report ready for licensed PME or PEE sign-off. Saved designs build your engineering portfolio. Free at the worker tier forever.
 
 No hive yet? [Join WorkHive](https://workhiveph.com/#join) first (free, takes 30 seconds).
 
@@ -244,7 +246,7 @@ In the AI era, engineers whose work is documented get promoted. Engineers whose 
 
 ### What engineering disciplines do the WorkHive calculators cover?
 
-Six disciplines: HVAC and cooling (cooling load, ventilation and air changes, chilled-water flow, duct sizing per ASHRAE, FCU and AHU selection), mechanical (pump sizing and NPSH, fan sizing, bearing life, belt tension, alignment, gear ratio), electrical (transformer sizing, cable and conductor sizing per PEC 2017, motor selection, panel and load calculations, voltage drop), plumbing (pipe sizing and velocity, pump head, expansion-tank sizing, pipe slope and drainage), fire protection (sprinkler hydraulics per NFPA 13, smoke and heat detector counts, pull stations per NFPA 72, fire pump selection), and machine design (bolt and metric-thread selection, fastener torque, gear and shaft design, keyway sizing). All 60 calculators reference the relevant standard, PEC 2017, ASHRAE, PSME, NFPA, or ISO, and apply Philippine tropical constants where they matter.
+Eight disciplines: electrical and power (15 calculators: transformer sizing, cable and conductor sizing per PEC 2017, voltage drop, short circuit, power factor correction, generator sizing, solar PV), plumbing and pumps (14: pump TDH and NPSH, water supply pipe sizing, expansion-tank sizing, septic tank, storm drain), HVAC and cooling (10: cooling load, ventilation and air changes, duct sizing per ASHRAE, chiller sizing, FCU and AHU selection), mechanical and machine design (10: bearing life, V-belt drive, shaft design, bolt torque, pressure vessel shell, heat exchanger LMTD), fire protection (5: sprinkler hydraulics per NFPA 13, fire alarm battery per NFPA 72, fire pump selection, clean agent suppression, stairwell pressurization), reliability and metrics (2: MTBF and MTTR, OEE), vertical transport (2: elevator traffic, hoist capacity), and boiler and utilities (2: boiler and steam duty, boiler system sizing). All 60 calculators reference the relevant standard, PEC 2017, ASHRAE, PSME, NFPA, or ISO, and apply Philippine tropical constants where they matter.
 
 ### Why use tropical-climate constants instead of standard ASHRAE values?
 
@@ -281,4 +283,4 @@ Your saved calculations stay in your hive's project history and can be exported 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: ce960203c51ab84b -->
+<!-- md-twin source-sha: 1ef2cc99ddae6899 -->

@@ -131,7 +131,7 @@ See All Tools
 - [Live Telemetry: MQTT / OPC-UA sensor readings per parameter with Z-score anomaly chip (OK / WATCH 2σ / ANOMALY 3σ). Plant-side bridge POSTs through sensor-readings-ingest. Realtime ticks per asset.](https://workhiveph.com/asset-hub.html)
 - [Parts Staging: Predictive parts pre-position. When risk crosses 0.7, the recommender suggests parts to stage and reserves inventory without consuming it. Surfaces in Inventory.](https://workhiveph.com/inventory.html)
 - [Audit Log: Supervisor-only review of every power action: approvals, rejections, member kicks, joins, edits, deletes. Filter by date/actor/verb. CSV export for compliance submission.](https://workhiveph.com/audit-log.html)
-- [Engineering Design Calculator: 51 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing & fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.](https://workhiveph.com/engineering-design.html)
+- [Engineering Design Calculator: 55 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing & fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.](https://workhiveph.com/engineering-design.html)
 - [Project Manager: Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.](https://workhiveph.com/project-manager.html)
 - [Project Report: Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.](https://workhiveph.com/project-report.html)
 - [CMMS Integration: SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.](https://workhiveph.com/integrations.html)
@@ -424,4 +424,4 @@ Account required
 
 WorkHive now requires an account to protect your data. Sign up: it takes 30 seconds.
 
-<!-- md-twin source-sha: 2724ece1383ccee3 -->
+<!-- md-twin source-sha: eb6931496a05626c -->

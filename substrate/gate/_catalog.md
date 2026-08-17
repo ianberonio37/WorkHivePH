@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 8b8f861cedc38719
+source_sha: a3cc3c79a1bee39c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (769) — the 'what's already gated' brain
+## gate · registered validators (770) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (119)
+### AI Validation (120)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -37,6 +37,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `auth_role_guard_live` [fail] — Arc I: live function-level role guard (worker → 403 on supervisor-only fn)
 - `auth_role_render_live` [fail] — Arc I: live role-gated render (RBAC at the render layer; supervisor-only visibility)
 - `bom_sow_grounding` [fail] — AI Self-Improvement: BOM/SOW Grounding-Consistency (§13.13, live LLM)
+- `calc-claim-consistency` [fail] — Calculator-Claim Consistency Gate (V3 §5: every self-reported calculator/discipline count matches a derived SSOT; visible Updated == schema dateModified; forwar
 - `calc-pages` ⚡ [fail] — Programmatic Calculator-Page Gate (Pillar 3: crawlable + answer-first + SoftwareApplication/FAQPage schema + non-orphan; static HTML for AI crawlers)
 - `calc_api_serializable` ⚡ [fail] — Calc API JSON-Serializability (numpy-500 / silent-TS-fallback class)
 - `calc_formula_accuracy` ⚡ [fail] — AI Self-Improvement: Calc Formula Accuracy

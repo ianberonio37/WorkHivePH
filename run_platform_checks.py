@@ -4745,6 +4745,33 @@ VALIDATORS = [
         # forward-only — the honest initial state was mostly failing, and a permanently-red
         # gate teaches everyone to ignore it. Static, offline (~0.1s).
         # Self-test: `python tools/aio_readiness_gate.py --self-test`.
+        # Calculator-claim consistency (SEO_AEO_GEO_V3 §5, AIO multi-source credibility).
+        # Nothing checked whether the numbers WorkHive states ABOUT ITSELF are true, so
+        # they drifted while every other gate stayed green: the public surface claimed
+        # 51, 53, 58 AND 60 calculators across 6, 7 and 8 disciplines — four sizes for one
+        # product — with the calculator guide contradicting ITSELF (60 in four places, 53
+        # in three) and its visible "Updated 17 May" disagreeing with its own dateModified
+        # of 5 August. That is a GEO defect, not a typo: an answer engine quotes a specific
+        # figure, and the AIO pillar is scored on multi-source credibility. A site that
+        # cannot corroborate its own headline number gives an engine no way to pick the
+        # right one, so the safe move for the engine is to cite somebody else.
+        # TWO SSOTs, kept separate because they count DIFFERENT THINGS: the workbench
+        # registry (CALC_TYPES_UI, 55/6) and the standalone pages (CALC_DATA, 60/8). A page
+        # may quote either, so the gate does not demand one number — it demands that every
+        # number quoted matches a DERIVED one. Word forms count too ("Six disciplines"),
+        # because the drift hid in both forms; and a discipline claim only counts when
+        # calculator language sits within 120 chars, so skill-matrix's "5 disciplines"
+        # (about skills) is not swept in. Static, offline (~1s).
+        # Self-test: `python tools/calc_claim_consistency_gate.py --self-test`.
+        "id":      "calc-claim-consistency",
+        "script":  "tools/calc_claim_consistency_gate.py",
+        "args":    [],
+        "label":   "Calculator-Claim Consistency Gate (V3 §5: every self-reported calculator/discipline count matches a derived SSOT; visible Updated == schema dateModified; forward-only ratchet)",
+        "group":   "AI Validation",
+        "report":  "calc_claim_consistency_report.json",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "aio-readiness",
         "script":  "tools/aio_readiness_gate.py",
         "args":    [],

@@ -107,7 +107,7 @@ Stage 4 · Act and Prove (do it, share it, leave a trail)
 | [Analytics Report](https://workhiveph.com/analytics-report.html) | A print-ready maintenance report: worst offenders, root causes, machine-health scores, and an AI action plan, saved as a PDF. |
 | [Project Report](https://workhiveph.com/project-report.html) | A print-ready report for a single project: summary, scope, progress, sign-off, and lessons, ready to hand to a contractor or client. |
 | [Audit Log and Compliance](https://workhiveph.com/audit-log.html) | A tamper-evident record of every power action (approvals, edits, deletes, member changes) with who did it and when, ready for an ISO or government review. |
-| [Engineering Design Calculator](https://workhiveph.com/engineering-design.html) | 60 engineering calculators across six disciplines, each done to Philippine standards, each giving you a materials list, a scope of work, and a diagram. |
+| [Engineering Design Calculator](https://workhiveph.com/engineering-design.html) | 55 calculators across 6 disciplines, each done to Philippine standards, each giving you a materials list, a scope of work, and a diagram. |
 | [Marketplace](https://workhiveph.com/marketplace.html) | A Philippine directory to find parts, training, and jobs from ID-verified sellers when your stock runs low. Contact-only, with no platform fees. |
 | [Report Sender](https://workhiveph.com/report-sender.html) | Sends the shift handover and end-of-day summary to the right people by email. Add contacts by role and deliver a print-ready report. |
 | [CMMS Integration](https://workhiveph.com/integrations.html) | A two-way bridge to your current maintenance system (like SAP or IBM Maximo): import your data, sync jobs, and push completions without dropping what you already use. |
@@ -121,14 +121,16 @@ A few tools do double duty. The Asset Hub, for example, both records each machin
 
 All 60 engineering calculators now exist twice: inside the hive, and as 60 standalone pages you can open without an account. Each standalone page shows the formula, the Philippine standard it follows, and a fully worked example with real numbers — so you can check a figure in about 30 seconds, on a phone, at the machine, before you decide whether the rest of the platform is for you.
 
-They cover all six disciplines:
+They span eight disciplines:
 
-- **Mechanical** — [pump TDH](https://workhiveph.com/tools/pump-tdh-calculator/), [bearing life (L10)](https://workhiveph.com/tools/bearing-life-calculator/), [pressure vessel shell](https://workhiveph.com/tools/pressure-vessel-calculator/)
-- **Electrical** — [voltage drop](https://workhiveph.com/tools/voltage-drop-calculator/), [transformer sizing](https://workhiveph.com/tools/transformer-sizing-calculator/), [short circuit](https://workhiveph.com/tools/short-circuit-calculator/)
-- **HVAC** — [cooling load](https://workhiveph.com/tools/hvac-cooling-load-calculator/), [duct sizing](https://workhiveph.com/tools/duct-sizing-calculator/), [chiller sizing](https://workhiveph.com/tools/chiller-sizing-calculator/)
-- **Plumbing & sanitary** — [water supply pipe sizing](https://workhiveph.com/tools/water-supply-pipe-calculator/), [septic tank sizing](https://workhiveph.com/tools/septic-tank-calculator/)
-- **Fire protection** — [sprinkler hydraulics](https://workhiveph.com/tools/fire-sprinkler-calculator/), [fire pump sizing](https://workhiveph.com/tools/fire-pump-calculator/)
-- **Reliability** — [MTBF & MTTR](https://workhiveph.com/tools/mtbf-calculator/), [OEE](https://workhiveph.com/tools/oee-calculator/)
+- **Electrical & power** (15) — [voltage drop](https://workhiveph.com/tools/voltage-drop-calculator/), [transformer sizing](https://workhiveph.com/tools/transformer-sizing-calculator/), [short circuit](https://workhiveph.com/tools/short-circuit-calculator/)
+- **Plumbing & pumps** (14) — [pump TDH](https://workhiveph.com/tools/pump-tdh-calculator/), [water supply pipe sizing](https://workhiveph.com/tools/water-supply-pipe-calculator/), [septic tank sizing](https://workhiveph.com/tools/septic-tank-calculator/)
+- **HVAC & cooling** (10) — [cooling load](https://workhiveph.com/tools/hvac-cooling-load-calculator/), [duct sizing](https://workhiveph.com/tools/duct-sizing-calculator/), [chiller sizing](https://workhiveph.com/tools/chiller-sizing-calculator/)
+- **Mechanical & machine design** (10) — [bearing life (L10)](https://workhiveph.com/tools/bearing-life-calculator/), [pressure vessel shell](https://workhiveph.com/tools/pressure-vessel-calculator/), [shaft design](https://workhiveph.com/tools/shaft-design-calculator/)
+- **Fire protection** (5) — [sprinkler hydraulics](https://workhiveph.com/tools/fire-sprinkler-calculator/), [fire pump sizing](https://workhiveph.com/tools/fire-pump-calculator/)
+- **Reliability & metrics** (2) — [MTBF & MTTR](https://workhiveph.com/tools/mtbf-calculator/), [OEE](https://workhiveph.com/tools/oee-calculator/)
+- **Vertical transport** (2) — [elevator traffic](https://workhiveph.com/tools/elevator-traffic-calculator/), [hoist capacity](https://workhiveph.com/tools/hoist-capacity-calculator/)
+- **Boiler & utilities** (2) — [boiler / steam duty](https://workhiveph.com/tools/boiler-steam-calculator/), [boiler system sizing](https://workhiveph.com/tools/boiler-system-calculator/)
 
 The difference between these pages and the [Engineering Design workbench](https://workhiveph.com/engineering-design.html) is what happens after the number. A standalone page answers one question. The workbench keeps the job: it produces the materials list, the scope of work, and the diagram, and it saves the result against the asset it belongs to.
 
@@ -308,9 +310,9 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 - WorkHive "Four Gaps, One Hive" thesis: chaos to coordination, guesswork to the right person, forgetting to remembering, and finding a specialist.
 - WorkHive flywheel model: Capture, Plan, Analyze, and Act and Prove, where every action writes new records back into Capture.
 - WorkHive tool catalog: 28 connected tools across the four stages, each with its own page.
-- WorkHive Engineering Design tool: 60 calculators across six disciplines, referenced to Philippine standards.
+- WorkHive Engineering Design tool: 55 calculators across 6 disciplines, referenced to Philippine standards.
 - Related WorkHive guides: [Digital logbook rollout](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/) · [AI work assistant](https://workhiveph.com/learn/ai-work-assistant-maintenance-technicians/) · [AI companion](https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/) · [All guides](https://workhiveph.com/learn/)
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 8a713655be738ef3 -->
+<!-- md-twin source-sha: d1d04a752a873ad4 -->

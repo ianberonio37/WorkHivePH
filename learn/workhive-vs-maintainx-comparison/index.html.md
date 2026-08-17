@@ -18,7 +18,7 @@ By WorkHive Editorial Team · Updated 2026-08-05 · 6 min read
 | Offline capability | Offline-first capture and sync | Mobile app; connectivity-oriented |
 | Team communication | Community + shift handover | Strong in-app messaging (a core strength) |
 | Mobile experience | Browser-based PWA, installable | Native mobile apps, highly polished |
-| Engineering calculators | 58 standards-referenced calculators | Not a core focus |
+| Engineering calculators | 60 standards-referenced calculators | Not a core focus |
 | Language | English, Filipino, Taglish (voice) | Multiple locales |
 | Best for | Zero-budget PH plants, poor connectivity | Teams prioritising mobile UX and messaging |
 
@@ -36,7 +36,7 @@ Pricing verified against vendor and directory listings on 5 August 2026; SaaS pr
 - **No per-seat cost.** Free at the worker tier means adding technicians does not add cost — the opposite of per-seat pricing.
 - **Dead-spot capture.** Offline-first is the difference between a record written at the asset and a record written from memory hours later.
 - **Filipino-language capture** including Taglish voice-to-text.
-- **Philippine compliance** records for DOLE OSHS and RA 11285, plus 58 engineering calculators for the design side.
+- **Philippine compliance** records for DOLE OSHS and RA 11285, plus 60 engineering calculators for the design side.
 
 ## Frequently asked questions
 
@@ -66,4 +66,4 @@ WorkHive is a browser-based progressive web app that installs to the home screen
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 6d000919fd17df78 -->
+<!-- md-twin source-sha: 5a23b388a8bf7073 -->

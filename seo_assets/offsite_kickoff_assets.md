@@ -63,7 +63,7 @@
 
 ## 4. Digital PR / linkable asset (build once, earn repeatedly)
 
-The **calculator suite is now a linkable asset** (58 free calculators). The next one to build: turn `/learn/ph-industrial-benchmarks-intelligence/` into a citable **"Philippine Plant OEE Benchmarks by Sector"** study with stated methodology + sample size — AI engines cite original research with clear numbers `[external-digital-pr-linkable-assets-b2b-saas-earn-backlin]`. Outreach targets: PSME / IIEE / PIChE, PH manufacturing outlets, and authors of existing "best free CMMS" listicles (ask for inclusion — 48.7% of ChatGPT citations come from third-party listings).
+The **calculator suite is now a linkable asset** (60 free calculators). The next one to build: turn `/learn/ph-industrial-benchmarks-intelligence/` into a citable **"Philippine Plant OEE Benchmarks by Sector"** study with stated methodology + sample size — AI engines cite original research with clear numbers `[external-digital-pr-linkable-assets-b2b-saas-earn-backlin]`. Outreach targets: PSME / IIEE / PIChE, PH manufacturing outlets, and authors of existing "best free CMMS" listicles (ask for inclusion — 48.7% of ChatGPT citations come from third-party listings).
 
 ---
 

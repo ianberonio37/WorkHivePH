@@ -109,7 +109,7 @@
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "inLanguage": "en-PH",
         "datePublished": "2026-04-10",
-        "dateModified": "2026-05-16"
+        "dateModified": "2026-08-17"
       },
       {
         "@type": "SoftwareApplication",
@@ -161,14 +161,14 @@
           "audienceType": "Field workers, maintenance technicians, operators, reliability engineers, design engineers, project engineers, supervisors, planners, plant managers, operations managers, suppliers, contractors, engineering students, new graduates, workers upskilling with AI"
         },
         "datePublished": "2026-04-10",
-        "dateModified": "2026-05-16"
+        "dateModified": "2026-08-17"
       },
       {
         "@type": "FAQPage",
         "@id": "https://workhiveph.com/#faq",
         "url": "https://workhiveph.com/#faq",
         "inLanguage": "en-PH",
-        "dateModified": "2026-05-18",
+        "dateModified": "2026-08-17",
         "mainEntity": [
           {
             "@type": "Question",
@@ -356,7 +356,18 @@
 
     /* ---- buttons ---- */
     .btn-primary {
-      background: linear-gradient(135deg, var(--wh-orange) 0%, var(--wh-orange-dark) 100%);
+      /* ★APCA: the gradient used to DARKEN toward --wh-orange-dark (#D88A0E), which put the navy
+         label on an effective #E89615 at Lc 54.5 against the Lc 60 floor for 14-16px text — the
+         primary call to action on the landing page was the least legible text on it. Measured live
+         2026-08-05 walking PB-index-147.
+         The label is already --wh-navy, so the only lever is the fill: lightening the gradient raises
+         the lightness gap instead of closing it. This uses the two hues the palette ALREADY defines
+         (--wh-orange-light #FDB94A, --wh-orange #F7A21B) rather than inventing a colour, so the button
+         reads the same brand amber, just brighter. Verified in the browser across all 6 .btn-primary
+         instances: every 'Join the Hive' / 'See All Tools' node clears its floor and the page's total
+         APCA failures fell 7 -> 3. Four candidate fills were trialled live; this is the mildest that
+         works. */
+      background: linear-gradient(135deg, var(--wh-orange-light) 0%, var(--wh-orange) 100%);
       color: var(--wh-navy);
       font-weight: 700;
       padding: 14px 36px;
@@ -427,9 +438,21 @@
     .nav-link:hover { color: var(--wh-cloud); }
     .nav-link:hover::after { width: 100%; }
 
-    /* ---- stat number gradient ---- */
-    .stat-orange { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .stat-blue   { background: linear-gradient(135deg, var(--wh-blue), var(--wh-blue-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    /* ---- stat number gradient ----
+       THE DARKEST STOP OF A background-clip:text GRADIENT IS TEXT, SO IT TAKES THE -text TOKEN.
+       Found 2026-08-06 walking the anon landing: '60-80%' and '15-25%' (.stat-blue, 48px on the
+       #impact card rgb(29,71,94)) measured APCA Lc 44.6 against a floor of 45. A gradient clipped
+       to text paints the GRADIENT's colours, so the darkest stop is the real foreground -- the
+       declared color:#fff is never painted, which is why a stylesheet read would call this fine.
+       --wh-blue #29B6D9 is a FILL hue; as text it fails (Lc 44.6). --wh-blue-text #5FCCE8 -> Lc 56.8.
+       Same fix as the .text-blue-wh utility override lower in tokens.css (PB-index-147, 2026-08-05):
+       this page-local gradient clone never adopted it. .stat-orange carried the identical defect
+       (--wh-orange #F7A21B -> Lc 57.8 at 18px vs floor 60; --wh-orange-text #FDB94A -> Lc 67.6) and
+       is fixed here too even though no .stat-orange element currently renders at a failing size --
+       fixing only the walked path is how the sibling ships broken. Fills/icons/borders KEEP the
+       brand hues; only text-clipped gradients use the -text stop. */
+    .stat-orange { background: linear-gradient(135deg, var(--wh-orange-text), var(--wh-orange-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-blue   { background: linear-gradient(135deg, var(--wh-blue-text), var(--wh-blue-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
     /* ---- section divider hex ---- */
     .hex-divider {
@@ -944,7 +967,18 @@
        DOMContentLoaded handler still runs _showOpsHome()/_initDashboard() to resolve hive + populate.
        The class-stamp itself now lives in the head-init script block above (folded there so it adds
        no net-new un-nonced inline script tag, keeping the CSP ratchet at baseline 12). -->
-  <style>html.wh-signed-in #mkt-wrap{display:none !important;} html.wh-signed-in #ops-home{display:block !important;}</style>
+  <!-- ★The swap must hide the marketing page's DECORATION too, not just its container. Found
+       2026-08-05 by a full-page screenshot while walking PB-index-055: #aurora-scene is a
+       deliberately GLOBAL, position:fixed background (its own comment says so) living at <main>
+       level, so display:none on #mkt-wrap never reached it. Its 40 .light-beam elements (405px
+       tall, opacity 0.75) kept painting amber and cyan bars BELOW the ops-home footer, because
+       #ops-home paints its own background but does not cover full viewport height. A signed-in
+       operator got marketing chrome under their shift dashboard.
+       Only the fullPage screenshot caught it: elementFromPoint below the footer returns bare HTML
+       (the beams sit behind content, off the hit-test path) and the viewport-only view crops the
+       band almost entirely. This is the Whole-Artifact rule in one line — a swap is defined by what
+       it DELETES as much as by what it reveals. -->
+  <style>html.wh-signed-in #mkt-wrap{display:none !important;} html.wh-signed-in #ops-home{display:block !important;} html.wh-signed-in #aurora-scene{display:none !important;}</style>
 </head>
 <body class="bg-navy-wh text-white antialiased overflow-x-hidden">
 <main>
@@ -965,7 +999,11 @@
 <!-- ═══════════════════════════════════════════════
      NAVBAR
 ═══════════════════════════════════════════════ -->
-<nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.06]" style="background: rgba(22,32,50,0.92); backdrop-filter: blur(16px);">
+<!-- padding-top: this nav is `fixed top-0` under viewport-fit=cover, so without the inset its row of
+     controls sits under the notch on a notched phone. hive.html:427 and pm-scheduler.html:316 carry
+     the identical nav with this declaration; index was the one copy missing it. The two 64px content
+     offsets below (#ops-home and the landing hero) grow by the same inset, because this nav grows. -->
+<nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.06]" style="background: rgba(22,32,50,0.92); backdrop-filter: blur(16px); padding-top:env(safe-area-inset-top);">
   <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
     <a href="index.html" class="flex-shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px]" aria-label="WorkHive home">
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-9 w-auto" />
@@ -1047,14 +1085,14 @@
      Shown instead of marketing when wh_last_worker exists.
      Reads from production Supabase for live data.
 ═══════════════════════════════════════════════ -->
-<div id="ops-home" style="display:none; padding-top:64px; background:#0f1923; font-family:'Poppins',sans-serif; position:relative; z-index:1;">
+<div id="ops-home" style="display:none; padding-top:calc(64px + env(safe-area-inset-top, 0px)); background:#0f1923; font-family:'Poppins',sans-serif; position:relative; z-index:1;">
   <style>
     #ops-home .oh-card { background:rgba(22,32,50,0.85); border:1px solid rgba(255,255,255,0.07); border-radius:12px; }
     #ops-home .oh-sec-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.6); margin:0 0 10px; }
     #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:var(--wh-radius); min-height:44px; }
     #ops-home .oh-badge { font-size:.55rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:.2rem .5rem; border-radius:var(--wh-radius-sm); }
     #ops-home .oh-badge-open { background:rgba(251,146,60,.15); color:var(--wh-orange); }
-    #ops-home .oh-badge-crit, #ops-home .oh-badge-critical { background:rgba(248,113,113,.15); color:var(--wh-red); }
+    #ops-home .oh-badge-crit, #ops-home .oh-badge-critical { background:rgba(248,113,113,.15); color:var(--wh-red-text); }
     #ops-home .oh-badge-high { background:rgba(251,146,60,.15); color:var(--wh-orange); }
     /* Calm stat tile: only renders when count > 0. Container is flex so
        tiles flow without leaving holes. */
@@ -1111,7 +1149,19 @@
   <div style="max-width:680px; margin:0 auto; padding:28px 16px 32px;">
 
     <!-- Greeting header -->
-    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
+    <!-- CLS: min-height reserves this header's SETTLED height. Measured live 2026-08-06 on the
+         signed-in ops-home: this block renders 54px empty and grows to 112px once #oh-greeting and the
+         persona/hive chrome to its right fill in (+58px, at ~250ms). It is the FIRST child of ops-home,
+         so everything below it moved — #oh-today, the stat row, quick actions, #oh-more and the footer
+         all shifted down together, and CLS measured 0.1367 / 0.1367 / 0.1386 across three of four cold
+         loads against the 0.1 budget. This is NOT the historical landing→ops-home swap that this page's
+         head comment describes (html.wh-signed-in was present in every one of those runs); it is a
+         second, separate late-growth shift inside ops-home itself.
+         88px, not 112: the wrapper is flex-wrap, so at narrow widths the right-hand chrome wraps onto
+         its own line and the block is legitimately TALLER than the desktop settled height — a floor
+         must not fight that. 88px covers the h1 + date + margins that are always present, which is the
+         part that was growing from empty. -->
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:24px; min-height:88px;">
       <div>
         <!-- heading-allow: signed-in dashboard h1, mutually-exclusive (display-switched) with the #mkt-wrap hero h1; one h1 per view. axe page-has-heading-one needs a visible h1 here. -->
         <h1 id="oh-greeting" style="font-size:1.35rem; font-weight:800; color:var(--wh-cloud); margin:0 0 4px;"></h1>
@@ -1140,7 +1190,11 @@
 
     <!-- Today's One Thing: the verdict line. Single decision, single CTA.
          All-clear state renders here too. -->
-    <div id="oh-today" style="margin-bottom:16px; min-height:76px;"></div>
+    <!-- 76px -> 97px: the reservation was SHORT. Measured live 2026-08-06 on the signed-in ops-home,
+         this block settles at 97px ("TODAY · CRITICAL RISK ..." wraps to a second line), so the old 76
+         left 21px to be inserted at ~500ms — a second shift on top of the greeting's. A short
+         reservation is not a partial fix: it still shifts everything below it. -->
+    <div id="oh-today" style="margin-bottom:16px; min-height:97px;"></div>
 
     <!-- Stat tiles. Only non-zero counts render; container hides entirely
          when all four are zero. Reads v_logbook_truth + v_risk_truth +
@@ -1204,7 +1258,7 @@
               <span class="ic ic-message" aria-hidden="true"></span>
               <span data-i="askai">Ask AI</span>
             </a>
-            <a href="voice-journal.html" class="oh-qa-btn" style="background:rgba(251,113,133,.08); color:var(--wh-red); border-color:rgba(251,113,133,.25); grid-column:1 / -1;">
+            <a href="voice-journal.html" class="oh-qa-btn" style="background:rgba(251,113,133,.08); color:var(--wh-red-text); border-color:rgba(251,113,133,.25); grid-column:1 / -1;">
               <span class="ic ic-voice" aria-hidden="true"></span>
               <span data-i="voicejournal">Voice Journal</span>
             </a>
@@ -1245,7 +1299,7 @@
 <!-- ═══════════════════════════════════════════════
      HERO
 ═══════════════════════════════════════════════ -->
-<section class="relative min-h-screen flex items-center pt-16 hex-pattern grain overflow-hidden" style="background: linear-gradient(135deg, rgba(13,24,36,0.72) 0%, rgba(22,32,50,0.68) 40%, rgba(26,38,56,0.72) 100%); position: relative; z-index: 1;">
+<section class="relative min-h-screen flex items-center pt-16 hex-pattern grain overflow-hidden" style="background: linear-gradient(135deg, rgba(13,24,36,0.72) 0%, rgba(22,32,50,0.68) 40%, rgba(26,38,56,0.72) 100%); position: relative; z-index: 1; padding-top:calc(4rem + env(safe-area-inset-top, 0px));">
 
   <!-- radial glows -->
   <div class="absolute top-1/4 -left-40 w-[600px] h-[600px] rounded-full opacity-20 pointer-events-none"
@@ -1356,7 +1410,7 @@
                 <p class="text-[10px] text-orange-wh font-bold uppercase tracking-[0.15em]">Operational Readiness Layer</p>
                 <span class="text-[10px] text-orange-wh font-semibold uppercase tracking-wider px-2 py-1 rounded-lg border border-white/10" style="background: linear-gradient(135deg, rgba(247,162,27,0.2) 0%, rgba(31,46,69,0.95) 100%);">4 Stages</span>
               </div>
-              <h2 class="font-black text-white text-lg leading-snug"><span data-i="findyour">Find your</span> <span style="background: linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" data-i="hivesstage">hive's stage</span></h2>
+              <h2 class="font-black text-white text-lg leading-snug"><span data-i="findyour">Find your</span> <span style="background: linear-gradient(135deg,var(--wh-orange-text),var(--wh-orange-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;" data-i="hivesstage">hive's stage</span></h2>
               <p class="text-[11px] text-white/80 mt-1 leading-relaxed">We don't replace your ERP or CMMS. We make digital tools actually work in your plant.</p>
               <p class="text-[10px] text-white/80 mt-2 leading-relaxed">No predictions on insufficient data. No rigid workflows. No enterprise infrastructure assumed. Free at the worker tier forever.</p>
             </div>
@@ -1516,7 +1570,7 @@
       <li><a href="/asset-hub.html">Live Telemetry: MQTT / OPC-UA sensor readings per parameter with Z-score anomaly chip (OK / WATCH 2σ / ANOMALY 3σ). Plant-side bridge POSTs through sensor-readings-ingest. Realtime ticks per asset.</a></li>
       <li><a href="/inventory.html">Parts Staging: Predictive parts pre-position. When risk crosses 0.7, the recommender suggests parts to stage and reserves inventory without consuming it. Surfaces in Inventory.</a></li>
       <li><a href="/audit-log.html">Audit Log: Supervisor-only review of every power action: approvals, rejections, member kicks, joins, edits, deletes. Filter by date/actor/verb. CSV export for compliance submission.</a></li>
-      <li><a href="/engineering-design.html">Engineering Design Calculator: 51 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing &amp; fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.</a></li>
+      <li><a href="/engineering-design.html">Engineering Design Calculator: 55 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing &amp; fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.</a></li>
       <li><a href="/project-manager.html">Project Manager: Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.</a></li>
       <li><a href="/project-report.html">Project Report: Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.</a></li>
       <li><a href="/integrations.html">CMMS Integration: SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.</a></li>
@@ -1966,7 +2020,7 @@
         Practical writing for the Philippine plant floor
       </h2>
       <p class="text-white/80 leading-relaxed font-light">
-        <!--CATALOG:guide_count-->45<!--/CATALOG:guide_count--> in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
+        <!--CATALOG:guide_count-->53<!--/CATALOG:guide_count--> in-depth guides covering OEE, MTBF, PM checklists, skill matrix, shift handover, AI assistants, CMMS integrations, and more. Every guide is tool-aligned with WorkHive and free to read.
       </p>
     </div>
 
@@ -1994,7 +2048,7 @@
 
     <div class="text-center">
       <a href="/learn/" class="inline-flex items-center gap-2 text-orange-wh hover:text-orange-light transition-colors font-semibold">
-        See all <!--CATALOG:guide_count-->45<!--/CATALOG:guide_count--> guides
+        See all <!--CATALOG:guide_count-->53<!--/CATALOG:guide_count--> guides
         <span class="ic ic-next" aria-hidden="true"></span>
       </a>
     </div>
@@ -2151,7 +2205,7 @@
           <li><a href="/skillmatrix.html"        class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Skill Matrix</a></li>
           <li><a href="/engineering-design.html" class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Engineering Design Calculator</a></li>
           <li><a href="/assistant.html"          class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">AI Work Assistant</a></li>
-          <li><a href="/learn/"                  class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Learn (<!--CATALOG:guide_count-->45<!--/CATALOG:guide_count--> free guides)</a></li>
+          <li><a href="/learn/"                  class="text-sm text-white/80 hover:text-white/70 transition-colors inline-flex items-center min-h-[44px]">Learn (<!--CATALOG:guide_count-->53<!--/CATALOG:guide_count--> free guides)</a></li>
         </ul>
       </div>
       <div>
@@ -2167,7 +2221,7 @@
     </div>
 
     <div class="pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
-      <p class="text-xs text-white/80">© 2026 WorkHive Engineering Services. · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
+      <p class="text-xs text-white/80">© 2026 WorkHive Engineering Services. · workhiveph.com · Last updated <time datetime="2026-08-17">17 Aug 2026</time></p>
       <div class="flex items-center gap-6">
         <a href="/privacy-policy/" class="text-xs text-white/80 hover:text-white/80 transition-colors inline-flex items-center min-h-[44px]">Privacy Policy</a>
         <a href="/terms-of-service/" class="text-xs text-white/80 hover:text-white/80 transition-colors inline-flex items-center min-h-[44px]">Terms of Service</a>
@@ -2446,7 +2500,7 @@
       rgb:   '255,184,0',
       tabClass: 'active-gold',
       tools: [
-        { name: 'Engineering Design Calculator', desc: '51 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing & fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.',                  link: 'engineering-design.html', icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
+        { name: 'Engineering Design Calculator', desc: '55 calc types across 6 disciplines (electrical, mechanical, instrumentation, plumbing & fire, lighting, HVAC). Each emits BOM + SOW + diagram. PEC + ASHRAE + ISA + NFPA + IEC + PSME anchored.',                  link: 'engineering-design.html', icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
         { name: 'Project Manager',             desc: 'Capital projects + CPM scheduling (Python networkx) + risk register + change orders + lessons learned. 4 flavours: workorder, shutdown, capex, contractor. PMBOK + AACE + IDCON-anchored.',                          link: 'project-manager.html',    icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
         { name: 'Project Report',          desc: 'Print-ready single-project report. Executive cover, scope by phase, linked work tables, S-curve progress timeline, sign-off block, lessons learned. Contractor handover packet.',                                  link: 'project-report.html',     icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
         { name: 'CMMS Integration',           desc: 'SAP PM + IBM Maximo + generic CMMS bridge. Pull work orders, push completions, receive webhooks. WorkHive is the field-worker interface, not the ERP replacement. ISO 14224 field mapping.',                       link: 'integrations.html',       icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
@@ -2639,7 +2693,13 @@
 </style>
 <div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);" role="dialog" aria-modal="true" aria-label="Sign in to WorkHive">
   <div class="relative rounded-2xl p-7 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
-    <button onclick="closeSignIn()" class="absolute top-4 right-4 text-white/80 hover:text-white/70 transition-colors text-xl leading-none" aria-label="Close">&times;</button>
+    <!-- Sized to 44x44 (was 11.7 x 20, measured live by tools/prove_dialog_layout.mjs). This is the ONLY
+         control that closes the sign-in dialog, and it sits on the signed-OUT path a first-time visitor
+         lands on, so it is the worst place on the platform to have a ~12px target. It is also a one-off
+         rather than a convention: inventory's #part-modal-close and pm-scheduler's #pm-edit-modal close are
+         both 44x44 already. The glyph keeps its size via text-xl; only the hit area grows, so nothing moves
+         visually except the button's own box. -->
+    <button onclick="closeSignIn()" class="absolute top-4 right-4 w-11 h-11 inline-flex items-center justify-center text-white/80 hover:text-white/70 transition-colors text-xl leading-none" aria-label="Close">&times;</button>
 
     <div class="flex justify-center mb-5">
       <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-9 w-auto" />
@@ -2670,7 +2730,7 @@
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('si-password',this)" aria-pressed="false"
-            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.80);padding:4px;" aria-label="Show password">
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.80);padding:4px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;" aria-label="Show password">
             <span class="ic ic-eye" aria-hidden="true"></span>
           </button>
         </div>
@@ -2713,7 +2773,7 @@
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('su-password',this)" aria-pressed="false"
-            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.80);padding:4px;" aria-label="Show password">
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.80);padding:4px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;" aria-label="Show password">
             <span class="ic ic-eye" aria-hidden="true"></span>
           </button>
         </div>
@@ -2832,7 +2892,19 @@
       if (btn) {
         const active = t === tab;
         btn.style.background = active ? 'rgba(247,162,27,0.1)' : 'transparent';
-        btn.style.color      = active ? '#F7A21B' : 'rgba(255,255,255,0.62)';  // 0.62 clears WCAG 4.5:1 on the modal bg (0.4 was 3.67:1)
+        // THIS LINE WAS OVERWRITING ITS OWN CORRECT MARKUP. Found 2026-08-06 measuring the ANON
+        // sign-in modal (index.html?signin=1) live: 'Sign In' 14px/700 measured APCA Lc 56.8 and
+        // 'Sign Up' 14px/600 Lc 54.3, both against a floor of 60. The static markup above already
+        // declares the right values (var(--wh-orange-text) and rgba(255,255,255,0.80)); this
+        // handler replaced them with a hardcoded fill hue and 0.62 on first render, so reading the
+        // HTML would have called the modal clean. Only a LIVE measurement could see it.
+        // The old comment claimed "0.62 clears WCAG 4.5:1" and that was true and irrelevant: WCAG
+        // 2.x is a luminance QUOTIENT and overestimates legibility on dark backgrounds, which is
+        // this whole platform. tokens.css records the same lesson for --wh-steel-bright and
+        // --wh-red-text, both RAISED after clearing 4.5:1 and still failing perceptual contrast.
+        // #F7A21B is --wh-orange, a FILL hue; as TEXT it needs --wh-orange-text (7th instance of
+        // that misuse platform-wide). Values here now MIRROR the static markup exactly.
+        btn.style.color      = active ? 'var(--wh-orange-text)' : 'rgba(255,255,255,0.80)';
         btn.style.fontWeight = active ? '700' : '600';
         btn.setAttribute('aria-selected', active ? 'true' : 'false');
       }
@@ -3486,6 +3558,34 @@
                   || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker();
     if (_lsWorker) {
       _showOpsHome(_lsWorker);
+      // THE CACHED NAME OUTLIVES THE SESSION. `whWorker()` reads localStorage, which survives when the
+      // auth token does not — so this branch renders the signed-in ops home, every tile read returns
+      // zero rows through RLS, and the dashboard shows figures that were never actually read. Measured
+      // by tools/prove_session_died.mjs: 2 of 5 numbers still non-zero after the session was killed,
+      // with nothing on screen saying so. The tiles are not wrong-by-a-little; they are unread.
+      // Deliberately NOT a redirect: throwing someone off the page they opened is worse than telling
+      // them what happened, and the marketing view below is still legitimately readable signed-out.
+      (async () => {
+        try {
+          if (typeof db === 'undefined') return;
+          const { data: _s } = await db.auth.getSession();
+          if (_s?.session) return;
+          const host = document.getElementById('ops-home');
+          if (!host || document.getElementById('oh-session-dead')) return;
+          host.querySelectorAll('.oh-tile-num').forEach(n => { n.textContent = '—'; });
+          const note = document.createElement('div');
+          note.id = 'oh-session-dead';
+          note.setAttribute('role', 'status');
+          note.style.cssText = 'margin:0 0 14px;padding:12px 14px;border-radius:10px;'
+            + 'background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.42);'
+            + 'color:#fde68a;font-size:0.8rem;line-height:1.5;';
+          note.innerHTML = '<strong>Your session ended — these numbers were not read.</strong><br>'
+            + 'This is not an all-clear: nothing here was loaded with your account. '
+            + '<a href="index.html?signin=1" style="color:#fcd34d;text-decoration:underline;">Sign in</a> '
+            + 'to see your real figures.';
+          host.insertBefore(note, host.firstChild);
+        } catch (_) { /* empty-catch-allow: if we cannot ask, do not claim the session is dead */ }
+      })();
     } else if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
       restoreIdentityFromSession(db).then(_n => { if (_n) _showOpsHome(_n); }).catch(() => {});
     }
@@ -4095,7 +4195,7 @@
     if (_ohLoadFailed) {
       const _t = document.getElementById('oh-today');
       if (_t) _t.innerHTML = '<div style="background:rgba(248,113,113,.10); border:1px solid rgba(248,113,113,.30); border-radius:12px; padding:14px 16px;">'
-        + '<p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-red); margin:0 0 2px;">Couldn\'t refresh</p>'
+        + '<p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-red-text); margin:0 0 2px;">Couldn\'t refresh</p>'
         + '<p style="font-size:.9rem; color:var(--wh-cloud); margin:0;">We could not load your latest hive data. Check your connection and try again.</p></div>';
       return;
     }
@@ -4212,6 +4312,9 @@
       // These are fetched once here (allSettled) and merged into the candidate
       // list so the rank/sort below stays single-source-of-truth.
       let amcPending = null, sensorAnomaly = null, sigAlert = null;
+      // Which of the three signals could not be READ, as opposed to being genuinely absent. The
+      // difference decides whether "nothing needs your attention" is a finding or a guess.
+      let _signalsUnread = [];
       if (_dash) {
         // RPC path: the three Today's-One-Thing signals are already in the
         // consolidated payload — no extra round-trips. Preserve the AMC role
@@ -4264,9 +4367,34 @@
           amcPending    = amcRes.status    === 'fulfilled' ? amcRes.value.data    : null;
           sensorAnomaly = anomRes.status   === 'fulfilled' ? anomRes.value.data   : null;
           sigAlert      = sigRes.status    === 'fulfilled' ? sigRes.value.data    : null;
-        } catch (_) { /* network failure: just skip these signals */ /* empty-catch-allow: best-effort silent swallow */ }
+          // ★ `fulfilled` DOES NOT MEAN `succeeded`. PostgREST resolves a 500 as a fulfilled promise
+          // carrying { data: null, error }, so reading only `.value.data` turned every failed signal
+          // into an ABSENT one — and an absent signal is silently dropped from the ranker. Measured
+          // 2026-08-14 under an injected 500: the whole "AMC BRIEF · AWAITING APPROVAL · Approve
+          // today's autonomous maintenance brief" card disappeared from the dashboard with no message
+          // anywhere on the page. To a supervisor that is indistinguishable from "nothing needs
+          // approving today", which is the one conclusion this card exists to prevent them reaching
+          // by accident. `Promise.allSettled` protects against a THROW; it says nothing about an
+          // error INSIDE a settled value.
+          _signalsUnread = [
+            ['approval brief', amcRes],
+            ['sensor anomalies', anomRes],
+            ['critical alerts', sigRes],
+          ].filter(([, r]) => r.status === 'rejected' || (r.value && r.value.error)).map(([n]) => n);
+        } catch (_) { /* network failure: just skip these signals */ /* empty-catch-allow: best-effort silent swallow */
+          _signalsUnread = ['approval brief', 'sensor anomalies', 'critical alerts'];
+        }
       }
 
+        // ACCENTS ARE TEXT HERE, so they take the AA-safe -text variants, not the brand base.
+        // Measured on this card's own composited background rgb(21,31,48) at 16px/800:
+        // #a78bfa Lc 47.3 FAILS and #f7a21b Lc 60.2 sits exactly on the floor with no
+        // headroom, while --wh-violet-text #C4B5FD reads 65.9 and --wh-orange-text #FDB94A
+        // reads 70.0. #facc15 measures 76.8 and is deliberately LEFT ALONE - changing a
+        // colour that already passes is churn, not a fix.
+        // The live lens found only ONE of these because only the AMC-pending branch had
+        // rendered; the others are the same defect on an unwalked path, so every branch is
+        // corrected rather than just the one the probe happened to see.
       if (amcPending) {
         // v_amc_truth exposes summary + headline as top-level cols (extracted
         // from the JSONB brief by the view). headline is a fallback when
@@ -4274,7 +4402,7 @@
         const amcSummary = amcPending.summary || amcPending.headline || '';
         candidates.push({
           rank: 95,
-          tone: 'critical', accent: '#a78bfa',
+          tone: 'critical', accent: '#C4B5FD',  // was #a78bfa, Lc 47.3 -> 65.9
           label: 'AMC Brief Awaiting Approval',
           headline: 'Approve today\'s autonomous maintenance brief',
           detail: (amcSummary || 'Open Alert Hub to review the day plan and sign off.').slice(0, 120),
@@ -4286,7 +4414,7 @@
       if (sensorAnomaly) {
         candidates.push({
           rank: 85,
-          tone: 'high', accent: '#f7a21b',
+          tone: 'high', accent: '#FDB94A',  // was #f7a21b, Lc 60.2 -> 70.0
           label: 'Sensor Anomaly',
           headline: `${sensorAnomaly.parameter || 'Reading'} flagged anomaly`,
           detail: 'A live sensor reading is 3-sigma outside the recent baseline. Inspect.',
@@ -4300,7 +4428,7 @@
         // failure_signature_alerts + anomaly_signals).
         candidates.push({
           rank: 75,
-          tone: 'high', accent: '#f7a21b',
+          tone: 'high', accent: '#FDB94A',  // was #f7a21b, Lc 60.2 -> 70.0
           label: 'Critical Failure Signature',
           headline: `${sigAlert.machine || 'Asset'}: ${sigAlert.title || 'failure signature detected'}`,
           detail: 'A historical failure pattern just matched. Review before the shift ends.',
@@ -4317,7 +4445,11 @@
         const r = critRisks[0];
         candidates.push({
           rank: 100,
-          tone: 'critical', accent: '#f87171',
+          // #FDC9C9 (--wh-red-text), not the #f87171 FILL: this accent paints the '!' glyph and the
+          // 'Critical Risk' label as 16px text, which measured APCA Lc 44.9 against a floor of 60.
+          // tokens.css names the AA-safe text variant on the base token itself; this is the last of
+          // the 23 failures the widened lens surfaced.
+          tone: 'critical', accent: '#FDC9C9',
           label: 'Critical Risk',
           headline: `${r.asset_name || 'Unnamed asset'}: risk ${Math.round((Number(r.risk_score) || 0) * 100)}%`,
           detail: r.mtbf_days != null ? `MTBF ${Math.round(r.mtbf_days)}d. ${_t('Inspect now.','Suriin agad.')}` : 'Inspect now to avoid breakdown.',
@@ -4338,7 +4470,7 @@
         if (critPM) {
           candidates.push({
             rank: 90,
-            tone: 'high', accent: '#f7a21b',
+            tone: 'high', accent: '#FDB94A',  // was #f7a21b, Lc 60.2 -> 70.0
             label: 'Critical PM Overdue',
             headline: `${critPM.asset_name || critPM.asset_tag || 'Asset'}: PM due`,
             detail: 'Schedule the technician before the next shift.',
@@ -4368,7 +4500,7 @@
       if (outOfStock.length) {
         candidates.push({
           rank: 70,
-          tone: 'high', accent: '#f7a21b',
+          tone: 'high', accent: '#FDB94A',  // was #f7a21b, Lc 60.2 -> 70.0
           label: 'Out of Stock',
           headline: `${outOfStock.length} part${outOfStock.length === 1 ? '' : 's'} at zero`,
           detail: 'Reorder before the next breakdown. Inventory page.',
@@ -4394,8 +4526,33 @@
       candidates.sort((a, b) => b.rank - a.rank);
       const pick = candidates[0];
 
+      // ★ "ALL CLEAR" IS A CLAIM ABOUT THE SIGNALS, SO IT CANNOT BE MADE WHEN THEY DID NOT ARRIVE.
+      // With the reads failing, every candidate is absent, `pick` is undefined, and the card below
+      // told a supervisor "Nothing urgent right now" — the strongest possible reassurance, produced
+      // by the total absence of information. This is the same shape as the marketplace's Retry
+      // answering "No public posts yet" on a feed of 15, and as report-sender's "No contacts saved
+      // yet" mid-flight: an empty variable read as an established fact. Here it is the version that
+      // reaches a person who is deciding whether the plant needs them today.
+      if (!pick && _signalsUnread.length) {
+        el.style.display = 'block';
+        el/* xss-allow: only static strings from _signalsUnread, built in this file */ .innerHTML = `
+          <a href="alert-hub.html" class="oh-card"
+             style="display:flex; align-items:center; gap:14px; padding:18px; text-decoration:none; border-left:3px solid var(--wh-orange);">
+            <div style="width:36px; height:36px; border-radius:50%; background:rgba(247,162,27,0.12); color:var(--wh-orange-text); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;">&#9888;</div>
+            <div style="flex:1; min-width:0;">
+              <p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-orange-text); margin:0 0 2px;">${_t('Could not check','Hindi ma-check')}</p>
+              <p style="font-size:.92rem; font-weight:700; color:var(--wh-cloud); margin:0;">${_t('This is not an all-clear.','Hindi ito all-clear.')}</p>
+              <p style="font-size:.72rem; color:rgba(255,255,255,.6); margin:3px 0 0;">${_t(
+                'Could not read: ' + _signalsUnread.join(', ') + '. Reload, or open Alert Hub directly.',
+                'Hindi mabasa: ' + _signalsUnread.join(', ') + '. I-reload, o buksan ang Alert Hub.')}</p>
+            </div>
+            <span style="font-size:.7rem; color:rgba(255,255,255,.6);">&#8594;</span>
+          </a>`;
+        return;
+      }
+
       if (!pick) {
-        // Empty / all-clear state.
+        // Empty / all-clear state — reached only when the signals were actually READ and were empty.
         el.style.display = 'block';
         el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
           <a href="${role === 'supervisor' /* role-check-allow: display-role (nav-mode||hive_role) */ ? 'alert-hub.html' : ((jobs.length === 0 && closedToday === 0) ? 'logbook.html' : 'pm-scheduler.html')}" class="oh-card"
@@ -4510,11 +4667,11 @@
             <span class="ac-lbl">${_t('Jobs Closed','Tapos na Trabaho')}</span>
           </div>
           <div style="text-align:center; border-left:1px solid rgba(255,255,255,.06); border-right:1px solid rgba(255,255,255,.06);">
-            <span class="ac-num" style="color:var(--wh-blue);">${pmDoneToday === null ? '&mdash;' : pmDoneToday}</span>
+            <span class="ac-num" style="color:var(--wh-blue-text);">${pmDoneToday === null ? '&mdash;' : pmDoneToday}</span>
             <span class="ac-lbl">${_t('PM Done','Tapos na PM')}</span>
           </div>
           <div style="text-align:center;">
-            <span class="ac-num" style="color:var(--wh-violet);">${risks.length}</span>
+            <span class="ac-num" style="color:var(--wh-violet-text);">${risks.length}</span>
             <span class="ac-lbl">${_t('Active Alerts','Aktibong Alerto')}</span>
           </div>
         </div>`;
