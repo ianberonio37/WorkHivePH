@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 17 May 2026
+Updated 17 Aug 2026
 ·
 10 min read
 
@@ -73,6 +73,8 @@ The quality inspector pulled 1,728 bars with wrapping defects (sealed crooked, l
 ### Step 5: OEE
 
 This is roughly the median Philippine plant. Not embarrassing, not impressive. The number itself is the starting line, not the finish line.
+
+To run this on your own line without redoing the arithmetic, use the free [OEE calculator](https://workhiveph.com/tools/oee-calculator/) — enter planned time, downtime, ideal cycle time, and your good and total counts, and it returns Availability, Performance, Quality and OEE separately, which is what tells you *which* of the three is costing you.
 
 ## The 6 big losses OEE catches
 
@@ -180,4 +182,4 @@ No. Utilization only measures how much time the equipment ran versus calendar ti
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: f44f8e68179972d1 -->
+<!-- md-twin source-sha: 9fac813bcce7f763 -->
