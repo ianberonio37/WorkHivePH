@@ -108,9 +108,16 @@ def analyze(html: str) -> dict:
     # digit ANYWHERE in the body, which a copyright year satisfies. This one
     # interrogates the answer-first BLOCK itself, which is the text an engine lifts:
     #   a number  +  a unit or currency  +  a proper noun (something named)
-    m_af = re.search(r'class="answer-first"[^>]*>(.*?)</(?:div|p)>', body, re.S)
-    opener = _html.unescape(_TAG_RE.sub(" ", m_af.group(1))) if m_af else _html.unescape(
-        _TAG_RE.sub(" ", paras[0]) if paras else "")
+    # The opener is the answer-first block. Capturing it with (.*?)</(?:div|p)> stopped
+    # at the first INNER </p>, truncating the block before its own figures — dilo-wilo
+    # was scored short while its opener already read "2 to 3 hours". Take a bounded
+    # window after the marker instead; the block is always short, and nesting cannot
+    # break a window the way it breaks a non-greedy close-tag match.
+    i_af = body.find('class="answer-first"')
+    if i_af != -1:
+        opener = _html.unescape(_TAG_RE.sub(" ", body[i_af:i_af + 1400]))
+    else:
+        opener = _html.unescape(_TAG_RE.sub(" ", paras[0])) if paras else ""
     has_num = bool(re.search(r"\d", opener))
     # A unit may sit either side of its number and need not be adjacent to it:
     # "$20 per user per month" puts the currency BEFORE the digits and the period

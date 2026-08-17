@@ -14,7 +14,7 @@ Updated 17 May 2026
 ·
 9 min read
 
-**Short answer:** DILO (Day In the Life Of), WILO (Week), MILO (Month), and YILO (Year) are cascading planning views that force a plant supervisor, engineer, or planner to design what an ideal day, week, month, and year should look like, then measure reality against the ideal. Used right, the method protects 2 to 3 hours of strategic work every day from the reactive flood that consumes most leadership schedules. Used wrong, it becomes another planning tool that gets abandoned in week 3.
+**Short answer:** DILO (Day In the Life Of), WILO (Week), MILO (Month), and YILO (Year) are cascading planning views that force a plant supervisor, engineer, or planner to design what an ideal day, week, month, and year should look like, then measure reality against the ideal. Used right, the method protects 2 to 3 hours of strategic work every day from the reactive flood that consumes most leadership schedules. Used wrong, it becomes another planning tool that gets abandoned in week 3. The method exists to protect the strategic **30 percent** of a supervisor’s day from the reactive **70 percent**, so the plant improves year over year instead of merely surviving day to day.
 
 Who this is for
 
@@ -183,4 +183,4 @@ Two weeks for personal results (less end-of-day stress, better sleep, fewer carr
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: c9c35d909f42e642 -->
+<!-- md-twin source-sha: 8341b02d6230248e -->
