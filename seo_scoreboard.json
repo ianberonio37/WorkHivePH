@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-17T06:56:08+00:00",
+  "generated_at": "2026-08-17T06:57:30+00:00",
   "pillars": {
     "SEO": {
-      "achieved": 713,
+      "achieved": 714,
       "total": 717,
-      "pct": 99.4,
-      "local_pct": 99.9,
+      "pct": 99.6,
+      "local_pct": 100.0,
       "ian_blocked": 3
     },
     "AEO": {
@@ -40,20 +40,20 @@
   "overall_pct": 78.1,
   "local_pct": 95.0,
   "weakest": "GEO",
-  "point_pct": 95.8,
+  "point_pct": 95.9,
   "overall": [
-    1201,
+    1202,
     1254
   ],
   "local": [
-    1201,
+    1202,
     1239
   ],
   "components": {
     "SEO": [
       [
         "exactly one H1",
-        118,
+        119,
         119,
         "seo_technical",
         false
