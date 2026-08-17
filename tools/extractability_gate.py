@@ -46,7 +46,7 @@ import platform_catalog as pc  # noqa: E402
 
 BASELINE_PATH = ROOT / "extractability_baseline.json"
 REPORT_PATH = ROOT / "extractability_report.json"
-CHECK_ORDER = ["answer_first", "has_statistic", "has_citation"]
+CHECK_ORDER = ["answer_first", "has_statistic", "has_citation", "answer_quality"]
 
 # Authoritative-source signals an article may cite (standards bodies, agencies,
 # or any outbound link). Conservative: any ONE clears has_citation.
@@ -101,7 +101,31 @@ def analyze(html: str) -> dict:
     visible = _TAG_RE.sub(" ", body)
     has_statistic = bool(re.search(r"\d", visible))
     has_citation = bool(_CITE_RE.search(body))
-    return {"answer_first": answer_first, "has_statistic": has_statistic, "has_citation": has_citation}
+
+    # answer_quality (V3 §3) — the three checks above prove a lever is PRESENT; none
+    # tells a good opener from a placeholder. has_statistic in particular matches any
+    # digit ANYWHERE in the body, which a copyright year satisfies. This one
+    # interrogates the answer-first BLOCK itself, which is the text an engine lifts:
+    #   a number  +  a unit or currency  +  a proper noun (something named)
+    m_af = re.search(r'class="answer-first"[^>]*>(.*?)</(?:div|p)>', body, re.S)
+    opener = _TAG_RE.sub(" ", m_af.group(1)) if m_af else (
+        _TAG_RE.sub(" ", paras[0]) if paras else "")
+    has_num = bool(re.search(r"\d", opener))
+    # A unit may sit either side of its number and need not be adjacent to it:
+    # "$20 per user per month" puts the currency BEFORE the digits and the period
+    # three words after. Requiring `\d+\s*unit` failed every page including ones
+    # that plainly qualify — 0/53 was the detector, not the corpus.
+    has_unit = bool(re.search(
+        r"(?:[$₱€£]|PHP|USD)\s*\d"
+        r"|\d+(?:\.\d+)?\s*(?:%|percent|x|×)"
+        r"|(?:kW|kVA|kVAR|HP|hrs?|hours?|days?|weeks?|months?|years?|mm|cm|km|kg|Hz|bar|psi|"
+        r"MTBF|MTTR|OEE|DFU|WFU|lux|CFM)",
+        opener, re.I))
+    has_proper = bool(re.search(r"(?:[A-Z]{2,}|[A-Z][a-z]+\s+[A-Z][a-z]+)", opener))
+    answer_quality = bool(opener) and has_num and has_unit and has_proper
+
+    return {"answer_first": answer_first, "has_statistic": has_statistic,
+            "has_citation": has_citation, "answer_quality": answer_quality}
 
 
 def run_checks(cat: dict | None = None) -> dict:
@@ -118,6 +142,10 @@ def run_checks(cat: dict | None = None) -> dict:
         if not v["has_statistic"]:
             checks["has_statistic"]["issues"].append(
                 {"page": page, "reason": f"{page} body has no statistic/number (Princeton: stats lift AI citation up to +40%)"})
+        if not v["answer_quality"]:
+            checks["answer_quality"]["issues"].append(
+                {"page": page, "reason": f"{page} opener lacks a number+unit+named entity "
+                                         f"(presence is not quality — the opener is what an engine lifts)"})
         if not v["has_citation"]:
             checks["has_citation"]["issues"].append(
                 {"page": page, "reason": f"{page} cites no authoritative source (Princeton: cite-sources lifts citation up to +40%)"})
