@@ -179,11 +179,21 @@ def run_checks(cat: dict | None = None, html: str | None = None) -> dict:
     # 5 — numeric "N tools|guides|calculators" claims match the catalog (adjective-tolerant)
     n_articles = len(cat.get("articles", []))
     n_tools = len(_catalog_tool_routes(cat))
+    # `tools` was DERIVED here and then never used: the comment above and the docstring
+    # both promise "N tools|guides|calculators", but `expect` only ever held guides and
+    # articles, so a stale tool count on the landing page was unwatched. Wiring it is a
+    # no-op today (the stripped DOM makes no tool claim) — which is exactly when it is
+    # safe to add, because the ratchet locks the current truth instead of inheriting a
+    # backlog. Note this is deliberately NOT applied to /learn: the platform guide says
+    # "28 connected tools" and is right — its four stage tables hold 28 rows over 26
+    # distinct links, because two tools do double duty, which the page states outright.
+    # The catalog's 24 routes is a different scope, not a smaller truth.
     expect = {"guides": n_articles, "guide": n_articles,
-              "articles": n_articles, "article": n_articles}
+              "articles": n_articles, "article": n_articles,
+              "tools": n_tools, "tool": n_tools}
     dom_text = re.sub(r"<[^>]+>", " ", dom)
     # number, up to 3 marketing adjectives, then the noun:  "38 in-depth practical guides"
-    for m in re.finditer(r"\b(\d{1,3})\s+(?:[a-z][a-z\-]+\s+){0,3}(guides?|articles?)\b",
+    for m in re.finditer(r"\b(\d{1,3})\s+(?:[a-z][a-z\-]+\s+){0,3}(guides?|articles?|tools?)\b",
                          dom_text, re.IGNORECASE):
         claimed, noun = int(m.group(1)), m.group(2).lower()
         want = expect.get(noun)
