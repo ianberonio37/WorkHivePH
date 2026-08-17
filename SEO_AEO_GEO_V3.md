@@ -136,14 +136,18 @@ Both positions are defensible, which is why this needs deciding rather than assu
 
 **Measured state.** Nothing owns this. No doc, no metric, no gate — and the audit shows why that mattered:
 
-| Lever | State | Evidence |
+| Lever | State (P0 shipped 2026-08-05) | Evidence |
 |---|---|---|
-| Fast loading | unmeasured on the new surface | `cwv_gate` catalog-derived → 58 surfaces, 50 measured, **0 calculator pages** |
-| Mobile-friendly | **never checked** | `validate_mobile.py` does not scan `/learn` or `/tools` |
-| Clear CTAs | no instrument | — |
-| UX & trust signals | **failing** | **60/60 calculator pages: no CSS, no header, no footer, no fonts** |
+| Fast loading | **now in scope, being measured** | `indexable_pages()` 58 → 119; `cwv` correctly failed on 69 never-measured surfaces, probe run |
+| Mobile-friendly | **viewport gated**; app-checks still app-only | `page-shell` asserts `width=device-width`; `validate_mobile.py` deliberately not extended (its safe-area/overscroll/animation checks false-positive on static content) |
+| Clear CTAs | still no instrument | the one lever of the four with no gate |
+| UX & trust signals | **FIXED** | 60/60 now carry CSS + header + footer + webfont; 9,594 → 16,858 bytes; locked by `page-shell` |
 
-**Gap.** The 60-page defect is the priority: those pages are committed and will deploy in that state. They also contain the best work of the session — real worked numbers computed at build time, standards citations, valid schema — presented as unstyled text. The content is right and the shell is missing.
+**Gap (as found).** The 60-page defect was the priority: committed, deploy-bound, and containing the best work of the session — real worked numbers computed at build time, standards citations, valid schema — presented as unstyled text. The content was right; the shell was missing.
+
+**P0 shipped (commits `7ae1bb2c`, `f5d34258`).** The chrome lived inline in `build_pillar_pages._page`, so there was nothing to reuse — extracted to `HEAD_ASSETS` / `SITE_HEADER` / `site_footer()` and imported by both generators (proven a no-op on articles: a pillar page regenerates byte-identical at 27,239). `indexable_pages()` now derives from `sitemap.xml`, lifting `seo_technical`, `cwv` and `orphan_depth` from 58 to 119 surfaces. `page-shell` locks it, with teeth proven both directions.
+
+**Still open:** the CTA instrument, and `cwv` coverage until the probe finishes.
 
 **90-day target.** Every public page renders in the site shell; `cwv` and `mobile` both scoped to 119/119; CWV within 2026 thresholds; every page has one unambiguous next action.
 
@@ -161,7 +165,7 @@ The rule V2 established and V3 keeps: **no axis is done until it is observed.** 
 | AEO | `extractability` | green; answer-first on 113 pages | + answer-quality (digit·unit·source) |
 | GEO | live SOV | **never run** | a real SoM number, rising |
 | AIO | `aio-readiness` | not built; credibility **0 independent sources** | ≥2 per pillar + 1 listicle |
-| SXO | `page-shell`, `cwv`, `mobile` | **60/60 pages unstyled**; mobile unscanned | 119/119 shelled, measured, mobile-clean |
+| SXO | `page-shell`, `cwv` | **60/60 shelled + gated**; cwv measuring 119 | CWV within 2026 thresholds; a CTA instrument |
 
 ---
 
@@ -169,9 +173,7 @@ The rule V2 established and V3 keeps: **no axis is done until it is observed.** 
 
 One at a time, in this order, for stated reasons.
 
-**P0 · SXO** — restyle the 60 calculator pages through the existing site template (`build_pillar_pages.STYLE` + header/footer — **reuse, do not author new CSS**), then add `page-shell`. First because these pages deploy broken otherwise, and because every other pillar's payoff routes through them.
-
-**P0b · the catalog fix** — make `indexable_pages()` derive from `sitemap.xml`. One change that lifts `seo-technical`, `cwv` and `orphan-depth` from 58 to 119 surfaces. Cheap, and it removes a false green.
+**P0 · SXO — DONE.** Calculator pages restyled through the shared chrome; `page-shell` added and proven. `indexable_pages()` now sitemap-derived (58 → 119), removing the false green that let this ship unseen. Remaining: CWV measurement of the newly-in-scope surfaces, and a CTA instrument.
 
 **P1 · AIO** — multi-source credibility on the pillars; build `aio-readiness`.
 
