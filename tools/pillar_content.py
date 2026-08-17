@@ -74,7 +74,7 @@ PILLARS = [
             "tagged to equipment; (3) turn recurring jobs into a <strong>preventive-maintenance schedule</strong>; "
             "and (4) run a structured <strong>shift handover</strong> so nothing is lost between crews. "
             "A small plant can complete all four in about 30 days at zero software cost &mdash; and studies "
-            "show preventive maintenance costs 3&ndash;9 times less than the reactive repairs it prevents."),
+            "show a preventive programme runs about <strong>12&ndash;18% cheaper</strong> than running reactive, with a further 8&ndash;12% from adding predictive maintenance (US Department of Energy / PNNL)."),
         "sections": [
             {"id": "why", "h2": "Why digitise maintenance at all",
              "html": "<p>The spreadsheet a plant inherits from a departed engineer is a liability: the formulas drift, the tabs multiply, and the one person who understood it is gone. Digital maintenance replaces that with structured, searchable, portable records. The payoff is not fancy dashboards &mdash; it is that a technician can answer &ldquo;when did we last replace this seal, and why?&rdquo; in ten seconds instead of never. The US Department of Energy puts a preventive programme at roughly <strong>12-18% cheaper</strong> than running reactive, with a further 8-12% from adding predictive maintenance, which is why the sequence below front-loads recording and scheduling.</p>"},

@@ -27,6 +27,7 @@ CLI:
 from __future__ import annotations
 
 import re
+import html as _html
 import sys
 import json
 from pathlib import Path
@@ -108,7 +109,7 @@ def analyze(html: str) -> dict:
     # interrogates the answer-first BLOCK itself, which is the text an engine lifts:
     #   a number  +  a unit or currency  +  a proper noun (something named)
     m_af = re.search(r'class="answer-first"[^>]*>(.*?)</(?:div|p)>', body, re.S)
-    opener = _TAG_RE.sub(" ", m_af.group(1)) if m_af else (
+    opener = _html.unescape(_TAG_RE.sub(" ", m_af.group(1))) if m_af else _html.unescape(
         _TAG_RE.sub(" ", paras[0]) if paras else "")
     has_num = bool(re.search(r"\d", opener))
     # A unit may sit either side of its number and need not be adjacent to it:

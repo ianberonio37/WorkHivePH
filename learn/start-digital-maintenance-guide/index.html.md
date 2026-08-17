@@ -6,7 +6,7 @@ Source: https://workhiveph.com/learn/start-digital-maintenance-guide/
 
 By WorkHive Editorial Team · Updated 2026-08-05 · 8 min read
 
-To go from spreadsheets to digital maintenance, do four things in order: (1) start a **digital logbook** so every job is recorded the day it happens; (2) build an **asset register** using ISO 14224 hierarchy so every record is tagged to equipment; (3) turn recurring jobs into a **preventive-maintenance schedule**; and (4) run a structured **shift handover** so nothing is lost between crews. A small plant can complete all four in about 30 days at zero software cost — and studies show preventive maintenance costs 3–9 times less than the reactive repairs it prevents.
+To go from spreadsheets to digital maintenance, do four things in order: (1) start a **digital logbook** so every job is recorded the day it happens; (2) build an **asset register** using ISO 14224 hierarchy so every record is tagged to equipment; (3) turn recurring jobs into a **preventive-maintenance schedule**; and (4) run a structured **shift handover** so nothing is lost between crews. A small plant can complete all four in about 30 days at zero software cost — and studies show a preventive programme runs about **12–18% cheaper** than running reactive, with a further 8–12% from adding predictive maintenance (US Department of Energy / PNNL).
 
 ## Why digitise maintenance at all
 
@@ -65,4 +65,4 @@ Yes, if the tool is offline-first. WorkHive captures entries locally and syncs w
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: edd193607c98e4a0 -->
+<!-- md-twin source-sha: 49d74fc45c3b1a9e -->
