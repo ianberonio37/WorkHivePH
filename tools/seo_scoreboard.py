@@ -122,7 +122,10 @@ def collect() -> dict:
         ("LCP / INP / CLS within threshold",
          3 - sum(1 for k in ("lcp_over", "inp_over", "cls_over") if cwv.get(k)), 3, "cwv", False),
         ("CWV measured across the surface", *ok(n_pages, cwv.get("coverage")), "cwv", False),
-        ("mobile gate covers content surface", 0, 1, "validate_mobile (app-only)", False),
+        ("mobile fitness on the content surface",
+         _rep("content_mobile_report.json").get("pages", 0)
+         - _rep("content_mobile_report.json").get("failures", 0),
+         _rep("content_mobile_report.json").get("pages", 1), "content-mobile", False),
     ]
     return P
 

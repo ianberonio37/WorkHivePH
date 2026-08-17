@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-17T06:57:30+00:00",
+  "generated_at": "2026-08-17T07:01:27+00:00",
   "pillars": {
     "SEO": {
       "achieved": 714,
@@ -30,24 +30,24 @@
       "ian_blocked": 7
     },
     "SXO": {
-      "achieved": 295,
-      "total": 296,
-      "pct": 99.7,
-      "local_pct": 99.7,
+      "achieved": 409,
+      "total": 409,
+      "pct": 100.0,
+      "local_pct": 100.0,
       "ian_blocked": 0
     }
   },
-  "overall_pct": 78.1,
+  "overall_pct": 78.2,
   "local_pct": 95.0,
   "weakest": "GEO",
-  "point_pct": 95.9,
+  "point_pct": 96.3,
   "overall": [
-    1202,
-    1254
+    1316,
+    1367
   ],
   "local": [
-    1202,
-    1239
+    1316,
+    1352
   ],
   "components": {
     "SEO": [
@@ -235,10 +235,10 @@
         false
       ],
       [
-        "mobile gate covers content surface",
-        0,
-        1,
-        "validate_mobile (app-only)",
+        "mobile fitness on the content surface",
+        114,
+        114,
+        "content-mobile",
         false
       ]
     ]
