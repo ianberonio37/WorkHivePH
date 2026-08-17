@@ -174,6 +174,51 @@ def _assert_no_entities(p: dict) -> None:
             f"Use the character itself (— … ’). Offenders: " + "; ".join(bad))
 
 
+# ── SHARED SITE CHROME ────────────────────────────────────────────────────────
+# Extracted so tools/build_calc_pages.py renders the SAME shell. The 60 calculator
+# pages shipped with none of this — no CSS, header, footer or fonts — which is the
+# SXO defect V3 opens with. Import these; never re-author the markup, or the two
+# surfaces drift the first time either changes.
+HEAD_ASSETS = """  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      orange: { wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' },
+      blue:   { wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' },
+      navy:   { wh: '#162032', mid: '#1F2E45', light: '#2A3D58' },
+      steel: '#7B8794', cloud: '#F4F6FA',
+    } } } };
+  </script>"""
+
+SITE_HEADER = """<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3">
+      <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
+      <span class="font-black text-lg tracking-tight">WorkHive</span>
+    </a>
+    <nav class="flex items-center gap-6">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/learn/" class="nav-link">Learn</a>
+      <a href="/#join" class="nav-link">Join the Hive</a>
+    </nav>
+  </div>
+</header>"""
+
+def site_footer(pub: str) -> str:
+    return """<footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="%s">%s</time></p>
+    <div class="flex items-center gap-6">
+      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
+      <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
+      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
+    </div>
+  </div>
+</footer>""" % (pub, pub)
+
+
 def _page(p: dict) -> str:
     _assert_no_entities(p)
     e = html.escape
@@ -223,37 +268,14 @@ def _page(p: dict) -> str:
 {_jsonld(p)}
   </script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {{ theme: {{ extend: {{ colors: {{
-      orange: {{ wh: '#F7A21B', dark: '#D88A0E', light: '#FDB94A' }},
-      blue:   {{ wh: '#29B6D9', dark: '#1A9ABF', light: '#5FCCE8' }},
-      navy:   {{ wh: '#162032', mid: '#1F2E45', light: '#2A3D58' }},
-      steel: '#7B8794', cloud: '#F4F6FA',
-    }} }} }} }};
-  </script>
+{HEAD_ASSETS}
 {STYLE}
 {URL_BRIDGE}
 {GA4}
 </head>
 <body class="bg-navy-wh text-white antialiased">
 
-<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
-  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-3">
-      <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" style="height: 36px; width: auto;" />
-      <span class="font-black text-lg tracking-tight">WorkHive</span>
-    </a>
-    <nav class="flex items-center gap-6">
-      <a href="/" class="nav-link">Home</a>
-      <a href="/learn/" class="nav-link">Learn</a>
-      <a href="/#join" class="nav-link">Join the Hive</a>
-    </nav>
-  </div>
-</header>
+{SITE_HEADER}
 
 <article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
@@ -305,16 +327,7 @@ def _page(p: dict) -> str:
   </div>
 </article>
 
-<footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
-  <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="{PUB}">{PUB}</time></p>
-    <div class="flex items-center gap-6">
-      <a href="/" class="hover:text-white/60 transition-colors">Home</a>
-      <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
-      <a href="/#join" class="hover:text-white/60 transition-colors">Join the Hive</a>
-    </div>
-  </div>
-</footer>
+{site_footer(PUB)}
 
 <script defer src="../../wh-feedback-fab.js"></script>
 </body>

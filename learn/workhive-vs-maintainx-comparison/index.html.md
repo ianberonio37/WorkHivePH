@@ -64,4 +64,4 @@ WorkHive is a browser-based progressive web app that installs to the home screen
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 2bd2019cd2f151a8 -->
+<!-- md-twin source-sha: 5e6aaec19ef608ac -->

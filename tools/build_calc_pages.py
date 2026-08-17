@@ -50,6 +50,12 @@ PILLAR = ("/learn/free-engineering-calculators-philippine-plants/",
 
 if str(PYAPI) not in sys.path:
     sys.path.insert(0, str(PYAPI))
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+
+# The site shell, imported so the calculator pages render identically to /learn.
+# They shipped with NO css/header/footer/fonts (V3 §6) — never re-author this markup.
+from build_pillar_pages import HEAD_ASSETS, SITE_HEADER, STYLE, site_footer, PUB  # noqa: E402
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -833,9 +839,16 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
 <script type="application/ld+json">
 {jsonld}
 </script>
+{HEAD_ASSETS}
+{STYLE}
 </head>
-<body>
-  <main>
+<body class="bg-navy-wh text-white antialiased">
+
+{SITE_HEADER}
+
+<article class="hex-pattern">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8 py-14 lg:py-20">
+    <main class="prose-wh">
     <nav aria-label="Breadcrumb"><a href="{e(PILLAR[0])}">{e(PILLAR[1])}</a> &rsaquo; {e(data['title'])}</nav>
     <h1>{e(data['title'])}</h1>
 
@@ -883,7 +896,13 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
         <li><a href="{e(rel[0])}">{e(rel[1])}</a></li>
       </ul>
     </section>
-  </main>
+    </main>
+  </div>
+</article>
+
+{site_footer(PUB)}
+
+<script defer src="/wh-feedback-fab.js"></script>
 </body>
 </html>
 """

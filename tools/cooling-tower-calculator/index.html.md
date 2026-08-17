@@ -4,54 +4,32 @@
 
 Source: https://workhiveph.com/tools/cooling-tower-calculator/
 
+Cooling Tower Sizing Calculator
 **The Cooling Tower Sizing Calculator finds the tower range, approach, and effectiveness for a heat-rejection duty at a design wet-bulb. Example: for a 500 kW heat-rejection duty at a 28 °C design wet-bulb, Heat rejection = 142.17 TR, Range = 5.5 °C, Approach = 1.5 °C, Effectiveness = 0.79 (per CTI STD-201 | ASHRAE 2021 Ch.39 | ASHRAE 90.1 | ASME PTC 23).**
-
-## How it works
-
+How it works
 Computed from your inputs per CTI STD-201 | ASHRAE 2021 Ch.39 | ASHRAE 90.1 | ASME PTC 23.
-
-## Worked example (HVAC & Cooling)
-
+Worked example (HVAC & Cooling)
 Inputs: a 500 kW heat-rejection duty at a 28 °C design wet-bulb.
-
-| Result | Value |
-| --- | --- |
-| Heat rejection | 142.17 TR |
-| Range | 5.5 °C |
-| Approach | 1.5 °C |
-| Effectiveness | 0.79 |
-
+ResultValue
+Heat rejection142.17 TR
+Range5.5 °C
+Approach1.5 °C
+Effectiveness0.79
 Computed live by WorkHive's calculation engine; standard: CTI STD-201 | ASHRAE 2021 Ch.39 | ASHRAE 90.1 | ASME PTC 23.
-
-## How to use this calculator
-
-1. Enter the figures for the duty you are sizing — the worked example below uses a 500 kW heat-rejection duty at a 28 °C design wet-bulb.
-2. The calculator returns Heat rejection, Range, Approach, Effectiveness, computed per CTI STD-201 | ASHRAE 2021 Fundamentals.
-3. Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.
-
-## FAQ
-
-### What is a cooling tower sizing calculator range approach?
-
-The Cooling Tower Sizing Calculator is a free online tool that computes finds the tower range, approach, and effectiveness for a heat-rejection duty at a design wet-bulb. It shows the formula and a fully worked example so you can check the method, not just the number.
-
-### How is it calculated?
-
-The result is computed from your inputs following CTI STD-201 | ASHRAE 2021 Fundamentals. The worked example on this page shows a real computation with real numbers.
-
-### Is the calculator free?
-
-Yes. WorkHive's engineering calculators are free to use — no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
-
-## Run it on your own numbers
-
+How to use this calculator
+Enter the figures for the duty you are sizing — the worked example below uses a 500 kW heat-rejection duty at a 28 °C design wet-bulb.
+The calculator returns Heat rejection, Range, Approach, Effectiveness, computed per CTI STD-201 | ASHRAE 2021 Fundamentals.
+Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.
+FAQ
+What is a cooling tower sizing calculator range approach?The Cooling Tower Sizing Calculator is a free online tool that computes finds the tower range, approach, and effectiveness for a heat-rejection duty at a design wet-bulb. It shows the formula and a fully worked example so you can check the method, not just the number.
+How is it calculated?The result is computed from your inputs following CTI STD-201 | ASHRAE 2021 Fundamentals. The worked example on this page shows a real computation with real numbers.
+Is the calculator free?Yes. WorkHive's engineering calculators are free to use — no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
+Run it on your own numbers
 [Open the interactive Cooling Tower Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html) — free, no sign-up needed for the calculators.
+Related calculators
+[Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
+[HVAC Cooling Load Calculator](https://workhiveph.com/tools/hvac-cooling-load-calculator/)
+[Ventilation / ACH Calculator](https://workhiveph.com/tools/ventilation-ach-calculator/)
+[Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
 
-## Related calculators
-
-- [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
-- [HVAC Cooling Load Calculator](https://workhiveph.com/tools/hvac-cooling-load-calculator/)
-- [Ventilation / ACH Calculator](https://workhiveph.com/tools/ventilation-ach-calculator/)
-- [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
-
-<!-- md-twin source-sha: a77b06e4047f8b48 -->
+<!-- md-twin source-sha: 9ac951550901f25b -->

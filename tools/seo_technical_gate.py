@@ -85,18 +85,45 @@ _IMG_RE = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
 
 
 def indexable_pages(cat: dict | None = None) -> list[str]:
-    """The indexable public surfaces, DERIVED from the catalog (+ the static set).
-    A new /learn article flows in automatically — no hand-maintained list to rot."""
-    cat = cat or pc.build_catalog()
+    """Every indexable public surface, DERIVED FROM sitemap.xml.
+
+    Was catalog-derived (static set + `articles`), which returned **58** and silently
+    excluded all 60 `/tools/<calc>-calculator/` pages — the largest section of the site.
+    Three gates read this list (`seo_technical_gate`, `cwv_gate`, `orphan_depth_gate`),
+    so "the SEO gates are green" was a claim about 58 of 119 URLs (V3 §0, defect 2).
+
+    The sitemap is the site's own declaration of what it wants indexed, so deriving from
+    it cannot lag the content the way a catalog subset did: anything we ask Google to
+    index is now something the gates check. Catalog articles are still merged in as a
+    backstop, so an article missing from the sitemap is still graded rather than skipped.
+    """
     pages = list(STATIC_PUBLIC)
+
+    # primary source: sitemap.xml
+    try:
+        sm = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
+        for loc in re.findall(r"<loc>([^<]+)</loc>", sm):
+            rel = loc.split("workhiveph.com", 1)[-1].strip("/")
+            if not rel:
+                pages.append("index.html")
+                continue
+            cand = ROOT / rel
+            pages.append(f"{rel}/index.html" if cand.is_dir() else
+                         (rel if "." in Path(rel).name else f"{rel}.html"))
+    except FileNotFoundError:
+        pass
+
+    # backstop: catalog articles (covers anything absent from the sitemap)
+    cat = cat or pc.build_catalog()
     for a in cat.get("articles", []):
         url = (a.get("url") or "").strip("/")
         if url.startswith("learn/"):
             pages.append(f"{url}/index.html")
-    # de-dup, keep order
+
+    # de-dup (keep order), and only surfaces that exist on disk
     seen, out = set(), []
     for p in pages:
-        if p not in seen:
+        if p not in seen and (ROOT / p).exists():
             seen.add(p)
             out.append(p)
     return out
