@@ -4731,6 +4731,91 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # AIO-readiness gate (SEO_AEO_GEO_V3 §5) — the instrument for the pillar V3 split
+        # out of GEO. Three of AIO's four levers were already built; the fourth,
+        # MULTI-SOURCE CREDIBILITY, is the one our own pages cannot supply, and nothing
+        # measured it. At first run every cluster pillar NAMED standards bodies in prose
+        # (SMRP, ISO, DOE, NFPA) and LINKED zero of them — and an AI Overview assembles
+        # agreeing INDEPENDENT sources, so a cluster whose every link points back to
+        # workhiveph.com reads as one unverified source. Hence the bar is LINKED, not
+        # named: >=2 independent external domains per pillar, plus schema completeness and
+        # a resolvable Organization entity. `entity_resolvable` is the one component no
+        # local work can move (it needs real profile URLs in index.html's sameAs), which is
+        # why it is reported separately rather than folded into a single score. Ratcheted
+        # forward-only — the honest initial state was mostly failing, and a permanently-red
+        # gate teaches everyone to ignore it. Static, offline (~0.1s).
+        # Self-test: `python tools/aio_readiness_gate.py --self-test`.
+        "id":      "aio-readiness",
+        "script":  "tools/aio_readiness_gate.py",
+        "args":    [],
+        "label":   "AIO-Readiness Gate (V3 §5: per-pillar schema + >=2 LINKED independent sources + resolvable entity; multi-source credibility for AI Overviews/Copilot; forward-only ratchet)",
+        "group":   "AI Validation",
+        "report":  "aio_readiness_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # CTA gate (SEO_AEO_GEO_V3 §6, SXO) — the last post-click lever with no instrument.
+        # Winning the citation is the expensive half; a visitor who arrives from an AI
+        # answer, reads to the end and finds nowhere to go is the cheapest loss on the
+        # board. Nothing noticed that 19 of 53 /learn articles ended with no next action.
+        # What counts is an IN-BODY link to an ACTION surface (a WorkHive tool or the join
+        # flow). Deliberately excluded: links to other articles (a good next read is not a
+        # next action) and header/footer chrome — every page carries those, so counting
+        # them would score 100% and measure nothing, which is the failure mode this gate
+        # exists to avoid. Ratcheted forward-only. Static, offline (~0.8s).
+        # Self-test: `python tools/cta_gate.py --self-test`.
+        "id":      "cta",
+        "script":  "tools/cta_gate.py",
+        "args":    [],
+        "label":   "CTA Coverage Gate (V3 §6 SXO: every public content page offers a next ACTION; in-body tool/join links only, chrome and cross-article links excluded; forward-only ratchet)",
+        "group":   "AI Validation",
+        "report":  "cta_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # Content-surface mobile gate (SEO_AEO_GEO_V3 §6, SXO) — validate_mobile.py targets
+        # the APP pages and always has; its checks (safe-area insets, overscroll
+        # containment, animation cascade) are about a stateful JS surface and
+        # false-positive on static articles, so extending it was the wrong move. This is
+        # the content-surface equivalent: viewport, responsiveness, >=16px body prose, and
+        # no fixed layout width outside a media query — the four properties that decide
+        # whether a phone visitor arriving from a search result can read the page at all.
+        # Three false-positive classes are pinned by its self-test after measuring produced
+        # each one: `\bwidth` matching inside `max-width` (27 phantom defects, every one an
+        # @media breakpoint), 11px on an eyebrow LABEL read as unreadable body text, and
+        # judging Tailwind responsiveness by @media (27/114 on a site built from one shared
+        # responsive template). Ratcheted forward-only. Static, offline (~0.7s).
+        # Self-test: `python tools/content_mobile_gate.py --self-test`.
+        "id":      "content-mobile",
+        "script":  "tools/content_mobile_gate.py",
+        "args":    [],
+        "label":   "Content-Surface Mobile Gate (V3 §6 SXO: viewport + responsive + >=16px prose + no fixed width across /learn and /tools; forward-only ratchet)",
+        "group":   "AI Validation",
+        "report":  "content_mobile_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # Content-freshness census (SEO_AEO_GEO_STRATEGY_V2 §4.3) — ADVISORY, always exit 0.
+        # Perplexity cites content updated within the last 30 days 82% of the time, and the
+        # refresh cadence was prescribed with nothing measuring it, so it silently did not
+        # happen: at first run 43 of 53 articles were 31-90 days old and only 10 were inside
+        # the window. Staleness tiers differ by what the page is for (pillar/comparison 30d,
+        # article 90d, calculator 365d — a formula and a standard do not move).
+        # DELIBERATELY NOT A FAILING CHECK: a blocking gate here would push toward bumping
+        # `dateModified` without editing the content, which is a lie to the crawler, is
+        # trivially detectable by diffing against the previous crawl, and burns exactly the
+        # trust the freshness signal measures. It ranks the refresh queue so a REAL refresh
+        # lands where it pays most. Static, offline (~0.3s).
+        # Self-test: `python tools/content_freshness_gate.py --self-test`.
+        "id":      "content-freshness",
+        "script":  "tools/content_freshness_gate.py",
+        "args":    [],
+        "label":   "Content-Freshness Census (V2 §4.3: staleness per page against tiered targets, ranked refresh queue; ADVISORY — never fails, so it cannot incentivise a fake date bump)",
+        "group":   "AI Validation",
+        "report":  "content_freshness_report.json",
+        "skip_if_fast": True,
+    },
+    {
         # Landing + Home-Dashboard Deep Arc gate (LANDING_DASHBOARD_DEEP_ARC.md) —
         # locks the confirmed front-door defects the arc fixed so they cannot
         # regress: (G6/F4) og:title + twitter:title must equal <title> (the arc
