@@ -14,7 +14,7 @@ Updated 7 Jul 2026
 ·
 12 min read
 
-**Short answer:** WorkHive is a free platform for every Filipino industrial worker, from the technician on the floor to the plant manager. It opens in any phone browser, works offline, and puts a digital logbook, a maintenance planner, a spare-parts tracker, 53 engineering calculators, live team boards, reports, and an AI helper into one connected "hive." It does not replace the systems you already run (like SAP or IBM Maximo): it sits alongside them, and it makes every repair you log useful to the whole team. And it is genuinely free: no per-seat charge, no credit card.
+**Short answer:** WorkHive is a free platform for every Filipino industrial worker, from the technician on the floor to the plant manager. It opens in any phone browser, works offline, and puts a digital logbook, a maintenance planner, a spare-parts tracker, 60 engineering calculators, live team boards, reports, and an AI helper into one connected "hive." It does not replace the systems you already run (like SAP or IBM Maximo): it sits alongside them, and it makes every repair you log useful to the whole team. And it is genuinely free: no per-seat charge, no credit card.
 
 Who this is for
 
@@ -106,7 +106,7 @@ Stage 4 · Act and Prove (do it, share it, leave a trail)
 | [Analytics Report](https://workhiveph.com/analytics-report.html) | A print-ready maintenance report: worst offenders, root causes, machine-health scores, and an AI action plan, saved as a PDF. |
 | [Project Report](https://workhiveph.com/project-report.html) | A print-ready report for a single project: summary, scope, progress, sign-off, and lessons, ready to hand to a contractor or client. |
 | [Audit Log and Compliance](https://workhiveph.com/audit-log.html) | A tamper-evident record of every power action (approvals, edits, deletes, member changes) with who did it and when, ready for an ISO or government review. |
-| [Engineering Design Calculator](https://workhiveph.com/engineering-design.html) | 53 engineering calculators across six disciplines, each done to Philippine standards, each giving you a materials list, a scope of work, and a diagram. |
+| [Engineering Design Calculator](https://workhiveph.com/engineering-design.html) | 60 engineering calculators across six disciplines, each done to Philippine standards, each giving you a materials list, a scope of work, and a diagram. |
 | [Marketplace](https://workhiveph.com/marketplace.html) | A Philippine directory to find parts, training, and jobs from ID-verified sellers when your stock runs low. Contact-only, with no platform fees. |
 | [Report Sender](https://workhiveph.com/report-sender.html) | Sends the shift handover and end-of-day summary to the right people by email. Add contacts by role and deliver a print-ready report. |
 | [CMMS Integration](https://workhiveph.com/integrations.html) | A two-way bridge to your current maintenance system (like SAP or IBM Maximo): import your data, sync jobs, and push completions without dropping what you already use. |
@@ -120,7 +120,7 @@ The platform this guide is about
 
 #### One free hive for your whole plant team
 
-28 connected tools, from the digital logbook to 53 engineering calculators to the AI helper, all in one browser app that works offline on any phone. No per-seat charge, no credit card. Sign up, start logging, and watch the intelligence build as your records grow.
+28 connected tools, from the digital logbook to 60 engineering calculators to the AI helper, all in one browser app that works offline on any phone. No per-seat charge, no credit card. Sign up, start logging, and watch the intelligence build as your records grow.
 
 Ready now? [Join the Hive](https://workhiveph.com/#join) (free, takes about 30 seconds).
 
@@ -196,11 +196,11 @@ WorkHive is a free platform for every Filipino industrial worker, from the techn
 
 ### Is WorkHive really free?
 
-Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 53 engineering calculators, and use the AI helper for free. The marketplace is contact-only, with no platform fees.
+Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 60 engineering calculators, and use the AI helper for free. The marketplace is contact-only, with no platform fees.
 
 ### What tools are inside WorkHive?
 
-WorkHive has 28 connected tools grouped into four stages: Capture (record every repair, part, machine, and skill), Plan (schedule the right person for the right job), Analyze (turn your records into numbers and predictions), and Act and Prove (do the work, hand it over, and keep a defensible trail). Everything from the logbook to 53 engineering calculators to the AI assistant lives in one place, and each tool feeds the next.
+WorkHive has 28 connected tools grouped into four stages: Capture (record every repair, part, machine, and skill), Plan (schedule the right person for the right job), Analyze (turn your records into numbers and predictions), and Act and Prove (do the work, hand it over, and keep a defensible trail). Everything from the logbook to 60 engineering calculators to the AI assistant lives in one place, and each tool feeds the next.
 
 ### Do I need to replace my current system like SAP or Maximo?
 
@@ -286,13 +286,15 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 ## Sources
 
+- [ISO 14224](https://www.iso.org/standard/64076.html), **Collection and exchange of reliability and maintenance data** — the hierarchy the Asset Hub register follows.
+- [DOLE](https://www.dole.gov.ph/), **Occupational Safety and Health Standards**, and [TESDA](https://www.tesda.gov.ph/) National Certificates — what the Audit Log and Skill Matrix are built to satisfy.
 - WorkHive platform positioning and value proposition: "one free hive for every Filipino industrial worker." [workhiveph.com](https://workhiveph.com/)
 - WorkHive "Four Gaps, One Hive" thesis: chaos to coordination, guesswork to the right person, forgetting to remembering, and finding a specialist.
 - WorkHive flywheel model: Capture, Plan, Analyze, and Act and Prove, where every action writes new records back into Capture.
 - WorkHive tool catalog: 28 connected tools across the four stages, each with its own page.
-- WorkHive Engineering Design tool: 53 calculators across six disciplines, referenced to Philippine standards.
+- WorkHive Engineering Design tool: 60 calculators across six disciplines, referenced to Philippine standards.
 - Related WorkHive guides: [Digital logbook rollout](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/) · [AI work assistant](https://workhiveph.com/learn/ai-work-assistant-maintenance-technicians/) · [AI companion](https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/) · [All guides](https://workhiveph.com/learn/)
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 014f8b3f47ed6a5a -->
+<!-- md-twin source-sha: 48ce6b0efb08ede4 -->

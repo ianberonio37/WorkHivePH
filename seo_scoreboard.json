@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-17T07:01:27+00:00",
+  "generated_at": "2026-08-17T07:02:21+00:00",
   "pillars": {
     "SEO": {
       "achieved": 714,
@@ -23,10 +23,10 @@
       "ian_blocked": 5
     },
     "AIO": {
-      "achieved": 11,
+      "achieved": 12,
       "total": 19,
-      "pct": 57.9,
-      "local_pct": 91.7,
+      "pct": 63.2,
+      "local_pct": 100.0,
       "ian_blocked": 7
     },
     "SXO": {
@@ -37,16 +37,16 @@
       "ian_blocked": 0
     }
   },
-  "overall_pct": 78.2,
-  "local_pct": 95.0,
+  "overall_pct": 79.3,
+  "local_pct": 96.7,
   "weakest": "GEO",
   "point_pct": 96.3,
   "overall": [
-    1316,
+    1317,
     1367
   ],
   "local": [
-    1316,
+    1317,
     1352
   ],
   "components": {
@@ -185,7 +185,7 @@
       ],
       [
         "pillar cites >=2 independent sources",
-        5,
+        6,
         6,
         "aio-readiness",
         false
