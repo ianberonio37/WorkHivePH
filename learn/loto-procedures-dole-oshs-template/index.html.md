@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 9 min read
 
-**Short answer:** Lock-Out Tag-Out (LOTO) procedures are crucial for ensuring the safety of workers during maintenance activities. A well-implemented LOTO procedure helps prevent accidents and ensures compliance with regulatory requirements. In this article, we will provide a template for LOTO procedures based on the DOLE OSHS Rule 1063.
+**Short answer:** Lock-Out Tag-Out (LOTO) procedures are crucial for ensuring the safety of workers during maintenance activities. A well-implemented LOTO procedure helps prevent accidents and ensures compliance with regulatory requirements. In this article, we will provide a template for LOTO procedures based on the DOLE OSHS Rule 1063. The stake is statutory, not advisory: under **RA 11058** and **DO 198-18**, wilful failure to comply with an OSH standard carries an administrative fine of up to **₱100,000 per day** until the violation is corrected.
 
 Who this is for
 
@@ -129,8 +129,9 @@ WorkHive Audit Log helps in LOTO procedures by capturing every LOTO event for in
 
 ## Sources
 
+- [Republic Act 11058](https://www.officialgazette.gov.ph/2018/08/17/republic-act-no-11058/) and DOLE **Department Order 198-18** — OSH compliance and administrative penalties.
 - DOLE OSHS Rule 1063: Occupational Safety and Health Standards
 - IIEE Code: Philippine Electrical Code
 - ISO 14224: Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange
 
-<!-- md-twin source-sha: d354998131e2f49a -->
+<!-- md-twin source-sha: ee628fc744a2f50c -->

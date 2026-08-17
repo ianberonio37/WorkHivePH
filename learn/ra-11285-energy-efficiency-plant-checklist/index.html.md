@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 9 min read
 
-**Short answer:** The Republic Act 11285, also known as the Energy Efficiency and Conservation Act, aims to promote energy efficiency and conservation in the Philippines. To ensure compliance, plant managers and workers must understand the requirements and regulations. This checklist provides a comprehensive guide to help plant-floor personnel comply with the law.
+**Short answer:** The Republic Act 11285, also known as the Energy Efficiency and Conservation Act, aims to promote energy efficiency and conservation in the Philippines. To ensure compliance, plant managers and workers must understand the requirements and regulations. This checklist provides a comprehensive guide to help plant-floor personnel comply with the law. The thresholds decide whether this applies to you: a plant consuming **500,000 to under 4 million kWh** a year is a **Type 1** designated establishment and **4 million kWh** or more makes it **Type 2** — both must report annually to the **DOE** and run an energy management system based on **ISO 50001**.
 
 Who this is for
 
@@ -128,8 +128,9 @@ The WorkHive Audit Log captures energy-related actions, such as energy consumpti
 
 ## Sources
 
+- [Republic Act 11285](https://www.officialgazette.gov.ph/2019/04/12/republic-act-no-11285/), **Energy Efficiency and Conservation Act**, and DOE implementing rules (designated-establishment typology thresholds).
 - Department of Energy (DOE). (2020). Republic Act No. 11285.
 - International Organization for Standardization (ISO). (2016). ISO 14224:2016.
 - Society for Maintenance and Reliability Professionals (SMRP). (2019). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: 365453556519e647 -->
+<!-- md-twin source-sha: 9845850aa034fc24 -->
