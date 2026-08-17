@@ -14,7 +14,7 @@ Updated 17 May 2026
 ·
 7 min read
 
-**Short answer:** WorkHive PH Industrial Intelligence is a set of free quarterly benchmark reports built from anonymised data across participating Philippine plants. Plants see how their OEE, MTBF, MTTR, PM compliance, and downtime cost compare to the sector average (manufacturing, food and beverage, power generation, water utilities, electronics, petrochemicals, BMS). Participation is opt-in and fully anonymous; non-participating plants can read the public reports for free without contributing data. This is the only Philippine-specific industrial benchmark dataset that exists.
+**Short answer:** WorkHive PH Industrial Intelligence is a set of free quarterly benchmark reports built from anonymised data across participating Philippine plants. Plants see how their OEE, MTBF, MTTR, PM compliance, and downtime cost compare to the sector average (manufacturing, food and beverage, power generation, water utilities, electronics, petrochemicals, BMS). Participation is opt-in and fully anonymous; non-participating plants can read the public reports for free without contributing data. This is the only Philippine-specific industrial benchmark dataset that exists. This is why context matters more than the number: a “world-class **85 percent OEE**” benchmark from a German automotive plant tells a Cabuyao food plant nothing about whether its own **62 percent** is good or bad.
 
 Who this is for
 
@@ -123,4 +123,4 @@ Yes for the public reports, with attribution to "WorkHive PH Industrial Intellig
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: d1739d680152702d -->
+<!-- md-twin source-sha: a0d9eff61353e14e -->

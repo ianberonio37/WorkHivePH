@@ -15,6 +15,7 @@ Updated 17 May 2026
 9 min read
 
 **Short answer:** A good maintenance shift handover has 5 sections that fit on one screen: equipment status, work in progress, open issues with P1/P2/P3 priority, parts awaiting, and a safety + signature line. It takes 10 to 15 minutes to write at end of shift and 5 minutes to read at start of next. The difference between a good handover and a bad one is usually whether the next shift solves a problem in 5 minutes or rediscovers it in 5 hours.
+ The stake is concrete: a good handover is the difference between the next shift solving a problem in **5 minutes** and rediscovering it over **5 hours**.
 
 Who this is for
 
@@ -163,4 +164,4 @@ The logbook captures individual events as they happen during the shift. The hand
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: a76a5cc70223d93a -->
+<!-- md-twin source-sha: 9aed24cfb76ccabc -->

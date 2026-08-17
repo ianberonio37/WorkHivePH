@@ -15,6 +15,7 @@ Updated 17 May 2026
 9 min read
 
 **Short answer:** MTBF (Mean Time Between Failures) measures how long equipment runs before the next breakdown. MTTR (Mean Time To Repair) measures how long it takes to fix it once it breaks. Higher MTBF and lower MTTR is the goal. Most Philippine plants do not track either, which is why the same fault keeps recurring on the same equipment for years. The fix is not a CMMS purchase. It is a logbook entry per fault, recorded honestly, reviewed weekly.
+ The worked example below uses a cooling-tower pump motor at a Cabuyao food plant running **24 hours a day, 7 days a week** over **12 months**.
 
 Who this is for
 
@@ -182,4 +183,4 @@ No. A digital logbook with structured fault entries (asset name, fault time, res
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 38c159cddae4975d -->
+<!-- md-twin source-sha: 1f6b96e774f2773f -->

@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 9 min read
 
-**Short answer:** FMEA (Failure Mode and Effects Analysis) is a powerful tool to identify and mitigate potential failures in industrial equipment. In this article, we'll walk through a real-life FMEA example on a Philippine bottling line filler. Learn how to prioritize and address potential failures to minimize downtime and maximize productivity.
+**Short answer:** FMEA (Failure Mode and Effects Analysis) is a powerful tool to identify and mitigate potential failures in industrial equipment. In this article, we'll walk through a real-life FMEA example on a Philippine bottling line filler. Learn how to prioritize and address potential failures to minimize downtime and maximize productivity. The arithmetic that drives every RPN decision here: at **PHP 180,000 per hour** and an average **2 hours** of downtime, one filler failure costs **PHP 360,000**.
 
 Who this is for
 
@@ -131,4 +131,4 @@ Use a standard formula to calculate the cost of downtime, taking into account fa
 - DOLE OSHS, 'Guidelines on Occupational Safety and Health in the Philippines'
 - IIEE Code, 'Code of Practice for Electrical Safety in the Philippines'
 
-<!-- md-twin source-sha: c0ca32b3c4876ea2 -->
+<!-- md-twin source-sha: 58516e500ab034e5 -->

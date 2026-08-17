@@ -14,7 +14,7 @@ Updated 17 May 2026
 ·
 8 min read
 
-**Short answer:** The Plant Connections gateway is the operational layer that bridges your plant's OT network (PLCs, SCADA, IoT sensors via OPC-UA or MQTT) and your IT network (WorkHive, SAP, Maximo). Daily operations need three things: a 5-minute health check on the edge gateway, a current sensor inventory with health status, and a documented OT/IT cybersecurity boundary that the IT and reliability teams both signed off on. Plants that operate the gateway well get reliable Stage 3 PdM; plants that treat it as an install-and-forget device get silent data outages that show up as missing alerts.
+**Short answer:** The Plant Connections gateway is the operational layer that bridges your plant's OT network (PLCs, SCADA, IoT sensors via OPC-UA or MQTT) and your IT network (WorkHive, SAP, Maximo). Daily operations need three things: a 5-minute health check on the edge gateway, a current sensor inventory with health status, and a documented OT/IT cybersecurity boundary that the IT and reliability teams both signed off on. Plants that operate the gateway well get reliable Stage 3 PdM; plants that treat it as an install-and-forget device get silent data outages that show up as missing alerts. The daily five-minute health check is the whole discipline: skip it and gateway problems surface **6 to 18 hours** late, as missing alerts.
 
 Who this is for
 
@@ -130,4 +130,4 @@ The gateway continues reading sensor and CMMS data locally and buffers it. Buffe
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: a60380e0a4b7732f -->
+<!-- md-twin source-sha: abc7c75ce45b324d -->

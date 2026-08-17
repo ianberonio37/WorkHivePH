@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 10 min read
 
-**Short answer:** As an OFW-track Filipino engineer, building a portable maintenance portfolio is crucial for career advancement. A well-crafted portfolio showcases your skills and experience to potential overseas employers. In this article, we'll explore how to build a verifiable maintenance portfolio using WorkHive's Skill Matrix and Solo Mode.
+**Short answer:** As an OFW-track Filipino engineer, building a portable maintenance portfolio is crucial for career advancement. A well-crafted portfolio showcases your skills and experience to potential overseas employers. In this article, we'll explore how to build a verifiable maintenance portfolio using WorkHive's Skill Matrix and Solo Mode. What impresses an overseas employer is evidence: a portfolio export carrying **5 years** of fault history from a plant like a Saudi refinery.
 
 Who this is for
 
@@ -132,4 +132,4 @@ While the portfolio is designed for OFW-track engineers, you can still use it to
 - DOLE OSHS, 'Occupational Safety and Health Standards'
 - IIEE Code, 'Code of Ethics for Electrical Engineers'
 
-<!-- md-twin source-sha: 4cbdee2f13906379 -->
+<!-- md-twin source-sha: fd47c399fdd2b4a0 -->

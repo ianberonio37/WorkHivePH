@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 10 min read
 
-**Short answer:** Filipino engineers and maintenance professionals often wonder which engineering association to join. With several options available, choosing the right one can be confusing. This article provides a guide to help you decide.
+**Short answer:** Filipino engineers and maintenance professionals often wonder which engineering association to join. With several options available, choosing the right one can be confusing. This article provides a guide to help you decide. The CPD requirements differ and drive the decision: **PSME** requires **60 CPD points every 3 years**, **IIEE** requires **80**.
 
 Who this is for
 
@@ -137,4 +137,4 @@ The ASEAN Federation of Engineering Organizations (AFEFO) aims to promote engine
 - ISO 14224 (International Organization for Standardization, Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability)
 - SMRP CMRP BoK (Society for Maintenance and Reliability Professionals, Certified Maintenance and Reliability Professional Body of Knowledge)
 
-<!-- md-twin source-sha: 2e37699c53401fda -->
+<!-- md-twin source-sha: 4e0e8fe73479d0fd -->
