@@ -34,10 +34,10 @@ Defect 2 is the structural one. A gate that derives its surface from a catalog i
 | # | Pillar | The question it answers | State | Gate |
 |---|---|---|---|---|
 | 1 | **SEO** | Do we rank on traditional engines? | Strong; **now gated over 119/119** (was 58) | `seo`, `seo-technical`, `sitemap-sync`, `orphan-depth` |
-| 2 | **AEO** | Are we the direct answer? | Present everywhere, **depth uneven** | `extractability` (+ proposed answer-quality) |
+| 2 | **AEO** | Are we the direct answer? | Present everywhere; **quality now measured** (15/53) | `extractability` incl. `answer_quality` |
 | 3 | **GEO** | Do the models reference us? | Built, **unmeasured + entity-blocked** | live SOV (Ian-run) |
-| 4 | **AIO** | Do we appear in AI Overviews? | *New pillar* — partial by accident | proposed `aio-readiness` |
-| 5 | **SXO** | Is the page good once they arrive? | *New pillar* — **P0 shipped**; CTA still ungated | `page-shell` (built), `cwv` |
+| 4 | **AIO** | Do we appear in AI Overviews? | *New pillar* — **5/6 pillars cite sources**; all blocked on `sameAs` | `aio-readiness` (built) |
+| 5 | **SXO** | Is the page good once they arrive? | *New pillar* — **all four levers gated**; 113/113 have a CTA | `page-shell`, `cwv`, `cta` (all built) |
 
 ---
 
@@ -160,10 +160,10 @@ The rule V2 established and V3 keeps: **no axis is done until it is observed.** 
 | Pillar | Instrument | Observed today | 90-day target |
 |---|---|---|---|
 | SEO | gate sweep | green over **119/119** URLs (was 58) | deployed, GSC + Bing live |
-| AEO | `extractability` | green; answer-first on 113 pages | + answer-quality (digit·unit·source) |
+| AEO | `extractability` | green; **answer_quality 15/53** (debt 38, ratcheted) | every pillar opener carries number·unit·source |
 | GEO | live SOV | **never run** | a real SoM number, rising |
-| AIO | `aio-readiness` | not built; credibility **0 independent sources** | ≥2 per pillar + 1 listicle |
-| SXO | `page-shell`, `cwv` | **60/60 shelled + gated**; cwv measuring 119 | CWV within 2026 thresholds; a CTA instrument |
+| AIO | `aio-readiness` | built; **5/6 pillars cite ≥2 sources**; 0/6 ready (sameAs) | entity resolved → 6/6 ready + 1 listicle |
+| SXO | `page-shell`, `cwv`, `cta` | **60/60 shelled**; CWV 119/119 green; **CTA 113/113** | hold; re-measure CWV against production |
 
 ---
 
