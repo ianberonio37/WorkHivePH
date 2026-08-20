@@ -226,8 +226,8 @@ def sha_of(paths):
 _FN_RE = re.compile(r"^[ \t]*(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(", re.M)
 
 
-def _strip_js_comments(src):
-    """Remove // and /* */ comments while preserving string and template literals.
+def _strip_js_comments(src, html=False):
+    """Remove // and /* */ comments (and, for .html, <!-- -->) while preserving string literals.
 
     WHY THIS EXISTS — a PROSE COMMENT was expiring live evidence. v3 segments top-level code by
     counting brackets per line, and it counted them INSIDE COMMENTS. This repo's house style writes
@@ -246,12 +246,25 @@ def _strip_js_comments(src):
     Regex literals are NOT parsed: a regex holding an unbalanced bracket can still mis-segment. That
     is the same exposure v3 already carried, and it fails toward over-sensitivity — a needless
     re-walk — never toward a false green.
+
+    HTML COMMENTS MATTER JUST AS MUCH, and the first cut of v4 missed them. `fn_digests` treats every
+    byte of an .html file outside a function body as top-level content, so `<!-- ... -->` lands in the
+    same bracket-counted stream. Measured on marketplace.html: the single line
+    `<!-- the seller tab routes through getDb( for its rows -->` vanished **592 of 710** keys under
+    v4-without-this. Every page-anchored row in the bank rests on a .html file, so leaving this out
+    would have fixed the shared library and left the larger half of the bank exactly as fragile.
+    Only enabled for .html, since `<!--` is legal (legacy) JS and stripping it there would change
+    meaning rather than remove prose.
     """
     out, i, n = [], 0, len(src)
     quote = None
     while i < n:
         c = src[i]
         nxt = src[i + 1] if i + 1 < n else ""
+        if not quote and html and src.startswith("<!--", i):
+            j = src.find("-->", i + 4)
+            i = (j + 3) if j != -1 else n
+            continue
         if quote:
             out.append(c)
             if c == "\\" and i + 1 < n:      # an escaped quote does not close the literal
@@ -327,7 +340,7 @@ def fn_digests(paths, version=3):
             # v4 digests CODE, not prose. A comment rewritten inside a function body is not a
             # behaviour change, and expiring a live reading for one is exactly the over-sensitivity
             # this mechanism exists to remove.
-            _body = _strip_js_comments(body) if version >= 4 else body
+            _body = _strip_js_comments(body, html=p.endswith(".html")) if version >= 4 else body
             out["%s::%s" % (p, key)] = hashlib.sha256(_body.encode("utf-8")).hexdigest()[:16]
             spans.append((m.start(), j + 1))
         # Allowing indented declarations means NESTED functions match too, and a nested span sits
@@ -352,7 +365,8 @@ def fn_digests(paths, version=3):
         # v4 strips comments BEFORE normalising, which is what stops a prose edit from
         # re-segmenting the statement stream below. See _strip_js_comments: one comment line
         # naming `getDb(` vanished all 881 of utils.js's top-level keys under v3.
-        _top = [_strip_js_comments(c) for c in top] if version >= 4 else top
+        _top = ([_strip_js_comments(c, html=p.endswith(".html")) for c in top]
+                if version >= 4 else top)
         norm = "\n".join(ln.strip() for chunk in _top for ln in chunk.splitlines() if ln.strip())
         if version >= 3:
             # ── ONE BUCKET FOR ALL TOP-LEVEL CODE MADE EVERY SHARED-LIBRARY FIX COST ~340 RE-WALKS ──

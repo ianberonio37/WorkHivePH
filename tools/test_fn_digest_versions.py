@@ -69,6 +69,11 @@ def keys(version):
     return dict(_fresh_gate().fn_digests(["utils.js"], version=version))
 
 
+def keys_of(path, version):
+    rel = os.path.relpath(path, ROOT).replace("\\", "/")
+    return dict(_fresh_gate().fn_digests([rel], version=version))
+
+
 def run():
     ok = True
 
@@ -116,6 +121,29 @@ def run():
     ck(len([k for k in base4 if "::top:" in k]) < len([k for k in base3 if "::top:" in k]),
        "v4 records fewer top-level keys than v3 (%d vs %d - the difference was prose)"
        % (len([k for k in base4 if "::top:" in k]), len([k for k in base3 if "::top:" in k])))
+
+    # ---- 3b. the SAME defect in .html, which is where most of the bank lives -----------
+    # fn_digests treats every byte of an .html file outside a function body as top-level
+    # content, so <!-- --> lands in the same bracket-counted stream. The first cut of v4
+    # stripped only JS comments and left this: one house-style HTML comment naming getDb(
+    # vanished 592 of 710 keys on marketplace.html. Every page-anchored row rests on a
+    # .html file, so missing this would have fixed the shared library and left the larger
+    # half of the bank exactly as fragile.
+    page = os.path.join(ROOT, "marketplace.html")
+    if os.path.exists(page):
+        p_orig = open(page, "rb").read()
+        p_base = set(keys_of(page, 4))
+        try:
+            open(page, "wb").write(
+                b"<!-- the seller tab routes through getDb( for its rows -->\n" + p_orig)
+            lost = len(p_base - set(keys_of(page, 4)))
+            ck(lost == 0, "an HTML comment expires nothing under v4 (%d keys vanish)" % lost)
+            open(page, "wb").write(p_orig.replace(b"<body", b'<body data-probe="1"', 1))
+            moved = len(p_base - set(keys_of(page, 4)))
+            ck(moved > 0, "a REAL markup edit still expires (%d keys move)" % moved)
+        finally:
+            open(page, "wb").write(p_orig)
+        ck(open(page, "rb").read() == p_orig, "marketplace.html restored byte-for-byte")
 
     # ---- 4. the NARROWED stamp must stay safe -----------------------------------------
     # The first cut of narrowed_fn_digests filtered by the exercised FUNCTION keys alone,
