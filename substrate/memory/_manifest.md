@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:779-files
-source_sha: 7a1c7e56db95bc07
+source_sha: ce78fb3fe1334793
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -100,7 +100,7 @@ Entries (name · type · sha):
 - `feedback_an_impossibly_good_result_is_the_defect` · feedback · b5c69946621283f0
 - `feedback_an_inventory_wrong_in_both_directions` · feedback · fa98d1196b01ceaf
 - `feedback_an_oracle_that_does_not_match_the_claim` · feedback · 3e2f05e53d0fbe02
-- `feedback_an_oracles_vocabulary_is_part_of_the_oracle` · feedback · 82e75fe738ff92c5
+- `feedback_an_oracles_vocabulary_is_part_of_the_oracle` · feedback · 2307c90179a0dbd6
 - `feedback_analytics_engine_ufai_chart_truths` · feedback · 46b99242f6940bd6
 - `feedback_analytics_orchestrator_local_edge_cpu_and_b3_guard` · feedback · 82a690177f3b49f5
 - `feedback_ancestor_padding_cannot_move_a_viewport_pinned_box` · feedback · d7fb7cff282a0b8a
@@ -304,7 +304,7 @@ Entries (name · type · sha):
 - `feedback_production_fixes_log` · feedback · 88ce8203d05a21f5
 - `feedback_proposal_first_ux_mockup_loop` · feedback · b63fd33f3c5501e4
 - `feedback_provenance_user_voice_not_internals` · feedback · d625e82bd6e7f509
-- `feedback_psql_autocommit_made_my_teeth_test_permanent` · feedback · 58d7e30d726516c0
+- `feedback_psql_autocommit_made_my_teeth_test_permanent` · feedback · 30ac6a1f9cb5ef4c
 - `feedback_pyapi_validators_fail_in_gate_pass_standalone` · feedback · 182a585703d7273d
 - `feedback_pygame_wmi_hang` · feedback · f4bfb92b4be3af86
 - `feedback_python_ai_chain_mirror` · feedback · 5e8b12c240ad4544
