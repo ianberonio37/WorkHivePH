@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 5 min read
 
-**Short answer:** Your years on the plant floor are already a resume; they are just scattered across logbooks, certificates, and memory. WorkHive's free Resume Builder pulls that history from your Logbook and Skill Matrix, lets you edit every line, and exports a plain PDF that applicant tracking systems can actually read. A worked case: a job asks for air-handling-unit PM experience and your Logbook already holds **14 months** of AHU-3 filter and belt PMs — tailoring surfaces exactly that.
+**Short answer:** Your years on the plant floor are already a resume; they are just scattered across logbooks, certificates, and memory. WorkHive's free Resume Builder pulls that history from your Logbook and Skill Matrix, lets you edit every line, and exports a plain PDF that applicant tracking systems can actually read. A worked case: a job asks for air-handling-unit PM experience and your Logbook already holds **14 months** of AHU-3 filter and belt PMs: tailoring surfaces exactly that.
 
 Who this is for
 
@@ -113,4 +113,4 @@ Your resume lives in your WorkHive account and is not shared with employers or o
 - Harvard University career services: Resumes and Cover Letters guide, on quantified accomplishment statements
 - TESDA National Certification framework (NC I to NC IV): the credential levels Filipino industrial workers list under certifications
 
-<!-- md-twin source-sha: 2e25b921ac612e6b -->
+<!-- md-twin source-sha: ff093c70224768ca -->

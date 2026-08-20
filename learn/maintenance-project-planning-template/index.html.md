@@ -26,7 +26,7 @@ Who this is for
 - Equipment and parts suppliers
 - New engineering graduates joining projects
 
-Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/) — the four-step, zero-budget rollout this article is one step of.
+Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/): the four-step, zero-budget rollout this article is one step of.
 
 ## Maintenance project versus routine PM
 
@@ -189,4 +189,4 @@ SAP PS (Project System) and Maximo Project Management handle the financial side:
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 31abb286500d0061 -->
+<!-- md-twin source-sha: 5ae637e3a54d1e64 -->

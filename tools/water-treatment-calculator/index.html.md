@@ -16,19 +16,19 @@ Peak flow1.5 m³/h
 Turbidity classSlightly Turbid
 Computed live by WorkHive's calculation engine; standard: PNS 1998 / PNSDW.
 How to use this calculator
-Enter the figures for the duty you are sizing — the worked example below uses 200 people on deep-well water at 10 NTU turbidity and 0.5 mg/L iron.
+Enter the figures for the duty you are sizing: the worked example below uses 200 people on deep-well water at 10 NTU turbidity and 0.5 mg/L iron.
 The calculator returns Daily demand, Peak flow, Turbidity class, computed per PNS 1998 / PNSDW.
 Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.
 FAQ
 What is a water treatment plant sizing calculator?The Water Treatment Sizing Calculator is a free online tool that computes finds the design flow and treatment requirements (turbidity, iron, disinfection) for a raw-water source. It shows the formula and a fully worked example so you can check the method, not just the number.
 How is it calculated?The result is computed from your inputs following PNS 1998 / PNSDW. The worked example on this page shows a real computation with real numbers.
-Is the calculator free?Yes. WorkHive's engineering calculators are free to use — no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
+Is the calculator free?Yes. WorkHive's engineering calculators are free to use, no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
 Run it on your own numbers
-[Open the interactive Water Treatment Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html) — free, no sign-up needed for the calculators.
+[Open the interactive Water Treatment Sizing Calculator in WorkHive](https://workhiveph.com/engineering-design.html): free, no sign-up needed for the calculators.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Pump TDH Calculator](https://workhiveph.com/tools/pump-tdh-calculator/)
 [Pipe Sizing Calculator](https://workhiveph.com/tools/pipe-sizing-calculator/)
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
 
-<!-- md-twin source-sha: 8951d6d3436059d9 -->
+<!-- md-twin source-sha: 0b44ffc58975667b -->

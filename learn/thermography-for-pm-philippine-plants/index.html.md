@@ -126,10 +126,10 @@ To integrate thermography into your plant's PM Scheduler, identify critical equi
 
 ## Sources
 
-- [NETA](https://www.netaworld.org/), **Maintenance Testing Specifications (MTS)** — thermographic ΔT action criteria; and [NFPA 70B](https://www.nfpa.org/codes-and-standards), **Electrical Equipment Maintenance**.
+- [NETA](https://www.netaworld.org/), **Maintenance Testing Specifications (MTS)**: thermographic ΔT action criteria; and [NFPA 70B](https://www.nfpa.org/codes-and-standards), **Electrical Equipment Maintenance**.
 - IIEE Thermography Code of Practice
 - DOLE OSHS Guidelines for Preventive Maintenance
 - ISO 14224:2016 Condition monitoring and diagnostics of machines
 - SMRP CMRP BoK Section 4: Predictive Maintenance
 
-<!-- md-twin source-sha: 8219ec6a1ff96373 -->
+<!-- md-twin source-sha: 590f4df462547e0b -->

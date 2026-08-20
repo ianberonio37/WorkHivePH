@@ -26,7 +26,7 @@ Who this is for
 - Auditors verifying records
 - New technicians learning the trade
 
-Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/) — the four-step, zero-budget rollout this article is one step of.
+Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/): the four-step, zero-budget rollout this article is one step of.
 
 ## Why most PMs do not prevent failures
 
@@ -129,4 +129,4 @@ The pattern that works: a PM cannot be marked complete in PM Scheduler unless th
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: fc1848537202c8be -->
+<!-- md-twin source-sha: 2a6fcce7ccf731da -->

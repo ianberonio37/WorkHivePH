@@ -26,7 +26,7 @@ Who this is for
 - New graduates building first-job evidence
 - Existing workers upskilling with AI tools
 
-Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/) — the four-step, zero-budget rollout this article is one step of.
+Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/): the four-step, zero-budget rollout this article is one step of.
 
 ## Why imported ERPs and CMMS keep failing in Philippine plants
 
@@ -233,4 +233,4 @@ The opposite is more likely. The technicians most at risk from AI are the ones w
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 35518cf9b73c8ac4 -->
+<!-- md-twin source-sha: d989f624e85d642b -->

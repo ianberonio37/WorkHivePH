@@ -26,7 +26,7 @@ Who this is for
 - Auditors from certification bodies
 - Contractors providing audit support
 
-Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](https://workhiveph.com/learn/ph-plant-compliance-guide/) — the hub for what an inspector actually asks to see.
+Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](https://workhiveph.com/learn/ph-plant-compliance-guide/): the hub for what an inspector actually asks to see.
 
 ## What DOLE and ISO auditors actually sample
 
@@ -118,4 +118,4 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 020d39453beda930 -->
+<!-- md-twin source-sha: 77887c8f77db287d -->

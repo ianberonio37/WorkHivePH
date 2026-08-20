@@ -27,7 +27,7 @@ Who this is for
 - Contracted service team leads
 - New supervisors learning the handover habit
 
-Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/) — the four-step, zero-budget rollout this article is one step of.
+Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/): the four-step, zero-budget rollout this article is one step of.
 
 ## Why most shift handovers fail (the 8-minute problem)
 
@@ -164,4 +164,4 @@ The logbook captures individual events as they happen during the shift. The hand
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 04ace5b80cdc49d1 -->
+<!-- md-twin source-sha: 846a21a8cc372dd9 -->

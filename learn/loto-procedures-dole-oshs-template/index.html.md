@@ -25,7 +25,7 @@ Who this is for
 - Contractors and suppliers providing maintenance services
 - Auditors and inspectors reviewing maintenance procedures
 
-Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](https://workhiveph.com/learn/ph-plant-compliance-guide/) — the hub for what an inspector actually asks to see.
+Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](https://workhiveph.com/learn/ph-plant-compliance-guide/): the hub for what an inspector actually asks to see.
 
 ## Introduction to Lock-Out Tag-Out (LOTO) Procedures
 
@@ -125,13 +125,13 @@ Sign-off requirements are important in LOTO procedures to ensure that all person
 
 WorkHive Audit Log helps in LOTO procedures by capturing every LOTO event for inspector review, ensuring compliance with regulatory requirements.
 
-**[Keep your LOTO permits in a dated audit trail](https://workhiveph.com/logbook.html)** — Timestamped and attributed, so a DOLE inspector sees the record, not a memory.
+**[Keep your LOTO permits in a dated audit trail](https://workhiveph.com/logbook.html)**: Timestamped and attributed, so a DOLE inspector sees the record, not a memory.
 
 ## Sources
 
-- [Republic Act 11058](https://www.officialgazette.gov.ph/2018/08/17/republic-act-no-11058/) and DOLE **Department Order 198-18** — OSH compliance and administrative penalties.
+- [Republic Act 11058](https://www.officialgazette.gov.ph/2018/08/17/republic-act-no-11058/) and DOLE **Department Order 198-18**: OSH compliance and administrative penalties.
 - DOLE OSHS Rule 1063: Occupational Safety and Health Standards
 - IIEE Code: Philippine Electrical Code
 - ISO 14224: Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange
 
-<!-- md-twin source-sha: ee628fc744a2f50c -->
+<!-- md-twin source-sha: 297ea71b859b5a59 -->

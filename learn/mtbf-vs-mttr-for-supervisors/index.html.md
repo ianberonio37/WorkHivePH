@@ -27,7 +27,7 @@ Who this is for
 - New reliability-engineering graduates
 - Existing workers upskilling on reliability
 
-Part of the [maintenance metrics guide: OEE, MTBF, MTTR and reliability](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/) — the hub that connects every reliability metric and shows how they chain together.
+Part of the [maintenance metrics guide: OEE, MTBF, MTTR and reliability](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/): the hub that connects every reliability metric and shows how they chain together.
 
 ## The two metrics, side by side
 
@@ -60,7 +60,7 @@ Interpretation: on average, this pump runs about 45 days before the next failure
 - **Define "failure" consistently.** A failure is any unplanned event that stops the equipment from performing its intended function. A minor adjustment that took 30 seconds is not a failure unless the asset stopped.
 - **Calculate per asset, not per fleet.** Averaging MTBF across 12 pumps hides which one is the problem.
 
-The free [MTBF and MTTR calculator](https://workhiveph.com/tools/mtbf-calculator/) does both figures at once from operating hours, failure count and total repair time, and derives Availability from them — useful precisely because the per-asset arithmetic above is where the fleet-averaging mistake creeps back in.
+The free [MTBF and MTTR calculator](https://workhiveph.com/tools/mtbf-calculator/) does both figures at once from operating hours, failure count and total repair time, and derives Availability from them: useful precisely because the per-asset arithmetic above is where the fleet-averaging mistake creeps back in.
 
 ## How to calculate MTTR (worked example)
 
@@ -185,4 +185,4 @@ No. A digital logbook with structured fault entries (asset name, fault time, res
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 37d0925dffb90834 -->
+<!-- md-twin source-sha: f8f79dddd657dbe5 -->

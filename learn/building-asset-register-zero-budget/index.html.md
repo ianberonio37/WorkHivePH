@@ -27,7 +27,7 @@ Who this is for
 - Suppliers building installed-base data
 - New graduates building asset experience
 
-Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/) — the four-step, zero-budget rollout this article is one step of.
+Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/): the four-step, zero-budget rollout this article is one step of.
 
 ## Why every plant needs a real asset register
 
@@ -174,4 +174,4 @@ Selectively. A contractor doing PM on the cooling water system needs to see thos
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 617050bc589f53eb -->
+<!-- md-twin source-sha: f0e139d3107630d1 -->

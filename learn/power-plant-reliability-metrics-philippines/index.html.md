@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 9 min read
 
-**Short answer:** Power plants in the Philippines must balance reliability and efficiency to meet growing energy demands. Key metrics help plant operators and managers assess performance and make evidence-backed operating choices. This article explores essential reliability metrics for Philippine power plants. The reporting frame is the **ERC**, and the metrics that matter are **EAF**, **EFOR** and heat rate rather than generic uptime. The regulator defines the yardstick: the **ERC** measures **EAF** as the fraction of maximum generation obtainable but for outages and deratings, alongside **Equivalent Unplanned Outage Days per Year**. Availability is measured against the whole year — **8,760 hours** — which is why a single extended forced outage moves the figure far more than several short ones.
+**Short answer:** Power plants in the Philippines must balance reliability and efficiency to meet growing energy demands. Key metrics help plant operators and managers assess performance and make evidence-backed operating choices. This article explores essential reliability metrics for Philippine power plants. The reporting frame is the **ERC**, and the metrics that matter are **EAF**, **EFOR** and heat rate rather than generic uptime. The regulator defines the yardstick: the **ERC** measures **EAF** as the fraction of maximum generation obtainable but for outages and deratings, alongside **Equivalent Unplanned Outage Days per Year**. Availability is measured against the whole year: **8,760 hours**: which is why a single extended forced outage moves the figure far more than several short ones.
 
 Who this is for
 
@@ -25,7 +25,7 @@ Who this is for
 - Suppliers and contractors providing goods and services to power plants
 - Auditors and officers ensuring compliance with regulations and standards
 
-Part of the [maintenance metrics guide: OEE, MTBF, MTTR and reliability](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/) — the hub that connects every reliability metric and shows how they chain together.
+Part of the [maintenance metrics guide: OEE, MTBF, MTTR and reliability](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/): the hub that connects every reliability metric and shows how they chain together.
 
 ## Introduction to Reliability Metrics
 
@@ -114,7 +114,7 @@ Improving power plant reliability requires a combination of effective maintenanc
 
 WorkHive Analytics provides a comprehensive platform for tracking and analyzing power plant reliability metrics. By using WorkHive Analytics, power plant operators can gain valuable insights and make evidence-backed operating choices to improve performance.
 
-**[Compute EAF, EFOR and MTBF from your logbook](https://workhiveph.com/analytics.html)** — Free reliability analytics, no sensors required to start.
+**[Compute EAF, EFOR and MTBF from your logbook](https://workhiveph.com/analytics.html)**: Free reliability analytics, no sensors required to start.
 
 ## Sources
 
@@ -124,4 +124,4 @@ WorkHive Analytics provides a comprehensive platform for tracking and analyzing 
 - ISO. (2016). ISO 14224:2016 Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange.
 - SMRP. (2019). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: 1f47d7760bd905b6 -->
+<!-- md-twin source-sha: 431497d7e99768ca -->

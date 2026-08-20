@@ -23,7 +23,7 @@ Who this is for
 - Planners who schedule maintenance activities
 - Plant managers who ensure overall plant efficiency
 
-Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/) — the four-step, zero-budget rollout this article is one step of.
+Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/): the four-step, zero-budget rollout this article is one step of.
 
 ## Introduction to Autonomous Shift Planning
 
@@ -96,7 +96,7 @@ Shift Brain uses multiple sub-agents to gather data and prioritize tasks. The AI
 
 Yes, Shift Brain can be used for various types of maintenance operations, including preventive maintenance, corrective maintenance, and predictive maintenance.
 
-**[Let Shift Brain draft tomorrow's plan](https://workhiveph.com/dayplanner.html)** — Free at the worker tier — it reads your PMs and open faults.
+**[Let Shift Brain draft tomorrow's plan](https://workhiveph.com/dayplanner.html)**: Free at the worker tier: it reads your PMs and open faults.
 
 ## Sources
 
@@ -105,4 +105,4 @@ Yes, Shift Brain can be used for various types of maintenance operations, includ
 - DOLE OSHS (Occupational Safety and Health Standards)
 - Related WorkHive guides: [One alert inbox for the whole plant](https://workhiveph.com/learn/plant-alert-inbox-amc-daily-brief/) · [Shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/) · [DILO/WILO day planner](https://workhiveph.com/learn/dilo-wilo-day-planner-supervisors/)
 
-<!-- md-twin source-sha: 1912f9ad2217d9b3 -->
+<!-- md-twin source-sha: 9ac7d816d881361d -->

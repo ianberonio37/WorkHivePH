@@ -117,20 +117,20 @@ Stage 4 · Act and Prove (do it, share it, leave a trail)
 
 A few tools do double duty. The Asset Hub, for example, both records each machine (Capture) and runs the reliability workbench that studies failure modes (Analyze). That is by design: the same record is useful in more than one place.
 
-### Every calculator also has its own page — no sign-up
+### Every calculator also has its own page, no sign-up
 
-All 60 engineering calculators now exist twice: inside the hive, and as 60 standalone pages you can open without an account. Each standalone page shows the formula, the Philippine standard it follows, and a fully worked example with real numbers — so you can check a figure in about 30 seconds, on a phone, at the machine, before you decide whether the rest of the platform is for you.
+All 60 engineering calculators now exist twice: inside the hive, and as 60 standalone pages you can open without an account. Each standalone page shows the formula, the Philippine standard it follows, and a fully worked example with real numbers, so you can check a figure in about 30 seconds, on a phone, at the machine, before you decide whether the rest of the platform is for you.
 
 They span eight disciplines:
 
-- **Electrical & power** (15) — [voltage drop](https://workhiveph.com/tools/voltage-drop-calculator/), [transformer sizing](https://workhiveph.com/tools/transformer-sizing-calculator/), [short circuit](https://workhiveph.com/tools/short-circuit-calculator/)
-- **Plumbing & pumps** (14) — [pump TDH](https://workhiveph.com/tools/pump-tdh-calculator/), [water supply pipe sizing](https://workhiveph.com/tools/water-supply-pipe-calculator/), [septic tank sizing](https://workhiveph.com/tools/septic-tank-calculator/)
-- **HVAC & cooling** (10) — [cooling load](https://workhiveph.com/tools/hvac-cooling-load-calculator/), [duct sizing](https://workhiveph.com/tools/duct-sizing-calculator/), [chiller sizing](https://workhiveph.com/tools/chiller-sizing-calculator/)
-- **Mechanical & machine design** (10) — [bearing life (L10)](https://workhiveph.com/tools/bearing-life-calculator/), [pressure vessel shell](https://workhiveph.com/tools/pressure-vessel-calculator/), [shaft design](https://workhiveph.com/tools/shaft-design-calculator/)
-- **Fire protection** (5) — [sprinkler hydraulics](https://workhiveph.com/tools/fire-sprinkler-calculator/), [fire pump sizing](https://workhiveph.com/tools/fire-pump-calculator/)
-- **Reliability & metrics** (2) — [MTBF & MTTR](https://workhiveph.com/tools/mtbf-calculator/), [OEE](https://workhiveph.com/tools/oee-calculator/)
-- **Vertical transport** (2) — [elevator traffic](https://workhiveph.com/tools/elevator-traffic-calculator/), [hoist capacity](https://workhiveph.com/tools/hoist-capacity-calculator/)
-- **Boiler & utilities** (2) — [boiler / steam duty](https://workhiveph.com/tools/boiler-steam-calculator/), [boiler system sizing](https://workhiveph.com/tools/boiler-system-calculator/)
+- **Electrical & power** (15): [voltage drop](https://workhiveph.com/tools/voltage-drop-calculator/), [transformer sizing](https://workhiveph.com/tools/transformer-sizing-calculator/), [short circuit](https://workhiveph.com/tools/short-circuit-calculator/)
+- **Plumbing & pumps** (14): [pump TDH](https://workhiveph.com/tools/pump-tdh-calculator/), [water supply pipe sizing](https://workhiveph.com/tools/water-supply-pipe-calculator/), [septic tank sizing](https://workhiveph.com/tools/septic-tank-calculator/)
+- **HVAC & cooling** (10): [cooling load](https://workhiveph.com/tools/hvac-cooling-load-calculator/), [duct sizing](https://workhiveph.com/tools/duct-sizing-calculator/), [chiller sizing](https://workhiveph.com/tools/chiller-sizing-calculator/)
+- **Mechanical & machine design** (10): [bearing life (L10)](https://workhiveph.com/tools/bearing-life-calculator/), [pressure vessel shell](https://workhiveph.com/tools/pressure-vessel-calculator/), [shaft design](https://workhiveph.com/tools/shaft-design-calculator/)
+- **Fire protection** (5): [sprinkler hydraulics](https://workhiveph.com/tools/fire-sprinkler-calculator/), [fire pump sizing](https://workhiveph.com/tools/fire-pump-calculator/)
+- **Reliability & metrics** (2): [MTBF & MTTR](https://workhiveph.com/tools/mtbf-calculator/), [OEE](https://workhiveph.com/tools/oee-calculator/)
+- **Vertical transport** (2): [elevator traffic](https://workhiveph.com/tools/elevator-traffic-calculator/), [hoist capacity](https://workhiveph.com/tools/hoist-capacity-calculator/)
+- **Boiler & utilities** (2): [boiler / steam duty](https://workhiveph.com/tools/boiler-steam-calculator/), [boiler system sizing](https://workhiveph.com/tools/boiler-system-calculator/)
 
 The difference between these pages and the [Engineering Design workbench](https://workhiveph.com/engineering-design.html) is what happens after the number. A standalone page answers one question. The workbench keeps the job: it produces the materials list, the scope of work, and the diagram, and it saves the result against the asset it belongs to.
 
@@ -304,8 +304,8 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 ## Sources
 
-- [ISO 14224](https://www.iso.org/standard/64076.html), **Collection and exchange of reliability and maintenance data** — the hierarchy the Asset Hub register follows.
-- [DOLE](https://www.dole.gov.ph/), **Occupational Safety and Health Standards**, and [TESDA](https://www.tesda.gov.ph/) National Certificates — what the Audit Log and Skill Matrix are built to satisfy.
+- [ISO 14224](https://www.iso.org/standard/64076.html), **Collection and exchange of reliability and maintenance data**: the hierarchy the Asset Hub register follows.
+- [DOLE](https://www.dole.gov.ph/), **Occupational Safety and Health Standards**, and [TESDA](https://www.tesda.gov.ph/) National Certificates: what the Audit Log and Skill Matrix are built to satisfy.
 - WorkHive platform positioning and value proposition: "one free hive for every Filipino industrial worker." [workhiveph.com](https://workhiveph.com/)
 - WorkHive "Four Gaps, One Hive" thesis: chaos to coordination, guesswork to the right person, forgetting to remembering, and finding a specialist.
 - WorkHive flywheel model: Capture, Plan, Analyze, and Act and Prove, where every action writes new records back into Capture.
@@ -315,4 +315,4 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: d1d04a752a873ad4 -->
+<!-- md-twin source-sha: b9aa2759befb0bd3 -->

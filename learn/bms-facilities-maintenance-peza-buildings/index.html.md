@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 10 min read
 
-**Short answer:** Building Management Systems (BMS) play a crucial role in maintaining the efficiency and safety of PEZA-registered buildings. A well-functioning BMS ensures that various building systems operate smoothly, minimizing downtime and ensuring a comfortable environment for occupants. In this article, we will discuss the importance of BMS and facilities maintenance in PEZA buildings. The compliance frame is specific: **PEZA**-registered buildings answer to zone requirements, and electrical work follows the **PEC** (Philippine Electrical Code). The cadence is concrete: **monthly** preventive checks on HVAC, lighting and life-safety equipment, with the BMS dashboard reviewed twice a day — roughly every **12 hours** — so a drift is caught inside one shift rather than one quarter.
+**Short answer:** Building Management Systems (BMS) play a crucial role in maintaining the efficiency and safety of PEZA-registered buildings. A well-functioning BMS ensures that various building systems operate smoothly, minimizing downtime and ensuring a comfortable environment for occupants. In this article, we will discuss the importance of BMS and facilities maintenance in PEZA buildings. The compliance frame is specific: **PEZA**-registered buildings answer to zone requirements, and electrical work follows the **PEC** (Philippine Electrical Code). The cadence is concrete: **monthly** preventive checks on HVAC, lighting and life-safety equipment, with the BMS dashboard reviewed twice a day: roughly every **12 hours**: so a drift is caught inside one shift rather than one quarter.
 
 Who this is for
 
@@ -135,4 +135,4 @@ Non-compliance with PEZA regulations can result in penalties, fines, and even ca
 - ISO. (2016). ISO 14224:2016 - Petroleum, petrochemical and natural gas industries - Reliability, availability and maintainability (RAM) data exchange.
 - SMRP. (2020). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: 1a46c344f199486a -->
+<!-- md-twin source-sha: fbb3bff150afcbc0 -->

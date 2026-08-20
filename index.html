@@ -700,7 +700,9 @@
     /* ── Demoted secondary CTA text link ── */
     .cta-text-link {
       display: inline-flex; align-items: center; gap: 6px; min-height: 44px;
-      color: rgba(41,182,217,0.7); font-weight: 600; font-size: 1rem;
+      /* --wh-blue-text, not the base hue at 70%: this is a real CTA and measured APCA Lc 41.6
+         against a 60 floor. tokens.css ships the -text variant for small text on dark. */
+      color: var(--wh-blue-text); font-weight: 600; font-size: 1rem;
       transition: color .2s ease, gap .2s ease;
     }
     .cta-text-link:hover { color: var(--wh-blue); gap: 10px; }
@@ -1353,11 +1355,11 @@
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mb-7 text-xs">
           <span class="text-white/80 font-medium uppercase tracking-wider">Free to use, sign up to start:</span>
           <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Logbook</a>
-          <span class="text-white/15">·</span>
+          <span class="text-white/15" aria-hidden="true">·</span>
           <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">PM Scheduler</a>
-          <span class="text-white/15">·</span>
+          <span class="text-white/15" aria-hidden="true">·</span>
           <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">Eng. Calculators</a>
-          <span class="text-white/15">·</span>
+          <span class="text-white/15" aria-hidden="true">·</span>
           <a href="#join" onclick="openSignUp(event)" class="text-orange-wh hover:text-white transition-colors font-semibold inline-flex items-center min-h-[44px]">AI Assistant</a>
         </div>
 
@@ -1424,11 +1426,17 @@
                 .stage-card:hover  { transform: translateY(-2px); }
                 .stage-card:active { transform: scale(0.97); opacity: 0.85; }
                 .stage-card:focus-visible { outline: 2px solid var(--wh-blue); outline-offset: 2px; }
+                /* PLACEHOLDER LEGIBILITY. These fields carried no ::placeholder rule at all, so
+                   they inherited the browser default rgb(156,163,175) and measured APCA Lc 46.1
+                   against a 60 floor — on the sign-in form and the early-access capture, the two
+                   places a first-time visitor types. 0.80 is this platform's own majority
+                   placeholder token; 0.70 was the measured minimum that clears. */
+                .wh-ph::placeholder { color: rgba(255,255,255,0.80); }
                 .stage-hex-num {
                   width: 26px; height: 30px; flex-shrink: 0;
                   clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
                   display: flex; align-items: center; justify-content: center;
-                  font-size: 9px; font-weight: 900; color: #fff; margin-bottom: 8px;
+                  font-size: 9px; font-weight: 900; color: var(--wh-navy); margin-bottom: 8px;
                 }
                 .stage-hex-watermark {
                   position: absolute; bottom: -18px; right: -18px;
@@ -1450,7 +1458,13 @@
               <style>
                 .stage-meta { font-size:9px; color:rgba(255,255,255,0.80); line-height:1.5; margin-top:8px; padding-top:8px; border-top:1px dotted rgba(255,255,255,0.08); }
                 .stage-meta-row { display:flex; gap:5px; align-items:flex-start; }
-                .stage-meta-tag { font-weight:800; letter-spacing:0.04em; text-transform:uppercase; font-size:8px; opacity:0.7; min-width:32px; padding-top:1px; }
+                .stage-meta-tag { font-weight:800; letter-spacing:0.04em; text-transform:uppercase; font-size:9px; min-width:32px; padding-top:1px; }
+                /* opacity:0.7 REMOVED and 8px -> 9px. These tags already used the AA-safe -text
+                   tokens and still measured WCAG 3.36-3.65 against 4.5, because the dimming sat on
+                   TOP of the token - and element opacity does not appear in computed `color`, so
+                   the lens could not see it and the real rendered contrast was worse than the
+                   number. APCA's Lc 30 tier passes text this small; the WCAG backstop is what
+                   caught it, which is exactly the split live-state-runner.js documents. */
               </style>
 
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
@@ -1460,10 +1474,10 @@
                   <div class="stage-hex-num" style="background:var(--wh-blue);">01</div>
                   <p style="font-size:14px;font-weight:800;color:#E8F4FF;line-height:1.2;margin:0 0 6px;">Paper to<br>Digital</p>
                   <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">Get out of paper. Build the operating rhythm.</p>
-                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue-text);background:rgba(74,159,212,0.18);border-radius:20px;padding:3px 9px;">Free · Start Here</span>
+                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue-text);background:rgba(74,159,212,0.10);border-radius:999px;padding:3px 9px;">Free · Start Here</span>
                   <div class="stage-meta">
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Now</span><span>Hive joined</span></div>
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Next</span><span>10 assets logged, 1 SOP documented</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue-text);">Now</span><span>Hive joined</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue-text);">Next</span><span>10 assets logged, 1 SOP documented</span></div>
                   </div>
                   <div class="stage-hex-watermark" style="background:var(--wh-blue);"></div>
                   <div class="stage-connector-h"></div>
@@ -1474,10 +1488,10 @@
                   <div class="stage-hex-num" style="background:var(--wh-blue);">02</div>
                   <p style="font-size:14px;font-weight:800;color:#E0FFFC;line-height:1.2;margin:0 0 6px;">Disciplined</p>
                   <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">PMs compliant. Logbook hygiene. Approvals routine.</p>
-                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue-text);background:rgba(0,196,180,0.16);border-radius:20px;padding:3px 9px;">Free</span>
+                  <span style="font-size:9px;font-weight:800;color:var(--wh-blue-text);background:rgba(11,15,25,0.45);border-radius:999px;padding:3px 9px;">Free</span>
                   <div class="stage-meta">
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Now</span><span>Stage 1 complete</span></div>
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue);">Next</span><span>PM compliance ≥70% for 30 days</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue-text);">Now</span><span>Stage 1 complete</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-blue-text);">Next</span><span>PM compliance ≥70% for 30 days</span></div>
                   </div>
                   <div class="stage-hex-watermark" style="background:var(--wh-blue);"></div>
                 </div>
@@ -1487,10 +1501,10 @@
                   <div class="stage-hex-num" style="background:var(--wh-violet);">03</div>
                   <p style="font-size:14px;font-weight:800;color:#EEE5FF;line-height:1.2;margin:0 0 6px;">Predictive<br>Ready</p>
                   <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">Move from reacting to predicting.</p>
-                  <span style="font-size:9px;font-weight:800;color:var(--wh-violet);background:rgba(155,89,232,0.18);border-radius:20px;padding:3px 9px;">AI · Sensor</span>
+                  <span style="font-size:9px;font-weight:800;color:var(--wh-violet-text);background:rgba(155,89,232,0.10);border-radius:999px;padding:3px 9px;">AI · Sensor</span>
                   <div class="stage-meta">
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-violet);">Now</span><span>Stage 2 complete</span></div>
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-violet);">Next</span><span>90+ days history OR sensors live</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-violet-text);">Now</span><span>Stage 2 complete</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-violet-text);">Next</span><span>90+ days history OR sensors live</span></div>
                   </div>
                   <div class="stage-hex-watermark" style="background:var(--wh-violet);"></div>
                   <div class="stage-connector-h"></div>
@@ -1501,10 +1515,10 @@
                   <div class="stage-hex-num" style="background:var(--wh-orange);">04</div>
                   <p style="font-size:14px;font-weight:800;color:#FFF0C0;line-height:1.2;margin:0 0 6px;">Industry<br>Leader</p>
                   <p style="font-size:10px;color:rgba(255,255,255,0.80);line-height:1.45;margin:0 0 10px;">Become an industrial intelligence source.</p>
-                  <span style="font-size:9px;font-weight:800;color:var(--wh-orange-text);background:rgba(247,162,27,0.2);border-radius:20px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Premium</span>
+                  <span style="font-size:9px;font-weight:800;color:var(--wh-orange-text);background:rgba(247,162,27,0.05);border-radius:999px;padding:3px 9px;border:1px solid rgba(255,184,0,0.35);">Premium</span>
                   <div class="stage-meta">
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-orange);">Now</span><span>Stage 3 complete</span></div>
-                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-orange);">Next</span><span>4-of-4: sensor + RCM + audit + benchmarks</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-orange-text);">Now</span><span>Stage 3 complete</span></div>
+                    <div class="stage-meta-row"><span class="stage-meta-tag" style="color:var(--wh-orange-text);">Next</span><span>4-of-4: sensor + RCM + audit + benchmarks</span></div>
                   </div>
                   <div class="stage-hex-watermark" style="background:var(--wh-orange);"></div>
                 </div>
@@ -1592,7 +1606,7 @@
       WorkHive is a <strong class="text-white font-semibold">free industrial intelligence platform</strong> for every Filipino industrial worker, from field to management: field technicians and operators, engineers, supervisors and planners, plant and operations managers, suppliers, contractors, new graduates entering the labor market, and existing workers expanding their capabilities with AI. It bundles a digital logbook, preventive maintenance scheduler, spare-parts inventory, skill matrix, engineering design calculators, and an AI work assistant in one browser-based hive.
     </p>
     <p class="text-sm text-white/80 mt-6 font-medium">Free · Philippines-first · Works offline · Mobile and desktop</p>
-    <a href="/learn/what-is-workhive-complete-platform-guide/" class="inline-flex items-center gap-2 mt-7 text-orange-wh hover:text-orange-light transition-colors font-semibold text-sm">
+    <a href="/learn/what-is-workhive-complete-platform-guide/" class="inline-flex items-center gap-2 mt-7 min-h-[44px] text-orange-wh hover:text-orange-light transition-colors font-semibold text-sm">
       Read the complete platform guide
       <span class="ic ic-next" aria-hidden="true"></span>
     </a>
@@ -1675,7 +1689,7 @@
             <h3 class="text-xl font-bold text-white" data-i="chaoscoord">From Chaos to Coordination</h3>
           </div>
         </div>
-        <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> Departments run in isolation and failures strike without warning. An unplanned breakdown costs 4 to 8 times a planned repair.</p>
+        <p class="text-xs text-red-300 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> Departments run in isolation and failures strike without warning. An unplanned breakdown costs 4 to 8 times a planned repair.</p>
         <p class="text-white/80 text-sm leading-relaxed mb-6">
           Every job pre-loaded with the right parts, procedures, and the right person. Planned replaces reactive.
         </p>
@@ -1700,7 +1714,7 @@
             <h3 class="text-xl font-bold text-white" data-i="guessprecision">From Guesswork to Precision</h3>
           </div>
         </div>
-        <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> Organizations can't deploy their best people because they don't know what their people can actually do. Jobs go by availability, not competence.</p>
+        <p class="text-xs text-red-300 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> Organizations can't deploy their best people because they don't know what their people can actually do. Jobs go by availability, not competence.</p>
         <p class="text-white/80 text-sm leading-relaxed mb-6">
           Right person, right job, every time. Competence replaces availability.
         </p>
@@ -1725,7 +1739,7 @@
             <h3 class="text-xl font-bold text-white" data-i="amnesiamemory">From Amnesia to Memory</h3>
           </div>
         </div>
-        <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> When a technician retires, 12 years of expertise disappears. Replacing it costs ₱800K to ₱2.4M per transition.</p>
+        <p class="text-xs text-red-300 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> When a technician retires, 12 years of expertise disappears. Replacing it costs ₱800K to ₱2.4M per transition.</p>
         <p class="text-white/80 text-sm leading-relaxed mb-6">
           When an expert retires, the knowledge stays. Every repair makes the hive smarter.
         </p>
@@ -1750,7 +1764,7 @@
             <h3 class="text-xl font-bold text-white" data-i="lucktodesign">From Luck to Design</h3>
           </div>
         </div>
-        <p class="text-xs text-red-300/70 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> The right specialist takes weeks to find, if you find them at all.</p>
+        <p class="text-xs text-red-300 leading-relaxed mb-3"><span class="font-semibold text-red-400">The gap:</span> The right specialist takes weeks to find, if you find them at all.</p>
         <p class="text-white/80 text-sm leading-relaxed mb-6">
           The right specialist found in hours, not weeks. Luck replaced by design.
         </p>
@@ -2047,7 +2061,7 @@
     </div>
 
     <div class="text-center">
-      <a href="/learn/" class="inline-flex items-center gap-2 text-orange-wh hover:text-orange-light transition-colors font-semibold">
+      <a href="/learn/" class="inline-flex items-center gap-2 min-h-[44px] text-orange-wh hover:text-orange-light transition-colors font-semibold">
         See all <!--CATALOG:guide_count-->53<!--/CATALOG:guide_count--> guides
         <span class="ic ic-next" aria-hidden="true"></span>
       </a>
@@ -2135,7 +2149,7 @@
           placeholder="you@company.com"
           required
           autocomplete="email"
-          class="flex-1 px-5 py-3.5 rounded-xl text-white placeholder-white/30 text-sm font-medium border border-white/[0.12] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors"
+          class="flex-1 px-5 py-3.5 rounded-xl text-white wh-ph text-sm font-medium border border-white/[0.12] focus:outline-none focus:border-orange-wh/60 focus:ring-2 focus:ring-orange-wh/20 transition-colors"
           style="background: rgba(42,61,88,0.7);"
         />
         <button type="submit" class="btn-primary text-sm whitespace-nowrap" data-i="joinhivebtn">Join the Hive</button>
@@ -2163,7 +2177,7 @@
       </select>
     </form>
 
-    <p class="text-xs text-white/80 mb-12">Free to join · Philippines-first · No spam, ever</p>
+    <p class="text-xs text-white/80 mb-12">Adds you to the early-access list, not an account yet · Philippines-first · No spam, ever</p>
 
     <div class="flex flex-wrap items-center justify-center gap-8 pt-8 border-t border-white/[0.07]">
       <div class="flex items-center gap-3">
@@ -2242,22 +2256,46 @@
   const bar3 = document.getElementById('bar3');
   let menuOpen = false;
 
+  // Shared so the Back handler and the link handler close it the same way, rather than two copies
+  // of the same four lines drifting apart.
+  function _closeMobileMenu() {
+    menuOpen = false;
+    mobileMenu.classList.remove('open');
+    bar1.style.transform = '';
+    bar2.style.opacity   = '1';
+    bar3.style.transform = '';
+  }
+
   hamburger.addEventListener('click', () => {
     menuOpen = !menuOpen;
     mobileMenu.classList.toggle('open', menuOpen);
     bar1.style.transform = menuOpen ? 'translateY(8px) rotate(45deg)' : '';
     bar2.style.opacity   = menuOpen ? '0' : '1';
     bar3.style.transform = menuOpen ? 'translateY(-8px) rotate(-45deg)' : '';
+    // Opening the menu covers the page, so Back should uncover it. Measured 2026-08-20: opening
+    // pushed no history entry, so Back LEFT THE SITE with the menu still open, and a bfcache restore
+    // brings the reader back to a page hidden behind an overlay they already tried to dismiss.
+    // Pushing a state makes Back mean "close this", which is what it means everywhere else on a phone.
+    if (menuOpen) {
+      try { history.pushState({ whMenu: 1 }, ''); } catch (_) { /* empty-catch-allow: history blocked in some embedded webviews */ }
+    } else if (history.state && history.state.whMenu) {
+      history.back();   // closing by tapping the X consumes the entry, so Back does not need pressing twice
+    }
   });
+
+  // Back with the menu open closes the menu instead of navigating away.
+  window.addEventListener('popstate', () => { if (menuOpen) _closeMobileMenu(); });
 
   // Close mobile menu on nav link click
   mobileMenu.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
-      menuOpen = false;
-      mobileMenu.classList.remove('open');
-      bar1.style.transform = '';
-      bar2.style.opacity = '1';
-      bar3.style.transform = '';
+      const wasOpen = menuOpen;
+      _closeMobileMenu();
+      // Drop the menu's history entry as we navigate, or Back from the destination would land on
+      // this page's menu-open state instead of where the reader actually came from.
+      if (wasOpen && history.state && history.state.whMenu) {
+        try { history.back(); } catch (_) { /* empty-catch-allow */ }
+      }
     });
   });
 
@@ -2707,12 +2745,16 @@
 
     <!-- Tabs: Sign In / Sign Up -->
     <div class="flex mb-5 rounded-xl overflow-hidden" role="tablist" aria-label="Sign in or sign up" style="border:1px solid rgba(255,255,255,0.1);">
+      <!-- ★TOUCH FLOOR. Both tabs measured 149.5x40 and 148.5x40 inside #signin-modal - under this
+           platform's 44px rule, on the control that chooses between signing in and creating an account.
+           Height-only fix (py-2.5 -> py-3 plus an explicit min-height): the width was already ample, so
+           this cannot introduce the horizontal overflow the same prover checks in the same run. -->
       <button id="tab-signin" onclick="switchAuthTab('signin')" role="tab" aria-selected="true" aria-controls="panel-signin"
-        class="flex-1 py-2.5 text-sm font-bold transition-colors"
-        style="background:rgba(247,162,27,0.1); color:var(--wh-orange-text); border-right:1px solid rgba(255,255,255,0.1);" data-i="signin">Sign In</button>
+        class="flex-1 py-3 text-sm font-bold transition-colors"
+        style="min-height:44px; background:rgba(247,162,27,0.1); color:var(--wh-orange-text); border-right:1px solid rgba(255,255,255,0.1);" data-i="signin">Sign In</button>
       <button id="tab-signup" onclick="switchAuthTab('signup')" role="tab" aria-selected="false" aria-controls="panel-signup"
-        class="flex-1 py-2.5 text-sm font-semibold transition-colors"
-        style="color:rgba(255,255,255,0.80);" data-i="signup">Sign Up</button>
+        class="flex-1 py-3 text-sm font-semibold transition-colors"
+        style="min-height:44px; color:rgba(255,255,255,0.80);" data-i="signup">Sign Up</button>
     </div>
 
     <!-- Sign In panel -->
@@ -2722,12 +2764,12 @@
       <div class="space-y-3 mb-3">
         <label for="si-username" class="block text-xs mb-1" style="color:rgba(255,255,255,0.86);font-weight:600;">Username</label>
         <input id="si-username" type="text" placeholder="Username" autocomplete="username"
-          class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+          class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none wh-ph"
           style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
         <label for="si-password" class="block text-xs mb-1" style="color:rgba(255,255,255,0.86);font-weight:600;">Password</label>
         <div style="position:relative;">
           <input id="si-password" type="password" placeholder="Password" autocomplete="current-password"
-            class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
+            class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none wh-ph"
             style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
           <button type="button" onclick="togglePwd('si-password',this)" aria-pressed="false"
             style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.80);padding:4px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;" aria-label="Show password">
@@ -2741,15 +2783,15 @@
         style="background:var(--wh-orange); color:var(--wh-navy);" data-i="signin">Sign In</button>
       <!-- Arc I I3/I — password recovery: email reset (real-email users) + supervisor-assisted (no-email workers) -->
       <p style="margin-top:10px; text-align:center;">
-        <button type="button" onclick="forgotPassword(event)" style="display:inline; font-size:.7rem; color:rgba(41,182,217,0.85); text-decoration:none; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;" data-i="forgotpwd">Forgot your password?</button>
+        <button type="button" onclick="forgotPassword(event)" style="display:inline-flex; align-items:center; min-height:44px; font-size:.7rem; color:rgba(41,182,217,0.85); text-decoration:none; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;" data-i="forgotpwd">Forgot your password?</button>
       </p>
 
       <!-- SSO (Phase 4.2) -->
       <div style="margin-top:12px; text-align:center;">
         <p style="font-size:.65rem; color:rgba(255,255,255,0.80); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;">Or</p>
         <button type="button" id="si-sso-btn" onclick="signInWithSSO()"
-          class="w-full rounded-xl py-2.5 text-sm font-semibold"
-          style="background:rgba(41,182,217,0.08); color:var(--wh-blue-text); border:1px solid rgba(41,182,217,0.25);" translate="no">
+          class="w-full rounded-xl py-3 text-sm font-semibold"
+          style="min-height:44px; background:rgba(41,182,217,0.08); color:var(--wh-blue-text); border:1px solid rgba(41,182,217,0.25);" translate="no">
           Enterprise SSO (Okta / Azure AD)
         </button>
       </div>
@@ -3004,6 +3046,12 @@
         .from('v_hives_truth')
         .select('id, name')
         .in('id', hiveIds)
+        // ORDER BY is not decoration here: `hives[0]` below picks this worker's ACTIVE hive, and an
+        // unordered select has no guaranteed order, so for a member of two hives the tenant they
+        // land in was left to whatever the planner returned. Ordered by name, with id as the
+        // tie-break so the order is TOTAL and two hives sharing a name cannot swap.
+        .order('name', { ascending: true })
+        .order('id',   { ascending: true })
         .limit(500);
       if (!hives || !hives.length) return null;
 
@@ -3019,7 +3067,11 @@
         })));
       } catch (_) { /* empty-catch-allow: localStorage QuotaExceededError on iOS Safari is non-fatal */ }
 
-      const first = hives[0];
+      // Prefer the hive this person was already working in, when they are still a member of it: a
+      // deterministic ORDER BY alone would silently move a two-hive worker to whichever sorts first,
+      // which is stable but not what they were doing. Falls back to the first by the total order.
+      const _prev = localStorage.getItem('wh_active_hive_id');
+      const first = (_prev && hives.find(h => h.id === _prev)) || hives[0];
       const m = memberships.find(x => x.hive_id === first.id);
       const role = m ? m.role : 'worker';
       localStorage.setItem('wh_active_hive_id', first.id);
@@ -3165,6 +3217,17 @@
       errEl.textContent = 'Username must be 3–30 characters: letters, numbers, underscores only.';
       errEl.classList.remove('hidden'); return;
     }
+
+    // ★SIGNING UP OFFLINE FAILED WITHOUT SAYING SO. This creates an account and writes
+    // early_access_emails; index.html registers no offline write queue, so offline it reached a dead
+    // network and the person could not tell whether they now have an account. Placed after the field
+    // checks so a malformed username is still reported as a malformed username, and the message goes
+    // to #su-error where those checks already write - remembering to UNHIDE it, since su-error ships
+    // hidden and textContent alone would be invisible.
+    if (typeof whRequireOnline === 'function'
+        && !whRequireOnline('Creating your account', (m) => {
+             errEl.textContent = m; errEl.classList.remove('hidden');
+           })) return;
     if (password.length < 6) {
       errEl.textContent = 'Password must be at least 6 characters.';
       errEl.classList.remove('hidden'); return;
@@ -3390,7 +3453,32 @@
     btn.setAttribute('aria-pressed', key === 'hezekiah' ? 'true' : 'false');
   }
 
+  // ★THIS PAGE HAD NO WAY TO SURFACE A MESSAGE AT ALL. index.html defines no showToast, and whToast is
+  // referenced in utils.js but defined only in a tool this page does not load - so a guard written here
+  // to "tell the person" threw "showToast is not defined" instead, which is the exact failure utils.js
+  // warns about in whRequireOnline's own comment: the write is refused in total SILENCE, worse than no
+  // guard. Measured live by the offline prover, which reported 0 requests AND a pageerror.
+  // Create-on-demand host, copied from alert-hub.html's minimal toast so the two behave the same.
+  function showToast(msg) {
+    let host = document.getElementById('wh-toast');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'wh-toast';
+      host.setAttribute('role', 'status');
+      host.setAttribute('aria-live', 'polite');
+      host.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:rgba(22,32,50,0.95);color:#F4F6FA;padding:0.6rem 1rem;border-radius:0.6rem;font-size:0.8rem;border:1px solid rgba(255,255,255,0.12);z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,0.4);max-width:90vw;';
+      document.body.appendChild(host);
+    }
+    host.textContent = msg;
+    host.style.display = 'block';
+    clearTimeout(host._t);
+    host._t = setTimeout(() => { host.style.display = 'none'; }, 3500);
+  }
+
   async function togglePersona() {
+    // worker_profiles is the identity/locked class - online-only by the platform's own rule.
+    if (typeof whRequireOnline === 'function'
+        && !whRequireOnline('Saving your preference', (m) => showToast(m))) return;
     const cur  = (typeof window.getPersonaKey === 'function')
       ? window.getPersonaKey()
       : (localStorage.getItem('wh_voice_journal_persona') || 'zaniah');
@@ -3579,7 +3667,7 @@
           note.style.cssText = 'margin:0 0 14px;padding:12px 14px;border-radius:10px;'
             + 'background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.42);'
             + 'color:#fde68a;font-size:0.8rem;line-height:1.5;';
-          note.innerHTML = '<strong>Your session ended — these numbers were not read.</strong><br>'
+          note.innerHTML = '<strong>Your session ended. These numbers were not read.</strong><br>'
             + 'This is not an all-clear: nothing here was loaded with your account. '
             + '<a href="index.html?signin=1" style="color:#fcd34d;text-decoration:underline;">Sign in</a> '
             + 'to see your real figures.';
@@ -4194,19 +4282,39 @@
     // button and role actions already rendered above; replace the verdict + stop.
     if (_ohLoadFailed) {
       const _t = document.getElementById('oh-today');
-      if (_t) _t.innerHTML = '<div style="background:rgba(248,113,113,.10); border:1px solid rgba(248,113,113,.30); border-radius:12px; padding:14px 16px;">'
+      // ★"CHECK YOUR CONNECTION AND TRY AGAIN" WITH NOTHING TO TRY. Measured by failing every
+      // /rest/v1/ read with a 500: this block did the hard part right — the comment above it explains
+      // exactly why, that an empty dashboard would read as a false "All clear" — and then offered ZERO
+      // retry affordances. On the ops home, where the tiles are the first thing a supervisor reads in
+      // the morning, being told the numbers are stale without a way to refresh them leaves the page
+      // itself as the obstacle.
+      // ★whListError(el, message, onRetry) already exists in utils.js and 16 pages import it, so this
+      // is ADOPTION rather than design. A FULL RELOAD is the target because the failure blanks the
+      // whole tile row plus this verdict: pm-scheduler proved a targeted re-render restores one region
+      // and leaves the others still claiming failure — a partial recovery, worse than none.
+      if (_t && typeof whListError === 'function') {
+        whListError(_t, "Couldn't refresh. We could not load your latest hive data. These numbers are "
+          + 'unknown right now, not zero.', () => location.reload());
+      } else if (_t) {
+        _t.innerHTML = '<div style="background:rgba(248,113,113,.10); border:1px solid rgba(248,113,113,.30); border-radius:12px; padding:14px 16px;">'
         + '<p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-red-text); margin:0 0 2px;">Couldn\'t refresh</p>'
         + '<p style="font-size:.9rem; color:var(--wh-cloud); margin:0;">We could not load your latest hive data. Check your connection and try again.</p></div>';
+      }
       return;
     }
 
     // Low stock + PM overdue. In hive mode both come from the RPC payload;
     // in solo / fallback mode both are derived from the legacy fetch.
-    let lowStock, pmOverdueCount;
+    let lowStock, pmOverdueCount, _lowStockTotal = null, _pmAssetTotal = null;
     if (_dash) {
       // low_stock_items mirrors the old invRaw.filter(is_low_stock): the tile
       // count is lowStock.length and the out-of-stock candidate filters it.
       lowStock = _dash.low_stock_items || [];
+      // The array is capped at 100 for the out-of-stock breakdown; the TILE must show the real
+      // total, or it silently reads 100 for a hive with more (migration ...000066). Older
+      // deployments without the field fall back to the array length rather than rendering nothing.
+      _lowStockTotal = Number.isFinite(_dash.low_stock_count) ? _dash.low_stock_count : lowStock.length;
+      _pmAssetTotal  = Number.isFinite(_dash.pm_asset_total) ? _dash.pm_asset_total : null;
       pmOverdueCount = Number(_dash.pm_overdue_count || 0);
     } else {
       // Low stock: trust v_inventory_items_truth.is_low_stock (canonical signal).
@@ -4261,7 +4369,8 @@
     // honest and the two pages agree. (Out-of-stock = canonical is_out_of_stock, or
     // qty_on_hand<=0 when the flag isn't in this payload.)
     const _outOfStock = lowStock.filter(i => i.is_out_of_stock === true || Number(i.qty_on_hand) <= 0).length;
-    const _lowOnly    = Math.max(0, lowStock.length - _outOfStock);
+    if (_lowStockTotal === null) _lowStockTotal = lowStock.length;   // non-RPC fallback path
+    const _lowOnly    = Math.max(0, _lowStockTotal - _outOfStock);
 
     (function renderStats() {
       const statsEl = document.getElementById('oh-stats');
@@ -4269,8 +4378,10 @@
       const tiles = [
         { kpi: 'open-jobs',   num: jobsCount,       label: _t('Open Jobs','Bukas na Trabaho'),   color: '#F7A21B', href: 'logbook.html'      },
         { kpi: 'risk-alerts', num: risksCount,      label: _t('Risk Alerts','Alerto sa Panganib'), color: '#f87171', href: 'asset-hub.html'    },
-        { kpi: 'pm-overdue',  num: pmOverdueCount,  label: _t('PM Overdue','Lumipas na PM'),  color: '#29B6D9', href: 'pm-scheduler.html' },
-        { kpi: 'low-stock',   num: lowStock.length, label: _outOfStock > 0 ? `${_t('Stock','Stock')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low Stock','Kulang na Stock'), color: '#f7a21b', href: 'inventory.html'    },
+        { kpi: 'pm-overdue',  num: pmOverdueCount,  label: (Number.isFinite(_pmAssetTotal) && _pmAssetTotal > 0)
+            ? `${_t('PM Overdue','Lumipas na PM')} (${pmOverdueCount} ${_t('of','sa')} ${_pmAssetTotal} ${_t('assets','makina')})`
+            : `${_t('PM Overdue','Lumipas na PM')} (${_t('assets','makina')})`,  color: '#29B6D9', href: 'pm-scheduler.html' },
+        { kpi: 'low-stock',   num: _lowStockTotal, label: _outOfStock > 0 ? `${_t('Stock','Stock')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low Stock','Kulang na Stock'), color: '#f7a21b', href: 'inventory.html'    },
         // A tile whose count could not be READ (null) must not be filtered out alongside the real
         // zeros — that is how an unreadable "Risk Alerts 3" became no tile at all, which reads as
         // "no risk alerts". Keep it, and let it show a gap.
@@ -4417,7 +4528,12 @@
           tone: 'high', accent: '#FDB94A',  // was #f7a21b, Lc 60.2 -> 70.0
           label: 'Sensor Anomaly',
           headline: `${sensorAnomaly.parameter || 'Reading'} flagged anomaly`,
-          detail: 'A live sensor reading is 3-sigma outside the recent baseline. Inspect.',
+          detail: (() => {
+            const _age = sensorAnomaly.recorded_at ? _timeAgo(sensorAnomaly.recorded_at) : '';
+            return _age
+              ? `A sensor reading from ${_age} is 3-sigma outside the recent baseline. Inspect.`
+              : 'A sensor reading within the last 24 hours is 3-sigma outside the recent baseline. Inspect.';
+          })(),
           cta: 'Open Asset Hub',
           href: `asset-hub.html${sensorAnomaly.asset_id ? '?id=' + encodeURIComponent(sensorAnomaly.asset_id) : ''}`,
         });
@@ -4533,7 +4649,15 @@
       // answering "No public posts yet" on a feed of 15, and as report-sender's "No contacts saved
       // yet" mid-flight: an empty variable read as an established fact. Here it is the version that
       // reaches a person who is deciding whether the plant needs them today.
-      if (!pick && _signalsUnread.length) {
+      // The session-dead banner is a SECOND, independent way to learn the reads did not happen, and
+      // it was not consulted here. Measured live 2026-08-20: with the session expired the page showed
+      // "Your session ended. These numbers were not read. This is not an all-clear" and, directly
+      // beneath it, "ALL CLEAR - Nothing urgent right now." The banner named the exact misreading its
+      // neighbour then committed. _signalsUnread only ever fills on the legacy per-query path (it is
+      // never populated on the RPC path), so the guard below could not arm itself in that state.
+      const _sessionDead = !!document.getElementById('oh-session-dead');
+      if (!pick && (_signalsUnread.length || _sessionDead)) {
+        if (!_signalsUnread.length) _signalsUnread = [_t('your session ended','natapos ang session mo')];
         el.style.display = 'block';
         el/* xss-allow: only static strings from _signalsUnread, built in this file */ .innerHTML = `
           <a href="alert-hub.html" class="oh-card"
@@ -4717,7 +4841,7 @@
           <div style="display:flex; flex-wrap:wrap; gap:6px;">
             ${lowStock.slice(0,8).map(i => `
               <div style="font-size:.72rem; font-weight:600; background:rgba(251,146,60,.08); border:1px solid rgba(251,146,60,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">
-                ${escHtml(i.part_name)} <span style="color:var(--wh-orange);">(${Number(i.qty_on_hand)})</span>
+                ${escHtml(i.part_name)} <span style="color:var(--wh-orange-text);">(${Number(i.qty_on_hand)})</span>
               </div>`).join('')}
             ${lowStock.length > 8 ? `<div style="font-size:.7rem; color:rgba(255,255,255,.6); padding:.25rem .6rem;">+${lowStock.length - 8} more</div>` : ''}
           </div>

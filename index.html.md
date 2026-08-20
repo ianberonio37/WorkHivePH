@@ -391,7 +391,7 @@ The beehive has been showing us how for 80 million years: every worker valued, e
  purposeful, the whole greater than the sum of its parts. That's the system Philippine industry
  has been missing. Be among the first to build it.
 
-Free to join · Philippines-first · No spam, ever
+Adds you to the early-access list, not an account yet · Philippines-first · No spam, ever
 
 DTI Registered Business No. 8080496
 
@@ -417,6 +417,10 @@ Signed in as ****
 Secure account →
 ×
 
+★TOUCH FLOOR. Both tabs measured 149.5x40 and 148.5x40 inside #signin-modal - under this
+ platform's 44px rule, on the control that chooses between signing in and creating an account.
+ Height-only fix (py-2.5 -> py-3 plus an explicit min-height): the width was already ample, so
+ this cannot introduce the horizontal overflow the same prover checks in the same run. 
 Sign In
 Sign Up
 
@@ -424,4 +428,4 @@ Account required
 
 WorkHive now requires an account to protect your data. Sign up: it takes 30 seconds.
 
-<!-- md-twin source-sha: fb56a16aeb032272 -->
+<!-- md-twin source-sha: 6d594e11de8d41d0 -->

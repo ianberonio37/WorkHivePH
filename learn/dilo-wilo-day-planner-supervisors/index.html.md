@@ -26,7 +26,7 @@ Who this is for
 - New supervisors managing first team
 - Existing supervisors making promotion case
 
-Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/) — the four-step, zero-budget rollout this article is one step of.
+Part of the [guide to starting digital maintenance in a Philippine factory](https://workhiveph.com/learn/start-digital-maintenance-guide/): the four-step, zero-budget rollout this article is one step of.
 
 ## Why most plant supervisors fail at time management
 
@@ -183,4 +183,4 @@ Two weeks for personal results (less end-of-day stress, better sleep, fewer carr
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 8341b02d6230248e -->
+<!-- md-twin source-sha: c4aec2f68eb9b8f6 -->

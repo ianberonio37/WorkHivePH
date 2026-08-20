@@ -128,10 +128,10 @@ TESDA NC mapping is not mandatory, but it is highly recommended for Philippine i
 
 ## Sources
 
-- [TESDA](https://www.tesda.gov.ph/), **Training Regulations** (Electrical Installation and Maintenance NC II; SMAW NC I/II) — competency standards and nominal training hours.
+- [TESDA](https://www.tesda.gov.ph/), **Training Regulations** (Electrical Installation and Maintenance NC II; SMAW NC I/II): competency standards and nominal training hours.
 - TESDA. (2022). TESDA National Certificate (NC) Handbook.
 - DOLE. (2020). Occupational Safety and Health Standards (OSHS).
 - IIEE. (2019). Code of Ethics and Professional Conduct for Electrical Engineers.
 - ISO. (2016). ISO 14224:2016 Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange.
 
-<!-- md-twin source-sha: 0e1a30ef5fc8cf9b -->
+<!-- md-twin source-sha: 10e4048cd550392f -->

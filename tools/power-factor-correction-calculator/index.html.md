@@ -16,19 +16,19 @@ Selected bank50 kVAR
 Per phase16.67 kVAR
 Computed live by WorkHive's calculation engine; standard: IEEE 18-2012 | IEEE 1036-2010.
 How to use this calculator
-Enter the figures for the duty you are sizing — the worked example below uses a 100 kW load improving power factor from 0.80 to 0.95.
+Enter the figures for the duty you are sizing: the worked example below uses a 100 kW load improving power factor from 0.80 to 0.95.
 The calculator returns kVAR required, Selected bank, Per phase, computed per IEEE 18-2012 | IEEE 1036-2010.
 Check the worked example to confirm the method matches how you would do it by hand, then run your own numbers in the interactive tool.
 FAQ
 What is a power factor correction capacitor kVAR calculator?The Power Factor Correction Calculator is a free online tool that computes sizes the capacitor bank (kVAR) needed to raise power factor from its present value to a target. It shows the formula and a fully worked example so you can check the method, not just the number.
 How is it calculated?The result is computed from your inputs following IEEE 18-2012 | IEEE 1036-2010. The worked example on this page shows a real computation with real numbers.
-Is the calculator free?Yes. WorkHive's engineering calculators are free to use — no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
+Is the calculator free?Yes. WorkHive's engineering calculators are free to use, no sign-up needed for the tools. WorkHive is a free, offline-first maintenance platform built for Philippine industrial plants.
 Run it on your own numbers
-[Open the interactive Power Factor Correction Calculator in WorkHive](https://workhiveph.com/engineering-design.html) — free, no sign-up needed for the calculators.
+[Open the interactive Power Factor Correction Calculator in WorkHive](https://workhiveph.com/engineering-design.html): free, no sign-up needed for the calculators.
 Related calculators
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/) (pillar)
 [Wire Sizing Calculator](https://workhiveph.com/tools/wire-sizing-calculator/)
 [Transformer Sizing Calculator](https://workhiveph.com/tools/transformer-sizing-calculator/)
 [Free Engineering Calculators for Philippine Plants](https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/)
 
-<!-- md-twin source-sha: b2658521458a3908 -->
+<!-- md-twin source-sha: 470940e1a41d0eab -->

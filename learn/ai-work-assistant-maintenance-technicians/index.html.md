@@ -15,7 +15,7 @@ Updated 17 May 2026
 10 min read
 
 **Short answer:** An AI work assistant is a Filipino-speaking, plant-specific helper that answers fault-diagnosis questions, drafts shift handovers from your logbook entries, summarises asset history, and surfaces patterns across hundreds of past faults. It is good at memory and pattern-recall; it is not good at safety calls, real-time sensor interpretation, or anything that needs professional liability. Used right, it makes Filipino workers (field, engineering, supervisor, manager, contractor, new graduate) more visible at promotion time, not less. The workers most at risk from AI are the ones who refuse to use it; the ones who learn to prompt it well get protected.
- A real example of the reasoning: “Pump P-101A vibration spiked from **2.1 to 4.8 mm/s in 7 hours** — what should I check first?” returns a prioritised diagnosis, not a definition.
+ A real example of the reasoning: “Pump P-101A vibration spiked from **2.1 to 4.8 mm/s in 7 hours**: what should I check first?” returns a prioritised diagnosis, not a definition.
 
 Who this is for
 
@@ -162,4 +162,4 @@ It will, sometimes. Always cross-check against three things: (1) the OEM service
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 0d489d30b9e71091 -->
+<!-- md-twin source-sha: 9917dcc4b0196186 -->

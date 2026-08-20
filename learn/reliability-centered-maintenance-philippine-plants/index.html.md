@@ -25,7 +25,7 @@ Who this is for
 - Suppliers and contractors providing maintenance services
 - Auditors and officers ensuring compliance with regulations
 
-Part of the [maintenance metrics guide: OEE, MTBF, MTTR and reliability](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/) — the hub that connects every reliability metric and shows how they chain together.
+Part of the [maintenance metrics guide: OEE, MTBF, MTTR and reliability](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/): the hub that connects every reliability metric and shows how they chain together.
 
 ## What is Reliability-Centered Maintenance (RCM)?
 
@@ -134,4 +134,4 @@ Yes, RCM can be integrated with existing Computerized Maintenance Management Sys
 - SMRP (2015). CMRP BoK (Body of Knowledge). Society for Maintenance and Reliability Professionals.
 - DOLE OSHS (2019). Guidelines on Occupational Safety and Health Standards. Department of Labor and Employment.
 
-<!-- md-twin source-sha: 9655e62e3cd6adc1 -->
+<!-- md-twin source-sha: 9a864d2c32b70364 -->

@@ -2,7 +2,7 @@
 name: doc-index.html
 type: doc
 source: file:index.html.md
-source_sha: 2ab09357d7c3fa9f
+source_sha: 84f7d8f2aa2984b1
 last_verified: 2026-07-13
 supersedes: null
 ---

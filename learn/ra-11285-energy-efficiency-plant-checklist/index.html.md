@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 9 min read
 
-**Short answer:** The Republic Act 11285, also known as the Energy Efficiency and Conservation Act, aims to promote energy efficiency and conservation in the Philippines. To ensure compliance, plant managers and workers must understand the requirements and regulations. This checklist provides a comprehensive guide to help plant-floor personnel comply with the law. The thresholds decide whether this applies to you: a plant consuming **500,000 to under 4 million kWh** a year is a **Type 1** designated establishment and **4 million kWh** or more makes it **Type 2** — both must report annually to the **DOE** and run an energy management system based on **ISO 50001**.
+**Short answer:** The Republic Act 11285, also known as the Energy Efficiency and Conservation Act, aims to promote energy efficiency and conservation in the Philippines. To ensure compliance, plant managers and workers must understand the requirements and regulations. This checklist provides a comprehensive guide to help plant-floor personnel comply with the law. The thresholds decide whether this applies to you: a plant consuming **500,000 to under 4 million kWh** a year is a **Type 1** designated establishment and **4 million kWh** or more makes it **Type 2**: both must report annually to the **DOE** and run an energy management system based on **ISO 50001**.
 
 Who this is for
 
@@ -25,7 +25,7 @@ Who this is for
 - Suppliers and contractors providing energy-related products and services
 - Auditors and officers conducting compliance inspections
 
-Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](https://workhiveph.com/learn/ph-plant-compliance-guide/) — the hub for what an inspector actually asks to see.
+Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](https://workhiveph.com/learn/ph-plant-compliance-guide/): the hub for what an inspector actually asks to see.
 
 ## Overview of RA 11285
 
@@ -124,7 +124,7 @@ To ensure compliance, conduct regular energy audits, implement energy-efficient 
 
 The WorkHive Audit Log captures energy-related actions, such as energy consumption, maintenance activities, and energy-saving initiatives. This helps plant-floor personnel track and verify compliance with RA 11285.
 
-**[Track your RA 11285 energy figures in WorkHive](https://workhiveph.com/analytics.html)** — Free at the worker tier — the reporting numbers come from your own data.
+**[Track your RA 11285 energy figures in WorkHive](https://workhiveph.com/analytics.html)**: Free at the worker tier: the reporting numbers come from your own data.
 
 ## Sources
 
@@ -133,4 +133,4 @@ The WorkHive Audit Log captures energy-related actions, such as energy consumpti
 - International Organization for Standardization (ISO). (2016). ISO 14224:2016.
 - Society for Maintenance and Reliability Professionals (SMRP). (2019). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: 9845850aa034fc24 -->
+<!-- md-twin source-sha: cf7667a3eb40f6df -->
