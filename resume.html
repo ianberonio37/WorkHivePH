@@ -1024,7 +1024,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           if (error) throw error;
         } catch (err) {
           console.error('resume delete failed:', err);
-          toast('Could not delete: ' + (err.message || 'error'));
+          // The control is handed back below so the person can retry -- but a retry after a DEAD
+          // SESSION fails identically, so say which of the two it is. whIsAuthFailure keeps 401
+          // apart from 403/42501: only a genuinely gone session is told to sign in.
+          var _authGone = (typeof whIsAuthFailure === 'function') && whIsAuthFailure(err);
+          toast(_authGone
+            ? 'Your session expired, so nothing was deleted. Sign in again, then try once more.'
+            : 'Could not delete: ' + (err.message || 'error'));
           // Put the control back so the person can retry the thing that just failed.
           if (yesBtn) { yesBtn.disabled = false; yesBtn.removeAttribute('aria-busy'); yesBtn.textContent = 'Yes'; }
           return;

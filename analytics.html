@@ -860,7 +860,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       showToast('Risk scores recomputed for this hive');
     } catch (err) {
       console.warn('[analytics] recompute risk failed:', (err && err.message) || err);
-      if (lbl) lbl.textContent = '⚠ Try again';
+      // A REMEDY MUST BE ABLE TO WORK. '⚠ Try again' was set here unconditionally, before anything
+      // looked at the error, so a DEAD SESSION got a button that re-fails identically every press.
+      // whIsAuthFailure keeps 401 (session gone) apart from 403/42501 (signed in, refused) -- the
+      // helper's own note records a live case where answering both with 'sign in again' sent someone
+      // with a healthy session to fix nothing. Only the 401 half is told to sign in.
+      var _authGone = (typeof whIsAuthFailure === 'function') && whIsAuthFailure(err);
+      if (lbl) lbl.textContent = _authGone ? '⚠ Sign in' : '⚠ Try again';
       // ★THE SERVER ALREADY SAID SOMETHING USEFUL AND THIS LINE THREW IT AWAY. Measured live: the
       // recompute returns HTTP 429 with {"error":"AI call limit reached for this hive. Try again in an
       // hour.","scope":"hour"} — it names the limit, the scope AND when it clears. "Recompute failed,
@@ -878,7 +884,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           msg = (body && (body.error || body.message)) || '';
         }
       } catch (_) { /* empty-catch-allow: body may not be JSON — fall through to the mapper below */ }
-      showToast(msg || whAiError(err, 'Recompute failed. Try again shortly.'), 'error');
+      showToast(_authGone
+        ? 'Your session expired, so the recompute never reached the server. Sign in again, then retry.'
+        : (msg || whAiError(err, 'Recompute failed. Try again shortly.')), 'error');
     } finally {
       setTimeout(() => { if (lbl) lbl.textContent = orig; if (btn) btn.disabled = false; }, 2600);
     }
