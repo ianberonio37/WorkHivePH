@@ -43,6 +43,45 @@ PAGES = {
 }
 
 
+def narrowed_fn_digests(V, deps, exercised):
+    """Stamp digests for ONLY the functions a walk reports its oracle exercised.
+
+    THE DEFECT THIS CLOSES. R4b exists so an edit to a shared library expires only the claims that
+    rest on the edited code. It never delivered that, because the stamp was derived from the FILES a
+    walk loaded rather than the CODE its oracle exercised: a single row about a seller empty-state
+    recorded ~168 keys from utils.js, and one row here carries **1,675**. A digest set that names
+    everything is exactly as blunt as a whole-file hash for a MODIFY. Measured on the current bank:
+    484 rows carry fn_digests and 0 of them hold, because 7 keys out of 1,675 changed — all 7 from
+    an unrelated session-notice feature. That is four bank collapses from one root
+    (752 green -> 34; then 342, ~365, ~320 rows), each previously misread as "shared-library edits
+    are expensive, batch them".
+
+    `exercised` is a list of "<file>::<fn>" keys the walk MEASURED as executed (v3 coverage), so the
+    narrowing is observed, not inferred. Inferring which functions a claim rests on is precisely the
+    fiction R7 exists to stop, so when a reading does not carry coverage this returns the full map
+    unchanged and the caller warns — a wide-but-true stamp, never a narrow guess.
+
+    `fn_digests_still_hold` already ignores names absent from a recorded map, so a narrowed map needs
+    no verifier change; it simply stops volunteering keys the claim never rested on.
+    """
+    # v4, not v3: v3 counted brackets inside COMMENTS, so one prose line naming `getDb(`
+    # re-segmented the whole top-level stream and vanished all 881 of utils.js's keys.
+    # Re-walking under v3 would rebuild evidence that collapses at the next comment edit.
+    full = V.fn_digests(deps, version=4)
+    if not exercised:
+        return full, False
+    want = set(exercised)
+    out = {k: v for k, v in full.items() if k in want or k == "::v"}
+    for k in full:
+        if k == "::v":
+            out[k] = full[k]
+    if not any(k != "::v" for k in out):
+        # Coverage that matches nothing in the dependency files is a broken capture, not a claim
+        # resting on no code. Falling through to the full map keeps the row TRUE and merely wide.
+        return full, False
+    return out, True
+
+
 def _gate():
     spec = importlib.util.spec_from_file_location(
         "_vlmb", os.path.join(ROOT, "tools", "validate_live_mcp_bank.py"))
@@ -78,6 +117,7 @@ def main(argv):
 
     banked = failed = unmatched = 0
     misses = []
+    wide = []
     for row in rows:
         key = (row.get("category"), row.get("state"), row.get("surface"))
         rd = index.get(key) or wild.get((row.get("state"), row.get("surface")))
@@ -94,6 +134,9 @@ def main(argv):
         before = (row.get("status"), row.get("evidence"), row.get("findings"))
         row["status"] = "green"
         row["findings"] = []
+        _fd, _narrowed = narrowed_fn_digests(V, deps, rd.get("fns_exercised"))
+        if not _narrowed:
+            wide.append(key)
         ev = {
             "kind": "live-walk",
             "ref": f"live MCP session {today} · {rd.get('url')} ({rd.get('state')})",
@@ -102,6 +145,19 @@ def main(argv):
             "depends_on": deps,
             "sha": V.sha_of(deps),
             "walked_at": today,
+            # R4b, and the reason this bank kept collapsing: until now a marketplace walk recorded a
+            # WHOLE-FILE sha and no fn_digests, so any touch anywhere in utils.js expired every row
+            # that had ever loaded it — 752 green fell to 34 after three unrelated edits (an rgba
+            # value, a transport wrapper, a notice helper). Stamping v3 digests means an APPEND to a
+            # shared library expires nothing, because v3's top-level digest is a SET of per-statement
+            # hashes rather than one string over the whole file.
+            #
+            # It is NOT a full fix and must not be read as one: this stamps every function in the
+            # dependency files, and a digest set that names everything is as blunt as a file hash for
+            # a MODIFY — one colour change inside renderCompactStat still expires every row naming it.
+            # Narrowing it needs the walk to report which functions its oracle exercised, which the
+            # readings do not carry yet. See feedback_naming_every_function_is_naming_none.
+            "fn_digests": _fd,
         }
         # R6's escape hatch, and it is NOT a blanket one. A reading may declare `value_checked` only
         # when the walk compared a VALUE against an independent source rather than observing that the
@@ -126,6 +182,17 @@ def main(argv):
                  + sum(1 for k in wild if k not in seen_wild))
 
     print(f"{BOLD}Banking from the live MCP walk{RST}")
+    if wide:
+        # A wide stamp is TRUE but fragile: the row will expire on any edit to any function in
+        # its dependency files, which is the failure that collapsed this bank four times. Say so
+        # at bank time, where it can still be fixed, rather than discovering it at the next
+        # shared-library edit.
+        print(f"  {YEL}{len(wide)} row(s) stamped WIDE{RST} - the reading carried no "
+              f"`fns_exercised`, so EVERY function in the dependency files was recorded.")
+        print(f"    {DIM}These expire on ANY edit to those files. Capture coverage with "
+          f"tools/capture_walk_coverage.py to stamp only what the oracle ran.{RST}")
+        for k in wide[:6]:
+            print(f"      {DIM}wide:{RST} {k}")
     print(f"  {GREEN}{banked} banked green{RST} · {RED}{failed} owed{RST}"
           + (f" · {DIM}{unmatched} reading(s) matched no row{RST}" if unmatched else ""))
     for k, why in misses[:6]:

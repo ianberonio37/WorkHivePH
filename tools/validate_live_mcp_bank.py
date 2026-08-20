@@ -95,6 +95,55 @@ LAYER_DEPS = {
     "seam_storage_client":  ["supabase/migrations", "marketplace.html"],
 }
 
+# ── R7 FOR THE PAGE BANKS ────────────────────────────────────────────────────────────────────────
+# The map above is keyed on the MARKETPLACE bank's surface ids ("layer_db", "seam_edge_db", ...). The 22
+# page banks name their surface after the PAGE ("achievements", "logbook", ...) and carry the layer in
+# the row's `subject.name` instead ("db (17 tables/views)", "gateway (PostgREST)", "client", ...). So the
+# `surface in LAYER_DEPS` test below never matched a page-bank row, and R7 — the rule that exists because
+# 136 DB invariants once declared they rested on marketplace.html — was silent on all 440 of them.
+# Measured when this map was added: 92 GREEN page-bank layer rows declared a page + utils.js anchor for a
+# db / gateway / edge / ai / auth claim. Every one is a false green in the freshness sense, which is the
+# expensive direction: a migration that changes a grant expires NONE of them.
+#
+# WHY THIS IS A SECOND MAP AND NOT AN ALIAS OF THE FIRST — the thing that made a blind reuse unsafe:
+# "gateway" DENOTES DIFFERENT ARTIFACTS IN THE TWO BANKS. In the marketplace bank layer_gateway is the
+# edge-function front door, hence ["supabase/functions"]. In the page banks the anatomy says
+# "L2 gateway (PostgREST reads)" / "gateway (grade_skill_exam RPC)" / "gateway (budget RPC)" — PostgREST
+# and its RPCs, whose contract is DEFINED BY THE SCHEMA. Anchoring those to supabase/functions would
+# have replaced one wrong anchor with a differently wrong one, which is worse than the noise it fixed.
+# Two maps in one file with the distinction written down beats one map that quietly means two things.
+PAGE_LAYER_DEPS = {
+    # the layer word (first token of subject.name, lowercased) -> what a claim at that layer rests on.
+    # "<page>" is substituted with the bank's own page file, so a CLIENT claim still rests on its page.
+    "client":        ["<page>", "utils.js"],   # markup + shared client library: the page IS the subject
+    "db":            ["supabase/migrations"],
+    "cron":          ["supabase/migrations"],  # sweep-fed views: the schedule and the view are schema
+    "realtime":      ["supabase/migrations"],  # publication + RLS decide what a channel may carry
+    "storage":       ["supabase/migrations"],
+    "auth":          ["supabase/migrations"],  # the anon boundary is RLS, not page code
+    "gateway":       ["supabase/migrations"],  # PostgREST + RPCs (see the note above: NOT functions)
+    "edge":          ["supabase/functions", "supabase/migrations"],
+    "ai":            ["supabase/functions"],   # the prompt/gateway code, not the schema
+    "external-send": ["supabase/functions"],   # the send transport lives in a function
+    # cdn and print rest on the PAGE: the page pins the SRI hashes and carries the @media print rules.
+    "cdn":           ["<page>", "utils.js"],
+    "print":         ["<page>", "utils.js"],
+}
+
+
+def page_layer_deps(page_file, subject_name):
+    """-> the anchor a page-bank layer row must declare, or None if the layer word is unmapped.
+
+    Unmapped is deliberately a NO-OP rather than a failure: a new anatomy word should not brick the
+    gate, and R8/R10 already refuse un-grounded subjects at build time.
+    """
+    word = re.split(r"[^a-z\-]", str(subject_name or "").strip().lower())
+    word = next((w for w in word if w), "")
+    spec = PAGE_LAYER_DEPS.get(word)
+    if not spec:
+        return None
+    return sorted(page_file if d == "<page>" else d for d in spec)
+
 
 def sha_of(paths):
     """Hash the files a claim depends on. Missing file => its own marker, so a DELETED dependency
@@ -177,7 +226,63 @@ def sha_of(paths):
 _FN_RE = re.compile(r"^[ \t]*(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(", re.M)
 
 
-def fn_digests(paths):
+def _strip_js_comments(src):
+    """Remove // and /* */ comments while preserving string and template literals.
+
+    WHY THIS EXISTS — a PROSE COMMENT was expiring live evidence. v3 segments top-level code by
+    counting brackets per line, and it counted them INSIDE COMMENTS. This repo's house style writes
+    long explanatory comments that name calls: "every client routes through getDb(", "118 annotated
+    catch (_) { ... } blocks". Such a line carries an unbalanced bracket, which raises the splitter's
+    depth and glues every following line into one giant statement. Measured: adding the single line
+    "// every client routes through getDb( and _timeoutFetch" to utils.js vanished **881 of 881**
+    top-level keys, expiring every row anchored to the file.
+
+    That is the actual root of this bank's four collapses (752 green -> 34, then 342, ~365, ~320),
+    each previously read as "shared-library edits are expensive". They were not expensive because the
+    library was shared; they were expensive because writing a SENTENCE ABOUT the code counted as
+    changing the code.
+
+    Strings are preserved so a URL's `//` and a literal "/*" are not mistaken for comment openers.
+    Regex literals are NOT parsed: a regex holding an unbalanced bracket can still mis-segment. That
+    is the same exposure v3 already carried, and it fails toward over-sensitivity — a needless
+    re-walk — never toward a false green.
+    """
+    out, i, n = [], 0, len(src)
+    quote = None
+    while i < n:
+        c = src[i]
+        nxt = src[i + 1] if i + 1 < n else ""
+        if quote:
+            out.append(c)
+            if c == "\\" and i + 1 < n:      # an escaped quote does not close the literal
+                out.append(nxt)
+                i += 2
+                continue
+            if c == quote:
+                quote = None
+            i += 1
+            continue
+        if c == "'" or c == '"' or c == "`":
+            quote = c
+            out.append(c)
+            i += 1
+            continue
+        if c == "/" and nxt == "/":
+            while i < n and src[i] != "\n":
+                i += 1
+            continue
+        if c == "/" and nxt == "*":
+            i += 2
+            while i + 1 < n and not (src[i] == "*" and src[i + 1] == "/"):
+                i += 1
+            i += 2
+            continue
+        out.append(c)
+        i += 1
+    return "".join(out)
+
+
+def fn_digests(paths, version=3):
     """{"<file>::<fn>": digest} for every `function name(...)` declaration, plus "<file>::toplevel"
     for everything outside those bodies. Brace-matched rather than regex-sliced, because a regex that
     stops at the first `}` reports a two-line function for a fifty-line one and would call a real
@@ -219,7 +324,11 @@ def fn_digests(paths):
             # fresh. Disambiguate by occurrence; the extra key costs nothing and cannot hide a change.
             seen_names[name] = seen_names.get(name, 0) + 1
             key = name if seen_names[name] == 1 else "%s#%d" % (name, seen_names[name])
-            out["%s::%s" % (p, key)] = hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
+            # v4 digests CODE, not prose. A comment rewritten inside a function body is not a
+            # behaviour change, and expiring a live reading for one is exactly the over-sensitivity
+            # this mechanism exists to remove.
+            _body = _strip_js_comments(body) if version >= 4 else body
+            out["%s::%s" % (p, key)] = hashlib.sha256(_body.encode("utf-8")).hexdigest()[:16]
             spans.append((m.start(), j + 1))
         # Allowing indented declarations means NESTED functions match too, and a nested span sits
         # INSIDE its parent's. Slicing overlapping spans out of the source would corrupt the top-level
@@ -240,10 +349,49 @@ def fn_digests(paths):
         # gap, which is the exact over-sensitivity this whole mechanism exists to remove. Whitespace
         # BETWEEN top-level declarations cannot change what the file does; whitespace INSIDE a function
         # is inside that function's own digest, untouched by this.
-        norm = "\n".join(ln.strip() for chunk in top for ln in chunk.splitlines() if ln.strip())
-        out["%s::toplevel" % p] = hashlib.sha256(norm.encode("utf-8")).hexdigest()[:16]
+        # v4 strips comments BEFORE normalising, which is what stops a prose edit from
+        # re-segmenting the statement stream below. See _strip_js_comments: one comment line
+        # naming `getDb(` vanished all 881 of utils.js's top-level keys under v3.
+        _top = [_strip_js_comments(c) for c in top] if version >= 4 else top
+        norm = "\n".join(ln.strip() for chunk in _top for ln in chunk.splitlines() if ln.strip())
+        if version >= 3:
+            # ── ONE BUCKET FOR ALL TOP-LEVEL CODE MADE EVERY SHARED-LIBRARY FIX COST ~340 RE-WALKS ──
+            # v2 hashed the whole top-level remainder into a single "<file>::toplevel" key, so APPENDING
+            # one IIFE to utils.js changed that key and expired every row anchored to the file. Measured
+            # three times in one session on this arc: 309 rows, then 164, then 343 - and the third was a
+            # three-line fix to a clipped avatar badge. Since utils.js is anchored by every browser row,
+            # and centralize-first is the correct pattern (one shared fix beat eleven page-local ones in
+            # that same session), the cost fell on exactly the work worth doing most.
+            #
+            # v3 splits the remainder into TOP-LEVEL STATEMENTS and keys each by its own content hash, so
+            # KEY == VALUE. The recorded map becomes a SET of statement hashes that must all still be
+            # present, which gives the three behaviours this needs, by construction rather than by care:
+            #   append  -> a NEW key appears; every recorded key still present; nothing expires.
+            #   modify  -> that statement's hash changes, so its recorded key VANISHES -> stale.
+            #   delete  -> its key vanishes -> stale.
+            # The asymmetry is the safety argument: a mis-placed statement boundary can only make a change
+            # look bigger (more keys move), never smaller. Over-sensitivity costs a re-walk; UNDER-
+            # sensitivity mints a false green, and this splitter cannot under-report, because any edited
+            # byte lands inside some chunk and changes that chunk's hash.
+            depth, buf, stmts = 0, [], []
+            for ln in norm.splitlines():
+                buf.append(ln)
+                depth += ln.count("{") + ln.count("(") + ln.count("[")
+                depth -= ln.count("}") + ln.count(")") + ln.count("]")
+                if depth <= 0:                      # back at top level: the statement is complete
+                    stmts.append("\n".join(buf))
+                    buf, depth = [], 0
+            if buf:
+                stmts.append("\n".join(buf))        # unbalanced tail: keep it rather than drop it
+            for st in stmts:
+                if not st.strip():
+                    continue
+                h = hashlib.sha256(st.encode("utf-8")).hexdigest()[:16]
+                out["%s::top:%s" % (p, h)] = h      # key == value: membership IS the check
+        else:
+            out["%s::toplevel" % p] = hashlib.sha256(norm.encode("utf-8")).hexdigest()[:16]
     if out:
-        out["::v"] = "2"          # see fn_digests_still_hold: a map must be checked by its own algorithm
+        out["::v"] = str(version)  # see fn_digests_still_hold: a map must be checked byits own algorithm
     return out
 
 
@@ -315,9 +463,21 @@ def fn_digests_still_hold(recorded):
     deliberately ignored."""
     if not recorded:
         return False
+    # A RECORDED MAP IS CHECKED BY THE ALGORITHM THAT WROTE IT, which is why the version travels with it.
+    # v1 rows keep the v1 contract, v2 rows keep the single-toplevel-bucket contract they were banked
+    # under, and only v3 rows get the per-statement set. Nothing is retroactively re-interpreted - the last
+    # time this file's measurement changed without versioning, recomputing old recordings with the new
+    # algorithm expired 661 rows in one run and the ratchet correctly refused it.
     version = str(recorded.get("::v") or "1")
     files = sorted({k.split("::", 1)[0] for k in recorded if k != "::v"})
-    current = fn_digests(files) if version == "2" else _fn_digests_v1(files)
+    if version == "4":
+        current = fn_digests(files, version=4)
+    elif version == "3":
+        current = fn_digests(files, version=3)
+    elif version == "2":
+        current = fn_digests(files, version=2)
+    else:
+        current = _fn_digests_v1(files)
     for k, v in recorded.items():
         if k == "::v":
             continue
@@ -392,6 +552,33 @@ def classify(row, gates, urls):
         if sorted(dep) != sorted(LAYER_DEPS[surface]):
             return "stale", (f"R7 a {surface} claim declares {dep or '[]'} but rests on "
                              f"{LAYER_DEPS[surface]} — re-walk it against the right artifacts")
+
+    # R7, PAGE-BANK HALF. Same rule, different bookkeeping: these rows name the page in `surface` and
+    # the layer in `subject.name`, so the test above could never see them. See PAGE_LAYER_DEPS.
+    if ("-CA-layer-contract-" in str(row.get("id") or "")
+            and status not in ("owed", "lane-reassigned")):
+        page_file = next((d for d in (row.get("page_deps") or []) if str(d).endswith(".html")), None)
+        if page_file is None:
+            # derive it from the surface: the page banks' surface IS the page stem
+            page_file = f"{surface}.html" if surface else None
+        if page_file:
+            want = page_layer_deps(page_file, (row.get("subject") or {}).get("name"))
+            # SUBSET, NOT EQUALITY — and the asymmetry is the whole point of the rule. R7 exists to catch
+            # a claim that MISSES what it rests on (a db invariant that no migration can expire: a false
+            # green with no signal). A claim that declares MORE than its layer needs is the cheap
+            # direction: over-expiry costs a re-walk, under-expiry costs a wrong number.
+            # This is not a loophole, it is required for correctness. Some oracles genuinely span layers:
+            # `ordering_totality` on a db read rests on the PAGE (which writes the ORDER BY clause) AND on
+            # migrations (which decide whether the sort is unique) - its own evidence says "ORDER clauses
+            # read site-by-site out of the source and tie density measured in SQL". An equality test
+            # demanded that such a row DROP the page it genuinely depends on, which would have created the
+            # exact unsafe anchor this rule exists to prevent, pointing the other way.
+            if want is not None and not set(want).issubset(set(dep)):
+                missing = sorted(set(want) - set(dep))
+                return "stale", (f"R7 a {(row.get('subject') or {}).get('name')} claim declares "
+                                 f"{dep or '[]'} but does not name {missing}, which it rests on — "
+                                 f"re-walk it against the right artifacts (a migration that changes "
+                                 f"this must expire the claim, and today it would not)")
 
     if dep:
         if sha_of(dep) != ev.get("sha"):
@@ -574,7 +761,17 @@ def main(argv):
         if new_entry is not None:
             banks_base[name] = new_entry
             dirty = True
-    if dirty and rc == 0:
+    # PERSIST PER-BANK, NOT ALL-OR-NOTHING (fixed 2026-08-05, first --accept across 23 banks).
+    # This used to be `if dirty and rc == 0`, and the very first multi-bank accept exposed why that
+    # is wrong: the marketplace bank correctly REFUSED its accept (752 -> 412 under the parallel
+    # walking session's drift), which set rc=1 — and that discarded the page banks' legitimate,
+    # independently-validated accepts while the run had already printed "ACCEPTED" for each of them.
+    # A tool that prints a success it did not persist is the silently-failed-write class, and here it
+    # would have quietly cost a real banked walk.
+    # Each entry is decided on its OWN bank's ratchet inside process_bank, which returns an entry
+    # ONLY when that bank's accept is lawful. So a refusal elsewhere must not veto it: one bank's
+    # drift is not another bank's regression. rc still reports the failure, so the gate stays RED.
+    if dirty:
         save_baseline(banks_base)
     return rc
 
@@ -632,6 +829,61 @@ def selftest():
                        "depends_on": ["marketplace.html", "utils.js"],
                        "sha": sha_of(["marketplace.html", "utils.js"])}},
          "green", "R7 must NOT fire on a client-layer row that legitimately depends on the page"),
+
+        # ── R7, PAGE-BANK HALF ────────────────────────────────────────────────────────────────────
+        # The shape that 92 GREEN page-bank rows carried: a schema claim anchored to the page that was
+        # open when it was walked. This half of R7 was missing entirely, so none of them was flagged.
+        ({"status": "green", "surface": "marketplace",
+          "id": "PB-marketplace-011-CA-layer-contract-L3-envelope_shape",
+          "subject": {"key": "L3", "name": "db (17 tables/views)"},
+          "evidence": {"kind": "psql", "ref": "psql 2026-08-10", "asserts": "bare JSON array envelope",
+                       "depends_on": ["marketplace.html", "utils.js"], "sha": "whatever"}},
+         "stale", "R7 page-bank: a db claim anchored to the page"),
+        # gateway on a PAGE bank means PostgREST, so supabase/functions is ALSO wrong here - this is the
+        # case that made a blind alias of LAYER_DEPS unsafe.
+        ({"status": "green", "surface": "marketplace",
+          "id": "PB-marketplace-006-CA-layer-contract-L2-idempotency",
+          "subject": {"key": "L2", "name": "gateway (PostgREST reads)"},
+          "evidence": {"kind": "psql", "ref": "psql 2026-08-10", "asserts": "same request, same bytes",
+                       "depends_on": ["supabase/functions"], "sha": "whatever"}},
+         "stale", "R7 page-bank: a PostgREST gateway claim anchored to functions, not the schema"),
+        # and it must stay SILENT on a client-layer row, which really does rest on its page
+        ({"status": "green", "surface": "marketplace",
+          "id": "PB-marketplace-001-CA-layer-contract-L1-units_declared",
+          "subject": {"key": "L1", "name": "client"},
+          "evidence": {"kind": "live-walk", "ref": "2026-08-10 live MCP /workhive/marketplace.html",
+                       "asserts": "every quantity carries its unit",
+                       "value_checked": "read from the rendered rows",
+                       "depends_on": ["marketplace.html", "utils.js"],
+                       "sha": sha_of(["marketplace.html", "utils.js"])}},
+         "green", "R7 page-bank must NOT fire on a client row that legitimately rests on its page"),
+        # an UNMAPPED layer word is a no-op, not a failure: a new anatomy word must not brick the gate
+        ({"status": "green", "surface": "marketplace",
+          "id": "PB-marketplace-016-CA-layer-contract-L4-units_declared",
+          "subject": {"key": "L4", "name": "quantum-flux (not a real layer)"},
+          "evidence": {"kind": "psql", "ref": "psql 2026-08-10", "asserts": "a",
+                       "depends_on": [DEP], "sha": good_sha}},
+         "green", "R7 page-bank leaves an unmapped layer word alone"),
+        # SUBSET, both directions. A SPANNING claim (ordering_totality reads the ORDER BY from the page
+        # and the tie density from the schema) declares MORE than its layer requires and must PASS -
+        # an equality test would have forced it to drop the page it really rests on.
+        ({"status": "green", "surface": "marketplace",
+          "id": "PB-marketplace-013-CA-layer-contract-L3-ordering_totality",
+          "subject": {"key": "L3", "name": "db (9 tables/views)"},
+          "evidence": {"kind": "psql", "ref": "psql 2026-08-10",
+                       "asserts": "every paginated ORDER is total",
+                       "value_checked": "ORDER clauses read from the page; tie density measured in SQL",
+                       "depends_on": ["marketplace.html", "utils.js", "supabase/migrations"],
+                       "sha": sha_of(["marketplace.html", "utils.js", "supabase/migrations"])}},
+         "green", "R7 page-bank must ALLOW a claim that declares more than its layer requires"),
+        # ...but a claim that OMITS its layer's artifact still fails, which is the unsafe direction
+        ({"status": "green", "surface": "marketplace",
+          "id": "PB-marketplace-014-CA-layer-contract-L3-ordering_totality",
+          "subject": {"key": "L3", "name": "db (9 tables/views)"},
+          "evidence": {"kind": "psql", "ref": "psql 2026-08-10",
+                       "asserts": "every paginated ORDER is total",
+                       "depends_on": ["marketplace.html", "utils.js"], "sha": "whatever"}},
+         "stale", "R7 page-bank still catches a db claim that omits supabase/migrations"),
     ]
     for row, want, label in cases:
         got, _ = classify(row, gates, urls)
