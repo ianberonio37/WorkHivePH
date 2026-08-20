@@ -165,9 +165,17 @@
     .chat-textarea::placeholder { color:rgba(255,255,255,0.80); }
 
     /* Toast */
+      /* env(safe-area-inset-bottom) added 2026-08-06: this toast sat a fixed distance from the
+         bottom with NO home-indicator guard, so on an iPhone it could render under the indicator.
+         Found by auditing every toast rule on the platform after the layout lens reported
+         declaresSafeArea=false for div#toast on voice-journal and engineering-design: 6 of the 8
+         toast rules were missing the guard and only community + pm-scheduler had it — a shared
+         component copied per page and then diverged. The original offset is preserved; only the
+         inset is added. Read via the CSSOM, not getComputedStyle, which resolves env() to 0 on
+         desktop and makes a guarded and an unguarded rule look identical. */
     .toast {
       position: fixed;
-      bottom: 1.5rem;
+      bottom: calc(1.5rem + env(safe-area-inset-bottom));
       left: 50%;
       transform: translateX(-50%) translateY(4px);
       background: linear-gradient(135deg, rgba(42,61,88,0.95), rgba(31,46,69,0.98));
@@ -196,6 +204,9 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .fade-up { animation: fadeUp 0.3s ease forwards; }
+    /* forwards fill ends at opacity 1 and the base rule declares no opacity of its own, so
+       animation:none lands on the same visual result the animation was travelling toward. */
+    @media (prefers-reduced-motion: reduce) { .fade-up { animation: none; } }
 
     /* API key toggle */
     .key-toggle {
@@ -246,7 +257,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <summary>How this page works</summary>
   <p>Type a question or set up the daily briefing. Answers are grounded in your own hive data: logbook, PM schedule, parts, and alerts.</p>
 </details>
-<p class="wh-source-chip" style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Live hive data &middot; Based on your logbook, PM schedule, parts, and alerts &middot; recomputed per question</p>
+<p class="wh-source-chip" id="assistant-scope-chip" style="font-size:.62rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Live hive data &middot; Based on your logbook, PM schedule, parts, and alerts &middot; recomputed per question</p>
 
       <!-- Form card -->
       <div class="wh-card p-6 space-y-5">
@@ -303,6 +314,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <h1 style="margin:0;font-size:0.85rem;font-weight:700;" data-i="chattitle">Work Assistant</h1>
         <div class="w-2 h-2 rounded-full animate-pulse" style="background:var(--wh-green);"></div>
         <span id="chat-worker-name" class="text-sm font-semibold text-white/80"></span>
+        <!-- ★THE PERSONA SHAPED EVERY REPLY AND WAS NEVER NAMED. This page reads the persona and
+             sends it to the gateway (personaName, below), so switching between Hezekiah and Zaniah
+             visibly changes how the answer reads - measured on one question: same machines, same
+             failure counts, different voice. But the portrait and name live in the floating
+             companion-launcher, which this page does NOT load, so the reader had no way to tell WHO
+             was answering or that the voice had changed at all. Named here using wh-persona.js's own
+             getPersonaName(), so the label cannot drift from the persona actually sent. -->
+        <span id="chat-persona-name" class="text-xs text-white/80"></span>
       </div>
       <button onclick="clearChat()" class="text-xs text-white/80 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;" data-i="newchat">New Chat</button>
     </div>
@@ -423,7 +442,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       window.location.href = 'index.html';
     }
 
+    // Entering the chat is a navigation as far as the reader is concerned, so Back should return to
+    // setup rather than leave the page. Measured 2026-08-20: showScreen pushed no history entry and
+    // assistant.html had ZERO popstate handlers, so Back from an open conversation left the site and
+    // the conversation with it - it lives in memory only. Same shape as index's mobile menu.
+    window.addEventListener('popstate', () => {
+      const chat = document.getElementById('chat-screen');
+      if (chat && chat.style.display !== 'none') { _whSuppressPush = true; showScreen('setup-screen'); _whSuppressPush = false; }
+    });
+    let _whSuppressPush = false;
+
     function showScreen(id) {
+      if (id === 'chat-screen' && !_whSuppressPush && !(history.state && history.state.whChat)) {
+        try { history.pushState({ whChat: 1 }, ''); } catch (_) { /* empty-catch-allow: history blocked in some webviews */ }
+      }
       document.querySelectorAll('.screen').forEach(s => {
         s.classList.remove('active');
         if (s.id === 'chat-screen') s.style.display = 'none';
@@ -510,6 +542,28 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     // ── Build system prompt with worker records ───────────────────
+
+    // Lives OUTSIDE buildSystemPrompt because that function no longer runs (see the note where its
+    // call was removed). Caught by a live check: with the updater inside it, the chip silently kept
+    // its build-time text - a fix that ships and never executes.
+    function _setAssistantScopeChip() {
+      try {
+        const _chip = document.getElementById('assistant-scope-chip');
+        if (_chip) {
+          const _hive = localStorage.getItem('wh_hive_name'); /* storage-key-allow: display-only hive label */
+          // Describe what actually grounds the ANSWER, which is the gateway's own hive-scoped reads
+          // (alerts, overdue PMs, parts, asset risk, blocked project items, plus a vector search over
+          // this hive's knowledge). The client's buildSystemPrompt bundle is NOT sent - it was removed
+          // from the payload for security (K1, 2026-07-12) - so naming its windows here would describe
+          // reads that never reach the model.
+          _chip.textContent = (_hive ? _hive + ' · ' : 'Your hive · ')
+            + 'Answers are grounded in this hive’s live data: open alerts, overdue PMs, parts stock, '
+            + 'asset risk and blocked project items · recomputed per question';
+        }
+      } catch (_) { /* empty-catch-allow: the chip is an explainer, never a blocker */ }
+    }
+    try { _setAssistantScopeChip(); } catch (_) { /* empty-catch-allow */ }
+
     async function buildSystemPrompt(name, contextNote) {
       const pastDate   = new Date(Date.now() - 3  * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
       const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
@@ -521,6 +575,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // so the system prompt does not balloon past the model's
       // context budget.
       const journalSince = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
       // Cold-load auth settle (2026-07-12): buildSystemPrompt runs on page load to PRIME the
       // assistant's grounding. getSession() (used elsewhere on this page) resolves the token
       // from storage, but on a cold load supabase-js may not have attached the JWT to its
@@ -745,6 +800,11 @@ happens to know maintenance, not a manual.`;
       // Switch to chat immediately: no waiting
       sessionMessages = [];
       document.getElementById('chat-worker-name').textContent = workerName;
+    try {
+      const _pn = (typeof window.personaName === 'function') ? window.personaName() : null;
+      const _pe = document.getElementById('chat-persona-name');
+      if (_pe && _pn) _pe.textContent = '· ' + _pn;
+    } catch (_) { /* empty-catch-allow: the label is decoration, never block the chat */ }
       showScreen('chat-screen');
       addTypingIndicator();
 
@@ -753,13 +813,24 @@ happens to know maintenance, not a manual.`;
       // getUser settle wouldn't cover a sibling in the same Promise.all), so on a signed-in
       // cold load it could 401 → a false "you don't have any records yet" welcome. Settle auth
       // ONCE up front (buildSystemPrompt's internal getUser is then a fast no-op).
-      try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: proceed; count degrades to 0 */ }
-      const [systemPrompt, lc] = await Promise.all([
-        buildSystemPrompt(workerName, contextNote),
+      /* The result used to be DISCARDED, so a signed-out visitor fell through to the
+         "I couldn't reach your job records" branch below -- which says "that does not mean
+         they are missing" and is the one thing we DO know the cause of. Not-signed-in is a
+         third truth condition, distinct from read-failed and from genuinely-empty, and it is
+         the only one the person can act on (2026-08-20). */
+      let _authedUser = null;
+      try { _authedUser = (await db.auth.getUser())?.data?.user || null; } catch (_) { /* empty-catch-allow: proceed; count degrades to 0 */ }
+      // buildSystemPrompt is NOT called here any more. Its result was assigned to
+      // window._systemPrompt, which is written once in the whole codebase and read nowhere: the
+      // gateway payload carries { agent, message, hive_id, context } and the prompt was deliberately
+      // dropped from it for security (K1, 2026-07-12, see the fallback comment below). Grounding now
+      // happens server-side in ai-gateway from hive_id. So the call cost six authenticated reads on
+      // every chat open and shaped nothing. The function is kept, not deleted, because it is the
+      // obvious hook if per-asker grounding is ever wanted again - but it should not run until
+      // something consumes it.
+      const [lc] = await Promise.all([
         db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', workerName),
       ]);
-
-      window._systemPrompt = systemPrompt;
       removeTypingIndicator();
 
       /* THE COMMENT ABOVE FIXED THE RACE AND LEFT THE ERROR. A head:true COUNT resolves with
@@ -770,7 +841,13 @@ happens to know maintenance, not a manual.`;
          their history is gone. Unknown is its own branch: say what happened and claim nothing. */
       const lcUnknown = !lc || lc.error || lc.count === null || lc.count === undefined;
       const hasRecords = !lcUnknown && lc.count > 0;
-      const recordsNote = lcUnknown
+      /* Signed-out wins over lcUnknown: the read did fail, but naming the CAUSE is the
+         difference between a dead end and a next step. The name below is the one they typed
+         (KEY_WORKER is 'wh_last_worker', a convenience prefill), so it is never presented as
+         an identity the platform has verified. */
+      const recordsNote = !_authedUser
+        ? "You're not signed in, so I can't reach your job records -- I only have the name you entered. Sign in to get answers grounded in your own history. I can still help with technical questions, procedures and calculations."
+        : lcUnknown
         ? "I couldn't reach your job records just now, so I may not have them to hand. That does not mean they are missing. Ask me anything technical in the meantime, and try again in a moment for anything about your own history."
         : hasRecords
         ? "I can see your job records and will reference them when relevant."
@@ -851,15 +928,26 @@ happens to know maintenance, not a manual.`;
     // disturb the chat. One-shot per reply.
     async function _recordChatFeedback(rating, question, answer) {
       const r = Number(rating);
-      if (r !== 1 && r !== -1) return;
-      if (!db || !db.from) return;
+      // An invalid rating is a caller bug, not a failed write - there is nothing to retry, so it does NOT
+      // re-enable the buttons. A missing client IS a failed write and must, or the control would keep
+      // claiming a signal it never sent.
+      if (r !== 1 && r !== -1) return true;
+      if (!db || !db.from) return false;
       const hiveId = whHiveId();
-      const personaName = (typeof window.getCurrentPersona === 'function')
-        ? window.getCurrentPersona()
-        : (/* storage-key-allow: persona pref */ localStorage.getItem('wh_persona') || 'zaniah');
+      // ★THE SAME CL9 BUG, LEFT BEHIND IN THIS FILE. companion-launcher.js:932 records this exact
+      // defect and its fix: window.getCurrentPersona is NEVER defined anywhere, and the fallback read
+      // 'wh_persona', which nothing writes - the canonical key is 'wh_voice_journal_persona' (index.html
+      // writes it on every persona tap). So the condition was always false, the fallback always missed,
+      // and this page sent 'zaniah' no matter who the worker picked. The launcher was corrected; its
+      // sibling was not, so a worker who chose Hezekiah still got Zaniah's voice from the Assistant.
+      // Same resolver as the launcher now: window.getPersonaKey() reads the canonical key and clamps.
+      const personaName = (typeof window.getPersonaKey === 'function')
+        ? window.getPersonaKey()
+        : (/* storage-key-allow: canonical persona pref */ localStorage.getItem('wh_voice_journal_persona') || 'zaniah');
       try {
         // auth_uid OMITTED: the table DEFAULT stamps auth.uid() and RLS binds
         // the row to the caller, so a forged identity is rejected at the DB.
+        // Returns whether the row landed, so the CONTROL can reflect reality instead of assuming success.
         const { error: fbErr } = await db.from('ai_reply_feedback').insert({
           hive_id:     hiveId,
           worker_name: (typeof workerName === 'string' && workerName) ? workerName : null,
@@ -871,8 +959,12 @@ happens to know maintenance, not a manual.`;
           answer:      String(answer == null ? '' : answer).slice(0, 4000),
           rating:      r,
         });
-        if (fbErr) console.debug('assistant feedback insert failed (best-effort):', fbErr.message);
-      } catch (_) { /* non-fatal: feedback is best-effort */ /* empty-catch-allow: best-effort silent swallow */ }
+        if (fbErr) { console.debug('assistant feedback insert failed (best-effort):', fbErr.message); return false; }
+        return true;
+      } catch (_) {
+        /* non-fatal: feedback is best-effort */ /* empty-catch-allow: best-effort silent swallow */
+        return false;   // a thrown insert is a failed write; let the control come back
+      }
     }
 
     // Append a one-tap 👍/👎 row under a live assistant reply. Built via DOM
@@ -897,13 +989,42 @@ happens to know maintenance, not a manual.`;
       }
       const up   = mkBtn(1,  '👍', 'Helpful reply');
       const down = mkBtn(-1, '👎', 'Unhelpful reply');
-      row.appendChild(up); row.appendChild(down);
+      // ★THE ONLY EVIDENCE THE FEEDBACK LANDED WAS A BACKGROUND COLOUR. The row held two glyph buttons and
+      // no text, so a recorded rating was signalled by tinting the pressed button and dimming both - which
+      // a colour-blind worker cannot distinguish from the disabled state, and which announces nothing at
+      // all to a screen reader beyond the buttons becoming disabled. The person had no way to know whether
+      // their signal was recorded or what it was for.
+      // The best-effort, no-toast design is deliberate and is kept - feedback must never disturb the chat -
+      // so this is an inline role="status" line inside the same row, written only when the write actually
+      // landed. It stays silent on failure, where the existing behaviour already restores the buttons.
+      const note = document.createElement('span');
+      note.setAttribute('role', 'status');
+      note.setAttribute('aria-live', 'polite');
+      note.style.cssText = 'font-size:.7rem;color:var(--muted,#888);margin-left:2px;';
+      row.appendChild(up); row.appendChild(down); row.appendChild(note);
       [up, down].forEach(function (btn) {
-        btn.addEventListener('click', function () {
+        btn.addEventListener('click', async function () {
           const rating = Number(btn.getAttribute('data-rate')) || 0;
+          const prevBg = btn.style.background;
           [up, down].forEach(b => { b.disabled = true; b.style.opacity = '0.45'; b.style.cursor = 'default'; });
           btn.style.background = (rating > 0) ? 'rgba(74,222,128,.22)' : 'rgba(248,113,113,.22)';
-          _recordChatFeedback(rating, question, answer);
+          // ★THE CONTROL USED TO CLAIM SUCCESS IT NEVER CHECKED. Both buttons were disabled and the chosen one
+          // tinted the instant it was pressed, and the insert's error was only console.debug'd - so a feedback
+          // row rejected by RLS, blocked offline or lost anon looked EXACTLY like one that landed. The person
+          // believed they had told us something.
+          // The best-effort design is right and is kept: feedback must never disturb the chat, so there is no
+          // toast, no error banner and nothing thrown. What changes is that the CONTROL now reflects reality -
+          // if the write did not land the buttons come back, so the same tap is available again instead of a
+          // dimmed row implying a signal that was never recorded. Silent, but honest.
+          const landed = await _recordChatFeedback(rating, question, answer);
+          if (landed === false) {
+            [up, down].forEach(b => { b.disabled = false; b.style.opacity = ''; b.style.cursor = ''; });
+            btn.style.background = prevBg;
+          } else {
+            // Only on a write that actually landed - never on the best-effort failure path, where saying
+            // "noted" would be the same false claim the tint used to make.
+            note.textContent = 'Noted - this tunes future replies. Nothing else on the page changes.';
+          }
         });
       });
       wrapEl.insertAdjacentElement('afterend', row);
@@ -915,11 +1036,22 @@ happens to know maintenance, not a manual.`;
       const wrap = document.createElement('div');
       wrap.id = 'typing-indicator';
       wrap.className = 'flex justify-start fade-up';
+      // ★THE ONLY WAIT STATE ON THIS PAGE WAS THREE SILENT DOTS. Measured: while the assistant assembles its
+      // grounding context and composes a reply, this is the sole in-flight signal — and it carried no text,
+      // no aria-busy and no aria-live, so a screen-reader user was told nothing at all while the page worked.
+      // It also made the state invisible to every state detector, which reported this page as having no
+      // loading indication whatsoever. utils.js's own whListSkeleton sets aria-busy="true" aria-live="polite";
+      // matching that convention fixes the announcement and the measurability in one change, rather than
+      // teaching the instrument about a signal only this page uses.
+      wrap.setAttribute('aria-busy', 'true');
+      wrap.setAttribute('aria-live', 'polite');
+      wrap.setAttribute('role', 'status');
       wrap/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div class="bubble-assistant flex items-center gap-1.5 py-3 px-4">
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
-          <div class="typing-dot"></div>
+          <span class="sr-only">Thinking…</span>
+          <div class="typing-dot" aria-hidden="true"></div>
+          <div class="typing-dot" aria-hidden="true"></div>
+          <div class="typing-dot" aria-hidden="true"></div>
         </div>`;
       container.appendChild(wrap);
       scrollToBottom();
@@ -1005,14 +1137,42 @@ happens to know maintenance, not a manual.`;
         // and return the payload (or null on timeout/error). SHARED by Step 1
         // (orchestrator) and Step 2 (conversational fallback) so the race+unwrap
         // lives in ONE place, no copy-paste. (K1 refactor, 2026-07-12.)
+        // ★THIS HELPER COLLAPSED EVERY FAILURE INTO ONE `null`, AND THE CALLER THEN NAMED THE WRONG CAUSE.
+        // Measured live by holding the gateway to a 429 rate-limit: the page answered "Assistant timed out.
+        // Please retry on a faster connection." A rate limit is not a slow connection — it is the opposite
+        // situation, and that sentence sends someone to chase bandwidth when the only thing that helps is
+        // waiting. Same shape as reporting a 403 as a 401: two different causes, two different remedies,
+        // one message. The race still resolves to `null` so no call site changes behaviour, but WHY it
+        // failed is now recorded alongside, so the caller can say something true.
+        // ON `window`, NOT a nested `let`. The first version declared this beside the helper, which is
+        // inside a nested scope — and the catch that shows the TOAST lives outside it, so referencing the
+        // flag there threw "ReferenceError: _gatewayFailure is not defined" and killed the toast entirely.
+        // The inline reply still rendered, so the page looked half-right: the specific sentence reached the
+        // thread while the toast vanished, and my sweep reported the surface as saying NOTHING. A flag two
+        // scopes apart from its reader is not a flag.
         async function _raceGatewayData(invokePromise, timeoutMs) {
+          window.__whGatewayFailure = null;
+          const isRateLimited = (x) => {
+            const s = (() => { try { return JSON.stringify(x); } catch (_) { return String(x); } })();
+            return /\b429\b|rate.?limit|too many requests/i.test(s || '')
+              || (x && x.context && x.context.status === 429);
+          };
           return Promise.race([
             invokePromise.then(r => {
-              if (!r || r.error || !r.data) return null;
+              if (!r || r.error || !r.data) {
+                window.__whGatewayFailure = (r && r.error && isRateLimited(r.error)) ? 'rate_limit' : 'error';
+                return null;
+              }
               const env = r.data;
               return (env.ok === true && env.data && typeof env.data === 'object') ? env.data : env;
-            }).catch(() => null),
-            new Promise(resolve => setTimeout(() => resolve(null), timeoutMs)),
+            }).catch((e) => {
+              window.__whGatewayFailure = isRateLimited(e) ? 'rate_limit' : 'error';
+              return null;
+            }),
+            new Promise(resolve => setTimeout(() => {
+              if (!window.__whGatewayFailure) window.__whGatewayFailure = 'timeout';
+              resolve(null);
+            }, timeoutMs)),
           ]);
         }
 
@@ -1067,7 +1227,30 @@ happens to know maintenance, not a manual.`;
           });
           const fbData = await _raceGatewayData(fbInvoke, 30000);
           if (!fbData || !fbData.answer || fbData.error) {
-            throw new Error('Assistant timed out. Please retry on a faster connection.');
+            // NAME THE CAUSE THE PERSON CAN ACT ON. A rate limit and a slow link need opposite responses —
+            // wait vs move somewhere with better signal — so one sentence cannot serve both. The quota case
+            // also says WHEN to retry, because "you have hit a limit" without a horizon is only half an
+            // answer; this is the platform's own condition-shaped timing, the same form asset-hub uses.
+            // ROUTED THROUGH whAiError (utils.js:74), which has mapped 429 to "You have hit the AI rate
+            // limit. Wait a moment and try again." since long before this bug existed — analytics and
+            // voice-journal were correct for free precisely because they call it. My first fix hand-rolled
+            // a sentence instead, which is how the platform ends up with four wordings for one event. The
+            // helper owns the CAUSE; this page appends only what it alone knows: the question survived.
+            // ★THE THREE-WAY SIGNAL WAS COLLAPSED INTO TWO, AND THE LOST CASE GOT THE WRONG ADVICE.
+            // __whGatewayFailure already distinguishes 'rate_limit', 'timeout' and 'error' (set at
+            // :1110/:1116/:1120), but this ternary sent BOTH 'timeout' and 'error' to the timeout
+            // sentence. Measured live by holding the gateway to HTTP 500: the person was told
+            // 'Assistant timed out. Please retry on a faster connection.' - advice pointing at their
+            // network when the server had failed, which is the one thing they cannot fix. Same shape as
+            // the rate-limit bug the comment above records, one branch further along. whAiError owns
+            // the CAUSE for the error case too, exactly as this file's own note says it should.
+            throw new Error(window.__whGatewayFailure === 'rate_limit'
+              ? (window.whAiError ? window.whAiError({ message: '429' }) : 'You have hit the AI rate limit.')
+                + ' Nothing you typed was lost.'
+              : window.__whGatewayFailure === 'timeout'
+              ? 'Assistant timed out. Please retry on a faster connection.'
+              : (window.whAiError ? window.whAiError({ message: 'error' }) : 'Something went wrong. Please try again.')
+                + ' Nothing you typed was lost.');
           }
           reply = fbData.answer;
         }
@@ -1096,10 +1279,19 @@ happens to know maintenance, not a manual.`;
         // reverted — restore the question so "try again" is one tap, not a full retype. Guard against
         // clobbering a new question the user may have started typing during the async wait.
         if (!input.value.trim()) { input.value = text; autoResize(input); }
-        showToast('Something went wrong');
+        // THE TOAST WAS THE GENERIC ONE WHILE THE THREAD CARRIED THE SPECIFIC SENTENCE. Measured under an
+        // induced 429: the reply said "You have reached the assistant's request limit..." and the toast
+        // said "Something went wrong" — so a person watching the toast learned nothing, and the two
+        // surfaces disagreed about the same event. The cause is already known here; say it.
+        showToast(window.__whGatewayFailure === 'rate_limit'
+          ? (window.whAiError ? window.whAiError({ message: '429' }) : 'You have hit the AI rate limit.')
+          : 'Something went wrong');
       } finally {
         isLoading = false;
-        document.getElementById('send-btn').disabled = false;
+        // NOT `disabled = false` — after a reply the composer is empty again, and an unconditional
+        // re-enable would hand back the same enabled-but-inert button this fix removes. syncSendBtn()
+        // is the single place that decides, so the in-flight state and the empty state cannot disagree.
+        syncSendBtn();
         document.getElementById('chat-input').focus();
       }
     }
@@ -1120,13 +1312,36 @@ happens to know maintenance, not a manual.`;
       }
     }
 
+    // The send button was ENABLED on an empty composer while sendMessage() guarded emptiness with a
+    // silent `if (!text) return;` — so a live walk clicked it and measured NOTHING across 272 frames:
+    // no toast, no inline message, no aria-invalid, no request, no text change. An enabled control
+    // that does nothing and says nothing is the same shape as the colour-only wizard refusal fixed on
+    // logbook; here the honest fix is the state, not a message, because there is nothing to explain —
+    // an empty question simply isn't askable. The disabled STYLING already existed (.send-btn:disabled)
+    // and the flight already used it; only emptiness never reached the button.
+    function syncSendBtn() {
+      const btn = document.getElementById('send-btn');
+      const input = document.getElementById('chat-input');
+      if (!btn || !input) return;
+      btn.disabled = isLoading || !input.value.trim();
+    }
+
     function autoResize(el) {
       el.style.height = 'auto';
       el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+      // Every path that mutates the composer already calls autoResize (send, restore-on-error, the
+      // prefill handoff), so syncing here covers them all rather than only the one a walk happened to
+      // drive.
+      syncSendBtn();
     }
 
     // ── Init ──────────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
+      // The composer starts empty, so the send button must start disabled. Without this the very
+      // first state a person sees is the enabled-but-inert button — the walk clicked it at rest and
+      // measured nothing at all, so the landing state is exactly where this mattered most.
+      syncSendBtn();
+
       // supabase-js is now loaded (script at end of body executed before DOMContentLoaded)
       db = getDb(
         'https://hzyvnjtisfgbksicrouu.supabase.co',

@@ -485,6 +485,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
     <div class="modal-footer">
       <p class="scroll-hint" id="lesson-scroll-hint">Scroll to the bottom to unlock the exam</p>
+      <!-- THE PASS MARK, STATED BEFORE THE EXAM — which this platform's own domain truth requires in as
+           many words ("The exam pass mark is stated BEFORE the exam"), and which the lesson modal did not
+           say anywhere. Measured with tools/prove_cost_before_commit.mjs: the pre-commit surface named the
+           reward but no threshold, so a person committed to an assessment without knowing what passing
+           took. On a page whose badges attach to someone's CREDENTIAL, that is the least acceptable place
+           to withhold it. The numbers are the product's own, not invented: every exam in skill-content.js
+           holds exactly 10 questions and submitExam() passes at `score >= 7`. Stated as a fraction rather
+           than a percentage because the exam is answered in questions, not points. -->
+      <p id="lesson-pass-mark" style="font-size:0.68rem; color:rgba(255,255,255,0.80); margin:0 0 0.5rem; line-height:1.5;">
+        <strong>7 of 10 correct</strong> to pass. Passing awards the badge for this level; a failed attempt
+        can be retaken after its cooldown.
+      </p>
       <button class="btn-primary" id="lesson-exam-btn" disabled data-i="takeexam">Take Exam →</button>
       <button class="btn-ghost" id="lesson-back-btn" data-i="backmatrix">Back to Matrix</button>
     </div>
@@ -668,6 +680,9 @@ async function init() {
   // G1 (FF1): canonical skeleton on the target grid while profile/badges load.
   const _tg = document.getElementById('target-grid');
   if (_tg && !_tg.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_tg, 3);
+  _smReadFailed = false;   // a recovered read must clear it, or the Retry can never succeed: the flag
+                           // stayed true after a successful re-read and the three-way branch below took
+                           // the failure path again, so the error panel outlived the fix that cleared it
   let profileRes, badgesRes;
   try {
     [profileRes, badgesRes] = await Promise.all([
@@ -678,6 +693,11 @@ async function init() {
     // E2 consistent states: a failed profile/badges fetch surfaces a toast
     // instead of silently falling through to onboarding.
     console.warn('skill matrix load failed:', err.message || err);
+    // NOTE: this catch is effectively DEAD for a network/HTTP failure. supabase-js RESOLVES a failed
+    // request into { data: null, error } rather than rejecting, so Promise.all above does not reject
+    // and control never reaches here - verified by injecting a rejected fetch and watching this branch
+    // not fire. The live path is the `profileRes.error` check below, which is where the user-facing
+    // state belongs. Kept for a genuine throw (a programming error inside the await).
     if (typeof showToast === 'function') showToast('Couldn’t load your skill matrix. Please retry.', '✗');
     profileRes = { data: null, error: err };
     badgesRes  = { data: null };
@@ -686,7 +706,33 @@ async function init() {
   // Handle DB errors gracefully: use cached data if available
   if (profileRes.error && profileRes.error.code !== 'PGRST116') {
     console.warn('skill_profiles fetch error:', profileRes.error.message);
-    if (typeof showToast === 'function') showToast('Couldn’t load your skill matrix. Please retry.', '✗');
+    // THE COPY PROMISED AN ACTION THE PAGE DID NOT OFFER. Measured under an injected 500: the page said
+    // "Couldn’t load your skill matrix. Please retry." and rendered ZERO retry controls - told to retry
+    // and given nothing to press, which is worse than silence because the reader hunts for a button that
+    // is not there. A TOAST also cannot carry this claim: it dismisses, leaving the surface saying nothing
+    // (the same reason logbook's fail_500 green was withdrawn today). whListError is the platform's
+    // existing inline error-with-retry (utils.js:1321, already adopted by achievements for its hive
+    // standings), so this is ADOPTION rather than new UI.
+    // WHY THIS SITE AND NOT THE catch ABOVE: that catch never runs for this failure mode, because
+    // supabase-js resolves a failed request instead of rejecting it. Editing it first left the page
+    // unchanged under a rejected fetch, which is how the dead branch was found.
+    // AND THE FAILURE DOES SOMETHING WORSE THAN STAY SILENT: it sends an existing worker into
+    // ONBOARDING. With the profile read failed, _profile stays null and the page shows
+    // #onboarding-section - "Choose Your Primary Discipline" with a discipline picker - while
+    // #main-content (which holds #target-grid) is display:none. Measured under an injected 500. A
+    // qualified technician is asked to pick their primary discipline as though they had never used the
+    // page, and choosing one writes over a profile the page merely could not read. The dead catch above
+    // was written to prevent precisely this ("instead of silently falling through to onboarding") and
+    // cannot, because it never runs.
+    // So the error must land in a container that is actually VISIBLE on this path, and the false
+    // onboarding must be taken off screen. Rendering into #target-grid alone put a correct, invisible
+    // error inside a display:none parent - the dead-empty-state class, verified before this line existed.
+    // Recorded as a FLAG rather than rendered here: at this point in the flow neither #onboarding-section
+    // nor #main-content has been shown, so both candidate hosts are display:none and an error written
+    // into either is invisible (verified twice - a correct, unseeable error is the dead-empty-state
+    // class). The branch that CHOOSES between onboarding and the matrix is the only place that can also
+    // choose the failure state, so the decision is made there.
+    _smReadFailed = true;
   }
 
   _profile = profileRes.data || null;
@@ -702,12 +748,47 @@ async function init() {
 
   document.getElementById('skeleton-section').classList.add('hidden');
 
-  if (!_profile) {
-    showOnboarding();
+  // THREE OUTCOMES, NOT TWO. `!_profile` is true both for a genuine first run AND for a read that
+  // failed, and this branch sent an existing worker into "Choose Your Primary Discipline" with a live
+  // picker - measured under an injected 500. Picking a discipline there writes over a profile the page
+  // merely could not read, which is why this is a data-loss risk and not a cosmetic state.
+  // A DEDICATED HOST, NOT #onboarding-section's innerHTML. whListError REPLACES the container's
+  // contents, so rendering into #onboarding-section destroyed #primary-picker - and a retry that then
+  // succeeded on a first-run account would make showOnboarding() throw on a null picker. The failure
+  // state gets its own node, inserted as a sibling, and onboarding is merely hidden.
+  const _smOnb = document.getElementById('onboarding-section');
+  let _smErr = document.getElementById('sm-read-failed');
+  if (!_smErr && _smOnb && _smOnb.parentNode) {
+    _smErr = document.createElement('div');
+    _smErr.id = 'sm-read-failed';
+    _smErr.style.display = 'none';
+    _smOnb.parentNode.insertBefore(_smErr, _smOnb);
+  }
+
+  if (_smReadFailed) {
+    if (_smOnb) _smOnb.style.display = 'none';   // never offer a first-run picker on a failed read
+    if (_smErr && typeof whListError === 'function') {
+      _smErr.style.display = 'block';
+      whListError(_smErr, 'Couldn’t load your skill matrix. Your levels are unknown right now, not zero. '
+                  + 'Do not re-pick your discipline; your profile is saved.', () => init());
+    } else if (typeof showToast === 'function') {
+      showToast('Couldn’t load your skill matrix. Please retry.', '✗');
+    }
   } else {
-    showMatrix();
+    // A RECOVERED READ MUST ALSO TAKE THE ERROR OFF SCREEN - measured before this line existed: the
+    // retry fired 2 real requests and rendered 5 matrix cells while the old failure text stayed visible.
+    if (_smErr) { _smErr.innerHTML = ''; _smErr.style.display = 'none'; }
+    if (!_profile) {
+      showOnboarding();
+    } else {
+      showMatrix();
+    }
   }
 }
+
+// A failed profile read must not be indistinguishable from a first run. Declared at module scope so the
+// loader can set it before the onboarding/matrix decision reads it.
+let _smReadFailed = false;
 
 // ─── Onboarding ───────────────────────────────────────────────────────────────
 function showOnboarding() {
@@ -781,8 +862,12 @@ function showOnboarding() {
 // ─── Matrix View ──────────────────────────────────────────────────────────────
 function showMatrix() {
   document.getElementById('main-content').classList.remove('hidden');
+  // Rendered "Primary: null · Leandro Marquez" when the profile read came back with null fields. On a
+  // CREDENTIALS page a malformed claim is not cosmetic: this line states what someone's primary trade
+  // is, beside their name. Say "not set" — which is true and actionable — rather than printing the
+  // absence at them, and never imply a skill they have not claimed.
   document.getElementById('header-sub').textContent =
-    `Primary: ${_profile.primary_skill} · ${WORKER_NAME}`;
+    `Primary: ${_profile.primary_skill || 'not set'} · ${WORKER_NAME}`;
 
   renderTargetGrid();
   renderDisciplineCards();
@@ -856,7 +941,13 @@ document.getElementById('target-save-btn').addEventListener('click', async () =>
     }
     showToast('Could not save targets. Please try again.', '✗');
   } else {
-    showToast('Targets saved!', '✓');
+    // NAMES THE EFFECT AND THE MOMENT, the pattern this platform already ships (asset-hub: "→ feeds this
+    // asset's risk score ... on next recompute"). Note the branches AROUND this one already do it — the
+    // offline paths say "will sync when you reconnect" and "will retry automatically" — so the SUCCESS
+    // message was the only one here that confirmed a save without saying what the save changes. A target
+    // is not an end in itself: it is what the gap analysis measures against and what decides which quizzes
+    // a person can take, which is the thing they came to this page to move.
+    showToast('Targets saved → your skill gaps and available quizzes update now.', '✓');
     // Embed each discipline skill level in background
     Object.entries(_profile.targets).forEach(([discipline, level]) => {
       embedSkillEntry({
@@ -890,7 +981,16 @@ function renderDisciplineCards() {
     const isPrimary = disc === _profile.primary_skill;
     const nextLevel = actual + 1;
     const canAttempt = nextLevel <= 5 && nextLevel <= (target + 1);
-    const pct = target > 0 ? Math.round((actual / target) * 100) : 0;
+    // CLAMPED, because a bar cannot be more than full. actual/target is a RATIO and it legitimately
+    // exceeds 1 whenever someone is past their target - measured live on this hive: Electrical Lv 3/1
+    // rendered width:300% (an 870px fill inside a 290px track), Facilities Management Lv 2/1 200%, and
+    // Instrumentation Lv 3/2 150%. The track's `overflow: hidden` meant all three still LOOKED like a
+    // full bar, so the right outcome was being reached by the wrong means: the DOM carried a fill three
+    // times its container, and anything reading the width rather than the pixels - an overflow audit, a
+    // future aria-valuenow, a PDF renderer that ignores overflow - would have read 300% progress.
+    // pctRatio keeps the true ratio for any label that wants to say "exceeds target"; pct drives width.
+    const pctRatio = target > 0 ? Math.round((actual / target) * 100) : 0;
+    const pct = Math.min(100, pctRatio);
 
     const dots = Array.from({length: 5}, (_, i) => {
       const lv = i + 1;
@@ -1269,7 +1369,20 @@ function selectAnswer(idx) {
     btn.querySelector('.option-letter').style.color = i === idx ? '#162032' : '';
   });
 
-  document.getElementById('exam-next-btn').disabled = false;
+  // ★SAY WHAT THE PRESS WILL DO. On the last question with every answer set, this button submitted the exam
+  // for grading while still reading "Next →" — so the press that commits a credential looked identical to the
+  // nine presses that just moved forward. Measured on a live walk: label "Next →" at question 10 of 10 with
+  // all ten answered, and pressing it graded. Relabelled so the commit is legible before it happens; and left
+  // disabled once submitted, which the click guard also enforces.
+  const _nb = document.getElementById('exam-next-btn');
+  const _isLast = _currentQuestion === _examQuestions.length - 1;
+  const _allAnswered = _examAnswers.every((a) => a !== null);
+  if (_examSubmitted) {
+    _nb.disabled = true;
+  } else {
+    _nb.disabled = false;
+    _nb.textContent = (_isLast && _allAnswered) ? 'Submit exam' : 'Next →';
+  }
 
   // Save draft
   const draftKey = `wh_exam_draft_${WORKER_NAME}_${_activeDiscipline}_${_activeLevel}`;
@@ -1281,8 +1394,38 @@ document.getElementById('exam-next-btn').addEventListener('click', async () => {
   const isLast = _currentQuestion === total - 1;
   const allAnswered = _examAnswers.every(a => a !== null);
 
+  // ★AN EXAM COULD BE GRADED OVER AND OVER, ON THE PAGE WHOSE WRITE IS A CREDENTIAL. Measured live (RPCs
+  // intercepted so nothing landed): after answering all ten, this button KEEPS the label "Next →", stays
+  // ENABLED, and every further press called submitExam() again — five presses produced FIVE
+  // rpc/grade_skill_exam calls. _examSubmitted was already being set to true by submitExam, but nothing ever
+  // read it. This platform's own invariant is "one submission -> one attempt and at most one badge; a
+  // double-submit creates neither a second attempt nor a second badge", and a badge here is a claim about
+  // someone's qualifications, so a duplicate is not a tidiness problem.
+  const nb = document.getElementById('exam-next-btn');
+  if (_examSubmitted || (nb && nb.disabled)) return;
+
   if (isLast && allAnswered) {
-    await submitExam();
+    // ★OFFLINE, THIS DESTROYED THE ATTEMPT INSTEAD OF REFUSING IT. submitExam() sets
+    // _examSubmitted = true and localStorage.removeItem(draftKey) BEFORE it reaches
+    // rpc/grade_skill_exam - so with no connection the worker's ten answers were deleted, the exam was
+    // marked submitted, and nothing was ever graded. On the page whose write is a CREDENTIAL, that is
+    // the worst available failure: it removes the recovery path as well as the result.
+    // The refusal is placed HERE rather than at the top of submitExam() on purpose. The catch below
+    // restores this button only on a THROW, so an early return inside submitExam() would leave it
+    // disabled at 'Grading…' forever - a dead control. Refusing before any state is touched leaves the
+    // draft intact, _examSubmitted false, and the button pressable when the connection returns.
+    // whRequireOnline + its sentence already exist in utils.js; this is adoption, not a new message.
+    if (typeof whRequireOnline === 'function'
+        && !whRequireOnline('Submitting your exam', (m) => showToast(m, '✗'))) return;
+    if (nb) { nb.disabled = true; nb.setAttribute('aria-busy', 'true'); nb.textContent = 'Grading…'; }
+    try {
+      await submitExam();
+    } catch (e) {
+      // A failed grade must leave the exam submittable again, or one network blip ends the attempt.
+      _examSubmitted = false;
+      if (nb) { nb.disabled = false; nb.removeAttribute('aria-busy'); nb.textContent = 'Submit exam'; }
+      throw e;
+    }
   } else if (!isLast) {
     _currentQuestion++;
     renderExamQuestion();
@@ -1360,8 +1503,15 @@ function openResult(disc, level, score, passed) {
   document.getElementById('result-score').textContent = `Score: ${score} / 10`;
   document.getElementById('result-title').className = `result-title ${passed ? 'text-green' : 'text-amber'}`;
 
+  // ★THE PASS BRANCH NAMED NO NEXT STEP. The FAIL branch already does it well ("try again in 24 hours"), but
+  // a pass said only that the work was excellent — not where the credential now appears. A badge on this
+  // platform is a claim about someone's qualifications that other surfaces read: it is written by
+  // grade_skill_exam and rendered from v_skill_badges_truth, which the hive board also reads, and the
+  // platform's own domain truth requires badge counts on skillmatrix, the hive board and achievements to
+  // agree. So the confirmation names exactly that, and nothing it cannot back up.
   document.getElementById('result-msg').textContent = passed
-    ? `Excellent work! You've demonstrated ${LEVEL_LABELS[level]} competency in ${disc}.`
+    ? `Excellent work! You've demonstrated ${LEVEL_LABELS[level]} competency in ${disc}. `
+      + `Your Level ${level} badge is on your skill matrix now, and it shows on the hive board.`
     : `You need 7 or more correct answers to pass. Review the module and try again in 24 hours.`;
 
   // Cooldown timer
@@ -1478,7 +1628,6 @@ Promise.resolve(init()).then(() => { if (typeof whFreshnessFooter === 'function'
 </script>
 <script src="nav-hub.js"></script>
 <script src="companion-launcher.js"></script>
-<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 <script>
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.
   window.WH_FIL_PAGE = {

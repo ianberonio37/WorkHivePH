@@ -1,26 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:538
-source_sha: 2db9e46f883343a5
+source: dir:supabase/migrations:549
+source_sha: 07f25b54384c2b52
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (538 migrations)
+## migration · catalog (549 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260717000007_anomaly_signals_forward_status` — fns:anomaly_signals_forward_only_status · triggers:tg_anomaly_signals_forward_status
-- `20260717000008_integration_configs_updated_at_oc` — triggers:tg_integration_configs_touch_updated · tables:integration_configs
-- `20260717000009_shift_plans_forward_status` — fns:shift_plans_forward_only_status · triggers:tg_shift_plans_forward_status
-- `20260717000010_projects_bind_worker_name` — fns:bind_projects_submitter
-- `20260717000011_worker_name_pin_sweep` — fns:bind_worker_name_from_hive · triggers:tg_bind_wname_fault_knowledge,tg_bind_wname_marketplace_sellers,tg_bind_wname_pm_knowledge,tg_bind_wname_project_roles,tg_bind_wname_shared_voice_notes,tg_bind_wname_skill_knowledge
-- `20260717000012_community_posts_updated_at_oc` — triggers:tg_touch_community_posts · tables:community_posts
-- `20260717000013_platform_feedback_updated_at_oc` — triggers:tg_touch_platform_feedback · tables:platform_feedback
-- `20260717000014_alert_attribution_pin` — fns:bind_alert_dismissal_actor,bind_anomaly_signal_attribution · triggers:tg_bind_alert_dismissal_actor,tg_bind_anomaly_signal_attribution
-- `20260717000015_attribution_pin_sweep` — fns:bind_acknowledged_by_from_hive,bind_approved_by_from_hive,bind_assigned_by_from_hive,bind_reviewed_by_from_hive · triggers:tg_bind_acknowledged_by,tg_bind_approved_by,tg_bind_assigned_by,tg_bind_reviewed_by
-- `20260717000016_skill_profiles_bind_worker_name` — fns:bind_skill_profile_worker_name · triggers:tg_bind_skill_profile_worker_name
-- `20260717000017_community_posts_truth_add_updated_at` — (misc DDL/DML)
 - `20260718000001_ops_artifact_metrics` — tables:ops_artifact_metrics
 - `20260718000002_cron_health_view` — (misc DDL/DML)
 - `20260718000003_storage_health_view` — (misc DDL/DML)
@@ -210,6 +199,17 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260805000056_two_triggers_still_carried_the_service_role_key` — triggers:trg_embed_outbox_pm_completions,trg_embed_outbox_skill_badges
 - `20260806000057_voice_response_queue_grant_was_never_declared` — (misc DDL/DML)
 - `20260806000058_anchor_the_reaction_xp_award_ledger` — (misc DDL/DML)
+- `20260806000059_community_xp_was_a_total_with_no_ledger_so_it_could_not_reverse` — fns:handle_community_post_delete_xp,handle_community_post_visibility_xp,handle_community_post_xp,increment_community_xp,restore_community_post_xp,reverse_community_post_xp · triggers:trg_community_post_delete_xp,trg_community_post_visibility_xp · tables:community_post_xp_awards
+- `20260812000060_reply_xp_was_paid_with_no_ledger_and_no_way_back` — fns:handle_community_reply_xp,reverse_community_reply_xp · triggers:trg_community_reply_delete_xp · tables:community_reply_xp_awards
+- `20260820000061_logbook_xp_was_paid_with_no_way_back` — fns:trg_logbook_xp_reverse · triggers:trg_logbook_xp_reverse · tables:achievement_xp_log
+- `20260820000062_best_answer_never_recorded_who_chose_it` — fns:set_community_best_answer · tables:community_replies
+- `20260820000063_a_reported_author_could_clear_their_own_flag` — fns:tg_community_posts_moderation_fields · triggers:tg_community_posts_moderation_fields
+- `20260820000064_reporting_a_post_did_nothing_and_said_it_worked` — fns:report_community_post,tg_community_posts_moderation_fields
+- `20260820000065_two_functions_defined_the_seller_tier_differently` — fns:update_seller_tier
+- `20260820000066_the_low_stock_tile_counted_a_capped_array` — fns:get_hive_dashboard
+- `20260820000067_the_pm_overdue_tile_had_no_denominator` — fns:get_hive_dashboard
+- `20260820000068_v_sensor_recent_dropped_the_unit_its_reader_needs` — (misc DDL/DML)
+- `20260820000069_xp_reversal_rpcs_were_callable_by_any_signed_in_user` — (misc DDL/DML)
 
 (showing last 200)
 

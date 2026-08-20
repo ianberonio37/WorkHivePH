@@ -33,7 +33,7 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-from validator_utils import read_file, format_result
+from validator_utils import read_file, format_result, fn_body
 
 PAGE = "hive.html"
 
@@ -166,13 +166,17 @@ def check_channel_cleanup(content):
 
 # ── Layer 2: Tenant isolation ─────────────────────────────────────────────────
 
+# NOTE 2026-08-20: the two windows below were widened TWICE already (rejectItem 2026-05-13,
+# approveItem later) with the comment "Code is correctly scoped" -- the author knew each was a
+# false positive and treated the symptom. approveItem is now 2327 chars, so 900 failed again.
+# Brace-matched via fn_body(); a character budget cannot outlast the comments inside a function.
 def check_approve_scoped(content):
     m = re.search(r"async function approveItem\s*\(", content)
     if not m:
         return [{"check": "approve_scoped", "reason": "approveItem() not found"}]
     # Window widened 2026-07-13 from 400 -> 900 after the P6-C1 optimistic-lock comment + 0-row branch
     # pushed .update() past the old cutoff (same fix rejectItem got in 2026-05-13). Code is correctly scoped.
-    body = content[m.start():m.start() + 900]
+    body = fn_body(content, "approveItem")
     update_m = re.search(r"\.update\s*\(", body)
     if not update_m:
         return [{"check": "approve_scoped", "reason": "approveItem() .update() call not found"}]
@@ -190,7 +194,7 @@ def check_reject_scoped(content):
     # Window widened 2026-05-13 from 300 -> 800 after a confirm() prompt was
     # added to the function body, pushing .update() past the old cutoff.
     # The actual code was always correctly scoped; the validator was too tight.
-    body = content[m.start():m.start() + 800]
+    body = fn_body(content, "rejectItem")
     update_m = re.search(r"\.update\s*\(", body)
     if not update_m:
         return [{"check": "reject_scoped", "reason": "rejectItem() .update() call not found"}]

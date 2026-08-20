@@ -237,6 +237,18 @@ RESET_TABLES_NON_ID = {
     # having paid out, so the reaction that should award XP silently awards none — a seeded platform
     # that looks right and behaves as though its XP had already been claimed.
     "community_reaction_xp_awards": ("post_id", "00000000-0000-0000-0000-000000000000"),
+    # 2026-08-05 (mig …059): the POST XP award ledger, the twin of the row above. It exists because
+    # community_xp was a running total with no ledger, so an award could not be attributed to the post
+    # that earned it and therefore could not be reversed — three cycles of (post a safety post,
+    # soft-delete it) farmed +75 XP with nothing left visible on any feed. Same reset reasoning as its
+    # sibling, and one degree sharper: these rows are what a DELETE reverses AGAINST, so rows surviving
+    # a reset would make a reseeded post's award un-payable AND its reversal double-count. Its PK is
+    # (post_id, reason) — no `id` column — so it belongs here, not in RESET_TABLES.
+    "community_post_xp_awards": ("post_id", "00000000-0000-0000-0000-000000000000"),
+    # Same shape and the same reasoning as the post ledger above: migration ...060 added the reply
+    # award ledger so reply XP could be attributed and reversed, and it has no `id` column
+    # (PK is reply_id). Missing from reset, a reseeded reply would be payable a second time.
+    "community_reply_xp_awards": ("reply_id", "00000000-0000-0000-0000-000000000000"),
     # THE TREASURY SINGLETON SURVIVES A RESET, deliberately. Row id=1 carries authorised_credits =
     # 10,000,000, which is the liability cap the whole economy rests on, and reset.py only ever DELETEs -
     # nothing here re-inserts it. Clearing it would leave a local stack with no cap until someone

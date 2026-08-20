@@ -103,9 +103,67 @@ def ssrf_check(url: str) -> tuple[bool, str]:
     return True, ""
 
 
+# ── GitHub awareness (added 2026-08-18) ───────────────────────────────────────
+# A github.com page fetched as HTML is repo CHROME (file listing, nav, commit bar) —
+# high link-density, so the quality guard rightly kills the distill. The clean form of
+# the same knowledge is raw.githubusercontent.com: verbatim markdown, zero chrome.
+# These helpers map github.com URLs onto raw candidates and fetch them as PLAIN TEXT
+# (no HTML stripper — it would mangle real markdown).
+_GH_RE = re.compile(r"^https?://github\.com/([^/\s]+)/([^/\s]+?)(?:\.git)?(/.*)?$", re.I)
+
+
+def github_raw_candidates(url: str) -> list[str]:
+    """Map a github.com URL to raw.githubusercontent.com candidates. [] if not GitHub.
+    repo root -> README.md at HEAD (any default branch); /blob/<ref>/<path> -> that file;
+    /tree/<ref>/<dir> -> that dir's README.md."""
+    m = _GH_RE.match(url.split("#")[0].split("?")[0].rstrip("/"))
+    if not m:
+        return []
+    owner, repo, rest = m.group(1), m.group(2), (m.group(3) or "").strip("/")
+    raw = f"https://raw.githubusercontent.com/{owner}/{repo}"
+    if not rest:
+        return [f"{raw}/HEAD/README.md", f"{raw}/HEAD/readme.md", f"{raw}/HEAD/README.rst"]
+    parts = rest.split("/")
+    if parts[0] == "blob" and len(parts) >= 3:
+        return [f"{raw}/{'/'.join(parts[1:])}"]
+    if parts[0] == "tree" and len(parts) >= 2:
+        sub = "/".join(parts[2:])
+        base = f"{raw}/{parts[1]}" + (f"/{sub}" if sub else "")
+        return [f"{base}/README.md", f"{base}/readme.md"]
+    return []
+
+
+def _fetch_raw_text(url: str) -> tuple[str, str] | None:
+    """Plain-text fetch for raw.githubusercontent.com — markdown verbatim, no HTML strip.
+    Returns (title, text) or None."""
+    import urllib.request
+    req = urllib.request.Request(url, headers={"User-Agent": "night-crawler/1.1"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            if getattr(r, "status", 200) != 200:
+                return None
+            text = r.read().decode("utf-8", errors="replace")
+    except Exception:
+        return None
+    if not text.strip():
+        return None
+    title = next((ln.lstrip("# ").strip() for ln in text.splitlines()
+                  if ln.lstrip().startswith("#")), url.rstrip("/").rsplit("/", 1)[-1])
+    return title, text
+
+
 # ── Tier 2: fetch (reuse memento_scrape backends) ─────────────────────────────
 def fetch_clean(url: str) -> tuple[str, str, str]:
-    """Return (title, markdown, backend). crawl4ai preferred, urllib fallback."""
+    """Return (title, markdown, backend). GitHub URLs resolve to raw markdown first
+    (clean, chrome-free); otherwise crawl4ai preferred, urllib fallback."""
+    for cand in github_raw_candidates(url):
+        ok, _reason = ssrf_check(cand)
+        if not ok:
+            continue
+        res = _fetch_raw_text(cand)
+        if res is not None:
+            title, body = res
+            return (title or url), body.strip(), "github-raw"
     import memento_scrape as ms
     res = ms._fetch_via_crawl4ai(url)
     backend = "crawl4ai"
@@ -824,12 +882,29 @@ def cmd_selftest() -> int:
         fails.append("a 404 title should be detected as an error page")
     if is_error_page("Dashboard Design Best Practices", "Real prose about dashboards. " * 20)[0]:
         fails.append("a real article should NOT be flagged as an error page")
+    # GitHub raw-candidate mapping (2026-08-18): repo root / blob / tree / non-GitHub
+    gh_root = github_raw_candidates("https://github.com/nasa/openmct")
+    if not gh_root or "raw.githubusercontent.com/nasa/openmct/HEAD/README.md" not in gh_root[0]:
+        fails.append(f"repo root should map to HEAD/README.md, got {gh_root[:1]}")
+    gh_blob = github_raw_candidates(
+        "https://github.com/carbon-design-system/carbon-website/blob/main/src/pages/x/usage.mdx")
+    if gh_blob != ["https://raw.githubusercontent.com/carbon-design-system/carbon-website/"
+                   "main/src/pages/x/usage.mdx"]:
+        fails.append(f"blob url should map to the exact raw file, got {gh_blob}")
+    gh_tree = github_raw_candidates("https://github.com/nasa/openmct/tree/master/docs")
+    if not gh_tree or gh_tree[0] != "https://raw.githubusercontent.com/nasa/openmct/master/docs/README.md":
+        fails.append(f"tree url should map to dir README, got {gh_tree[:1]}")
+    if github_raw_candidates("https://nngroup.com/articles/x/") != []:
+        fails.append("non-GitHub url should map to no raw candidates")
+    if github_raw_candidates("https://github.com/onlyowner") != []:
+        fails.append("owner-only github url should map to no raw candidates")
     if fails:
         print("✗ night_crawler selftest FAILED:")
         for f in fails:
             print("   - " + f)
         return 1
-    print("✓ night_crawler selftest passed — quality guard (link_density + distill_quality) is live.")
+    print("✓ night_crawler selftest passed — quality guard (link_density + distill_quality) "
+          "+ github-raw mapping are live.")
     return 0
 
 

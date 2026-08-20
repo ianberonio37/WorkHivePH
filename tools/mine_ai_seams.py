@@ -90,10 +90,21 @@ AI_FNS = {
 SKIP_PARTS = {
     ".tmp", ".playwright-mcp", "node_modules", ".venv", "test-runs",
     "tests", "playwright-report", "test-results",
+    # Backup trees: each is a full copy of the 49 root pages, so every seam in them is a DUPLICATE
+    # of a real one. They were always being walked; it only became visible when this miner learned
+    # to see functions.invoke and the catalog jumped 177 -> 270 with .emoji_bak/* callers in it.
+    # A backup copy is not a production call site.
+    ".emoji_bak", ".palette_bak", ".hexvar_bak", ".leftover_bak",
 }
 
 
 _FN_CALL_RE = re.compile(r"/functions/v1/([a-z0-9][a-z0-9-]*)")
+# The platform's PREFERRED call style, which this miner could not see. supabase-js
+# `functions.invoke('name')` forwards the caller's session JWT; a hand-rolled fetch does not,
+# which is why report-sender.html migrated two calls to it. Matching only the URL form meant a
+# correct migration DELETED the seam from this inventory and read as a coverage regression --
+# so the inventory shrank toward zero exactly as the codebase improved.
+_FN_INVOKE_RE = re.compile(r"""functions\.invoke\(\s*['"]([a-z0-9][a-z0-9-]*)['"]""")
 
 
 def is_skipped(path: Path) -> bool:
@@ -126,7 +137,7 @@ def scan_invoke_seams() -> list[dict]:
         except Exception:
             continue
         for ln, line in enumerate(text.splitlines(), 1):
-            for m in _FN_CALL_RE.finditer(line):
+            for m in list(_FN_CALL_RE.finditer(line)) + list(_FN_INVOKE_RE.finditer(line)):
                 callee = m.group(1)
                 if callee not in AI_FNS:
                     continue

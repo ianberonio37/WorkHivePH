@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-05T17:38:27.426257+00:00",
+  "generated_at": "2026-08-20T02:47:55.696197+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -194,7 +194,7 @@
       "present": true,
       "proposals": [],
       "summary": {
-        "files_scanned": 42,
+        "files_scanned": 41,
         "features_extracted": 16,
         "promotion_candidates": 0
       },
@@ -270,7 +270,7 @@
       "file": "canonical_drift_platform_report.json",
       "present": true,
       "summary": {
-        "files_scanned": 291,
+        "files_scanned": 292,
         "kpi_rendering_pages": 156,
         "truth_math_pages": 0,
         "tier_a_pages": 0,
@@ -278,7 +278,7 @@
         "total_canonical_reads": 321,
         "total_drift_reads": 0,
         "total_gap_reads": 0,
-        "total_allowed_reads": 235
+        "total_allowed_reads": 240
       }
     },
     {

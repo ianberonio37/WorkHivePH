@@ -183,8 +183,22 @@ def check_unbounded_queries():
                 continue
             if "head: true" in line or "count: 'exact'" in line or 'count: "exact"' in line:
                 continue
-            window = "\n".join(lines[i:min(len(lines), i + 15)])
+            # The 15-line window used to include COMMENT lines, so a well-explained chain pushed
+            # its own .limit() out of view: engineering-design.js:28326 is bounded by
+            # .order().limit(50) behind a 6-line comment and was reported unbounded. Count 15
+            # lines of CODE. Same class as the 1200-char window in validate_unbounded_query.py.
+            _code_lines, _j = [], i
+            while _j < len(lines) and len(_code_lines) < 15:
+                _s = lines[_j].strip()
+                if _s and _s[:2] != "//" and _s[:1] != "*" and _s[:2] != "/*":
+                    _code_lines.append(lines[_j])
+                _j += 1
+            window = "\n".join(_code_lines)
             if ".limit(" in window or ".range(" in window:
+                continue
+            # Honour the directive the codebase already uses and that validate_unbounded_query.py
+            # already honours. It lives in a COMMENT, so it is searched over the source lines.
+            if "unbounded-query-allow" in "\n".join(lines[max(0, i - 6):i + 1]):
                 continue
             # Bounded filters accepted as "not unbounded":
             #   .single() / .maybeSingle()   — single row fetch
@@ -449,7 +463,46 @@ CHECK_LABELS = {
 }
 
 
+def selftest_unbounded_window():
+    # The 15-line window now counts CODE lines and honours unbounded-query-allow. Neither may
+    # blind it: an unbounded read stays flagged, and the window must not become unlimited.
+    def scan(src):
+        lines = src.split(chr(10)); out = []
+        for i, line in enumerate(lines):
+            if "from(" + "'logbook'" + ")" not in line or ".select(" not in line:
+                continue
+            cl, j = [], i
+            while j < len(lines) and len(cl) < 15:
+                t = lines[j].strip()
+                if t and t[:2] != "//" and t[:1] != "*" and t[:2] != "/*":
+                    cl.append(lines[j])
+                j += 1
+            win = chr(10).join(cl)
+            if ".limit(" in win or ".range(" in win:
+                continue
+            if "unbounded-query-allow" in chr(10).join(lines[max(0, i - 6):i + 1]):
+                continue
+            out.append(i + 1)
+        return out
+    sel = "db.from(" + "'logbook'" + ").select(" + "'*'" + ")"
+    cases = [
+        ("a genuinely unbounded read is still flagged", bool(scan(sel + ";"))),
+        ("a read bounded behind 12 comment lines is not",
+         not scan(sel + chr(10) + ("  // prose" + chr(10)) * 12 + "  .limit(50);")),
+        ("an explicit unbounded-query-allow is honoured",
+         not scan("  // unbounded-query-allow: bounded via q below" + chr(10) + "let q = " + sel + ";")),
+        ("20 code lines with no limit is STILL flagged (window not unlimited)",
+         bool(scan(sel + chr(10) + ("  .eq(" + "'x'" + ", y)" + chr(10)) * 20))),
+    ]
+    ok = all(v for _n, v in cases)
+    for name, v in cases:
+        print(("  PASS  " if v else "  FAIL  ") + name)
+    print("  selftest: " + ("teeth intact" if ok else "VACUOUS - the window no longer discriminates"))
+    return 0 if ok else 1
+
 def main():
+    if "--selftest" in sys.argv:
+        return selftest_unbounded_window()
     def bold(s): return f"\033[1m{s}\033[0m"
     print(bold("\nPerformance Anti-Pattern Validator (4-layer)"))
     print("=" * 55)

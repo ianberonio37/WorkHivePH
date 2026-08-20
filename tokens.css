@@ -111,6 +111,31 @@ a.btn-secondary, button.btn-secondary, a.btn-ghost, button.btn-ghost { min-heigh
   /* ── Brand RGB triplets — for rgba(var(--wh-*-rgb), a) ─────────────────── */
   --wh-orange-rgb:   247, 162, 27;
   --wh-blue-rgb:     41, 182, 217;
+}
+
+/* ── THE TEXT UTILITIES MUST USE THE -text HUES, NOT THE FILL HUES ─────────
+   Found 2026-08-05 walking PB-index-147 on the anon landing: 'Data', '15-25%',
+   '60-80%' and 'How a community of practice works' measured APCA Lc 49.2–49.4
+   against a floor of 60. They all carry `.text-blue-wh`, which wh-tw.css defines
+   as the FILL hue rgb(41 182 217) = --wh-blue #29B6D9.
+   The platform already knew and already fixed this: the note at the top of this
+   file records that "--wh-blue #29B6D9 [measures] only Lc 53, below the Lc 60
+   content floor for a control label. The -light shades clear it (… blue-light
+   #5FCCE8 Lc 66) … only small TEXT on dark uses these", and ships
+   --wh-blue-text / --wh-orange-text for exactly that. The utility classes never
+   adopted them — the same adoption-gap shape as hive.html using .wh-disclose
+   without linking components.css.
+   WHY THE OVERRIDE LIVES HERE: wh-tw.css is GENERATED (tools/tw_extract_build.mjs),
+   so editing it would be undone by the next build. tokens.css is <link>ed AFTER
+   wh-tw.css on the pages that use these classes, so an equal-specificity rule here
+   wins without !important. The generator's palette should be pointed at the -text
+   hues too, and then this block can go.
+   Fills, icons and borders deliberately KEEP the stronger brand hues — this is
+   scoped to the text utilities only. */
+.text-blue-wh   { color: var(--wh-blue-text) !important; }
+.text-orange-wh { color: var(--wh-orange-text) !important; }
+
+:root {
 
   /* ── SHAPE vocabulary (moved up from components.css :root, 2026-07-15) ───
      WHY THIS MOVED: colour was extracted here for the rebrand, but the SHAPE
@@ -229,6 +254,38 @@ html, body { touch-action: manipulation; overscroll-behavior: contain; }
    Wrap any table/board wider than a phone viewport; the WRAPPER scrolls, the page never does. */
 .wh-scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 
+/* ── PLACEHOLDER INK: NOTHING IN THIS PLATFORM HAD EVER SET IT ─────────────────────────────────────
+   There was no ::placeholder rule anywhere in tokens.css or components.css, so every field on every
+   page was rendering the BROWSER DEFAULT - rgb(117,117,117) - and this is a dark platform. Measured
+   with the widened contrast lens: resume's #jd-input, #rb-field-label, #rb-field-email, #rb-field-phone
+   and #rb-field-city all sit at APCA Lc 26.8 against a floor of 60, and project-manager's
+   #filter-search at Lc 28.5. That is less than half the required contrast, on the hint text that tells
+   someone what to type.
+   It went unseen for so long because NEITHER instrument looked: axe abstains on a field's background,
+   and the lens read only child text nodes, which an input never has - a placeholder lives in a pseudo
+   element. Both blind spots were closed this session, and this rule is the first thing they found.
+   rgba(255,255,255,0.72) composites to roughly rgb(190,194,199) over the platform's input fills, which
+   clears the 60 floor with margin while still reading as a HINT rather than as entered text - the
+   distinction a placeholder has to keep. Set on all three vendor spellings so no engine falls back to
+   its own default, and deliberately global (element selectors, no class) because a token nobody adopts
+   is a token that does nothing: 20 fields on resume alone would each have needed the class. */
+::placeholder { color: rgba(255, 255, 255, 0.72); opacity: 1; }
+
+/* TAILWIND'S OWN SKELETON PULSE, unguarded platform-wide. wh-tw.css ships
+   `.animate-pulse{animation:pulse 2s cubic-bezier(0.4,0,0.6,1) infinite}` - infinite motion, so
+   WCAG 2.2.2 Pause-Stop-Hide at LEVEL A - and it is the utility every skeleton on the platform
+   reaches for. The override lives HERE and not in wh-tw.css because that file is tailwindcss
+   v3.4.17 build output and a rebuild would silently drop the fix; !important covers the case
+   where the generated sheet loads after this one.
+   Frozen at opacity .55 rather than 1: a skeleton is a PLACEHOLDER, and leaving it at full
+   opacity would make it read as real settled content. Same reasoning as the wh-cardskel guard in
+   utils.js, which parks its shimmer at .7. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse { animation: none !important; opacity: 0.55; }
+}
+::-webkit-input-placeholder { color: rgba(255, 255, 255, 0.72); opacity: 1; }
+::-moz-placeholder { color: rgba(255, 255, 255, 0.72); opacity: 1; }
+
 .wh-tap { min-height: var(--wh-control-h); min-width: var(--wh-control-h); display: inline-flex; align-items: center; justify-content: center; }
 /* height-only variant for full-width controls where min-width would break the layout. */
 .wh-tap-h { min-height: var(--wh-control-h); display: inline-flex; align-items: center; }
@@ -270,3 +327,50 @@ html, body { touch-action: manipulation; overscroll-behavior: contain; }
    class in place. This makes the class do what the markup already claims, without
    overriding anything that currently works. */
 .hidden { display: none; }
+
+/* ---------------------------------------------------------------------------
+   REDUCED MOTION — the SECOND copy, and the duplication is measured, not lazy.
+
+   The canonical block and the full rationale live in components.css. It is
+   repeated here because NEITHER shared stylesheet is loaded by every page, so
+   one copy cannot reach the platform. Measured 2026-08-13 across all 22
+   production pages:
+
+     components.css  linked by 10/22  (missing: index, logbook, pm-scheduler,
+                     analytics, alert-hub, voice-journal, assistant,
+                     public-feed, engineering-design, resume, project-report,
+                     analytics-report)
+     tokens.css      linked by 14/22  (missing: inventory, project-manager,
+                     dayplanner, asset-hub, skillmatrix, shift-brain,
+                     achievements, report-sender)
+     neither         0/22
+
+   Every page that lacks components.css DOES link tokens.css, so the two
+   together cover 22/22 and the pair is currently the only way to reach the
+   whole platform from CSS. pm-scheduler.html:297 documents its own omission on
+   purpose ("no components.css link"), so this is a standing architectural
+   condition rather than an oversight to quietly patch.
+
+   THE UNDERLYING FINDING, recorded rather than fixed here: a page that opts out
+   of the shared stylesheet opts out of every FUTURE shared fix, silently and
+   with no error. That is why this accessibility rule had to be written twice,
+   and it will be true of the next platform-wide CSS fix too. The real repair is
+   one sheet linked by all 22 pages -- a structural change, and Ian's call.
+
+   Keep the two copies IDENTICAL. If one is edited, edit both.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"]):not(progress),
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::before,
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::after {
+    /* Motion only. Colour/opacity transitions survive deliberately. */
+    transition-property: color, background-color, border-color, outline-color, fill, stroke, opacity, box-shadow !important;
+    animation-name: none !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+  /* NO blanket `transform: none` — transform is a LAYOUT property here (translate(-50%,-50%) centring,
+     sheet/dropdown positioning, the hub pill), so killing it would break the page for the very people
+     this block serves. Suppressing the transition property already stops the movement. */
+}

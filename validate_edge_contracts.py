@@ -54,6 +54,7 @@ ALL_FUNCTIONS = [
     "cmms-sync",
     "benchmark-compute",
     "cmms-webhook-receiver",
+    "resend-webhook-receiver",   # Resend/Svix bounce+complaint receiver
     "cmms-push-completion",
     "intelligence-report",
     "intelligence-api",
@@ -114,6 +115,7 @@ REQUIRED_FIELDS = {
     "cmms-sync":                [],
     "benchmark-compute":        [],
     "cmms-webhook-receiver":    [],
+    "resend-webhook-receiver":  [],
     "cmms-push-completion":     ["hive_id", "machine"],
     "intelligence-report":      [],
     "intelligence-api":         [],

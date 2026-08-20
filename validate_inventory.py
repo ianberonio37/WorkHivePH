@@ -33,7 +33,7 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-from validator_utils import read_file, format_result
+from validator_utils import read_file, format_result, fn_body
 
 INVENTORY_PAGE = "inventory.html"
 HIVE_PAGE      = "hive.html"
@@ -181,10 +181,10 @@ def check_supervisor_approval_writes(hive_content, page):
         return [{"check": "supervisor_approval_writes", "page": page,
                  "reason": f"{HIVE_PAGE} not found"}]
     issues = []
-    if not re.search(r"async function approveItem\b[\s\S]{0,500}?status\s*:\s*['\"]approved['\"]", hive_content, re.DOTALL):
+    if not re.search(r"status\s*:\s*['\"]approved['\"]", fn_body(hive_content, "approveItem")):
         issues.append({"check": "supervisor_approval_writes", "page": page,
                        "reason": "approveItem() in hive.html does not write status='approved'"})
-    if not re.search(r"async function rejectItem\b[\s\S]{0,900}?status\s*:\s*['\"]rejected['\"]", hive_content, re.DOTALL):  # widened 500->900 2026-07-13 (P6-C1 comment pushed status past cutoff; code correct)
+    if not re.search(r"status\s*:\s*['\"]rejected['\"]", fn_body(hive_content, "rejectItem")):
         issues.append({"check": "supervisor_approval_writes", "page": page,
                        "reason": "rejectItem() in hive.html does not write status='rejected'"})
     return issues
@@ -233,7 +233,11 @@ def check_stock_state_facet(content, page):
     (e.g. CHAIN-12B at 2/min-1). See PRODUCTION_FIXES + inventory-validator skill."""
     issues = []
     m = re.search(r"function\s+stockStatus\s*\(", content)
-    body = content[m.start():m.start() + 1100] if m else ""
+    # Brace-matched, not a 1100-char budget: stockStatus is 1377 chars and its LAST return
+    # ('surplus') sat 1377 in, so the gate reported the function 'no longer returns surplus'
+    # about a function that returns all five states. Seventh windowed check outgrown by the
+    # comments that explain it -- see fn_body() in validator_utils.py.
+    body = fn_body(content, "stockStatus", kind="function")
     if "'critical'" not in body:
         issues.append({"check": "stock_state_facet", "page": page,
                        "reason": "stockStatus() no longer returns 'critical' — critical-low parts (is_critical_low) become indistinguishable from merely-low"})

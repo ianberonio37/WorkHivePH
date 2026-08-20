@@ -408,7 +408,33 @@ export async function failures(opts) {
   window.__lsrFetch = orig;
   const out = {};
   const m = () => document.querySelector('main') || document.body;
-  const txt = () => (m().innerText || '').replace(/\s+/g, ' ');
+  /* A FAILURE NOTICE DOES NOT LIVE INSIDE <main>, AND SCOPING TO main MADE THIS ORACLE BLIND TO ITS
+   * OWN SUBJECT. A toast, a banner, an offline strip are all fixed-position and therefore direct
+   * children of <body>: a fixed element inside a transformed or overflow-clipped ancestor positions
+   * against that ancestor rather than the viewport. So main.innerText cannot contain them by
+   * construction. Caught the hard way - a central 401 notice was added to getDb()'s transport wrapper
+   * and VERIFIED rendering, the element in the DOM carrying the text, and fail_401 still read every
+   * sub-assertion false because the probe read 'main' and the notice was a sibling of it. Same shape
+   * as the contrast lens that once scoped to <main> while the report mounted outside it and measured
+   * 15 of 518 nodes.
+   * So failure text is main PLUS the live/alert regions and known notice containers, deduped. It
+   * deliberately does NOT read all of body: nav and hub chrome carry standing words like "offline"
+   * and "retry" that would forge a pass on every page. */
+  const NOTICE = '[role="status"],[role="alert"],[aria-live],.toast,.wh-toast,#toast,.banner,'
+               + '.wh-banner,#wh-auth-expired-notice,[class*="notice"],[class*="error-"]';
+  const txt = () => {
+    const root = m();
+    const parts = [root.innerText || ''];
+    const seen = new Set([root]);
+    for (const el of document.querySelectorAll(NOTICE)) {
+      if (seen.has(el) || root.contains(el)) continue;
+      if (!el.getClientRects().length) continue;
+      if (el.closest('#wh-hub,#wh-wayfinding,#wh-guide-link')) continue;
+      seen.add(el);
+      parts.push(el.innerText || '');
+    }
+    return parts.join(' ').replace(/\s+/g, ' ');
+  };
   const MUT = /^(POST|PATCH|PUT|DELETE)$/i;
   const guard = (i, x) => MUT.test((x && x.method) || (i && i.method) || 'GET');
   const SAYS_FAIL = /couldn['’]?t|could not|failed|unavailable|error|problem|went wrong|expired|timed out|timeout/i;
@@ -416,28 +442,55 @@ export async function failures(opts) {
 
   const baseline = txt();
 
+  /* A FAILURE ORACLE MEASURED WITH NOTHING IN FLIGHT IS VACUOUS, exactly as a loading state measured
+   * with nothing loading is - and this function had no guard for it while states() already did.
+   * rerun() re-fires loaders as window[k] from a fixed name list. A page that keeps its loaders
+   * closure-scoped inside an IIFE or a module exposes none of them, so ZERO reads are issued, the
+   * injected failure never lands, and the page keeps showing its already-loaded content. The verdict
+   * that follows is a false `ok`, indistinguishable from a page that swallowed the status.
+   * NOT HYPOTHETICAL: public-feed CALLS whReadError on its read-error path (public-feed.html:297) with
+   * a message that would satisfy this oracle, and still scored fail_401 false. I reported a
+   * 17-of-17 platform failure to Ian before catching it.
+   * So every injected fetch COUNTS what it intercepts, and a verdict resting on zero reads is forced
+   * to null rather than false - `false` would assert the page mishandled a failure it was never shown. */
+  let reads = 0;
   const serve = (status, body) => { window.fetch = async (i, x) => {
     const u = typeof i === 'string' ? i : (i && i.url) || '';
     { const b = blockWrite(i, x); if (b) return b; }
     if (!REST.test(u)) return orig(i, x);
+    reads++;
     return new Response(typeof body === 'string' ? body : JSON.stringify(body),
                         { status, headers: { 'Content-Type': 'application/json' } });
   }; };
+
+  /* When no loader was reachable, drive the page's OWN route back to the network - the same move
+   * states() makes for the same reason. Fenced against navigation: an <a href> here would take the
+   * page out from under the injection. */
+  const forceRead = async () => {
+    if (reads > 0) return reads;
+    const el = [...m().querySelectorAll(
+      '[role="tab"]:not([aria-selected="true"]),.section-tab:not(.active),.cat-chip,.filter-chip,[data-section]')]
+      .filter(e => e.getClientRects().length && !navigatesAway(e))[0];
+    if (el) { clickNoNav(el); await new Promise(r => setTimeout(r, 900)); }
+    return reads;
+  };
+  const vac = (o) => (reads > 0 ? o : Object.assign({}, o, { ok: null, vacuous: true }));
 
   // 401 — an expired session must SAY the session expired and that nothing was sent. Never a bare
   // "try again" (which invites a retry that cannot work) and never a sign-in instruction to someone
   // who IS signed in.
   serve(401, { code: '42501', message: 'JWT expired' });
   await rerun(1200);
+  await forceRead();   // no loader on window means nothing was ever in flight
   {
     const t = txt();
-    out.fail_401 = {
+    out.fail_401 = vac({
       saysExpiredOrFailed: SAYS_FAIL.test(t),
       namesSession: /session|sign ?in|log ?in|expired/i.test(t),
       saysNothingSent: /nothing was sent|not sent|no changes were saved|nothing was saved/i.test(t),
       bareRetryOnly: OFFERS_BACK.test(t) && !/session|expired/i.test(t),
       ok: SAYS_FAIL.test(t) && /session|expired/i.test(t),
-    };
+    });
   }
 
   // TIMEOUT — a hung dependency must END in a stated timeout, not an indefinite skeleton. Served as
@@ -455,12 +508,12 @@ export async function failures(opts) {
     const t = txt();
     // `[class*="skeleton"]` misses this platform's own wh-cardskel; match the STEM (see states()).
     const skel = m().querySelectorAll('[class*="skel"],.shimmer,[aria-busy="true"]').length;
-    out.fail_timeout = {
+    out.fail_timeout = vac({
       statesTimeout: /timed out|timeout|taking longer|slow/i.test(t),
       stuckSkeleton: skel > 0 && !/timed out|timeout|taking longer/i.test(t),
       saysSomething: SAYS_FAIL.test(t),
       ok: /timed out|timeout|taking longer|slow/i.test(t) || SAYS_FAIL.test(t),
-    };
+    });
   }
   await new Promise(r => setTimeout(r, 6000));  // let the hang drain before the next induction
 
@@ -479,12 +532,12 @@ export async function failures(opts) {
   await rerun(1600);
   {
     const t = txt();
-    out.fail_partial = {
+    out.fail_partial = vac({
       keptSomething: t.length > baseline.length * 0.3,
       namesTheFailure: SAYS_FAIL.test(t),
       ok: t.length > baseline.length * 0.3 && SAYS_FAIL.test(t),
       len: t.length, baselineLen: baseline.length,
-    };
+    });
   }
 
   // NULL FIELD — a valid row with a NULL in it must render a STATED GAP, never 0, never "undefined",
@@ -505,16 +558,114 @@ export async function failures(opts) {
   await rerun(1600);
   {
     const t = txt();
-    out.fail_null_field = {
+    out.fail_null_field = vac({
       fabricatedZero: /₱0\.00|₱0\b/.test(t),
       leakedUndefined: /\bundefined\b|\bNaN\b|\bnull\b/i.test(t),
       showsGap: /[\u2014\u2013-]|not set|no data|unknown|not recorded/.test(t),
       ok: !/₱0\.00/.test(t) && !/\bundefined\b|\bNaN\b/i.test(t),
+    });
+  }
+
+  /* THE THREE THE CC FRAME ASKS FOR AND THIS FUNCTION DID NOT HAVE. The frame names seven injections
+   * per view (fail_500, fail_401, fail_timeout, fail_partial, fail_slow, fail_offline,
+   * fail_null_field) and only four were implemented, so rows 041/045/046 could not be walked at all -
+   * not because the pages resist measurement but because the instrument had no probe. Built rather
+   * than recorded as inapplicable. */
+
+  // 500 - a SERVER fault is not the reader's fault and not their session's. It must say something
+  // failed WITHOUT blaming the session (that is the 401's job, and conflating them sends a person to
+  // re-authenticate over a broken server), and it must not render an empty result as though the
+  // server had honestly answered "none" - a 500 rendered as an empty list is the same lie as a
+  // partial rendered as complete.
+  serve(500, { code: 'PGRST500', message: 'internal server error' });
+  await rerun(1200);
+  {
+    const t = txt();
+    const emptyish = /no .{0,24}(yet|found)|nothing (here|to show)|0 (results|items|records)/i.test(t);
+    /* A STANDING "Sign in" LINK IS NOT THE PAGE BLAMING THE SESSION. This asked whether the page text
+       mentions a session ANYWHERE, and every signed-out-capable surface carries a permanent sign-in
+       affordance - so it fired on 4 of 4 pages and I was one step from filing "answers a 500 with
+       session language" as a platform defect. The only matched fragment was the literal words
+       "Sign in", present whether or not anything failed. The question is whether the FAILURE MESSAGE
+       blames the session, so the match must be anchored to a sentence that also states a failure. */
+    const _sess = /session|expired|log ?in/i;   // note: bare "sign in" alone is NOT evidence
+    const _blames = (t.split(/(?<=[.!?])\s+|\s{2,}/) || [])
+      .some(sent => SAYS_FAIL.test(sent) && _sess.test(sent));
+    out.fail_500 = vac({
+      saysFailed: SAYS_FAIL.test(t),
+      blamesSession: _blames,   // must be FALSE on a 500 - a server fault is not the session
+      rendersEmptyAsAnswer: emptyish && !SAYS_FAIL.test(t),
+      ok: SAYS_FAIL.test(t)
+          && !/session|sign ?in|log ?in|expired/i.test(t)
+          && !(emptyish && !SAYS_FAIL.test(t)),
+    });
+  }
+
+  // SLOW - a slow-but-SUCCESSFUL read is not a failure, so the oracle is different from the timeout's:
+  // the page must acknowledge the wait while it happens rather than sitting apparently idle, and it
+  // must still render the data when it lands. Sampled MID-FLIGHT (the response is deliberately slower
+  // than the sample) and then again after it arrives, because "showed a spinner" and "eventually
+  // showed the data" are two separate promises and a page can keep one while breaking the other.
+  {
+    const SLOW = 2600;
+    window.fetch = async (i, x) => {
+      const u = typeof i === 'string' ? i : (i && i.url) || '';
+      { const b = blockWrite(i, x); if (b) return b; }
+      if (!REST.test(u)) return orig(i, x);
+      await new Promise(r => setTimeout(r, SLOW));
+      return orig(i, x);
     };
+    rerun(0);
+    await new Promise(r => setTimeout(r, Math.floor(SLOW / 2)));    // INSIDE the flight
+    const during = txt();
+    const busy = [...m().querySelectorAll(
+      '[aria-busy="true"],[class*="skel"],[id*="skel"],.shimmer,.spinner,[class*="load"]')]
+      .filter(e => e.getClientRects().length).length;
+    await new Promise(r => setTimeout(r, SLOW + 600));              // after it lands
+    const after = txt();
+    out.fail_slow = vac({
+      acknowledgesWait: busy > 0 || /loading|loading…|please wait|working/i.test(during),
+      busyElements: busy,
+      dataArrived: after.length > during.length || after.length > baseline.length * 0.9,
+      lengths: [during.length, after.length, baseline.length],
+      ok: (busy > 0 || /loading|please wait|working/i.test(during))
+          && (after.length > during.length || after.length > baseline.length * 0.9),
+    });
+  }
+
+  // OFFLINE - a real offline fetch REJECTS, it does not answer with a status. So this throws the
+  // TypeError the browser actually throws, rather than serving a 5xx, because a page that only
+  // handles !res.ok never reaches its catch and the difference is invisible to a status-based probe.
+  // The platform rule this checks: a field-capture write may QUEUE offline, but the page must SAY so -
+  // silence lets a worker walk away believing a logbook entry was saved.
+  window.fetch = async (i, x) => {
+    const u = typeof i === 'string' ? i : (i && i.url) || '';
+    { const b = blockWrite(i, x); if (b) return b; }
+    if (!REST.test(u)) return orig(i, x);
+    throw new TypeError('Failed to fetch');
+  };
+  await rerun(1200);
+  {
+    const t = txt();
+    out.fail_offline = vac({
+      namesConnection: /offline|no (internet|connection|network)|connection|network/i.test(t),
+      saysFailed: SAYS_FAIL.test(t),
+      saysQueued: /queued|will (be )?sync|saved (locally|on this device)|pending upload/i.test(t),
+      // a bare "error" tells a worker in a plant basement nothing actionable
+      genericOnly: SAYS_FAIL.test(t)
+        && !/offline|no (internet|connection|network)|connection|network/i.test(t),
+      ok: /offline|no (internet|connection|network)|connection|network/i.test(t),
+    });
   }
 
   window.fetch = orig;
   await rerun(settle);
+  /* THE DENOMINATOR TRAVELS WITH THE VERDICT. reads is how many of the page own REST calls this run
+     actually intercepted; 0 means every fail_* above is vacuous rather than passing, and each one is
+     stamped vacuous:true with ok forced to null. A caller that ignores this is back to trusting a
+     reading taken over nothing. */
+  out._reads = reads;
+  out._vacuous = reads === 0;
   return out;
 }
 
@@ -619,16 +770,187 @@ function _apcaLc(txt, bg) {
   return (S > -APCA.loOffset ? 0 : S + APCA.loOffset) * 100;
 }
 
-export function visual() {
-  const m = document.querySelector('main') || document.body;
-  const vis = el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden';
-  const texts = [...m.querySelectorAll('*')].filter(el =>
-    el.childElementCount === 0 && vis(el) && (el.textContent || '').trim().length > 1);
+// SHARED CHROME, excluded from the per-page text scope because it is the SAME component on every
+// surface: measuring it 22 times would inflate every page's denominator with identical nodes and let
+// one chrome defect read as 22 page defects. Mirrors the B4_CHROME list in survey_ufai_rubric.js.
+const SHARED_CHROME = '#wh-hub, #wh-feedback-panel, #wh-ai-widget, #wh-ai-panel, #wh-ai-trigger, '
+  + '#wh-wayfinding, #wh-guide-link, .wh-skip-link, .wh-companion, [class*="companion"], nav[class*="hub"]';
 
-  const rows = texts.slice(0, 400).map(el => {
+// THE TEXT SCOPE. This used to be `document.querySelector('main') || document.body`, and that silently
+// under-measured any page whose OWN content mounts outside <main>. Found 2026-08-06 walking
+// analytics-report: after clicking Generate Report the page held 8,353 chars in 518 text nodes, but
+// <main id="ar-page"> held only 190 chars in 15 — the whole report renders into #ar-print-wrapper, a
+// SIBLING of <main>. The lens measured 15 of 518 nodes (2.9%) and reported "0 failing" while axe found
+// NINE real contrast violations in the 503 nodes it never looked at. A pass over 2.9% of a page is the
+// short-denominator false 100 in its purest form.
+// Measured before changing it, to be sure the old scope was not deliberate: on hive and logbook every
+// one of the ~50 out-of-<main> nodes is shared chrome (#wh-hub 28, #wh-feedback-panel 12, #wh-ai-widget
+// 4, guide-link, skip-link, nav), so excluding chrome WAS right and is preserved here — what was wrong
+// was using <main> as the proxy for "not chrome". Now the scope is the body minus the chrome subtrees,
+// which leaves normal pages essentially unchanged (hive gains only its own footer disclosure) and
+// restores the report pages' actual payload.
+function textScope() {
+  return document.body || document.documentElement;
+}
+function inSharedChrome(el) {
+  return !!(el.closest && el.closest(SHARED_CHROME));
+}
+
+export function visual(root) {
+  // OPTIONAL ROOT (2026-08-18). Contrast is authored per VIEW in the page banks, and V2/V3 are
+  // dialogs: measuring the page body with a dialog open credits that view with the whole page's
+  // reading, which is the one-measurement-swept-two-views error. Passing the dialog element scopes
+  // every sample to the view actually being graded. Omitted, behaviour is unchanged (document.body),
+  // so every existing caller reads exactly as before.
+  const m = root || textScope();
+  // DECORATIVE CONTENT IS EXEMPT, AND THE AUTHOR IS THE ONE WHO DECLARES IT. A node inside
+  // aria-hidden="true" is not exposed to assistive tech and carries no information — WCAG's contrast
+  // rules apply to informational text, not to dividers. index's anon landing separates four links
+  // with `·` spans at text-white/15: legible contrast on a glyph nobody needs to read is not the
+  // goal, and darkening them to satisfy a floor would change the design to please a meter. They are
+  // marked aria-hidden (which a screen reader needed anyway) and skipped here. A node that merely
+  // LOOKS decorative is still measured; only an explicit declaration exempts it.
+  const decorative = el => !!(el.closest && el.closest('[aria-hidden="true"]'));
+  const vis = el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden'
+    && !inSharedChrome(el) && !decorative(el);
+  // EMOJI ARE NOT TEXT FOR CONTRAST (2026-08-05, hive walk). An emoji glyph paints in its OWN colours,
+  // not in the element's `color`, so comparing that element's foreground against its background says
+  // nothing about whether the emoji is legible. hive.html's only 3 APCA "failures" out of 265 nodes
+  // were 🔧, 📋 and 📦 — icon chips whose spans carry a tint the glyph never uses. Same family as the
+  // platform's other readability-detector false positives on non-prose glyphs (asset codes, XP
+  // strings). A node whose visible text is ONLY emoji/symbol characters is excluded; a label that
+  // MIXES an emoji with real words is still measured, because those words are real text.
+  // ⚠ `\p{Emoji_Component}` MATCHES THE ASCII DIGITS 0-9 (they are keycap components), so the
+  // original one-line test — /^[\p{Extended_Pictographic}\p{Emoji_Component}️‍\s]+$/u — classified
+  // any purely NUMERIC text as an emoji glyph and dropped it. Found 2026-08-06 on logbook: axe
+  // abstained on #total-count ('571'), #machine-count ('34'), #open-count ('5') and #sdot-1 ('1'),
+  // and this lens had never measured them either, so nobody had judged them. They are leaf,
+  // visible, in scope and non-chrome — they failed only this regex. That silently excluded every
+  // numeric-only label on the platform, which is the text a person reads FIRST on a KPI tile: when
+  // the figure sits in its own span ('12' in '12 Open Jobs'), its contrast went unmeasured.
+  // CORRECTED TEST: a node is emoji-only when it contains at least one pictograph AND no
+  // alphanumeric character at all. Digits and letters are real text and are measured; a lone 🔧 or
+  // 📦 is still excluded, which is what the hive walk established (its only 3 "failures" of 265
+  // nodes were icon chips whose glyph never uses the element's `color`).
+  const HAS_WORD_CHAR = /[\p{Letter}\p{Number}]/u;
+  // ── EMOJI *PRESENTATION*, NOT EVERY PICTOGRAPH (2026-08-07) ────────────────────────────────────
+  // The exclusion exists because an emoji glyph paints in its OWN colours, so the element's `color`
+  // says nothing about its legibility. `\p{Extended_Pictographic}` is far wider than that: it also
+  // matches geometric and dingbat characters that render as ordinary TEXT in the element's `color` -
+  // the KPI chevrons, arrows, a heavy multiplication X. Those are real contrast subjects and were
+  // being dropped. Caught by intersecting axe's abstentions against this lens's data-wh-apca stamps:
+  // analytics' #kpi-N-chevron and skillmatrix's minus-sign buttons were judged by NEITHER instrument.
+  // `\p{Emoji_Presentation}` is the property that actually means "defaults to a colour glyph", and a
+  // text-presentation character forced to emoji by VS16 (U+FE0F) is caught by the second branch.
+  const HAS_EMOJI_PRESENTATION = /\p{Emoji_Presentation}|\p{Extended_Pictographic}️/u;
+  const emojiOnly = (t) => HAS_EMOJI_PRESENTATION.test(t) && !HAS_WORD_CHAR.test(t);
+  // OWN TEXT, NOT LEAF-ONLY. The filter used to require `el.childElementCount === 0`, which skipped
+  // the single most common label shape on this platform: an element carrying its OWN text beside an
+  // element child — `<span><svg/>Knowledge</span>`, `🔧 Mechanical 4`, `<span><i/>CSV</span>`. The
+  // container was skipped for having a child; the child is an icon holding no text, so it was
+  // skipped too — and the label was therefore measured by NOTHING, while axe abstains on it as
+  // well, so no instrument had ever judged it. Found 2026-08-06 closing the contrast_wcag rows: on
+  // logbook's MINE feed, 22 of 249 axe abstentions were exactly this shape, all visible with client
+  // rects (the zero-rects/hidden hypothesis was measured and refuted), plus 2 on
+  // engineering-design, 9 on inventory, 2 on assistant.
+  // Using each element's OWN direct text nodes — rather than textContent, which would pull in a
+  // child's words and double-count them — measures leaves exactly as before (a leaf's own text IS
+  // its textContent) and adds icon+label containers, while a PURE wrapper whose text all lives in
+  // children has no own text and is still skipped. Same family as the digit bug above: an exclusion
+  // rule silently removing real text from the denominator is worse than a noisy detector, because it
+  // makes the surface read "0 failing" over a set that never contained the risky node.
+  const ownText = (el) => {
+    let t = '';
+    for (const n of el.childNodes) if (n.nodeType === 3) t += n.textContent;
+    return t.trim();
+  };
+  // ── FORM FIELDS ARE TEXT, AND NOBODY WAS JUDGING THEM (2026-08-07) ─────────────────────────────
+  // An <input>/<textarea>/<select> holds its text in a VALUE and a ::placeholder, never in a child
+  // text node, so `ownText` is empty for all of them and this lens skipped every one. axe abstains on
+  // them too, because it cannot resolve their composited background - so input text was judged by
+  // NEITHER instrument. Found by intersecting axe's abstentions against this lens's own
+  // data-wh-apca stamps: asset-hub's #asset-search and analytics' .list-search came back covered by
+  // nothing at all. A search field's placeholder is routinely the palest text on a page, which makes
+  // this the worst possible blind spot to have had.
+  // TEXT-BEARING TYPES ONLY. `input:not([type=hidden])` was too wide and it produced a false failure
+  // immediately: resume's #promote-dedupe is a CHECKBOX, whose `value` defaults to the string "on",
+  // so the probe measured a non-existent label in the default black input colour and reported Lc 2.6 -
+  // a fabricated defect from my own widening. A checkbox, radio, range, colour, file or button input
+  // paints no text of its own, so it has no contrast subject; its LABEL is a separate element and is
+  // measured as ordinary text like anything else.
+  const TEXTY = /^(text|search|email|tel|url|number|password|date|time|datetime-local|month|week)$/i;
+  const fieldText = (el) => {
+    if (!el.matches || !el.matches('input,textarea,select')) return null;
+    if (el.tagName === 'INPUT' && !TEXTY.test(el.getAttribute('type') || 'text')) return null;
+    const v = (el.value || '').trim();
+    if (v) return { t: v, pseudo: null };                       // the typed value paints in `color`
+    const ph = (el.getAttribute && el.getAttribute('placeholder') || '').trim();
+    if (ph) return { t: ph, pseudo: '::placeholder' };          // the placeholder has its OWN colour
+    return null;
+  };
+  const texts = [...m.querySelectorAll('*')].filter(el => {
+    if (!vis(el)) return false;
+    if (fieldText(el)) return true;
+    const t = ownText(el);
+    // `t.length > 1` USED TO BE THE BAR, and it silently dropped every ONE-CHARACTER label - which is
+    // a whole class of real, colour-bearing text on this platform: skillmatrix's decrement buttons
+    // whose entire label is a minus sign, the guide-link dismiss X, and single-digit KPI cells ("9",
+    // "3") in analytics' tables. Same family as the digits bug above: the exclusion did not make the
+    // detector quieter, it made "0 failing" true over a set that never contained the risky node. One
+    // character is enough to be illegible.
+    return t.length >= 1 && !emojiOnly(t);
+  });
+
+  // ── GRADIENT-CLIPPED TEXT: THE `color` IS NEVER PAINTED ─────────────────────────────────────────
+  // Found 2026-08-05 on index.html's anon landing, and it nearly caused a real regression. The lens
+  // reported 20 failures as "white on amber rgb(250,174,51)" — 'One hive.', 'WorkHive.',
+  // 'Build the future.', '35%' — and the fix that follows from that reading is "darken the text on
+  // amber". Both halves of the reading were wrong: every one of those nodes is
+  //   background-image: linear-gradient(135deg, #f7a21b, #fdb94a); background-clip: text;
+  //   -webkit-text-fill-color: rgba(0,0,0,0);
+  // so `color: white` paints NOTHING. The gradient IS the glyph, sitting on the dark navy page. The
+  // real question is amber-on-navy (high contrast, the platform's hero treatment), not white-on-amber
+  // (which never happens). Acting on the raw reading would have edited a property with no effect, or
+  // worse, changed the brand gradient on every page to fix a defect that does not exist.
+  // So when the fill is transparent and the background is clipped to the text, the FOREGROUND is the
+  // gradient's first colour stop and the BACKGROUND is the nearest ancestor that actually paints one.
+  const _firstStop = img => {
+    const m = /rgba?\([^)]+\)|#[0-9a-f]{3,8}/i.exec(img || '');
+    return m ? _parseRGBA(m[0]) : null;
+  };
+  // ── THE CAP WAS SILENT, AND analytics-report SAT EXACTLY ON IT ─────────────────────────────────
+  // `texts.slice(0, 400)` truncated the measured set with no signal, and a truncated denominator
+  // under a "0 failing" headline is the false-343 shape: analytics-report reported measured: 400 -
+  // exactly the cap - so its reading covered an unknown fraction of the page, and the 2 nodes the
+  // axe-intersection found uncovered there ("INCREASE FREQUENCY" table cells) were ordinary words
+  // that had simply fallen off the end. Raised, and - the part that matters - REPORTED: `candidates`
+  // and `truncated` now travel with the result, so a walk can never bank a green over a cap it could
+  // not see. No silent caps.
+  const CAP = 2000;
+  const candidates = texts.length;
+  const truncated = candidates > CAP;
+  const rows = texts.slice(0, CAP).map(el => {
+    // STAMP EXACT MEMBERSHIP (2026-08-06). A caller dispositioning an axe colour-contrast
+    // ABSTENTION needs to know whether THIS lens already judged that node, and a selector
+    // round-trip loses the answer: on logbook's MINE feed 219 measured rows resolved back to only
+    // 150 distinct elements via nth-of-type paths, so ~70 measured nodes looked "uncovered" when
+    // they were not. A data attribute cannot be ambiguous. It is inert, does not affect layout or
+    // computed style, and is idempotent across re-runs.
+    try { el.setAttribute('data-wh-apca', '1'); } catch (e) { /* empty-catch-allow: read-only DOM */ }
     const cs = getComputedStyle(el);
-    const fg = _parseRGBA(cs.color) || { r: 0, g: 0, b: 0, a: 1 };
-    const bg = _effectiveBg(el);
+    const clipsToText = /text/.test(cs.webkitBackgroundClip || cs.backgroundClip || '');
+    const fillTransparent = (_parseRGBA(cs.webkitTextFillColor) || { a: 1 }).a === 0;
+    const gradientGlyph = clipsToText && fillTransparent ? _firstStop(cs.backgroundImage) : null;
+    // A PLACEHOLDER HAS ITS OWN COLOUR, so reading the field's `color` for an empty input would judge
+    // the wrong ink - it is usually a strong value colour standing in for pale placeholder grey, which
+    // would turn a real failure into a pass. Read ::placeholder when that is the text being shown.
+    const fld = fieldText(el);
+    const phCs = (fld && fld.pseudo) ? getComputedStyle(el, '::placeholder') : null;
+    const fg = gradientGlyph
+      || (phCs && _parseRGBA(phCs.color))
+      || _parseRGBA(cs.color) || { r: 0, g: 0, b: 0, a: 1 };
+    // The element's own background is the glyph here, so it must not also count as the backdrop.
+    const bg = _effectiveBg(gradientGlyph ? (el.parentElement || el) : el);
     const composited = fg.a < 1 ? _overlay(fg, bg) : fg;   // translucent TEXT composites too
     const px = parseFloat(cs.fontSize) || 16;
     const w = parseInt(cs.fontWeight, 10) || 400;
@@ -647,50 +969,234 @@ export function visual() {
     //   Lc 15  point of invisibility
     // Read in descending size order so the most permissive qualifying tier wins, and the Lc 30 tier
     // still has teeth: it catches text heading for invisibility, which is what it is for.
+    //
+    // KNOWN CALIBRATION GAP IN THE Lc 30 TIER, and it has already cost a miss (2026-08-06,
+    // analytics-report). The generated print report carried nine 11px/700 severity chips
+    // ("INCREASE FREQUENCY" and siblings) coloured with the light FILL red #f87171 on a pale #fee2e2
+    // tint. axe measured the WCAG ratio at 2.26 against the 4.5 AA bar and was RIGHT; this lens scored
+    // them Lc 42.1 against the 30 floor and PASSED them, because anything under 14px falls into the
+    // incidental/small-UI tier. An 11px BOLD LABEL carrying the report's recommendation is not
+    // incidental UI, so the tier is too permissive for it.
+    // ★SETTLED 2026-08-18, AND THE ANSWER IS "DO NOT RE-TUNE IT" — recalled, not decided afresh.
+    // The temptation is to raise this floor for small BOLD labels. That is the SAME MISCALIBRATION this
+    // implementation already made once and corrected: the first APCA run on this platform reported
+    // 194 of 232 nodes failing, because it used Lc 90 as a floor (Lc 90 is PREFERRED, not a minimum)
+    // AND scored sub-14px text — which is OUTSIDE APCA'S PUBLISHED TABLE ALTOGETHER. The table starts
+    // at 14px; below that there is no APCA floor to apply, so anything this tier says about 8-12px
+    // text is an extrapolation, not a reading.
+    // WHICH MEANS THE Lc 30 TIER IS NOT "TOO PERMISSIVE" — it is out of range, and the finding those
+    // nodes deserve is a LEGIBLE-SIZE one (is 8px text acceptable at all?), not a contrast one.
+    // Re-tuning would re-verdict every sub-14px node on every surface on the strength of a number the
+    // standard does not define there, and would resurrect the exact false-positive storm calibration
+    // removed.
+    // So the gap is covered the way the platform already intends: BOTH lenses run on every walk and
+    // the WCAG check is the backstop for small text — which is how the nine chips above were caught,
+    // and how the 17 sub-14px failures found on 2026-08-18 were caught. If this lens is ever run
+    // alone, sub-14px text is its blind spot, and the answer is to run the pair, not to move the bar.
+    // See [[feedback_apca_perceptual_contrast_c5]].
     const floor =
         (px >= 36 || (px >= 24 && w >= 700)) ? 45 :
         (px >= 24 || (px >= 16 && w >= 700)) ? 60 :
         (px >= 18)                           ? 75 :
         (px >= 14)                           ? 60 :   // 14-17px body-ish: the 60 tier is the honest fit
                                                30;    // incidental/small UI text
+    // REPORT THE FOREGROUND THAT WAS ACTUALLY MEASURED, NOT THE DECLARED `color`.
+    // This field used to be `cs.color` unconditionally, and it misled the very walk that added the
+    // gradient-clipped-text handling above: three failures kept printing `fg: rgb(255,255,255)` while
+    // the Lc math had correctly used the amber/cyan gradient, so I twice concluded the new code was
+    // not running. A findings list that names a colour the calculation never used sends the reader to
+    // change the wrong property — the same failure mode as the reading it was introduced to fix.
+    // `fgMeasured` is what the number rests on; `fgDeclared` is kept because the gap between them IS
+    // the tell that this node is gradient-clipped.
+    const fgOut = 'rgb(' + [composited.r, composited.g, composited.b].map(Math.round).join(',') + ')';
+    // NAME THE NODE, not just its text. Added 2026-08-06 after this lens reported two 14px failures by
+    // TEXT only ("Select a calculation type first." on engineering-design, "Off by default" on resume)
+    // and neither could be acted on: searching the DOM for those strings found DIFFERENT instances that
+    // MEASURE AS PASSING (Lc 61.5 on the resume one), so the failing node was unidentifiable and both
+    // rows had to stay owed rather than be fixed at the wrong element. A finding that cannot be located
+    // is not actionable, which makes it barely a finding. `sel` is a nth-of-type path stable enough to
+    // re-query, and `where` gives the nearest id/section for a human reading the report.
+    const path = (() => {
+      const parts = [];
+      let n = el;
+      for (let i = 0; i < 6 && n && n.nodeType === 1 && n !== document.body; i++) {
+        let seg = n.tagName.toLowerCase();
+        if (n.id) { parts.unshift('#' + n.id); break; }
+        const cls = (n.className || '').toString().trim().split(/\s+/).filter(Boolean)[0];
+        if (cls) seg += '.' + cls;
+        const sibs = n.parentElement ? [...n.parentElement.children].filter(c => c.tagName === n.tagName) : [];
+        if (sibs.length > 1) seg += ':nth-of-type(' + (sibs.indexOf(n) + 1) + ')';
+        parts.unshift(seg);
+        n = n.parentElement;
+      }
+      return parts.join(' > ');
+    })();
+    const anchor = el.closest('[id]');
+    // WCAG 2.x FROM THE SAME TWO COLOURS. This is not a second opinion built on a second reading -
+    // it reuses the composited foreground and the _effectiveBg() backdrop this node already
+    // resolved, so the two lenses can never disagree about WHAT they measured, only about the
+    // verdict. That distinction matters because they are SUPPOSED to disagree: the note on the
+    // Lc 30 tier above records a real miss where nine 11px/700 chips scored Lc 42.1 (pass) and
+    // WCAG 2.26 (fail), and says plainly that "the WCAG check is the backstop for small text ...
+    // if this lens is ever run alone, sub-14px text is its blind spot."
+    // Until now that backstop was unavailable exactly where it is needed most: INSIDE DIALOGS. A
+    // separate composited probe has to abstain there, because a dialog card is a translucent
+    // gradient over a translucent scrim and a ratio needs one flat second colour - 17 bank rows sat
+    // owed on precisely that. _effectiveBg already solves it by averaging the gradient's stops, so
+    // the backstop now reaches the views it could not.
+    const wcagRatio = (() => {
+      const L = (c) => { const f = (v) => { v = Math.max(0, Math.min(255, v)) / 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+        return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
+      const A = L(composited), B = L(bg);
+      return (Math.max(A, B) + 0.05) / (Math.min(A, B) + 0.05);
+    })();
+    const wcagNeed = (px >= 24 || (px >= 18.66 && w >= 700)) ? 3.0 : 4.5;
     return { txt: (el.textContent || '').trim().slice(0, 32), px: Math.round(px), w,
              Lc: Math.round(Lc * 10) / 10, floor,
+             ratio: Math.round(wcagRatio * 100) / 100, need: wcagNeed,
+             wcagOk: bg.inconclusive ? null : wcagRatio >= wcagNeed - 0.05,
              ok: bg.inconclusive ? null : Lc >= floor,
              inconclusive: !!bg.inconclusive,
-             fg: cs.color, bg: 'rgb(' + [bg.r, bg.g, bg.b].map(Math.round).join(',') + ')' };
+             fg: fgOut,
+             fgDeclared: cs.color,
+             clipText: !!gradientGlyph,
+             sel: path,
+             where: anchor ? '#' + anchor.id : null,
+             bg: 'rgb(' + [bg.r, bg.g, bg.b].map(Math.round).join(',') + ')' };
   });
   const fails = rows.filter(r => r.ok === false).sort((a, b) => a.Lc - b.Lc);
   const unknown = rows.filter(r => r.inconclusive);
 
-  // REDUCED MOTION: does anything actually animate, and is the opt-out expressed?
-  const animated = [...document.querySelectorAll('*')].filter(el => {
-    const cs = getComputedStyle(el);
-    return vis(el) && ((cs.animationName && cs.animationName !== 'none') ||
-                       (cs.transitionDuration && parseFloat(cs.transitionDuration) > 0));
-  });
-  let declaresGuard = false;
+  // REDUCED MOTION — a BEHAVIOURAL oracle, so a structural answer may not settle it (R6).
+  // This returned `ok: declaresGuard`, i.e. "does ANY @media (prefers-reduced-motion) rule exist
+  // anywhere on this page" — a page-level boolean. It certified pages compliant while their motion
+  // ran, because a page can declare a reduce block for one component and none for the rest. hive
+  // declared 8 such blocks and 55 declarations, all about .ss-tile and .ss-rd-track, while a shared
+  // launcher's three infinite animations honoured nothing. Measured 2026-08-07 by flipping the
+  // media on a live page: inventory ran 8 visible animations and still ran 8 under reduce;
+  // voice-journal 8 and 8 — and voice-journal ALREADY had a reduce block, which is precisely how
+  // the boolean passed it. companion-launcher.js contained no reduce rule at all.
+  // Now each animated element is matched against the reduce rules INDIVIDUALLY, so the verdict is
+  // a SET rather than a boolean. Two further corrections came with it:
+  //   * VISIBILITY. getClientRects() is empty inside a display:none subtree. A first hand-rolled
+  //     probe of mine omitted that and inflated hive from 0 visible animations to 5, nearly
+  //     producing a fabricated finding. Motion nobody can see is not a 2.2.2 exposure, but it is
+  //     not nothing either — a spinner animates only while loading — so it is reported as `latent`
+  //     instead of being dropped or counted.
+  //   * A TRANSITION IS NOT MOTION-ON-ARRIVAL. The old filter counted any transitionDuration > 0,
+  //     which is nearly every button on the platform. A transition fires on interaction and cannot
+  //     run indefinitely, so it never belonged in the same count as an infinite animation.
+  // CAVEAT, stated rather than glossed: matching a selector proves a rule TARGETS the element, not
+  // that it WINS — specificity or source order could still defeat it. So this is a strong static
+  // screen, and the authority remains an external flip of the media with the sets compared. The
+  // walk does that; `animatedNames` is exposed so it can.
+  const reduceSel = [];
   for (const sheet of document.styleSheets) {
     let rules; try { rules = sheet.cssRules; } catch (e) { continue; }  // empty-catch-allow: cross-origin sheet
-    for (const r of rules || []) {
-      if (r.media && /prefers-reduced-motion/.test(r.conditionText || r.media.mediaText || '')) { declaresGuard = true; break; }
-    }
-    if (declaresGuard) break;
+    const walk = (list) => {
+      for (const r of list || []) {
+        const cond = r.media ? (r.conditionText || r.media.mediaText || '') : '';
+        if (/prefers-reduced-motion\s*:\s*reduce/.test(cond)) {
+          for (const inner of r.cssRules || []) {
+            const a = inner.style && (inner.style.animation || inner.style.animationName);
+            if (inner.selectorText && a && /\bnone\b/.test(a)) reduceSel.push(inner.selectorText);
+          }
+        }
+        if (r.cssRules) walk(r.cssRules);
+      }
+    };
+    walk(rules);
+  }
+  const declaresGuard = reduceSel.length > 0;
+  const isGuarded = (el) => reduceSel.some(s => {
+    try { return el.matches(s); } catch (e) { return false; }  // empty-catch-allow: unsupported selector
+  });
+  const animated = [], latent = [], unguarded = [];
+  for (const el of document.querySelectorAll('*')) {
+    const cs = getComputedStyle(el);
+    if (!cs.animationName || cs.animationName === 'none') continue;
+    if (!(parseFloat(cs.animationDuration) > 0.01)) continue;
+    const tag = cs.animationName + (cs.animationIterationCount === 'infinite' ? '*' : '');
+    if (!vis(el)) { latent.push(tag); continue; }
+    animated.push(tag);
+    if (!isGuarded(el)) unguarded.push(tag);
   }
   return {
+    // The WCAG sibling, over the SAME `rows` - same nodes, same denominator, same inconclusive set.
+    wcag: {
+      measured: rows.length,
+      candidates,
+      truncated,
+      failing: rows.filter(r => r.wcagOk === false).length,
+      inconclusive: unknown.length,
+      ok: (unknown.length || truncated) ? null : rows.every(r => r.wcagOk !== false),
+      worst: rows.filter(r => r.wcagOk === false).sort((x, y) => x.ratio - y.ratio).slice(0, 10),
+    },
     apca: {
       measured: rows.length,
+      // THE DENOMINATOR'S OWN HONESTY travels with the verdict: `candidates` is how many nodes
+      // qualified and `truncated` says whether the cap cut any off. `ok` is forced to null when it
+      // did, because "0 failing" over a truncated set is not a pass - it is an unknown wearing one.
+      candidates,
+      truncated,
       failing: fails.length,
       inconclusive: unknown.length,
-      ok: unknown.length ? null : fails.length === 0,
+      ok: (unknown.length || truncated) ? null : fails.length === 0,
       worst: fails.slice(0, 10),
       unmeasurable: unknown.slice(0, 4).map(u => u.txt),
+      // MEASURED SET, added 2026-08-06 so an axe abstention can be dispositioned by SET
+      // INTERSECTION instead of by count. The `contrast_wcag` oracle demands "a denominator with
+      // no unresolved abstention", and axe abstains on every node whose background it cannot
+      // composite. Until now the only way to answer that was to compare COUNTS - "the lens
+      // measured 219, axe abstained on 249" - which is a necessary condition and never a
+      // sufficient one, because the two sets overlap without either containing the other: this
+      // lens scopes to body-minus-shared-chrome by design while axe abstains across the chrome
+      // too. Measured on logbook: TEAM 47 vs 61 abstentions, MINE 219 vs 249 - loading four times
+      // the content grew BOTH numbers and widened the gap, so no amount of populating a page can
+      // rescue a count argument. Five rows sit blocked on exactly this (assistant 20v11,
+      // engineering-design 48v40, inventory 134v120, logbook 61/249, plus report-sender's).
+      // Exposing the set lets a walk assert the real thing: every abstained node IS inside the
+      // measured set, node by node. Selectors only - no text, so this stays cheap to serialise.
+      // Verified on logbook: 47 selectors for 47 measured nodes, 0 empty.
+      // CAVEAT, measured rather than assumed: these selectors are nth-of-type PATHS and are not
+      // guaranteed to resolve back to a unique element - on logbook's MINE feed 219 measured rows
+      // resolved to only 150 distinct elements, so a selector-based intersection under-reports
+      // coverage and inflates the "uncovered" list. Use `measuredMark` below for an exact answer
+      // and keep these for human reading.
+      measuredSel: rows.map(r => r.sel).filter(Boolean),
+      // EXACT MEMBERSHIP. Every node this lens measured is stamped with data-wh-apca="1", so a
+      // caller can ask `el.hasAttribute('data-wh-apca')` per axe abstention and get a yes/no with
+      // no selector round-trip to lose it. That is what the contrast_wcag oracle actually needs:
+      // "no unresolved abstention" is a set claim, and a count comparison can never settle it -
+      // on logbook, loading 4x the content grew the lens denominator 47->219 AND the abstentions
+      // 61->249, so the gap widened rather than closed.
+      measuredMark: 'data-wh-apca',
     },
     reduced_motion: {
       animatedElements: animated.length,
+      // LATENT is reported, never merged into the verdict: these animate inside a hidden subtree,
+      // so no one perceives them now, but a loading spinner is exactly this and becomes visible the
+      // moment it is needed. Counting them would fabricate exposures; dropping them would hide a
+      // real backlog. Named so a walk can decide for itself.
+      latentElements: latent.length,
+      latentNames: [...new Set(latent)],
       declaresGuard,
-      ok: animated.length === 0 ? null : declaresGuard,
-      note: animated.length === 0 ? 'nothing animates on this surface - nothing to honour'
-                                  : (declaresGuard ? null : 'elements animate and no @media (prefers-reduced-motion) rule exists'),
+      reduceSelectors: reduceSel.length,
+      // THE VERDICT IS THE UNGUARDED SET, not the existence of a guard.
+      unguarded: [...new Set(unguarded)],
+      animatedNames: [...new Set(animated)],
+      ok: animated.length === 0 ? null : unguarded.length === 0,
+      note: animated.length === 0
+        ? ('nothing VISIBLE animates on this surface'
+           + (latent.length ? ' (' + latent.length + ' animate inside hidden subtrees - latent, not'
+              + ' currently perceivable, listed in latentNames)' : ' - nothing to honour'))
+        : (unguarded.length
+           ? unguarded.length + ' visible animation(s) match no animation:none rule inside any'
+             + ' @media (prefers-reduced-motion: reduce) block'
+             + (declaresGuard ? ' - the page DOES declare ' + reduceSel.length + ' such rule(s),'
+                + ' they just do not cover these' : ' - the page declares none at all')
+           : null),
       matchesNow: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     },
   };
@@ -704,6 +1210,31 @@ export function visual() {
 // The disabled check is deliberately NOT a forced click. Playwright's force:true dispatches the event
 // past the very guard under test, which is how a disabled control once "passed" a probe it does not
 // actually survive. A real click on a real disabled button is a no-op, and that is the assertion.
+/* NO INDUCED CLICK MAY NAVIGATE. states() cannot OBSERVE loading/skeleton/disabled/busy on a settled
+ * page - it INDUCES them, which means it clicks things - and a click that follows a link takes the
+ * page out from under the measurement. That killed the execution context on 7 of 22 pages in an
+ * alternating context-destroyed / next-goto-timeout pattern which reads as infrastructure, not as
+ * this probe following an <a href>: I blamed the browser, then batch size, then invented an
+ * auto-redirect defect on skillmatrix before reading the file disproved it.
+ * There are THREE induced-click sites (the re-query fallback, the disabled probe, the busy probe) and
+ * a per-site filter would have to be remembered at each one, so the property is made structural here.
+ * NOTE aria-disabled DOES NOT PREVENT NAVIGATION: <a href="x" aria-disabled="true"> still navigates
+ * on click, and the disabled probe deliberately clicks exactly that selector.
+ * A same-document hash target is safe and stays clickable. */
+function navigatesAway(el) {
+  const h = el && el.getAttribute && el.getAttribute('href');
+  if (h === null || h === undefined || h === '' || h.charAt(0) === '#') return false;
+  return true;
+}
+function clickNoNav(el) {
+  const fence = (ev) => {
+    const a = ev.target && ev.target.closest && ev.target.closest('a[href]');
+    if (a && navigatesAway(a)) { ev.preventDefault(); ev.stopPropagation(); }
+  };
+  window.addEventListener('click', fence, true);
+  try { el.click(); } finally { window.removeEventListener('click', fence, true); }
+}
+
 export async function states(opts) {
   const wait = (opts && opts.settle) || 1500;
   const orig = window.__lsrFetch || window.fetch;
@@ -755,10 +1286,21 @@ export async function states(opts) {
     // a page that renders nine — the same defect the AZ null-field walk hit twice. Drive the page's
     // OWN route back to the network instead: a section tab, a filter chip, a category button.
     if (!held) {
+      // ANY href NAVIGATES, not just an absolute one. This filter excluded /^https?:/ and nothing
+      // else, so a relative href sailed through and got CLICKED: skillmatrix's
+      // <a role="tab" href="achievements.html"> took the page out from under its own measurement.
+      // The execution context died mid-probe on 7 of 22 pages, in an alternating
+      // context-destroyed / next-page-goto-timeout pattern that reads as infrastructure rather than
+      // as this probe following a link - I blamed the browser, then batch size, then invented an
+      // auto-redirect defect on skillmatrix before reading the file disproved it.
+      // A same-document hash target is still safe, so keep those eligible.
       const reQuery = [...m().querySelectorAll(
         '[role="tab"]:not([aria-selected="true"]),.section-tab:not(.active),.cat-chip,.filter-chip,[data-section]')]
-        .filter(el => vis(el) && !/^https?:/.test(el.getAttribute('href') || ''))[0];
-      if (reQuery) reQuery.click();
+        .filter(el => vis(el) && !navigatesAway(el))[0];
+      // AND FENCE THE CLICK ANYWAY, because the selector list will grow and the next contributor
+      // should not have to remember this. A capture-phase guard costs nothing and makes the
+      // no-navigation property structural instead of a property of one filter.
+      if (reQuery) clickNoNav(reQuery);
     }
     await new Promise(r => setTimeout(r, Math.floor(HOLD / 2)));   // sample INSIDE the flight
     const s = m();
@@ -811,7 +1353,7 @@ export async function states(opts) {
       let fired = false;
       const mark = () => { fired = true; };
       el.addEventListener('click', mark, { once: true });
-      el.click();                       // a REAL click, never force:true
+      clickNoNav(el);                   // a REAL click, never force:true - and never a navigation
       el.removeEventListener('click', mark);
       return { el: (el.tagName + (el.id ? '#' + el.id : '')).slice(0, 36),
                looksDisabled: looks, refusedActivation: !fired, opacity: cs.opacity, cursor: cs.cursor };
@@ -866,7 +1408,7 @@ export async function states(opts) {
         return new Promise(res => setTimeout(() => res(orig(i, x)), HOLD));
       };
       out._writesBlocked = blocked;
-      btn.click();
+      clickNoNav(btn);
       await new Promise(r => setTimeout(r, 450));          // sample INSIDE the flight
       const cs = getComputedStyle(btn);
       // THE VERDICT MUST DEPEND ON A FLIGHT ACTUALLY HAPPENING. Text-matching picked "Post a Parts
@@ -995,10 +1537,48 @@ export function layout(target) {
   // OVERFLOW. An element that scrolls ON PURPOSE (overflow-x auto/scroll) is not an offender — the
   // marketplace tab strip is deliberately swipeable. A collapsed <details> reports its expanded
   // scrollWidth and is excluded for the same reason it was excluded upstream: it is not on screen.
+  //
+  // SR-ONLY IS EXEMPT (2026-08-05, index.html anon walk). A screen-reader-only region is visually
+  // hidden by collapsing its box to ~1px while its text keeps its natural width, so EVERY child
+  // reports enormous overflow by construction. index.html's anon landing produced 8 such offenders —
+  // ul/li at box 1px against ~1960px of content — and it cost several probes to prove none of them
+  // was real (docScrollsSideways was false throughout). A lens that reports 8 defects on a correct
+  // page trains the reader to ignore it, which is worse than reporting none.
+  const srOnly = el => !!el.closest('.sr-only, .visually-hidden, [class*="screen-reader"]');
+
+  // A NEGATIVE MARGIN ON AN OVERSIZED TAP TARGET IS THE ACCESSIBLE PATTERN, NOT AN OVERFLOW
+  // (2026-08-05, hive walk). hive.html's `.ss-snooze` is `margin:-6px -6px -6px auto` with
+  // min-width/min-height 44px: the button is deliberately padded out to a 44px hit area for a gloved
+  // hand, and pulled back 6px so its small glyph still lines up optically with the row edge. The row
+  // therefore reports scrollWidth 6px over clientWidth — the tap-target rule and the overflow rule
+  // pointing in opposite directions on the same correct code. Exempt an element whose overflow is no
+  // larger than the biggest negative horizontal margin among its children; a genuine overflow exceeds
+  // that, so this narrows the check without blinding it.
+  const negPull = el => Math.max(0, ...[...el.children].map(c => {
+    const cs = getComputedStyle(c);
+    return Math.max(0, -parseFloat(cs.marginRight) || 0) + Math.max(0, -parseFloat(cs.marginLeft) || 0);
+  }));
+
+  // AN OUT-OF-FLOW DECORATIVE CHILD IS NOT A CONTAINER OVERFLOW (2026-08-06, index.html anon walk).
+  // The landing page reported one offender: div.relative.w-full with 493px of content in a 448px box.
+  // The real content child measured 448 and fit; the 45px came from a sibling `div.absolute` laid out
+  // at 538px — a decorative glow deliberately bleeding past its parent, with the parent's overflowX
+  // visible and docScrollsSideways FALSE. An absolutely-positioned child is out of flow: it cannot
+  // widen its parent's layout and cannot produce a scrollbar, which the separate document-level check
+  // already measures. Exempt an element whose overflow is fully accounted for by its widest
+  // out-of-flow child; a genuine in-flow overflow exceeds that, so this narrows the check without
+  // blinding it — the same shape as the sr-only and negative-margin exemptions above.
+  const outOfFlowBleed = el => Math.max(0, ...[...el.children].map(c => {
+    const pos = getComputedStyle(c).position;
+    if (pos !== 'absolute' && pos !== 'fixed') return 0;
+    return Math.max(0, Math.round(c.getBoundingClientRect().width) - el.clientWidth);
+  }));
   const offenders = [...m.querySelectorAll('*')].filter(el =>
     el.scrollWidth > el.clientWidth + 2 && el.clientWidth > 0 &&
     getComputedStyle(el).overflowX === 'visible' &&
-    !el.closest('details:not([open])') && vis(el)
+    !el.closest('details:not([open])') && !srOnly(el) && vis(el) &&
+    (el.scrollWidth - el.clientWidth) > negPull(el) &&
+    (el.scrollWidth - el.clientWidth) > outOfFlowBleed(el)
   ).map(el => ({ el: name(el), content: el.scrollWidth, box: el.clientWidth,
                  by: el.scrollWidth - el.clientWidth }))
    .sort((a, b) => b.by - a.by).slice(0, 8);
@@ -1013,9 +1593,31 @@ export function layout(target) {
   // not a thumb target, and counting it buries the controls that are.
   const inProse = el => !!el.closest('p, li, .wh-prose, .prose') &&
                         getComputedStyle(el).display.includes('inline');
-  const small = [...m.querySelectorAll('button, a[href], input:not([type=hidden]), select, textarea, [role="button"], [onclick]')]
+
+  // MEASURE THE TARGET A FINGER ACTUALLY HITS (2026-08-05, hive walk). A checkbox or radio wrapped in
+  // a <label> is activated by clicking ANYWHERE in that label, so the input's own 13x13 box is not the
+  // tap target — the label is. hive.html reported 6 controls under 44px; all six were intent-capture
+  // radios inside labels measuring 293x59, comfortably over both the WCAG 2.5.8 24px minimum and this
+  // platform's 44px floor. Reporting the input's box would send someone to enlarge a radio that is
+  // already easy to hit, and would bury a control that genuinely is not.
+  // The battery already carries the sibling exemption for inline text links
+  // (inlineTextLinksUnder44_exempt); this is the same principle applied to labelled form controls.
+  const hitBox = el => {
+    const lab = el.closest('label');
+    if (lab && /^(checkbox|radio)$/i.test(el.type || '') &&
+        getComputedStyle(lab).cursor === 'pointer') return lab.getBoundingClientRect();
+    return el.getBoundingClientRect();
+  };
+  // `summary` WAS MISSING FROM THIS LIST AND IT COST A REAL DEFECT (2026-08-05, hive walk). A
+  // <summary> is the click target of a <details> disclosure — as much a control as a button — and
+  // leaving it out meant this lens reported tapTargetsUnder44: 0 on a page where ufai_battery found
+  // THREE summaries at 606x24px ('Hive readiness details', 'Pattern Alerts', 'Hive Activity Live'),
+  // under both the WCAG 2.5.8 24px floor and this platform's 44px one. The exemptions added above make
+  // this lens quieter; this addition is the other half, and the order matters — a lens that only ever
+  // loses checks drifts toward silence.
+  const small = [...m.querySelectorAll('button, a[href], input:not([type=hidden]), select, textarea, summary, [role="button"], [onclick]')]
     .filter(el => vis(el) && !inProse(el))
-    .map(el => { const r = el.getBoundingClientRect();
+    .map(el => { const r = hitBox(el);
                  return { el: name(el), w: Math.round(r.width), h: Math.round(r.height),
                           txt: (el.textContent || '').trim().slice(0, 24) }; })
     .filter(r => (r.w > 0 && r.h > 0) && (r.w < 44 || r.h < 44))

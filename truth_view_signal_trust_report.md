@@ -277,7 +277,7 @@ re-deriving what the canonical view should expose:
 | `v_project_items_truth` | `notes` | ✅ OK | 2 | direct |
 | `v_project_items_truth` | `owner_name` | ✅ OK | 2 | direct |
 | `v_project_items_truth` | `pct_complete` | ✅ OK | 3 | direct |
-| `v_project_items_truth` | `planned_end` | ✅ OK | 2 | direct |
+| `v_project_items_truth` | `planned_end` | ✅ OK | 3 | direct |
 | `v_project_items_truth` | `planned_start` | ✅ OK | 1 | direct |
 | `v_project_items_truth` | `predecessors` | ✅ OK | 1 | direct |
 | `v_project_items_truth` | `project_id` | ✅ OK | 1 | direct |

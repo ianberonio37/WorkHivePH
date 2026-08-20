@@ -75,7 +75,18 @@
     css.id = 'wh-wayfinding-css';
     css.textContent = [
       '#wh-wayfinding{position:fixed;z-index:9000;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));display:flex;align-items:center;gap:8px;pointer-events:none;font-family:inherit}',
-      '#wh-wayfinding .wf-back,#wh-wayfinding .wf-crumb{pointer-events:auto;display:inline-flex;align-items:center;min-height:44px;background:rgba(17,24,39,.72);color:#f3f4f6;border:1px solid rgba(255,255,255,.12);border-radius:12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 10px rgba(0,0,0,.25)}',
+      /* .72 -> .92: the chip's own translucency was the contrast defect, not the link colour.
+         This chrome is fixed over WHATEVER the page puts behind it, and on a light surface
+         (analytics-report's white document) rgba(17,24,39,.72) composites to about rgb(84,88,99) —
+         so #93c5fd on the crumb link measured 3.89:1 against a 4.5 requirement, and axe flagged it
+         as the page's only serious violation. Lightening the link would have fixed this one page and
+         left the ratio a function of whatever each of the other 21 pages happens to render
+         underneath. At .92 the chip is effectively opaque (about rgb(36,42,58) over white), which
+         puts the link at roughly 7.9:1 — AAA — and, more importantly, makes the ratio a property of
+         the chrome rather than of the page behind it. The glass look survives: backdrop-filter still
+         blurs, and .wf-back:hover already sat at .92, so this is the resting state matching the
+         hover state rather than a new value. */
+      '#wh-wayfinding .wf-back,#wh-wayfinding .wf-crumb{pointer-events:auto;display:inline-flex;align-items:center;min-height:44px;background:rgba(17,24,39,.92);color:#f3f4f6;border:1px solid rgba(255,255,255,.12);border-radius:12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 10px rgba(0,0,0,.25)}',
       '#wh-wayfinding .wf-back{min-width:44px;justify-content:center;gap:6px;padding:0 14px 0 10px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none}',
       '#wh-wayfinding .wf-back:hover{background:rgba(31,41,55,.92)}',
       '#wh-wayfinding .wf-back:active{transform:scale(.96)}',

@@ -140,7 +140,16 @@ def main():
     ap.add_argument("--update-baseline", action="store_true")
     args = ap.parse_args()
 
-    html_files = sorted(p for p in ROOT.glob("*.html") if not HTML_EXCLUDE.search(p.name))
+    # ROSTER (widened 2026-08-20): this globbed ROOT/*.html ONLY, so learn/ (54 pages) and
+    # tools/ (60 calculator pages) were outside it entirely. The gate reported "0 displayed em
+    # dashes, baseline 0" while 299 sat in exactly the AEO/GEO content this rule exists for --
+    # the pages written to be read and cited by AI crawlers. A green that is true for its roster
+    # and false for the platform is the roster-is-a-silent-claim-about-scope class.
+    html_files = sorted(
+        [p for p in ROOT.glob("*.html") if not HTML_EXCLUDE.search(p.name)]
+        + [p for p in ROOT.glob("learn/*/index.html")]
+        + [p for p in ROOT.glob("tools/*/index.html")]
+    )
     js_files = sorted(p for p in ROOT.glob("*.js")
                       if p.name not in JS_PROMPT_FILES and not p.name.endswith(".min.js")
                       and not JS_NONDISPLAY_FILE.search(p.name))
@@ -158,7 +167,7 @@ def main():
         scan(attr_values(raw), "attr", hits)
         scan(inline_js_display(raw), "js", hits)
         if hits:
-            per_file[p.name] = hits
+            per_file[p.relative_to(ROOT).as_posix()] = hits
             total += len(hits)
     for p in js_files:
         raw = p.read_text(encoding="utf-8", errors="replace").replace('&mdash;', '—').replace('&#8212;', '—').replace('&#x2014;', '—')

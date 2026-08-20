@@ -128,10 +128,10 @@
     const cur = gate.currentStair == null ? '-' : String(gate.currentStair);
     const compChip = gate.compositeScore == null
       ? ''
-      : `<span style="font-size:11px;color:rgba(255,255,255,0.5);margin-left:8px;">composite ${gate.compositeScore}/100</span>`;
+      : `<span style="font-size:11px;color:rgba(255,255,255,0.72);margin-left:8px;">composite ${gate.compositeScore}/100</span>`;
 
     const altLine = opts.alternateSuggestion
-      ? `<p style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:10px;line-height:1.55;">In the meantime: ${esc(opts.alternateSuggestion)}</p>`
+      ? `<p style="font-size:12px;color:rgba(255,255,255,0.72);margin-top:10px;line-height:1.55;">In the meantime: ${esc(opts.alternateSuggestion)}</p>`
       : '';
 
     el.innerHTML = `
@@ -144,7 +144,7 @@
                        background:rgba(255,184,0,0.16);color:#FDB94A;">
             Locked
           </span>
-          <span style="font-size:11px;color:rgba(255,255,255,0.62);">
+          <span style="font-size:11px;color:rgba(255,255,255,0.72);">
             Maturity Stairway
           </span>
         </div>
@@ -157,11 +157,11 @@
         <div style="background:rgba(0,0,0,0.22);border:1px solid rgba(255,255,255,0.06);
                      border-radius:10px;padding:12px 14px;margin:14px 0;">
           <h2 data-i="mg_hive_now" style="font-size:11px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;
-                     color:rgba(255,255,255,0.62);margin:0 0 6px;">Your hive right now</h2>
+                     color:rgba(255,255,255,0.72);margin:0 0 6px;">Your hive right now</h2>
           <p style="font-size:13px;color:#F4F6FA;line-height:1.55;margin:0;">
             <strong>Stair ${esc(cur)} · ${esc(gate.currentStairName)}</strong>${compChip}
           </p>
-          <p style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.55;margin:8px 0 0;">
+          <p style="font-size:12px;color:rgba(255,255,255,0.72);line-height:1.55;margin:8px 0 0;">
             ${esc(gate.blockerSummary)}
           </p>
         </div>
@@ -174,7 +174,7 @@
             Keep logging and the snapshot moves on its own.
           </p>
         </details>
-        <p class="wh-source-chip" style="font-size:11px;color:rgba(255,255,255,0.6);margin:10px 0 0;line-height:1.4;">
+        <p class="wh-source-chip" style="font-size:11px;color:rgba(255,255,255,0.72);margin:10px 0 0;line-height:1.4;">
           Readiness &middot; from your hive&#39;s live records
         </p>
         <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;">
@@ -186,7 +186,7 @@
           </a>
           <a href="hive.html"
              style="display:inline-flex;align-items:center;min-height:44px;padding:10px 18px;border-radius:10px;
-                    background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.65);
+                    background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.72);
                     border:1px solid rgba(255,255,255,0.08);
                     font-size:12px;font-weight:700;text-decoration:none;">
             Back to Hive Board

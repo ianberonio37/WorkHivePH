@@ -251,7 +251,28 @@
               }
               const r = await q.select(cfg.confirmKey || 'id');
               error = r.error;
-              if (!error && Array.isArray(r.data) && r.data.length === 0) unconfirmed = true;
+              // ★ZERO ROWS MEANS THE OPPOSITE THING FOR A DELETE THAN FOR AN UPDATE. For an update,
+              // 0 rows means the write did not land and the payload is still the worker's only copy
+              // — worth surfacing. For a DELETE, 0 rows usually means the end state the worker asked
+              // for is ALREADY TRUE. The common case is the one dayplanner creates by design: an
+              // offline create followed by an offline delete collapses on the shared keyPath id, so
+              // the drain sends a delete for a row that never reached the server. Treating that as
+              // unconfirmed retried it to MAX_RETRIES and then marked it `stalled`, so the widget
+              // reported permanently STUCK work for an operation that had in fact succeeded.
+              // The ambiguity worth keeping is an RLS refusal, which also returns 0 rows while the
+              // row still exists. So the two are separated by asking: can this identity still see it?
+              // Absent → the delete's goal holds, drain it. Still visible → the delete really was
+              // refused, keep it and let the backoff surface it. (If a policy hides the row from this
+              // identity entirely, absence is also what the worker sees, so draining matches reality.)
+              if (!error && Array.isArray(r.data) && r.data.length === 0) {
+                let vq = supabase.from(cfg.table).select(cfg.confirmKey || 'id');
+                for (const [k, v] of Object.entries(match)) vq = vq.eq(k, v);
+                if (cfg.identityKey && cfg.identityFn) {
+                  vq = vq.eq(cfg.identityKey, cfg.identityFn());
+                }
+                const v = await vq.limit(1);
+                unconfirmed = !(!v.error && Array.isArray(v.data) && v.data.length === 0);
+              }
             } else {
               errors += 1; continue;
             }

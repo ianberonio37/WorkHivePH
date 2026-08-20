@@ -344,6 +344,12 @@ def check_fuel_anchor() -> dict:
         live_names = None
 
     if live_names:
+        # ASK THE REGISTRY -- this file's own rule, applied to the FUEL check too. registered_tables
+        # was built by parsing VALUES tuples out of migration text, which misses the idempotent
+        # `INSERT ... SELECT ... WHERE NOT EXISTS` form (20260812000060 uses it), so a table that IS
+        # registered read as un-anchored. The registry is the answer to "what is registered"; tuple
+        # parsing remains the fallback for a down stack.
+        registered_tables |= live_names
         for name, (kind, mig) in sorted(declared_names.items()):
             if name not in live_names:
                 collisions.append(

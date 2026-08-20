@@ -1,3 +1,550 @@
+# Production Deploy Runbook — page-bank walk + moderation/XP integrity (2026-08-20) ← PENDING, NOT DEPLOYED
+
+> **⏳ BUILT AND VERIFIED LOCALLY. NOT COMMITTED, NOT PUSHED, NOT DEPLOYED — Ian's gate.**
+> Nothing below has run against prod. ~300 files are modified in the working tree.
+>
+> **✅ LEG A SCOPE — MEASURED AGAINST PROD 2026-08-20, not assumed.** `npx supabase migration list`
+> reports **exactly 10 unapplied** migrations, and they are precisely this release:
+> `…059`, `…060` (community + reply XP ledgers, untracked from earlier sessions) and today's
+> `…061`–`…068`. **The 2026-08-03 credits/GCash batch is ALREADY IN PROD** — an earlier draft of this
+> runbook warned that it was still pending and that a push would carry it too. That was wrong, and it
+> made Leg A look far riskier than it is. 548 migrations listed, 538 applied, 10 pending.
+>
+> **✅ THE `get_hive_dashboard` DIFF IS DONE (2026-08-20), and it clears.** Prod was dumped
+> (`--linked`, 1.09 MB) and its function body compared token-by-token against `…067`: the only
+> content in prod that the migration lacks is 9 cosmetic tokens (comment box-drawing and the
+> `$$` vs `$function$` delimiter). No hotfix is hiding in prod, and nothing will be lost. The
+> migration's only additions are `low_stock_count` and `pm_asset_total`; `open_jobs_count`,
+> `risks_count`, `critical_pm_overdue` and `signature_alert` are present on both sides.
+
+## 0. What ships
+
+**DB — 10 pending migrations** (2 inherited, 8 new today):
+
+| migration | why it exists |
+|---|---|
+| `…059`, `…060` | community + reply XP had no ledger and could not reverse (untracked, earlier sessions) |
+| `…061` | **logbook XP could never be reversed.** 289 XP rows point at deleted work; 0 negatives in 633. Adds `reversed_at` + an AFTER DELETE trigger. The historical 289 are deliberately NOT clawed back — reasoning is in the migration header |
+| `…062` | best answer never recorded **who chose it**; the RPC authorises author *or* supervisor, so "accepted" had two possible authors and stored neither |
+| `…063` | 🔴 **a reported author could clear their own flag.** The policy letting an author edit their post also covered `flagged`; non-supervisors never see flagged posts, so clearing it returned the post to the feed *and* dropped it from the supervisor's queue |
+| `…064` | 🔴 **reporting a post did nothing and said it worked.** The client-side flag update matched 0 rows under RLS; a 0-row update is not an error, so the success path ran and the reporter was told "Report sent to your supervisor". Adds `report_community_post()` |
+| `…065` | two functions defined seller tier differently (hardcoded 11/51 vs per-hive knobs). They agreed only because the defaults matched |
+| `…066` | low-stock tile counted a **capped array** (`LIMIT 100`, no count) |
+| `…067` | PM-overdue tile had **no denominator and no unit** (28 = assets, not the 69 scope items) |
+| `…068` | `v_sensor_recent` dropped `unit` — asset-hub selected it, PostgREST **400s on unknown columns**, so the telemetry panel was dead on every load |
+
+**Edge — 11 functions, 1 new.** `resend-webhook-receiver` (new), `send-report-email`,
+`analytics-orchestrator`, `shift-planner-orchestrator`, `ai-orchestrator`, `ai-gateway`,
+`asset-brain-query`, `batch-risk-scoring`, `fmea-populator`, `pf-calculator`.
+
+**Frontend — 45 files.** Notable: community (report path → RPC, visibility note, reputation
+definition), index (ALL CLEAR contradiction, hive determinism, PM/low-stock tiles, Back closes the
+menu), assistant (scope chip, dead grounding call removed, Back returns to setup), analytics (engine
+attribution), report-sender (outsider confirm, bounce surface, order tiebreaker).
+
+**In the commit but not deployed:** `banks/*.json` (880 rows converted to gate-backed),
+`tools/bank_page_walk.py` (can emit `gate:` refs), `tools/prove_values_survive_the_write.py`
+(new `field-authorization-guard` class), `tools/validate_reliability_kpi_faithfulness.py`.
+## 0b. Added after the runbook was first written (2026-08-20, post-triage)
+
+**Frontend scope grew from 45 files to ~137.** The no-em-dash gate's roster was widened (see below)
+and the debt it exposed was cleared, which rewrote **92 published content pages**:
+
+| what | files |
+|---|---|
+| `learn/*/index.html` | 54 SEO/AEO guide pages |
+| `tools/*/index.html` | 60 public calculator pages |
+| net rewritten | **92** (the rest carried no em-dashes) |
+
+These are **copy-only** edits: `X — Y` became `X: Y`, paired dashes became parentheses or commas, and
+two headings took commas. **No markup, script or JSON-LD was restructured.** Verified across all 113
+pages after the sweep: **0 broken JSON-LD, 0 unbalanced `<script>` tags, 0 inline-JS syntax errors**
+(`node --check` on every extracted inline block).
+
+**Three gate/baseline changes ship with this release:**
+
+1. `supabase/functions/resend-webhook-receiver/index.ts` now returns the platform envelope
+   (`beginRequest` / `ok` / `fail`) instead of raw `Response` objects. Envelope Conformance returns to
+   its baseline of 2. Resend only distinguishes 2xx from non-2xx, so the body-shape change is safe,
+   and a rejected webhook now carries a trace id into the function logs.
+2. `validate_no_em_dash.py` roster widened from `ROOT.glob("*.html")` to include `learn/*/index.html`
+   and `tools/*/index.html`, and `per_file` is keyed by **relative path** (every subdirectory page is
+   named `index.html`, so a name key would have collapsed 114 pages onto one row). Baseline went
+   0 → 299 (scope widening, documented in `no_em_dash_baseline.json`) and then ratcheted 299 → 0 as
+   the debt was cleared.
+3. `render_budget_baseline.json` raised 13 → 17, documented with per-page HEAD-vs-now deltas.
+
+**Smoke check to add to §5:** open any two `learn/` guides and any two `tools/` calculators in prod and
+confirm the copy reads correctly and the calculators still compute. The rewrite touched published SEO
+content, so a rendering regression there is a revenue-surface regression.
+
+## 0c. ★SECURITY — one NEW migration and two NEW gates, added after the suite triage (2026-08-20)
+
+**`…069` is new and it is the reason to read this section.** Five security defects were found by
+running the gates rather than by reading the diff. All are fixed locally and **verified against the
+live catalog**, not against their source:
+
+```
+trg_definer=true          061: the XP-reversal trigger is SECURITY DEFINER
+v_sensor_invoker=yes      068: v_sensor_recent enforces the caller's RLS again
+public_exec_remaining=0   069: all four functions unreachable via PUBLIC
+```
+
+| # | defect | consequence if shipped as-was |
+|---|---|---|
+| `…061` | XP-reversal trigger was `SECURITY INVOKER` and INSERTs into `achievement_xp_log`, where a worker holds only SELECT | **a worker could not delete their own logbook entry** — 42501 raised inside the trigger |
+| `…068` | `CREATE OR REPLACE VIEW` silently dropped `security_invoker` from `v_sensor_recent` | the view ran as its **owner**, so its only filter was a time window: **every hive's sensor data** |
+| `…069a` | `reverse_/restore_community_post_xp` are DEFINER, take a `post_id`, derive `hive_id` **from the row**, check nothing | any signed-in user strips or grants XP **in any hive** |
+| `…069b` | `award_achievement_xp`'s 2026-05 revoke named `anon, authenticated` and never `PUBLIC` | the guard **never worked**: any user could self-award arbitrary XP |
+| `…069c` | `enqueue_service_push_uids` has no `auth.uid()` at all | **arbitrary push** (title/body/URL) to **any user** on the platform |
+
+**The `…069b` lesson applies to every future REVOKE.** Functions are created with EXECUTE granted to
+PUBLIC and every role inherits it, so `REVOKE … FROM anon, authenticated` is a no-op. Always include
+`PUBLIC`, and verify with `aclexplode(proacl)` where `grantee = 0` — never by pattern-matching
+`proacl::text`, because `postgres=X/postgres` contains `=X/`.
+
+**Two new gates ship with this release** (registry 771 → 773, both bank-citable):
+`tools/validate_revoke_actually_revoked.py` and `tools/validate_trigger_writes_need_definer.py`.
+Both PASS, both carry `--selftest` teeth, and both require an exemption to name its caller.
+
+**One finding was RETRACTED and it is worth knowing.** I reported four DEFINER reads
+(`fetch_active_alerts`, `get_hive_readiness_current`, `semantic_search_kb`,
+`semantic_search_kg_facts`) as trusting a client-supplied `hive_id`. **They do not** — each gates via
+`public.user_can_access_hive(p_hive_id)`. A grep for `auth.uid()`/`hive_members` missed the
+platform's own helper. **Do not "harden" those four**; they are correct, and two sit on the RAG path
+where a wrong guard silently empties every answer.
+
+### Migration count is now 11, not 10
+
+`…069` joins the ten already listed. It is **REVOKE-only** — no schema change, no data change — so it
+is safe to apply and trivially reversible by re-granting.
+
+### Extra post-deploy smoke (prod), on top of §5
+
+8. **Delete your own logbook entry.** It must succeed. This is `…061`; before the fix the trigger
+   raised 42501 and took the DELETE with it.
+9. **Open an asset's sensor panel as a member of one hive**, and confirm the readings are that hive's
+   only. This is `…068`.
+10. Confirm XP still moves normally on a community post (award + soft-delete reversal). `…069`
+    revokes only *direct client* EXECUTE; the trigger path is unaffected, so XP must behave exactly
+    as before. If it does not, re-grant and investigate rather than leaving XP frozen.
+
+## 0d. ★FRONTEND — a lapsed session was DELETING the user's hive (2026-08-20)
+
+Found while walking the signed-out state, not from the diff. Under RLS an **expired session returns
+zero rows with NO error** — byte-identical to "you were removed from this hive". `validateHiveMembership()`
+took the second reading, and the branch it chose deletes state:
+
+```js
+if (!membership || membership.status === 'kicked') {
+  ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
+  return false;   // -> "Asset Hub needs a hive - join or create one"
+}
+```
+
+So a session that merely lapsed **wiped the user's saved hive** and told them to go re-join.
+
+**The root was a migration that skipped two pages.** pm-scheduler, project-manager, inventory,
+logbook, dayplanner and hive have all gated on `if (!_authUid) -> signin` before the membership
+check since PRODUCTION_FIXES.md #37 ("Phase B"). `asset-hub` **resolved `_authUid` and never gated
+on it**; `shift-brain` never resolved it at all. Grepping the mechanism found **5** pages carrying
+the wipe, not the 2 the symptom pointed at.
+
+| file | change |
+|---|---|
+| `asset-hub.html` | Phase B gate added; `validateHiveMembership` returns `'ok' / 'no-session' / 'not-member'` and no longer wipes on an unverified session |
+| `shift-brain.html` | same, plus the `getUser()` result is now captured — and the AU2 settle was moved OUT of `if (!WORKER_NAME && …)`, where it only ran for users needing identity restore |
+| `assistant.html` | the discarded `getUser()` result is captured; **not-signed-in** is now its own branch instead of falling into "I couldn't reach your job records… that does not mean they are missing" — the one cause we actually know |
+
+**One new gate ships with this** (`tools/validate_session_death_is_not_removal.py`, Security,
+`--teeth`): every page that wipes those keys behind a membership check must gate on a resolved auth
+uid first, **at a brace depth the check shares**. Depth, not indentation — the first version of this
+fix put the gate inside `if (!WORKER_NAME) {` at the same visual indent, where it read as correct,
+passed `node --check`, and would never have run on a normal load. The gate's teeth test plants
+exactly that shape.
+
+**Two instrument faults were caught before they became findings**, both worth repeating: the gate
+first keyed on the *call site* (`x = await db.auth.getUser()`) and so missed the destructured idiom
+(`const { data: { session } } = …; _authUid = session?.user?.id`), reporting **4 false failures**;
+and it searched a noise-stripped copy, which silently dropped `project-manager.html` from its own
+roster — a page missing from a roster reads exactly like a page that passed.
+
+**Add to §5 smoke:** sign in on **asset-hub**, let the session expire (or clear the auth token),
+reload → you must land on **sign-in**, and after signing back in **your hive must still be
+selected**. Same on **shift-brain**. On **assistant**, signed out → the greeting must say you are
+not signed in, not that your records could not be reached.
+
+## 0e. GATE INTEGRITY — five validators were measuring PROSE, and one ratchet was loosening itself (2026-08-20)
+
+Triaging the suite's failures, most of the reds were **the instruments, not the pages**. Every fix
+below is to a validator; the only product change is four `border-radius` values.
+
+| gate | it was counting | truth |
+|---|---|---|
+| `validate_unbounded_query.py` | `.limit()` outside a **1200-char** chain window | public-feed's query IS bounded — a 10-line comment inside the chain ate the window |
+| `validate_unbounded_query.py` | an `unbounded-query-allow:` directive outside a **200-char** lookback | the exemption was written, just not seen |
+| `validate_performance.py` | a **15-LINE** window that counted comment lines, and no allow-directive support at all | engineering-design.js is bounded by `.order().limit(50)` behind a 6-line comment |
+| `validate_design_tokens.py` | `// was #29b6d9`, `amber #f7a21b = Lc 64.6` | prose EXPLAINING a colour. `_strip_comments` handled `<!-- -->` and `/* */` but never JS `//` |
+| `validate_design_tokens.py` | `var(--wh-orange, #F7A21B)` | the token IS used; the hex is only the fallback |
+| `validate_event_listener_cleanup.py` | 10 binds on voice-journal | all rebuild-scoped (`innerHTML =` then re-bind), so the old nodes and their listeners are discarded |
+
+Each fix was proven non-vacuous with a synthetic pair — a real inline hex still counts while a
+commented one does not; a genuinely unbounded `.select('*')` is still flagged, and **20 code lines
+with no limit is still flagged**, so the window was not simply widened until it always finds one.
+
+**🔴 The one that matters most: a forward-only ratchet had silently loosened itself.**
+`design_tokens_baseline.json` holds two floors. The L3 tightening path wrote `{"rawhex": n}` **alone**,
+dropping `rogue_radius`; L4 then read it back as `.get("rogue_radius", <current count>)` and
+re-baselined **260 → 264**, reporting PASS on 4 real violations. It had been hidden because L3 was
+failing, which short-circuited the write — fixing one dimension exposed the other. Both floors are
+now written together, once, after both are computed. `rogue_radius` is restored to **260** and the
+four genuine violations are fixed in `index.html` (badge radii `20px` → `999px`; at ~17px tall both
+already clamp to a pill, so there is **no visual change**).
+
+**Ratchets that TIGHTENED and are now stricter forever:** `unbounded_query` 1 → **0**;
+`design_tokens.rawhex` 168 → **166**. `rogue_radius` holds at 260, `event_listener` at 4.
+
+**Also fixed: `tools/validate_knowledge_is_retrievable.py` told the wrong story.** On a rise it
+asserted *"a new write path is putting knowledge on the board without indexing it"* unconditionally.
+Measured: **both** written-only entries were enqueued correctly by `trg_embed_outbox_logbook` — one
+is `pending` with 0 attempts, one went `DEAD after 5 attempts`. No write path is at fault; the
+embedding **drain** has not run (162 logbook rows pending), and running it spends API credits, so it
+is Ian's decision. The gate now queries the outbox and names which of the three causes applies.
+
+**Still red and NOT deployable-code:** clone debt (3184 → 3279 duplicated lines, mostly between
+out-of-roster ops consoles) and substrate freshness (stale because this session edited the runbook,
+skills and memory manifest — fix is `python tools/build_substrate.py` once no suite is running).
+
+## 0f. 🔴 THE SUITE ITSELF COULD HANG FOREVER — `run_platform_checks.py` fixed (2026-08-20)
+
+Three times in one run the gate suite simply **stopped**: its own process at **0.00 CPU-sec/25s**
+while a single node worker idled at ~1%. Each time, killing node by hand let it advance in seconds.
+This is why the v4 run "hung at 584/585" and had to be killed.
+
+**Root cause.** Every gate ran through `subprocess.run(cmd, capture_output=True, timeout=1200)`.
+That timeout kills only the **direct child**. A validator driving Playwright leaves node/chromium
+**grandchildren** alive holding the inherited stdout pipe, so `run()` then calls `communicate()` to
+drain and **blocks forever waiting for an EOF a live browser never sends**. The timeout is already
+spent — there is no second one. The old code even said `# hung child gets SIGTERM`; there is no
+SIGTERM on Windows and it would not have reached the grandchildren regardless.
+
+**Fix.** `Popen` + `communicate(timeout)`, and on timeout kill the whole **tree**
+(`taskkill /F /T /PID` on Windows, `os.killpg` with `start_new_session=True` elsewhere), then re-drain
+with a short second timeout. Proven both ways on a synthetic validator that spawns a pipe-holding
+grandchild and sleeps:
+
+| path | result |
+|---|---|
+| old `subprocess.run(timeout=8)` | **never returned** — an outer 45s bound had to kill it (exit 124) |
+| new tree-kill path | returned in **8.6s**, `FAIL`, **0 stray grandchildren** |
+
+**Effect on this release's numbers:** the v5 run's verdicts are a **mixed-state measurement** and
+should not be quoted as a release gate. Page files were edited while it walked them, and three gates
+were unstuck by hand (each landing an artificial `FAIL`). **Re-run the suite clean before Leg C** —
+with this fix it can no longer hang indefinitely, so a clean run is now actually reachable.
+
+## 0g. MARKETPLACE DIALOGS + the two CONTRAST gates finally proven (2026-08-20)
+
+**`tools/dialog_targets.mjs` 43 -> 50 targets**, adding 7 marketplace views. Three lessons are baked
+into the file because each cost a wrong first attempt:
+
+- **`openSheet` is block-scoped.** It is declared at brace depth 1 inside `<script>`, so
+  `fn: "openSheet('post')"` threw *"openSheet is not defined"* on all nine. Its body (read at
+  `marketplace.html:3012`) is exactly three statements, so the targets reproduce them and reach an
+  identical rendered state.
+- **`pre` is evaluated as JavaScript.** The seller target carried a prose precondition and threw a
+  SyntaxError. It now uses its real click opener (`[data-action="edit"]` -> `openEditSheet(id)`),
+  which is the honest path anyway: that opener POPULATES the form, so class-flipping would have
+  opened an empty sheet and measured it as real.
+- **An enumeration is a list of NAMES, not proof of ELEMENTS.** I authored nine sheets from
+  `wireSheetA11y`'s list; `#sheet-orders`, `#sheet-dispute` and `#sheet-review` exist in **no HTML
+  file on the platform**. The function's very next line is `if (!sheet) return;` — it defends
+  against their absence, which was the tell. The three are removed with an R10 reason.
+
+Result: **43 of 50 dialogs graded, 0 failing**; all 7 marketplace targets `ok/cj/cm = true`.
+
+**🔴 The contrast gates were registered all along — the comment saying otherwise was stale.**
+`tools/validate_page_ui_provers.py` carried *"NOT YET ADDED TO run_platform_checks … prove them,
+THEN register"*. Both halves were false: they were already registered at `run_platform_checks.py:546`
+and `:555`, and the teeth had simply never been run. Acting on the prose produced a duplicate
+registration, caught by an id-collision check before it shipped. **The prose goes stale; the registry
+is the truth.** The note is corrected in place.
+
+**Teeth now actually fired**, which is what makes their green meaningful: `page_contrast` **26/26
+pages** and `view_contrast` **43/43 views** caught the planted violator on BOTH lenses. `view_contrast`'s
+accounting was fixed first — a view that never OPENS has no surface a planted violator can land on,
+so it is UNGRADED, not BLUNT. `hive/V2` is exactly that case, and it records a real product gap: the
+shift-handover feature has **no reachable entry point** (`.handover-btn` sits inside `#handover-panel`,
+which ships `class="hidden"`).
+
+**Two real contrast defects the 26-page roster found, both fixed and re-measured to zero:**
+
+| page | defect | fix |
+|---|---|---|
+| `marketplace-seller` | `.pstat-num` used the accent **FILL** token as text: `#F7A21B` on the dark card is APCA **Lc 59.5 against the 60 floor** at 19px/800 — 3 stat numbers, and **WCAG passed them at 7.56**, so only APCA caught it. The 4th instance of this exact bug on this page. | `--wh-orange-text` / `--wh-blue-text` (the tier that exists for this) |
+| `marketplace-seller` | `class="pstat-num red"` was used at `:290` and `:2736` and **defined nowhere**, so "New Inquiries" and "Pending" fell back to the base orange — a warning metric rendering as the normal accent | added `.pstat-num.red` |
+| `platform-actions` | `.fb-filter::placeholder` at `rgba(255,255,255,0.5)` composites to Lc **41.1** vs the 60 floor — the only hint saying what the field searches | `var(--wh-steel-bright)` |
+
+After the fixes: **all 26 pages 0 APCA / 0 WCAG failing**, and `view_contrast` clean at **0 failing
+across 36 measurable views**.
+
+## 1. Pre-flight (all local, before any push)
+
+**Already run 2026-08-20 — results, not instructions:**
+
+| check | result |
+|---|---|
+| `validate_paginated_order_totality` | **PASS**, 0 non-total across 176 chains, forward-only holds at 0 |
+| `prove_units_at_boundary --gate` | **PASS with debt**, MIXED-SCALE 0; 2 columns unit-by-convention (`conversation_analytics.answer_quality_rating`, `service_credit_ledger.amount`) |
+| migration re-runnability | all 8 of today's re-applied against local, all exited 0 |
+| `get_hive_dashboard` ordering | `…067` verified to contain `…066`'s `low_stock_count`; live function carries both fields |
+| new edge fn wiring | `resend-webhook-receiver` imports all resolve (`_shared/observability.ts`, `cors.ts`, `logger.ts`); `serveObserved` is a real export (observability.ts:109) and the call matches its `(route, handler)` signature |
+| signature verifier | teeth-tested 6 ways: valid signature accepts; tampered body, wrong secret, hour-old replay and missing header all reject; rotation header with a valid 2nd signature accepts |
+| frontend syntax | 29 changed pages + 12 changed scripts all parse (`live-state-runner.js` is an ES module — check it with `--input-type=module`, plain `node --check` false-fails it) |
+| `run_platform_checks --fast` | **RED when first run.** Two gates failed. See below. |
+
+**🔴 The suite was NOT green on its first run — and the harness said "exit code 0".** That 0 was the
+shell pipeline's exit, not the gate's (the run was piped through `tail`). This is the exact trap
+recorded in `feedback_gate_green_is_part_of_done`: read the log's own verdict lines, never the task
+notification.
+
+| failing gate | cause | state |
+|---|---|---|
+| **No-Em-Dash** (0 → 5) | 4 of the 5 were mine, 2 written the same day: the achievements tier line and the PDF-exporter toast. Also dayplanner's plan-load error + PM-completion notice, and the logbook / audit-log export toasts | **FIXED — back to 0, PASS.** All 5 files re-parsed |
+| **Phantom Column Auditor** | Not yet established. Its report claims `phantom: 0` over 1,863 columns and lists only 8 columns for `community_replies` — neither `accepted_by` nor `accepted_at` appears, because the auditor reads a schema REGISTRY that predates today's migrations. The report cannot explain the FAIL | **NARROWED, still unresolved — see below. Do not push until understood** |
+
+**What the Phantom FAIL is NOT** (each eliminated by reading the source, not by guessing):
+
+- **Not phantom columns.** `audit_phantom_columns.py` `return 0`s unconditionally; its own comment
+  says phantom columns are "SCHEMA-BLOAT informational — the gate only fails if the run itself broke
+  (no report produced)". It cannot fail on a phantom count, and its report shows `phantom: 0`.
+- **Not a timeout.** `VALIDATOR_TIMEOUT_SECONDS = 1200`; the gate ran 336.4s.
+- **Not a missing registry.** The one explicit non-zero path (`return 2`, `canonical_registry.json`
+  missing) does not apply — the file is present, 341KB, and parses to the expected shape.
+
+**RESOLVED.** Run standalone with nothing else touching the DB, the auditor exits **`REALEXIT=0`**
+with `phantom: 0` over 1,863 columns. The suite's FAIL was a **race with my own work**: migrations
+`…066`, `…067` and `…068` were applied WHILE the suite was running, and this auditor reads the live
+schema. Mutating the schema mid-audit threw. Nothing is wrong with the auditor or the columns.
+
+The consequence is larger than one gate: **that whole suite run is contaminated and its verdict
+cannot be trusted either way** — a green result would have been just as meaningless. A clean re-run
+with no concurrent migration work is the only usable pre-flight, and is the one that gates the push.
+
+**Lesson worth keeping for every future release: do not run migrations while the gate suite runs.**
+The suite reads live state; changing it underneath produces failures that look like defects and
+passes that prove nothing.
+
+~~That leaves an **uncaught exception** somewhere after those checks, which exits Python non-zero and
+the runner reads as FAIL.~~ *(superseded by the resolution above.)* Note the report on disk is therefore **stale by construction** —
+it was written by the last run that finished, which is why it lists only 8 columns for
+`community_replies` and does not know about `accepted_by` / `accepted_at`.
+
+Found while investigating, and fixed regardless of the verdict: `accepted_at` (migration `…062`) was
+stored and read by nothing. It is now rendered beside the chooser — "chosen by David Velasco · 2
+minutes ago" — because WHEN an answer was endorsed is part of what the badge claims: an acceptance
+from the week the problem was live means more than one added long afterwards.
+
+
+```powershell
+python run_platform_checks.py --fast                      # must be green
+python tools/validate_live_mcp_bank.py --report           # owed 0, invalid 0
+python tools/validate_paginated_order_totality.py         # forward-only, holds at 0
+python tools/prove_units_at_boundary.py --gate            # MIXED-SCALE must be 0
+```
+
+**🔴 The check that is NOT optional, and is specific to this release.** Migrations `…066` and
+`…067` are **full-body `CREATE OR REPLACE FUNCTION get_hive_dashboard`** (167 and 173 lines), each
+generated by dumping the **local** function and adding one field. If prod's copy has drifted — any
+hotfix applied straight to prod — pushing these **silently overwrites it**. Diff first:
+
+```powershell
+# The project is already linked (supabase/.temp/project-ref = hzyvnjtisfgbksicrouu) and there is NO
+# PROD_DB_URL in .env, so --linked is the form that actually runs. Verified 2026-08-20.
+npx supabase db dump --linked --schema public -f .tmp\prod_public.sql
+# locate get_hive_dashboard in .tmp\prod_public.sql, diff its body against migration ...067
+```
+
+If they differ in anything other than `low_stock_count` / `pm_asset_total`, **stop** and rebase the
+migration on prod's body instead of local's.
+
+### 1b. Clean-run pre-flight — six gates failed, all six closed (2026-08-20)
+
+The first suite run was contaminated (migrations applied underneath it). The CLEAN run surfaced six
+failures. Only ONE was a product defect; the rest were release artifacts of this very release or
+gate anchors that had gone stale. All are fixed:
+
+| gate | cause | resolution |
+|---|---|---|
+| No-Em-Dash (0 → 5) | 4 of 5 mine, 2 written the same day | rewritten with colons; back to 0, all 5 files re-parse |
+| Auto-discovery + Edge Fn Config | `resend-webhook-receiver` absent from `supabase/config.toml` | `[functions.resend-webhook-receiver] verify_jwt = false` added |
+| L6 edge-fn auth gate | the new webhook is hive-touching with no identity resolve | reviewed + exempted with a written reason (see below) |
+| Reset Coverage | `community_reply_xp_awards` (migration `…060`) never added to reset.py | added to the non-id dict beside `community_post_xp_awards` |
+| PKS substrate freshness | I edited runbook / skills / memories this session | `python tools/build_substrate.py`; 795 chunks fresh |
+| Assistant multi-turn recall | anchored on deflection text that the 2026-08-19 honesty fix rewrote | re-pointed to the durable phrase; the memory-aware assertion is unchanged |
+
+**The L6 exemption is a security decision, recorded so it can be challenged.** I did NOT add HMAC to
+the gate's blanket `AUTH_SIGNALS`, because that would let a FUTURE function pass while accepting a
+caller-supplied `hive_id` — the exact injection this gate exists to catch. `resend-webhook-receiver`
+is exempted on a narrower basis: every event is rejected 401 without a valid Svix HMAC over the raw
+body, and the hive is resolved by matching the provider message id against OUR OWN prior send row in
+`automation_log`, so there is no value an attacker can pass that selects a hive.
+
+**Deploy consequence of the config.toml fix:** `verify_jwt = false` is now declared, not merely
+passed as a flag, so a later blanket deploy cannot silently flip it to `true` and reject every
+Resend event.
+
+### 1c. Two ORDERING rules, both learned by tripping them in this release
+
+1. **Do not run migrations while the gate suite runs.** The first suite run was contaminated: I
+   applied `…066/067/068` mid-run and the Phantom Column Auditor, which reads the LIVE schema, threw
+   and rendered as FAIL. It has nothing to do with phantom columns (`return 0` unconditional; run
+   alone it exits `REALEXIT=0`, `phantom: 0`). The failure cuts both ways — a GREEN result from a
+   contaminated run would have proven nothing either.
+
+2. **Rebuild the substrate LAST, immediately before the commit.** `tools/build_substrate.py` stamps a
+   `source_sha` per chunk, so ANY later edit to a doc, skill, memory or tool re-stales it. I rebuilt
+   it, then kept editing this runbook and `.gitignore`, and the freshness gate went red again. The
+   correct order is: finish every edit → `python tools/build_substrate.py` → re-run the suite →
+   commit.
+
+**Pre-commit hygiene, also learned here:** `git add -A` would have committed 5 debug screenshots and
+3 `*.partial.json` files from interrupted prover sweeps. They are now gitignored (the FINISHED reports
+gates read are deliberately not matched). Untracked went 105 → 97.
+
+## 2. Leg A — DB
+
+From the repo root. The `&` in the folder name breaks `npx supabase`, so `subst` a clean drive
+first (memory: `feedback_deploy_subst`).
+
+```powershell
+subst Z: "C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st"
+Z:
+npx supabase link --project-ref hzyvnjtisfgbksicrouu
+
+npx supabase migration list          # CONFIRM the 10 are remote-pending, plus the 2026-08-03 batch
+npx supabase db push --dry-run       # read every statement before it runs
+npx supabase db push
+```
+
+**Re-runnable — verified 2026-08-20, not assumed.** All eight of today's migrations were re-applied
+against the local DB after already being applied, and all eight exited 0 (`…061` skips its column
+with a NOTICE; the rest are `CREATE OR REPLACE` / `IF NOT EXISTS` / `DROP TRIGGER IF EXISTS`). So a
+`db push` that fails partway can be retried without hand-editing the migration table.
+
+**Order matters:** `…066` then `…067` — `067` contains `066`'s field. Timestamps enforce it; do not
+apply selectively.
+
+## 3. Leg B — Edge (still on Z:)
+
+```powershell
+# NEW. A webhook: no session, authenticates by SVIX HMAC over the raw body, so --no-verify-jwt is
+# CORRECT here — the same reasoning as gcash-receipt-inbound.
+npx supabase functions deploy resend-webhook-receiver --no-verify-jwt
+# (config.toml now ALSO declares [functions.resend-webhook-receiver] verify_jwt = false, added
+#  2026-08-20 after the Auto-discovery Validator caught the function missing from config entirely.
+#  So the posture is durable: a later blanket deploy cannot silently flip it back to verify_jwt=true,
+#  which would reject every Resend event.)
+
+# The other 10 are ALREADY IN deploy-functions.ps1 and the script's blanket --no-verify-jwt AGREES
+# with config.toml, which declares verify_jwt = false for each of them (checked 2026-08-20, not
+# assumed — an earlier draft of this runbook said to avoid the script, which was wrong: both paths
+# produce the same posture here). So run the script, or deploy individually; the result is identical.
+#   .\deploy-functions.ps1
+# Individually, if you prefer to touch only what changed:
+npx supabase functions deploy send-report-email
+npx supabase functions deploy analytics-orchestrator
+npx supabase functions deploy shift-planner-orchestrator
+npx supabase functions deploy ai-orchestrator
+npx supabase functions deploy ai-gateway
+npx supabase functions deploy asset-brain-query
+npx supabase functions deploy batch-risk-scoring
+npx supabase functions deploy fmea-populator
+npx supabase functions deploy pf-calculator
+npx supabase functions deploy weibull-fitter   # was MISSING from this list; it has a real 6-line diff
+```
+
+**Secrets — new this release:**
+
+```powershell
+npx supabase secrets set RESEND_WEBHOOK_SECRET=whsec_...   # Resend → Webhooks → signing secret
+```
+
+Without it the receiver **fails closed** (401 on every event) — the intended degrade: bounces are
+not ingested, and send-time failures are still reported exactly as they are today.
+
+**The outward step that is yours alone:** register the endpoint in the Resend dashboard →
+`https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/resend-webhook-receiver`, events
+`email.bounced`, `email.complained`, `email.delivery_delayed`. Until that is done the local half is
+inert — correct, and doing nothing.
+
+## 4. Leg C — Frontend (Netlify)
+
+**🔴 LEG C SHIPS FAR MORE THAN THIS RELEASE.** Local `master` is **36 commits ahead of origin**
+(origin at `709018ff`, local HEAD `722e07a6`), and Netlify builds from master — so one push takes all
+36 live, not just this release. Measured contents of those 36: **0 migrations, 0 edge-function
+files, 101 HTML pages, 172 other**. Legs A and B are therefore unaffected by them, but the frontend
+publish is roughly four times this release's 30 pages. After publishing, smoke a page or two from the
+OLDER commits (they are dominated by SEO / landing / learn changes), not only this release's five.
+
+```powershell
+git add -A
+git commit -m "page-bank walk: moderation + XP integrity, dashboard denominators, gate-backed evidence"
+git push origin master        # Netlify builds from master
+```
+
+## 5. Post-deploy smoke (prod)
+
+1. **community** — report a post as an ordinary member; it must flag **and** enter the supervisor
+   queue. Then as the reported author, try to unflag your own post: it must refuse while an ordinary
+   edit still saves. These two are the reason this release exists.
+2. **asset-hub** — open any asset's sensor panel; readings must render **with units**, not 400.
+3. **index** — sign in; ops-home must paint with no "ALL CLEAR" beside a session-expired banner, the
+   PM tile must read "N of 30 assets" — check the SHAPE (count + denominator + the unit "assets"), NOT a remembered number: the overdue count moved 28 -> 29 during the pre-flight as a PM crossed its due date, and Back must close the mobile menu instead of leaving the site.
+4. **report-sender** — send to an outsider; the confirmation must name them before it sends.
+5. **assistant** — the chip must name the hive and the server-side grounding.
+6. **resend-webhook-receiver is live AND fails closed** — before Resend ever sends anything, POST an
+   unsigned request and expect **401**, not 500 and not 200:
+   ```powershell
+   curl.exe -s -o NUL -w "%{http_code}`n" -X POST `
+     https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/resend-webhook-receiver `
+     -H "Content-Type: application/json" -d '{\"type\":\"email.bounced\"}'
+   ```
+   401 proves three things at once: the function deployed, `--no-verify-jwt` let the request reach
+   the handler (a 401 from the gateway instead would look identical from outside — check the function
+   logs to be sure it was OUR check that refused), and the Svix verification is refusing unsigned
+   input. A 500 means `RESEND_WEBHOOK_SECRET` is missing or the handler threw; a 200 means it is
+   accepting unsigned events, which is the one outcome that must never happen.
+7. **GCash, if you set its secret** — same shape against `gcash-receipt-inbound`: unsigned POST must
+   still be refused. Its secret has been missing since 2026-08-03 (§7), so today it refuses
+   everything; setting the secret must not change that answer for an UNSIGNED request.
+
+## 6. Rollback
+
+- **Frontend:** Netlify → previous deploy → Publish. Instant.
+- **Edge:** redeploy the prior function from `git checkout <prev-sha> -- supabase/functions/<fn>`.
+- **DB:** these migrations are additive (new columns, new functions, one view column, one trigger).
+  The riskiest to reverse is `…063/064` — dropping `tg_community_posts_moderation_fields` restores
+  the self-clear hole, so prefer fixing forward. `…061`'s trigger can be dropped without data loss;
+  `reversed_at` simply stays and is ignored.
+
+## 7. 🔴 Outstanding, independent of this release
+
+- **`GCASH_INBOUND_SECRET` is NOT set in prod** (checked 2026-08-20: 23 secrets set, this is not one).
+  The 2026-08-03 release is FULLY deployed — migrations applied AND both functions live in prod
+  (`gcash-receipt-inbound` and `gcash-receipt-ocr` confirmed present among 61 deployed functions,
+  2026-08-20). So this is not a half-finished deploy: the webhook is live, reachable, and **rejecting
+  every event it receives** — which that runbook calls the intended degrade (the manual queue in
+  `platform-actions.html` still verifies every top-up by hand), but it has been inert since that
+  release shipped. Set it to switch the automation on, or accept the manual queue deliberately.
+- `RESEND_API_KEY` and the two `AZURE_DOC_INTELLIGENCE_*` secrets ARE set, so the only secret this
+  release adds is `RESEND_WEBHOOK_SECRET`.
+
+- The exposed prod **service-role key still needs rotating**.
+- 3 `storage.*` TRUNCATE grants need a Supabase-side superuser; no migration here can revoke them.
+
+---
+
 # Production Deploy Runbook — credits economy + GCash intake (2026-08-03) ← PENDING, NOT DEPLOYED
 
 > **⏳ BUILT AND VERIFIED LOCALLY. NOT PUSHED, NOT DEPLOYED — Ian's gate.** Recorded here so the

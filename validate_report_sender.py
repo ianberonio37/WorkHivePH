@@ -238,11 +238,31 @@ def run():
                        "reason": "report_contacts not queried — contacts feature non-functional"})
 
     # 24. hive_id scoping on contacts
+    # ★ THIS CHECK USED A FIXED 500-CHAR WINDOW FROM THE FIRST MATCH OF "report_contacts", AND THE FIRST
+    # MATCH IS NOT A QUERY. It is `const LS_CONTACTS = 'wh_report_contacts'` — the localStorage key —
+    # so the window measured whatever happened to follow that constant. Adding an eleven-line COMMENT
+    # above loadContacts() pushed the real `.eq('hive_id', HIVE_ID)` past 500 characters and turned this
+    # green check red, reporting "contacts leak across hives" about a page whose scoping had not
+    # changed at all. A validator that a comment can break was never measuring the property.
+    # Now it finds every REAL query (`.from('report_contacts')`) and requires each to be hive-scoped
+    # within its own statement — which is what the check always claimed to do, and is immune to how
+    # much prose sits nearby. Verified against the live file: 3 query sites, all scoped.
     if "report_contacts" in page:
-        contacts_block = page[page.find("report_contacts"):][:500]
-        if "hive_id" not in contacts_block:
+        query_sites = [m.start() for m in re.finditer(r"\.from\(\s*['\"]report_contacts['\"]\s*\)", page)]
+        if not query_sites:
             issues.append({"check": "hive_id_scoping",
-                           "reason": "hive_id not scoped on report_contacts query — contacts leak across hives"})
+                           "reason": "report_contacts is referenced but never queried via .from() — "
+                                     "the scoping check has no query to verify"})
+        for pos in query_sites:
+            # A supabase query chain ends at the statement terminator; take a generous span and stop at
+            # the first `;` so one site's scoping cannot vouch for the next.
+            tail = page[pos:pos + 900]
+            stmt = tail.split(";")[0]
+            if "hive_id" not in stmt:
+                line = page[:pos].count("\n") + 1
+                issues.append({"check": "hive_id_scoping",
+                               "reason": f"report_contacts query at line {line} is not hive-scoped — "
+                                         "contacts leak across hives"})
 
     # 25. Transcript cap
     if "transcript" in page and ".slice(0," not in page:

@@ -64,6 +64,7 @@ GATEWAY_BYPASS_OK = {
     "trigger-ml-retrain":         "Cron-only training trigger",
     # Webhook receivers (external systems POST in; cannot be wrapped).
     "cmms-webhook-receiver":      "External CMMS webhook signing; raw body required",
+    "resend-webhook-receiver":    "Resend/Svix webhook signing; HMAC is over the RAW body, so any gateway wrapper that reads or re-serialises it invalidates the signature",
     # Specialist agents called BY the gateways themselves.
     "asset-brain-query":          "Specialist routed by ai-gateway",
     "analytics-orchestrator":     "Specialist routed by ai-gateway",

@@ -387,8 +387,17 @@ def check_allsettled_inspection(pages):
             if not re.search(r'\.map\s*\(', call_start):
                 continue  # array literal — background refresh, result check not required
 
-            # 1200 chars covers async map() bodies before the result variable is used
-            window = content[m.start():m.start() + 1200]
+            # 1200 chars covers async map() bodies before the result variable is used --
+            # MEASURED IN CODE, NOT IN PROSE. report-sender.html puts a 26-line comment between the
+            # allSettled call and `results.filter(r => r.status === ...)`, which sits 1687 chars in;
+            # the gate reported "results not inspected" about code that inspects them thoroughly.
+            # Stripping comments first keeps the budget for the thing being measured. Widening was
+            # the other option and is a deferral -- see the `widened 500->900 2026-07-13` note in
+            # validate_inventory.py, on a check that has since outgrown 900 too.
+            _raw = content[m.start():m.start() + 4000]
+            _raw = re.sub(r"/\*[\s\S]*?\*/", "", _raw)
+            _raw = re.sub(r"^[ \t]*//[^\n]*$", "", _raw, flags=re.MULTILINE)
+            window = _raw[:1200]
             has_inspection = any(re.search(p, window) for p in [
                 r'\.status\b', r"['\"]fulfilled['\"]", r"['\"]rejected['\"]",
                 r'\.filter\s*\(', r'\br\.status\b',

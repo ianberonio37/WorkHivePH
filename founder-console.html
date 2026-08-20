@@ -533,8 +533,16 @@
     .audit-dot.default { background:var(--blue); }
 
     /* ── Toast (matches utils.js pattern) ── */
+      /* env(safe-area-inset-bottom) added 2026-08-06: this toast sat a fixed distance from the
+         bottom with NO home-indicator guard, so on an iPhone it could render under the indicator.
+         Found by auditing every toast rule on the platform after the layout lens reported
+         declaresSafeArea=false for div#toast on voice-journal and engineering-design: 6 of the 8
+         toast rules were missing the guard and only community + pm-scheduler had it — a shared
+         component copied per page and then diverged. The original offset is preserved; only the
+         inset is added. Read via the CSSOM, not getComputedStyle, which resolves env() to 0 on
+         desktop and makes a guarded and an unguarded rule look identical. */
     .toast {
-      position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(8px);
+      position:fixed; bottom:calc(1.5rem + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(8px);
       background:linear-gradient(135deg,rgba(42,61,88,.96),rgba(31,46,69,.98));
       border:1px solid rgba(255,255,255,.12); color:var(--text);
       padding:.6rem 1.2rem; border-radius:999px; font-size:.78rem; font-weight:500;
@@ -3140,7 +3148,6 @@
     };
   </script>
 </main>
-  <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
   <script src="offline-banner.js"></script><!-- SaaS-layer AV: adopt the central offline/degraded banner -->
 </body>
 </html>

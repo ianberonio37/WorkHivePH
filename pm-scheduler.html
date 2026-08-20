@@ -670,7 +670,11 @@
     </div>
 
     <!-- Add Task trigger -->
-    <button onclick="openAddTaskSheet()" class="wh-card w-full p-4 mb-4 flex items-center justify-between text-sm font-semibold transition-colors" style="color:rgba(247,162,27,0.8);">
+    <!-- The 0.8 alpha here was the page's only APCA failure: rgba(247,162,27,0.8) composites to
+         rgb(204,139,36) on rgb(32,47,70), giving Lc 42.2 against the Lc 60 floor this text earns at
+         14px/600. --wh-orange-text is the platform token that already fixed the same alpha-thinned
+         orange on index and dayplanner; it carries no alpha, so nothing composites it away. -->
+    <button onclick="openAddTaskSheet()" class="wh-card w-full p-4 mb-4 flex items-center justify-between text-sm font-semibold transition-colors" style="color:var(--wh-orange-text);">
       <span data-i="plusaddtask">+ Add Task</span>
       <span class="ic ic-add" aria-hidden="true"></span>
     </button>
@@ -714,7 +718,12 @@
 <!-- ── EDIT PM ASSET MODAL (supervisor only in hive mode) ── -->
 <div id="pm-edit-modal" role="dialog" aria-modal="true" aria-label="Edit PM asset" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:1rem;">
   <div class="wh-card w-full p-6 relative" style="max-width:420px;">
-    <button onclick="closeEditPMAsset()" style="position:absolute;top:0.75rem;right:0.75rem;background:rgba(255,255,255,0.06);border:none;border-radius:0.5rem;width:44px;height:44px;color:rgba(255,255,255,0.80);cursor:pointer;font-size:1.1rem;">✕</button>
+    <!-- aria-label: the only content is a ✕ glyph, so without it a screen reader announces nothing usable
+         for the one control that closes this dialog. The platform's convention is already this
+         (inventory's #part-modal-close carries aria-label="Close", hive's handover close carries
+         aria-label="Close handover sheet"); this button was the outlier. Found by
+         tools/prove_dialog_a11y.mjs, which was the first check to open this dialog and read its controls. -->
+    <button onclick="closeEditPMAsset()" aria-label="Close" style="position:absolute;top:0.75rem;right:0.75rem;background:rgba(255,255,255,0.06);border:none;border-radius:0.5rem;width:44px;height:44px;color:rgba(255,255,255,0.80);cursor:pointer;font-size:1.1rem;">✕</button>
 
     <h3 class="font-bold text-base text-white mb-4 pr-8" data-i="editasset">Edit Asset</h3>
 
@@ -1333,6 +1342,7 @@ async function init() {
 // ─────────────────────────────────────
 async function loadData() {
   if (!HIVE_ID && !WORKER_NAME) return;
+  _pmReadFailed = false;   // a recovered read must clear the failure, or one glitch marks the page forever
 
   // G1 (FF1): canonical card skeleton in the asset list while the query is in flight (first
   // load only). Replaces the #dash-loading text as the visible wait state — never show both.
@@ -1349,7 +1359,10 @@ async function loadData() {
     : db.from('pm_assets').select('*').eq('worker_name', WORKER_NAME).order('created_at', { ascending: true }).order('id').limit(500)
   ); // L2: per-branch order+limit (server applies them by query-param, not chain position) so each read is row-bounded
 
-  if (assetsRes.error) { console.error('pm_assets load:', assetsRes.error.message); showToast('Could not load PM assets. Check your connection.'); return; }
+  // The toast alone was not enough: it persisted, but so did "OVERDUE 0 · No overdue PMs · CLEAR" beside
+  // it, on a plant whose own alert feed lists PMs 12-19 days overdue. A reader scanning hero tiles
+  // believes the tile, not the notice. Carry the failure into the render so the tiles say UNKNOWN.
+  if (assetsRes.error) { console.error('pm_assets load:', assetsRes.error.message); showToast('Could not load PM assets. Check your connection.'); _pmReadFailed = true; renderPMUnknown(); return; }
   assets = assetsRes.data || [];
 
   if (!assets.length) { scopeItems = []; completions = []; return; }
@@ -1453,7 +1466,34 @@ function getEnrichedItems(assetId) {
 // Layer D — Plain-Read summary for PM Scheduler.
 // Rolls up enriched asset states (already computed by renderDashboard) into
 // verdict + 3 cards + recommendation. Asset-level rollup, not scope-item.
+// Set when the pm_assets read failed. The page already raised a persistent toast, and that toast was
+// measured present at all five samples across ~15s — the problem was never that it stayed quiet, it was
+// that the verdict tiles kept certifying "No overdue PMs / CLEAR" from a count of zero that only existed
+// because the read never landed. A notice beside an all-clear does not cancel the all-clear.
+let _pmReadFailed = false;
+
+// The failure face of the summary: every count unknown, no verdict word, one instruction.
+function renderPMUnknown() {
+  const set = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
+  ['overdue', 'duesoon', 'ontrack'].forEach(n => {
+    set('stat-' + n, '—');
+    set('pm-' + n + '-sub', 'Could not read PM data');
+    set('pm-' + n + '-tag', 'UNKNOWN');
+    const card = document.getElementById('pm-card-' + n);
+    if (card) { card.classList.remove('tag-green', 'tag-amber', 'tag-red'); card.classList.add('tag-grey'); }
+  });
+  const prog = document.getElementById('pm-progress'); if (prog) prog.innerHTML = '';
+  const vBox = document.getElementById('pm-verdict');
+  if (vBox) { vBox.classList.remove('healthy', 'watch', 'attn', 'empty'); vBox.classList.add('attn'); }
+  set('pm-verdict-icon', '⚠');
+  set('pm-verdict-label', 'Could not load PM compliance');
+  set('pm-verdict-sub', 'Overdue PMs are unknown right now, not zero. Reload before treating this plant as compliant.');
+  const act = document.getElementById('pm-action-text');
+  if (act) act.textContent = 'Reload the page. Do not sign off on PM status until these numbers load.';
+}
+
 function renderPMSummary(enriched, overdue, duesoon, ontrack) {
+  if (_pmReadFailed) { renderPMUnknown(); return; }
   const total = enriched.length;
   // H1 goal-gradient — the on-track snapshot IS the worker's "get everything green"
   // journey (distinct from SMRP compliance below, which is historical).
@@ -1499,8 +1539,17 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
   // Card 3 — On track (compliance %). Tag forms a Stair-readiness
   // ladder: STAIR-READY / BUILDING / BELOW STAIR. "LOW" by itself read
   // as ambiguous (low what?) — walkthrough 2026-05-14.
+  // ★ NAME THE WINDOW. The compliance % is computed over 90 DAYS — this page calls
+  // get_pm_compliance_smrp with `p_period_days: 90` (:1399) — and the number was rendered with no
+  // window beside it. Worse, the ONLY window on screen is the "DUE SOON (14D)" tile one card away,
+  // which is a LOOKAHEAD for which PMs fall due next: a reader who assumes it applies is reading a
+  // 90-day figure as a 14-day one, and nothing corrected them. An unlabelled window is not merely
+  // unhelpful when a labelled DIFFERENT window sits beside it.
+  // "last 90 days" rather than "90 days" because the window is ROLLING, not calendar-aligned — read
+  // from the function body: `now() - (p_period_days || ' days')::interval`. Saying which it is matters
+  // for anyone comparing this month's figure with last month's.
   const subText = total === 0 ? 'No assets in scope yet'
-                : `${ontrack} of ${total} on track now · ${compliance}% PM compliance (SMRP)`;
+                : `${ontrack} of ${total} on track now · ${compliance}% PM compliance (SMRP, last 90 days)`;
 
   // PMK1 — the honest second number, beside the flattering one. SMRP 2.1.1 credits a PM completed
   // anywhere inside its period, so a program can read 88% while a quarter of the work ran past its
@@ -1510,9 +1559,16 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
   const otEl = document.getElementById('pm-ontrack-ontime');
   if (otEl) {
     otEl.textContent = (total === 0 || !pmOntime) ? ''
+      // ★ AND SAY WHAT "ON TIME" MEANS, because a percentage of an undefined predicate cannot be
+      // audited or compared. Read from get_pm_ontime_delivery's body: a completion counts as on time
+      // when `completed_at <= prev_at + (frequency_days || ' days')::interval` — so there is NO
+      // separate grace period; the tolerance IS each PM's own frequency. A monthly PM done on day 30
+      // is on time, a monthly PM done on day 35 is late, and a quarterly PM has ninety days of room.
+      // That is worth stating, because "on time" reads like a fixed grace window and it is not.
       : pmOntime.late === 0
-        ? `${pmOntime.ontime_pct}% done on time · none ran late`
-        : `${pmOntime.ontime_pct}% done on time · ${pmOntime.late} of ${pmOntime.intervals} ran late`;
+        ? `${pmOntime.ontime_pct}% done on time (last 90 days, within each PM's own interval) · none ran late`
+        : `${pmOntime.ontime_pct}% done on time (last 90 days, within each PM's own interval) · `
+          + `${pmOntime.late} of ${pmOntime.intervals} ran late`;
   }
   // PMK1 — the ladder runs on the WEAKER of the two measures, not on compliance alone.
   // Walked 2026-07-28, Lucena: the page said "PM compliance is in the red · 29 assets are overdue"
@@ -1684,7 +1740,39 @@ function renderDashboard() {
   // in the code - a dead empty state. Walked live: 10 cards -> 0 cards, #no-results still hidden.
   const noResults = document.getElementById('no-results');
   if (!filtered.length) {
-    const neverHadAny = enriched.length === 0;
+    // A FAILED READ ALSO YIELDS enriched.length === 0, and this branch then printed "No assets yet -
+    // Tap the + button to add your first asset". Measured under an injected 500 on a hive whose ten
+    // assets were listed by name in the same session (Cleaver-Brooks BLR-001, Siemens M-001, ...) - the
+    // reason this page's fail_500 row was withdrawn today. The PM1 comment above fixed
+    // filtered-to-nothing vs never-had-any; this adds the third case: could-not-find-out.
+    const neverHadAny = enriched.length === 0 && !_pmReadFailed;
+    if (_pmReadFailed && noResults) {
+      noResults.hidden = false;
+      // ★IT TOLD A PERSON TO RELOAD AND GAVE THEM NOTHING TO PRESS. Measured by failing every
+      // /rest/v1/ read with a 500: this page said a failure had happened and rendered ZERO retry
+      // affordances. "Reload before adding an asset you may already have" is good advice — it even
+      // names the mistake it is preventing — and it is still not a path the person can take.
+      // ★THE COMPONENT ALREADY EXISTS: whListError(el, message, onRetry) renders the inline error WITH
+      // a working Retry, and 16 pages across this roster already import it. Six pages pass this oracle
+      // today, which is what makes a failure here ADOPTION rather than design.
+      // ★AND THE RETRY POINTS AT loadData(), THE READER — NOT at a renderer. hive's first fix wired
+      // its retry to the function that re-RENDERS from a cache still holding the failed state: it
+      // genuinely re-attempted and left the page unchanged, which is worse than offering nothing.
+      // ★A PARTIAL RECOVERY IS STILL A FAILURE, AND MEASURING IT IS THE ONLY WAY TO KNOW. Wiring this
+      // retry to loadData() re-attempted honestly — 5 fresh reads — and the LIST came back, but
+      // #pm-verdict-label kept saying "Could not load PM compliance" and three KPI subs kept saying
+      // "Could not read PM data". Two regions describing the same fact, disagreeing, after the person
+      // had been told it was fixed. On a page whose numbers gate a PM sign-off, the stale half is the
+      // dangerous half. A full reload rebuilds every region from one read set, which is what inventory
+      // does and why it recovers cleanly; a targeted re-render only recovers the region it owns.
+      if (typeof whListError === 'function') {
+        whListError(noResults, 'Could not load your PM assets. This is a connection problem, not an '
+          + 'empty asset register. Your assets are still there.', () => location.reload());
+      } else {
+        noResults.textContent = 'Could not load your PM assets. This is a connection problem, not an empty '
+          + 'asset register. Reload before adding an asset you may already have.';
+      }
+    }
     empty.classList.toggle('hidden', !neverHadAny);
     if (noResults) noResults.hidden = neverHadAny;
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
@@ -1922,6 +2010,9 @@ let _autoHailOn       = false;
    (sweep_pm_auto_hail) does the filing; this only records the intent. A 0-row update means RLS
    refused - surfaced honestly rather than shown as saved. */
 async function toggleAutoHail() {
+  // pm_scope_items is configuration, not the queued pm_completions capture - online-only.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Changing auto-hail', (m) => showToast(m))) return;
   if (!_autoHailAssetId) return;
   const turningOn = !_autoHailOn;
   if (turningOn && !(await window.whConfirm(
@@ -2025,6 +2116,14 @@ function closeEditPMAsset() {
 async function saveEditPMAsset() {
   if (HIVE_ID && HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
 
+  // Online-only class: this page registers no offline write queue, so a write fired here
+
+  // while offline reached a dead network with nothing said.
+
+  if (typeof whRequireOnline === 'function'
+
+      && !whRequireOnline('Saving this asset', (m) => showToast(m))) return;
+
   const name        = document.getElementById('pm-edit-name').value.trim();
   const tag_id      = document.getElementById('pm-edit-tag').value.trim();
   const location    = document.getElementById('pm-edit-location').value.trim();
@@ -2079,7 +2178,7 @@ async function saveEditPMAsset() {
   closeEditPMAsset();
   renderDetail(currentAsset);
   renderDashboard();
-  showToast('Asset updated.');
+  showToast('Asset updated → the new name, tag, location and criticality show on your PM schedule now.');
 
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save Changes';
@@ -2214,6 +2313,9 @@ async function submitCompletion() {
     } else {
       // Phase D1 cross-surface receipt — name the ripple (pm_completions → SMRP compliance).
       showToast('✓ PM done → PM compliance recomputed (Hive + Analytics SMRP) · logged in Logbook.', 6000);
+      // Index the mirror so it is FINDABLE, not merely stored. Fire-and-forget, like every other
+      // embed call on the platform -- a slow RAG pipeline must not block the completion.
+      embedPMFaultEntry(logPayload);
     }
   } else {
     // Phase D1 cross-surface receipt.
@@ -2265,6 +2367,37 @@ async function _autoLinkPmToProject(compData, asset) {
   if (linkErr) { console.warn('project auto-link insert:', linkErr.message); return; }
   if (typeof showToast === 'function') {
     showToast(`Linked to ${projs.length === 1 ? projs[0].project_code : projs.length + ' active projects'}.`);
+  }
+}
+
+// The MIRRORED LOGBOOK ROW is its own fact and needs its own embed. embedPMEntry (below) sends
+// type:'pm', which embed-entry turns into an asset HEALTH SUMMARY stored elsewhere -- it never
+// writes fault_knowledge.logbook_id, so the mirror was invisible to search, RAG and
+// 'has this happened before?'. Same payload shape logbook.html sends for a hand-written entry.
+async function embedPMFaultEntry(row) {
+  try {
+    const { data: { session: _s } } = await db.auth.getSession();
+    const _tok = _s?.access_token || SUPABASE_KEY;
+    await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + _tok },
+      body: JSON.stringify({
+        type: 'fault',
+        hive_id: HIVE_ID || null,
+        entry: {
+          id:          row.id,
+          machine:     row.machine,
+          category:    row.category,
+          problem:     row.problem,
+          root_cause:  row.root_cause || null,
+          action:      row.action,
+          knowledge:   row.knowledge,
+          worker_name: WORKER_NAME,
+        }
+      })
+    }, 8000);
+  } catch (e) {
+    console.warn('embed-entry (pm mirror) skipped:', e.message);
   }
 }
 
@@ -2596,6 +2729,10 @@ function renderReview() {
 // SAVE ASSET
 // ─────────────────────────────────────
 async function saveAsset() {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Saving this asset', (m) => showToast(m))) return;
   const btn = document.getElementById('btn-save-asset');
   btn.disabled = true;
   btn.textContent = 'Saving...';
@@ -2648,7 +2785,10 @@ async function saveAsset() {
 
   // Reload data
   await loadData();
-  showToast(`${name} added successfully.`);
+  // NAMES THE EFFECT AND THE MOMENT, the house pattern asset-hub set ("→ feeds this asset's risk score
+  // ... on next recompute"). "Added successfully" confirmed only that something happened; a PM asset
+  // exists to be scheduled and counted, so saying where it lands answers what the person came to do.
+  showToast(`${name} added → on your PM schedule now, and it counts toward PM compliance from its first due date.`);
   showScreen('dashboard');
   renderDashboard();
 
@@ -2741,6 +2881,10 @@ function pickTaskChip(text, freq) {
 }
 
 async function saveNewTask() {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Adding this task', (m) => showToast(m))) return;
   const text = document.getElementById('add-task-text').value.trim();
   const freq = document.getElementById('add-task-freq').value;
 
@@ -2929,7 +3073,6 @@ if (window.whModalA11y) {
 <script src="nav-hub.js"></script>
 <script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('pmfindings', ['sheet-findings']); });</script>
 <script src="companion-launcher.js"></script>
-<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 <script src="impact-preview.js"></script><!-- Phase D2: pre-commit "updates N pages" hint -->
 
 <!-- ── ADD TASK BOTTOM SHEET ── -->

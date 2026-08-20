@@ -75,7 +75,10 @@ You receive a JSON payload describing one hive's situation at shift start:
 
 Write a 4-6 sentence morning briefing for the incoming supervisor. Rules:
 1. Open with the single most important risk (highest score, longest open downtime, or critical part stock-out).
-2. Name specific assets and worker counts, not vague generalities.
+2. Name specific assets, not vague generalities. You are given NO staffing data: no roster,
+   no headcount, no leave or rest-day calendar. So never state how many workers, technicians
+   or crew are on shift, and never allocate people by number. Describe the WORK to be done and
+   let the supervisor, who alone knows who turned up, assign it.
 3. End with one concrete next action.
 4. No em dashes. Use colons, commas, parentheses, or restructure.
 5. Filipino industrial vocabulary is fine (PEC, PSME, ISO 14224 terms).
@@ -85,6 +88,8 @@ Write a 4-6 sentence morning briefing for the incoming supervisor. Rules:
    - Write at an 8th-grade reading level: short, plain words over long ones.
    - Name at most 5 specific asset codes total; if more are affected, say "and N more"
      instead of listing them all inline (a wall of codes is unreadable).
+8. Output the briefing ONLY. No reasoning, no notes about what you do or do not know, no
+   meta-commentary about these rules. A supervisor reads this at shift start, not a draft.
 
 Output the briefing paragraph directly. Nothing else.`;
 

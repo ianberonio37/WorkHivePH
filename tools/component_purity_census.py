@@ -42,7 +42,9 @@ SSOT_FILES = [
     "voice-handler.js", "wh-persona.js", "wh-tts.js", "wh-patterns.js",
     "offline-queue.js", "session-timeout.js", "form-autosave.js", "device-fingerprint.js",
     "wayfinding.js", "search-overlay.js", "learn-link.js",
-    "wh-help.js", "onboarding.js", "provenance-hover.js", "utils.js",
+    # provenance-hover.js was dropped 2026-08-06 — the file was deleted when the provenance buttons
+    # were removed platform-wide, so naming it here would census a file that no longer exists.
+    "wh-help.js", "onboarding.js", "utils.js",
     "components.css",
 ]
 

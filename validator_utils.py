@@ -231,3 +231,43 @@ def format_result(check_names, check_labels, issues):
             print(f"  [{tag}] [{iss['check']}]  {iss['reason']}")
 
     return n_pass, n_skip, n_fail
+
+
+def fn_body(src, name, kind="async function"):
+    """The BODY of `<kind> <name>` in src, scoped by BRACE MATCHING. '' if not found.
+
+    WHY THIS EXISTS. Several validators scoped a function by taking a fixed number of characters
+    after its declaration -- 500, 600, 800, 900 -- and asked whether some statement appeared in that
+    slice. This project deliberately keeps the REASON a guard exists in a comment INSIDE the
+    function, so every time a defect is documented properly the statement drifts further from the
+    declaration. Measured 2026-08-20:
+
+        approveItem  body 2327 chars, window 500  -> "does not write status='approved'"   (it does)
+        rejectItem   body 1871 chars, window 900  -> "does not write status='rejected'"   (it does)
+        togglePin    body 1464 chars, window 800  -> "power action is unaudited"          (it is not)
+        deletePost   body 1534 chars, window 600  -> "no showUndoToast"                   (there is)
+
+    Four false accusations from one mechanism. The codebase had already met it once and patched it
+    the tempting way -- `# widened 500->900 2026-07-13 (P6-C1 comment pushed status past cutoff` --
+    which held for seven weeks. A character budget is a deferral with a date on it; a brace-matched
+    body is what "does this function do X?" actually means.
+
+    Plain string search, no regex: a hand-built pattern here would need escaping that has already
+    produced a literal backspace character in place of \b once.
+    """
+    start = src.find(kind + " " + name)
+    if start < 0:
+        return ""
+    open_at = src.find("{", start)
+    if open_at < 0:
+        return ""
+    depth = 0
+    for i in range(open_at, len(src)):
+        c = src[i]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return src[open_at:i + 1]
+    return src[open_at:]

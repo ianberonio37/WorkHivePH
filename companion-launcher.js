@@ -551,6 +551,33 @@
           #wh-ai-widget { right: 16px; }
           #wh-ai-panel  { width: calc(100vw - 32px); right: 0; }
         }
+
+        /* WCAG 2.2.2 Pause-Stop-Hide is LEVEL A, and three of this launcher's animations are
+           declared infinite - auto-starting motion that never ends and offers no way to stop it.
+           This file contained NO prefers-reduced-motion block at all, and that absence was
+           invisible to a structural probe: every host page declares reduce blocks of its own, so
+           a check that asks "does this page have a reduce block" answers yes while wh-pulse,
+           wh-nudge-pulse and wh-dot keep moving. Measured by flipping the media live - hive ran
+           5 animations normally and still 3 under reduce, project-report 2 and still 2.
+           ONLY THE MOVEMENT STOPS, matching the pattern utils.js already uses. Each element keeps
+           its resting appearance: the trigger holds its avatar, the typing dots stay visible, and
+           a message simply appears instead of sliding in. A person who asked for less motion asked
+           for stillness, not for missing UI.
+           THE NUDGE IS THE EXCEPTION and is frozen rather than blanked. Its animation is a
+           box-shadow RIPPLE from 0 0 0 0 to 0 0 0 12px, so plain animation:none would erase the
+           attention ring outright and a reduced-motion user would lose the signal that something
+           is due. It is pinned to a static 4px halo instead - the ripple's mid-state - so the
+           nudge still reads at a glance without pulsing. */
+        @media (prefers-reduced-motion: reduce) {
+          #wh-ai-trigger,
+          .wh-msg,
+          .wh-typing span { animation: none !important; }
+          #wh-ai-trigger.wh-has-nudge {
+            animation: none !important;
+            box-shadow: 0 4px 20px rgba(var(--wh-red-rgb, 229,72,77),0.5),
+                        0 0 0 4px rgba(var(--wh-red-rgb, 229,72,77),0.38) !important;
+          }
+        }
       </style>
 
       <!-- Trigger Button: persona avatar (Companion Streamline Step A+B) -->

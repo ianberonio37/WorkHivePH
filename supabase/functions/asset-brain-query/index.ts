@@ -278,7 +278,14 @@ async function fetchReliability(
     db.from("v_fmea_truth")
       .select("failure_mode, function_text, effect_text, cause_text, severity, occurrence, detection, rpn, consequence_class, source")
       .eq("hive_id", hiveId).eq("asset_id", assetId)
-      .order("rpn", { ascending: false }).limit(8),
+      // ★rpn IS NOT A TOTAL ORDER, AND THIS READ IS CAPPED AT 8. Measured live: rcm_fmea_modes
+      // carries 300 modes across just 10 distinct RPN values, a 96.7% tie rate - RPN is S x O x D over
+      // small integer scales, so ties are the norm, not the exception. At the cap the tie therefore
+      // decides MEMBERSHIP: which eight failure modes a reliability engineer is shown as "the worst"
+      // would be an arbitrary sample of the tied band. It is correct today only because no asset yet
+      // has more than 8 modes, so the cap never bites - protection by data volume, not by design.
+      // fmea_mode_id is unique, so the cut is now reproducible by construction.
+      .order("rpn", { ascending: false }).order("fmea_mode_id", { ascending: true }).limit(8),
     db.from("v_rcm_truth")
       .select("decision, task_text, interval_days, rationale, written_to_pm_scope_item_id")
       .eq("hive_id", hiveId).eq("asset_id", assetId).limit(8),

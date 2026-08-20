@@ -79,6 +79,21 @@ def run_jscpd() -> dict | None:
         return {"_parse_error": str(e)}
 
 
+def _pairs(data):
+    """Per-pair duplicated lines, so a regression can name WHICH pair grew.
+
+    A count-only baseline ({"duplicatedLines": 3184}) proves something regressed but never what.
+    Measured 2026-08-20: debt rose 3184 -> 3279 while the clone COUNT fell 51 -> 49, i.e. existing
+    clones grew rather than new ones appearing -- which the totals alone cannot show.
+    """
+    out = {}
+    for c in data.get("duplicates", []):
+        a = c["firstFile"]["name"].replace(chr(92), "/").split("/")[-1]
+        b = c["secondFile"]["name"].replace(chr(92), "/").split("/")[-1]
+        key = " <-> ".join(sorted((a, b)))
+        out[key] = out.get(key, 0) + int(c.get("lines", 0))
+    return dict(sorted(out.items(), key=lambda kv: -kv[1]))
+
 def main() -> int:
     update = "--update-baseline" in sys.argv
     bar = "=" * 70
@@ -110,7 +125,7 @@ def main() -> int:
 
     if baseline is None or update:
         BASELINE_PATH.write_text(json.dumps(
-            {"clones": clones, "duplicatedLines": dup_lines, "percentage": round(pct, 2),
+            {"clones": clones, "duplicatedLines": dup_lines, "percentage": round(pct, 2), "pairs": _pairs(data),
              "note": "forward-only ratchet on duplicatedLines (NOT clone count); collapse duplication then --update-baseline to lower; % informational"},
             indent=2) + "\n", encoding="utf-8")
         print(f"\033[92mBASELINE {'updated' if update else 'established'}\033[0m  duplicatedLines={dup_lines}  "
@@ -122,6 +137,21 @@ def main() -> int:
     if dup_lines > baseline:
         dups = sorted(data.get("duplicates", []), key=lambda x: x.get("lines", 0), reverse=True)
         print(f"\033[91mFAIL\033[0m  clone debt GREW {baseline} -> {dup_lines} duplicated lines — new copy-paste introduced.")
+        try:
+            _base_pairs = json.loads(BASELINE_PATH.read_text(encoding="utf-8")).get("pairs") or {}
+        except Exception:
+            _base_pairs = {}
+        if _base_pairs:
+            _now = _pairs(data)
+            _grew = [(k, v, _base_pairs.get(k, 0)) for k, v in _now.items() if v > _base_pairs.get(k, 0)]
+            _grew.sort(key=lambda t: t[2] - t[1])
+            if _grew:
+                print("  Pairs that GREW since the baseline (this is what to look at):")
+                for k, now_v, was_v in _grew[:6]:
+                    print(f"    {was_v:4d} -> {now_v:4d} lines  {k}" + ("   (NEW)" if not was_v else ""))
+        else:
+            print("  (baseline predates pair tracking - it will record pairs on the next"
+                  " tighten or --update-baseline, and then name exactly which pair grew)")
         print("  Biggest current clones (collapse into a shared component/helper):")
         for c in dups[:5]:
             fa = c["firstFile"]["name"].replace("\\", "/").split("/")[-1]
@@ -132,7 +162,7 @@ def main() -> int:
         return 1
     if dup_lines < baseline:
         BASELINE_PATH.write_text(json.dumps(
-            {"clones": clones, "duplicatedLines": dup_lines, "percentage": round(pct, 2),
+            {"clones": clones, "duplicatedLines": dup_lines, "percentage": round(pct, 2), "pairs": _pairs(data),
              "note": "forward-only ratchet on duplicatedLines (NOT clone count); tightened automatically on reduction; % informational"},
             indent=2) + "\n", encoding="utf-8")
         print(f"\033[92mPASS + TIGHTENED\033[0m  clone debt reduced {baseline} -> {dup_lines} duplicated lines; baseline lowered.")

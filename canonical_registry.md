@@ -5,20 +5,20 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 ## Summary
 
-- Tables:        **176**
+- Tables:        **179**
 - Views:         **65**
-- RPCs:          **278**
+- RPCs:          **286**
 - HTML surfaces: **61**
-- Edge fns:      **101**
+- Edge fns:      **102**
 - Phantom tables (referenced in code, not in migrations): **0**
-- Duplicate signals: **82**
+- Duplicate signals: **85**
 
 ## Tables (sorted by usage)
 
 | Table | Cols | RLS | Realtime | Read by surfaces | Written by surfaces | Edge-fn writers |
 |---|---:|---|---|---|---|---|
 | `hive_audit_log` | 9 | no | yes | alert-hub.html, asset-hub.html, audit-log.html, community.html ... | alert-hub.html, asset-hub.html, community.html ... | export-hive-data, supervisor-reset-password |
-| `automation_log` | 6 | yes | no | alert-hub.html | — | batch-risk-scoring, benchmark-compute, cmms-push-completion ... |
+| `automation_log` | 6 | yes | no | alert-hub.html, report-sender.html | — | batch-risk-scoring, benchmark-compute, cmms-push-completion ... |
 | `logbook` | 32 | yes | no | dayplanner.html, hive.html, integrations.html, logbook.html ... | dayplanner.html, hive.html, integrations.html ... | cmms-sync, cmms-webhook-receiver |
 | `asset_nodes` | 27 | yes | yes | asset-hub.html, hive.html, integrations.html, inventory.html ... | asset-hub.html, integrations.html, inventory.html ... | — |
 | `pm_completions` | 9 | yes | no | asset-hub.html, hive.html, logbook.html, pm-scheduler.html ... | logbook.html, pm-scheduler.html | — |
@@ -67,7 +67,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `ai_reports` | 7 | yes | no | — | — | scheduled-agents |
 | `community_posts` | 14 | yes | no | community.html | community.html | — |
 | `community_reactions` | 6 | yes | no | community.html | community.html | — |
-| `community_replies` | 8 | yes | no | community.html | community.html | — |
+| `community_replies` | 10 | yes | no | community.html | community.html | — |
 | `community_xp` | 5 | yes | no | community.html, hive.html | — | — |
 | `engineering_calcs` | 13 | yes | no | project-manager.html | — | — |
 | `equipment_reading_templates` | 8 | no | no | asset-hub.html, logbook.html | — | — |
@@ -107,7 +107,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `gcash_inbound_receipts` | 11 | yes | no | — | — | gcash-receipt-inbound |
 | `skill_badges` | 8 | yes | no | resume.html | — | — |
 | `skill_exam_attempts` | 9 | yes | no | skillmatrix.html | — | — |
-| `achievement_xp_log` | 7 | yes | no | achievements.html | — | — |
+| `achievement_xp_log` | 8 | yes | no | achievements.html | — | — |
 | `canonical_sources` | 10 | yes | no | — | — | — |
 | `hive_route_quotas` | 7 | yes | no | — | — | — |
 | `sensor_topic_map` | 10 | yes | no | plant-connections.html | — | — |
@@ -148,7 +148,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `kb_documents` | 11 | yes | no | — | — | — |
 | `kb_chunks` | 7 | yes | no | — | — | — |
 | `offline_snapshot_cache` | 7 | no | no | — | — | — |
-| `voice_response_queue` | 8 | no | no | — | — | — |
+| `voice_response_queue` | 8 | yes | no | — | — | — |
 | `fallback_model_faq` | 5 | yes | no | — | — | — |
 | `tts_cache` | 9 | no | no | — | — | — |
 | `tts_quality_log` | 7 | no | no | — | — | — |
@@ -193,6 +193,9 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `credit_treasury` | 5 | yes | no | — | — | — |
 | `credit_reservations` | 9 | yes | no | — | — | — |
 | `credit_starter_grants` | 3 | yes | no | — | — | — |
+| `community_reaction_xp_awards` | 5 | yes | no | — | — | — |
+| `community_post_xp_awards` | 7 | yes | no | — | — | — |
+| `community_reply_xp_awards` | 7 | yes | no | — | — | — |
 
 ## RPCs / Functions
 
@@ -363,6 +366,8 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `guard_settle_requires_payment` |  | yes | — | — |
 | `guard_voucher_within_budget` |  | yes | — | — |
 | `guard_vouchers_retired` |  | yes | — | — |
+| `handle_community_post_delete_xp` |  | yes | — | — |
+| `handle_community_post_visibility_xp` |  | yes | — | — |
 | `handle_community_post_xp` |  | yes | — | — |
 | `handle_community_reaction_xp` |  | yes | — | — |
 | `handle_community_reply_xp` |  | yes | — | — |
@@ -406,11 +411,15 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `refresh_v_kpi_truth` |  | yes | — | — |
 | `release_reservation_on_delist` |  | yes | — | — |
 | `release_service_reservation_on_close` |  | yes | — | — |
+| `report_community_post` | p_post_id uuid | yes | community.html | — |
 | `rerank_kb_chunks` | p_chunk_ids bigint[],   p_query text | yes | — | — |
 | `resolve_inventory_linked_asset_node_ids` |  | yes | — | — |
 | `resolve_logbook_asset_node_id` |  | yes | — | — |
+| `restore_community_post_xp` | p_post_id uuid | yes | — | — |
 | `resume_documents_touch_updated_at` |  | no | — | — |
 | `retire_credits` | p_amount numeric | yes | — | — |
+| `reverse_community_post_xp` | p_post_id uuid | yes | — | — |
+| `reverse_community_reply_xp` |  | yes | — | — |
 | `search_all_knowledge` | "query_embedding" "public"."vector", "match_hive_id" "uuid", | no | — | — |
 | `search_bom_knowledge` | "query_embedding" "public"."vector", "match_hive_id" "uuid", | no | — | — |
 | `search_calc_knowledge` | "query_embedding" "public"."vector", "match_hive_id" "uuid", | no | — | — |
@@ -449,6 +458,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `sync_pm_asset_identity` | p_old_tag  text,   p_new_tag  text DEFAULT NULL,   p_new_nam | yes | — | — |
 | `sync_provider_availability` |  | yes | — | — |
 | `tg_asset_nodes_touch_updated` |  | no | — | — |
+| `tg_community_posts_moderation_fields` |  | yes | — | — |
 | `tg_rcm_touch_updated` |  | no | — | — |
 | `tg_shift_plans_touch_updated` |  | no | — | — |
 | `toggle_feedback_upvote` | p_feedback_id uuid,   p_voter_token text | yes | — | — |
@@ -461,6 +471,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `trg_iron_worker_check` |  | yes | — | — |
 | `trg_listing_sold_recompute` |  | yes | — | — |
 | `trg_logbook_achievement_xp` |  | yes | — | — |
+| `trg_logbook_xp_reverse` |  | yes | — | — |
 | `trg_pm_achievement_xp` |  | yes | — | — |
 | `trg_shiftplan_achievement_xp` |  | yes | — | — |
 | `trg_skill_badge_achievement_xp` |  | yes | — | — |
@@ -494,7 +505,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `asset-hub.html` | asset_nodes, equipment_reading_templates, hive_audit_log, hive_members ... | asset_nodes, hive_audit_log, parts_staged_reservations ... | ensure_pm_asset_for_node | ai-gateway, asset-brain-query, fmea-populator |
 | `assistant.html` | ai_reply_feedback, schedule_items, v_inventory_items_truth, v_logbook_truth ... | ai_reply_feedback | — | ai-gateway |
 | `audit-log.html` | hive_audit_log | — | — | — |
-| `community.html` | community_posts, community_reactions, community_replies, community_xp ... | community_posts, community_reactions, community_replies ... | get_community_reputation, get_hive_trade_peers, set_community_best_answer | — |
+| `community.html` | community_posts, community_reactions, community_replies, community_xp ... | community_posts, community_reactions, community_replies ... | get_community_reputation, get_hive_trade_peers, report_community_post | — |
 | `dayplanner.html` | logbook, schedule_items, v_logbook_truth, v_pm_scope_items_truth | logbook, schedule_items | — | — |
 | `design-system.html` | — | — | — | — |
 | `engineering-design.html` | — | — | — | — |
@@ -527,7 +538,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `promo-poster.html` | — | — | — | — |
 | `props.html` | — | — | — | — |
 | `public-feed.html` | v_community_posts_truth | — | — | — |
-| `report-sender.html` | report_contacts, v_ai_reports_truth | report_contacts | — | — |
+| `report-sender.html` | automation_log, report_contacts, v_ai_reports_truth | report_contacts | — | scheduled-agents, send-report-email, voice-report-intent |
 | `resume.html` | resume_documents, resume_versions, skill_badges, skill_profiles ... | resume_documents, resume_versions | — | — |
 | `shift-brain.html` | shift_plans, v_worker_truth | shift_plans | — | analytics-orchestrator, shift-planner-orchestrator |
 | `single_figure.html` | — | — | — | — |
@@ -637,3 +648,6 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 - `credit_treasury` (defined but unreferenced)
 - `credit_reservations` (defined but unreferenced)
 - `credit_starter_grants` (defined but unreferenced)
+- `community_reaction_xp_awards` (defined but unreferenced)
+- `community_post_xp_awards` (defined but unreferenced)
+- `community_reply_xp_awards` (defined but unreferenced)

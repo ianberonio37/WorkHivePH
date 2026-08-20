@@ -3486,7 +3486,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       barEl.style.width = score + '%';
       barEl.style.background = score >= 75 ? '#4ade80' : score >= 50 ? '#f7a21b' : '#f87171';
     }
-    if (numEl) numEl.style.color = score >= 75 ? '#4ade80' : score >= 50 ? '#f7a21b' : '#f87171';
+    // The BAR above may use fill hues - a bar IS a fill. This NUMBER is text, so its low band uses the
+    // text-weight red. Measured live 2026-08-06 walking marketplace as anon: a 0/100 score rendered
+    // #f87171 at 15px/800 on the card rgb(19,29,43) = APCA Lc 51.4 against a floor of 60, short by 8.6,
+    // and the lens pinned it as #quality-score-num. The other two bands were measured too and both
+    // clear, so only the red one changes: green #4ade80 = Lc 73.8, amber #f7a21b = Lc 64.6,
+    // --wh-red-text #FDC9C9 = Lc 83.8. tokens.css:107 names --wh-red as the danger FILL and
+    // --wh-red-text as its AA text weight; this is the fourth instance of that pairing being missed
+    // this session, after dayplanner's missed blocks, analytics-report's severity chips and
+    // project-report's RAG inks. Note the inline style on this span still declares
+    // --wh-steel-bright - it is overridden here at runtime, which is why reading the HTML alone would
+    // not have found this.
+    if (numEl) numEl.style.color = score >= 75 ? '#4ade80' : score >= 50 ? '#f7a21b' : 'var(--wh-red-text)';
 
     if (tipsEl) {
       if (!tips.length) {
@@ -5349,7 +5360,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <!-- oc-helper.js: optimistic concurrency for listing/order edits (PRODUCTION_FIXES #43) -->
 <script src="oc-helper.js"></script>
 <script src="companion-launcher.js"></script>
-<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 <script src="impact-preview.js"></script><!-- Phase D2: pre-commit "updates N pages" hint -->
 <script>
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.

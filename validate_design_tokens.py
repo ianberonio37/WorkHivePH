@@ -101,8 +101,20 @@ def check_token_block() -> list[str]:
     return issues
 
 
+# JS LINE comments were never stripped, only <!-- --> and /* */. Most "raw brand hex inline"
+# findings were therefore PROSE: `// was #29b6d9`, `amber #f7a21b = Lc 64.6`, a commented-out
+# gradient. A hex written to EXPLAIN a colour is not a hex that PAINTS one, and counting it
+# made the ratchet fire on documentation. `(?<!:)` keeps https:// URLs intact.
+JS_LINE_COMMENT_RE = __import__("re").compile("(?<!:)//[^" + chr(10) + "]*")
+# `var(--wh-orange, #F7A21B)` is the CORRECT defensive form, not drift -- the token is used and
+# the hex is only the fallback. Blank the whole var() call before counting.
+VAR_CALL_RE = __import__("re").compile("var" + chr(92) + "([^)]*" + chr(92) + ")")
+
+
 def _strip_comments(text: str) -> str:
-    return CSS_COMMENT_RE.sub(" ", HTML_COMMENT_RE.sub(" ", text))
+    text = CSS_COMMENT_RE.sub(" ", HTML_COMMENT_RE.sub(" ", text))
+    text = JS_LINE_COMMENT_RE.sub(" ", text)
+    return VAR_CALL_RE.sub("var()", text)
 
 
 def scan_drift_and_rawhex():
@@ -202,7 +214,30 @@ CHECK_NAMES = ["design_token_integrity", "design_token_drift_hex", "design_token
                "design_token_family_resemblance"]
 
 
+def selftest() -> int:
+    # _strip_comments now also removes JS line comments and var() fallbacks. That must not blind
+    # L2/L3: a hex that PAINTS must still count, and the banned drift hex must still be found.
+    cases = [
+        ("a real inline brand hex still counts",
+         "F7A21B" in _strip_comments('<div style="color:#F7A21B">x</div>').upper()),
+        ("a hex inside a JS comment does not",
+         "F7A21B" not in _strip_comments("// the old orange was #F7A21B").upper()),
+        ("a var() fallback hex does not",
+         "F7A21B" not in _strip_comments('<i style="color:var(--wh-orange, #F7A21B)">').upper()),
+        ("the banned drift hex is still visible to L2",
+         "E8920A" in _strip_comments('<i style="color:#e8920a">').upper()),
+        ("a URL survives (// stripping must not eat https://)",
+         "example.com" in _strip_comments('<a href="https://example.com">')),
+    ]
+    ok = all(v for _n, v in cases)
+    for name, v in cases:
+        print(("  PASS  " if v else "  FAIL  ") + name)
+    print("  selftest: " + ("teeth intact" if ok else "VACUOUS - stripping removed real declarations"))
+    return 0 if ok else 1
+
 def main() -> int:
+    if "--selftest" in sys.argv:
+        return selftest()
     l1 = check_token_block()
     drift_hits, rawhex_count, rawhex_by_file = scan_drift_and_rawhex()
 
@@ -212,18 +247,24 @@ def main() -> int:
             baseline = json.loads(BASELINE_PATH.read_text(encoding="utf-8")).get("rawhex", rawhex_count)
         except Exception:
             baseline = rawhex_count
-    else:
-        BASELINE_PATH.write_text(json.dumps({"rawhex": rawhex_count, "established": True}, indent=2), encoding="utf-8")
     if rawhex_count < baseline:
         baseline = rawhex_count
-        BASELINE_PATH.write_text(json.dumps({"rawhex": rawhex_count, "tightened": True}, indent=2), encoding="utf-8")
+    # NO write here. This used to persist {"rawhex": ...} ALONE, which DROPPED the rogue_radius
+    # key; the L4 read below then did .get("rogue_radius", <current count>) and, finding nothing,
+    # adopted the CURRENT value as its own baseline. A partial write plus a default-to-reality read
+    # re-baselined L4 from 260 to 264 silently -- a ratchet that loosens itself is worse than none.
+    # Both dimensions are written together, once, at the end.
 
     # L4 — family resemblance (rubric class S). Forward-only, same shape as L3.
     rogue_radius, rogue_by_file = scan_rogue_radius()
     rad_baseline = rogue_radius
     if BASELINE_PATH.exists():
         try:
-            rad_baseline = json.loads(BASELINE_PATH.read_text(encoding="utf-8")).get("rogue_radius", rogue_radius)
+            _stored = json.loads(BASELINE_PATH.read_text(encoding="utf-8"))
+            # Only a PRESENT key is a baseline. A missing one means "not yet established" and is
+            # established at the current count; it must never be re-established from a worse count
+            # that a partial write happened to erase.
+            rad_baseline = _stored.get("rogue_radius", rogue_radius)
         except Exception:
             rad_baseline = rogue_radius
     if rogue_radius < rad_baseline:

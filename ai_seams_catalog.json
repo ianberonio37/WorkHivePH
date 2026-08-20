@@ -2,7 +2,7 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-08-05T17:34:01Z",
+    "generated_at": "2026-08-20T05:37:32Z",
     "seam_count": 177,
     "by_kind": {
       "saas\u2192ai": 40,
@@ -675,7 +675,7 @@
       "caller": "ai-gateway",
       "callee": "hive_members",
       "file": "supabase/functions/ai-gateway/index.ts",
-      "line": 1072,
+      "line": 1079,
       "evidence": ".from(\"hive_members\").select(\"worker_name\").eq(\"hive_id\", hive_id);",
       "contract_test": null
     },
@@ -685,7 +685,7 @@
       "caller": "ai-gateway",
       "callee": "v_alert_truth",
       "file": "supabase/functions/ai-gateway/index.ts",
-      "line": 382,
+      "line": 389,
       "evidence": "client.from(\"v_alert_truth\").select(\"severity\").eq(\"hive_id\", hiveId).eq(\"status\", \"active\"),",
       "contract_test": null
     },
@@ -695,7 +695,7 @@
       "caller": "ai-gateway",
       "callee": "v_inventory_items_truth",
       "file": "supabase/functions/ai-gateway/index.ts",
-      "line": 392,
+      "line": 399,
       "evidence": "client.from(\"v_inventory_items_truth\").select(\"part_name,is_out_of_stock,is_low_stock,is_critical_low\").eq(\"hive_id\", hiveId),",
       "contract_test": null
     },
@@ -705,7 +705,7 @@
       "caller": "ai-gateway",
       "callee": "v_pm_compliance_truth",
       "file": "supabase/functions/ai-gateway/index.ts",
-      "line": 252,
+      "line": 259,
       "evidence": "const { data } = await client.from(\"v_pm_compliance_truth\")",
       "contract_test": null
     },
@@ -715,7 +715,7 @@
       "caller": "ai-gateway",
       "callee": "v_pm_scope_items_truth",
       "file": "supabase/functions/ai-gateway/index.ts",
-      "line": 391,
+      "line": 398,
       "evidence": "client.from(\"v_pm_scope_items_truth\").select(\"pm_asset_id\").eq(\"hive_id\", hiveId).eq(\"is_overdue\", true).limit(2000),",
       "contract_test": null
     },
@@ -725,7 +725,7 @@
       "caller": "ai-gateway",
       "callee": "v_project_items_truth",
       "file": "supabase/functions/ai-gateway/index.ts",
-      "line": 394,
+      "line": 401,
       "evidence": "client.from(\"v_project_items_truth\").select(\"title,is_blocked\").eq(\"hive_id\", hiveId).eq(\"is_blocked\", true),",
       "contract_test": null
     },
@@ -735,7 +735,7 @@
       "caller": "ai-gateway",
       "callee": "v_project_progress_truth",
       "file": "supabase/functions/ai-gateway/index.ts",
-      "line": 268,
+      "line": 275,
       "evidence": "const { data } = await client.from(\"v_project_progress_truth\")",
       "contract_test": null
     },
@@ -745,7 +745,7 @@
       "caller": "ai-gateway",
       "callee": "v_risk_truth",
       "file": "supabase/functions/ai-gateway/index.ts",
-      "line": 393,
+      "line": 400,
       "evidence": "client.from(\"v_risk_truth\").select(\"asset_name,risk_level,risk_score,days_until_failure\").eq(\"hive_id\", hiveId),",
       "contract_test": null
     },
@@ -755,7 +755,7 @@
       "caller": "ai-gateway",
       "callee": "v_worker_truth",
       "file": "supabase/functions/ai-gateway/index.ts",
-      "line": 844,
+      "line": 851,
       "evidence": "const { data: profile } = await adminClient.from(\"v_worker_truth\")",
       "contract_test": null
     },
@@ -765,7 +765,7 @@
       "caller": "ai-orchestrator",
       "callee": "v_asset_truth",
       "file": "supabase/functions/ai-orchestrator/index.ts",
-      "line": 515,
+      "line": 588,
       "evidence": "const { data: assetRows } = await db.from(\"v_asset_truth\").select(\"tag\").eq(\"hive_id\", hiveId);",
       "contract_test": null
     },
@@ -805,7 +805,7 @@
       "caller": "ai-orchestrator",
       "callee": "v_worker_assignment_truth",
       "file": "supabase/functions/ai-orchestrator/index.ts",
-      "line": 232,
+      "line": 238,
       "evidence": "const capQ = db.from(\"v_worker_assignment_truth\")  // canonical: worker_assignment_truth",
       "contract_test": null
     },
@@ -825,7 +825,7 @@
       "caller": "ai-orchestrator",
       "callee": "v_worker_truth",
       "file": "supabase/functions/ai-orchestrator/index.ts",
-      "line": 678,
+      "line": 754,
       "evidence": "const { data: _mem } = await db.from(\"v_worker_truth\")",
       "contract_test": null
     },
@@ -885,7 +885,7 @@
       "caller": "analytics-orchestrator",
       "callee": "v_inventory_items_truth",
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "line": 310,
+      "line": 316,
       "evidence": "const invQ = db.from(\"v_inventory_items_truth\")",
       "contract_test": null
     },
@@ -935,7 +935,7 @@
       "caller": "analytics-orchestrator",
       "callee": "v_risk_truth",
       "file": "supabase/functions/analytics-orchestrator/index.ts",
-      "line": 395,
+      "line": 401,
       "evidence": "const { data } = await db.from(\"v_risk_truth\")",
       "contract_test": null
     },
@@ -995,7 +995,7 @@
       "caller": "asset-brain-query",
       "callee": "v_pf_truth",
       "file": "supabase/functions/asset-brain-query/index.ts",
-      "line": 289,
+      "line": 296,
       "evidence": "db.from(\"v_pf_truth\")",
       "contract_test": null
     },
@@ -1005,7 +1005,7 @@
       "caller": "asset-brain-query",
       "callee": "v_rcm_truth",
       "file": "supabase/functions/asset-brain-query/index.ts",
-      "line": 282,
+      "line": 289,
       "evidence": "db.from(\"v_rcm_truth\")",
       "contract_test": null
     },
@@ -1025,7 +1025,7 @@
       "caller": "asset-brain-query",
       "callee": "v_weibull_truth",
       "file": "supabase/functions/asset-brain-query/index.ts",
-      "line": 285,
+      "line": 292,
       "evidence": "db.from(\"v_weibull_truth\")",
       "contract_test": null
     },
@@ -1035,7 +1035,7 @@
       "caller": "asset-brain-query",
       "callee": "v_worker_truth",
       "file": "supabase/functions/asset-brain-query/index.ts",
-      "line": 605,
+      "line": 612,
       "evidence": "const { data: _mem } = await db.from(\"v_worker_truth\")",
       "contract_test": null
     },
@@ -1115,7 +1115,7 @@
       "caller": "batch-risk-scoring",
       "callee": "v_pm_scope_items_truth",
       "file": "supabase/functions/batch-risk-scoring/index.ts",
-      "line": 253,
+      "line": 257,
       "evidence": "? db.from(\"v_pm_scope_items_truth\")     // canonical",
       "contract_test": null
     },
@@ -1355,7 +1355,7 @@
       "caller": "shift-planner-orchestrator",
       "callee": "v_hives_truth",
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-      "line": 254,
+      "line": 259,
       "evidence": "const { data: hiveRow } = await db.from(\"v_hives_truth\")",
       "contract_test": null
     },
@@ -1365,7 +1365,7 @@
       "caller": "shift-planner-orchestrator",
       "callee": "v_inventory_items_truth",
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-      "line": 162,
+      "line": 167,
       "evidence": "const { data } = await db.from(\"v_inventory_items_truth\")",
       "contract_test": null
     },
@@ -1375,7 +1375,7 @@
       "caller": "shift-planner-orchestrator",
       "callee": "v_logbook_truth",
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-      "line": 148,
+      "line": 153,
       "evidence": "const { data } = await db.from(\"v_logbook_truth\")",
       "contract_test": null
     },
@@ -1385,7 +1385,7 @@
       "caller": "shift-planner-orchestrator",
       "callee": "v_pm_scope_items_truth",
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-      "line": 121,
+      "line": 126,
       "evidence": "const { data } = await db.from(\"v_pm_scope_items_truth\")",
       "contract_test": null
     },
@@ -1395,7 +1395,7 @@
       "caller": "shift-planner-orchestrator",
       "callee": "v_risk_truth",
       "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-      "line": 100,
+      "line": 105,
       "evidence": "const { data } = await db.from(\"v_risk_truth\")",
       "contract_test": null
     },
@@ -1450,253 +1450,13 @@
       "contract_test": null
     },
     {
-      "id": "saas\u2192ai/.emoji_bak/analytics-report.html\u2192analytics-orchestrator",
+      "id": "saas\u2192ai/alert-hub.html\u2192analytics-orchestrator",
       "kind": "saas\u2192ai",
-      "caller": ".emoji_bak/analytics-report.html",
+      "caller": "alert-hub.html",
       "callee": "analytics-orchestrator",
-      "file": ".emoji_bak/analytics-report.html",
-      "line": 633,
-      "evidence": "var url = SUPABASE_URL + '/functions/v1/analytics-orchestrator';",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.emoji_bak/analytics.html\u2192analytics-orchestrator",
-      "kind": "saas\u2192ai",
-      "caller": ".emoji_bak/analytics.html",
-      "callee": "analytics-orchestrator",
-      "file": ".emoji_bak/analytics.html",
-      "line": 906,
-      "evidence": "const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.emoji_bak/logbook.html\u2192embed-entry",
-      "kind": "saas\u2192ai",
-      "caller": ".emoji_bak/logbook.html",
-      "callee": "embed-entry",
-      "file": ".emoji_bak/logbook.html",
-      "line": 1958,
-      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.emoji_bak/pm-scheduler.html\u2192embed-entry",
-      "kind": "saas\u2192ai",
-      "caller": ".emoji_bak/pm-scheduler.html",
-      "callee": "embed-entry",
-      "file": ".emoji_bak/pm-scheduler.html",
-      "line": 2143,
-      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.emoji_bak/report-sender.html\u2192scheduled-agents",
-      "kind": "saas\u2192ai",
-      "caller": ".emoji_bak/report-sender.html",
-      "callee": "scheduled-agents",
-      "file": ".emoji_bak/report-sender.html",
-      "line": 1651,
-      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.emoji_bak/report-sender.html\u2192voice-report-intent",
-      "kind": "saas\u2192ai",
-      "caller": ".emoji_bak/report-sender.html",
-      "callee": "voice-report-intent",
-      "file": ".emoji_bak/report-sender.html",
-      "line": 1527,
-      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.emoji_bak/skillmatrix.html\u2192embed-entry",
-      "kind": "saas\u2192ai",
-      "caller": ".emoji_bak/skillmatrix.html",
-      "callee": "embed-entry",
-      "file": ".emoji_bak/skillmatrix.html",
-      "line": 583,
-      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.hexvar_bak/analytics-report.html\u2192analytics-orchestrator",
-      "kind": "saas\u2192ai",
-      "caller": ".hexvar_bak/analytics-report.html",
-      "callee": "analytics-orchestrator",
-      "file": ".hexvar_bak/analytics-report.html",
-      "line": 633,
-      "evidence": "var url = SUPABASE_URL + '/functions/v1/analytics-orchestrator';",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.hexvar_bak/analytics.html\u2192analytics-orchestrator",
-      "kind": "saas\u2192ai",
-      "caller": ".hexvar_bak/analytics.html",
-      "callee": "analytics-orchestrator",
-      "file": ".hexvar_bak/analytics.html",
-      "line": 906,
-      "evidence": "const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.hexvar_bak/logbook.html\u2192embed-entry",
-      "kind": "saas\u2192ai",
-      "caller": ".hexvar_bak/logbook.html",
-      "callee": "embed-entry",
-      "file": ".hexvar_bak/logbook.html",
-      "line": 1958,
-      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.hexvar_bak/pm-scheduler.html\u2192embed-entry",
-      "kind": "saas\u2192ai",
-      "caller": ".hexvar_bak/pm-scheduler.html",
-      "callee": "embed-entry",
-      "file": ".hexvar_bak/pm-scheduler.html",
-      "line": 2135,
-      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.hexvar_bak/report-sender.html\u2192scheduled-agents",
-      "kind": "saas\u2192ai",
-      "caller": ".hexvar_bak/report-sender.html",
-      "callee": "scheduled-agents",
-      "file": ".hexvar_bak/report-sender.html",
-      "line": 1639,
-      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.hexvar_bak/report-sender.html\u2192voice-report-intent",
-      "kind": "saas\u2192ai",
-      "caller": ".hexvar_bak/report-sender.html",
-      "callee": "voice-report-intent",
-      "file": ".hexvar_bak/report-sender.html",
-      "line": 1515,
-      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.hexvar_bak/skillmatrix.html\u2192embed-entry",
-      "kind": "saas\u2192ai",
-      "caller": ".hexvar_bak/skillmatrix.html",
-      "callee": "embed-entry",
-      "file": ".hexvar_bak/skillmatrix.html",
-      "line": 583,
-      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.leftover_bak/pm-scheduler.html\u2192embed-entry",
-      "kind": "saas\u2192ai",
-      "caller": ".leftover_bak/pm-scheduler.html",
-      "callee": "embed-entry",
-      "file": ".leftover_bak/pm-scheduler.html",
-      "line": 2137,
-      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.leftover_bak/report-sender.html\u2192scheduled-agents",
-      "kind": "saas\u2192ai",
-      "caller": ".leftover_bak/report-sender.html",
-      "callee": "scheduled-agents",
-      "file": ".leftover_bak/report-sender.html",
-      "line": 1641,
-      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.leftover_bak/report-sender.html\u2192voice-report-intent",
-      "kind": "saas\u2192ai",
-      "caller": ".leftover_bak/report-sender.html",
-      "callee": "voice-report-intent",
-      "file": ".leftover_bak/report-sender.html",
-      "line": 1517,
-      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.leftover_bak/skillmatrix.html\u2192embed-entry",
-      "kind": "saas\u2192ai",
-      "caller": ".leftover_bak/skillmatrix.html",
-      "callee": "embed-entry",
-      "file": ".leftover_bak/skillmatrix.html",
-      "line": 583,
-      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.palette_bak/analytics-report.html\u2192analytics-orchestrator",
-      "kind": "saas\u2192ai",
-      "caller": ".palette_bak/analytics-report.html",
-      "callee": "analytics-orchestrator",
-      "file": ".palette_bak/analytics-report.html",
-      "line": 633,
-      "evidence": "var url = SUPABASE_URL + '/functions/v1/analytics-orchestrator';",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.palette_bak/analytics.html\u2192analytics-orchestrator",
-      "kind": "saas\u2192ai",
-      "caller": ".palette_bak/analytics.html",
-      "callee": "analytics-orchestrator",
-      "file": ".palette_bak/analytics.html",
-      "line": 906,
-      "evidence": "const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.palette_bak/logbook.html\u2192embed-entry",
-      "kind": "saas\u2192ai",
-      "caller": ".palette_bak/logbook.html",
-      "callee": "embed-entry",
-      "file": ".palette_bak/logbook.html",
-      "line": 1958,
-      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.palette_bak/pm-scheduler.html\u2192embed-entry",
-      "kind": "saas\u2192ai",
-      "caller": ".palette_bak/pm-scheduler.html",
-      "callee": "embed-entry",
-      "file": ".palette_bak/pm-scheduler.html",
-      "line": 2137,
-      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.palette_bak/report-sender.html\u2192scheduled-agents",
-      "kind": "saas\u2192ai",
-      "caller": ".palette_bak/report-sender.html",
-      "callee": "scheduled-agents",
-      "file": ".palette_bak/report-sender.html",
-      "line": 1630,
-      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.palette_bak/report-sender.html\u2192voice-report-intent",
-      "kind": "saas\u2192ai",
-      "caller": ".palette_bak/report-sender.html",
-      "callee": "voice-report-intent",
-      "file": ".palette_bak/report-sender.html",
-      "line": 1506,
-      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
-      "contract_test": null
-    },
-    {
-      "id": "saas\u2192ai/.palette_bak/skillmatrix.html\u2192embed-entry",
-      "kind": "saas\u2192ai",
-      "caller": ".palette_bak/skillmatrix.html",
-      "callee": "embed-entry",
-      "file": ".palette_bak/skillmatrix.html",
-      "line": 583,
-      "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "file": "alert-hub.html",
+      "line": 696,
+      "evidence": "const { data } = await db.functions.invoke('analytics-orchestrator', {",
       "contract_test": null
     },
     {
@@ -1705,7 +1465,7 @@
       "caller": "analytics-report.html",
       "callee": "analytics-orchestrator",
       "file": "analytics-report.html",
-      "line": 633,
+      "line": 679,
       "evidence": "var url = SUPABASE_URL + '/functions/v1/analytics-orchestrator';",
       "contract_test": null
     },
@@ -1715,8 +1475,58 @@
       "caller": "analytics.html",
       "callee": "analytics-orchestrator",
       "file": "analytics.html",
-      "line": 974,
+      "line": 991,
       "evidence": "const res = await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/analytics.html\u2192batch-risk-scoring",
+      "kind": "saas\u2192ai",
+      "caller": "analytics.html",
+      "callee": "batch-risk-scoring",
+      "file": "analytics.html",
+      "line": 854,
+      "evidence": "const { data, error } = await db.functions.invoke('batch-risk-scoring', { body: { hive_id: HIVE_ID } });",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/asset-hub.html\u2192ai-gateway",
+      "kind": "saas\u2192ai",
+      "caller": "asset-hub.html",
+      "callee": "ai-gateway",
+      "file": "asset-hub.html",
+      "line": 4054,
+      "evidence": "const resp = await db.functions.invoke('ai-gateway', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/asset-hub.html\u2192asset-brain-query",
+      "kind": "saas\u2192ai",
+      "caller": "asset-hub.html",
+      "callee": "asset-brain-query",
+      "file": "asset-hub.html",
+      "line": 4071,
+      "evidence": "const { data, error } = await db.functions.invoke('asset-brain-query', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/asset-hub.html\u2192fmea-populator",
+      "kind": "saas\u2192ai",
+      "caller": "asset-hub.html",
+      "callee": "fmea-populator",
+      "file": "asset-hub.html",
+      "line": 3122,
+      "evidence": "const { data, error } = await db.functions.invoke('fmea-populator', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/assistant.html\u2192ai-gateway",
+      "kind": "saas\u2192ai",
+      "caller": "assistant.html",
+      "callee": "ai-gateway",
+      "file": "assistant.html",
+      "line": 1180,
+      "evidence": "const gwInvoke = db.functions.invoke('ai-gateway', {",
       "contract_test": null
     },
     {
@@ -1725,8 +1535,58 @@
       "caller": "companion-launcher.js",
       "callee": "ai-gateway",
       "file": "companion-launcher.js",
-      "line": 976,
-      "evidence": "const response = await fetcher(`${SUPABASE_URL}/functions/v1/ai-gateway`, {",
+      "line": 968,
+      "evidence": "const { data, error } = await _wc.functions.invoke('ai-gateway', { body: gatewayBody });",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/companion_surface_battery.js\u2192ai-gateway",
+      "kind": "saas\u2192ai",
+      "caller": "companion_surface_battery.js",
+      "callee": "ai-gateway",
+      "file": "companion_surface_battery.js",
+      "line": 187,
+      "evidence": "var r = await _state.client.functions.invoke('ai-gateway', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/engineering-design-test.html\u2192engineering-bom-sow",
+      "kind": "saas\u2192ai",
+      "caller": "engineering-design-test.html",
+      "callee": "engineering-bom-sow",
+      "file": "engineering-design-test.html",
+      "line": 20819,
+      "evidence": "const { data, error } = await db.functions.invoke('engineering-bom-sow', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/engineering-design-test.html\u2192engineering-calc-agent",
+      "kind": "saas\u2192ai",
+      "caller": "engineering-design-test.html",
+      "callee": "engineering-calc-agent",
+      "file": "engineering-design-test.html",
+      "line": 10431,
+      "evidence": "const { data, error } = await db.functions.invoke('engineering-calc-agent', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/hive.html\u2192ai-gateway",
+      "kind": "saas\u2192ai",
+      "caller": "hive.html",
+      "callee": "ai-gateway",
+      "file": "hive.html",
+      "line": 5546,
+      "evidence": "const resp = await db.functions.invoke('ai-gateway', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/hive.html\u2192ai-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": "hive.html",
+      "callee": "ai-orchestrator",
+      "file": "hive.html",
+      "line": 5557,
+      "evidence": "const { data, error } = await db.functions.invoke('ai-orchestrator', {",
       "contract_test": null
     },
     {
@@ -1735,8 +1595,58 @@
       "caller": "logbook.html",
       "callee": "embed-entry",
       "file": "logbook.html",
-      "line": 2074,
+      "line": 2197,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/logbook.html\u2192equipment-label-ocr",
+      "kind": "saas\u2192ai",
+      "caller": "logbook.html",
+      "callee": "equipment-label-ocr",
+      "file": "logbook.html",
+      "line": 3541,
+      "evidence": "const { data, error } = await db.functions.invoke('equipment-label-ocr', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/logbook.html\u2192visual-defect-capture",
+      "kind": "saas\u2192ai",
+      "caller": "logbook.html",
+      "callee": "visual-defect-capture",
+      "file": "logbook.html",
+      "line": 5146,
+      "evidence": "const { data, error } = await db.functions.invoke('visual-defect-capture', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/logbook.html\u2192voice-logbook-entry",
+      "kind": "saas\u2192ai",
+      "caller": "logbook.html",
+      "callee": "voice-logbook-entry",
+      "file": "logbook.html",
+      "line": 4938,
+      "evidence": "const res = await db.functions.invoke('voice-logbook-entry', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/marketplace.html\u2192ai-gateway",
+      "kind": "saas\u2192ai",
+      "caller": "marketplace.html",
+      "callee": "ai-gateway",
+      "file": "marketplace.html",
+      "line": 4587,
+      "evidence": "const resp = await db.functions.invoke('ai-gateway', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/ph-intelligence.html\u2192intelligence-report",
+      "kind": "saas\u2192ai",
+      "caller": "ph-intelligence.html",
+      "callee": "intelligence-report",
+      "file": "ph-intelligence.html",
+      "line": 531,
+      "evidence": "const { error } = await db.functions.invoke('intelligence-report', { body: {} });",
       "contract_test": null
     },
     {
@@ -1745,8 +1655,38 @@
       "caller": "pm-scheduler.html",
       "callee": "embed-entry",
       "file": "pm-scheduler.html",
-      "line": 2279,
+      "line": 2381,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/project-manager.html\u2192embed-entry",
+      "kind": "saas\u2192ai",
+      "caller": "project-manager.html",
+      "callee": "embed-entry",
+      "file": "project-manager.html",
+      "line": 3141,
+      "evidence": "db.functions.invoke('embed-entry', { body: payload })",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/project-manager.html\u2192project-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": "project-manager.html",
+      "callee": "project-orchestrator",
+      "file": "project-manager.html",
+      "line": 1850,
+      "evidence": "const { data, error } = await db.functions.invoke('project-orchestrator', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/project-report.html\u2192project-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": "project-report.html",
+      "callee": "project-orchestrator",
+      "file": "project-report.html",
+      "line": 518,
+      "evidence": "const { data, error } = await db.functions.invoke('project-orchestrator', {",
       "contract_test": null
     },
     {
@@ -1755,8 +1695,8 @@
       "caller": "report-sender.html",
       "callee": "scheduled-agents",
       "file": "report-sender.html",
-      "line": 1648,
-      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {",
+      "line": 1935,
+      "evidence": "const { data, error } = await db.functions.invoke('scheduled-agents', { body });",
       "contract_test": null
     },
     {
@@ -1765,8 +1705,28 @@
       "caller": "report-sender.html",
       "callee": "voice-report-intent",
       "file": "report-sender.html",
-      "line": 1524,
-      "evidence": "const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {",
+      "line": 1812,
+      "evidence": "const { data, error } = await db.functions.invoke('voice-report-intent', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/shift-brain.html\u2192analytics-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": "shift-brain.html",
+      "callee": "analytics-orchestrator",
+      "file": "shift-brain.html",
+      "line": 680,
+      "evidence": "const { data } = await db.functions.invoke('analytics-orchestrator', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/shift-brain.html\u2192shift-planner-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": "shift-brain.html",
+      "callee": "shift-planner-orchestrator",
+      "file": "shift-brain.html",
+      "line": 516,
+      "evidence": "const { data, error } = await db.functions.invoke('shift-planner-orchestrator', {",
       "contract_test": null
     },
     {
@@ -1775,7 +1735,7 @@
       "caller": "skillmatrix.html",
       "callee": "embed-entry",
       "file": "skillmatrix.html",
-      "line": 602,
+      "line": 614,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },
@@ -1810,12 +1770,42 @@
       "contract_test": null
     },
     {
+      "id": "saas\u2192ai/tools/prove_analytics_report.mjs\u2192analytics-orchestrator",
+      "kind": "saas\u2192ai",
+      "caller": "tools/prove_analytics_report.mjs",
+      "callee": "analytics-orchestrator",
+      "file": "tools/prove_analytics_report.mjs",
+      "line": 109,
+      "evidence": "await ctx.route('**/functions/v1/analytics-orchestrator', async (route) => {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/tools/prove_assistant.mjs\u2192ai-gateway",
+      "kind": "saas\u2192ai",
+      "caller": "tools/prove_assistant.mjs",
+      "callee": "ai-gateway",
+      "file": "tools/prove_assistant.mjs",
+      "line": 146,
+      "evidence": "+ '/functions/v1/ai-gateway and ZERO reached a model provider host directly \u2014 no anthropic, '",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/tools/service_triage_capture.mjs\u2192ai-gateway",
+      "kind": "saas\u2192ai",
+      "caller": "tools/service_triage_capture.mjs",
+      "callee": "ai-gateway",
+      "file": "tools/service_triage_capture.mjs",
+      "line": 4,
+      "evidence": "* Signs in with supabase-js and calls `db.functions.invoke('ai-gateway', ...)`, which is the page's",
+      "contract_test": null
+    },
+    {
       "id": "saas\u2192ai/voice-handler.js\u2192agentic-rag-loop",
       "kind": "saas\u2192ai",
       "caller": "voice-handler.js",
       "callee": "agentic-rag-loop",
       "file": "voice-handler.js",
-      "line": 7766,
+      "line": 7783,
       "evidence": "const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/agentic-rag-loop', {",
       "contract_test": null
     },
@@ -1825,8 +1815,8 @@
       "caller": "voice-handler.js",
       "callee": "ai-gateway",
       "file": "voice-handler.js",
-      "line": 7830,
-      "evidence": "const resp = await fetcher(SUPABASE_URL + '/functions/v1/ai-gateway', {",
+      "line": 624,
+      "evidence": "const { data: gwEnvelope, error: routerErr } = await db.functions.invoke('ai-gateway', {",
       "contract_test": null
     },
     {
@@ -1835,7 +1825,7 @@
       "caller": "voice-handler.js",
       "callee": "embed-entry",
       "file": "voice-handler.js",
-      "line": 762,
+      "line": 779,
       "evidence": "// /functions/v1/embed-entry call when that path is exposed without",
       "contract_test": null
     },
@@ -1845,8 +1835,18 @@
       "caller": "voice-handler.js",
       "callee": "voice-semantic-rag",
       "file": "voice-handler.js",
-      "line": 6156,
+      "line": 6173,
       "evidence": "const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/voice-semantic-rag', {",
+      "contract_test": null
+    },
+    {
+      "id": "saas\u2192ai/voice-journal.html\u2192ai-gateway",
+      "kind": "saas\u2192ai",
+      "caller": "voice-journal.html",
+      "callee": "ai-gateway",
+      "file": "voice-journal.html",
+      "line": 1357,
+      "evidence": "const { data, error } = await db.functions.invoke('ai-gateway', {",
       "contract_test": null
     }
   ]

@@ -55,7 +55,7 @@
       transition: border-color 0.2s;
     }
     .wh-input:focus { border-color: rgba(247,162,27,0.5); }
-    .wh-input::placeholder { color: rgba(255,255,255,0.3); }
+    .wh-input::placeholder { color: rgba(255,255,255,0.80); }
     select.wh-input option { background: var(--wh-navy-mid); color: white; }
 
     .btn-primary {
@@ -301,8 +301,16 @@
     .hist-card:hover { border-color: rgba(247,162,27,0.3); }
 
     /* Toast */
+      /* env(safe-area-inset-bottom) added 2026-08-06: this toast sat a fixed distance from the
+         bottom with NO home-indicator guard, so on an iPhone it could render under the indicator.
+         Found by auditing every toast rule on the platform after the layout lens reported
+         declaresSafeArea=false for div#toast on voice-journal and engineering-design: 6 of the 8
+         toast rules were missing the guard and only community + pm-scheduler had it — a shared
+         component copied per page and then diverged. The original offset is preserved; only the
+         inset is added. Read via the CSSOM, not getComputedStyle, which resolves env() to 0 on
+         desktop and makes a guarded and an unguarded rule look identical. */
     #toast {
-      position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+      position: fixed; bottom: calc(5rem + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
       background: rgba(31,46,69,0.97); color: white;
       padding: 0.75rem 1.5rem; border-radius: 999px;
       font-size: 0.85rem; font-weight: 500;
@@ -507,7 +515,7 @@
       transition: border-color 0.2s;
     }
     #calc-search:focus { border-color: rgba(247,162,27,0.5); }
-    #calc-search::placeholder { color: rgba(255,255,255,0.3); }
+    #calc-search::placeholder { color: rgba(255,255,255,0.80); }
     .search-wrap { position: relative; margin-bottom: 1rem; }
     .search-icon {
       position: absolute; left: 0.75rem; top: 50%;
@@ -585,7 +593,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div class="relative z-10 min-h-screen pb-24">
 
   <!-- Header -->
-  <div style="background:rgba(22,32,50,0.8);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(12px);" class="sticky top-0 z-40">
+  <!-- padding-top: sticky at top:0, so once the page scrolls this tab bar pins to the viewport edge
+       and its tabs land under the notch. The body padding-top in <style> reserves the wayfinding
+       band, not this — an ancestor's padding cannot displace a viewport-pinned box. -->
+  <div style="background:rgba(22,32,50,0.8);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top);" class="sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <a href="index.html" style="color:rgba(255,255,255,0.86);font-size:0.8rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
@@ -722,7 +733,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <div class="text-sm font-semibold" style="color:rgba(255,255,255,0.83);">Report Preview</div>
             <div class="flex gap-2">
               <button class="btn-ghost text-sm py-2 px-4 flex-1 sm:flex-none" onclick="printReport()">⬇ Download PDF</button>
-              <button class="btn-primary text-sm py-2 px-4 flex-1 sm:flex-none" onclick="saveCalc()">💾 Save</button>
+              <!-- id so saveCalc() can disable its own control while the insert is in flight: the inline
+                   onclick passes no element, and an un-disabled Save is two engineering_calcs rows. -->
+              <button id="save-calc-btn" class="btn-primary text-sm py-2 px-4 flex-1 sm:flex-none" onclick="saveCalc()">💾 Save</button>
             </div>
           </div>
           <!-- AI-7 (deep-arc P5): disclose AI-drafted content + display where trust should/should not go -->
@@ -804,7 +817,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             </div>
 
             <!-- Save combined -->
-            <button onclick="saveWithBomSow()" class="btn-primary w-full text-sm py-3">💾 Save Calculation + BOM + SOW to History</button>
+            <button id="save-bomsow-btn" onclick="saveWithBomSow()" class="btn-primary w-full text-sm py-3">💾 Save Calculation + BOM + SOW to History</button>
 
           </div>
         </div>

@@ -2,13 +2,13 @@
 name: page-marketplace
 type: page
 source: file:marketplace.html
-source_sha: df92f950d49c9f76
+source_sha: 97f567e29e891695
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `marketplace.html` — Marketplace: WorkHive
 
-Size: 327KB · 109 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 328KB · 109 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (12): `hive_audit_log.insert`, `marketplace_inquiries.insert`, `marketplace_listings.insert`, `marketplace_reviews.insert`, `marketplace_saved_searches.delete`, `marketplace_saved_searches.insert`, `marketplace_saved_searches.update`, `marketplace_watchlist.delete`, `marketplace_watchlist.insert`, `service_payments.insert`, `service_requests.insert`, `service_requests.update`
 **RPC calls**: `apply_credits_to_request`, `get_community_reputation`, `get_marketplace_parts_for_my_assets`, `get_marketplace_price_comps`, `get_marketplace_trust_badges`, `get_saved_search_matches`, `increment_listing_view`, `listing_reservation_amount`, `my_credit_balance`, `raise_service_objection`, `redeem_service_voucher`, `select_quote`, `service_knob`, `service_knob_pct`, `service_request_price`

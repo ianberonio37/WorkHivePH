@@ -52,6 +52,16 @@ EXEMPT = {
     "resume-extract":      "hive_id accepted for back-compat but IGNORED; reads no hive data.",
     "resume-polish":       "hive_id accepted for back-compat but IGNORED; reads no hive data.",
     "voice-journal-agent": "hive_id used ONLY as ai_cost_log telemetry tag; no tenant read/write.",
+    # SIGNED WEBHOOK, reviewed 2026-08-20. Unlike the three above it DOES write a tenant row
+    # (automation_log), so it is exempted on a different and narrower basis: the hive_id is
+    # never caller-supplied. Every event is rejected with 401 unless it carries a valid Svix
+    # HMAC over the raw body, and the hive is then resolved by matching the provider message id
+    # against OUR OWN prior send row in automation_log - so there is no value an attacker can
+    # pass that selects a hive. An unmatched event still records, with hive_id NULL, because an
+    # undeliverable report matters more than its tidiness. NOTE: adding HMAC to AUTH_SIGNALS was
+    # rejected deliberately - it would let a FUTURE fn pass while accepting a caller-supplied
+    # hive_id, which is the exact injection this gate exists to catch.
+    "resend-webhook-receiver": "Svix-HMAC gated; hive_id resolved from our own automation_log send row, never from the payload.",
 }
 
 

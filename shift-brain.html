@@ -215,19 +215,20 @@
     <div class="simple-row">
       <div class="simple-card tag-grey" id="sb-card-risk" data-rag-tile="shift-brain:top_risk_this_shift" data-rag-label="Top risk this shift">
         <div class="sc-label">Top risk this shift</div>
-        <div class="sc-hero" id="sb-risk-hero">0</div>
+        <!-- ships as an em dash: 0 risk / 0 PMs due reads as an all-clear before any read lands -->
+        <div class="sc-hero" id="sb-risk-hero">—</div>
         <div class="sc-sub" id="sb-risk-sub">Loading...</div>
         <span class="sc-tag" id="sb-risk-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="sb-card-pms" data-rag-tile="shift-brain:pms_due" data-rag-label="PMs due">
         <div class="sc-label">PMs due</div>
-        <div class="sc-hero" id="sb-pms-hero">0</div>
+        <div class="sc-hero" id="sb-pms-hero">—</div>
         <div class="sc-sub" id="sb-pms-sub">Loading...</div>
         <span class="sc-tag" id="sb-pms-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="sb-card-carry" data-rag-tile="shift-brain:carry_forward" data-rag-label="Carry-forward">
         <div class="sc-label">Carry-forward</div>
-        <div class="sc-hero" id="sb-carry-hero">0</div>
+        <div class="sc-hero" id="sb-carry-hero">—</div>
         <div class="sc-sub" id="sb-carry-sub">Loading...</div>
         <span class="sc-tag" id="sb-carry-tag">-</span>
       </div>
@@ -339,8 +340,19 @@
         // reorganizing reflow, root-caused via .tmp/probe_shiftbrain_cls_sources.mjs). The 3 method
         // lines were transient anyway (always overwritten by the settled summary), so nothing durable
         // is lost. Same content + same line-count on both renders = no height change = no shift.
+        // ★THIS PROVISIONAL CHIP ASSERTED A PROVENANCE IT COULD NOT YET KNOW, AND NOTHING CORRECTED IT
+        // WHEN THE CLAIM TURNED OUT FALSE. It paints before any plan has loaded, so "Live · shift plan
+        // generated on load" is a guess about the future; the settled render below replaces it once the
+        // plan arrives. Measured with shift-planner-orchestrator answered 500 on every call: the settled
+        // render never ran, this line survived, and the board showed 7 figures from the STORED plan
+        // under a chip announcing they had just been composed. That is the exact shape the
+        // fallback_engaged oracle exists to catch - the fallback engaged and the surface pretended
+        // nothing had happened - and it was reachable only by breaking the primary, which is why a
+        // provisional string nobody re-reads had gone unnoticed.
+        // The freshness line stays ONE line so the CLS work above is untouched; it just no longer
+        // claims an event that has not occurred.
         _sbChip.innerHTML = renderSourceChip({
-          freshness: 'Live · shift plan generated on load',
+          freshness: 'Checking · shift plan',
           source:    'shift_plans',
           notes:     ['Top-risk + PMs-due + carry-forward + parts, composed by shift-planner-orchestrator'],
         });
@@ -349,6 +361,11 @@
 
     let _activeWindow = currentShiftWindow();
     let _activePlan = null;
+    // Distinguishes 'no plan yet' from 'could not find out'. The no-plan branch below already dashes
+    // the three cards, but its verdict told a supervisor to 'Tap Generate Plan to build a briefing'
+    // - an instruction to author a plan when the page could not read whether one exists, the same
+    // false-instruction class as pm-scheduler's 'add your first asset'.
+    let _sbReadFailed = false;
 
     function showToast(msg) {
       const t = document.getElementById('toast');
@@ -359,8 +376,17 @@
     }
 
     function currentShiftWindow() {
-      // PHT (UTC+8). Approximate locally.
-      const h = new Date().getHours();
+      // PHT (UTC+8) — DERIVED, not approximated from the viewer's device clock.
+      // Was `new Date().getHours()`, with the comment "PHT (UTC+8). Approximate locally." That
+      // approximation is only true when the device happens to sit in PHT. Measured on a UTC+12
+      // machine: local hour 22 selected the 22-06 window while PHT was 18:14 and the live window
+      // was 14-22 — so the page loaded the 22-06 plan from 2026-08-17 (a shift that had already
+      // ENDED), rendered it as "29 preventive tasks due this window", and disagreed with
+      // pm-scheduler's live 28 with nothing on screen to explain the gap.
+      // _planIsFresh() in this same file already derives PHT correctly; two functions disagreeing
+      // about what time it is, in one file, is what let a stale plan look live. This is a plant
+      // platform: the shift window is a property of the PLANT's timezone, never the viewer's.
+      const h = new Date(Date.now() + 8 * 3600 * 1000).getUTCHours();
       if (h >= 6 && h < 14)  return '06-14';
       if (h >= 14 && h < 22) return '14-22';
       return '22-06';
@@ -374,7 +400,7 @@
     }
 
     async function validateHiveMembership() {
-      if (!HIVE_ID || !WORKER_NAME) return false;
+      if (!HIVE_ID || !WORKER_NAME) return 'no-hive';
       // Canonical: v_worker_truth wraps hive_members + worker_profiles. Maps
       // hive_members.status -> v_worker_truth.hive_status to avoid the
       // global `status` column name collision (worker_profiles also has one).
@@ -384,14 +410,24 @@
         .eq('hive_id', HIVE_ID)
         .eq('worker_name', WORKER_NAME)
         .maybeSingle();
-      if (error) { console.warn('membership:', error.message); return true; }
+      if (error) { console.warn('membership:', error.message); return 'ok'; }
       if (!membership || membership.hive_status === 'kicked') {
+        /* An EXPIRED SESSION returns zero rows with NO ERROR under RLS, which is
+           indistinguishable from "you were removed from this hive" unless the session is
+           checked -- and both used to land here. So a lapsed session WIPED the user's saved
+           hive and told them to "join or create one" (fixed 2026-08-20). getSession()
+           refreshes an expired access token when a valid refresh token exists, so a null
+           session here means the session is genuinely gone: a SIGN-IN problem, not a
+           membership one, and nothing of theirs may be deleted over it. */
+        let liveSession = null;
+        try { liveSession = (await db.auth.getSession()).data.session; } catch (_) { /* empty-catch-allow: treat as dead */ }
+        if (!liveSession) return 'no-session';
         ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name'].forEach(k => localStorage.removeItem(k));
-        return false;
+        return 'not-member';
       }
       HIVE_ROLE = membership.role;
       localStorage.setItem('wh_hive_role', membership.role);
-      return true;
+      return 'ok';
     }
 
     async function loadPlan() {
@@ -415,6 +451,7 @@
         .limit(1);
 
       if (error) {
+        _sbReadFailed = true;
         // Degraded state (table missing / RLS denied / auth required) = warn, not error.
         // Keeps the browser console clean for users on databases that haven't received
         // the migration yet, and stops Playwright from flagging it as a page error.
@@ -435,6 +472,7 @@
         return;
       }
 
+      _sbReadFailed = false;   // a recovered read clears it
       _activePlan = (data && data[0]) || null;
       // Defensive: a legacy row may store payload as a double-encoded JSON string rather than
       // a jsonb object — the payload.<field> reads below would then all render empty. Normalize
@@ -523,12 +561,45 @@
         const vSub  = document.getElementById('sb-verdict-sub');
         const vIcon = document.getElementById('sb-verdict-icon');
         const vBox  = document.getElementById('sb-verdict');
-        if (vLbl)  vLbl.textContent  = 'No plan yet for this window';
-        if (vSub)  vSub.textContent  = HIVE_ROLE === 'supervisor'
-          ? 'Tap Generate Plan to build a briefing from current logbook + risk + PM data.'
-          : 'Your supervisor has not published a briefing yet. Check back at shift start.';
-        if (vIcon) vIcon.textContent = '·';
-        if (vBox)  { vBox.classList.remove('healthy','watch','attn'); vBox.classList.add('empty'); }
+        if (_sbReadFailed) {
+          if (vLbl)  vLbl.textContent  = 'Could not load your shift plan';
+          if (vSub)  vSub.textContent  = 'Risk, PMs due and carry-forward are unknown right now, not zero. '
+            + 'Reload before planning this shift - a plan may already be published.';
+          if (vIcon) vIcon.textContent = '⚠';
+          if (vBox)  { vBox.classList.remove('healthy','watch','empty'); vBox.classList.add('attn'); }
+          // ★"RELOAD BEFORE PLANNING THIS SHIFT" IS ADVICE, NOT A PATH. Measured by failing every
+          // /rest/v1/ read with a 500: this page said the failure exactly right — "unknown right now,
+          // not zero", and it names the specific danger, that a plan may already be published — and
+          // rendered ZERO retry affordances. On the surface that decides who gets sent where, being
+          // told to reload without a control to press leaves the page itself as the obstacle.
+          // ★whListError(el, message, onRetry) already exists in utils.js and 16 pages import it, so
+          // this is ADOPTION rather than design. A FULL RELOAD is the target because this failure
+          // paints the verdict block AND three summary cards; pm-scheduler proved a targeted
+          // re-render restores one region and leaves the others still claiming failure.
+          // ★AND IT HAS TO GO SOMEWHERE THE PERSON CAN SEE. My first attempt rendered the shared
+          // error+retry into #pms-list, which EXISTS on this path and is NOT VISIBLE — the section
+          // cards are hidden by the hide loop noted below, so the control was real, correct, and
+          // offscreen at height 0. A retry nobody can see is indistinguishable from no retry, and the
+          // probe reported exactly that. Use the verdict block's own CTA, which is the visible control
+          // this page already reserves for the next action.
+          const _sbCta = document.getElementById('sb-action-btn');
+          const _sbAct = document.getElementById('sb-action-text');
+          if (_sbAct) _sbAct.textContent = 'Retry loading this shift plan.';
+          if (_sbCta) {
+            _sbCta.classList.remove('hidden');
+            _sbCta.textContent = 'Retry';
+            _sbCta.setAttribute('href', '#');
+            _sbCta.setAttribute('aria-label', 'Retry loading this shift plan');
+            _sbCta.onclick = (ev) => { ev.preventDefault(); location.reload(); };
+          }
+        } else {
+          if (vLbl)  vLbl.textContent  = 'No plan yet for this window';
+          if (vSub)  vSub.textContent  = HIVE_ROLE === 'supervisor'
+            ? 'Tap Generate Plan to build a briefing from current logbook + risk + PM data.'
+            : 'Your supervisor has not published a briefing yet. Check back at shift start.';
+          if (vIcon) vIcon.textContent = '·';
+          if (vBox)  { vBox.classList.remove('healthy','watch','attn'); vBox.classList.add('empty'); }
+        }
         // The 3 summary cards (Top risk / PMs due / Carry-forward) live in
         // .simple-row, NOT .section-card, so the hide loop above does not reach
         // them — without this they stay stuck on their "Loading..." placeholder
@@ -586,8 +657,21 @@
       const _sbChip = document.getElementById('shift-source-chip');
       if (_sbChip && typeof renderSourceChip === 'function') {
         _sbChip.innerHTML = renderSourceChip({
+          // ★"GENERATED ON LOAD" WAS A CLAIM ABOUT AN EVENT, AND IT SURVIVED THE EVENT NOT HAPPENING.
+          // Measured with shift-planner-orchestrator answered 500 on every call: the board still showed
+          // this shift's plan — correctly, from the stored shift_plans row, which is exactly what the
+          // fallback is for — and the chip still said "Live · shift plan generated on load". The plan
+          // WAS current, so `_fresh` was right; what was wrong is that the sentence describes the
+          // orchestrator having just run, and it had not. The person is told a composition happened
+          // that failed. `_fresh` answers "is this plan for the current shift?", which is a different
+          // question from "was it just generated?", and one string was answering both.
+          // So the provenance half is now derived from the plan's OWN timestamp: only a plan written in
+          // the last two minutes was generated by this page load; an older one, however current, was
+          // loaded from storage and says so.
           freshness: _fresh
-            ? 'Live · shift plan generated on load'
+            ? ((Date.now() - new Date(_activePlan.generated_at).getTime() < 120000)
+                ? 'Live · shift plan generated on load'
+                : 'Live · plan for this shift · loaded from storage, not regenerated just now')
             : 'STALE · plan generated ' + fmtDate(_activePlan.generated_at) + ', not the current shift',
           source: 'shift_plans',
           notes: ['Top-risk + PMs-due + carry-forward + parts, composed by shift-planner-orchestrator'],
@@ -690,6 +774,13 @@
     // Layer D — Plain-Read summary for Shift Brain. Cheap rollup of the
     // same arrays renderRows reads, so cards + section counts never disagree.
     function renderShiftSummary(p) {
+      // ★THE CAP MARKER REACHED THE SECTION HEADER AND NOT THE TILE. markCappedCounts appends '+' to
+      // the section counts, but it runs BEFORE this function, which then writes the hero numbers - so a
+      // capped section read '28+' in its header while the tile above it read a flat '28'. F16 exists
+      // precisely so 'a hive with 45 overdue PMs must not read a flat 30', and the tile is the element a
+      // supervisor actually glances at before a shift. Same flag, same suffix, applied where it is read.
+      const _caps = p.caps || {};
+      const _cap = (key, n) => String(n) + (_caps[key] ? '+' : '');
       const riskCount  = (p.risk_top      || []).length;
       const pmsCount   = (p.pms_due       || []).length;
       const carryCount = (p.carry_forward || []).length;
@@ -705,20 +796,26 @@
         const t = document.getElementById('sb-' + name + '-tag');  if (t) t.textContent = tag;
       };
       setCard('risk',
-        String(riskCount),
+        _cap('risk_top', riskCount),
         riskCount === 0 ? 'No assets above the risk threshold' : `${riskCount} asset${riskCount === 1 ? '' : 's'} flagged for this window`,
         riskCount === 0 ? 'CLEAR' : riskCount >= 3 ? 'HOT' : 'WATCH',
         riskCount === 0 ? 'green' : riskCount >= 3 ? 'red' : 'amber'
       );
       setCard('pms',
-        String(pmsCount),
+        _cap('pms_due', pmsCount),
         pmsCount === 0 ? 'No PMs land in this shift window' : `${pmsCount} preventive task${pmsCount === 1 ? '' : 's'} due this window`,
         pmsCount === 0 ? 'NONE' : pmsCount >= 5 ? 'BUSY' : 'PLAN',
         pmsCount === 0 ? 'green' : pmsCount >= 5 ? 'amber' : 'amber'
       );
       setCard('carry',
-        String(carryCount),
-        carryCount === 0 ? 'No open work from the prior shift' : `${carryCount} open item${carryCount === 1 ? '' : 's'} carried over`,
+        _cap('carry_forward', carryCount),
+        // ★WHAT COUNTS AS 'CARRIED OVER' WAS IMPLIED, NOT DEFINED. The orchestrator's rule is exact -
+        // logbook entries with status Open, created more than 8 HOURS ago - and a crew inheriting nine
+        // of them needs the boundary, not the adjective: 'carried over' could mean deferred, blocked or
+        // simply not finished, and here it means precisely one thing. Stating the rule also stops the
+        // figure being read as every open job on the plant, which it is not.
+        carryCount === 0 ? 'No jobs still open from before this shift (open >8h)'
+          : `${carryCount} job${carryCount === 1 ? '' : 's'} still open from before this shift (open >8h)`,
         carryCount === 0 ? 'CLEAR' : carryCount >= 5 ? 'STACKING' : 'CLOSE OUT',
         carryCount === 0 ? 'green' : carryCount >= 5 ? 'red' : 'amber'
       );
@@ -726,7 +823,9 @@
       let tone, label, sub;
       if (riskCount >= 3 || carryCount >= 5) {
         tone = 'attn'; label = 'Heavy shift: prioritize hot assets and carry-forward';
-        sub  = `${riskCount} high-risk · ${pmsCount} PMs · ${carryCount} carry-forward · ${partsCount} parts to stage.`;
+        // same counts in plain language - so they must carry the SAME cap marker as the tiles above,
+        // or the summary quietly contradicts them on exactly the hive where truncation matters.
+        sub  = `${_cap('risk_top', riskCount)} high-risk · ${_cap('pms_due', pmsCount)} PMs · ${_cap('carry_forward', carryCount)} carry-forward · ${_cap('parts_prestage', partsCount)} parts to stage.`;
       } else if (riskCount > 0 || pmsCount > 0 || carryCount > 0) {
         tone = 'watch'; label = 'Manageable shift with a few priorities';
         const parts = [];
@@ -753,8 +852,20 @@
         // list the recommendation is about (risk / PMs / carry-forward).
         const setCta = (label, scroll) => {
           const b = document.getElementById('sb-action-btn'); if (!b) return;
-          b.textContent = label; b.classList.remove('hidden'); b.setAttribute('href', '#');
-          b.onclick = (e) => { e.preventDefault(); const t = document.querySelector(scroll); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+          b.textContent = label; b.classList.remove('hidden');
+          // ★COHORT DRIFT, CLOSED. analytics / alert-hub / shift-brain render the SAME executive-summary
+          // chrome under three id prefixes, and analytics had already fixed this while the other two had not:
+          // an on-page CTA gets a REAL fragment href, not "#", so the browser jumps to the target with zero
+          // JS and the handler below only UPGRADES that to a smooth scroll. `href="#"` strands the button if
+          // the script ever fails, and reads as a dead link to a11y tooling. Ported verbatim in reasoning
+          // from analytics.html's setCta so the three copies stop diverging.
+          b.setAttribute('href', (scroll || '#').replace(/^\./, '#'));
+          b.onclick = (e) => {
+            const t = scroll && document.querySelector(scroll);
+            if (!t) return;                       // no target -> let the href do its job
+            e.preventDefault();
+            t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          };
         };
         let text;
         if (riskCount >= 3) {
@@ -848,6 +959,21 @@
           // Edge function unreachable (local runtime not running, cold start, network).
           // Distinguish this from a real failure so the message is actionable.
           const msg = String(error.message || '');
+          // ★A RATE LIMIT IS NOT AN UNREACHABLE FUNCTION, AND IT WAS BEING REPORTED AS ONE. A 429 arrives
+          // as FunctionsHttpError / "non-2xx", which the isUnreachable test below matches — so hitting the
+          // request limit told a plant supervisor "Shift planner is offline locally. Run npx supabase
+          // functions serve". Wrong cause and a developer command in front of the wrong person: the
+          // planner is not offline, it is busy, and waiting is the only thing that helps. Classified FIRST,
+          // because the broader pattern would otherwise swallow it. Says WHEN to retry, in the platform's
+          // own condition-shaped form, and confirms nothing was lost.
+          const isRateLimited = /429|rate.?limit|too many requests/i.test(msg)
+            || (error.context && error.context.status === 429);
+          if (isRateLimited) {
+            // whAiError supplies the shared sentence; this page adds the one fact only it knows.
+            showToast((window.whAiError ? window.whAiError({ message: '429' })
+              : 'You have hit the AI rate limit.') + ' Your current plan is untouched.');
+            return;
+          }
           const isUnreachable = /404|Failed to fetch|Failed to send|non-2xx|FunctionsFetchError|FunctionsHttpError/i.test(msg);
           if (isUnreachable) {
             console.warn('shift-planner-orchestrator unreachable (likely local edge runtime not running):', msg);
@@ -858,10 +984,25 @@
           return;
         }
         if (data && data.error) { showToast('Re-run failed: ' + data.error); return; }
-        showToast('Plan refreshed.');
+        // ★NAME WHAT WAS REBUILT AND THAT IT IS STILL PRIVATE. 'Plan refreshed.' told a supervisor that
+        // something happened but not the two things they need: that the plan was rebuilt from CURRENT data,
+        // and - critically - that it is still a DRAFT the crew cannot see until Publish. Those are the two
+        // halves that pair with the publish confirmation ('your crew can see this shift plan now'); without
+        // the draft half, a supervisor could reasonably believe a re-run had already reached the team. Claims
+        // only what holds: the orchestrator regenerates from the hive's current jobs and PMs, and status stays
+        // 'draft' until publishPlan sets 'published'.
+        showToast('Plan refreshed → rebuilt from your current jobs and PMs. Still a draft until you publish it.');
         await loadPlan();
       } catch (err) {
         const msg = err && err.message ? err.message : 'unknown';
+        // Same classification on the throw path — a rate limit can arrive either way, and fixing only one
+        // branch leaves the same wrong sentence reachable by the other.
+        if (/429|rate.?limit|too many requests/i.test(msg)
+            || (err && err.context && err.context.status === 429)) {
+          showToast((window.whAiError ? window.whAiError({ message: '429' })
+            : 'You have hit the AI rate limit.') + ' Your current plan is untouched.');
+          return;
+        }
         const isUnreachable = /404|Failed to fetch|Failed to send|non-2xx|FunctionsFetchError|FunctionsHttpError/i.test(msg);
         if (isUnreachable) {
           console.warn('shift-planner-orchestrator unreachable:', msg);
@@ -877,7 +1018,19 @@
 
     async function publishPlan() {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
-      if (!_activePlan) return;
+      // ★A SILENT NO-OP, ONE LINE BELOW A GUARD THAT SPEAKS. #publish-btn is in static markup and ships
+      // ENABLED, so it is pressable before the plan read resolves - and this early return said NOTHING, so a
+      // supervisor pressing it during that window got no message, no busy state and no plan published. The
+      // guard above it manages to say 'Supervisors only.'; this one is the same shape and owed the same
+      // courtesy. Found because a live walk pressed the button before the plan landed and measured ZERO
+      // mutating requests with zero surface response - which is indistinguishable from a broken publish.
+      if (!_activePlan) { showToast('No shift plan loaded yet - generate one first, or wait a moment for it to load.'); return; }
+      // ★PUBLISHING RELEASES THE PLAN TO THE CREW UNDER THE SUPERVISOR'S NAME - the one write here
+      // whose whole point is that other people can now see it. Offline it fired into a dead network,
+      // so a supervisor could walk away believing the crew had their shift. Refused before the button
+      // is disabled, so a refusal never leaves a dead control.
+      if (typeof whRequireOnline === 'function'
+          && !whRequireOnline('Publishing this plan', (m) => showToast(m))) return;
       const btn = document.getElementById('publish-btn');
       if (btn) btn.disabled = true;
       const { error } = await db.from('shift_plans')
@@ -893,13 +1046,24 @@
         if (btn) btn.disabled = false;
         return;
       }
-      showToast('Published.');
+      // ★NAME WHO CAN SEE IT NOW, AND WHO PUBLISHED IT. 'Published.' was the weakest confirmation on any
+      // committing action in this roster, for an action the crew then WORKS FROM: the update three lines above
+      // sets status='published', published_at and published_by=WORKER_NAME on this hive's plan, which is
+      // exactly what makes it visible to the team and attributable to the supervisor who released it. A
+      // supervisor pressing this needs to know the plan has left draft and is now the crew's instruction -
+      // the same reasoning as alert-hub's dismissal, where an action with team-wide reach said nothing about
+      // its reach. Claims only those three fields.
+      showToast('Published → your crew can see this shift plan now, released under your name.');
       await loadPlan();
     }
 
     async function archivePlan() {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
       if (!_activePlan) return;
+      // Online-only: archiving hides a published plan from the crew's active view. Offline it fired
+      // into a dead network, so a supervisor could believe a plan had been withdrawn when it had not.
+      if (typeof whRequireOnline === 'function'
+          && !whRequireOnline('Archiving this plan', (m) => showToast(m))) return;
       if (!(await window.whConfirm('Archive this shift plan? It will be hidden from the active view but kept for history.', { okLabel: 'Archive', cancelLabel: 'Cancel' }))) return;
       const btn = document.getElementById('archive-btn');
       if (btn) btn.disabled = true;
@@ -941,8 +1105,21 @@
     async function init() {
       if (!WORKER_NAME && typeof restoreIdentityFromSession === 'function') {
         WORKER_NAME = await restoreIdentityFromSession(db);
-        try { await db.auth.getUser(); } catch (_) { /* empty-catch-allow: best-effort settle */ } // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent)
       }
+      // AU2: settle the JWT attach before gated reads (cold-load-401 class, assistant precedent).
+      // This MUST sit outside the restore block above: it used to be the block's last statement,
+      // so it only ran for users who needed identity restored -- i.e. never on a normal load.
+      let _authUid = null;
+      try { _authUid = (await db.auth.getUser())?.data?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort settle */ }
+
+      /* Phase B (auth migration): require an authenticated session -- PRODUCTION_FIXES.md #37.
+         This page was LEFT BEHIND by that migration. pm-scheduler, project-manager, inventory,
+         logbook, dayplanner and hive have all gated on a null uid since #37; asset-hub and
+         shift-brain did not, so a dead session walked straight into the RLS-gated reads below --
+         which return zero rows with NO error, so the membership check read it as "you were
+         removed" and WIPED the saved hive. getUser() forces a server roundtrip on the current
+         JWT, so a null uid here means the session is genuinely gone (2026-08-20). */
+      if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
       if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
       if (!HIVE_ID) {
         document.getElementById('hive-gate').style.display = 'flex';
@@ -953,8 +1130,14 @@
       // Source chip + #page-wrap reveal happen synchronously at parse time
       // (revealBoardEarly above) to avoid layout shift — no chip render here.
 
-      const ok = await validateHiveMembership();
-      if (!ok) {
+      const memberState = await validateHiveMembership();
+      if (memberState === 'no-session') {
+        // Their hive is untouched; they simply need to sign in again.
+        document.getElementById('page-wrap').style.display = 'none';
+        window.location.href = 'index.html?signin=1';
+        return;
+      }
+      if (memberState !== 'ok') {
         document.getElementById('page-wrap').style.display = 'none';
         document.getElementById('hive-gate').style.display = 'flex';
         _setShiftVerdict('Hive access required', 'Sign in to your hive to view shift readiness.');
@@ -986,7 +1169,6 @@
     document.addEventListener('DOMContentLoaded', () => Promise.resolve(init()).then(() => { if (typeof whFreshnessFooter === 'function') whFreshnessFooter(); })); // G1 (FAMILY F3)
   </script>
   <script src="companion-launcher.js"></script>
-<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>
   <script defer src="connectivity-widget.js"></script>

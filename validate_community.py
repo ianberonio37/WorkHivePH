@@ -56,7 +56,7 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-from validator_utils import read_file, format_result
+from validator_utils import read_file, format_result, fn_body
 
 PAGE = "community.html"
 
@@ -167,7 +167,7 @@ def check_role_guard_inside(content, fn_name, check_key):
         issues.append({"check": check_key, "reason": f"{fn_name} function not found"})
         return issues
     # Extract function body (next ~600 chars)
-    body = content[fn_match.start():fn_match.start() + 600]
+    body = fn_body(content, fn_name)
     if not re.search(r"HIVE_ROLE\s*!==\s*['\"]supervisor['\"]", body):
         issues.append({
             "check": check_key,
@@ -182,7 +182,7 @@ def check_delete_guard(content):
     if not fn_match:
         issues.append({"check": "delete_post_guard", "reason": "deletePost function not found"})
         return issues
-    body = content[fn_match.start():fn_match.start() + 600]
+    body = fn_body(content, 'deletePost')
     has_role  = bool(re.search(r"HIVE_ROLE\s*!==\s*['\"]supervisor['\"]", body))
     has_author = bool(re.search(r"author_name\s*!==\s*WORKER_NAME|WORKER_NAME\s*!==\s*.*author_name", body))
     if not (has_role or has_author):
@@ -281,7 +281,7 @@ def check_audit_log(content):
         fn_match = re.search(rf'async function {re.escape(fn)}\b', content)
         if not fn_match:
             continue
-        body = content[fn_match.start():fn_match.start() + 800]
+        body = fn_body(content, fn)
         if "writeAuditLog" not in body:
             issues.append({
                 "check": "audit_log_calls",
@@ -340,7 +340,7 @@ def check_soft_delete_uses_undo(content):
     fn_match = re.search(r'async function deletePost\b', content)
     if not fn_match:
         return issues
-    body = content[fn_match.start():fn_match.start() + 1500]
+    body = fn_body(content, 'deletePost')
     is_soft_delete = bool(re.search(r"deleted_at\s*:", body) or
                           re.search(r"update\(\s*\{[^}]*deleted_at", body))
     if not is_soft_delete:
@@ -370,7 +370,7 @@ def check_mention_parser_wired(content):
     fn_match = re.search(r'async function submitPost\b', content)
     if not fn_match:
         return issues
-    body = content[fn_match.start():fn_match.start() + 3000]
+    body = fn_body(content, 'submitPost')
     if "parseMentions" not in body:
         issues.append({
             "check": "mention_parser_wired",
@@ -448,8 +448,17 @@ def check_badge_trigger_column_match():
                 )
             })
 
-    # Check ON CONFLICT column list
-    conflict_match = re.search(r'ON CONFLICT\s*\(([^)]+)\)', fn_body)
+    # Check ON CONFLICT column list -- SCOPED TO THE skill_badges STATEMENT.
+    # This searched the whole function body and found the FIRST ON CONFLICT, which belongs to the
+    # community_post_xp_awards insert (ON CONFLICT (post_id, reason), migration 20260806000059).
+    # It then reported that PostgreSQL "will reject the trigger" -- about a function the database is
+    # currently running. A claim that checkable should be checked: pg_proc has it.
+    _sb = re.search(r'INSERT INTO skill_badges', fn_body)
+    _stmt = ''
+    if _sb:
+        _end = fn_body.find(';', _sb.end())
+        _stmt = fn_body[_sb.start():_end if _end > 0 else len(fn_body)]
+    conflict_match = re.search(r'ON CONFLICT\s*\(([^)]+)\)', _stmt) if _stmt else None
     if conflict_match:
         conflict_cols = [c.strip() for c in conflict_match.group(1).split(",")]
         missing_cc = [c for c in conflict_cols if c not in schema_cols]

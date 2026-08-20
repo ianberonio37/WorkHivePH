@@ -167,3 +167,14 @@ errors-with-edge.png
 promo_posters/
 .push.out
 seo_assets/calc_pages_staging/
+
+# Walk artifacts (2026-08-20). These are outputs of a measurement run, not source: screenshots taken
+# while diffing a page against its mockup, and *.partial.json written by a prover that was interrupted
+# mid-sweep. `git add -A` before a release would otherwise commit them. The FINISHED reports that gates
+# read (e.g. failure_injection_report.json) are deliberately NOT matched by these patterns.
+*.partial.json
+dayplanner_after_*.png
+hive-after-*.png
+index-anon-*.png
+index-ops-home-*.png
+index-viewport-*.png

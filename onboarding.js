@@ -145,7 +145,7 @@
       if (isNext) nextSeen = true;
       const marker = `<span aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; flex-shrink:0;
           background:${s.done ? 'rgba(74,222,128,0.18)' : isNext ? 'rgba(247,162,27,0.22)' : 'rgba(255,255,255,0.06)'};
-          color:${s.done ? 'var(--wh-green, #4ade80)' : isNext ? 'var(--wh-orange, #F7A21B)' : 'rgba(255,255,255,0.45)'};
+          color:${s.done ? 'var(--wh-green, #4ade80)' : isNext ? 'var(--wh-orange, #F7A21B)' : 'rgba(255,255,255,0.72)'};
           border:1px solid ${s.done ? 'rgba(74,222,128,0.4)' : isNext ? 'rgba(247,162,27,0.5)' : 'rgba(255,255,255,0.08)'};
           font-weight:800; font-size:12px;">${s.done ? '✓' : '·'}</span>`;
       const labelStyle = s.done ? 'text-decoration:line-through; color:rgba(255,255,255,0.55);'

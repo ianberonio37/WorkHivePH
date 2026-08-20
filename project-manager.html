@@ -369,8 +369,15 @@
    growing and pushing the content list below it DOWN. Reserving the MEASURED settled height
    holds the layout still (page-scoped only; shared card/ac-text reserves live in components.css). */
 #list-view > .row { min-height: 85px; }          /* h1 header row wraps to 2 lines on mobile (Print btn + hive-tag) → reserve settled 85 */
-#pm-mgr-source-chip { min-height: 54px; }       /* empty <p> 0→54 (fills with "reads from X" chip) */
-#pm-verdict.verdict { min-height: 99px; }        /* verdict box 84→99 (verdict-sub wraps to 2 lines) */
+/* 54→62 and 99→102, both measured live 2026-08-06 (PB-project-manager CLS walk). A reservation that
+   is SHORT is not a partial fix — it still shifts, and it shifts the whole page: the chip was 8px
+   short and the verdict 3px, and because every block below them moved together (verdict, stat row,
+   action card, tabs, filter row = ~95% of the viewport) a 7px nudge scored CLS 0.102 against the 0.1
+   budget. Impact fraction, not distance, is what makes a small miss expensive here. Read these two
+   numbers as MEASURED, not chosen — re-measure them when the chip text or verdict copy changes, and
+   note that `layout-shift.sources` names the blocks that MOVED, never the one that grew. */
+#pm-mgr-source-chip { min-height: 62px; }       /* empty <p> 0→62 (fills with "reads from X" chip; renders 2 lines at 1280) */
+#pm-verdict.verdict { min-height: 102px; }       /* verdict box 84→102 (verdict-sub wraps to 2 lines) */
 #pm-verdict-sub { display:block; min-height: 47px; } /* sub 31→47 (placeholder 1-line → real 2-line wrap) */
 #hive-tag { display:inline-block; min-height: 18px; } /* h1-row chip fills with hive name */
 .simple-row .sc-sub { min-height: 47px; }        /* "Loading..." 16 → wrapped real text up to 47 (overdue 3-line) */
@@ -379,7 +386,16 @@
 #pm-summary-details.open { display:block; }
 </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
-body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}
+/* The matching BOTTOM reserve, missing here exactly as it was on project-report. body computed
+   padding-bottom 0px while #wh-hub sits fixed across the bottom 56px of the viewport, and at MAXIMUM
+   scroll - the position a reader cannot scroll past - EIGHT elements sat behind it, overlapping by up
+   to 79.8px: #wh-main-content, #list-view, #card-grid and the .pcard project cards themselves. This is
+   not a sub-pixel abutment; the last row of project cards was genuinely underneath the navigation bar
+   with no way to bring it clear. 80px clears the 56px hub and grows with the device's home-indicator
+   inset, matching what analytics-report and project-report now use. */
+body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
+@media print { body{padding-top:0;padding-bottom:0;} }</style>
 </head>
 <body>
 
@@ -425,19 +441,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div class="simple-row">
       <div class="simple-card hero tag-grey" id="pm-card-active" data-rag-tile="project-manager:active_projects" data-rag-label="Active projects">
         <h2 class="sc-label" style="margin:0;" data-i="activeprojects">Active projects</h2>
-        <div class="sc-hero" id="pm-active-hero">0</div>
+        <!-- Ships as an em dash. renderProjectsSummary() dashes these when _pjReadFailed, but under
+             an injected 500 they still read 0 - the flag is not set on every failing path, and an
+             honest DEFAULT covers all of them without needing to enumerate each one. -->
+        <div class="sc-hero" id="pm-active-hero">—</div>
         <div class="sc-sub" id="pm-active-sub">Loading...</div>
         <span class="sc-tag" id="pm-active-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="pm-card-overdue" data-rag-tile="project-manager:past_end_date" data-rag-label="Past end date">
         <h2 class="sc-label" style="margin:0;" data-i="pastenddate">Past end date</h2>
-        <div class="sc-hero" id="pm-overdue-hero">0</div>
+        <div class="sc-hero" id="pm-overdue-hero">—</div>
         <div class="sc-sub" id="pm-overdue-sub">Loading...</div>
         <span class="sc-tag" id="pm-overdue-tag">-</span>
       </div>
       <div class="simple-card tag-grey" id="pm-card-blocked" data-rag-tile="project-manager:on_hold_planning" data-rag-label="On hold or planning">
         <h2 class="sc-label" style="margin:0;" data-i="onholdplanning">On hold or planning</h2>
-        <div class="sc-hero" id="pm-blocked-hero">0</div>
+        <div class="sc-hero" id="pm-blocked-hero">—</div>
         <div class="sc-sub" id="pm-blocked-sub">Loading...</div>
         <span class="sc-tag" id="pm-blocked-tag">-</span>
       </div>
@@ -605,7 +624,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="field" id="wiz-budget-field">
         <label for="wiz-budget" data-i="budgetphp">Budget (PHP)</label>
         <input type="number" id="wiz-budget" min="0" step="100" placeholder="e.g. 250000">
-        <div class="field-hint">Required for Earned Value tracking. Hidden for work-order and shutdown types unless you want it.</div>
+        <div class="field-hint">Required for Earned Value tracking. Hidden for work-order and shutdown types unless you want it. WorkHive applies no VAT adjustment: the figure is stored exactly as you enter it, so use the basis your finance team tracks (VAT-inclusive or exclusive) and keep it consistent.</div>
       </div>
       <div class="field"><label for="wiz-desc" data-i="description">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
 
@@ -662,6 +681,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="field" id="budget-field">
           <label for="f-budget" data-i="budgetphp">Budget (PHP)</label>
           <input type="number" id="f-budget" min="0" step="100" placeholder="e.g. 250000">
+          <div class="field-hint">WorkHive applies no VAT adjustment: the figure is stored exactly as you enter it, so use the basis your finance team tracks (VAT-inclusive or exclusive) and keep it consistent.</div>
         </div>
       </div>
       <div class="field"><label for="f-desc" data-i="description">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea></div>
@@ -918,6 +938,7 @@ function fmtDate(d) {
   if (!d) return '-';
   return (typeof whFmtDate === 'function') ? whFmtDate(d) : String(d); // FD1a: canonical utils.js
 }
+function _todayIso() { return new Date().toISOString().slice(0, 10); }
 function fmtPHP(n) {
   // Delegates to the shared utils.js whFmtPeso (STREAMLINE E6): keeps the
   // null→'-' affordance, whole-peso en-PH with thousands separators, never ₱NaN.
@@ -1014,27 +1035,49 @@ async function loadProjects() {
   const { data, error } = await db.from('projects')
     .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, created_at, updated_at')  /* PJ9: budget_php REMOVED. Mig 024. */
     .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false }).order('id').limit(1000); // Arc L · L2: row cap (projects/hive ≤ low hundreds; newest-first so the active set is never truncated)
-  if (error) { showToast('Load failed: ' + error.message, 'error'); return; }
+  // Two problems measured here under an injected 500: the notice appeared at 240ms and was GONE by 13s
+  // while three zeros stayed on screen, and it showed the reader the raw upstream text ("Load failed:
+  // injected server fault" — in production, whatever Postgres said). Say it in a human sentence, keep
+  // the detail in the console, and carry the failure into the render so it outlives the toast.
+  if (error) { console.error('projects load:', error.message); showToast('Could not load your projects. Check your connection.', 'error'); _pjReadFailed = true; renderProjectsSummary(); return; }
+  _pjReadFailed = false;
   _projects = data || [];
   // Pull rollup from project_items in batch (one query, then group)
   const ids = _projects.map(p => p.id);
   if (ids.length) {
     const { data: items } = await db.from('v_project_items_truth')
-      .select('project_id, pct_complete, estimated_hours, status').in('project_id', ids).limit(500); // Arc L · L2: row cap (rollup over a bounded .in(ids) batch from the prior projects query; insurance cap)
+      .select('project_id, pct_complete, estimated_hours, status, planned_end').in('project_id', ids).limit(500); // Arc L · L2: row cap (rollup over a bounded .in(ids) batch from the prior projects query; insurance cap)
     const rollup = {};
     (items || []).forEach(it => {
-      if (!rollup[it.project_id]) rollup[it.project_id] = { sum: 0, w: 0, count: 0, done: 0 };
+      if (!rollup[it.project_id]) rollup[it.project_id] = { sum: 0, w: 0, count: 0, done: 0, hours: 0, lateItems: 0 };
       const w = it.estimated_hours || 1;
+      if (it.estimated_hours) rollup[it.project_id].hours += 1;   // basis is only 'hours' if hours exist
       rollup[it.project_id].sum   += (it.pct_complete || 0) * w;
       rollup[it.project_id].w     += w;
       rollup[it.project_id].count += 1;
       if (it.status === 'done') rollup[it.project_id].done += 1;
+      // ★THE ROLLUP COULD NOT SEE ITS OWN LATE WORK. The 'Past end date' tile counts PROJECTS whose
+      // own end_date has passed; nothing anywhere counted projects carrying overdue ITEMS. Measured:
+      // 'Compressor Replacement (FEL Stage Gates)' ends 2026-08-25, is active, and has SIX items already
+      // past their planned_end - so it presents as perfectly on track while six pieces of its work are
+      // late. planned_end was not even selected, which is why nothing downstream could have noticed.
+      if (it.planned_end && it.status !== 'done' && it.planned_end < _todayIso())
+        rollup[it.project_id].lateItems += 1;
     });
     _projects.forEach(p => {
       const r = rollup[p.id];
       p._pct = r ? Math.round(r.sum / Math.max(r.w, 1)) : 0;
       p._items_total = r ? r.count : 0;
       p._items_done  = r ? r.done : 0;
+      p._late_items  = r ? r.lateItems : 0;
+      // ★A BARE % OVER AN ITEM COUNT IMPLIED THE WRONG BASIS. This figure is an hours-WEIGHTED
+      // average of each item's own pct_complete (weight = estimated_hours, defaulting to 1), but the
+      // caption beneath it read 'N/M items done' - a different statistic entirely - so a reader
+      // naturally took the percentage for the item ratio. Two items at 50% weigh very differently
+      // when one is a 2-hour task and the other a 200-hour overhaul. The basis is recorded here so
+      // the caption can name it, and it names the FALLBACK honestly: with no estimated hours on any
+      // item the weights collapse to 1 and it really is an equal-weight average.
+      p._pct_basis = r && r.hours ? 'weighted by planned hours' : 'equal weight per item';
     });
     // Extension 1: the canonical maintenance-nature facet (reactive/preventive/project)
     // from v_project_truth — WAT: derived server-side, never re-computed on the client.
@@ -1107,8 +1150,42 @@ function renderEmptyState(grid, totalProjects) {
   }
 }
 
+// Set when the projects read failed, so the summary can distinguish "no projects" from "unknown".
+let _pjReadFailed = false;
+
 // Layer D — Plain-Read summary for Project Manager. Reads _projects.
 function renderProjectsSummary() {
+  if (_pjReadFailed) {
+    const set = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
+    ['active', 'overdue', 'blocked'].forEach(n => {
+      set('pm-' + n + '-hero', '—');
+      set('pm-' + n + '-sub', 'Could not read project data');
+      set('pm-' + n + '-tag', 'UNKNOWN');
+      const c = document.getElementById('pm-card-' + n);
+      if (c) { c.classList.remove('tag-green', 'tag-amber', 'tag-red'); c.classList.add('tag-grey'); }
+    });
+    const vBox = document.getElementById('pm-verdict');
+    if (vBox) { vBox.classList.remove('healthy', 'watch', 'attn', 'empty'); vBox.classList.add('attn'); }
+    set('pm-verdict-icon', '⚠');
+    set('pm-verdict-label', 'Could not load your projects');
+    set('pm-verdict-sub', 'Overdue and blocked work is unknown right now, not zero. Reload before reporting status.');
+    // ★"RELOAD BEFORE REPORTING STATUS" IS ADVICE, NOT A PATH. Measured by failing every /rest/v1/
+    // read with a 500: this page said the failure precisely — "unknown right now, not zero", and it
+    // even names the act it is protecting (reporting status) — and rendered ZERO retry affordances.
+    // Telling someone what not to do, without giving them the way to fix it, leaves the page as the
+    // only obstacle.
+    // ★whListError(el, message, onRetry) already exists in utils.js and 16 pages import it, so this is
+    // ADOPTION rather than design. A FULL RELOAD is the target because this failure paints the hero
+    // cards AND the verdict block: on pm-scheduler a targeted re-render restored the list and left the
+    // summary still claiming failure — a partial recovery, worse than none, because the visible
+    // success invites trusting the rest.
+    const _pjGrid = document.getElementById('card-grid');
+    if (_pjGrid && typeof whListError === 'function') {
+      whListError(_pjGrid, 'Could not load your projects. Overdue and blocked work is unknown right '
+        + 'now, not zero. Your projects are still there.', () => location.reload());
+    }
+    return;
+  }
   const todayIso = new Date().toISOString().slice(0, 10);
   const TERMINAL = new Set(['complete', 'cancelled', 'archived']);
   const active   = _projects.filter(p => p.status === 'active').length;
@@ -1135,7 +1212,15 @@ function renderProjectsSummary() {
   );
   setCard('overdue',
     String(overdue),
-    overdue === 0 ? 'No active projects past their end date' : `${overdue} project${overdue === 1 ? '' : 's'} past their end date without closing out`,
+    (() => {
+      // EXCLUDE the ones already counted above, or the two figures overlap and the tile inflates:
+      // measured, all 3 past-end-date projects ALSO carry late items, so 'more' must mean the 1
+      // genuinely additional - a project still inside its own dates while its work runs late.
+      const withLate = _projects.filter(p => (p._late_items || 0) > 0 && !TERMINAL.has(p.status)
+        && !(p.end_date && p.end_date < todayIso)).length;
+      const lateNote = withLate ? ` · ${withLate} more on time overall but carrying overdue items` : '';
+      return (overdue === 0 ? 'No active projects past their end date' : `${overdue} project${overdue === 1 ? '' : 's'} past their end date without closing out`) + lateNote;
+    })(),
     overdue === 0 ? 'CLEAR' : overdue >= 3 ? 'SLIPPING' : 'WATCH',
     overdue === 0 ? 'green' : overdue >= 3 ? 'red' : 'amber'
   );
@@ -1660,6 +1745,11 @@ function wizardAddCustomItem() {
 }
 
 async function wizardSubmit() {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said. whRequireOnline + its sentence
+  // already exist in utils.js; this is adoption.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Creating this project', (m) => showToast(m, 'error'))) return;
   const name = $('wiz-name').value.trim();
   if (!name) { showToast('Project name is required'); $('wiz-name').focus(); return; }
   const checkedItems = _wizardState.items.filter(i => i._checked && i.title.trim());
@@ -1829,6 +1919,11 @@ function toggleBudgetField(t) {
 }
 
 async function saveProject() {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said. whRequireOnline + its sentence
+  // already exist in utils.js; this is adoption.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Saving this project', (m) => showToast(m, 'error'))) return;
   const name = $('f-name').value.trim();
   if (!name) { showToast('Name is required'); return; }
   const type = $('f-type').value;
@@ -1895,13 +1990,26 @@ async function saveProject() {
 }
 
 async function deleteProject() {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said. whRequireOnline + its sentence
+  // already exist in utils.js; this is adoption.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Deleting this project', (m) => showToast(m, 'error'))) return;
   if (!_detail) return;
   if (!(await window.whConfirm('Soft-delete project ' + _detail.project_code + '? It will be hidden from views.', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
   const { error } = await db.from('projects')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', _detail.id).eq('hive_id', HIVE_ID);
   if (error) { showToast('Delete failed: ' + error.message, 'error'); return; }
-  showToast('Deleted.', 'success');
+  // ★'Deleted.' CONTRADICTED THIS PAGE'S OWN CONFIRM. The dialog above is admirably precise -
+  // 'Soft-delete project <code>? It will be hidden from views.' - and then the confirmation collapsed
+  // that into a word that means the opposite. This is an UPDATE stamping deleted_at, not a DELETE: the
+  // row survives and the loader simply filters it out with .is('deleted_at', null), so the project is
+  // recoverable and its items, links, roles, progress logs and change orders are NOT orphaned - they
+  // still reference a row that exists. Saying 'Deleted.' invites a person to believe otherwise, and on
+  // engineering-design the identical word sits on a genuinely IRREVERSIBLE hard delete. The same
+  // sentence cannot be right in both places, so each now states its own mechanism.
+  showToast('Deleted → hidden from your project views. The record is kept, so this can be reversed.', 'success');
   closeDetail();
   await loadProjects();
 }
@@ -2074,7 +2182,7 @@ function renderOverview() {
   const evColor = ev ? (ev.status === 'green' ? 'green' : ev.status === 'amber' ? 'amber' : 'red') : '';
   $('pane-overview')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-label">Progress</div><div class="kpi-value">${r.pct_complete ?? 0}%</div><div class="kpi-sub">${r.items_done ?? 0}/${r.items_total ?? 0} items done</div></div>
+      <div class="kpi"><div class="kpi-label">Progress</div><div class="kpi-value">${r.pct_complete ?? 0}%</div><div class="kpi-sub">${(Number(r.hours_estimated) > 0 ? 'weighted by planned hours' : 'equal weight per item')} · ${r.items_done ?? 0}/${r.items_total ?? 0} items done</div></div>
       <div class="kpi"><div class="kpi-label">Hours</div><div class="kpi-value">${_num(r.hours_actual, 0)}<span style="font-size:0.85rem; color:var(--muted);"> / ${_num(r.hours_estimated, 0)}</span></div><div class="kpi-sub">actual / estimated</div></div>
       <div class="kpi"><div class="kpi-label">Days</div><div class="kpi-value">${r.days_elapsed ?? 0}<span style="font-size:0.85rem; color:var(--muted);"> / ${r.days_total || '-'}</span></div><div class="kpi-sub">elapsed / planned</div></div>
       ${ev ? `<div class="kpi ${evColor}"><div class="kpi-label">Health (SPI/CPI)</div><div class="kpi-value">${ev.spi ?? '-'} / ${ev.cpi ?? '-'}</div><div class="kpi-sub">${(ev.status || 'unknown').toUpperCase()}</div></div>` : ''}
@@ -2115,6 +2223,11 @@ function combineNotes(phase, free) {
 
 /* Cycle status: pending → in_progress → done → pending (called from inline pill click) */
 async function cycleScopeStatus(id, ev) {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said. whRequireOnline + its sentence
+  // already exist in utils.js; this is adoption.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Updating this item', (m) => showToast(m, 'error'))) return;
   if (ev) ev.stopPropagation();
   const it = _items.find(x => x.id === id); if (!it) return;
   const next = it.status === 'pending' ? 'in_progress'
@@ -2288,6 +2401,11 @@ async function refreshSuggestedLinks() {
   _linkSuggestions = (data || []).filter(r => !linkedLogIds.has(r.id)).slice(0, 5);
 }
 async function linkSuggested(idx) {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said. whRequireOnline + its sentence
+  // already exist in utils.js; this is adoption.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Linking this evidence', (m) => showToast(m, 'error'))) return;
   const c = _linkSuggestions[idx]; if (!c) return;
   const { error } = await db.from('project_links').insert({
     project_id: _detailId, hive_id: HIVE_ID,
@@ -2365,6 +2483,11 @@ async function loadLinkOptions() {
 }
 
 async function saveLink() {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said. whRequireOnline + its sentence
+  // already exist in utils.js; this is adoption.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Saving this link', (m) => showToast(m, 'error'))) return;
   const t = $('l-type').value;
   let payload;
   if (t === 'contractor') {
@@ -2384,6 +2507,11 @@ async function saveLink() {
   await refreshDetail();
 }
 async function removeLink(id) {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said. whRequireOnline + its sentence
+  // already exist in utils.js; this is adoption.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Removing this link', (m) => showToast(m, 'error'))) return;
   if (!(await window.whConfirm('Remove this link?', { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
   const { error } = await db.from('project_links').delete().eq('id', id);
   if (error) { showToast(error.message, 'error'); return; }
@@ -2497,6 +2625,11 @@ async function saveProgressLog() {
   await refreshDetail();
 }
 async function ackLog(id) {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said. whRequireOnline + its sentence
+  // already exist in utils.js; this is adoption.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Acknowledging this update', (m) => showToast(m, 'error'))) return;
   const { error } = await db.from('project_progress_logs')
     .update({ acknowledged_by: WORKER_NAME, acknowledged_at: new Date().toISOString() })
     .eq('id', id);
@@ -2640,6 +2773,15 @@ function openAddRole() {
 }
 async function saveRole() {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
+  // ★ASSIGNING A PROJECT ROLE IS A PERMISSION WRITE - an online-only class on this platform, and it fired offline with nothing said.
+  // Who may approve a change order is decided by these rows, so a role that silently did not land leaves someone believing they granted authority they did not.
+  // Refused BEFORE the confirmation dialog where one exists: making a supervisor commit to a
+  // cost- or role-bearing decision and only then failing leaves them unable to tell whether it was
+  // recorded. This page has NO offline write queue, so there is no queue-and-tell alternative here -
+  // approvals, financial and role writes are online-only-with-clarity by the platform's own rule,
+  // because the generic drain carries no optimistic lock and these writes depend on one.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Assigning this role', (m) => showToast(m, 'error'))) return;
   const worker = $('r-worker').value;
   const role = $('r-role').value;
   if (!worker) { showToast('Pick a worker'); return; }
@@ -2656,6 +2798,15 @@ async function saveRole() {
 }
 async function removeRole(id) {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
+  // ★REMOVING A PROJECT ROLE IS A PERMISSION WRITE - an online-only class on this platform, and it fired offline with nothing said.
+  // A revocation that did not land is the dangerous direction: the supervisor believes access is gone while it is not.
+  // Refused BEFORE the confirmation dialog where one exists: making a supervisor commit to a
+  // cost- or role-bearing decision and only then failing leaves them unable to tell whether it was
+  // recorded. This page has NO offline write queue, so there is no queue-and-tell alternative here -
+  // approvals, financial and role writes are online-only-with-clarity by the platform's own rule,
+  // because the generic drain carries no optimistic lock and these writes depend on one.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Removing this role', (m) => showToast(m, 'error'))) return;
   if (!(await window.whConfirm('Remove this role?', { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
   const { error } = await db.from('project_roles').delete().eq('id', id);
   if (error) { showToast(error.message, 'error'); return; }
@@ -2718,9 +2869,23 @@ async function saveChangeOrder() {
   const title = $('co-title').value.trim();
   const scope = $('co-scope').value.trim();
   if (!title || !scope) { showToast('Title and scope change are required'); return; }
+  // ★DOUBLE-SUBMIT GUARD ON A FINANCIAL, APPROVAL-BEARING WRITE. Measured live (writes intercepted so nothing
+  // landed): this handler had NO guard, and a second press 120ms after the first ran the whole path again —
+  // write count 1 -> 2. That is not a cosmetic duplicate: each pass calls generate_change_order_number and
+  // inserts its own row, so one intent becomes TWO change orders with two CO numbers, each carrying the same
+  // cost_impact_php and schedule_impact_days into the approval queue. The project-ledger invariant is
+  // "original budget + SUM(approved change orders) = current budget", so a duplicate approved twice moves the
+  // budget twice. Same pattern this platform already uses on report-sender's saveContact and pm-scheduler's
+  // completion sheet: refuse re-entry, show the work in progress, and release on every failure path.
+  const coBtn = document.querySelector('#form-co button[type=submit]');
+  if (coBtn && coBtn.disabled) return;
+  const coLabel = coBtn ? coBtn.textContent : null;
+  const releaseCO = () => { if (coBtn) { coBtn.disabled = false; coBtn.removeAttribute('aria-busy');
+                                         coBtn.textContent = coLabel; } };
+  if (coBtn) { coBtn.disabled = true; coBtn.setAttribute('aria-busy', 'true'); coBtn.textContent = 'Submitting…'; }
   // Generate CO number via RPC
   const { data: coNum, error: numErr } = await db.rpc('generate_change_order_number', { p_project_id: _detailId });
-  if (numErr) { showToast('CO number gen failed: ' + numErr.message, 'error'); return; }
+  if (numErr) { releaseCO(); showToast('CO number gen failed: ' + numErr.message, 'error'); return; }
   const { error } = await db.from('project_change_orders').insert({
     project_id: _detailId, hive_id: HIVE_ID,
     co_number: coNum, title, scope_change: scope,
@@ -2730,13 +2895,27 @@ async function saveChangeOrder() {
     status: 'pending',
     requested_by: WORKER_NAME,
   });
-  if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
-  showToast(`${coNum} submitted for approval`, 'success');
+  if (error) { releaseCO(); showToast('Save failed: ' + error.message, 'error'); return; }
+  releaseCO();   // the dialog closes below, but it can be reopened for the next CO
+  // NAMES THE EFFECT AND WHEN. "<CO> submitted for approval" says what happened, not what follows. What this
+  // write verifiably sets up is the approval step, whose own confirm text states the consequence ("Cost /
+  // schedule impact will be reflected in the project") — so the confirmation says that, and nothing more.
+  showToast(`${coNum} submitted for approval → once approved, its cost and schedule impact land on the project.`,
+            'success');
   closeModal('modal-co');
   await refreshDetail();
 }
 async function approveCO(id) {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
+  // ★APPROVING A CHANGE ORDER MOVES A PROJECT'S COST AND SCHEDULE - an online-only class on this platform, and it fired offline with nothing said.
+  // Its own optimistic lock (.eq('status','pending')) exists so a concurrent decision cannot be reversed - a lock that never reaches the database protects nothing.
+  // Refused BEFORE the confirmation dialog where one exists: making a supervisor commit to a
+  // cost- or role-bearing decision and only then failing leaves them unable to tell whether it was
+  // recorded. This page has NO offline write queue, so there is no queue-and-tell alternative here -
+  // approvals, financial and role writes are online-only-with-clarity by the platform's own rule,
+  // because the generic drain carries no optimistic lock and these writes depend on one.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Approving this change order', (m) => showToast(m, 'error'))) return;
   if (!(await window.whConfirm('Approve this change order? Cost / schedule impact will be reflected in the project.', { okLabel: 'Approve', cancelLabel: 'Cancel' }))) return;
   // P6-C1 optimistic lock (sibling of hive/asset-hub): only decide a STILL-pending CO so a concurrent
   // approve/reject (or a double-click) cannot reverse an already-decided, cost-impacting change order.
@@ -2750,6 +2929,15 @@ async function approveCO(id) {
 }
 async function rejectCO(id) {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
+  // ★REJECTING A CHANGE ORDER IS THE SAME DECISION IN THE OTHER DIRECTION - an online-only class on this platform, and it fired offline with nothing said.
+  // A rejection lost to a dead network reads to the supervisor exactly like one that landed.
+  // Refused BEFORE the confirmation dialog where one exists: making a supervisor commit to a
+  // cost- or role-bearing decision and only then failing leaves them unable to tell whether it was
+  // recorded. This page has NO offline write queue, so there is no queue-and-tell alternative here -
+  // approvals, financial and role writes are online-only-with-clarity by the platform's own rule,
+  // because the generic drain carries no optimistic lock and these writes depend on one.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Rejecting this change order', (m) => showToast(m, 'error'))) return;
   const reason = await window.whPrompt('Reason for rejection (visible to requester):', { inputLabel: 'Rejection reason' });
   if (!reason) return;
   // P6-C1 optimistic lock: only reject a STILL-pending CO (no re-flip of an already-decided order).
@@ -2762,6 +2950,11 @@ async function rejectCO(id) {
   await refreshDetail();
 }
 async function cancelCO(id) {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said. whRequireOnline + its sentence
+  // already exist in utils.js; this is adoption.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Cancelling this change order', (m) => showToast(m, 'error'))) return;
   // Requester can cancel their own pending CO; supervisor can cancel any.
   // Different from reject: cancel = requester withdraws; reject = supervisor denies.
   const co = (_changeOrders || []).find(c => c.id === id);
@@ -2804,7 +2997,7 @@ function renderBudget() {
   const cls = ev.status === 'green' ? 'green' : ev.status === 'amber' ? 'amber' : 'red';
   $('pane-budget')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="kpi-row">
-      <div class="kpi"><div class="kpi-label">Budget at completion</div><div class="kpi-value">${fmtPHP(ev.bac)}</div></div>
+      <div class="kpi"><div class="kpi-label">Budget at completion</div><div class="kpi-value">${fmtPHP(ev.bac)}</div><div class="kpi-sub">PHP, as entered (no VAT adjustment applied)</div></div>
       <div class="kpi"><div class="kpi-label">Planned value (PV)</div><div class="kpi-value">${fmtPHP(ev.pv)}</div></div>
       <div class="kpi"><div class="kpi-label">Earned value (EV)</div><div class="kpi-value">${fmtPHP(ev.ev)}</div></div>
       <div class="kpi"><div class="kpi-label">Actual cost (AC)</div><div class="kpi-value">${fmtPHP(ev.ac)}</div><div class="kpi-sub">proxy: hours × ₱200</div></div>
@@ -2893,6 +3086,11 @@ async function aiDraftLessons() {
 }
 
 async function saveLessons() {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said. whRequireOnline + its sentence
+  // already exist in utils.js; this is adoption.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Saving these lessons', (m) => showToast(m, 'error'))) return;
   if (!_detail) return;
   const text = $('lessons-text').value.trim();
   // PJ14 (2026-07-28): the AI badge must describe what is actually SAVED. aiDraftLessons tagged
@@ -3064,7 +3262,6 @@ document.addEventListener('keydown', ev => {
 <script src="nav-hub.js"></script>
 <script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('projdesc', ['f-desc']); });</script>
 <script src="companion-launcher.js"></script>
-<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 
 <script>
   // N1: static-label Filipino dict, applied by utils.js whI18nApply() when WH_LANG=fil.

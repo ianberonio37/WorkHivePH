@@ -225,7 +225,11 @@ async function scoreHive(
       db.from("v_fmea_truth")
         .select("asset_id, rpn, failure_mode")
         .eq("hive_id", hiveId)
+        // ★Same non-total order as asset-brain-query's per-asset read (rpn ties 96.7% in live
+        // data). The 2000 cap is far above the current 300 modes so nothing is truncated today,
+        // but a hive that grows past it would silently drop part of the tied band.
         .order("rpn", { ascending: false })
+        .order("fmea_mode_id", { ascending: true })
         .limit(2000),
     ]);
 

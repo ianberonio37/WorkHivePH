@@ -1,6 +1,6 @@
-# Flywheel Turn #374
+# Flywheel Turn #386
 
-_2026-08-06T08:42:52_
+_2026-08-20T20:38:53_
 
 ## Layer deltas
 
@@ -8,12 +8,17 @@ _2026-08-06T08:42:52_
 |---|---|---:|---:|---:|
 | L-1   | cluster proposals       | 0 | 0 | · |
 | L-1.5 | rules in manifest       | 50 | 50 | · |
-| L0    | baselines tracked       | 196 | 196 | · |
-| L0    | total locked count      | 4032 | 4032 | · |
+| L0    | baselines tracked       | 200 | 201 | +1 ✅ |
+| L0    | total locked count      | 3289 | 3286 | ↓3 ✅ |
 | L2    | sentinel parity cases   | 29 | 29 | · |
 | L13   | stale walkthroughs      | 0 | 0 | · |
 
-## No ratchets or regressions this turn — platform stable.
+## ✅ Ratchets (2) — baselines tightened
+
+| Validator | Was | Now |
+|---|---:|---:|
+| `design_tokens` | 168 | **166** |
+| `unbounded_query` | 1 | **0** |
 
 ## ⏫ Promotions — queued for one-pass approval
 

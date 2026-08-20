@@ -122,17 +122,23 @@ def check_embed_type_params(type_to_page):
         content = read_file(page)
         if content is None:
             continue
-        embed_m = re.search(r"embed-entry[\s\S]{0,500}?type\s*:\s*['\"](\w+)['\"]", content)
-        if not embed_m:
+        # A page may legitimately embed MORE THAN ONE fact, so require the expected type to be
+        # PRESENT among its embed calls rather than to be the FIRST one found. pm-scheduler embeds
+        # two: type='pm' (an asset HEALTH SUMMARY) and type='fault' (the LOGBOOK MIRROR it just
+        # wrote - only the fault branch writes fault_knowledge.logbook_id, which is what
+        # "has this happened before?" and every search read). The old single-match + 500-char
+        # window found whichever call came first in the file and reported the other as wrong.
+        found = re.findall(r"embed-entry[\s\S]{0,900}?type\s*:\s*['\"](\w+)['\"]", content)
+        if not found:
             issues.append({"check": "embed_type_params", "page": page,
                            "reason": (f"{page} calls embed-entry but no type parameter found — "
                                       f"embed-entry cannot route to the correct knowledge table")})
             continue
-        found_type = embed_m.group(1)
-        if found_type != knowledge_type:
+        if knowledge_type not in found:
             issues.append({"check": "embed_type_params", "page": page,
-                           "reason": (f"{page} passes type='{found_type}' to embed-entry but "
-                                      f"should pass type='{knowledge_type}'")})
+                           "reason": (f"{page} calls embed-entry with type(s) {sorted(set(found))} "
+                                      f"but never passes type='{knowledge_type}' — that knowledge "
+                                      f"never reaches its table")})
     return issues
 
 

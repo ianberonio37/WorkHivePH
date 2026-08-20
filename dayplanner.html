@@ -56,9 +56,22 @@
        viewport the Day/Week content is taller than the viewport, so everything below the fold
        (the TODAY/THIS WEEK stat cards, etc.) was CLIPPED and UNREACHABLE — you could not scroll
        to the bottom. On mobile, unlock the shell so the whole PAGE scrolls naturally. */
+    /* HORIZONTAL half of the same mobile unlock, found 2026-08-06 walking this page at a VERIFIED
+       innerWidth of 641. The block above unlocked HEIGHT and overflow so the page scrolls
+       vertically, but left .app-layout a flex ROW -- so the 280px sidebar and the main area still
+       laid out side by side and their sum exceeded the viewport: box 618, scrollWidth 644, over by
+       26px. Measured, not guessed: .sidebar 280 (min-width:280px, a hard floor) + .main-area 364
+       = 644, and NO descendant was individually wider than the box, so the overflow was purely the
+       row sum. .main-area could not absorb it because a flex item defaults to min-width:auto and
+       so refuses to shrink below its content's intrinsic width -- the same default that crushed
+       .lb-card to 2px height elsewhere in this file, in the other axis.
+       Stacking is the fix that matches the block's existing intent (unlock the desktop shell on
+       mobile and let the whole page scroll) rather than clipping the sidebar away. */
     @media (max-width: 767px) {
-      .app-layout    { height: auto; min-height: 100vh; overflow: visible; }
-      .main-area     { overflow: visible; }
+      .app-layout    { height: auto; min-height: 100vh; overflow: visible; flex-direction: column; }
+      .sidebar       { width: 100%; min-width: 0; border-right: none;
+                       border-bottom: 1px solid rgba(255,255,255,0.07); }
+      .main-area     { overflow: visible; min-width: 0; }
       .calendar-wrap { flex: none; overflow: visible; }
     }
 
@@ -83,11 +96,27 @@
     @media (max-width: 640px) {
       .sidebar { width: 48px; min-width: 48px; }
       .sidebar:not(.expanded) #sidebar-title, .sidebar:not(.expanded) #sidebar-hint, .sidebar:not(.expanded) #sidebar-count-label, .sidebar:not(.expanded) #sidebar-items { display: none; }
-      /* WCAG 2.5.8: in the collapsed 48px rail the capacity bar + its injected provenance ⓘ markers
-         have no room — their anchors (#sidebar-count-label/#sidebar-hint) are already hidden, so the
-         two stacked markers collide (overlap < the 24px target-size floor). Hide them too; they return
-         when the user expands the sidebar (full 280px) where they have proper clearance. */
-      .sidebar:not(.expanded) .cap-bar-wrap, .sidebar:not(.expanded) #sidebar-count-label + .wh-prov-btn { display: none; }
+      /* In the collapsed 48px rail the capacity bar has no room and its anchor (#sidebar-count-label)
+         is already hidden, so hide the bar too; it returns when the sidebar expands to 280px. The
+         second half of this selector used to hide the injected provenance markers, which were removed
+         platform-wide on 2026-08-06 (Ian: "remove the provenance button platform wide entirely"). */
+      .sidebar:not(.expanded) .cap-bar-wrap { display: none; }
+      /* TWO CORRECT RULES IN COLLISION, found 2026-08-06 walking this page at a VERIFIED innerWidth
+         of 390. The rail above is 48px by design. .sidebar-header carries padding:1rem = 32px, which
+         leaves 16px of content box -- but the toggle inside it is a .btn-icon at 44px, because 44px
+         is the WCAG 2.5.8 tap floor. A 44px target cannot fit 48px minus 1rem, so the header
+         overflowed by 12px and its inner flex row by 28px (measured: box 16, content 44).
+         Neither rule is wrong; the rail and the tap floor simply cannot both hold at 1rem padding.
+         Shrinking the padding is the only lever that keeps BOTH: 48 - 44 = 4px, so 2px per side
+         fits the target exactly while the rail width and the tap floor are left untouched.
+         Do NOT "fix" this by shrinking the button -- that would trade an accessibility floor for a
+         layout convenience, which is the same error as reserving CLS space with a tap-size rule.
+         SELECTOR NOTE: written as .sidebar .sidebar-header, not .sidebar-header. A media query
+         adds NO specificity, and the base .sidebar-header padding:1rem rule is declared LATER in
+         this stylesheet, so a same-specificity override placed here would silently lose on source
+         order and the overflow would survive the "fix". */
+      .sidebar .sidebar-header { padding: 0.5rem 2px; }
+      .sidebar .sidebar-header .btn-icon { margin-left: auto; margin-right: auto; }
     }
 
     /* Sidebar items */
@@ -98,7 +127,18 @@
     .sidebar-items::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
     /* Logbook card */
-    .lb-card { background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; cursor: pointer; transition: all 0.2s; overflow: hidden; }
+    /* flex-shrink:0 IS THE FIX, not decoration. Found 2026-08-06 walking dayplanner: five clickable
+       logbook cards in the Open Items sidebar rendered at 255x2px — two pixels tall, holding 69px of
+       content (scrollHeight 69), so they were invisible AND unhittable, and axe independently reported
+       target-size violations for them.
+       Nothing set a height: no inline style, no animation, no matching CSS rule. The cause is that
+       .sidebar-items is `display:flex; flex-direction:column; overflow-y:auto` — and overflow-y:auto
+       does NOT stop column flex children from shrinking. Once the cards' natural heights exceed the
+       778px container, every child with the default flex-shrink:1 is squeezed instead of the container
+       scrolling, and this card's own `overflow:hidden` then clips the evidence so the collapse looks
+       like an empty box rather than a broken one. flex-shrink:0 makes the container scroll, which is
+       what overflow-y:auto was there for. */
+    .lb-card { background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; cursor: pointer; transition: all 0.2s; overflow: hidden; flex-shrink: 0; }
     .lb-card:hover { border-color: rgba(247,162,27,0.3); background: linear-gradient(145deg, rgba(52,74,108,0.6) 0%, rgba(35,52,78,0.8) 100%); }
     .lb-card.selected { border-color: rgba(247,162,27,0.6); box-shadow: 0 0 0 2px rgba(247,162,27,0.15); }
     .lb-card-header { padding: 0.625rem 0.75rem; display: flex; align-items: flex-start; gap: 0.5rem; }
@@ -133,6 +173,30 @@
 
     /* MILO: month grid */
     .milo-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    /* At phone widths seven 1fr columns give each day cell 42px - TWO short of the platform's own 44px
+       tap floor, measured 42x80 across all 42 cells at 390 CSS px (viewport set before load, sampled
+       twice). minmax(44px, 1fr) puts the floor on the TRACK, so the cells cannot be squeezed below it.
+       The grid then exceeds its ~318px container by roughly 14px, which is why it needs its OWN
+       overflow-x: auto: <body> carries overflow-x: clip, and clip cannot be scrolled at all, so without
+       a scroll container here the surplus column would be silently CUT - the exact mechanism that
+       removed 52px of logbook while every scrollWidth check still read 0. The day-name header row lives
+       inside this same grid, so headers and cells scroll together and cannot desync. */
+    @media (max-width: 480px) {
+      .milo-grid { grid-template-columns: repeat(7, minmax(44px, 1fr)); overflow-x: auto; }
+      /* ★THE WEEK GRID NEEDED THE SAME TREATMENT AND NEVER GOT IT. At 390px `52px repeat(7, 1fr)`
+         gave each day column 38-39 CSS px, so all 168 hour slots and all 7 day headers sat under
+         the 44px target - and these are 'add a task at this hour' controls, where a mis-tap does
+         not just miss, it books work at the wrong time. Heights were already fine (51-56px); the
+         constraint was purely width. Same fix as .milo-grid above, for the same reason, with the
+         same overflow-x: auto that the note above explains is mandatory here (body carries
+         overflow-x: clip, which cannot scroll, so surplus columns would be silently cut rather
+         than reachable). Header row and cells share this grid, so they scroll together. */
+      /* 45px, not 44: each day column carries border-left:1px, and the hour slots inside are
+         position:absolute left:0 right:0, so they fill the CONTENT box - a 44px track produced a
+         43px target. Measured, not guessed: 38px before the class landed, 43px with a 44px track,
+         44px here. The tap target is the slot, so the track has to carry the border on top. */
+      .wilo-grid { grid-template-columns: 52px repeat(7, minmax(45px, 1fr)); overflow-x: auto; }
+    }
     .milo-day-name { text-align: center; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.80); }
     .milo-cell { background: linear-gradient(145deg, rgba(42,61,88,0.3) 0%, rgba(31,46,69,0.4) 100%); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.5rem; min-height: 80px; padding: 0.375rem; cursor: pointer; transition: all 0.15s; position: relative; }
     .milo-cell:hover { border-color: rgba(247,162,27,0.2); background: linear-gradient(145deg, rgba(52,74,108,0.4) 0%, rgba(42,61,88,0.5) 100%); }
@@ -181,25 +245,13 @@
     /* Capacity bar */
     .cap-bar-wrap { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; margin-top: 4px; }
     .cap-bar { height: 100%; border-radius: 2px; transition: width 0.4s; }
-    /* WCAG 2.5.8 (axe target-size): the injected provenance ⓘ markers (provenance-hover.js) land as
-       siblings of #sidebar-count-bar (inside .cap-bar-wrap) and #sidebar-count-label. The wrap's 3px
-       height + overflow:hidden first clips the marker; then the two stacked markers — only ~16px apart
-       vertically — overlap each other (each carries margin:-10px 0), leaving ~16px of un-obscured
-       clickable space (< the 24px floor). Fix, page-scoped: stop clipping, neutralise the injector's
-       negative vertical margins so a marker's hit box no longer bleeds into its neighbour, give each a
-       real 44×44 box, and add vertical separation between the bar marker and the label marker so they
-       clear 24px. Inline styles on the injected button need !important to override. */
-    .cap-bar-wrap:has(> .wh-prov-btn) { overflow: visible; }
-    .cap-bar-wrap:has(> .wh-prov-btn) > .cap-bar { height: 3px; }
-    .sidebar-header .cap-bar-wrap > .wh-prov-btn {
-      min-width: 44px !important; min-height: 44px !important;
-      padding: 0 !important; margin: -20px 0 0 2px !important;
-    }
-    #sidebar-count-label { margin-top: 26px !important; }
-    .sidebar-header #sidebar-count-label + .wh-prov-btn {
-      min-width: 44px !important; min-height: 44px !important;
-      padding: 0 !important; margin: 0 0 0 2px !important;
-    }
+    /* REMOVED 2026-08-06 — this whole block existed only to accommodate the injected provenance ⓘ
+       markers, which are gone platform-wide (Ian: "remove the provenance button platform wide
+       entirely"). It un-clipped .cap-bar-wrap, neutralised the injector's negative margins, forced
+       44x44 hit boxes on two stacked markers that otherwise overlapped below the 24px target-size
+       floor, and pushed #sidebar-count-label down 26px to separate them. The 26px went with the rest:
+       it overrode the label's own inline margin-top:2px purely to make room, so keeping it would have
+       left a 26px gap holding nothing. */
 
     /* Tooltip */
     .tooltip { position: absolute; background: rgba(22,32,50,0.97); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.75rem; z-index: 20; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
@@ -280,7 +332,7 @@
         <span class="ic ic-back" aria-hidden="true"></span>
       </a>
       <div style="display:flex;align-items:center;gap:0.5rem">
-        <span id="logo-view" translate="no" style="font-size:1rem;font-weight:800;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Day</span>
+        <span id="logo-view" translate="no" style="font-size:1rem;font-weight:800;background:linear-gradient(135deg,var(--wh-orange-text),var(--wh-orange-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Day</span>
         <span translate="no" style="font-size:1rem;font-weight:800;color:rgba(255,255,255,0.85)">Planner</span>
       </div>
       <div style="flex:1"></div>
@@ -588,6 +640,15 @@ function toYMD(d) {
   return `${y}-${mo}-${da}`;
 }
 function todayYMD() { return toYMD(new Date()); }
+// ★ONE CELL, TWO CLOCKS. toYMD above reads LOCAL date parts (getFullYear/getMonth/getDate) and is what gets
+// STORED and matched against schedule_items.date. whFmtDate renders in a FIXED timeZone: 'Asia/Manila'. When
+// the browser's zone is not Manila those two disagree for any date whose local midnight lands on a different
+// Manila calendar day — measured live on the week grid: a slot announced "Add task on Sun, Aug 16 at 12 AM"
+// and opened the modal on 2026-08-17, because the LABEL came from the Date object and the VALUE came from
+// toYMD. The hour was carried correctly; only the day disagreed, which is the hardest kind of wrong to
+// notice on a planner. Anchoring the label to Manila-midnight OF THE SAME ymd makes the two agree exactly,
+// for any local zone, without changing what is stored.
+function ymdLabelDate(ymd) { return new Date(ymd + 'T00:00:00+08:00'); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 function itemsOnDate(ymd) { return scheduleItems.filter(s => s.date === ymd); }
 
@@ -629,6 +690,7 @@ function fromDBRow(row) {
 }
 
 async function loadSchedule() {
+  _dpCloudReadFailed = false;   // a recovered read must clear the failure, or one glitch marks the page forever
   try {
     const { data, error } = await db.from('schedule_items')
       .select('*')
@@ -657,6 +719,11 @@ async function loadSchedule() {
     console.warn('Schedule load failed, falling back to localStorage:', e);
     try { scheduleItems = JSON.parse(/* storage-key-allow: prefix only; runtime key is wh_lifeplanner_<userId> */ localStorage.getItem('wh_lifeplanner_' + WORKER_NAME) || '[]'); }
     catch (_) { scheduleItems = []; }
+    // The localStorage fallback is the right offline move, but when it yields nothing the page used to
+    // render "Nothing scheduled: tap '+' to plan a task." and "No items past their date / CLEAR" — a
+    // plan declared empty because the read broke. Measured with a live 500 (10 intercepted requests):
+    // zero failure sentences and zero dashes at 5s AND at 13s, so the reader was never told at all.
+    _dpCloudReadFailed = true;
   }
   renderSidebar();
   render();
@@ -755,7 +822,23 @@ const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 // SIDEBAR
 // ─────────────────────────────────────────────
 let sidebarCollapsed = window.innerWidth <= 640;
+// ★THE FIRST PRESS DID NOTHING AT 200% ZOOM, because this state was read ONCE at load and never again.
+// Measured: open at 1280 (sidebarCollapsed=false, 30 jobs listed), zoom to 200% -> the <=640px media
+// query hides #sidebar-items for `.sidebar:not(.expanded)` and all 30 vanish, but the VARIABLE still
+// says "expanded". So the first press toggled it to `true` — collapsing something already collapsed —
+// and only the SECOND press revealed the list. A control that answers a press by changing nothing is
+// indistinguishable from a broken one, and this bank has recorded that exact shape before.
+// The fix is to stop trusting a load-time snapshot: below the breakpoint the rendered truth is the
+// `.expanded` class, so re-derive from it before toggling. Zoom, rotate and window-resize all change
+// which side of the breakpoint we are on, and none of them reload the page.
+function syncSidebarState() {
+  const sb = document.getElementById('sidebar');
+  if (!sb) return;
+  if (window.innerWidth <= 640) sidebarCollapsed = !sb.classList.contains('expanded');
+}
+window.addEventListener('resize', syncSidebarState);
 function toggleSidebar() {
+  syncSidebarState();
   sidebarCollapsed = !sidebarCollapsed;
   const sb = document.getElementById('sidebar');
   sb.classList.toggle('expanded', !sidebarCollapsed);
@@ -812,7 +895,7 @@ function renderPlantWorkSection() {
     const added = scheduleItems.some(i => i.sourceKind === 'pm' && i.sourceRef === pm.scope_item_id && i.date === today);
     const badge = pm.is_overdue
       ? `<span class="badge" style="background:rgba(252,92,92,0.15);color:var(--wh-red-text);border:1px solid rgba(252,92,92,0.3)">Overdue</span>`
-      : `<span class="badge" style="background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.3)">Due soon</span>`;
+      : `<span class="badge" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3)">Due soon</span>`;
     return `
     <div class="lb-card" style="cursor:default">
       <div class="lb-card-header">
@@ -843,12 +926,28 @@ function renderPlantWorkSection() {
 function addPmToDay(scopeItemId) {
   const pm = plantWork.find(p => p.scope_item_id === scopeItemId);
   if (!pm) return;
+  // ★THE PM'S OWN DUE DATE WAS DROPPED AT THE MOMENT OF PLANNING. `date` is when the work is
+  // SCHEDULED, and today is the right answer for a control called 'add to my day' - but the row this
+  // is built from carries next_due_date, days_until_due and is_overdue (selected at :871 and shown as
+  // 'due ...' on the card), and none of it survived onto the task. A PM that was due three weeks ago
+  // became an ordinary item dated today, so the plan could no longer tell an overdue statutory PM
+  // from something a supervisor decided to do this morning. Scheduling stays today; the DUE date now
+  // travels with the item, and an overdue one says so in the words the plant uses.
+  const _due = pm.next_due_date || '';
+  const _late = Number(pm.days_until_due);
+  const _dueNote = _due
+    ? ('PM due ' + _due
+       + (pm.is_overdue || (Number.isFinite(_late) && _late < 0)
+            ? ' · OVERDUE' + (Number.isFinite(_late) ? ' by ' + Math.abs(_late) + ' day' + (Math.abs(_late) === 1 ? '' : 's') : '')
+            : (Number.isFinite(_late) ? ' · in ' + _late + ' day' + (_late === 1 ? '' : 's') : '')))
+    : '';
   addGroundedItem({
     title: (pm.item_text || 'PM task') + (pm.asset_name ? ' - ' + pm.asset_name : ''),
     category: 'PM',
     date: todayYMD(),
     sourceKind: 'pm',
     sourceRef: pm.scope_item_id,
+    notes: _dueNote,
   });
   renderSidebar();  // reflect the "On your day" state
 }
@@ -862,6 +961,18 @@ function renderSidebar() {
   bar.style.width = Math.min(100, total * 10) + '%';
 
   if (total === 0) {
+    // A FAILED CLOUD READ ALSO YIELDS total === 0, and a tick beside "No open items" then reads as
+    // good news - "nothing outstanding" - at the moment the page cannot tell. Measured under an
+    // injected 500: the hero tiles correctly dashed and said "Could not load your plan", while this
+    // panel still said "0 open items from Logbook" and "No open items" beside a check icon.
+    if (_dpCloudReadFailed) {
+      label.textContent = 'Open items unknown';
+      container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.85);font-size:0.75rem">
+        <span class="ic ic-warn" aria-hidden="true"></span>
+        Could not load your open items. This is a connection problem, not an empty queue.</div>`
+        + renderPlantWorkSection();
+      return;
+    }
     container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.80);font-size:0.75rem">
       <span class="ic ic-check" aria-hidden="true"></span>
       No open items</div>` + renderPlantWorkSection();
@@ -894,13 +1005,29 @@ function renderSidebar() {
     // Dim card slightly if done
     const dimStyle = hasDone ? 'opacity:0.55;' : '';
 
+    // KEYBOARD OPERABILITY. This card is a <div> carrying its own onclick, which makes it
+    // mouse-only: no tab stop, no Enter/Space, invisible to a switch device and announced as
+    // nothing by a screen reader. Found 2026-08-06 by clickAudit, which reported 5 Majors
+    // (click:not-keyboard-operable) on the ids this one template renders -- lbc-hd-ahu01,
+    // lbc-hd-cp01, lbc-hd-ac02, lbc-log-41b267dff934, lbc-log-0ee26d88ba39.
+    // The lens did NOT catch it and could not: tapTargetsUnder44 was 0 (the cards are 251x56)
+    // and focus-visible read 40 checked / 0 missing -- because an element with no tabindex never
+    // enters the focus denominator at all. A skipped partition reads as a covered one.
+    // Fix: role=button + tabindex=0 + an Enter/Space keydown, which is exactly what the audit
+    // names as expected. aria-pressed carries the selected state the .selected class shows.
     return `
-    <div class="lb-card ${isSelected ? 'selected selected-pulse' : ''}" id="lbc-${item.id}" onclick="selectLogbookItem('${escJsAttr(item.id)}')" style="${dimStyle}">
+    <div class="lb-card ${isSelected ? 'selected selected-pulse' : ''}" id="lbc-${item.id}" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}" onclick="selectLogbookItem('${escJsAttr(item.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectLogbookItem('${escJsAttr(item.id)}');}" style="${dimStyle}">
       <div class="lb-card-header">
         <div class="lb-dot" style="background:${c.text}"></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(item.machine) || 'Unknown Machine'}</div>
-          <div style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:1px">${escHtml(item.date) || ''} &bull; ${escHtml(item.category) || ''}</div>
+          <!-- item.date is a raw DB timestamptz and was printed VERBATIM here: the card read
+               "AC-02 2026-07-19T23:48:14.44094+00:00 . Pneumatic". Found 2026-08-06 while measuring
+               this card's 2px collapse - the defect was hidden inside a box clipped to two pixels.
+               whFmtDate is the platform's canonical formatter (en-PH, Asia/Manila) and is already used
+               four times elsewhere in this same file, so this was an adoption gap, not a missing tool.
+               It is null/NaN-safe and returns '-' for an unparseable value, so no guard is needed. -->
+          <div style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:1px">${item.date ? escHtml(whFmtDate(item.date, { year: false })) : ''} &bull; ${escHtml(item.category) || ''}</div>
         </div>
         <div style="display:flex;align-items:center;gap:4px">
           ${schedBadge}
@@ -1001,6 +1128,11 @@ function render() {
   renderDayplannerSummary();
 }
 
+// Set when the cloud read for schedule_items failed, so the summary can distinguish "you have no
+// plan" from "we could not read your plan". Not reset on success-after-failure by design: the flag
+// is cleared at the top of each load (see loadSchedule) so a recovered read renders normally again.
+let _dpCloudReadFailed = false;
+
 // Layer D — Plain-Read summary for Day Planner.
 function renderDayplannerSummary() {
   const today = new Date();
@@ -1051,6 +1183,50 @@ function renderDayplannerSummary() {
     const s = document.getElementById('dp-' + name + '-sub');  if (s) s.textContent = sub;
     const t = document.getElementById('dp-' + name + '-tag');  if (t) t.textContent = tag;
   };
+
+  // The cloud read failed and the localStorage fallback had nothing: this is an UNKNOWN plan, not an
+  // empty one. Everything below computes "No items past their date / CLEAR" and "No plan yet" from a
+  // count of zero, which is the absence of an answer dressed as good news. If the fallback DID return
+  // items we keep showing them (that is the offline contract) but still say where they came from,
+  // because local items can be stale and the reader is entitled to know which they are looking at.
+  if (_dpCloudReadFailed) {
+    const stale = scheduleItems.length;
+    if (dpProg) dpProg.innerHTML = '';
+    setCard('today',   stale ? String(todayCount)   : '—', stale ? 'From this device (offline copy)' : 'Could not read your plan', 'UNKNOWN', 'grey');
+    setCard('week',    stale ? String(weekCount)    : '—', stale ? 'From this device (offline copy)' : 'Could not read your plan', 'UNKNOWN', 'grey');
+    setCard('overdue', stale ? String(overdueCount) : '—', stale ? 'From this device (offline copy)' : 'Could not read your plan', 'UNKNOWN', 'grey');
+    const vB = document.getElementById('dp-verdict');
+    if (vB) { vB.classList.remove('healthy','watch','attn','empty'); vB.classList.add('attn'); }
+    const vI = document.getElementById('dp-verdict-icon');  if (vI) vI.textContent = '⚠';
+    const vL = document.getElementById('dp-verdict-label');
+    if (vL) vL.textContent = stale ? 'Showing an offline copy of your plan' : 'Could not load your day plan';
+    const vS = document.getElementById('dp-verdict-sub');
+    if (vS) vS.textContent = stale
+      ? 'These items came from this device and may be out of date. Reload once you are back online.'
+      : 'Your plan is unknown right now, not empty. Check your connection and reload before planning your day around this.';
+    const aB = document.getElementById('dp-action-text');
+    if (aB) aB.textContent = 'Reload the page. Do not assume the day is clear until it loads.';
+    const eS = document.getElementById('empty-state');
+    if (eS && !stale) {
+      eS.hidden = false;
+      // ★"RELOAD TO SEE YOUR ITEMS" IS ADVICE, NOT A PATH. Measured by failing every /rest/v1/ read
+      // with a 500: this page said the failure clearly and in the right words — "Your plan is unknown
+      // right now, not empty" — and rendered ZERO retry affordances. Saying the true thing and giving
+      // no way to act on it are two separate failures, and only the first was fixed here.
+      // ★whListError(el, message, onRetry) already exists in utils.js and 16 pages import it, so this
+      // is ADOPTION rather than design. A FULL RELOAD is the target because this failure paints three
+      // hero cards plus the verdict block: on pm-scheduler a targeted re-render restored the list and
+      // left the summary still claiming failure, which is a partial recovery and worse than none.
+      if (typeof whListError === 'function') {
+        whListError(eS, 'Could not load your plan. This is a connection problem, not an empty day: '
+          + 'your items are still there.', () => location.reload());
+      } else {
+        eS.textContent = 'Could not load your plan. This is a connection problem, not an empty day. Reload to see your items.';
+      }
+    }
+    return;
+  }
+
   setCard('today',
     String(todayCount),
     todayCount === 0 ? 'No items scheduled for today' : `${todayCount} item${todayCount === 1 ? '' : 's'} on today's plan`,
@@ -1185,19 +1361,45 @@ function renderDILO() {
     const s = timeToMins(i.startTime), e = timeToMins(i.endTime);
     return a + Math.max(0, e - s);
   }, 0);
-  const capPct = Math.min(100, Math.round(totalMins / 480 * 100));
-  const capColor = capPct > 85 ? '#f87171' : capPct > 60 ? '#F7A21B' : '#4ade80';
+  // ★THE CLAMP THE BAR NEEDS WAS ALSO CAPPING THE NUMBER (live-caught 2026-08-19). capPct was
+  // Math.min(100, ...) and fed BOTH the progress bar's width and the percentage a person reads, so a
+  // 12-hour plan against an 8-hour day rendered "Capacity 100% · 12.0h / 8h" - the hours saying 150%
+  // and the percentage saying 100%, in the same row. Over-capacity is exactly the state this figure
+  // exists to reveal, and it was the one state the figure could not express. The clamp is legitimate
+  // for the BAR, whose 80px track cannot render past full; it is not legitimate for the figure. So
+  // the two are separated: capBar stays bounded for the geometry, capPct tells the truth.
+  const capPct = Math.round(totalMins / 480 * 100);
+  const capBar = Math.min(100, capPct);
+  // Over 100% gets its own colour rather than sharing the >85% warning tone, so "tight" and
+  // "impossible" do not look alike to someone scanning a day plan.
+  const capColor = capPct > 100 ? '#ef4444' : capPct > 85 ? '#f87171' : capPct > 60 ? '#F7A21B' : '#4ade80';
 
   let html = `<div style="margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem">
     <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.80);letter-spacing:0.1em">DILO</span>
     <span style="font-size:0.75rem;color:rgba(255,255,255,0.80)">Day In the Life Of</span>
+    <!-- ★WHICH DAY, ON WHOSE CLOCK. The capacity figure now names its denominator (8h), but the DAY
+         itself was undefined on the surface: the grid runs 12 AM to 11 PM - midnight to midnight -
+         while a 3-shift plant's day is not, and the times are rendered in a FIXED Asia/Manila zone
+         (whFmtDate) that a browser elsewhere does not share. That gap is not hypothetical here: the
+         note on ymdLabelDate records a live case where a slot announced "Add task on Sun, Aug 16"
+         and opened the modal on 2026-08-17, because the label read local date parts and the stored
+         value read toYMD. The code was fixed; the reader still had no way to know which clock they
+         were planning on. Stating it costs one span and makes the boundary checkable. -->
+    <span style="font-size:0.62rem;color:rgba(255,255,255,0.62)">12 AM–11 PM · PHT (Asia/Manila)</span>
     <span style="flex:1"></span>
     <div style="display:flex;align-items:center;gap:0.5rem">
       <span style="font-size:0.7rem;color:rgba(255,255,255,0.80)">Capacity</span>
       <div style="width:80px;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
-        <div style="width:${capPct}%;height:100%;background:${capColor};border-radius:3px"></div>
+        <div style="width:${capBar}%;height:100%;background:${capColor};border-radius:3px"></div>
       </div>
+      <!-- ★A BARE % IS A CLAIM NOBODY CAN CHECK. capPct is totalMins / 480 - an EIGHT-HOUR day,
+           hardcoded above and never shown - so "Capacity 0%" was 0% of a denominator the reader had no
+           way to know. This page's own domain truths require it: "Utilisation % states its denominator"
+           and "Planned hours vs available hours are both shown". Stating the hours makes the figure
+           decomposable AND surfaces the shift assumption, which matters on a 3-shift plant where 8h is
+           not everyone's day. -->
       <span style="font-size:0.7rem;color:${capColor};font-weight:600">${capPct}%</span>
+      <span style="font-size:0.62rem;color:rgba(255,255,255,0.80)">${(totalMins / 60).toFixed(1)}h / 8h${capPct > 100 ? ' · over capacity' : ''}</span>
     </div>
   </div>`;
 
@@ -1287,7 +1489,16 @@ function renderDILO() {
       blockBorder = '#f87171';
       statusIcon = `<span class="ic ic-warning" aria-hidden="true"></span>`;
     }
-    const blockColor = status === 'done' ? '#4ade80' : status === 'missed' ? '#f87171' : c.text;
+    // A 'missed' block's TEXT uses the text-weight red, not the fill red. Found 2026-08-06 walking
+    // dayplanner: axe reported 3.94 contrast (needs 4.5) on the task title inside a missed block —
+    // #f87171 composited through the title's opacity:0.85 down to #db6668 at 10.88px. tokens.css line
+    // 107 documents exactly this trap: "--wh-red: #f87171 — alert / danger fill (AA text =
+    // --wh-red-text)". Same fill-hue-as-small-text class already fixed centrally for
+    // .text-blue-wh/.text-orange-wh and for logbook's hardcoded rgba(239,68,68,0.8).
+    // Applied to BOTH render paths — this line appears twice (the day grid and its sibling view), and
+    // fixing only the one the walk happened to measure is how a defect survives its own fix.
+    // Green stays as-is: #4ade80 is a bright hue axe did not flag.
+    const blockColor = status === 'done' ? 'var(--wh-green)' : status === 'missed' ? 'var(--wh-red-text)' : c.text;
     const doneStrike = status === 'done' ? 'text-decoration:line-through;' : '';
 
     html += `<div onclick="event.stopPropagation();openEditModal('${escJsAttr(item.id)}')"
@@ -1331,8 +1542,10 @@ function renderWILO() {
     days.push(dd);
   }
 
-  const from = whFmtDate(days[0], { year: false }); // FD1a canonical
-  const to = whFmtDate(days[6]); // FD1a canonical
+  // Same one-cell-two-clocks fix: format the ymd these days resolve to, so the period header cannot name a
+  // week a day off from the days it contains.
+  const from = whFmtDate(ymdLabelDate(toYMD(days[0])), { year: false }); // FD1a canonical
+  const to = whFmtDate(ymdLabelDate(toYMD(days[6]))); // FD1a canonical
   document.getElementById('period-label').textContent = `${from} - ${to}`;
 
   const todayStr = todayYMD();
@@ -1358,7 +1571,13 @@ function renderWILO() {
   const totalH = 24 * WILO_SLOT_H;
 
   // Body: time column + 7 day columns, absolute positioned
-  html += `<div style="display:grid;grid-template-columns:52px repeat(7,1fr);gap:0;position:relative">`;
+  // ★THE CLASS THIS GRID IS STYLED BY WAS NEVER ON IT. .wilo-grid (and the narrow-width rule that
+  // widens its columns to 44px) existed in the stylesheet, but the element was built with the same
+  // columns hard-coded INLINE and no class - so the rule matched nothing, and an inline
+  // grid-template-columns would have out-specified it regardless. Measured at 390px: 52px gutter +
+  // 7 x 39.28px, giving 168 hour slots 38px wide. Carrying the class and letting the stylesheet own
+  // the columns is what makes the media query reachable at all.
+  html += `<div class="wilo-grid" style="position:relative">`;
 
   // Time label column
   html += `<div style="position:relative;height:${totalH}px;border-right:1px solid rgba(255,255,255,0.05)">`;
@@ -1380,7 +1599,8 @@ function renderWILO() {
     html += `<div style="position:relative;height:${totalH}px;border-left:1px solid rgba(255,255,255,0.04);${isToday ? 'background:rgba(247,162,27,0.015)' : ''}">`;
 
     // Hour lines
-    const dayLabel = whFmtDate(day, { weekday: 'short', year: false }); // FD1a canonical
+    // From ymd, not from `day`: the label must name the day this slot will actually write to.
+    const dayLabel = whFmtDate(ymdLabelDate(ymd), { weekday: 'short', year: false }); // FD1a canonical
     for (let h = 0; h < 24; h++) {
       const slotH = String(h).padStart(2,'0');
       const slotLabel = h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h-12} PM`;
@@ -1413,7 +1633,16 @@ function renderWILO() {
       let blockBg = c.bg, blockBorder = c.text, blockOpacity = '1';
       if (status === 'done')   { blockBg = 'rgba(104,211,145,0.15)'; blockBorder = '#4ade80'; blockOpacity = '0.6'; }
       if (status === 'missed') { blockBg = 'rgba(252,92,92,0.15)';   blockBorder = '#f87171'; }
-      const blockColor = status === 'done' ? '#4ade80' : status === 'missed' ? '#f87171' : c.text;
+      // A 'missed' block's TEXT uses the text-weight red, not the fill red. Found 2026-08-06 walking
+    // dayplanner: axe reported 3.94 contrast (needs 4.5) on the task title inside a missed block —
+    // #f87171 composited through the title's opacity:0.85 down to #db6668 at 10.88px. tokens.css line
+    // 107 documents exactly this trap: "--wh-red: #f87171 — alert / danger fill (AA text =
+    // --wh-red-text)". Same fill-hue-as-small-text class already fixed centrally for
+    // .text-blue-wh/.text-orange-wh and for logbook's hardcoded rgba(239,68,68,0.8).
+    // Applied to BOTH render paths — this line appears twice (the day grid and its sibling view), and
+    // fixing only the one the walk happened to measure is how a defect survives its own fix.
+    // Green stays as-is: #4ade80 is a bright hue axe did not flag.
+    const blockColor = status === 'done' ? 'var(--wh-green)' : status === 'missed' ? 'var(--wh-red-text)' : c.text;
       const doneStrike = status === 'done' ? 'text-decoration:line-through;' : '';
       html += `<div onclick="event.stopPropagation();openEditModal('${escJsAttr(item.id)}')"
         title="${escHtml(item.title)}: ${item.startTime}${item.endTime ? ' - '+item.endTime : ''} [${statusConfig[status].label}]"
@@ -1441,6 +1670,18 @@ function renderWILO() {
 function renderMILO() {
   const y = currentDate.getFullYear(), m = currentDate.getMonth();
   document.getElementById('period-label').textContent = `${MONTH_NAMES[m]} ${y}`;
+  // ★14 CLICKABLE CELLS WHOSE ONLY CONTENT WAS A BARE NUMBER. Measured by tools/prove_dialog_a11y.mjs:
+  // `div.milo-cell wh-kbd-a11y text="1"`, `"2"`, `"3"` ... - controls with NO accessible name. Each cell
+  // is interactive (onMiloClick opens that day in DILO, or drops a selected logbook item on it) and each
+  // carries the keyboard-a11y class, so a screen-reader user reaches them and hears only "1". The visual
+  // dots that say how much is scheduled are decoration to them.
+  // The WEEK view on this same page already got this right (title="Open <day> in DILO"), so this is a
+  // consistency gap rather than a new decision. The label names the DATE, the LOAD (what the dots show)
+  // and the ACTION - and the item count is included because that is the information the dots carry.
+  const miloLabel = (date, n) =>
+    escHtml(date.getDate() + ' ' + MONTH_NAMES[date.getMonth()] + ' ' + date.getFullYear()
+      + (n ? ' - ' + n + (n === 1 ? ' item scheduled' : ' items scheduled') : ' - nothing scheduled')
+      + '. Open this day in DILO.');
 
   const firstDay = new Date(y, m, 1);
   const lastDay = new Date(y, m+1, 0);
@@ -1460,7 +1701,8 @@ function renderMILO() {
     const prevDate = new Date(y, m, 1 - (startDow - i));
     const ymd = toYMD(prevDate);
     const dayItems = itemsOnDate(ymd);
-    html += `<div class="milo-cell other-month" onclick="onMiloClick('${ymd}')">
+    html += `<div class="milo-cell other-month" onclick="onMiloClick('${ymd}')"
+      aria-label="${miloLabel(prevDate, dayItems.length)}">
       <div class="milo-date" style="color:rgba(255,255,255,0.80)">${prevDate.getDate()}</div>
     </div>`;
   }
@@ -1477,7 +1719,8 @@ function renderMILO() {
     }).join('');
     const more = dayItems.length > maxDots ? `<div class="milo-more">+${dayItems.length - maxDots} more</div>` : '';
 
-    html += `<div class="milo-cell ${isToday ? 'today' : ''}" onclick="onMiloClick('${ymd}')">
+    html += `<div class="milo-cell ${isToday ? 'today' : ''}" onclick="onMiloClick('${ymd}')"
+      aria-label="${miloLabel(date, dayItems.length)}${isToday ? ' Today.' : ''}">
       <div class="milo-date" style="color:${isToday ? 'var(--wh-orange)' : 'rgba(255,255,255,0.75)'}">${d}</div>
       <div>${dotsHtml}</div>
       ${more}
@@ -1489,7 +1732,8 @@ function renderMILO() {
   const remainder = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
   for (let i = 1; i <= remainder; i++) {
     const date = new Date(y, m+1, i);
-    html += `<div class="milo-cell other-month" onclick="onMiloClick('${toYMD(date)}')">
+    html += `<div class="milo-cell other-month" onclick="onMiloClick('${toYMD(date)}')"
+      aria-label="${miloLabel(date, itemsOnDate(toYMD(date)).length)}">
       <div class="milo-date" style="color:rgba(255,255,255,0.80)">${i}</div>
     </div>`;
   }
@@ -1604,7 +1848,12 @@ function openAddModal(date, startTime, endTime, title, category) {
   const catMap = { Mechanical:'PM', Electrical:'CM', Hydraulic:'Inspection', Pneumatic:'Other', Instrumentation:'Other', Structural:'Inspection', Safety:'Inspection', General:'Other' };
   document.getElementById('m-category').value = catMap[cat] || 'Other';
   document.getElementById('m-notes').value = selectedLogbookItem ? (selectedLogbookItem.problem || '').substring(0,200) : '';
+  // The shared overlay CSS gates visibility on `.open`, NOT on `.hidden`:
+  //   .modal-overlay:not(.open) { visibility: hidden }   .modal-overlay.open { visibility: visible }
+  // Removing `hidden` alone left the dialog with layout (367x1275) and visibility:hidden, so
+  // "+ Schedule" appeared to do nothing - no error, no dialog. Measured identical at 390 and 1280.
   document.getElementById('modal').classList.remove('hidden');
+  document.getElementById('modal').classList.add('open');
   document.getElementById('m-title').focus();
 }
 
@@ -1625,12 +1874,17 @@ function openEditModal(id) {
   document.getElementById('m-end').min = item.startTime || '';
   document.getElementById('m-category').value = item.category || 'Other';
   document.getElementById('m-notes').value = item.notes || '';
+  // Same contract as openAddModal: `.open` is what the shared CSS keys visibility off.
   document.getElementById('modal').classList.remove('hidden');
+  document.getElementById('modal').classList.add('open');
   // Highlight the active status button
   setItemStatus(effStatus);
 }
 
 function closeModal() {
+  // Symmetric with the openers: drop `.open` too, or the overlay stays visibility:visible
+  // behind `hidden` and the next open transitions from the wrong state.
+  document.getElementById('modal').classList.remove('open');
   document.getElementById('modal').classList.add('hidden');
   editingScheduleId = null;
 }
@@ -1669,6 +1923,19 @@ function saveScheduleItem() {
 
   syncItemToSupabase(payload);
 
+  // ★A COMPLETED PM WAS RECORDED NOWHERE BUT THE PLAN. The block below syncs a done item back to
+  // its LOGBOOK source, and that is the only source sync on this page - there is no sourceKind==='pm'
+  // branch anywhere in the completion path. So a technician who pulls an overdue PM onto their day
+  // (addPmToDay, source_kind 'pm') and ticks it done gets a green item in the planner while the PM
+  // itself stays overdue: no pm_completions row, compliance unmoved, and the same task still sitting
+  // in 'Due from your plant' tomorrow. The dangerous part is the confidence - the work was genuinely
+  // done, and only the record is missing.
+  //
+  // Writing pm_completions from here is NOT the fix to make silently: it is a compliance record with
+  // its own scope-item semantics and its own queue on pm-scheduler (wh_pm_offline). Inventing a second
+  // writer for it from a different page is how two surfaces start disagreeing about compliance. So
+  // this page does what it already does when it cannot close a linked logbook entry: it says so, and
+  // names where the record actually has to be made.
   // Sync Done → Closed in Logbook (Supabase)
   if (payload.itemStatus === 'done' && payload.logbookRef) {
     // canonical-allow: write site (logbook.status update) — truth views
@@ -1697,6 +1964,22 @@ function saveScheduleItem() {
   renderSidebar();
   closeModal();
   render();
+  // SAID OUT LOUD, because closing the modal reports only THAT something happened. Measured by
+  // tools/prove_what_happens_next.mjs: after saving, this surface said nothing at all — it named neither
+  // what happens next nor when, so a person watching the sheet vanish had to infer the rest. schedule_items
+  // is also a QUEUED write, so on a bad connection the row genuinely lands later; naming the trigger is
+  // the honest version of "when", the same way asset-hub says "on next recompute" rather than a clock.
+  if (typeof showToast === 'function') {
+    // A PM ticked done here is recorded NOWHERE ELSE - see the note on the logbook sync above: there is
+    // no pm_completions write on this page, so compliance does not move and the task returns tomorrow.
+    // This has to be the LAST thing said, not the first: an earlier version of this notice fired before
+    // the generic save toast below and was overwritten by it within a few hundred milliseconds, which
+    // is indistinguishable from never having been shown.
+    const _pmDone = payload.itemStatus === 'done' && payload.sourceKind === 'pm' && payload.sourceRef;
+    showToast(_pmDone
+      ? `${payload.title} marked done. Record the PM completion in PM Scheduler so compliance updates.`
+      : `${payload.title} saved → on your ${payload.date} plan, and it syncs once you are back online.`);
+  }
 }
 
 // K2 (Ext-5 spine) — create a GROUNDED schedule item that traces to the intelligence that
@@ -1705,7 +1988,7 @@ function saveScheduleItem() {
 // composes FROM the canonical sources instead of being an island of retyped strings. Dedupes on
 // (sourceKind, sourceRef, date) so a double-tap or re-visit doesn't stack copies.
 const _DP_VALID_CATS = ['PM','CM','Inspection','Training','Admin','Meeting','Other'];
-function addGroundedItem({ title, category, date, startTime, sourceKind, sourceRef }) {
+function addGroundedItem({ title, category, date, startTime, sourceKind, sourceRef, notes }) {
   const d = date || todayYMD();
   const kind = sourceKind || 'manual';
   const cat = _DP_VALID_CATS.includes(category) ? category : 'Other';
@@ -1720,7 +2003,7 @@ function addGroundedItem({ title, category, date, startTime, sourceKind, sourceR
     startTime: startTime || '',
     endTime: '',
     category: cat,
-    notes: '',
+    notes: (notes || '').toString().slice(0, 240),
     logbookRef: null,
     itemStatus: null,          // -> canonical 'pending' via toDBRow
     sourceKind: kind,
@@ -1860,10 +2143,34 @@ document.addEventListener('keydown', e => {
               .catch(e => console.warn('[dayplanner] live reload:', e.message));
           }, 700)
         : () => { loadSchedule().catch(() => {}); };
+      // ★LAST-WRITE-WINS IS FINE HERE; BEING SILENT ABOUT IT IS NOT. Measured: two editors upsert
+      // the same schedule_items id and the second simply replaces the first - 'A: pump inspection'
+      // became 'B: motor alignment' with no error and no version check, and the person who lost their
+      // edit is never told. The obvious fix - an updated_at optimistic lock - is the WRONG one on this
+      // table: schedule_items is queue-backed (wh_dayplanner_offline), and a queued edit drains with a
+      // stale version, so a lock would conflict on every drain and take away the offline capture a
+      // technician in a basement depends on. That is the same trap as guarding a queue-backed write
+      // with an online-only refusal. So the write stays last-write-wins and the SILENCE is what gets
+      // fixed: if a remote change lands on the very item this person has open in the editor, say so
+      // by name instead of reloading the list underneath them.
       _dpRtChannel = db.channel('dayplan-feed:' + _authUid)
         .on('postgres_changes',
           { event: '*', schema: 'public', table: 'schedule_items', filter: 'auth_uid=eq.' + _authUid },
-          () => reloadSchedule())
+          (payload) => {
+            const changedId = (payload && (payload.new || payload.old) || {}).id;
+            const isEcho = Date.now() - _dpLastLocalWrite < 2500;
+            const modalOpen = document.getElementById('modal')
+              && document.getElementById('modal').classList.contains('open');
+            if (!isEcho && modalOpen && changedId && changedId === editingScheduleId) {
+              const t = (payload.new && payload.new.title) || '';
+              showToast(payload.eventType === 'DELETE'
+                ? 'Someone else deleted this item while you had it open. Saving will re-create it.'
+                : 'Someone else changed this item while you had it open' + (t ? ' (now "' + t + '")' : '')
+                  + '. Saving will overwrite their version.', 'error');
+              return;   // do NOT reload the list out from under an open editor
+            }
+            reloadSchedule();
+          })
         .subscribe(typeof rtConn === 'function' ? rtConn() : undefined);
       window.addEventListener('beforeunload', () => {
         if (_dpRtChannel) { try { db.removeChannel(_dpRtChannel); } catch (_) { /* empty-catch-allow: best-effort realtime cleanup */ } }
@@ -1909,7 +2216,6 @@ document.addEventListener('keydown', e => {
   };
 </script>
 <script src="companion-launcher.js"></script>
-<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 
 <script>window.WH_FIL_PAGE={addtoday:"+ Idagdag sa araw ko",
   pagetitle:"Maintenance Day Planner",scheduleitem:"Item ng Iskedyul",addschedule:"Magdagdag sa iskedyul",

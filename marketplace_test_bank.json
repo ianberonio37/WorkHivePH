@@ -5343,7 +5343,7 @@
         "MK1",
         "MK5"
       ],
-      "status": "quarantined",
+      "status": "banked",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5358,11 +5358,6 @@
       "note": "No poll was added here, deliberately. svcLoadPresence runs once and the design says why: the hint is ADDITIVE and 'silence is golden' - it renders nothing rather than a discouraging '0 providers' the client can do nothing about. Adding a third timer would have been inventing a requirement the design explicitly rejected; the assertable claim is that the number is TRUE when shown, not that it live-updates.",
       "ufai_earned": {
         "F2": "the rendered count EQUALS the view's total - a liquidity number that overstates would tell someone to wait for help that is not there"
-      },
-      "quarantine": {
-        "count": 1,
-        "first_seen": "2026-07-29",
-        "last_reason": "Timeout"
       }
     },
     {
@@ -7059,7 +7054,7 @@
       "path": "happy",
       "lane": "sql",
       "oracle": "db-truth",
-      "status": "banked",
+      "status": "owed",
       "layers": [
         "S9-knowledge",
         "S4-db"

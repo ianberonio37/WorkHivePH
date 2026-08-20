@@ -4,7 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Report Sender | WorkHive</title>
-  <meta name="description" content="Send maintenance reports to stakeholders. PDF delivery via Resend; recipient list per hive." />
+  <!-- ★THIS CLAIMED "PDF delivery" AND NO PDF IS EVER SENT (live-caught 2026-08-19). The send path is
+       send-report-email, which builds a branded HTML body (buildEmailHtml) carrying the report inline
+       plus a link back to the source page; the function contains ZERO attachment references and the
+       Resend payload has no attachments field. The page's own visible copy has always been right -
+       "Delivery: sent by email" - so only this description was stale. It is not a harmless internal
+       string: a meta description is what a search result and a link preview show, so it was promising
+       a deliverable format the product does not produce, to the one audience that cannot check. -->
+  <meta name="description" content="Send maintenance reports to stakeholders by email. Reports arrive as a branded HTML summary with a link back to the source page; recipient list per hive." />
   <meta property="og:title" content="Report Sender · WorkHive" />
   <meta property="og:image" content="https://workhiveph.com/brand_assets/og-social.png" />
   <link rel="canonical" href="https://workhiveph.com/workhive/report-sender.html" />
@@ -218,7 +225,11 @@
     .label-pills { display: flex; flex-wrap: wrap; gap: 0.375rem; }
     .label-pill {
       font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
-      padding: 0.35rem 0.75rem; border-radius: 999px; min-height: 36px;
+      padding: 0.35rem 0.75rem; border-radius: 999px;
+      /* ★TOUCH FLOOR. Measured 4 of these at 36px tall inside #sheet-overlay via tools/prove_dialog_layout.mjs, under this platform's 44px
+         rule. Height-only fix: the width was already fine, so raising min-height cannot introduce the
+         horizontal overflow the same prover checks in the same run. */
+      min-height: 44px;
       background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
       color:rgba(255,255,255,0.80); cursor: pointer;
       transition: all 0.15s; -webkit-tap-highlight-color: transparent;
@@ -559,6 +570,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div class="simple-row">
       <div class="simple-card tag-grey" id="rs-card-reports" data-rag-tile="report-sender:reports_selected" data-rag-label="Reports selected">
         <h2 class="sc-label" style="margin:0;" data-i="reportssel">Reports selected</h2>
+        <!-- reports/recipients count the reader's own SELECTION, so 0 is truthful here and was never
+             the defect; only rs-contacts-hero reflects a server read (handled in the summary). -->
         <div class="sc-hero" id="rs-reports-hero">0</div>
         <div class="sc-sub" id="rs-reports-sub">Loading...</div>
         <span class="sc-tag" id="rs-reports-tag">-</span>
@@ -571,7 +584,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </div>
       <div class="simple-card tag-grey" id="rs-card-contacts" data-rag-tile="report-sender:saved_contacts" data-rag-label="Saved contacts">
         <h2 class="sc-label" style="margin:0;" data-i="savedcontacts">Saved contacts</h2>
-        <div class="sc-hero" id="rs-contacts-hero">0</div>
+        <div class="sc-hero" id="rs-contacts-hero">—</div>
         <div class="sc-sub" id="rs-contacts-sub">Loading...</div>
         <span class="sc-tag" id="rs-contacts-tag">-</span>
       </div>
@@ -813,7 +826,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // ── Auth gate ────────────────────────────────────────────────────────────────
     let WORKER_NAME = whWorker()
       || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
-    if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; }
+    // THE BOUNCE MOVED DOWN, and it had to. A cold identity cache is not proof of being signed out, so
+    // this gate must consult the SESSION before navigating away — but `restoreIdentityFromSession(db)`
+    // needs `db`, which is a `const` declared further down, and touching it here throws a TDZ
+    // ReferenceError rather than reading as undefined (the note beside that call records exactly this).
+    // So the gate now lives immediately after the restore is kicked off. Measured 2026-08-14: with the
+    // cache cleared and the session alive, this page bounced a signed-in supervisor to the landing page,
+    // and the very next load worked — the restore had completed by then. Ordering, not capability.
 
     const HIVE_ID = whHiveId();
 
@@ -832,6 +851,17 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       { id: 'oee',             label: 'OEE Summary',       color: '#4ade80', phase3: true },
       { id: 'descriptive',     label: 'Weekly Analytics',  color: '#29b6d9', phase3: true },
     ];
+    // COUNT WHAT A PERSON CAN ACTUALLY PICK, not how many rows the array has.
+    // Found 2026-08-06 walking PB-report-sender-159 (why_refused), whose oracle is "a refusal names
+    // the rule AND the way out - never a remedy that cannot work". With no report selected the page
+    // refused the send and offered "Pick 1+ from the 6 available" - but two of those six carry
+    // phase3:true and render aria-disabled="true", so only FOUR are selectable. Measured live:
+    // 6 chips present, 4 selectable. The remedy overstated the choices by 2, which is the precise
+    // failure that oracle exists to catch: a way out that partly cannot be taken.
+    // The phase-3 chips are correctly disabled - they are not built yet - so the fix is the COUNT,
+    // not the disabling. Same shape as the platform's "a metric's LABEL is a claim" rule: if the
+    // copy says 6 are available, six must be pickable.
+    const SELECTABLE_REPORTS = REPORTS.filter(r => !r.phase3).length;
 
     // ── Supabase client ───────────────────────────────────────────────────────────
     const db = getDb(SUPABASE_URL, SUPABASE_KEY);
@@ -839,8 +869,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
     // empty or stale. Must run AFTER `db` is declared — `typeof db` on a not-yet-
     // initialised const throws TDZ ReferenceError rather than returning 'undefined'.
+    let _identityRestored = Promise.resolve('');
     if (typeof restoreIdentityFromSession === 'function') {
-      restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+      _identityRestored = restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; return _n; });
+    }
+    // The auth gate deferred from the top of this script (see the note there): bounce ONLY once the
+    // session has actually been consulted. A name means we stay; '' means there is genuinely no session.
+    if (!WORKER_NAME) {
+      _identityRestored
+        .then(_n => { if (!_n) window.location.href = 'index.html?signin=1'; })
+        .catch(() => { window.location.href = 'index.html?signin=1'; });
     }
     // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
     if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
@@ -871,6 +909,32 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       t.textContent = msg;
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    // ★THE EDGE FUNCTION'S OWN REASON WAS BEING THROWN AWAY ON THE ONE ACTION THAT CANNOT BE UNDONE.
+    // Both send paths did `throw new Error((data && data.error) || error.message)` under a comment
+    // asserting that invoke() "surfaces a non-2xx as `error` while still parsing the body into `data`".
+    // MEASURED 2026-08-18 (.tmp/rs_walk2.mjs, send-report-email forced to 500 with body
+    // {"error":"mail relay refused the message"}): `data` carried no error, so the branch fell through to
+    // error.message and the supervisor was shown "Email failed: Edge Function returned a non-2xx status
+    // code". The actual cause was sitting in the response body, discarded. For a report that has already
+    // left - or has not - that is the difference between "the relay rejected that address" and nothing.
+    // supabase-js v2 attaches the raw Response as error.context, so the body is still readable; clone it
+    // because a Response body can only be consumed once and the caller may want it too.
+    async function _fnErrorReason(data, error, fallback) {
+      if (data && data.error) return data.error;
+      const ctx = error && error.context;
+      if (ctx && typeof ctx.clone === 'function') {
+        try {
+          const body = await ctx.clone().json();
+          if (body && body.error) return body.error;
+        } catch (_) { /* empty-catch-allow: body is not JSON - fall through to the text branch below */ }
+        try {
+          const t = (await ctx.clone().text()).trim();
+          if (t && t.length < 200) return t;
+        } catch (_) { /* empty-catch-allow: body unreadable - fall through to the transport message */ }
+      }
+      return (error && error.message) || fallback;
     }
 
     function isValidEmail(e) {
@@ -951,7 +1015,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       setCard('reports',
         String(reports),
-        reports === 0 ? `Pick 1+ from the ${REPORTS.length} available` : `${reports} of ${REPORTS.length} reports ready to send`,
+        reports === 0 ? `Pick 1+ from the ${SELECTABLE_REPORTS} available` : `${reports} of ${SELECTABLE_REPORTS} reports ready to send`,
         reports === 0 ? 'NONE' : 'READY',
         reports === 0 ? 'grey' : 'green'
       );
@@ -961,12 +1025,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         recipients === 0 ? 'NONE' : 'PICKED',
         recipients === 0 ? 'grey' : 'green'
       );
-      setCard('contacts',
-        String(saved),
-        saved === 0 ? 'No contacts saved yet, add one above' : `${saved} reusable contact${saved === 1 ? '' : 's'} on this hive`,
-        saved === 0 ? 'START' : 'LIST',
-        saved === 0 ? 'grey' : 'green'
-      );
+      // A failed contacts read must not be reported as a saved-contact COUNT. `saved` is derived from
+      // _contacts, which on a failed read holds the localStorage fallback — so 0 here can mean "none
+      // saved" or "we could not find out", and those are opposite instructions to someone about to
+      // send a report. Measured under a 500: this card read "Saved contacts 0 · No contacts saved yet,
+      // add one above · START".
+      if (!_rsContactsSettled) {
+        // STILL ASKING. Not zero, not failed — not yet known. The em-dash matches the card's own
+        // authored default (:576) rather than inventing a placeholder, so the pending state looks
+        // like the page before it spoke rather than like an answer.
+        setCard('contacts', '—', 'Checking your saved contacts…', 'CHECKING', 'grey');
+      } else if (_rsReadFailed && !_contacts.length) {
+        setCard('contacts', '—',
+          'Could not load your contacts. Unknown right now, not zero. Reload before adding one.',
+          'UNKNOWN', 'grey');
+      } else {
+        setCard('contacts',
+          String(saved),
+          _rsUsedFallback
+            ? `${saved} from your saved copy · could not reach the server, may be out of date`
+            : (saved === 0 ? 'No contacts saved yet, add one above' : `${saved} reusable contact${saved === 1 ? '' : 's'} on this hive`),
+          _rsUsedFallback ? 'SAVED COPY' : (saved === 0 ? 'START' : 'LIST'),
+          _rsUsedFallback ? 'grey' : (saved === 0 ? 'grey' : 'green')
+        );
+      }
 
       let tone, label, sub;
       if (reports > 0 && recipients > 0) {
@@ -974,7 +1056,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         sub  = 'Ready to send. Tap Send when you have the right body / voice context.';
       } else if (reports === 0 && recipients === 0) {
         tone = 'empty'; label = 'Pick a report and a recipient';
-        sub  = `${REPORTS.length} reports available · ${saved} saved contact${saved === 1 ? '' : 's'} ready.`;
+        sub  = `${SELECTABLE_REPORTS} reports available · ${saved} saved contact${saved === 1 ? '' : 's'} ready.`;
       } else if (reports === 0) {
         tone = 'watch'; label = 'Pick at least one report';
         sub  = 'Recipients are set; tap a chip above to choose what to send.';
@@ -1086,6 +1168,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       section.style.display = 'block';
     }
 
+    // ONE contract for BOTH send paths. resendReport() and doSend() are two doors to the same
+    // irreversible act, and a guard on one door is a guard on neither - the primary Send button routes
+    // through doSend, so gating only the resend would have left the common case wide open.
+    async function confirmOutsiders(recipients) {
+      const _saved    = new Set(_contacts.map(c => (c.email || '').trim().toLowerCase()));
+      const _outsiders = recipients.filter(e => !_saved.has((e || '').trim().toLowerCase()));
+      if (_outsiders.length && typeof window.whConfirm === 'function') {
+        const _who = _outsiders.length === 1
+          ? _outsiders[0]
+          : _outsiders.join(', ');
+        const _ok = await window.whConfirm(
+          `Send this report to ${_who}? This address is not a saved contact, and a sent report cannot be recalled.`,
+          { okLabel: 'Send', cancelLabel: 'Check the address' });
+        if (!_ok) return false;   // control stays enabled — the person is editing, not blocked
+      }
+      return true;
+    }
+
     async function resendReport(reportType, summary, btn) {
       const recipients = [];
       for (const id of _selectedContacts) {
@@ -1100,29 +1200,45 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return;
       }
 
+      // ★NAME THE OUTSIDER BEFORE AN IRREVERSIBLE OUTWARD SEND (2026-08-19). Every other guard on this
+      // page protects the send from being MALFORMED - the control stays disabled until a report and a
+      // recipient exist, the address is re-validated at send time, the function refuses a bad address
+      // with a 400. None of them protects against the send being CORRECT BUT MISDIRECTED, which is the
+      // failure a typo produces: a plant's operational data delivered to a stranger, with no undo and
+      // no bounce ingest to even tell you it went somewhere real. The two recipient kinds carry very
+      // different risk. A SAVED CONTACT was deliberately added and is synced to the hive - confirming
+      // it on every send would be friction on the normal path, which is this page's whole purpose. A
+      // ONE-TIME ADDRESS typed into the field moments ago has been read by nobody but the typist. So
+      // the confirmation is scoped to exactly that case, and it NAMES the address rather than asking a
+      // generic "are you sure" - the point is to make the person read what they typed.
+      if (!await confirmOutsiders(recipients)) return;
+
       btn.textContent = 'Sending...';
       btn.disabled    = true;
 
       try {
         const results = await Promise.allSettled(recipients.map(async email => {
-          const resp = await fetch(`${SUPABASE_URL}/functions/v1/send-report-email`, {
-            method: 'POST',
-            headers: {
-              'Content-Type':  'application/json',
-              'apikey':        SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-            },
-            body: JSON.stringify({
+          // THE HAND-ROLLED FETCH THIS REPLACES SENT THE ANON KEY WHERE THE CALLER'S JWT BELONGS.
+          // It set `Authorization: Bearer ${SUPABASE_KEY}` — the PUBLISHABLE key — so the edge function
+          // could not identify the caller at all. Measured 2026-08-14: getUser(<publishable key>) returns
+          // 401 no_authorization with no user, so resolveIdentity() yields authUid = null, and
+          // resolveTenancy(null, hive_id) refuses with 401 "Sign-in required." A signed-in supervisor
+          // pressing Resend was told to sign in — for a session that was perfectly healthy, on a path
+          // where retrying cannot help.
+          // functions.invoke() attaches the session automatically, which is the whole reason the shared
+          // wrapper exists; every other page on this platform uses it (hive.html:3771, :5333, :5379).
+          const { data, error } = await db.functions.invoke('send-report-email', {
+            body: {
               hive_id:         HIVE_ID,
               recipient_email: email,
               reports:         [{ type: reportType, summary }],
               sent_at:         new Date().toISOString(),
-            }),
+            },
           });
-          if (!resp.ok) {
-            const body = await resp.json().catch(() => ({}));
-            throw new Error(body.error || `HTTP ${resp.status}`);
-          }
+          // The function's own sentence ("Sign-in required.", a rate-limit message, a relay rejection) is
+          // preferred over the transport's generic one, so the caller sees WHY and not just that it
+          // failed. Reading it needs error.context, not `data` — see _fnErrorReason.
+          if (error) throw new Error(await _fnErrorReason(data, error, 'Send failed'));
           return email;
         }));
 
@@ -1156,11 +1272,44 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     const LS_CONTACTS = 'wh_report_contacts'; // localStorage key for contacts fallback
 
+    // THIS PAGE ALREADY HAD A FALLBACK; WHAT IT LACKED WAS SAYING SO. On a failed read it silently
+    // substitutes the localStorage copy, and when that copy is empty the surface reads "No contacts
+    // yet, tap Add contact" — measured under an injected 500 alongside rs-reports-hero=0,
+    // rs-recipients-hero=0 and rs-contacts-hero=0. On the one page in this roster whose primary action
+    // is OUTWARD and IRREVERSIBLE, "0 recipients" invites two mistakes a reload cannot undo: adding a
+    // duplicate contact, or concluding a finished report has nowhere to go. A fallback that does not
+    // name itself is indistinguishable from fresh truth.
+    let _rsReadFailed   = false;   // the server read failed
+    let _rsUsedFallback = false;   // ...and the copy on screen came from localStorage
+    // ★ AND A THIRD STATE: NOT KNOWN YET. The fix above taught this card the difference between "none
+    // saved" and "could not find out", but left a third case answering as the first: while the read is
+    // still IN FLIGHT, _contacts is [] and _rsReadFailed is false, so the card renders the confident
+    // "0 · No contacts saved yet, add one above · START". Measured by delaying report_contacts by 6s
+    // and returning three rows: at 2.5s the card said exactly that, and at 9.5s it said "3 · 3 reusable
+    // contacts on this hive · LIST". The page overturned its own claim, which is the proof it never
+    // held it — an empty variable was read as an established fact.
+    // The window is not hypothetical: this read is bounded at 45s (utils.js:703), and on a plant's
+    // mobile connection a person can act well inside it. On the one page whose primary action is
+    // outward and IRREVERSIBLE, the two mistakes it invites — adding a duplicate contact, or concluding
+    // a finished report has nowhere to go — are the same two the fallback fix was written to prevent.
+    let _rsContactsSettled = false; // the contacts read has answered — either way
+
     async function loadContacts() {
+      // ★ THE LIST HAD NO WAIT STATE EITHER. The summary CARD was fixed earlier this pass to say
+      // "Checking your saved contacts…" instead of "No contacts saved yet" mid-flight — but
+      // #contacts-list, the thing a person actually reads to see who a report will go to, stayed
+      // EMPTY until renderContacts() ran, and renderContacts only runs after the read settles.
+      // Measured under a 6s delay: 32 chars in the region and no busy indicator at 2.5s.
+      // Fixing the card and leaving the list is the half-fix this platform keeps catching: one
+      // element told the truth while its neighbour, describing the same fact, said nothing.
+      const _cl = document.getElementById('contacts-list');
+      if (_cl && !_cl.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_cl, 3);
       if (!HIVE_ID) {
-        // No hive — load from localStorage (persists across navigation)
+        // No hive — load from localStorage (persists across navigation). Not a failure: there is no
+        // hive to read from, so the local copy IS the truth here.
         try { _contacts = JSON.parse(localStorage.getItem(LS_CONTACTS) || '[]'); }
         catch { _contacts = []; }
+        _rsReadFailed = false; _rsUsedFallback = false;
         renderContacts();
         return;
       }
@@ -1172,24 +1321,80 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500);
       if (error) {
-        // Supabase failed — fall back to localStorage so contacts aren't lost
+        // Supabase failed — fall back to localStorage so contacts aren't lost, and RECORD that we did
+        console.error('report contacts read failed:', error.message);
         try { _contacts = JSON.parse(localStorage.getItem(LS_CONTACTS) || '[]'); }
         catch { _contacts = []; }
+        _rsReadFailed = true;
+        _rsUsedFallback = _contacts.length > 0;
       } else {
         _contacts = data || [];
+        _rsReadFailed = false; _rsUsedFallback = false;
         // Keep localStorage in sync as backup
         localStorage.setItem(LS_CONTACTS, JSON.stringify(_contacts));
       }
+      await loadBounces();
       renderContacts();
+    }
+
+    // The summary card reads _contacts and _rsReadFailed, so it must be recomputed once those are
+    // known. It was rendering BEFORE loadContacts() resolved, so a failed read still produced
+    // "Saved contacts 0 - No contacts saved yet, add one above" while the list below it correctly
+    // said the read had failed: two elements on one screen disagreeing about the same fact.
+    function _rsSummaryAfterContacts() {
+      try { if (typeof renderReportSenderSummary === 'function') renderReportSenderSummary(); }
+      catch (e) { console.error('summary refresh failed:', e); }
+    }
+
+    // A send-time rejection comes back from the API call and the sender sees it immediately. The
+    // undeliverables that matter most do not: a full mailbox or a retired address is accepted with a
+    // 200, and the failure arrives later as a webhook. resend-webhook-receiver records those into
+    // automation_log; without reading them here the report is "sent" forever and nobody is told.
+    let _bouncedEmails = new Map();   // lowercased email -> what happened
+    async function loadBounces() {
+      try {
+        const since = new Date(Date.now() - 30 * 864e5).toISOString();
+        const { data, error } = await db.from('automation_log')
+          .select('detail, status, triggered_at')
+          .eq('job_name', 'report_email_bounce')
+          .eq('hive_id', HIVE_ID)
+          .gte('triggered_at', since)
+          .order('triggered_at', { ascending: false })
+          .order('id')                      // total order: two bounces can share a timestamp
+          .limit(200);
+        // A failed read must not be rendered as "no bounces". Leaving the map untouched means the
+        // page simply does not claim either way, rather than claiming everything is fine.
+        if (error || !Array.isArray(data)) return;
+        const m = new Map();
+        for (const row of data) {
+          const d = String(row.detail || '');
+          const em = (d.match(/Report to ([^ ]+@[^ ]+?)[ ,]/) || [])[1];
+          const what = (d.match(/ (bounced|marked as spam|delayed)/) || [])[1];
+          if (em && !m.has(em.toLowerCase())) m.set(em.toLowerCase(), what || 'undeliverable');
+        }
+        _bouncedEmails = m;
+      } catch (_e) { /* empty-catch-allow: leave the map as-is - no claim is better than a false all-clear */ }
     }
 
     function renderContacts() {
       const list = document.getElementById('contacts-list');
       if (!_contacts.length) {
-        list.innerHTML = `<div class="contacts-empty">No contacts yet, tap Add contact</div>`;
+        // A failed read with an empty backup is NOT "no contacts yet" — it is "we could not find out".
+        list.innerHTML = _rsReadFailed
+          ? `<div class="contacts-empty" style="opacity:1;">Could not load your contacts.<br><span style="font-size:0.72rem;">This is a connection problem, not an empty contact list. Check your connection and reload before adding a contact you may already have, or before assuming a report has nowhere to go.</span><br><button type="button" onclick="loadContacts();" style="margin-top:0.6rem;min-height:44px;padding:0 0.9rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button></div>`
+          : `<div class="contacts-empty">No contacts yet, tap Add contact</div>`;
+        _rsSummaryAfterContacts();
         return;
       }
-      list.innerHTML = _contacts.map(c => {
+      // The fallback copy is real data, so it stays on screen — but it is LABELLED, because a saved
+      // copy presented as live truth is the quieter half of the same defect.
+      if (_rsUsedFallback) {
+        list.innerHTML = `<div class="contacts-empty" style="opacity:1;font-size:0.72rem;">⚠ Showing your saved copy. Could not reach the server, so this list may be out of date.</div>`;
+      } else {
+        list.innerHTML = '';
+      }
+      _rsSummaryAfterContacts();
+      list.innerHTML += _contacts.map(c => {
         const color = avatarColor(c.name);
         const sel   = _selectedContacts.has(c.id);
         return `
@@ -1198,6 +1403,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <div class="contact-info">
               <span class="contact-name">${escHtml(c.name)}</span>
               <span class="contact-tag">${escHtml(c.label || 'Team')} &middot; ${escHtml(c.email || '')}</span>
+              ${_bouncedEmails.has(String(c.email || '').toLowerCase())
+                ? `<span class="contact-tag" style="color:var(--wh-orange-text);">&#9888; Last report ${escHtml(_bouncedEmails.get(String(c.email).toLowerCase()))}. This address did not receive it.</span>`
+                : ''}
             </div>
             <span class="ic ic-check" aria-hidden="true"></span>
             <button class="contact-delete" data-del="${escHtml(c.id)}" aria-label="Remove">&#x2715;</button>
@@ -1225,6 +1433,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     async function deleteContact(id) {
+      // ★THE CONTACT VANISHED LOCALLY AND THE SERVER NEVER HEARD. This filters _contacts, clears the
+      // selection and re-renders BEFORE the server delete, so offline the recipient disappeared from
+      // the list while the row survived - and the next load brought them back, which reads as the
+      // delete having been ignored. Refused before the confirmation, because committing someone to a
+      // destructive choice that cannot be delivered is worse than declining it up front.
+      if (typeof whRequireOnline === 'function'
+          && !whRequireOnline('Removing this contact', (m) => showToast(m))) return;
       // E3 (Arc X recovery): deleting a saved recipient is destructive (removed from
       // localStorage + server) with no undo -> confirm first.
       if (typeof window.whConfirm === 'function') {
@@ -1260,11 +1475,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const overlay = document.getElementById('sheet-overlay');
       const nameInput = document.getElementById('contact-name');
       overlay.style.display = 'flex';
+      // The SHARED overlay CSS gates visibility on `.open`:
+      //   .sheet-overlay:not(.open) { visibility: hidden }   .sheet-overlay.open { visibility: visible }
+      // This page's LOCAL .sheet-overlay rule sets position/background/display but never visibility, and
+      // `:not(.open)` out-specifies it, so display:flex alone left the sheet laid out and invisible - 8
+      // controls present, 0 visible, no error. Measured on report-sender and dayplanner alike.
+      overlay.classList.add('open');
       // Delay focus until sheet animation completes (~300ms)
       setTimeout(() => nameInput.focus(), 300);
     }
 
     function closeSheet() {
+      // Symmetric with openSheet: drop `.open` too, or the sheet keeps visibility:visible behind
+      // display:none and the next open transitions from the wrong state.
+      document.getElementById('sheet-overlay').classList.remove('open');
       document.getElementById('sheet-overlay').style.display = 'none';
     }
 
@@ -1277,6 +1501,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!name)                     { errEl.textContent = 'Name is required.';        return; }
       if (!email || !isValidEmail(email)) { errEl.textContent = 'Enter a valid email.'; return; }
       errEl.textContent = '';
+
+      // ★OFFLINE, THIS FIRED THE INSERT ANYWAY AND SAID NOTHING. Measured live with
+      // tools/prove_offline_refusal.mjs (navigator.onLine overridden AND the network cut): the POST to
+      // report_contacts left the page for a dead network, and the only text on screen was the source
+      // chip - no statement that the contact was not saved. The page adopts the shared offline BANNER,
+      // but a banner states the condition; it does not refuse the action, so the person taps Save, sees
+      // the sheet close on some paths, and has no idea whether the recipient exists.
+      // The sentence goes into #sheet-error, where this form's other refusals already live ('Name is
+      // required.' / 'Enter a valid email.'), rather than a toast - a field-level problem and a
+      // connectivity problem should not arrive by two different channels.
+      // Placed AFTER the field validation so a malformed email is still reported as a malformed email,
+      // and BEFORE saveBtn is disabled so a refusal never leaves a dead control.
+      if (typeof whRequireOnline === 'function'
+          && !whRequireOnline('Adding a contact', (m) => { errEl.textContent = m; })) return;
 
       const payload = { name, email, label: _selectedLabel };
 
@@ -1297,13 +1535,49 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       closeSheet();
       renderContacts();
       updateSendBtn();
-      showToast(`${name} added`);
+      // NAME THE EFFECT AND WHEN. "<name> added" names no effect a person can look for: added to WHAT, and
+      // usable when? What this handler verifiably does is push the contact into _contacts, re-render the
+      // recipient list (renderContacts) and re-evaluate the send button (updateSendBtn), then persist to
+      // localStorage so it survives navigation. So the confirmation says exactly that and nothing more.
+      showToast(`${name} added → in your recipient list now, and saved for future reports.`);
     }
 
     // ── Card state machine ────────────────────────────────────────────────────────
     function setCardState(state) {
       _cardState = state;
       document.getElementById('main-card').dataset.state = state;
+
+      // THE GUARD HELD BUT THE BUTTON NEVER SAID SO — and this is the one action on the platform that
+      // cannot be taken back. Measured live (tools/prove_double_fire.mjs, writes intercepted so nothing
+      // was actually sent): pressing Send Reports fired the send, and a SECOND press correctly fired
+      // nothing more, because doSend() returns early while _cardState !== 'idle'. But the button stayed
+      // enabled and still read "Send Reports", so the person who pressed it had no way to tell the first
+      // press had taken. On an irreversible outward send that is the worst possible silence: the rational
+      // response to a button that looks untouched is to press it again, and keep pressing.
+      // Half the oracle ("the second press changes nothing further") already passed; this is the other
+      // half ("and the surface says so"). It is deliberately driven from the STATE MACHINE rather than
+      // from doSend's happy path, so every route into a non-idle state - including failures that route
+      // through here - leaves the control honest, and every route back to idle restores it.
+      const sb = document.getElementById('send-btn');
+      if (sb) {
+        const busy = state !== 'idle';
+        sb.setAttribute('aria-busy', busy ? 'true' : 'false');
+        if (busy) {
+          if (!sb.dataset.idleLabel) sb.dataset.idleLabel = sb.textContent;
+          sb.disabled = true;
+          // 'processing' IS the send in flight — that is the state doSend enters (:1897) and the only
+          // one a person reaches by pressing this button, so it must say the specific thing that is
+          // happening. A generic "Working…" on the one irreversible action is a wasted sentence: the
+          // whole point is telling someone their report is ON ITS WAY, not that something is happening.
+          sb.textContent = (state === 'processing' || state === 'sending') ? 'Sending…' : 'Working…';
+        } else {
+          if (sb.dataset.idleLabel) sb.textContent = sb.dataset.idleLabel;
+          // Do NOT blanket-enable: updateSendBtn owns whether a send is currently valid at all
+          // (a report selected AND a recipient), and overriding it here would offer a send that
+          // would only be refused.
+          updateSendBtn();
+        }
+      }
     }
 
     // ── Voice pipeline ────────────────────────────────────────────────────────────
@@ -1487,6 +1761,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const form = new FormData();
         form.append('audio', audioBlob, filename);
 
+        // ★ THIS ONE IS DELIBERATELY LEFT ON THE ANON KEY — do not "fix" it to match its neighbours.
+        // Three sibling calls in this file were converted to db.functions.invoke() because their target
+        // functions REFUSE a null authUid (send-report-email :176, voice-report-intent :127-129,
+        // scheduled-agents :447-449 all reach resolveTenancy, which 401s without an identity).
+        // voice-transcribe does NOT: it resolves identity only to KEY A RATE LIMIT —
+        // `checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip))` at :76-80 — and never refuses.
+        // With no user it degrades to IP-keyed limiting, which is the designed anonymous path, not a bug.
+        // Verified per-FUNCTION rather than per-file, because a grep for the bearer accuses this call
+        // exactly as loudly as the three real ones.
         const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-transcribe`, {
           method:  'POST',
           headers: {
@@ -1521,16 +1804,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _preVoiceContacts = new Set(_selectedContacts);
 
       try {
-        const resp = await fetch(`${SUPABASE_URL}/functions/v1/voice-report-intent`, {
-          method: 'POST',
-          headers: {
-            'Content-Type':  'application/json',
-            'apikey':        SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-          },
-          body: JSON.stringify({ transcript, hive_id: HIVE_ID }),
+        // Same anon-key defect as the send path: this call passes hive_id, and voice-report-intent gates
+        // that on `if (hive_id) → resolveIdentity → resolveTenancy(authUid, hive_id)` (:127-129), which
+        // returns 401 when authUid is null. With the publishable key as bearer there IS no authUid, so
+        // the voice intent silently fell back to the empty context below on every call — the failure was
+        // invisible because the catch already had a graceful default.
+        const { data, error } = await db.functions.invoke('voice-report-intent', {
+          body: { transcript, hive_id: HIVE_ID },
         });
-        const data = resp.ok ? await resp.json() : null;
+        if (error) throw error;
         _voiceContext = data ?? { report_types: [], recipient_hint: null, notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
       } catch {
         _voiceContext = { report_types: [], recipient_hint: null, notes: transcript, period_days: null, machine_filter: null, urgency: 'normal' };
@@ -1645,22 +1927,37 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const body = { report_type: reportType, hive_id: HIVE_ID };
       if (_voiceContext?.notes) body.voice_context = _voiceContext.notes;
 
-      const resp = await fetch(`${SUPABASE_URL}/functions/v1/scheduled-agents`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!resp.ok) {
-        const body = await resp.text().catch(() => '');
-        throw new Error(`HTTP ${resp.status}${body ? ': ' + body.slice(0, 80) : ''}`);
+      // Third instance of the same defect in this file. `scheduled-agents` gates on
+      // `if (hive_id) → resolveIdentity → resolveTenancy(authUid, hive_id)` (:447-449) and this call
+      // passes hive_id — the comment two lines below ("we passed hive_id — exactly one hive processed")
+      // says so outright. With the publishable key there is no authUid, so REPORT GENERATION ITSELF was
+      // refused 401 before a report ever existed to send.
+      const { data, error } = await db.functions.invoke('scheduled-agents', { body });
+      if (error) {
+        // ★THE COMMENT HERE WAS WRONG, AND MEASURING IT IS WHAT SHOWED THAT. It claimed invoke() "parses
+        // the body into `data` even on a non-2xx", so the function's own sentence would reach the person.
+        // Held to a 429, `data` came back NULL and the person got the transport's generic "Edge Function
+        // returned a non-2xx status code" — which the caller then reported as "check connection". The
+        // function's sentence lives on error.context (the raw Response) in this client version, not in
+        // `data`, so it has to be read from there. Kept the `data` path first: where it IS populated the
+        // old behaviour is unchanged.
+        let fromBody = (data && (data.error || data.message)) || '';
+        let status = 0;
+        try {
+          const ctx = error.context;
+          if (ctx) {
+            status = Number(ctx.status) || 0;
+            if (!fromBody && typeof ctx.clone === 'function') {
+              const body = await ctx.clone().json().catch(() => null);
+              if (body) fromBody = body.error || body.message || '';
+            }
+          }
+        } catch (_) { /* empty-catch-allow: a body we cannot read must not mask the original failure */ }
+        // Carry the STATUS in the message so a caller aggregating many failures can still tell a rate
+        // limit from a dead connection — the distinction the toast was getting wrong.
+        const detail = fromBody || error.message || 'Generation failed';
+        throw new Error(status ? `${detail} [${status}]` : detail);
       }
-
-      const data = await resp.json();
       // results[0] because we passed hive_id — exactly one hive processed
       const result = data.results?.[0];
       if (!result || result.status === 'failed') {
@@ -1739,6 +2036,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return;
       }
       document.getElementById('email-error').textContent = '';
+
+      if (!await confirmOutsiders(recipients)) return;
+
+      // ★THE ONE ACTION ON THIS PLATFORM THAT CANNOT BE UNDONE HAD NO OFFLINE REFUSAL. Offline, doSend
+      // generated the reports and then fired send-report-email per recipient into a dead network. The
+      // failure path does surface 'Email failed: <reason>' afterwards, but that is a post-mortem on work
+      // already begun - and on a SEND the person's real question is not "did it fail" but "did anyone
+      // receive this", which a transport error cannot answer. Refusing before a single request leaves is
+      // the only honest answer offline, and it is also the cheapest: nothing was sent, so nothing is
+      // half-sent to some recipients and not others.
+      // The sentence goes to #email-error, alongside this form's own 'Select a contact or enter an
+      // email.', and sits AFTER the recipient check so a missing recipient is still reported as that.
+      if (typeof whRequireOnline === 'function'
+          && !whRequireOnline('Sending these reports',
+                              (m) => { document.getElementById('email-error').textContent = m; })) return;
+
       localStorage.setItem('wh_last_report_email', recipients[0]);
 
       const reports = [..._selected]
@@ -1777,7 +2090,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // Send email — runs after the results panel is visible
         await sendReportEmail(results, recipients);
       } else {
-        showToast('All reports failed, check connection and try again');
+        // ★A RATE LIMIT IS NOT A CONNECTION PROBLEM, AND THIS BRANCH CALLED IT ONE. Measured live by
+        // holding the report function to a 429: every report "failed" and the person was told to check
+        // their connection — so the advice was to go find better signal when the only thing that helps is
+        // waiting. The connection was fine; the service was busy. This is the third page in this family
+        // with the same shape (assistant collapsed every failure into one null; shift-brain matched 429
+        // with a network-error regex), and the root is always a broad failure classifier swallowing a
+        // specific, actionable cause. The per-report errors are already captured in `results`, so the
+        // cause is available here — it just was not being read.
+        const msgs = Object.values(results).map((v) => String((v && v.message) || '')).join(' ');
+        const rateLimited = /429|rate.?limit|too many requests/i.test(msgs);
+        showToast(rateLimited
+          ? (window.whAiError ? window.whAiError({ message: '429' }) : 'You have hit the AI rate limit.')
+            + ' Your selection and recipients are still here.'
+          : 'All reports failed, check connection and try again');
         setCardState('idle');
       }
     }
@@ -1796,24 +2122,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       try {
         const sendResults = await Promise.allSettled(
           recipients.map(async (email) => {
-            const resp = await fetch(`${SUPABASE_URL}/functions/v1/send-report-email`, {
-              method: 'POST',
-              headers: {
-                'Content-Type':  'application/json',
-                'apikey':        SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`,
-              },
-              body: JSON.stringify({
+            // Same defect, same fix as the resend path above: a raw fetch carrying the PUBLISHABLE key
+            // left the edge function with no caller identity, so the primary "Send Reports" action —
+            // the one thing on this platform that cannot be undone — was refused with a 401 that told a
+            // signed-in supervisor to sign in. functions.invoke() attaches the session.
+            const { data, error } = await db.functions.invoke('send-report-email', {
+              body: {
                 hive_id:         HIVE_ID,
                 recipient_email: email,
                 reports:         successReports,
                 sent_at:         new Date().toISOString(),
-              }),
+              },
             });
-            if (!resp.ok) {
-              const body = await resp.json().catch(() => ({}));
-              throw new Error(body.error || `HTTP ${resp.status}`);
-            }
+            if (error) throw new Error(await _fnErrorReason(data, error, 'Send failed'));
             return email;
           })
         );
@@ -1959,7 +2280,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     renderChips();
     updateCount();
-    loadContacts();
+    // SETTLE IN `finally`, NOT ON THE HAPPY PATH. If loadContacts() throws — and it awaits a network
+    // read, so it can — a flag set only where the read succeeds would leave the card saying "Checking
+    // your saved contacts…" forever, trading a wrong answer for a permanent one. A stuck pending state
+    // is invisible to every gate: 200 OK, promise settled, nothing thrown at the top level.
+    // The `.catch` classifies a throw as what it is — a failed read — so the card falls through to the
+    // message that already exists for that case rather than back to "no contacts saved yet".
+    loadContacts()
+      .catch((e) => { console.error('report contacts load threw:', e); _rsReadFailed = true; })
+      .finally(() => { _rsContactsSettled = true; _rsSummaryAfterContacts(); });
 
     // Plain-Read summary first paint + details toggle (Layer D — UX Contract)
     renderReportSenderSummary();

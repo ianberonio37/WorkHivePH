@@ -1109,7 +1109,17 @@
     const tour = $$('[class*="tour"], [class*="walkthrough"], [class*="coachmark"]', R).filter(vis);
     out.push(M('O1', 'Value-first, not a tour', tour.length === 0 ? 1 : 0, 1,
       tour.length ? 'intrusive tour present' : 'no tour, UI usable immediately'));
-    const help = $$('details, [class*="help"], .wh-prov-btn, [aria-label*="guide" i]').filter(vis);
+    // O2 counts ON-DEMAND (pull) help affordances. `.wh-prov-btn` was dropped from this list on
+    // 2026-08-06 when the provenance buttons were removed platform-wide, and measuring the removal
+    // exposed that the selector had been leaning on it: with it gone, integrations.html read ZERO help
+    // affordances on a fully-rendered 1,775-char page — while actually carrying a "Show details"
+    // disclosure the whole time. The selector simply did not recognise the platform's own disclosure
+    // patterns (.details-toggle paired with a panel, .wh-disclose, .wh-method), only the raw <details>
+    // element. So these are added: they are affordances that already existed and were being missed, not
+    // padding to keep a number up. Deliberately NOT added: a bare [aria-expanded], which matches the
+    // nav-hub FAB — navigation is not help, and including it would have scored every page 1 for free.
+    const help = $$('details, [class*="help"], [aria-label*="guide" i], '
+      + '[class*="details-toggle"], [class*="disclose"], [class*="method"]').filter(vis);
     out.push(isPoster
       ? NA('O2', 'Pull > push help', 'poster: a static artifact offers no in-page help journey')
       : M('O2', 'Pull > push help', help.length ? 1 : 0, 1, `${help.length} on-demand help affordance(s)`));
@@ -1453,8 +1463,11 @@
     // writing + match-system-real-world ("simple language, no jargon"). Ian: those disclosures read useless.
     {
       const trig = /where did this|where does this|how (is|are) (this|these|it|they)\b.{0,20}comput|how we comput|about this dashboard|data sources?|how it works|how this works|updated each|refreshes each/i;
-      // These page-OWNED disclosures often sit in a footer OUTSIDE <main>/R (the calm-dashboard-contract
-      // footer, the provenance-hover panel) — search the whole document but exclude shared shell chrome.
+      // These page-OWNED disclosures often sit in a footer OUTSIDE <main>/R (e.g. the
+      // calm-dashboard-contract footer) — search the whole document but exclude shared shell chrome.
+      // (Used to also name the provenance-hover panel, removed platform-wide 2026-08-06. The
+      // [class*="provenance"] clause below never matched it regardless — that panel's class was
+      // wh-prov-pop, and "prov" is not "provenance".)
       const B4_CHROME = '#wh-ai-panel, #wh-ai-trigger, #wh-ai-launcher, #wh-hub-panel, #wh-hub-fab, .wh-companion, [class*="companion"], nav[class*="hub"]';
       const discs = [...document.querySelectorAll('details, [class*="provenance"], [class*="disclosure"], [class*="help"], [data-calm-disclosure], .wh-source-chip')]
         .filter((e) => vis(e) && !e.closest(B4_CHROME) && trig.test((e.innerText || e.textContent || '')));

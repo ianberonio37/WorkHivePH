@@ -1,10 +1,10 @@
 {
- "generated": "2026-08-04T00:20:31+00:00",
- "coverage_pct": 100.0,
- "page_pct": 100.0,
- "ai_surface_pct": 100.0,
+ "generated": "2026-08-20T08:25:10+00:00",
+ "coverage_pct": 81.7,
+ "page_pct": 79.2,
+ "ai_surface_pct": 94.1,
  "surfaces": {
-  "pages": 90,
+  "pages": 98,
   "ai_fns": 33
  },
  "page_dims": [
@@ -40,12 +40,12 @@
   "D25",
   "D26"
  ],
- "cells_total": 2154,
+ "cells_total": 2322,
  "state_counts": {
-  "✅": 1245,
-  "🟡": 0,
-  "⬜": 0,
-  "n/a": 909
+  "✅": 1044,
+  "🟡": 26,
+  "⬜": 224,
+  "n/a": 1028
  },
  "gate_floor": [
   "audit_displayed_values",
@@ -95,12 +95,29 @@
   "validate_supervisor_approval_backstop",
   "validate_sw_shell_membership"
  ],
- "gates_failed": [],
- "regressed_cells": [],
- "next_target": null,
- "drive_plan": "grid DRY — nothing to drive",
+ "gates_failed": [
+  "validate_content_page_hygiene"
+ ],
+ "regressed_cells": [
+  "validate_content_page_hygiene"
+ ],
+ "next_target": {
+  "surface": "about",
+  "kind": "page",
+  "dim": "D7",
+  "dim_label": "xss/escHtml (no injection sink)",
+  "surface_pct": 33.3,
+  "open_dims": [
+   "D17",
+   "D4",
+   "D5",
+   "D7"
+  ]
+ },
+ "drive_plan": "Playwright-walk `about.html` for D7 (xss/escHtml (no injection sink)): operate the affordance live, assert at the DATA layer via mcp__postgres__query, flywheel any miss, then tag+lock a validator `# DEEPWALK-CELL: about D7`.",
  "orphan_oracles": [
   "ai_eval_gate",
+  "aio_readiness_gate",
   "audit_ai_prompt_standards",
   "audit_calm_dashboard_canonical",
   "audit_fullstack_gate_coverage",
@@ -111,10 +128,16 @@
   "audit_standards_alignment",
   "audit_table_collision",
   "audit_tier_contracts",
+  "authority_link_gate",
+  "bank_marketplace_gate",
+  "calc_claim_consistency_gate",
   "ci_gate",
   "companion_delivery_gate",
   "companion_memory_health_gate",
+  "content_freshness_gate",
   "content_grounding_gate",
+  "content_mobile_gate",
+  "cta_gate",
   "extractability_gate",
   "landing_extractability_gate",
   "measure_gateway_gate",
@@ -187,10 +210,12 @@
   "validate_change_order_immutability",
   "validate_client_singleton",
   "validate_client_write_grants",
+  "validate_cls_reservations",
   "validate_cmms_import_rollback",
   "validate_cmms_webhook_security_live",
   "validate_commission_leakage",
   "validate_committed_env_secret",
+  "validate_community_xp_ledger",
   "validate_companion_output_escaping",
   "validate_corrective_definition_parity",
   "validate_credit_guards_refuse",
@@ -270,6 +295,7 @@
   "validate_marketplace_state_inducers",
   "validate_marketplace_test_bank",
   "validate_marketplace_trust_integrity",
+  "validate_md_twins",
   "validate_membership_resolved_by_auth_uid",
   "validate_migration_grant_regression",
   "validate_ml_deps",
@@ -287,6 +313,7 @@
   "validate_p6_concurrency_class",
   "validate_page_battery",
   "validate_page_crud",
+  "validate_page_ui_provers",
   "validate_paginated_order_totality",
   "validate_password_recovery",
   "validate_payment_disclosure",
@@ -325,6 +352,7 @@
   "validate_response_format_validation",
   "validate_resume",
   "validate_retired_page_sole_control",
+  "validate_revoke_actually_revoked",
   "validate_rls_coverage",
   "validate_rls_no_permissive_bypass",
   "validate_role_adoption_centralized",
@@ -333,6 +361,7 @@
   "validate_role_vocabulary_coverage",
   "validate_rpc_return_shape",
   "validate_rubric_parity",
+  "validate_safety_field_provenance",
   "validate_schedule_health_falsifiable",
   "validate_service_dispatch_isolation",
   "validate_service_geo_privacy",
@@ -340,8 +369,10 @@
   "validate_service_state_machine",
   "validate_service_triage_eval",
   "validate_service_ufai_deep",
+  "validate_session_death_is_not_removal",
   "validate_signup_bot_protection",
   "validate_signup_enumeration_safety",
+  "validate_skeleton_resolves",
   "validate_slo_budget",
   "validate_source_chip_freshness",
   "validate_sri",
@@ -352,6 +383,7 @@
   "validate_tenant_context_contract",
   "validate_test_hive_fixtures",
   "validate_text_cap_coverage",
+  "validate_trigger_writes_need_definer",
   "validate_truth_view_read_isolation",
   "validate_truth_view_security_invoker",
   "validate_ufai_deep_u",
@@ -368,7 +400,7 @@
   "workflow_gate"
  ],
  "newly_joined": [],
- "surface_set_hash": "9f26fa121503",
+ "surface_set_hash": "e378067db1f8",
  "oracle_set_hash": "58ef82d9dc70",
  "live_bonus": {
   "live_cells": 26,
@@ -401,8 +433,8 @@
    "H9/F"
   ],
   "breaches": 0,
-  "fresh": true,
-  "age_days": 0.0,
+  "fresh": false,
+  "age_days": 16.3,
   "proven_ever": 32,
   "this_run": 26
  },
@@ -3842,7 +3874,9 @@
    "locked": true
   },
   "report-sender|A": {
-   "state": "n/a"
+   "state": "✅",
+   "oracle": "validate_edge_fn_auth_gate",
+   "locked": true
   },
   "resume|D1": {
    "state": "✅",
@@ -4539,14 +4573,16 @@
    "state": "n/a"
   },
   "about|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "about|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "about|D6": {
    "state": "✅",
@@ -4554,9 +4590,10 @@
    "locked": true
   },
   "about|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "about|D8": {
    "state": "n/a"
@@ -4577,9 +4614,10 @@
    "state": "n/a"
   },
   "about|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "about|D22": {
    "state": "n/a"
@@ -4614,14 +4652,16 @@
    "state": "n/a"
   },
   "learn/ai-companion-hezekiah-zaniah-personas|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-companion-hezekiah-zaniah-personas|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-companion-hezekiah-zaniah-personas|D6": {
    "state": "✅",
@@ -4629,9 +4669,10 @@
    "locked": true
   },
   "learn/ai-companion-hezekiah-zaniah-personas|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-companion-hezekiah-zaniah-personas|D8": {
    "state": "n/a"
@@ -4652,9 +4693,10 @@
    "state": "n/a"
   },
   "learn/ai-companion-hezekiah-zaniah-personas|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-companion-hezekiah-zaniah-personas|D22": {
    "state": "n/a"
@@ -4689,14 +4731,16 @@
    "state": "n/a"
   },
   "learn/ai-quality-and-roi-stage-2-plants|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-quality-and-roi-stage-2-plants|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-quality-and-roi-stage-2-plants|D6": {
    "state": "✅",
@@ -4704,9 +4748,10 @@
    "locked": true
   },
   "learn/ai-quality-and-roi-stage-2-plants|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-quality-and-roi-stage-2-plants|D8": {
    "state": "n/a"
@@ -4727,9 +4772,10 @@
    "state": "n/a"
   },
   "learn/ai-quality-and-roi-stage-2-plants|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-quality-and-roi-stage-2-plants|D22": {
    "state": "n/a"
@@ -4764,14 +4810,16 @@
    "state": "n/a"
   },
   "learn/ai-work-assistant-maintenance-technicians|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-work-assistant-maintenance-technicians|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-work-assistant-maintenance-technicians|D6": {
    "state": "✅",
@@ -4779,9 +4827,10 @@
    "locked": true
   },
   "learn/ai-work-assistant-maintenance-technicians|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-work-assistant-maintenance-technicians|D8": {
    "state": "n/a"
@@ -4802,9 +4851,10 @@
    "state": "n/a"
   },
   "learn/ai-work-assistant-maintenance-technicians|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ai-work-assistant-maintenance-technicians|D22": {
    "state": "n/a"
@@ -4839,14 +4889,16 @@
    "state": "n/a"
   },
   "learn/asset-brain-360-one-machine-history-philippine-plant|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/asset-brain-360-one-machine-history-philippine-plant|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/asset-brain-360-one-machine-history-philippine-plant|D6": {
    "state": "✅",
@@ -4854,9 +4906,10 @@
    "locked": true
   },
   "learn/asset-brain-360-one-machine-history-philippine-plant|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/asset-brain-360-one-machine-history-philippine-plant|D8": {
    "state": "n/a"
@@ -4877,9 +4930,10 @@
    "state": "n/a"
   },
   "learn/asset-brain-360-one-machine-history-philippine-plant|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/asset-brain-360-one-machine-history-philippine-plant|D22": {
    "state": "n/a"
@@ -4914,14 +4968,16 @@
    "state": "n/a"
   },
   "learn/autonomous-shift-planning-philippine-plants|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/autonomous-shift-planning-philippine-plants|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/autonomous-shift-planning-philippine-plants|D6": {
    "state": "✅",
@@ -4929,9 +4985,10 @@
    "locked": true
   },
   "learn/autonomous-shift-planning-philippine-plants|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/autonomous-shift-planning-philippine-plants|D8": {
    "state": "n/a"
@@ -4952,9 +5009,10 @@
    "state": "n/a"
   },
   "learn/autonomous-shift-planning-philippine-plants|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/autonomous-shift-planning-philippine-plants|D22": {
    "state": "n/a"
@@ -4979,6 +5037,85 @@
   "learn/autonomous-shift-planning-philippine-plants|A": {
    "state": "n/a"
   },
+  "learn/best-free-cmms-software-philippines|D1": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|D2": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|D3": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|D4": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/best-free-cmms-software-philippines|D5": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/best-free-cmms-software-philippines|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/best-free-cmms-software-philippines|D7": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/best-free-cmms-software-philippines|D8": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|D9": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|D18": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|D19": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|D20": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|D15": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|D17": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/best-free-cmms-software-philippines|D22": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/best-free-cmms-software-philippines|D21F": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|D12P": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|CP": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|CA": {
+   "state": "n/a"
+  },
+  "learn/best-free-cmms-software-philippines|A": {
+   "state": "n/a"
+  },
   "learn/bms-facilities-maintenance-peza-buildings|D1": {
    "state": "n/a"
   },
@@ -4989,14 +5126,16 @@
    "state": "n/a"
   },
   "learn/bms-facilities-maintenance-peza-buildings|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/bms-facilities-maintenance-peza-buildings|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/bms-facilities-maintenance-peza-buildings|D6": {
    "state": "✅",
@@ -5004,9 +5143,10 @@
    "locked": true
   },
   "learn/bms-facilities-maintenance-peza-buildings|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/bms-facilities-maintenance-peza-buildings|D8": {
    "state": "n/a"
@@ -5027,9 +5167,10 @@
    "state": "n/a"
   },
   "learn/bms-facilities-maintenance-peza-buildings|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/bms-facilities-maintenance-peza-buildings|D22": {
    "state": "n/a"
@@ -5064,14 +5205,16 @@
    "state": "n/a"
   },
   "learn/building-asset-register-zero-budget|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/building-asset-register-zero-budget|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/building-asset-register-zero-budget|D6": {
    "state": "✅",
@@ -5079,9 +5222,10 @@
    "locked": true
   },
   "learn/building-asset-register-zero-budget|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/building-asset-register-zero-budget|D8": {
    "state": "n/a"
@@ -5102,9 +5246,10 @@
    "state": "n/a"
   },
   "learn/building-asset-register-zero-budget|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/building-asset-register-zero-budget|D22": {
    "state": "n/a"
@@ -5129,6 +5274,85 @@
   "learn/building-asset-register-zero-budget|A": {
    "state": "n/a"
   },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D1": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D2": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D3": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D4": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D5": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D7": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D8": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D9": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D18": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D19": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D20": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D15": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D17": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D22": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D21F": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|D12P": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|CP": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|CA": {
+   "state": "n/a"
+  },
+  "learn/cmms-vs-excel-spreadsheet-maintenance|A": {
+   "state": "n/a"
+  },
   "learn/connecting-workhive-to-sap-maximo-cmms|D1": {
    "state": "n/a"
   },
@@ -5139,14 +5363,16 @@
    "state": "n/a"
   },
   "learn/connecting-workhive-to-sap-maximo-cmms|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/connecting-workhive-to-sap-maximo-cmms|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/connecting-workhive-to-sap-maximo-cmms|D6": {
    "state": "✅",
@@ -5154,9 +5380,10 @@
    "locked": true
   },
   "learn/connecting-workhive-to-sap-maximo-cmms|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/connecting-workhive-to-sap-maximo-cmms|D8": {
    "state": "n/a"
@@ -5177,9 +5404,10 @@
    "state": "n/a"
   },
   "learn/connecting-workhive-to-sap-maximo-cmms|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/connecting-workhive-to-sap-maximo-cmms|D22": {
    "state": "n/a"
@@ -5214,14 +5442,16 @@
    "state": "n/a"
   },
   "learn/dilo-wilo-day-planner-supervisors|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/dilo-wilo-day-planner-supervisors|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/dilo-wilo-day-planner-supervisors|D6": {
    "state": "✅",
@@ -5229,9 +5459,10 @@
    "locked": true
   },
   "learn/dilo-wilo-day-planner-supervisors|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/dilo-wilo-day-planner-supervisors|D8": {
    "state": "n/a"
@@ -5252,9 +5483,10 @@
    "state": "n/a"
   },
   "learn/dilo-wilo-day-planner-supervisors|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/dilo-wilo-day-planner-supervisors|D22": {
    "state": "n/a"
@@ -5289,14 +5521,16 @@
    "state": "n/a"
   },
   "learn/dole-iso-audit-trail-from-logbook|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/dole-iso-audit-trail-from-logbook|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/dole-iso-audit-trail-from-logbook|D6": {
    "state": "✅",
@@ -5304,9 +5538,10 @@
    "locked": true
   },
   "learn/dole-iso-audit-trail-from-logbook|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/dole-iso-audit-trail-from-logbook|D8": {
    "state": "n/a"
@@ -5327,9 +5562,10 @@
    "state": "n/a"
   },
   "learn/dole-iso-audit-trail-from-logbook|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/dole-iso-audit-trail-from-logbook|D22": {
    "state": "n/a"
@@ -5364,14 +5600,16 @@
    "state": "n/a"
   },
   "learn/fmea-worked-example-philippine-bottling-line|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/fmea-worked-example-philippine-bottling-line|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/fmea-worked-example-philippine-bottling-line|D6": {
    "state": "✅",
@@ -5379,9 +5617,10 @@
    "locked": true
   },
   "learn/fmea-worked-example-philippine-bottling-line|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/fmea-worked-example-philippine-bottling-line|D8": {
    "state": "n/a"
@@ -5402,9 +5641,10 @@
    "state": "n/a"
   },
   "learn/fmea-worked-example-philippine-bottling-line|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/fmea-worked-example-philippine-bottling-line|D22": {
    "state": "n/a"
@@ -5439,14 +5679,16 @@
    "state": "n/a"
   },
   "learn/food-beverage-plant-maintenance-philippines|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/food-beverage-plant-maintenance-philippines|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/food-beverage-plant-maintenance-philippines|D6": {
    "state": "✅",
@@ -5454,9 +5696,10 @@
    "locked": true
   },
   "learn/food-beverage-plant-maintenance-philippines|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/food-beverage-plant-maintenance-philippines|D8": {
    "state": "n/a"
@@ -5477,9 +5720,10 @@
    "state": "n/a"
   },
   "learn/food-beverage-plant-maintenance-philippines|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/food-beverage-plant-maintenance-philippines|D22": {
    "state": "n/a"
@@ -5514,14 +5758,16 @@
    "state": "n/a"
   },
   "learn/four-phases-maintenance-analytics-philippine-plants|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/four-phases-maintenance-analytics-philippine-plants|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/four-phases-maintenance-analytics-philippine-plants|D6": {
    "state": "✅",
@@ -5529,9 +5775,10 @@
    "locked": true
   },
   "learn/four-phases-maintenance-analytics-philippine-plants|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/four-phases-maintenance-analytics-philippine-plants|D8": {
    "state": "n/a"
@@ -5552,9 +5799,10 @@
    "state": "n/a"
   },
   "learn/four-phases-maintenance-analytics-philippine-plants|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/four-phases-maintenance-analytics-philippine-plants|D22": {
    "state": "n/a"
@@ -5589,14 +5837,16 @@
    "state": "n/a"
   },
   "learn/free-engineering-calculators-philippine-plants|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/free-engineering-calculators-philippine-plants|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/free-engineering-calculators-philippine-plants|D6": {
    "state": "✅",
@@ -5604,9 +5854,10 @@
    "locked": true
   },
   "learn/free-engineering-calculators-philippine-plants|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/free-engineering-calculators-philippine-plants|D8": {
    "state": "n/a"
@@ -5627,9 +5878,10 @@
    "state": "n/a"
   },
   "learn/free-engineering-calculators-philippine-plants|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/free-engineering-calculators-philippine-plants|D22": {
    "state": "n/a"
@@ -5664,14 +5916,16 @@
    "state": "n/a"
   },
   "learn/free-pm-checklist-templates|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/free-pm-checklist-templates|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/free-pm-checklist-templates|D6": {
    "state": "✅",
@@ -5679,9 +5933,10 @@
    "locked": true
   },
   "learn/free-pm-checklist-templates|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/free-pm-checklist-templates|D8": {
    "state": "n/a"
@@ -5702,9 +5957,10 @@
    "state": "n/a"
   },
   "learn/free-pm-checklist-templates|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/free-pm-checklist-templates|D22": {
    "state": "n/a"
@@ -5739,14 +5995,16 @@
    "state": "n/a"
   },
   "learn/gamifying-maintenance-for-engagement|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/gamifying-maintenance-for-engagement|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/gamifying-maintenance-for-engagement|D6": {
    "state": "✅",
@@ -5754,9 +6012,10 @@
    "locked": true
   },
   "learn/gamifying-maintenance-for-engagement|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/gamifying-maintenance-for-engagement|D8": {
    "state": "n/a"
@@ -5777,9 +6036,10 @@
    "state": "n/a"
   },
   "learn/gamifying-maintenance-for-engagement|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/gamifying-maintenance-for-engagement|D22": {
    "state": "n/a"
@@ -5814,14 +6074,16 @@
    "state": "n/a"
   },
   "learn/industrial-community-of-practice-philippines|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/industrial-community-of-practice-philippines|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/industrial-community-of-practice-philippines|D6": {
    "state": "✅",
@@ -5829,9 +6091,10 @@
    "locked": true
   },
   "learn/industrial-community-of-practice-philippines|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/industrial-community-of-practice-philippines|D8": {
    "state": "n/a"
@@ -5852,9 +6115,10 @@
    "state": "n/a"
   },
   "learn/industrial-community-of-practice-philippines|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/industrial-community-of-practice-philippines|D22": {
    "state": "n/a"
@@ -5889,14 +6153,16 @@
    "state": "n/a"
   },
   "learn/industrial-marketplace-philippine-specialists|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/industrial-marketplace-philippine-specialists|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/industrial-marketplace-philippine-specialists|D6": {
    "state": "✅",
@@ -5904,9 +6170,10 @@
    "locked": true
   },
   "learn/industrial-marketplace-philippine-specialists|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/industrial-marketplace-philippine-specialists|D8": {
    "state": "n/a"
@@ -5927,9 +6194,10 @@
    "state": "n/a"
   },
   "learn/industrial-marketplace-philippine-specialists|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/industrial-marketplace-philippine-specialists|D22": {
    "state": "n/a"
@@ -5964,14 +6232,16 @@
    "state": "n/a"
   },
   "learn/joining-and-growing-your-hive|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/joining-and-growing-your-hive|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/joining-and-growing-your-hive|D6": {
    "state": "✅",
@@ -5979,9 +6249,10 @@
    "locked": true
   },
   "learn/joining-and-growing-your-hive|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/joining-and-growing-your-hive|D8": {
    "state": "n/a"
@@ -6002,9 +6273,10 @@
    "state": "n/a"
   },
   "learn/joining-and-growing-your-hive|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/joining-and-growing-your-hive|D22": {
    "state": "n/a"
@@ -6039,14 +6311,16 @@
    "state": "n/a"
   },
   "learn/loto-procedures-dole-oshs-template|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/loto-procedures-dole-oshs-template|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/loto-procedures-dole-oshs-template|D6": {
    "state": "✅",
@@ -6054,9 +6328,10 @@
    "locked": true
   },
   "learn/loto-procedures-dole-oshs-template|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/loto-procedures-dole-oshs-template|D8": {
    "state": "n/a"
@@ -6077,9 +6352,10 @@
    "state": "n/a"
   },
   "learn/loto-procedures-dole-oshs-template|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/loto-procedures-dole-oshs-template|D22": {
    "state": "n/a"
@@ -6104,6 +6380,85 @@
   "learn/loto-procedures-dole-oshs-template|A": {
    "state": "n/a"
   },
+  "learn/maintenance-metrics-reliability-guide|D1": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|D2": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|D3": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|D4": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/maintenance-metrics-reliability-guide|D5": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/maintenance-metrics-reliability-guide|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/maintenance-metrics-reliability-guide|D7": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/maintenance-metrics-reliability-guide|D8": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|D9": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|D18": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|D19": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|D20": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|D15": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|D17": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/maintenance-metrics-reliability-guide|D22": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/maintenance-metrics-reliability-guide|D21F": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|D12P": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|CP": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|CA": {
+   "state": "n/a"
+  },
+  "learn/maintenance-metrics-reliability-guide|A": {
+   "state": "n/a"
+  },
   "learn/maintenance-project-planning-template|D1": {
    "state": "n/a"
   },
@@ -6114,14 +6469,16 @@
    "state": "n/a"
   },
   "learn/maintenance-project-planning-template|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/maintenance-project-planning-template|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/maintenance-project-planning-template|D6": {
    "state": "✅",
@@ -6129,9 +6486,10 @@
    "locked": true
   },
   "learn/maintenance-project-planning-template|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/maintenance-project-planning-template|D8": {
    "state": "n/a"
@@ -6152,9 +6510,10 @@
    "state": "n/a"
   },
   "learn/maintenance-project-planning-template|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/maintenance-project-planning-template|D22": {
    "state": "n/a"
@@ -6189,14 +6548,16 @@
    "state": "n/a"
   },
   "learn/maintenance-shift-handover-template|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/maintenance-shift-handover-template|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/maintenance-shift-handover-template|D6": {
    "state": "✅",
@@ -6204,9 +6565,10 @@
    "locked": true
   },
   "learn/maintenance-shift-handover-template|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/maintenance-shift-handover-template|D8": {
    "state": "n/a"
@@ -6227,9 +6589,10 @@
    "state": "n/a"
   },
   "learn/maintenance-shift-handover-template|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/maintenance-shift-handover-template|D22": {
    "state": "n/a"
@@ -6264,14 +6627,16 @@
    "state": "n/a"
   },
   "learn/mtbf-vs-mttr-for-supervisors|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/mtbf-vs-mttr-for-supervisors|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/mtbf-vs-mttr-for-supervisors|D6": {
    "state": "✅",
@@ -6279,9 +6644,10 @@
    "locked": true
   },
   "learn/mtbf-vs-mttr-for-supervisors|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/mtbf-vs-mttr-for-supervisors|D8": {
    "state": "n/a"
@@ -6302,9 +6668,10 @@
    "state": "n/a"
   },
   "learn/mtbf-vs-mttr-for-supervisors|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/mtbf-vs-mttr-for-supervisors|D22": {
    "state": "n/a"
@@ -6339,14 +6706,16 @@
    "state": "n/a"
   },
   "learn/ofw-engineer-portable-portfolio|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ofw-engineer-portable-portfolio|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ofw-engineer-portable-portfolio|D6": {
    "state": "✅",
@@ -6354,9 +6723,10 @@
    "locked": true
   },
   "learn/ofw-engineer-portable-portfolio|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ofw-engineer-portable-portfolio|D8": {
    "state": "n/a"
@@ -6377,9 +6747,10 @@
    "state": "n/a"
   },
   "learn/ofw-engineer-portable-portfolio|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ofw-engineer-portable-portfolio|D22": {
    "state": "n/a"
@@ -6414,14 +6785,16 @@
    "state": "n/a"
   },
   "learn/ph-industrial-benchmarks-intelligence|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ph-industrial-benchmarks-intelligence|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ph-industrial-benchmarks-intelligence|D6": {
    "state": "✅",
@@ -6429,9 +6802,10 @@
    "locked": true
   },
   "learn/ph-industrial-benchmarks-intelligence|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ph-industrial-benchmarks-intelligence|D8": {
    "state": "n/a"
@@ -6452,9 +6826,10 @@
    "state": "n/a"
   },
   "learn/ph-industrial-benchmarks-intelligence|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ph-industrial-benchmarks-intelligence|D22": {
    "state": "n/a"
@@ -6479,6 +6854,85 @@
   "learn/ph-industrial-benchmarks-intelligence|A": {
    "state": "n/a"
   },
+  "learn/ph-plant-compliance-guide|D1": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|D2": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|D3": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|D4": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/ph-plant-compliance-guide|D5": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/ph-plant-compliance-guide|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/ph-plant-compliance-guide|D7": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/ph-plant-compliance-guide|D8": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|D9": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|D18": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|D19": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|D20": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|D15": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|D17": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/ph-plant-compliance-guide|D22": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/ph-plant-compliance-guide|D21F": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|D12P": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|CP": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|CA": {
+   "state": "n/a"
+  },
+  "learn/ph-plant-compliance-guide|A": {
+   "state": "n/a"
+  },
   "learn/plant-alert-inbox-amc-daily-brief|D1": {
    "state": "n/a"
   },
@@ -6489,14 +6943,16 @@
    "state": "n/a"
   },
   "learn/plant-alert-inbox-amc-daily-brief|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/plant-alert-inbox-amc-daily-brief|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/plant-alert-inbox-amc-daily-brief|D6": {
    "state": "✅",
@@ -6504,9 +6960,10 @@
    "locked": true
   },
   "learn/plant-alert-inbox-amc-daily-brief|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/plant-alert-inbox-amc-daily-brief|D8": {
    "state": "n/a"
@@ -6527,9 +6984,10 @@
    "state": "n/a"
   },
   "learn/plant-alert-inbox-amc-daily-brief|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/plant-alert-inbox-amc-daily-brief|D22": {
    "state": "n/a"
@@ -6564,14 +7022,16 @@
    "state": "n/a"
   },
   "learn/power-plant-reliability-metrics-philippines|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/power-plant-reliability-metrics-philippines|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/power-plant-reliability-metrics-philippines|D6": {
    "state": "✅",
@@ -6579,9 +7039,10 @@
    "locked": true
   },
   "learn/power-plant-reliability-metrics-philippines|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/power-plant-reliability-metrics-philippines|D8": {
    "state": "n/a"
@@ -6602,9 +7063,10 @@
    "state": "n/a"
   },
   "learn/power-plant-reliability-metrics-philippines|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/power-plant-reliability-metrics-philippines|D22": {
    "state": "n/a"
@@ -6639,14 +7101,16 @@
    "state": "n/a"
   },
   "learn/predictive-alert-thresholds-plants|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/predictive-alert-thresholds-plants|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/predictive-alert-thresholds-plants|D6": {
    "state": "✅",
@@ -6654,9 +7118,10 @@
    "locked": true
   },
   "learn/predictive-alert-thresholds-plants|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/predictive-alert-thresholds-plants|D8": {
    "state": "n/a"
@@ -6677,9 +7142,10 @@
    "state": "n/a"
   },
   "learn/predictive-alert-thresholds-plants|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/predictive-alert-thresholds-plants|D22": {
    "state": "n/a"
@@ -6714,14 +7180,16 @@
    "state": "n/a"
   },
   "learn/predictive-maintenance-on-a-budget-philippines|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/predictive-maintenance-on-a-budget-philippines|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/predictive-maintenance-on-a-budget-philippines|D6": {
    "state": "✅",
@@ -6729,9 +7197,10 @@
    "locked": true
   },
   "learn/predictive-maintenance-on-a-budget-philippines|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/predictive-maintenance-on-a-budget-philippines|D8": {
    "state": "n/a"
@@ -6752,9 +7221,10 @@
    "state": "n/a"
   },
   "learn/predictive-maintenance-on-a-budget-philippines|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/predictive-maintenance-on-a-budget-philippines|D22": {
    "state": "n/a"
@@ -6789,14 +7259,16 @@
    "state": "n/a"
   },
   "learn/print-ready-maintenance-analytics-report|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/print-ready-maintenance-analytics-report|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/print-ready-maintenance-analytics-report|D6": {
    "state": "✅",
@@ -6804,9 +7276,10 @@
    "locked": true
   },
   "learn/print-ready-maintenance-analytics-report|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/print-ready-maintenance-analytics-report|D8": {
    "state": "n/a"
@@ -6827,9 +7300,10 @@
    "state": "n/a"
   },
   "learn/print-ready-maintenance-analytics-report|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/print-ready-maintenance-analytics-report|D22": {
    "state": "n/a"
@@ -6864,14 +7338,16 @@
    "state": "n/a"
   },
   "learn/psme-iiee-piche-which-association-to-join|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/psme-iiee-piche-which-association-to-join|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/psme-iiee-piche-which-association-to-join|D6": {
    "state": "✅",
@@ -6879,9 +7355,10 @@
    "locked": true
   },
   "learn/psme-iiee-piche-which-association-to-join|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/psme-iiee-piche-which-association-to-join|D8": {
    "state": "n/a"
@@ -6902,9 +7379,10 @@
    "state": "n/a"
   },
   "learn/psme-iiee-piche-which-association-to-join|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/psme-iiee-piche-which-association-to-join|D22": {
    "state": "n/a"
@@ -6939,14 +7417,16 @@
    "state": "n/a"
   },
   "learn/ra-11285-energy-efficiency-plant-checklist|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ra-11285-energy-efficiency-plant-checklist|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ra-11285-energy-efficiency-plant-checklist|D6": {
    "state": "✅",
@@ -6954,9 +7434,10 @@
    "locked": true
   },
   "learn/ra-11285-energy-efficiency-plant-checklist|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ra-11285-energy-efficiency-plant-checklist|D8": {
    "state": "n/a"
@@ -6977,9 +7458,10 @@
    "state": "n/a"
   },
   "learn/ra-11285-energy-efficiency-plant-checklist|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/ra-11285-energy-efficiency-plant-checklist|D22": {
    "state": "n/a"
@@ -7004,6 +7486,85 @@
   "learn/ra-11285-energy-efficiency-plant-checklist|A": {
    "state": "n/a"
   },
+  "learn/reduce-unplanned-downtime-guide|D1": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|D2": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|D3": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|D4": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/reduce-unplanned-downtime-guide|D5": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/reduce-unplanned-downtime-guide|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/reduce-unplanned-downtime-guide|D7": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/reduce-unplanned-downtime-guide|D8": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|D9": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|D18": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|D19": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|D20": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|D15": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|D17": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/reduce-unplanned-downtime-guide|D22": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/reduce-unplanned-downtime-guide|D21F": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|D12P": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|CP": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|CA": {
+   "state": "n/a"
+  },
+  "learn/reduce-unplanned-downtime-guide|A": {
+   "state": "n/a"
+  },
   "learn/reliability-centered-maintenance-philippine-plants|D1": {
    "state": "n/a"
   },
@@ -7014,14 +7575,16 @@
    "state": "n/a"
   },
   "learn/reliability-centered-maintenance-philippine-plants|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/reliability-centered-maintenance-philippine-plants|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/reliability-centered-maintenance-philippine-plants|D6": {
    "state": "✅",
@@ -7029,9 +7592,10 @@
    "locked": true
   },
   "learn/reliability-centered-maintenance-philippine-plants|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/reliability-centered-maintenance-philippine-plants|D8": {
    "state": "n/a"
@@ -7052,9 +7616,10 @@
    "state": "n/a"
   },
   "learn/reliability-centered-maintenance-philippine-plants|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/reliability-centered-maintenance-philippine-plants|D22": {
    "state": "n/a"
@@ -7089,14 +7654,16 @@
    "state": "n/a"
   },
   "learn/resume-builder-for-filipino-industrial-workers|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/resume-builder-for-filipino-industrial-workers|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/resume-builder-for-filipino-industrial-workers|D6": {
    "state": "✅",
@@ -7104,9 +7671,10 @@
    "locked": true
   },
   "learn/resume-builder-for-filipino-industrial-workers|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/resume-builder-for-filipino-industrial-workers|D8": {
    "state": "n/a"
@@ -7127,9 +7695,10 @@
    "state": "n/a"
   },
   "learn/resume-builder-for-filipino-industrial-workers|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/resume-builder-for-filipino-industrial-workers|D22": {
    "state": "n/a"
@@ -7164,14 +7733,16 @@
    "state": "n/a"
   },
   "learn/sensor-cmms-gateway-operations|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/sensor-cmms-gateway-operations|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/sensor-cmms-gateway-operations|D6": {
    "state": "✅",
@@ -7179,9 +7750,10 @@
    "locked": true
   },
   "learn/sensor-cmms-gateway-operations|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/sensor-cmms-gateway-operations|D8": {
    "state": "n/a"
@@ -7202,9 +7774,10 @@
    "state": "n/a"
   },
   "learn/sensor-cmms-gateway-operations|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/sensor-cmms-gateway-operations|D22": {
    "state": "n/a"
@@ -7239,14 +7812,16 @@
    "state": "n/a"
   },
   "learn/skill-matrix-for-maintenance-technicians|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/skill-matrix-for-maintenance-technicians|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/skill-matrix-for-maintenance-technicians|D6": {
    "state": "✅",
@@ -7254,9 +7829,10 @@
    "locked": true
   },
   "learn/skill-matrix-for-maintenance-technicians|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/skill-matrix-for-maintenance-technicians|D8": {
    "state": "n/a"
@@ -7277,9 +7853,10 @@
    "state": "n/a"
   },
   "learn/skill-matrix-for-maintenance-technicians|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/skill-matrix-for-maintenance-technicians|D22": {
    "state": "n/a"
@@ -7314,14 +7891,16 @@
    "state": "n/a"
   },
   "learn/spare-parts-inventory-philippine-plants|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/spare-parts-inventory-philippine-plants|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/spare-parts-inventory-philippine-plants|D6": {
    "state": "✅",
@@ -7329,9 +7908,10 @@
    "locked": true
   },
   "learn/spare-parts-inventory-philippine-plants|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/spare-parts-inventory-philippine-plants|D8": {
    "state": "n/a"
@@ -7352,9 +7932,10 @@
    "state": "n/a"
   },
   "learn/spare-parts-inventory-philippine-plants|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/spare-parts-inventory-philippine-plants|D22": {
    "state": "n/a"
@@ -7389,14 +7970,16 @@
    "state": "n/a"
   },
   "learn/start-digital-logbook-philippine-factory|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/start-digital-logbook-philippine-factory|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/start-digital-logbook-philippine-factory|D6": {
    "state": "✅",
@@ -7404,9 +7987,10 @@
    "locked": true
   },
   "learn/start-digital-logbook-philippine-factory|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/start-digital-logbook-philippine-factory|D8": {
    "state": "n/a"
@@ -7427,9 +8011,10 @@
    "state": "n/a"
   },
   "learn/start-digital-logbook-philippine-factory|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/start-digital-logbook-philippine-factory|D22": {
    "state": "n/a"
@@ -7454,6 +8039,85 @@
   "learn/start-digital-logbook-philippine-factory|A": {
    "state": "n/a"
   },
+  "learn/start-digital-maintenance-guide|D1": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|D2": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|D3": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|D4": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/start-digital-maintenance-guide|D5": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/start-digital-maintenance-guide|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/start-digital-maintenance-guide|D7": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/start-digital-maintenance-guide|D8": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|D9": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|D18": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|D19": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|D20": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|D15": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|D17": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/start-digital-maintenance-guide|D22": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/start-digital-maintenance-guide|D21F": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|D12P": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|CP": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|CA": {
+   "state": "n/a"
+  },
+  "learn/start-digital-maintenance-guide|A": {
+   "state": "n/a"
+  },
   "learn/tesda-nc-mapping-to-skill-matrix|D1": {
    "state": "n/a"
   },
@@ -7464,14 +8128,16 @@
    "state": "n/a"
   },
   "learn/tesda-nc-mapping-to-skill-matrix|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/tesda-nc-mapping-to-skill-matrix|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/tesda-nc-mapping-to-skill-matrix|D6": {
    "state": "✅",
@@ -7479,9 +8145,10 @@
    "locked": true
   },
   "learn/tesda-nc-mapping-to-skill-matrix|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/tesda-nc-mapping-to-skill-matrix|D8": {
    "state": "n/a"
@@ -7502,9 +8169,10 @@
    "state": "n/a"
   },
   "learn/tesda-nc-mapping-to-skill-matrix|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/tesda-nc-mapping-to-skill-matrix|D22": {
    "state": "n/a"
@@ -7539,14 +8207,16 @@
    "state": "n/a"
   },
   "learn/thermography-for-pm-philippine-plants|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/thermography-for-pm-philippine-plants|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/thermography-for-pm-philippine-plants|D6": {
    "state": "✅",
@@ -7554,9 +8224,10 @@
    "locked": true
   },
   "learn/thermography-for-pm-philippine-plants|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/thermography-for-pm-philippine-plants|D8": {
    "state": "n/a"
@@ -7577,9 +8248,10 @@
    "state": "n/a"
   },
   "learn/thermography-for-pm-philippine-plants|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/thermography-for-pm-philippine-plants|D22": {
    "state": "n/a"
@@ -7614,14 +8286,16 @@
    "state": "n/a"
   },
   "learn/vibration-analysis-on-a-phone-budget|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/vibration-analysis-on-a-phone-budget|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/vibration-analysis-on-a-phone-budget|D6": {
    "state": "✅",
@@ -7629,9 +8303,10 @@
    "locked": true
   },
   "learn/vibration-analysis-on-a-phone-budget|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/vibration-analysis-on-a-phone-budget|D8": {
    "state": "n/a"
@@ -7652,9 +8327,10 @@
    "state": "n/a"
   },
   "learn/vibration-analysis-on-a-phone-budget|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/vibration-analysis-on-a-phone-budget|D22": {
    "state": "n/a"
@@ -7689,14 +8365,16 @@
    "state": "n/a"
   },
   "learn/voice-to-text-maintenance-philippine-plant-floor|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/voice-to-text-maintenance-philippine-plant-floor|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/voice-to-text-maintenance-philippine-plant-floor|D6": {
    "state": "✅",
@@ -7704,9 +8382,10 @@
    "locked": true
   },
   "learn/voice-to-text-maintenance-philippine-plant-floor|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/voice-to-text-maintenance-philippine-plant-floor|D8": {
    "state": "n/a"
@@ -7727,9 +8406,10 @@
    "state": "n/a"
   },
   "learn/voice-to-text-maintenance-philippine-plant-floor|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/voice-to-text-maintenance-philippine-plant-floor|D22": {
    "state": "n/a"
@@ -7764,14 +8444,16 @@
    "state": "n/a"
   },
   "learn/what-is-oee-how-to-calculate|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/what-is-oee-how-to-calculate|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/what-is-oee-how-to-calculate|D6": {
    "state": "✅",
@@ -7779,9 +8461,10 @@
    "locked": true
   },
   "learn/what-is-oee-how-to-calculate|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/what-is-oee-how-to-calculate|D8": {
    "state": "n/a"
@@ -7802,9 +8485,10 @@
    "state": "n/a"
   },
   "learn/what-is-oee-how-to-calculate|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/what-is-oee-how-to-calculate|D22": {
    "state": "n/a"
@@ -7839,14 +8523,16 @@
    "state": "n/a"
   },
   "learn/what-is-workhive-complete-platform-guide|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/what-is-workhive-complete-platform-guide|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/what-is-workhive-complete-platform-guide|D6": {
    "state": "✅",
@@ -7854,9 +8540,10 @@
    "locked": true
   },
   "learn/what-is-workhive-complete-platform-guide|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/what-is-workhive-complete-platform-guide|D8": {
    "state": "n/a"
@@ -7877,9 +8564,10 @@
    "state": "n/a"
   },
   "learn/what-is-workhive-complete-platform-guide|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/what-is-workhive-complete-platform-guide|D22": {
    "state": "n/a"
@@ -7914,14 +8602,16 @@
    "state": "n/a"
   },
   "learn/workhive-ai-companion-complete-capabilities|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/workhive-ai-companion-complete-capabilities|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/workhive-ai-companion-complete-capabilities|D6": {
    "state": "✅",
@@ -7929,9 +8619,10 @@
    "locked": true
   },
   "learn/workhive-ai-companion-complete-capabilities|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/workhive-ai-companion-complete-capabilities|D8": {
    "state": "n/a"
@@ -7952,9 +8643,10 @@
    "state": "n/a"
   },
   "learn/workhive-ai-companion-complete-capabilities|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "learn/workhive-ai-companion-complete-capabilities|D22": {
    "state": "n/a"
@@ -7979,6 +8671,164 @@
   "learn/workhive-ai-companion-complete-capabilities|A": {
    "state": "n/a"
   },
+  "learn/workhive-vs-maintainx-comparison|D1": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|D2": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|D3": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|D4": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/workhive-vs-maintainx-comparison|D5": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/workhive-vs-maintainx-comparison|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/workhive-vs-maintainx-comparison|D7": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/workhive-vs-maintainx-comparison|D8": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|D9": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|D18": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|D19": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|D20": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|D15": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|D17": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/workhive-vs-maintainx-comparison|D22": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/workhive-vs-maintainx-comparison|D21F": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|D12P": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|CP": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|CA": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-maintainx-comparison|A": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D1": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D2": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D3": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D4": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D5": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D6": {
+   "state": "✅",
+   "oracle": "cwv_gate",
+   "locked": true
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D7": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D8": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D9": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D18": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D19": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D20": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D15": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D17": {
+   "state": "⬜",
+   "oracle": "validate_content_page_hygiene",
+   "locked": true,
+   "regressed": true
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D22": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D23": {
+   "state": "✅",
+   "oracle": "validate_plain_language",
+   "locked": true
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D21F": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|D12P": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|CP": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|CA": {
+   "state": "n/a"
+  },
+  "learn/workhive-vs-upkeep-free-cmms-comparison|A": {
+   "state": "n/a"
+  },
   "privacy-policy|D1": {
    "state": "n/a"
   },
@@ -7989,14 +8839,16 @@
    "state": "n/a"
   },
   "privacy-policy|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "privacy-policy|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "privacy-policy|D6": {
    "state": "✅",
@@ -8004,9 +8856,10 @@
    "locked": true
   },
   "privacy-policy|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "privacy-policy|D8": {
    "state": "n/a"
@@ -8027,9 +8880,10 @@
    "state": "n/a"
   },
   "privacy-policy|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "privacy-policy|D22": {
    "state": "n/a"
@@ -8064,14 +8918,16 @@
    "state": "n/a"
   },
   "terms-of-service|D4": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "terms-of-service|D5": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "terms-of-service|D6": {
    "state": "✅",
@@ -8079,9 +8935,10 @@
    "locked": true
   },
   "terms-of-service|D7": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "terms-of-service|D8": {
    "state": "n/a"
@@ -8102,9 +8959,10 @@
    "state": "n/a"
   },
   "terms-of-service|D17": {
-   "state": "✅",
+   "state": "⬜",
    "oracle": "validate_content_page_hygiene",
-   "locked": true
+   "locked": true,
+   "regressed": true
   },
   "terms-of-service|D22": {
    "state": "n/a"
@@ -8130,9 +8988,9 @@
    "state": "n/a"
   },
   "agent-memory-store|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "agent-memory-store|D11": {
    "state": "✅",
@@ -8170,9 +9028,9 @@
    "locked": true
   },
   "agentic-rag-loop|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "agentic-rag-loop|D11": {
    "state": "✅",
@@ -8208,9 +9066,9 @@
    "state": "n/a"
   },
   "ai-eval-runner|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "ai-eval-runner|D11": {
    "state": "✅",
@@ -8246,9 +9104,9 @@
    "state": "n/a"
   },
   "ai-gateway|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "ai-gateway|D11": {
    "state": "✅",
@@ -8286,9 +9144,9 @@
    "locked": true
   },
   "ai-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "ai-orchestrator|D11": {
    "state": "✅",
@@ -8324,9 +9182,9 @@
    "state": "n/a"
   },
   "amc-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "amc-orchestrator|D11": {
    "state": "✅",
@@ -8362,9 +9220,9 @@
    "state": "n/a"
   },
   "analytics-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "analytics-orchestrator|D11": {
    "state": "✅",
@@ -8400,9 +9258,9 @@
    "state": "n/a"
   },
   "asset-brain-query|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "asset-brain-query|D11": {
    "state": "✅",
@@ -8574,9 +9432,9 @@
    "state": "n/a"
   },
   "engineering-bom-sow|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "engineering-bom-sow|D11": {
    "state": "✅",
@@ -8612,9 +9470,9 @@
    "state": "n/a"
   },
   "engineering-calc-agent|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "engineering-calc-agent|D11": {
    "state": "✅",
@@ -8684,9 +9542,9 @@
    "state": "n/a"
   },
   "failure-signature-scan|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "failure-signature-scan|D11": {
    "state": "✅",
@@ -8722,9 +9580,9 @@
    "state": "n/a"
   },
   "fmea-populator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "fmea-populator|D11": {
    "state": "✅",
@@ -8760,9 +9618,9 @@
    "state": "n/a"
   },
   "hierarchical-summarizer|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "hierarchical-summarizer|D11": {
    "state": "✅",
@@ -8798,9 +9656,9 @@
    "state": "n/a"
   },
   "intelligence-report|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "intelligence-report|D11": {
    "state": "✅",
@@ -8870,9 +9728,9 @@
    "state": "n/a"
   },
   "project-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "project-orchestrator|D11": {
    "state": "✅",
@@ -8908,9 +9766,9 @@
    "state": "n/a"
   },
   "scheduled-agents|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "scheduled-agents|D11": {
    "state": "✅",
@@ -8946,9 +9804,9 @@
    "state": "n/a"
   },
   "semantic-fact-extractor|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "semantic-fact-extractor|D11": {
    "state": "✅",
@@ -8984,9 +9842,9 @@
    "state": "n/a"
   },
   "shift-planner-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "shift-planner-orchestrator|D11": {
    "state": "✅",
@@ -9022,9 +9880,9 @@
    "state": "n/a"
   },
   "temporal-rag-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "temporal-rag-orchestrator|D11": {
    "state": "✅",
@@ -9060,9 +9918,9 @@
    "state": "n/a"
   },
   "visual-defect-capture|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "visual-defect-capture|D11": {
    "state": "✅",
@@ -9098,9 +9956,9 @@
    "state": "n/a"
   },
   "voice-action-router|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-action-router|D11": {
    "state": "✅",
@@ -9170,9 +10028,9 @@
    "state": "n/a"
   },
   "voice-journal-agent|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-journal-agent|D11": {
    "state": "✅",
@@ -9208,9 +10066,9 @@
    "state": "n/a"
   },
   "voice-logbook-entry|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-logbook-entry|D11": {
    "state": "✅",
@@ -9246,9 +10104,9 @@
    "state": "n/a"
   },
   "voice-report-intent|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-report-intent|D11": {
    "state": "✅",
@@ -9284,9 +10142,9 @@
    "state": "n/a"
   },
   "voice-semantic-rag|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-semantic-rag|D11": {
    "state": "✅",
@@ -9322,9 +10180,9 @@
    "state": "n/a"
   },
   "walkthrough-analyzer|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "walkthrough-analyzer|D11": {
    "state": "✅",
@@ -9367,6 +10225,6 @@
   "coverage_pct": 100.0
  },
  "delta_vs_last": 0.0,
- "dry_streak": 5,
- "dry": true
+ "dry_streak": 0,
+ "dry": false
 }

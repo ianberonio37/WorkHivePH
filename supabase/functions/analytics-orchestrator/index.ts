@@ -282,6 +282,12 @@ async function fetchDiagnosticData(
   const calcsQ = db.from("engineering_calcs")
     .select("calc_type, project_name, inputs, results, created_at, worker_name")
     .order("created_at", { ascending: false })
+    // ★SAME REASON AS THE RISK CUT ABOVE: created_at alone is not a total order, and this read is
+    // capped. Two calcs saved in the same second — a bulk import, or one engineer working through a
+    // sheet — tie, and at the 1000th row the tie decides which calc the analysis sees at all. The id
+    // is unique, so appending it makes the cut reproducible. (Identical fix already applied to
+    // engineering-design.js's own history read, which had the same shape.)
+    .order("id", { ascending: true })
     .limit(1000); // was hardcoded 200 — a hive may have hundreds of calcs
   if (hiveId) calcsQ.eq("hive_id", hiveId);
   else if (workerName) calcsQ.eq("worker_name", workerName);
@@ -396,6 +402,17 @@ async function fetchCanonicalRiskTop(
     .select("asset_name, risk_score, risk_level, mtbf_days, days_until_failure, top_factors, generated_at")
     .eq("hive_id", hiveId)
     .order("risk_score", { ascending: false })
+    // ★risk_score ALONE IS NOT A TOTAL ORDER, and this read is CAPPED, so the tie decides
+    // membership rather than merely position. Measured live 2026-08-19 on hive 084c113b: rank 5 is
+    // GEN-001 at 0.59 and rank 6 is BF-002 at the same 0.59, so `.limit(5)` cuts straight through a
+    // tie and which asset counts as "5th most at-risk" is left to whatever order Postgres happens to
+    // return — which can change with the plan, a vacuum, or a concurrent write, with no data change
+    // at all. That defeats this function's whole stated purpose: it exists so the action_plan
+    // synthesis cites the same risk numbers Predictive Maintenance, Alert Hub and Asset Hub display,
+    // and an unstable cut means the AI can name an asset the dashboards do not, or two reports of an
+    // identical period can disagree about who is on the list. asset_id is unique per row, so
+    // appending it makes the order total and the cut reproducible.
+    .order("asset_id", { ascending: true })
     .limit(limit);
   return (data || []) as Array<Record<string, unknown>>;
 }
@@ -621,7 +638,14 @@ Format as JSON:
   const prompt = `4-phase analytics results:\n${JSON.stringify(redactPII(promptPayload), null, 2)}`;
 
   try {
-    const raw = await callAI(prompt, { systemPrompt: composedSystem, temperature: 0.3, maxTokens: 800, jsonMode: true });
+    // Capture WHICH provider actually answered. callAI returns only the content, and the chain
+    // (groq -> cerebras -> sambanova -> gemini-flash-lite -> openrouter) silently walks past any
+    // provider that is down, so without this hook a degraded answer is indistinguishable from a
+    // primary one on the surface - the page could not say which engine it used because nothing told
+    // it. depth 0 = primary; anything higher means the providers above it were exhausted.
+    let _served: { providerName: string; modelName: string; depth: number } | null = null;
+    const raw = await callAI(prompt, { systemPrompt: composedSystem, temperature: 0.3, maxTokens: 800, jsonMode: true,
+      onServed: (m) => { _served = { providerName: m.providerName, modelName: m.modelName, depth: m.depth }; } });
     if (raw && raw !== "{}") {
       const parsed = JSON.parse(raw);
       // Tier C contract enforcement — refuse to ship action plan with the
@@ -646,7 +670,10 @@ Format as JSON:
           return "{}";
         } catch { return "{}"; }
       }
-      return JSON.stringify(enforceReadablePlan(parsed));
+      // Ride the served-provider identity out with the plan so the page can say which engine
+      // answered. Without it a degraded answer (primaries exhausted, serving from deep in the
+      // chain) is indistinguishable on screen from a primary one.
+      return JSON.stringify({ ...enforceReadablePlan(parsed), _engine: _served });
     }
   } catch { /* fall through */ }
   return "{}";

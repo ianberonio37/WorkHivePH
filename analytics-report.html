@@ -149,6 +149,21 @@
     }
     @media (max-width: 640px) { .doc-panel { padding: 1.1rem; font-size: 0.78rem; } }
 
+    /* The cover's meta table is auto-layout, so its inline `width:100%` is only a PREFERRED width
+       and min-content wins: 4 columns, two of them pinned at 120px, floor the table at 317px. At
+       innerWidth 320 it stayed 317px inside a 230px cover, putting "Prepared by: <name>" 31px past
+       the viewport — and `documentElement.scrollWidth == clientWidth`, so the page could not be
+       scrolled to reach it. The preparer's name is the accountability line on a report meant for
+       client delivery, and it was simply gone on a 320px phone. Stacking the label/value pairs is
+       what actually lets the table shrink; print is untouched because the print width is wide. */
+    @media (max-width: 640px) {
+      .doc-panel .doc-meta-table,
+      .doc-panel .doc-meta-table tbody,
+      .doc-panel .doc-meta-table tr,
+      .doc-panel .doc-meta-table td { display: block; width: auto !important; }
+      .doc-panel .doc-meta-table td { padding: 0.15rem 0 !important; }
+    }
+
     .doc-panel h1 { font-size: 1.25rem; font-weight: 800; margin-bottom: 0.25rem; color: #1a1a1a; }
     .doc-panel h2 {
       font-size: 0.84rem; font-weight: 700; margin: 1.5rem 0 0.55rem;
@@ -191,6 +206,23 @@
       content: attr(data-placeholder);
       color: #aaa; font-style: italic;
     }
+    /* These two spans are the only interactive controls in the generated cover — the project name and
+       the preparer's name, typed on whatever device the supervisor is holding. They measured 22px tall
+       at every width: under this platform's 44px touch floor AND under the WCAG 2.5.8 24x24 minimum.
+       Two floors, because they are different rules: 2.5.8 (AA) is a POINTER-target minimum that holds
+       at every width including desktop with a mouse, so 24px is unconditional; 44px is the platform's
+       touch floor (2.5.5 AAA / mobile HIG) and applies where the pointer is a finger. Print resets to
+       the tight inline baseline — a paper document has no tap target.
+       The 44px floor keys on pointer:coarse rather than a width, because the width was the wrong
+       signal: at innerWidth 641 — a tablet held in two hands — a max-width:640px rule had just handed
+       the fields back to 25px. What decides whether 44px is needed is whether the pointer is a finger,
+       and that is exactly what pointer:coarse reports. The width clause stays beside it for a narrow
+       desktop window, where a mouse makes 24px sufficient but the layout is phone-shaped. */
+    .doc-panel .editable-field { min-height: 24px; line-height: 24px; }
+    @media (max-width: 640px), (pointer: coarse) {
+      .doc-panel .editable-field { min-height: 44px; line-height: 44px; padding: 0 8px; }
+    }
+    @media print { .doc-panel .editable-field { min-height: 0; line-height: inherit; padding: 0 4px; } }
 
     /* Tables — print-safe, scrollable on small screens */
     .doc-panel .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0.5rem 0 0.75rem; }
@@ -323,11 +355,25 @@
       padding: 2px 8px; border-radius: 999px; letter-spacing: 0.04em;
       text-transform: uppercase;
     }
-    .doc-panel .sev-chip.red    { background: #fee2e2; color: var(--wh-red); border: 1px solid #fecaca; }
+    /* DARK INK ON A PALE TINT — this is a PRINT surface, so the whole chip family sits on light
+       backgrounds. .amber, .green and .gray already followed that rule with the 800-weight ink of their
+       own hue; .red and .purple reached for the brand FILL tokens instead and were the only two that
+       failed. Found 2026-08-06 walking the generated analytics report: axe reported 9 colour-contrast
+       violations, all of them these chips ("INCREASE FREQUENCY" and siblings) at 11px/700.
+       Measured, not guessed: --wh-red #f87171 on #fee2e2 was ratio 2.26 against the 4.5 AA bar; #991b1b
+       is 6.80, which lands it exactly alongside amber-800 (6.37) and green-800 (6.78). --wh-violet
+       #a78bfa on #ede9fe was 2.29; #7c3aed is 4.80 — and tokens.css:109 already names that value in its
+       own comment, "AA light-surface = #7c3aed", so both were documented misuses rather than missing
+       tokens, the same shape as --wh-red vs --wh-red-text on the dark surfaces.
+       Worth stating why the perceptual lens did NOT catch these: it scored them Lc 42.1 against a floor
+       of 30, because the floor table hands anything under 14px the lenient small-UI threshold. An 11px
+       BOLD LABEL is not small UI, so that floor is too permissive for text and is recorded as a lens
+       calibration gap — axe was right here and the lens was wrong. */
+    .doc-panel .sev-chip.red    { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
     .doc-panel .sev-chip.amber  { background: #fef3c7; color: #92400e; border: 1px solid var(--wh-amber); }
     .doc-panel .sev-chip.green  { background: #d1fae5; color: #065f46; border: 1px solid var(--wh-green); }
     .doc-panel .sev-chip.gray   { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
-    .doc-panel .sev-chip.purple { background: #ede9fe; color: var(--wh-violet); border: 1px solid #ddd6fe; }
+    .doc-panel .sev-chip.purple { background: #ede9fe; color: #7c3aed; border: 1px solid #ddd6fe; }
 
     /* Asset cards — used in Findings (problem assets) and Predictive (risk assets) */
     .doc-panel .asset-card-grid {
@@ -669,8 +715,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       pdfBtn.disabled = true;
 
       var mount = document.getElementById('ar-report-mount');
+      // aria-busy + aria-live + role=status: the spinner was VISUAL ONLY, and this is the longest
+      // wait on the page. Measured live, the orchestrator returned in 4.1s on one run and 32.6s on
+      // another, so a screen-reader user was left with no announcement that anything was happening
+      // for up to half a minute — and the button carries no label change either, it just goes
+      // disabled. aria-busy says the region is working; aria-live=polite delivers the result when the
+      // report replaces this node, without interrupting.
       mount.innerHTML =
-        '<div class="ar-status">' +
+        '<div class="ar-status" role="status" aria-busy="true" aria-live="polite">' +
           '<div class="ar-spinner"></div>' +
           'Compiling analytics across all 4 phases. This usually takes 5–15 seconds.' +
         '</div>';
@@ -795,7 +847,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           '</div>' +
 
           // Compact 2-column metadata table (Project + Prepared by only — fewer fields, less noise)
-          '<!-- table-name-allow: maintenance analytics report data table --> <table style="width:100%;border-collapse:collapse;margin-top:0.5rem;font-size:0.78rem;">' +
+          '<!-- table-name-allow: maintenance analytics report data table --> <table class="doc-meta-table" style="width:100%;border-collapse:collapse;margin-top:0.5rem;font-size:0.78rem;">' +
             '<tr>' +
               '<td style="width:120px;color:#555;padding:0.3rem 0.5rem 0.3rem 0;"><b>Project / Site:</b></td>' +
               '<td style="padding:0.3rem 0;">' +
@@ -826,7 +878,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     // ─── Schema-aware accessors — extract the right list from each section ─
     function descriptiveSummary(desc){
-      if (!desc) return { totalAssets: 0, fleetMtbfDays: null, pmCompliancePct: null };
+      if (!desc) return { totalAssets: 0, fleetMtbfDays: null, pmCompliancePct: null, pmCompleted: null, pmScheduled: null };
       var mtbfArr = arr(desc.mtbf && desc.mtbf.mtbf_by_asset);
       var withDays = mtbfArr.filter(function(r){ return r && r.mtbf_days != null; });
       var avg = withDays.length
@@ -836,6 +888,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         totalAssets:     mtbfArr.length,
         fleetMtbfDays:   avg,
         pmCompliancePct: desc.pm_compliance && desc.pm_compliance.overall_pct,
+        // 79% of WHAT. The payload has carried total_completed/total_scheduled all along and the
+        // strip rendered only the ratio, so an executive reading '79%' could not tell whether it
+        // meant completed-of-scheduled or on-time-of-completed - two numbers a plant is judged on.
+        pmCompleted:  desc.pm_compliance && desc.pm_compliance.total_completed,
+        pmScheduled:  desc.pm_compliance && desc.pm_compliance.total_scheduled,
       };
     }
     function rankingItems(presc){
@@ -1027,9 +1084,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       var p1 = counts.p1, p2 = counts.p2;
       var summary = descriptiveSummary(desc);
       var totalAssets = summary.totalAssets || rankingItems(presc).length;
-      var ok = Math.max(0, totalAssets - p1 - p2);
+      // ★'ON TRACK / Operating normally' WAS A CLAIM THE DATA DOES NOT MAKE. This band is the
+      // PRESCRIPTIVE ranking's lowest priority (P3) - it says no P1/P2 maintenance action is ranked
+      // for those assets, NOT that they are healthy. On this very report all 30 tracked assets are
+      // HIGH risk in the predictive phase, so 18 assets were being described as 'operating normally'
+      // a few lines above '30 assets likely to fail in the coming weeks'. Two different models, one
+      // undifferentiated risk picture. Read counts.p3 instead of deriving a residual: the residual
+      // silently absorbs any disagreement between the descriptive asset count and the ranking length.
+      var ok = counts.p3 != null && (p1 + p2 + counts.p3) === totalAssets
+        ? counts.p3
+        : Math.max(0, totalAssets - p1 - p2);
 
       var compliance = summary.pmCompliancePct;
+      var pmDenom = (summary.pmCompleted != null && summary.pmScheduled)
+        ? summary.pmCompleted + ' of ' + summary.pmScheduled + ' scheduled'
+        : '';
       var mtbfDays   = summary.fleetMtbfDays;
       var predHigh   = arr(pred.next_failure_dates && pred.next_failure_dates.predictions)
         .filter(function(r){ return (r.risk || '').toLowerCase() === 'high'; }).length;
@@ -1046,6 +1115,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           '<div class="kpi-cell' + pmKpiCls + '">' +
             '<div class="kpi-label">PM Compliance</div>' +
             '<div class="kpi-value">' + (compliance != null ? Number(compliance).toFixed(0) : '-') + '<span class="kpi-unit">%</span></div>' +
+            (pmDenom ? '<div class="kpi-sub">' + pmDenom + '</div>' : '') +
           '</div>' +
           '<div class="kpi-cell">' +
             '<div class="kpi-label">Fleet MTBF</div>' +
@@ -1137,8 +1207,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             '</td>' +
             '<td class="rag-green">' +
               '<div class="rag-tile-num">' + ok + '</div>' +
-              '<div class="rag-tile-label">On Track</div>' +
-              '<div class="rag-tile-note">' + (ok ? 'Operating normally' : 'No assets in green band') + '</div>' +
+              '<div class="rag-tile-label">Routine (P3)</div>' +
+              '<div class="rag-tile-note">' + (ok ? 'No P1/P2 action ranked' : 'No assets in green band') + '</div>' +
             '</td>' +
           '</tr></table>' +
 

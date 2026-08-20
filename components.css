@@ -78,6 +78,14 @@
 .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:#cbd5e1; }
 
 /* "What to do next" recommendation card */
+/* CLS NOTE — do NOT "fix" a shift by reserving this card, and do not read a layout-shift entry the
+   way I did on 2026-08-06. project-manager measured CLS 0.108 from one 0.102 shift whose `sources`
+   listed action-card / simple-row / #pm-verdict, and this card was the only one of the three with
+   min-height:0 against a 131px render — so it looked like the culprit. It was not. A layout-shift
+   entry's `sources` are the nodes that MOVED, i.e. the VICTIMS pushed down; the element that grew is
+   usually NOT in the list at all. Reserving 131px here changed CLS by 0.0012 (0.1080 -> 0.1092) and
+   was reverted. When several siblings shift together at the same timestamp, look for what inserted
+   height ABOVE the first of them, not for the unreserved one among them. */
 .action-card { background:rgba(var(--wh-blue-rgb),0.06); border:1px solid rgba(var(--wh-blue-rgb),0.25); border-radius:var(--wh-radius); padding:14px 16px; margin-bottom:var(--wh-space-6); }
 .action-card .ac-label { font-size:0.65rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
 /* Arc L · L1 CLS: reserve ~3 lines for the async recommendation (measured 1-line placeholder
@@ -221,3 +229,58 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
    drifts eleven times. Measured after: CLS 0.2302 -> 0.0423 (GOOD).
    --------------------------------------------------------------------------- */
 html { scrollbar-gutter: stable; }
+
+/* ---------------------------------------------------------------------------
+   REDUCED MOTION — the global honouring of prefers-reduced-motion (2026-08-13)
+
+   MEASURED GAP, not a speculative hardening. Driving all 13 reachable V2/V3
+   dialogs under an emulated `prefers-reduced-motion: reduce`
+   (tools/prove_dialog_a11y.mjs) found motion still running in almost every one:
+   31 elements in inventory's #part-modal, and 3 apiece in resume's
+   #resume-manager, community's #composer-overlay, skillmatrix's #lesson-modal
+   and pm-scheduler's #completion-sheet. The cause was not the dialogs. Before
+   this block the platform honoured the media query only in two narrow,
+   per-component places -- `.wh-disclose > summary::after` (line ~114) and
+   `.wh-skeleton-row` (line ~127) -- so anything carrying `transition: all` or a
+   transform transition kept moving for a person who had explicitly asked it not
+   to. One missing rule presenting as a dozen page defects, which is why the fix
+   belongs HERE and not in a dozen files.
+
+   WHY IT IS SAFE TO MAKE GLOBALLY: this block cannot affect the default
+   experience at all. It applies only when the visitor's own OS/browser setting
+   asks for reduced motion, so nothing changes for anyone who has not asked.
+
+   SPINNERS ARE DELIBERATELY EXEMPT, and that exemption is the whole reason this
+   is not the copy-paste reset from every blog post. The usual snippet slams
+   `animation-duration: 0.01ms !important` onto `*`, which FREEZES indeterminate
+   progress indicators -- and a spinner that has stopped spinning is no longer
+   telling anyone that work is in flight, it is telling them the page has hung.
+   WCAG 2.3.3 is about NON-ESSENTIAL motion; a loading indicator is essential.
+   So the reset targets transitions and decorative animation and steps around
+   the loader/skeleton/shimmer/progress family, which is exactly the same line
+   the prover draws when it counts spinners separately instead of failing them.
+
+   TRANSFORMS AND OFFSETS, not colour. Colour and opacity transitions are left
+   alone on purpose: a 150ms background-colour change is not motion, and killing
+   it would strip useful feedback (hover, focus, pressed) from the very users
+   most likely to be navigating slowly. The prover applies the same distinction,
+   so the gate and the stylesheet agree on what "motion" means.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"]):not(progress),
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::before,
+  *:not(.wh-skeleton):not(.wh-skeleton-row):not(.spinner):not(.loader):not([class*="shimmer"]):not([class*="loading"]):not([class*="animate-pulse"])::after {
+    /* Motion only. Colour/opacity transitions survive deliberately (see above). */
+    transition-property: color, background-color, border-color, outline-color, fill, stroke, opacity, box-shadow !important;
+    animation-name: none !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+  /* NO blanket `transform: none` here, deliberately. It was written and removed within the minute:
+     transform is not only an animation property on this platform, it is a LAYOUT one -- centring via
+     translate(-50%, -50%), dropdown and sheet positioning, the hub pill. Killing every transform would
+     visually break the page for precisely the people this block exists to help, which is a far worse
+     outcome than a residual transition. Suppressing the transition PROPERTY (above) already stops the
+     movement; the transform itself is where the element is supposed to be. */
+}

@@ -945,7 +945,7 @@
         "via": "js_parse_heuristic",
         "source": "seller_credit_balance",
         "source_kind": "rpc",
-        "confidence": "high"
+        "confidence": "medium"
       }
     },
     {

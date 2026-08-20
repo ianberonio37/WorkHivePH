@@ -1,0 +1,649 @@
+{
+ "_what": "CK component -> LIVE selector bindings. Raw material for a CK ui-state prover, NOT a finished table: only `bound` may be walked, and each entry carries the sample text it was confirmed by.",
+ "_method": [
+  "Source-line parsing was tried FIRST and rejected: 26 of 66 derived, and the derivations were unsafe (a template-literal fragment `.reaction-btn${d.mine`; `#dp-week-hero` bound to a component named 'item modal'). A line number says where a component was WRITTEN, not what it renders.",
+  "So candidates come from a LIVE inventory of all 22 pages (tools/ground_components.mjs): 228 repeated structures + 483 id-blocks, ranked by MEANING rather than by count, because ranking by count on a utility-CSS page returns `.flex.items-center` and never the component.",
+  "Name-token matching then proposed 30 bindings. THREE filters cut that to 11, each filter added because it caught a real error: a BUTTON is not the component it opens (`#asset-picker-btn` for 'parts picker'); a row/tile/card must REPEAT, not be a singleton id; and a row that renders under 20 characters is a label INSIDE the row, not the row (`.badge` -> 'BEARINGS' for 'part row').",
+  "The 36 that never matched and the 19 rejected are NOT guesses to be filled in later from this file - they need a live look, page by page, the way tools/dialog_targets.mjs was built.",
+  "All proposals were then CONFIRMED LIVE (every selector queried on its own page). 11 resolved; 2 of those were still wrong on inspection of their sample text and were dropped. 9 stand, each with the text it renders. Resolving is necessary and not sufficient — a selector can match a real node that is the wrong component."
+ ],
+ "bound": [
+  {
+   "page": "hive",
+   "key": "C1",
+   "name": "readiness/KPI tile",
+   "sel": "[data-rag-tile]",
+   "score": 2,
+   "kind": "repeated",
+   "sample": "🔧 SAFETY · DO FIRST 29 Assets with PM overdue Sche",
+   "check": "keep",
+   "confirmed_live": true
+  },
+  {
+   "page": "asset-hub",
+   "key": "C1",
+   "name": "asset node row",
+   "sel": ".asset-card",
+   "score": 2,
+   "kind": "repeated",
+   "sample": "BE-001 Beumer BE 250 Mechanical · Workshop MEDIUM ",
+   "check": "keep",
+   "confirmed_live": true
+  },
+  {
+   "page": "skillmatrix",
+   "key": "C3",
+   "name": "result / badge card",
+   "sel": ".disc-card-header",
+   "score": 2,
+   "kind": "repeated",
+   "sample": "🔧 Mechanical Lv 2 / 3",
+   "check": "keep",
+   "confirmed_live": true
+  },
+  {
+   "page": "voice-journal",
+   "key": "C1",
+   "name": "record control + mic state",
+   "sel": "#mic-state",
+   "score": 4,
+   "kind": "id",
+   "sample": "Tap to start. Tap again to stop.",
+   "check": "keep",
+   "confirmed_live": true
+  },
+  {
+   "page": "voice-journal",
+   "key": "C3",
+   "name": "entry row",
+   "sel": ".history-entry",
+   "score": 2,
+   "kind": "repeated",
+   "sample": "09:06 AM SPEAK AGAIN Quote the warranty expiry dat",
+   "check": "keep",
+   "confirmed_live": true
+  },
+  {
+   "page": "community",
+   "key": "C1",
+   "name": "post card",
+   "sel": ".post-card",
+   "score": 4,
+   "kind": "repeated",
+   "sample": "BG 60 Bryan Garcia TECHNICAL Jul 16, 2026 Tip: kee",
+   "check": "keep",
+   "confirmed_live": true
+  },
+  {
+   "page": "public-feed",
+   "key": "C1",
+   "name": "post card",
+   "sel": ".post-card",
+   "score": 4,
+   "kind": "repeated",
+   "sample": "Jericho Bonifacio GENERAL Jul 16, 2026 Reminder: M",
+   "check": "keep",
+   "confirmed_live": true
+  },
+  {
+   "page": "engineering-design",
+   "key": "C1",
+   "name": "calc input form",
+   "sel": "#input-form-area",
+   "score": 4,
+   "kind": "id",
+   "sample": "Select a calculation type first.",
+   "check": "keep",
+   "confirmed_live": true
+  },
+  {
+   "page": "project-report",
+   "key": "C1",
+   "name": "exec summary block",
+   "sel": "#exec-summary",
+   "score": 4,
+   "kind": "id",
+   "sample": "Open this page from the Project Manager (Detail → ",
+   "check": "keep",
+   "confirmed_live": true
+  }
+ ],
+ "rejected": [
+  {
+   "page": "index",
+   "key": "C3",
+   "name": "oh-more details disclosure",
+   "sel": "#oh-more",
+   "score": 2,
+   "kind": "id",
+   "sample": "More",
+   "check": "SUSPECT: single shared word against a singleton id"
+  },
+  {
+   "page": "logbook",
+   "key": "C2",
+   "name": "capture form",
+   "sel": "#log-form",
+   "score": 2,
+   "kind": "id",
+   "sample": "Fastest: let AI fill it Speak to fill Describe the",
+   "check": "SUSPECT: single shared word against a singleton id"
+  },
+  {
+   "page": "logbook",
+   "key": "C3",
+   "name": "parts picker",
+   "sel": "#asset-picker-btn",
+   "score": 2,
+   "kind": "id",
+   "sample": "Select or search asset...",
+   "check": "REJECT: selector is a BUTTON, the component is not"
+  },
+  {
+   "page": "project-manager",
+   "key": "C1",
+   "name": "project row",
+   "sel": "#project-print-btn",
+   "score": 2,
+   "kind": "id",
+   "sample": "📄 Print Report",
+   "check": "REJECT: selector is a BUTTON, the component is not"
+  },
+  {
+   "page": "dayplanner",
+   "key": "C3",
+   "name": "period switcher (4-tab bar)",
+   "sel": "#tab-dilo",
+   "score": 2,
+   "kind": "id",
+   "sample": "Day",
+   "check": "SUSPECT: single shared word against a singleton id"
+  },
+  {
+   "page": "analytics",
+   "key": "C3",
+   "name": "verdict + action block",
+   "sel": "#an-verdict",
+   "score": 2,
+   "kind": "id",
+   "sample": "· Rolling up reliability KPIs... Reading your logb",
+   "check": "SUSPECT: single shared word against a singleton id"
+  },
+  {
+   "page": "alert-hub",
+   "key": "C1",
+   "name": "verdict hero trio (ah- cohort chrome)",
+   "sel": "#ah-verdict",
+   "score": 2,
+   "kind": "id",
+   "sample": "⚠ Needs your attention now You have open critical ",
+   "check": "SUSPECT: single shared word against a singleton id"
+  },
+  {
+   "page": "alert-hub",
+   "key": "C3",
+   "name": "anomaly signal row",
+   "sel": "#ah-card-anomaly",
+   "score": 2,
+   "kind": "id",
+   "sample": "ANOMALY SIGNALS 0 No fused anomalies in your hive ",
+   "check": "REJECT: a row/tile/card must REPEAT; this candidate is a singleton id"
+  },
+  {
+   "page": "shift-brain",
+   "key": "C3",
+   "name": "action block",
+   "sel": "#sb-action-text",
+   "score": 2,
+   "kind": "id",
+   "sample": "9 open items carried forward. Close out the simple",
+   "check": "SUSPECT: single shared word against a singleton id"
+  },
+  {
+   "page": "community",
+   "key": "C2",
+   "name": "reply row",
+   "sel": "#reply-btn-0f78265c-602b-4c5a-b617-1e8d40e47a84",
+   "score": 2,
+   "kind": "id",
+   "sample": "0",
+   "check": "REJECT: selector is a BUTTON, the component is not"
+  },
+  {
+   "page": "community",
+   "key": "C3",
+   "name": "reaction bar",
+   "sel": ".reaction-btn",
+   "score": 2,
+   "kind": "repeated",
+   "sample": "👍 0",
+   "check": "REJECT: selector is a BUTTON, the component is not"
+  },
+  {
+   "page": "achievements",
+   "key": "C3",
+   "name": "level / progress bar",
+   "sel": "#ac-card-level",
+   "score": 2,
+   "kind": "id",
+   "sample": "TOTAL LEVEL 153 Sum of levels across all 12 domain",
+   "check": "SUSPECT: single shared word against a singleton id"
+  },
+  {
+   "page": "engineering-design",
+   "key": "C2",
+   "name": "result / report block",
+   "sel": "#report-empty",
+   "score": 2,
+   "kind": "id",
+   "sample": "📐 No Report Yet Fill in the inputs on the left and",
+   "check": "SUSPECT: single shared word against a singleton id"
+  },
+  {
+   "page": "resume",
+   "key": "C1",
+   "name": "upload card + multi-file input",
+   "sel": "#upload-card",
+   "score": 4,
+   "kind": "id",
+   "sample": "📎 Add from files Dump as many as you like: photo, ",
+   "check": "REJECT: a row/tile/card must REPEAT; this candidate is a singleton id"
+  },
+  {
+   "page": "report-sender",
+   "key": "C1",
+   "name": "report row",
+   "sel": "#report-sender-source-chip",
+   "score": 2,
+   "kind": "id",
+   "sample": "Live · contacts refreshed on load, history on load",
+   "check": "REJECT: a row/tile/card must REPEAT; this candidate is a singleton id"
+  },
+  {
+   "page": "index",
+   "key": "C1",
+   "name": "oh-tile KPI tile",
+   "sel": "[data-kpi]",
+   "score": 2,
+   "kind": "repeated",
+   "sample": "9 OPEN JOBS",
+   "check": "REJECT: renders only 11 chars — this is a label INSIDE the component, not the component"
+  },
+  {
+   "page": "inventory",
+   "key": "C1",
+   "name": "part row (stock + reorder badge)",
+   "sel": ".badge",
+   "score": 2,
+   "kind": "repeated",
+   "sample": "BEARINGS",
+   "check": "REJECT: renders only 8 chars — this is a label INSIDE the component, not the component"
+  },
+  {
+   "page": "analytics",
+   "key": "C1",
+   "name": "KPI hero card (an- cohort chrome)",
+   "sel": ".sc-hero",
+   "score": 2,
+   "kind": "repeated",
+   "sample": "-",
+   "check": "REJECT: renders only 1 chars — this is a label INSIDE the component, not the component"
+  },
+  {
+   "page": "alert-hub",
+   "key": "C2",
+   "name": "dismissible alert row",
+   "sel": ".alert-icon",
+   "score": 2,
+   "kind": "repeated",
+   "sample": "🧬",
+   "check": "REJECT: renders only 1 chars — this is a label INSIDE the component, not the component"
+  },
+  {
+   "page": "shift-brain",
+   "key": "C1",
+   "name": "verdict hero trio",
+   "sel": ".sc-hero",
+   "score": 2,
+   "kind": "repeated",
+   "sample": "1",
+   "check": "REJECT (live): renders '1' with 0 children — a leaf figure INSIDE the hero, not the hero block. A name implying a BLOCK (hero/trio/panel) must have children."
+  },
+  {
+   "page": "assistant",
+   "key": "C2",
+   "name": "source/provenance chip",
+   "sel": ".starter-chip",
+   "score": 2,
+   "kind": "repeated",
+   "sample": "Which of my assets has the worst MTBF, and what sh",
+   "check": "REJECT (live): .starter-chip renders 'Which of my assets has the worst MTBF...' — a SUGGESTED-QUESTION chip, not a source/provenance chip. Same word, different component; only the sample text exposes it, which is why samples are carried."
+  }
+ ],
+ "unmatched": [
+  {
+   "page": "index",
+   "key": "C2",
+   "name": "oh-job-row open-job row",
+   "sel": "[data-kpi]",
+   "score": 1,
+   "kind": "repeated",
+   "sample": "9 OPEN JOBS"
+  },
+  {
+   "page": "hive",
+   "key": "C2",
+   "name": "member roster row",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "hive",
+   "key": "C3",
+   "name": "benchmark panel",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "logbook",
+   "key": "C1",
+   "name": "entry row",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "inventory",
+   "key": "C2",
+   "name": "use form",
+   "sel": ".btn-danger",
+   "score": 1,
+   "kind": "repeated",
+   "sample": "Use"
+  },
+  {
+   "page": "inventory",
+   "key": "C3",
+   "name": "restock form",
+   "sel": ".btn-green",
+   "score": 1,
+   "kind": "repeated",
+   "sample": "Restock"
+  },
+  {
+   "page": "pm-scheduler",
+   "key": "C1",
+   "name": "PM task row",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "pm-scheduler",
+   "key": "C2",
+   "name": "completion form",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "pm-scheduler",
+   "key": "C3",
+   "name": "scope-item checklist",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "project-manager",
+   "key": "C2",
+   "name": "item/WBS row",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "project-manager",
+   "key": "C3",
+   "name": "change-order row",
+   "sel": "#filter-type",
+   "score": 1,
+   "kind": "id",
+   "sample": "All types Work Order Shutdown CAPEX Contractor"
+  },
+  {
+   "page": "dayplanner",
+   "key": "C1",
+   "name": "schedule item row",
+   "sel": "#dp-verdict-sub",
+   "score": 1,
+   "kind": "id",
+   "sample": "Close them out (mark Closed) or re-schedule so the"
+  },
+  {
+   "page": "dayplanner",
+   "key": "C2",
+   "name": "item modal",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "asset-hub",
+   "key": "C2",
+   "name": "FMEA mode row",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "asset-hub",
+   "key": "C3",
+   "name": "sensor panel",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "analytics",
+   "key": "C2",
+   "name": "Plotly chart",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "skillmatrix",
+   "key": "C1",
+   "name": "skill cell",
+   "sel": "#skillmatrix-source-chip",
+   "score": 1,
+   "kind": "id",
+   "sample": "Live · refreshed on load · Based on your skills & "
+  },
+  {
+   "page": "skillmatrix",
+   "key": "C2",
+   "name": "exam question",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "shift-brain",
+   "key": "C2",
+   "name": "plan row",
+   "sel": "#shift-source-chip",
+   "score": 1,
+   "kind": "id",
+   "sample": "STALE · plan generated Aug 13, 04:44 AM, not the c"
+  },
+  {
+   "page": "voice-journal",
+   "key": "C2",
+   "name": "transcript block",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "assistant",
+   "key": "C1",
+   "name": "message bubble",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "assistant",
+   "key": "C3",
+   "name": "composer",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "public-feed",
+   "key": "C2",
+   "name": "retry control",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "public-feed",
+   "key": "C3",
+   "name": "feed header / loader",
+   "sel": "#wh-wayfinding",
+   "score": 1,
+   "kind": "id",
+   "sample": "Back Home › Public Feed: WorkHive"
+  },
+  {
+   "page": "achievements",
+   "key": "C1",
+   "name": "achievement tile",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "achievements",
+   "key": "C2",
+   "name": "XP log row",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "engineering-design",
+   "key": "C3",
+   "name": "diagram (drawing-symbols + mermaid)",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "resume",
+   "key": "C2",
+   "name": "checklist review row",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "resume",
+   "key": "C3",
+   "name": "resume version row",
+   "sel": ".card",
+   "score": 1,
+   "kind": "repeated",
+   "sample": "Your Details The top of your resume FULL NAME HEAD"
+  },
+  {
+   "page": "report-sender",
+   "key": "C2",
+   "name": "contact row",
+   "sel": "#rs-card-recipients",
+   "score": 1,
+   "kind": "id",
+   "sample": "RECIPIENTS 0 Pick a saved contact or type an email"
+  },
+  {
+   "page": "report-sender",
+   "key": "C3",
+   "name": "send form",
+   "sel": "#wh-main-content",
+   "score": 1,
+   "kind": "id",
+   "sample": "WORKHIVE Reports Select reports. Add email. Send. "
+  },
+  {
+   "page": "project-report",
+   "key": "C2",
+   "name": "progress / items table",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "project-report",
+   "key": "C3",
+   "name": "budget block",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "analytics-report",
+   "key": "C1",
+   "name": "cover / header block",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "analytics-report",
+   "key": "C2",
+   "name": "finding card",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  },
+  {
+   "page": "analytics-report",
+   "key": "C3",
+   "name": "action item row",
+   "sel": null,
+   "score": 0,
+   "kind": null,
+   "sample": ""
+  }
+ ]
+}

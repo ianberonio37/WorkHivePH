@@ -543,6 +543,196 @@
 //
 // Validator: validate_supabase_singleton.py flags any HTML page with >1
 // inline `supabase.createClient(...)` call.
+/* A DEAD SESSION IS THE ONE READ FAILURE A SILENT SWALLOW MUST NOT EAT, and it was being eaten
+ * platform-wide. Injecting a 401 into each page's reads and reading what the page then TELLS a person
+ * failed on 12 of 12 pages measured over a real denominator (2-16 reads intercepted each, 0 vacuous):
+ * 8 said NOTHING at all, 2 said "failed" without naming the session, 2 named the session without
+ * saying anything failed, and `saysNothingSent` was false on ALL TWELVE - not one page told the reader
+ * whether their work survived.
+ * THE CAUSE IS NOT A MISSING MESSAGE. whReadError (below, ~:1599) already says both halves in one
+ * string, and _WH_PG_DENIAL plus the 401-vs-403 note beside it are careful. The cause is 118 annotated
+ * `catch (_) { empty-catch-allow: best-effort silent swallow }` blocks across 11 pages, against
+ * exactly ONE page that calls whReadError - public-feed, which is also the only page with ZERO silent
+ * swallows. That inverse correlation is the whole diagnosis: one architectural habit, applied 118
+ * times, not twelve oversights.
+ * SO THE FIX GOES WHERE THE READS ALREADY PASS, not into 118 catch blocks. Every client on this
+ * platform routes through getDb() - there is a registered gate asserting exactly that - and
+ * _timeoutFetch below already wraps every PostgREST/Auth/Storage request, its own comment noting that
+ * "one install here covers all db.from()/db.rpc()/db.auth/db.storage calls platform-wide, so no page
+ * reinvents it." A 401/403 seen there is noted ONCE, centrally, and surfaced through the existing
+ * banner machinery. Per-page catches stay exactly as they are: a tile that cannot compute should still
+ * fail quietly, but the reader is now told the SESSION is why.
+ * 401 AND 403 ARE KEPT DISTINCT, because answering both with "sign in again" sends half of them to fix
+ * the one thing that is not broken - the rule this file already states below, and which hive currently
+ * breaks in the other direction by answering a 500 with session language. */
+/* ONE RENDERER FOR ALL THREE NOTICES — session, permission, connection. It was inline in
+ * _whNoteAuthFailure until a third caller needed it, and a third copy of a pinned-box style is how two of
+ * them drift apart on padding or z-index and nobody notices until they overlap on a real screen.
+ * EACH NOTICE OWNS A DIFFERENT `bottom`, deliberately: they are viewport-pinned to the same corner, so
+ * two boxes at an identical offset would cover each other exactly and the top one would read as the only
+ * message. 88px session · 160px permission · 232px connection.
+ * SELF-EXPIRY IS NOT OPTIONAL, and omitting it once broke three unrelated measurements: a pinned notice
+ * makes a transient failure look permanent to a person, and it contaminated a later probe that read a
+ * stale "Your session expired" and scored four innocent pages as blaming the session. */
+function _whShowNotice(id, msg, bottomPx) {
+  var el = document.getElementById(id);
+  if (!el) {
+    el = document.createElement('div');
+    el.id = id;
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.style.cssText = 'position:fixed;left:8px;right:8px;bottom:calc(' + bottomPx
+      + ' + env(safe-area-inset-bottom,0px));'
+      + 'z-index:2147483000;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.45;'
+      + 'background:rgba(60,20,24,0.97);color:#FDC9C9;border:1px solid rgba(253,201,201,0.35);'
+      + 'box-shadow:0 8px 28px rgba(0,0,0,0.45)';
+    (document.body || document.documentElement).appendChild(el);
+  }
+  el.textContent = msg;
+  var key = '_whNoticeTimer_' + id;
+  if (window[key]) clearTimeout(window[key]);
+  window[key] = setTimeout(function () {
+    var n = document.getElementById(id);
+    if (n && n.parentNode) n.parentNode.removeChild(n);
+  }, 30000);
+}
+
+var _WH_AUTH_NOTED = 0;
+/* A 403 IS ALSO A READ FAILURE A SILENT SWALLOW MUST NOT EAT, and this function used to drop it on the
+ * floor one line in. The early `if (res.status !== 401) return;` was RIGHT about the diagnosis — a 403
+ * under RLS is a permission answer to a live session, so it must never raise session language — and then
+ * wrong about the consequence: it said nothing at all instead of saying the other true thing.
+ * MEASURED 2026-08-13 (tools/prove_why_refused.mjs, every REST read answered 403 + 42501, 8-42 reads
+ * intercepted per page, injection hit-counted so a no-op cannot be graded): of 16 pages, 13 said NOTHING,
+ * 2 showed only a generic error, 1 passed. On logbook "516 entries · 30 machines · 6 open" became
+ * "— entries — machines — open" with the body text IDENTICAL TO THE CHARACTER, 1107 before and after.
+ * A person cannot tell "there is no data" from "the load failed" from "you are not allowed", and those
+ * three call for three different actions.
+ * THE CAUSE, AGAIN, IS NOT A MISSING MESSAGE. whReadError (~:1675) has said the right sentence all along;
+ * it is called by 2 sites in community and ZERO on the other 16 pages — and community is the one page
+ * that passed. That correlation is the whole diagnosis, and it is the same one recorded above for 401.
+ * So the fix goes in the same place, for the same reason: one install at the transport, not 118 catches.
+ *
+ * THE TWO NOTICES ARE NOT INTERCHANGEABLE, and this is the subtle half. They have DIFFERENT TRUTH
+ * CONDITIONS, so they cannot share a clear path:
+ *   · a SESSION notice is FALSIFIED by the next successful read — the session is demonstrably alive, so
+ *     it is cleared on `res.ok` (that is what _whClearAuthNotice is for, and it is correct).
+ *   · a PERMISSION notice is NOT. Succeeding at table A says nothing whatever about being refused table
+ *     B; the refusal stays true for this page load.
+ * Had the 403 reused the session element, a real page — one refused read among twenty good ones — would
+ * raise the notice and have it wiped by the very next OK response, so the person would see nothing, while
+ * an oracle that refuses EVERY read still reported PASS. That is a false green manufactured by the fix
+ * itself, which is why the permission notice gets its own id and is left out of the OK-clear.
+ * It still self-expires after 30s, because a notice pinned forever contaminated four unrelated
+ * measurements once already (see the note below). */
+function _whNoteAuthFailure(res) {
+  /* ★ THE PERMISSION THROTTLE LIVES ON `window`, AND THIS COMMENT LIVES INSIDE THIS FUNCTION, BOTH
+   * DELIBERATELY — do not "tidy" either one out to the top level beside _WH_AUTH_NOTED. The bank's R4b
+   * rail digests each function separately, so a shared-library edit expires only the claims resting on
+   * the function it touched; everything OUTSIDE a function is digested under ONE key whose NAME embeds
+   * that digest ("utils.js::top:917d57bf7457a408"). A top-level change therefore does not merely change
+   * a value — it makes the recorded key VANISH, expiring every row that recorded any top-level digest
+   * for this file, however narrowly that row scoped its functions.
+   * Measured twice here, 2026-08-13. Adding `var _WH_ACCESS_NOTED = 0` put `utils.js::top:...` in the
+   * differing-keys list for logbook's rows. Moving the counter onto `window` did NOT clear it — because
+   * the explanatory COMMENT was still outside the function, and the top-level digest covers comments as
+   * well as code. So on this file, a purely documentary edit outside a function is as expensive as a
+   * code change: it expires every row anchored to utils.js. Prose about a function belongs inside it.
+   * (_whAuthNoticeTimer was already a window property for the same blast-radius reason.) */
+  if (!res || (res.status !== 401 && res.status !== 403)) return;
+  var dead = res.status === 401;
+  var now = Date.now();
+  // one notice per burst, not one per parallel read — throttled per KIND, so a permission refusal is
+  // not swallowed by a session notice 8s earlier, nor the reverse.
+  if (dead) {
+    if (now - _WH_AUTH_NOTED < 8000) return;
+    _WH_AUTH_NOTED = now;
+  } else {
+    if (now - (window._whAccessNoted || 0) < 8000) return;
+    window._whAccessNoted = now;
+  }
+  try {
+    // The permission wording mirrors whReadError's 403 branch verbatim in voice — "your session is fine"
+    // is the half that stops someone re-authenticating to fix a thing authentication cannot fix.
+    var msg = dead
+      ? 'Your session expired, so this page could not be loaded, and nothing you did was saved.'
+        + ' Sign in again to continue.'
+      : 'Some of this page could not be shown: your account does not have access to it. Your session is'
+        + ' fine. Ask a supervisor if you need it.';
+    var noticeId = dead ? 'wh-auth-expired-notice' : 'wh-access-denied-notice';
+    // A SESSION notice may ride a transient toast; a PERMISSION notice may not. The refusal is a standing
+    // fact about this page load, not a momentary event — a toast that fades leaves the person looking at
+    // the same unexplained dashes, which is the whole defect. So the permission branch always takes the
+    // persistent region below.
+    // (Measured 2026-08-13: NEITHER whToast NOR whBanner is defined anywhere on this platform, so both
+    // lines are inert today and the region called a "last resort" is in fact the only resort. They are
+    // kept as forward hooks — but the `dead &&` guard means a toast added later cannot silently turn a
+    // standing refusal back into a 3-second flash.)
+    if (dead && typeof window.whToast === 'function') { window.whToast(msg, 'error'); return; }
+    if (dead && typeof window.whBanner === 'function') { window.whBanner(msg, 'error'); return; }
+    _whShowNotice(noticeId, msg, dead ? '88px' : '160px');
+    /* THE NOTICE MUST CLEAR ITSELF, and omitting that broke three unrelated measurements. A session
+     * notice is only true until the next successful read; leaving it pinned makes a transient failure
+     * look permanent to a person, and - found the hard way - it also contaminates anything that reads
+     * the page afterwards. The CC failure sweep injects 401, then 500, then slow, then offline into one
+     * run; this element survived the first injection and the 500/slow/offline probes then read a stale
+     * "Your session expired" still on screen, scoring blamesSession=true on four pages that had said
+     * nothing of the kind. I nearly filed that as a platform defect - the page was innocent and the
+     * residue was mine.
+     * So it is removed on the next OK response, and self-expires after 30s regardless. */
+    // (expiry is owned by _whShowNotice — a second timer here would just race it)
+  } catch (e) { /* empty-catch-allow: a notice that cannot render must not break the read path */ }
+}
+/* The third notice: the read never reached the server at all. A rejected or aborted fetch has NO status
+ * to inspect, so neither the session nor the permission path above can see it — and measured on logbook,
+ * the page then said nothing whatsoever, because the rejection was caught and dropped.
+ * TIMEOUT AND OFFLINE ARE TOLD APART, because the honest sentence differs: a timeout may still be the
+ * server thinking, while an offline read will work again by itself when the connection returns, and
+ * "check your connection" is useless advice for the first and the only useful advice for the second.
+ * Unlike the permission notice, this one IS falsified by the next successful read — the network is
+ * demonstrably back — so it is cleared on res.ok alongside the session notice. */
+function _whNoteTransportFailure(err) {
+  try {
+    var name = String((err && err.name) || '');
+    var msg  = String((err && err.message) || '');
+    var timedOut = name === 'TimeoutError' || /WH_DB_TIMEOUT|timeout/i.test(msg);
+    // An abort the CALLER asked for (a cancelled in-flight request on navigation) is not a failure the
+    // person needs told about; only our own timeout abort is.
+    if (name === 'AbortError' && !timedOut) return;
+    var now = Date.now();
+    if (now - (window._whConnNoted || 0) < 8000) return;
+    window._whConnNoted = now;
+    var text = timedOut
+      ? 'This is taking longer than expected, so part of this page could not be loaded. Your work is '
+        + 'safe. Try again in a moment.'
+      : 'You appear to be offline, so part of this page could not be loaded. Your work is safe, and it '
+        + 'will load again once your connection is back.';
+    _whShowNotice('wh-connection-notice', text, '232px');
+  } catch (e) { /* empty-catch-allow: a notice that cannot render must not break the transport */ }
+}
+
+/* Clear it the moment a read succeeds again - the session is demonstrably alive, so the notice is
+ * false from that instant. Called from the same transport wrapper that raises it.
+ * ★ IT DELIBERATELY DOES NOT TOUCH `wh-access-denied-notice`, AND THAT ASYMMETRY IS THE POINT — do not
+ * "tidy" it into symmetry. A successful read falsifies a SESSION claim ("you are signed out") because
+ * the same credential just worked. It falsifies NOTHING about a PERMISSION claim: reading table A says
+ * nothing about being refused table B, so the refusal is still true and must stay on screen. Clearing it
+ * here would make the message vanish on every real page (one refused read among twenty good ones) while
+ * an oracle that refuses EVERY read still saw it and reported PASS - a false green that looks like a fix.
+ * The permission notice is bounded by its own 30s self-expiry instead. */
+function _whClearAuthNotice() {
+  var n = document.getElementById('wh-auth-expired-notice');
+  if (n && n.parentNode) n.parentNode.removeChild(n);
+  // The CONNECTION notice is cleared here too, and for the same reason the session one is: a successful
+  // read proves the network came back, so the message is false from that instant. The PERMISSION notice
+  // is still deliberately excluded — reading table A never falsifies being refused table B.
+  var cn = document.getElementById('wh-connection-notice');
+  if (cn && cn.parentNode) cn.parentNode.removeChild(cn);
+  window._whConnNoted = 0;
+  if (window._whAuthNoticeTimer) { clearTimeout(window._whAuthNoticeTimer); window._whAuthNoticeTimer = 0; }
+  _WH_AUTH_NOTED = 0;
+}
+
 window.getDb = function(url, key) {
   if (window._whSupabaseClient) return window._whSupabaseClient;
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
@@ -568,7 +758,19 @@ window.getDb = function(url, key) {
       catch (_) { ctrl.abort(); } // older engines: abort() takes no reason
     }, TIMEOUT_MS);
     // fetch-error-allow: transport wrapper — error surfaces via the client's {data, error}
-    return fetch(input, { ...init, signal: ctrl.signal }).finally(() => clearTimeout(t));
+    return fetch(input, { ...init, signal: ctrl.signal })
+      .then(res => { if (res && res.ok) { _whClearAuthNotice(); } else { _whNoteAuthFailure(res); } return res; })
+      // A TRANSPORT failure never produces a `res`, so the .then above is SKIPPED ENTIRELY and the notice
+      // machinery beside it never ran. That gap was measured 2026-08-14 by rejecting every REST read on
+      // logbook: zero page errors, zero console errors, and not one word on screen — the page caught the
+      // rejection and said nothing, which is the 118-empty-catches habit this file already documents.
+      // The same page handles 500 and 401 correctly ("Could not load your logbook"), because those DO
+      // return a response. Offline and timeout were the two failures with no status to notice.
+      // THIS NOTICES AND RE-THROWS — it does not swallow. The note above forbids a .catch that eats the
+      // error the client must surface, and that remains true: `throw err` keeps every caller's
+      // {data, error} exactly as it was.
+      .catch(err => { _whNoteTransportFailure(err); throw err; })
+      .finally(() => clearTimeout(t));
   };
   window._whSupabaseClient = window.supabase.createClient(url, key, {
     global: { fetch: _timeoutFetch },
@@ -2361,7 +2563,7 @@ function renderCompactStat(opts) {
       `<span style="display:flex;align-items:baseline;gap:0.25rem;">` +
         (opts.icon ? `<span style="font-size:0.85rem;">${escHtml(opts.icon)}</span>` : '') +
         `<span style="font-size:1.05rem;font-weight:800;line-height:1;color:${color};">${escHtml(String(opts.value === undefined || opts.value === null ? '-' : opts.value))}</span>` +
-        (opts.unit ? `<span style="font-size:0.7rem;color:rgba(255,255,255,0.45);">${escHtml(opts.unit)}</span>` : '') +
+        (opts.unit ? `<span style="font-size:0.7rem;color:rgba(255,255,255,0.72);">${escHtml(opts.unit)}</span>` : '') +
       `</span>` +
       (opts.sublabel ? `<span style="font-size:0.6rem;color:rgba(255,255,255,0.80);">${escHtml(opts.sublabel)}</span>` : '') +
     `</div>`;
@@ -2790,7 +2992,24 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
 (function(){
   if (typeof window === 'undefined' || window.whConfirm) return;
 
+  // ★ONE CONFIRM AT A TIME. Measured on two pages this session (engineering-design's calc Delete and
+  // project-manager's project Delete): pressing a destructive control TWICE stacked TWO confirm dialogs, and
+  // cancelling dismissed only the top one - so a double-tapper had to answer the same question twice, with an
+  // identical dialog waiting behind the one they just dismissed. Nothing was ever written (the gate held both
+  // times, which is why those rows still passed), but on a destructive control an extra dialog is exactly the
+  // moment a person clicks through on autopilot. Since both cases came from ONE shared builder, the fix belongs
+  // here rather than in each caller: while a confirm is open, a second request resolves to false (treated as
+  // "not confirmed") instead of opening a rival dialog. False is the safe answer - it can only ever decline an
+  // action, never perform one.
+  let _whModalOpen = false;
+
   function _mount(opts) {
+    if (_whModalOpen) {
+      // Already asking. Decline the duplicate rather than stack a second dialog over the first.
+      if (typeof opts.onResolve === 'function') opts.onResolve(false);
+      return null;
+    }
+    _whModalOpen = true;
     const {
       message,
       okLabel = 'OK',
@@ -2864,6 +3083,11 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
     setTimeout(() => focusTarget && focusTarget.focus(), 0);
 
     function dispose(value) {
+      // Release the one-at-a-time gate FIRST, and unconditionally. A guard that fails to release is worse than
+      // the stacked-dialog wart it replaces: every later confirm on the page would silently resolve false, so
+      // destructive controls would appear to do nothing. Cleared before the callback, since onResolve may open
+      // the next dialog synchronously.
+      _whModalOpen = false;
       try { document.removeEventListener('keydown', onKey, true); } catch (_) { /* empty-catch-allow: best-effort cleanup */ }
       try { overlay.remove(); } catch (_) { /* empty-catch-allow: best-effort cleanup */ }
       onResolve(value);
@@ -3244,7 +3468,14 @@ async function loadWorkerTiers(db, workerNames) {
   s.textContent = [
     /* Base avatar with border-box so all tiers render at the same outer size */
     /* regardless of border thickness/style. Metallic inset shadows give depth. */
-    '.wh-avatar{position:relative;border-radius:50%;flex-shrink:0;overflow:hidden;',
+    /* overflow:visible, NOT hidden, and the clip moved onto the image below. The container's clip was
+       fighting its own child: .wh-avatar-lvl is positioned `bottom:-8px` to HANG BELOW the circle as a
+       badge, and overflow:hidden then cut it off. Measured live on achievements - 20 avatars, every
+       level pill 21% clipped, taking the bottom of the digits with it ("93", "5", "18"). The clip was
+       also doing no work it was written for: not one avatar on the page has an <img> child, so it was
+       defensive styling for a photo that is not there, whose only observable effect was truncating the
+       badge. Keeping the circle mask where it belongs - on a future image - preserves both intents. */
+    '.wh-avatar{position:relative;border-radius:50%;flex-shrink:0;overflow:visible;',
     'box-sizing:border-box;',
     'background:linear-gradient(135deg,var(--wh-navy-mid, #1F2E45),var(--wh-navy-light, #2A3D58));',
     'display:flex;align-items:center;justify-content:center;',
@@ -3253,6 +3484,9 @@ async function loadWorkerTiers(db, workerNames) {
     'box-shadow:inset 1px 1px 2px rgba(255,255,255,0.18),',
     '           inset -1px -1px 2px rgba(0,0,0,0.45);}',
 
+    /* The circle mask now rides the IMAGE, so a future avatar photo still clips to the circle while
+       the badge that is meant to overhang can actually overhang. */
+    '.wh-avatar > img{width:100%;height:100%;object-fit:cover;border-radius:50%;}',
     '.wh-avatar-lvl{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);',
     'background:var(--tier-clr,#7B8794);color:var(--wh-navy, #162032);',
     'font-size:9px;font-weight:800;padding:1px 5px;',
@@ -3564,6 +3798,87 @@ if (typeof window !== 'undefined') {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
   if (typeof window !== 'undefined') window.whEnhanceClickableA11y = scan;  // pages can re-scan after a manual render
+})();
+
+
+// ── A SCROLLABLE REGION NOBODY CAN SCROLL FROM THE KEYBOARD (project-report walk, 2026-08-07) ─────
+// `.wh-scroll-x` (tokens.css:255) is the platform's horizontal-scroll wrapper, and on project-report
+// axe found EIGHT of them failing `scrollable-region-focusable`: overflow-x:auto, genuinely scrolling
+// (scrollWidth 400-489 in a 291px box), tabindex null, role null, and ZERO focusable children. A mouse
+// user swipes; a keyboard user cannot reach the container to press an arrow key, so the right-hand
+// columns of every WBS and progress table are simply unavailable to them. WCAG 2.1.1.
+//
+// The platform already knows this rule - companion-launcher.js:584 gives its message log tabindex=0
+// citing this exact axe rule by name - it was just never applied to the shared class. So the fix goes
+// where the class lives rather than at each call site: analytics-report's `.table-wrap` was already
+// keyboard-reachable while project-report's `.wh-scroll-x` was not, which is two implementations of one
+// pattern drifting apart, and patching the two project-report render functions would have widened that
+// drift instead of closing it.
+//
+// Focusable ONLY WHILE ACTUALLY SCROLLING, re-checked on resize: axe's rule is satisfied by a focusable
+// container OR focusable content, and at 1280 these tables fit, where an extra tab stop on a plain
+// wrapper is noise rather than access. A container that already has focusable children is left alone
+// for the same reason - focus reaches it through them, and scroll follows focus.
+(function whScrollRegionKbdA11y() {
+  if (typeof document === 'undefined') return;
+  var SEL = '.wh-scroll-x';
+  var LABEL = 'Scrollable table. Use the arrow keys to scroll sideways.';
+  function apply(el) {
+    if (!el || el.nodeType !== 1) return;
+    var scrolls = el.scrollWidth > el.clientWidth + 1;
+    var ownedByUs = el.getAttribute('data-wh-scroll-kbd') === '1';
+    if (scrolls) {
+      if (el.hasAttribute('tabindex') && !ownedByUs) return;          // author already handled it
+      if (el.querySelector('a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])')) return;
+      el.setAttribute('data-wh-scroll-kbd', '1');
+      el.setAttribute('tabindex', '0');
+      if (!el.getAttribute('role')) el.setAttribute('role', 'region');
+      if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby'))
+        el.setAttribute('aria-label', LABEL);
+      el.classList.add('wh-kbd-a11y');                                // reuse the injected focus ring
+    } else if (ownedByUs) {
+      el.removeAttribute('tabindex');                                 // stopped scrolling: drop the stop
+      el.removeAttribute('data-wh-scroll-kbd');
+      el.classList.remove('wh-kbd-a11y');
+    }
+  }
+  function sweep(root) {
+    try {
+      var r = root || document;
+      if (r.matches && r.matches(SEL)) apply(r);
+      (r.querySelectorAll ? r.querySelectorAll(SEL) : []).forEach(apply);
+    } catch (_) { /* empty-catch-allow: best-effort a11y enhancement; never block a render */ }
+  }
+  // ONE debounced document sweep per batch, never a per-node closure. The first version scheduled
+  // `requestAnimationFrame(function () { sweep(n); })` inside a `for (var j...)` loop, and `var` is
+  // function-scoped, so every callback closed over the LAST node of the batch and the rest were never
+  // swept - the 8 regions stayed unenhanced and the axe count stayed at 8. Sweeping the document also
+  // re-evaluates regions whose scrollability changed because a sibling render reflowed them, which a
+  // per-node sweep cannot see.
+  var pending = null;
+  function schedule() {
+    if (pending) return;
+    pending = requestAnimationFrame(function () { pending = null; sweep(document); });
+  }
+  function boot() {
+    schedule();                                    // after a frame: scrollWidth needs layout
+    window.addEventListener('load', schedule);     // and again once late data has rendered
+    try {
+      new MutationObserver(function (muts) {
+        for (var i = 0; i < muts.length; i++) {
+          if (muts[i].addedNodes && muts[i].addedNodes.length) { schedule(); return; }
+        }
+      }).observe(document.body, { childList: true, subtree: true });
+    } catch (_) { /* empty-catch-allow: MutationObserver unsupported; the initial sweep covers static markup */ }
+    var t = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(t);
+      t = setTimeout(function () { sweep(document); }, 150);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+  if (typeof window !== 'undefined') window.whEnhanceScrollRegions = sweep;
 })();
 
 

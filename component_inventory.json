@@ -1,0 +1,4510 @@
+{
+ "index": {
+  "repeated": [
+   {
+    "sel": "[data-i]",
+    "tag": "h2",
+    "n": 4,
+    "sample": "TODAY AT A GLANCE"
+   },
+   {
+    "sel": "[data-kpi]",
+    "tag": "a",
+    "n": 3,
+    "sample": "9 OPEN JOBS"
+   },
+   {
+    "sel": ".oh-tile-num",
+    "tag": "span",
+    "n": 3,
+    "sample": "9"
+   },
+   {
+    "sel": ".oh-tile-lbl",
+    "tag": "span",
+    "n": 3,
+    "sample": "OPEN JOBS"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 2,
+    "sample": "Leandro"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 2,
+    "sample": "Companion:"
+   },
+   {
+    "sel": "[data-lang]",
+    "tag": "button",
+    "n": 2,
+    "sample": "EN"
+   },
+   {
+    "sel": ".oh-action",
+    "tag": "a",
+    "n": 2,
+    "sample": "Hive Board"
+   },
+   {
+    "sel": ".uppercase",
+    "tag": "p",
+    "n": 2,
+    "sample": "TOOLS (FREE)"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#ops-home",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Good morning, Leandro 👋 Friday, Aug 14 · Morning Shift AI c"
+   },
+   {
+    "sel": "#oh-greeting",
+    "tag": "h1",
+    "kids": 0,
+    "sample": "Good morning, Leandro 👋"
+   },
+   {
+    "sel": "#oh-date",
+    "tag": "p",
+    "kids": 0,
+    "sample": "Friday, Aug 14 · Morning Shift"
+   },
+   {
+    "sel": "#oh-persona-toggle",
+    "tag": "button",
+    "kids": 3,
+    "sample": "AI companion Companion: Zaniah"
+   },
+   {
+    "sel": "#oh-persona-name",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Zaniah"
+   },
+   {
+    "sel": "#oh-hive-btn",
+    "tag": "a",
+    "kids": 0,
+    "sample": "🐝 Baguio Textile Mills"
+   },
+   {
+    "sel": "#oh-lang",
+    "tag": "div",
+    "kids": 2,
+    "sample": "EN FIL"
+   },
+   {
+    "sel": "#oh-today",
+    "tag": "div",
+    "kids": 1,
+    "sample": "! TODAY · AMC BRIEF AWAITING APPROVAL Approve today's autono"
+   },
+   {
+    "sel": "#oh-stats",
+    "tag": "div",
+    "kids": 3,
+    "sample": "9 OPEN JOBS 29 PM OVERDUE 3 LOW STOCK"
+   },
+   {
+    "sel": "#oh-actions",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Hive Board Ask Zaniah"
+   },
+   {
+    "sel": "#oh-more",
+    "tag": "details",
+    "kids": 2,
+    "sample": "More"
+   },
+   {
+    "sel": "#wh-hub",
+    "tag": "div",
+    "kids": 3,
+    "sample": "Home"
+   },
+   {
+    "sel": "#wh-hub-fab",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Home"
+   },
+   {
+    "sel": "#wh-hub-current-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Home"
+   },
+   {
+    "sel": "#wh-guide-link",
+    "tag": "div",
+    "kids": 2,
+    "sample": "📖 New to this page? Read the guide ×"
+   }
+  ],
+  "wanted": [
+   "C1: oh-tile KPI tile",
+   "C2: oh-job-row open-job row",
+   "C3: oh-more details disclosure"
+  ]
+ },
+ "hive": {
+  "repeated": [
+   {
+    "sel": "[data-i]",
+    "tag": "p",
+    "n": 15,
+    "sample": "TODAY'S BRIEF"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 8,
+    "sample": "SINCE YOUR LAST VISIT"
+   },
+   {
+    "sel": ".wh-card",
+    "tag": "div",
+    "n": 8,
+    "sample": "AI summary · refreshed daily · Based on your AI reports · Co"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 7,
+    "sample": "Show details"
+   },
+   {
+    "sel": ".wh-source-chip",
+    "tag": "p",
+    "n": 7,
+    "sample": "AI summary · refreshed daily · Based on your AI reports · Co"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 6,
+    "sample": "updates"
+   },
+   {
+    "sel": ".ic-opt",
+    "tag": "label",
+    "n": 6,
+    "sample": "Predictive maintenance: stop failures before they happen"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 6,
+    "sample": "Predictive maintenance: stop failures before they happen"
+   },
+   {
+    "sel": ".board-card",
+    "tag": "div",
+    "n": 5,
+    "sample": "ON SHIFT NOW Green dot = a teammate is in WorkHive right now"
+   },
+   {
+    "sel": ".wh-disclose",
+    "tag": "details",
+    "n": 4,
+    "sample": "HIVE READINESS DETAILS"
+   },
+   {
+    "sel": ".wh-disclose-title",
+    "tag": "span",
+    "n": 4,
+    "sample": "HIVE READINESS DETAILS"
+   },
+   {
+    "sel": "[data-rag-tile]",
+    "tag": "a",
+    "n": 3,
+    "sample": "🔧 SAFETY · DO FIRST 29 Assets with PM overdue Schedule now "
+   },
+   {
+    "sel": ".ss-tile-top",
+    "tag": "div",
+    "n": 3,
+    "sample": "🔧 SAFETY · DO FIRST"
+   },
+   {
+    "sel": ".ss-tile-cap",
+    "tag": "span",
+    "n": 3,
+    "sample": "🔧"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#nav-worker",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Leandro Marquez"
+   },
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 1,
+    "sample": "Baguio Textile Mills SUPERVISOR EN FIL ⋯ More SINCE YOUR LAS"
+   },
+   {
+    "sel": "#view-shell",
+    "tag": "div",
+    "kids": 8,
+    "sample": "Baguio Textile Mills SUPERVISOR EN FIL ⋯ More SINCE YOUR LAS"
+   },
+   {
+    "sel": "#board-hive-name",
+    "tag": "h1",
+    "kids": 0,
+    "sample": "Baguio Textile Mills"
+   },
+   {
+    "sel": "#hive-role-tag",
+    "tag": "div",
+    "kids": 1,
+    "sample": "SUPERVISOR"
+   },
+   {
+    "sel": "#btn-hive-menu",
+    "tag": "button",
+    "kids": 2,
+    "sample": "⋯ More"
+   },
+   {
+    "sel": "#supervisor-summary",
+    "tag": "div",
+    "kids": 12,
+    "sample": "SINCE YOUR LAST VISIT ✓ updates 🕰 live · synced HIVE BOARD "
+   },
+   {
+    "sel": "#ss-ribbon",
+    "tag": "div",
+    "kids": 3,
+    "sample": "SINCE YOUR LAST VISIT ✓ updates 🕰 live · synced"
+   },
+   {
+    "sel": "#ss-rb-closed",
+    "tag": "span",
+    "kids": 2,
+    "sample": "✓ updates"
+   },
+   {
+    "sel": "#ss-rb-synced",
+    "tag": "span",
+    "kids": 2,
+    "sample": "🕰 live · synced"
+   },
+   {
+    "sel": "#ss-eyebrow",
+    "tag": "div",
+    "kids": 1,
+    "sample": "HIVE BOARD · FRIDAY MORNING"
+   },
+   {
+    "sel": "#ss-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "⚠ Good morning, Leandro. 3 things need you. Friday · Baguio "
+   },
+   {
+    "sel": "#ss-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "⚠"
+   },
+   {
+    "sel": "#ss-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Good morning, Leandro. 3 things need you."
+   },
+   {
+    "sel": "#ss-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "Friday · Baguio Textile Mills"
+   },
+   {
+    "sel": "#ss-cards",
+    "tag": "div",
+    "kids": 3,
+    "sample": "🔧 SAFETY · DO FIRST 29 Assets with PM overdue Schedule now "
+   },
+   {
+    "sel": "#ss-card-pm",
+    "tag": "a",
+    "kids": 4,
+    "sample": "🔧 SAFETY · DO FIRST 29 Assets with PM overdue Schedule now "
+   },
+   {
+    "sel": "#ss-pm-peak",
+    "tag": "span",
+    "kids": 0,
+    "sample": "SAFETY · DO FIRST"
+   },
+   {
+    "sel": "#ss-pm-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "29"
+   },
+   {
+    "sel": "#ss-pm-label",
+    "tag": "h2",
+    "kids": 0,
+    "sample": "Assets with PM overdue"
+   },
+   {
+    "sel": "#ss-pm-cta",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Schedule now →"
+   },
+   {
+    "sel": "#ss-card-stock",
+    "tag": "a",
+    "kids": 4,
+    "sample": "📦 ⋯ 3 Parts low on stock Restock →"
+   },
+   {
+    "sel": "#ss-stock-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "3"
+   },
+   {
+    "sel": "#ss-stock-label",
+    "tag": "h2",
+    "kids": 0,
+    "sample": "Parts low on stock"
+   },
+   {
+    "sel": "#ss-stock-cta",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Restock →"
+   },
+   {
+    "sel": "#ss-card-jobs",
+    "tag": "a",
+    "kids": 4,
+    "sample": "📋 ⋯ 6 Your open jobs Log work →"
+   }
+  ],
+  "wanted": [
+   "C1: readiness/KPI tile",
+   "C2: member roster row",
+   "C3: benchmark panel"
+  ]
+ },
+ "logbook": {
+  "repeated": [
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 5,
+    "sample": "What happened? →"
+   },
+   {
+    "sel": ".stat-pill",
+    "tag": "span",
+    "n": 3,
+    "sample": "516 entries"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 3,
+    "sample": "Register Asset"
+   },
+   {
+    "sel": ".wh-input",
+    "tag": "select",
+    "n": 3,
+    "sample": "All categories Mechanical Electrical Hydraulic Pneumatic Ins"
+   },
+   {
+    "sel": ".btn-secondary",
+    "tag": "a",
+    "n": 2,
+    "sample": "← Back to Basic Worker"
+   },
+   {
+    "sel": ".card",
+    "tag": "div",
+    "n": 2,
+    "sample": "Log a Repair 1 2 3 STEP 1: MACHINE & TYPE Fastest: let AI fi"
+   },
+   {
+    "sel": ".step-dot",
+    "tag": "div",
+    "n": 2,
+    "sample": "2"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 3,
+    "sample": "Your Repair Logbook Every job you log builds your skill prof"
+   },
+   {
+    "sel": "#wh-logbook-header",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Your Repair Logbook Every job you log builds your skill prof"
+   },
+   {
+    "sel": "#total-count",
+    "tag": "span",
+    "kids": 0,
+    "sample": "516"
+   },
+   {
+    "sel": "#machine-count",
+    "tag": "span",
+    "kids": 0,
+    "sample": "30"
+   },
+   {
+    "sel": "#open-count",
+    "tag": "span",
+    "kids": 0,
+    "sample": "6"
+   },
+   {
+    "sel": "#open-asset-modal-btn",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Register Asset"
+   },
+   {
+    "sel": "#wh-logbook-grid",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Log a Repair 1 2 3 STEP 1: MACHINE & TYPE Fastest: let AI fi"
+   },
+   {
+    "sel": "#sdot-1",
+    "tag": "div",
+    "kids": 0,
+    "sample": "1"
+   },
+   {
+    "sel": "#sdot-2",
+    "tag": "div",
+    "kids": 0,
+    "sample": "2"
+   },
+   {
+    "sel": "#sdot-3",
+    "tag": "div",
+    "kids": 0,
+    "sample": "3"
+   },
+   {
+    "sel": "#step-label-text",
+    "tag": "p",
+    "kids": 0,
+    "sample": "STEP 1: MACHINE & TYPE"
+   },
+   {
+    "sel": "#log-form",
+    "tag": "form",
+    "kids": 5,
+    "sample": "Fastest: let AI fill it Speak to fill Describe the situation"
+   },
+   {
+    "sel": "#step-panel-1",
+    "tag": "div",
+    "kids": 7,
+    "sample": "Fastest: let AI fill it Speak to fill Describe the situation"
+   },
+   {
+    "sel": "#voice-fill-card",
+    "tag": "div",
+    "kids": 4,
+    "sample": "Speak to fill Describe the situation once: AI fills machine,"
+   },
+   {
+    "sel": "#voice-fill-btn",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Speak"
+   },
+   {
+    "sel": "#vdc-card",
+    "tag": "div",
+    "kids": 6,
+    "sample": "Photo defect capture Snap a photo of the defect (rust, leak,"
+   },
+   {
+    "sel": "#vdc-capture-btn",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Capture"
+   },
+   {
+    "sel": "#asset-picker-btn",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Select or search asset..."
+   },
+   {
+    "sel": "#asset-picker-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Select or search asset..."
+   },
+   {
+    "sel": "#clear-form",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Clear form"
+   },
+   {
+    "sel": "#view-toggle-bar",
+    "tag": "div",
+    "kids": 2,
+    "sample": "My Entries Team Feed"
+   },
+   {
+    "sel": "#btn-view-mine",
+    "tag": "button",
+    "kids": 0,
+    "sample": "My Entries"
+   },
+   {
+    "sel": "#btn-view-team",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Team Feed"
+   },
+   {
+    "sel": "#filter-category",
+    "tag": "select",
+    "kids": 8,
+    "sample": "All categories Mechanical Electrical Hydraulic Pneumatic Ins"
+   },
+   {
+    "sel": "#filter-status",
+    "tag": "select",
+    "kids": 3,
+    "sample": "All status Open Closed"
+   },
+   {
+    "sel": "#btn-export-csv",
+    "tag": "button",
+    "kids": 1,
+    "sample": "CSV"
+   }
+  ],
+  "wanted": [
+   "C1: entry row",
+   "C2: capture form",
+   "C3: parts picker"
+  ]
+ },
+ "inventory": {
+  "repeated": [
+   {
+    "sel": ".badge",
+    "tag": "span",
+    "n": 31,
+    "sample": "BEARINGS"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 22,
+    "sample": "Add Part"
+   },
+   {
+    "sel": ".part-card",
+    "tag": "div",
+    "n": 8,
+    "sample": "BRG-6310 BEARINGS CRITICAL LOW Bearing 6310 C3 Bin 7-A AC-00"
+   },
+   {
+    "sel": ".btn-danger",
+    "tag": "button",
+    "n": 8,
+    "sample": "Use"
+   },
+   {
+    "sel": ".btn-green",
+    "tag": "button",
+    "n": 8,
+    "sample": "Restock"
+   },
+   {
+    "sel": ".mkt-bridge-btn",
+    "tag": "button",
+    "n": 5,
+    "sample": "Find on Marketplace"
+   },
+   {
+    "sel": ".stat-pill",
+    "tag": "span",
+    "n": 3,
+    "sample": "27 parts"
+   },
+   {
+    "sel": "[data-rag-tile]",
+    "tag": "div",
+    "n": 3,
+    "sample": "OUT OF STOCK 0 No parts at zero qty CLEAR"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "h2",
+    "n": 3,
+    "sample": "OUT OF STOCK"
+   },
+   {
+    "sel": ".sc-hero",
+    "tag": "div",
+    "n": 3,
+    "sample": "0"
+   },
+   {
+    "sel": ".sc-sub",
+    "tag": "div",
+    "n": 3,
+    "sample": "No parts at zero qty"
+   },
+   {
+    "sel": ".sc-tag",
+    "tag": "span",
+    "n": 3,
+    "sample": "CLEAR"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#wh-inv-header",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Spare-Parts Inventory Track spare parts stock, link parts to"
+   },
+   {
+    "sel": "#inventory-source-chip",
+    "tag": "p",
+    "kids": 2,
+    "sample": "Live · refreshed on load · Based on your inventory & stock m"
+   },
+   {
+    "sel": "#stat-total",
+    "tag": "span",
+    "kids": 0,
+    "sample": "27"
+   },
+   {
+    "sel": "#stat-low",
+    "tag": "span",
+    "kids": 0,
+    "sample": "3"
+   },
+   {
+    "sel": "#stat-out",
+    "tag": "span",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#btn-add-part",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Add Part"
+   },
+   {
+    "sel": "#inv-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "⚠ 2 parts critically low Below half the minimum: reorder now"
+   },
+   {
+    "sel": "#inv-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "⚠"
+   },
+   {
+    "sel": "#inv-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "2 parts critically low"
+   },
+   {
+    "sel": "#inv-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "Below half the minimum: reorder now before they hit zero."
+   },
+   {
+    "sel": "#inv-progress",
+    "tag": "div",
+    "kids": 1,
+    "sample": "PARTS AT HEALTHY STOCK 3 of 27"
+   },
+   {
+    "sel": "#inv-card-out",
+    "tag": "div",
+    "kids": 4,
+    "sample": "OUT OF STOCK 0 No parts at zero qty CLEAR"
+   },
+   {
+    "sel": "#inv-out-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#inv-out-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "No parts at zero qty"
+   },
+   {
+    "sel": "#inv-out-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "CLEAR"
+   },
+   {
+    "sel": "#inv-card-low",
+    "tag": "div",
+    "kids": 4,
+    "sample": "LOW STOCK 3 3 of 27 parts at or below min_qty PLAN RESTOCK"
+   },
+   {
+    "sel": "#inv-low-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "3"
+   },
+   {
+    "sel": "#inv-low-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "3 of 27 parts at or below min_qty"
+   },
+   {
+    "sel": "#inv-low-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "PLAN RESTOCK"
+   },
+   {
+    "sel": "#inv-card-pending",
+    "tag": "div",
+    "kids": 4,
+    "sample": "PENDING PARTS 0 Nothing awaiting supervisor sign-off CLEAR"
+   },
+   {
+    "sel": "#inv-pending-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#inv-pending-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Nothing awaiting supervisor sign-off"
+   },
+   {
+    "sel": "#inv-pending-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "CLEAR"
+   },
+   {
+    "sel": "#inv-action-text",
+    "tag": "div",
+    "kids": 0,
+    "sample": "3 parts at or below the reorder threshold. Order them before"
+   },
+   {
+    "sel": "#inv-action-btn",
+    "tag": "a",
+    "kids": 0,
+    "sample": "Order 3 low parts →"
+   },
+   {
+    "sel": "#details-toggle-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Show details"
+   }
+  ],
+  "wanted": [
+   "C1: part row (stock + reorder badge)",
+   "C2: use form",
+   "C3: restock form"
+  ]
+ },
+ "pm-scheduler": {
+  "repeated": [
+   {
+    "sel": ".truncate",
+    "tag": "p",
+    "n": 30,
+    "sample": "Cleaver-Brooks CB-700-200"
+   },
+   {
+    "sel": ".asset-card",
+    "tag": "div",
+    "n": 10,
+    "sample": "Cleaver-Brooks CB-700-200 BLR-001 · Yard - South OVERDUE Ste"
+   },
+   {
+    "sel": ".status-badge.badge-overdue",
+    "tag": "span",
+    "n": 10,
+    "sample": "OVERDUE"
+   },
+   {
+    "sel": ".cat-pill",
+    "tag": "span",
+    "n": 10,
+    "sample": "Steam Boiler"
+   },
+   {
+    "sel": ".status-badge",
+    "tag": "span",
+    "n": 10,
+    "sample": "CRITICAL"
+   },
+   {
+    "sel": ".sc-sub",
+    "tag": "div",
+    "n": 4,
+    "sample": "29 of 30 assets past due"
+   },
+   {
+    "sel": "[data-filter]",
+    "tag": "button",
+    "n": 4,
+    "sample": "All"
+   },
+   {
+    "sel": "[data-rag-tile]",
+    "tag": "div",
+    "n": 3,
+    "sample": "OVERDUE 29 29 of 30 assets past due STACKING UP"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "h2",
+    "n": 3,
+    "sample": "OVERDUE"
+   },
+   {
+    "sel": ".sc-hero",
+    "tag": "div",
+    "n": 3,
+    "sample": "29"
+   },
+   {
+    "sel": ".sc-tag",
+    "tag": "span",
+    "n": 3,
+    "sample": "STACKING UP"
+   },
+   {
+    "sel": ".truncate",
+    "tag": "span",
+    "n": 2,
+    "sample": "Baguio Textile Mills"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 2,
+    "sample": "Show details"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 2,
+    "sample": "DASHBOARD"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#hive-chip",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Baguio Textile Mills"
+   },
+   {
+    "sel": "#hive-chip-name",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Baguio Textile Mills"
+   },
+   {
+    "sel": "#nav-worker",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Leandro Marquez"
+   },
+   {
+    "sel": "#screen-dashboard",
+    "tag": "div",
+    "kids": 1,
+    "sample": "PM Scheduler Track all your equipment PM tasks in one place."
+   },
+   {
+    "sel": "#dash-subtitle",
+    "tag": "p",
+    "kids": 0,
+    "sample": "Track all your equipment PM tasks in one place."
+   },
+   {
+    "sel": "#pm-source-chip",
+    "tag": "p",
+    "kids": 2,
+    "sample": "Live · refreshed on load · Based on your PM assets, PM tasks"
+   },
+   {
+    "sel": "#pm-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "⚠ PM compliance is in the red 29 assets are overdue. Each on"
+   },
+   {
+    "sel": "#pm-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "⚠"
+   },
+   {
+    "sel": "#pm-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "PM compliance is in the red"
+   },
+   {
+    "sel": "#pm-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "29 assets are overdue. Each one lowers your Reliability scor"
+   },
+   {
+    "sel": "#pm-progress",
+    "tag": "div",
+    "kids": 1,
+    "sample": "PM ASSETS ON TRACK 0 of 30"
+   },
+   {
+    "sel": "#pm-card-overdue",
+    "tag": "div",
+    "kids": 4,
+    "sample": "OVERDUE 29 29 of 30 assets past due STACKING UP"
+   },
+   {
+    "sel": "#stat-overdue",
+    "tag": "div",
+    "kids": 0,
+    "sample": "29"
+   },
+   {
+    "sel": "#pm-overdue-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "29 of 30 assets past due"
+   },
+   {
+    "sel": "#pm-overdue-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "STACKING UP"
+   },
+   {
+    "sel": "#pm-card-duesoon",
+    "tag": "div",
+    "kids": 4,
+    "sample": "DUE SOON (14D) 1 1 asset need PM this week PLAN AHEAD"
+   },
+   {
+    "sel": "#stat-duesoon",
+    "tag": "div",
+    "kids": 0,
+    "sample": "1"
+   },
+   {
+    "sel": "#pm-duesoon-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "1 asset need PM this week"
+   },
+   {
+    "sel": "#pm-duesoon-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "PLAN AHEAD"
+   },
+   {
+    "sel": "#pm-card-ontrack",
+    "tag": "div",
+    "kids": 5,
+    "sample": "ON TRACK 0 0 of 30 on track now · 81% PM compliance (SMRP) 7"
+   },
+   {
+    "sel": "#stat-ontrack",
+    "tag": "div",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#pm-ontrack-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "0 of 30 on track now · 81% PM compliance (SMRP)"
+   },
+   {
+    "sel": "#pm-ontrack-ontime",
+    "tag": "div",
+    "kids": 0,
+    "sample": "72% done on time · 115 of 410 ran late"
+   },
+   {
+    "sel": "#pm-ontrack-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "BUILDING"
+   },
+   {
+    "sel": "#pm-action-text",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Tap the \"Overdue\" chip below. Then spread those PMs across t"
+   },
+   {
+    "sel": "#pm-action-btn",
+    "tag": "a",
+    "kids": 0,
+    "sample": "Assign 29 overdue PMs →"
+   }
+  ],
+  "wanted": [
+   "C1: PM task row",
+   "C2: completion form",
+   "C3: scope-item checklist"
+  ]
+ },
+ "project-manager": {
+  "repeated": [
+   {
+    "sel": ".tab-count",
+    "tag": "span",
+    "n": 5,
+    "sample": "4"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 4,
+    "sample": "Show details"
+   },
+   {
+    "sel": "[data-status]",
+    "tag": "button",
+    "n": 4,
+    "sample": "Active 4"
+   },
+   {
+    "sel": ".pcard",
+    "tag": "div",
+    "n": 4,
+    "sample": "WO-2026-001 WORKORDER REACTIVE Recurring Compressor Breakdow"
+   },
+   {
+    "sel": ".pcard-head",
+    "tag": "div",
+    "n": 4,
+    "sample": "WO-2026-001 WORKORDER REACTIVE"
+   },
+   {
+    "sel": ".pcode",
+    "tag": "span",
+    "n": 4,
+    "sample": "WO-2026-001"
+   },
+   {
+    "sel": ".pname",
+    "tag": "div",
+    "n": 4,
+    "sample": "Recurring Compressor Breakdown Bundle"
+   },
+   {
+    "sel": ".pmeta",
+    "tag": "div",
+    "n": 4,
+    "sample": "👤 Leandro Marquez 📅 Jul 22, 2026 📋 2/6"
+   },
+   {
+    "sel": ".pcard-foot",
+    "tag": "div",
+    "n": 4,
+    "sample": "active 25%"
+   },
+   {
+    "sel": ".status-pill.status-active",
+    "tag": "span",
+    "n": 4,
+    "sample": "active"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "h2",
+    "n": 3,
+    "sample": "ACTIVE PROJECTS"
+   },
+   {
+    "sel": ".sc-hero",
+    "tag": "div",
+    "n": 3,
+    "sample": "4"
+   },
+   {
+    "sel": ".sc-sub",
+    "tag": "div",
+    "n": 3,
+    "sample": "4 of 4 projects currently active"
+   },
+   {
+    "sel": ".sc-tag",
+    "tag": "span",
+    "n": 3,
+    "sample": "RUNNING"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 4,
+    "sample": "Project Manager 📄 Print Report 🐝 Baguio Textile Mills Plan"
+   },
+   {
+    "sel": "#project-print-btn",
+    "tag": "a",
+    "kids": 0,
+    "sample": "📄 Print Report"
+   },
+   {
+    "sel": "#hive-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "🐝 Baguio Textile Mills"
+   },
+   {
+    "sel": "#pm-mgr-source-chip",
+    "tag": "p",
+    "kids": 2,
+    "sample": "Live · refreshed on load · updates automatically · Based on "
+   },
+   {
+    "sel": "#pm-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "⚠ 3 projects past end date These should have closed by now. "
+   },
+   {
+    "sel": "#pm-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "⚠"
+   },
+   {
+    "sel": "#pm-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "3 projects past end date"
+   },
+   {
+    "sel": "#pm-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "These should have closed by now. Open each, then either mark"
+   },
+   {
+    "sel": "#pm-card-active",
+    "tag": "div",
+    "kids": 4,
+    "sample": "ACTIVE PROJECTS 4 4 of 4 projects currently active RUNNING"
+   },
+   {
+    "sel": "#pm-active-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "4"
+   },
+   {
+    "sel": "#pm-active-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "4 of 4 projects currently active"
+   },
+   {
+    "sel": "#pm-active-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "RUNNING"
+   },
+   {
+    "sel": "#pm-card-overdue",
+    "tag": "div",
+    "kids": 4,
+    "sample": "PAST END DATE 3 3 projects past their end date without closi"
+   },
+   {
+    "sel": "#pm-overdue-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "3"
+   },
+   {
+    "sel": "#pm-overdue-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "3 projects past their end date without closing out"
+   },
+   {
+    "sel": "#pm-overdue-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "SLIPPING"
+   },
+   {
+    "sel": "#pm-card-blocked",
+    "tag": "div",
+    "kids": 4,
+    "sample": "ON HOLD OR PLANNING 0 No projects waiting to start or on hol"
+   },
+   {
+    "sel": "#pm-blocked-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#pm-blocked-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "No projects waiting to start or on hold"
+   },
+   {
+    "sel": "#pm-blocked-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "NONE"
+   },
+   {
+    "sel": "#pm-action-text",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Open the Active tab and scan down. Each project past its end"
+   },
+   {
+    "sel": "#details-toggle-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Show details"
+   },
+   {
+    "sel": "#status-tabs",
+    "tag": "div",
+    "kids": 5,
+    "sample": "Active 4 Planning 0 On hold 0 Complete 0 All 4"
+   },
+   {
+    "sel": "#filter-type",
+    "tag": "select",
+    "kids": 5,
+    "sample": "All types Work Order Shutdown CAPEX Contractor"
+   },
+   {
+    "sel": "#filter-owner",
+    "tag": "select",
+    "kids": 4,
+    "sample": "All owners Bryan Garcia Leandro Marquez Wilfredo Malabanan"
+   },
+   {
+    "sel": "#card-grid",
+    "tag": "div",
+    "kids": 4,
+    "sample": "WO-2026-001 WORKORDER REACTIVE Recurring Compressor Breakdow"
+   }
+  ],
+  "wanted": [
+   "C1: project row",
+   "C2: item/WBS row",
+   "C3: change-order row"
+  ]
+ },
+ "dayplanner": {
+  "repeated": [
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 7,
+    "sample": "Day"
+   },
+   {
+    "sel": "[data-rag-tile]",
+    "tag": "div",
+    "n": 3,
+    "sample": "TODAY 0 No items scheduled for today OPEN"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "h2",
+    "n": 3,
+    "sample": "TODAY"
+   },
+   {
+    "sel": ".sc-hero",
+    "tag": "div",
+    "n": 3,
+    "sample": "0"
+   },
+   {
+    "sel": ".sc-sub",
+    "tag": "div",
+    "n": 3,
+    "sample": "No items scheduled for today"
+   },
+   {
+    "sel": ".sc-tag",
+    "tag": "span",
+    "n": 3,
+    "sample": "OPEN"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#logo-view",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Day"
+   },
+   {
+    "sel": "#tab-dilo",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Day"
+   },
+   {
+    "sel": "#tab-wilo",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Week"
+   },
+   {
+    "sel": "#tab-milo",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Month"
+   },
+   {
+    "sel": "#tab-yilo",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Year"
+   },
+   {
+    "sel": "#period-label",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Today, Friday, August 14, 2026"
+   },
+   {
+    "sel": "#dayplanner-source-chip",
+    "tag": "p",
+    "kids": 2,
+    "sample": "Live · refreshed on each view switch · Based on your schedul"
+   },
+   {
+    "sel": "#dp-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "⚠ 3 items overdue Close them out (mark Closed) or re-schedul"
+   },
+   {
+    "sel": "#dp-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "⚠"
+   },
+   {
+    "sel": "#dp-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "3 items overdue"
+   },
+   {
+    "sel": "#dp-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "Close them out (mark Closed) or re-schedule so the day plan "
+   },
+   {
+    "sel": "#dp-progress",
+    "tag": "div",
+    "kids": 1,
+    "sample": "PLAN ITEMS COMPLETED 3 of 6"
+   },
+   {
+    "sel": "#dp-card-today",
+    "tag": "div",
+    "kids": 4,
+    "sample": "TODAY 0 No items scheduled for today OPEN"
+   },
+   {
+    "sel": "#dp-today-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#dp-today-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "No items scheduled for today"
+   },
+   {
+    "sel": "#dp-today-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "OPEN"
+   },
+   {
+    "sel": "#dp-card-week",
+    "tag": "div",
+    "kids": 4,
+    "sample": "THIS WEEK 0 No items scheduled this week EMPTY"
+   },
+   {
+    "sel": "#dp-week-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#dp-week-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "No items scheduled this week"
+   },
+   {
+    "sel": "#dp-week-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "EMPTY"
+   },
+   {
+    "sel": "#dp-card-overdue",
+    "tag": "div",
+    "kids": 4,
+    "sample": "OVERDUE 3 3 items past their scheduled date STACKING"
+   },
+   {
+    "sel": "#dp-overdue-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "3"
+   },
+   {
+    "sel": "#dp-overdue-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "3 items past their scheduled date"
+   },
+   {
+    "sel": "#dp-overdue-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "STACKING"
+   },
+   {
+    "sel": "#dp-action-text",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Nothing planned yet. Tap + Schedule to block out your week. "
+   },
+   {
+    "sel": "#details-toggle-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Show details"
+   }
+  ],
+  "wanted": [
+   "C1: schedule item row",
+   "C2: item modal",
+   "C3: period switcher (4-tab bar)"
+  ]
+ },
+ "asset-hub": {
+  "repeated": [
+   {
+    "sel": ".asset-card",
+    "tag": "div",
+    "n": 25,
+    "sample": "BE-001 Beumer BE 250 Mechanical · Workshop MEDIUM RISK 65% C"
+   },
+   {
+    "sel": ".asset-card-main",
+    "tag": "div",
+    "n": 25,
+    "sample": "BE-001 Beumer BE 250 Mechanical · Workshop"
+   },
+   {
+    "sel": ".asset-card-tag",
+    "tag": "div",
+    "n": 25,
+    "sample": "BE-001"
+   },
+   {
+    "sel": ".asset-card-name",
+    "tag": "div",
+    "n": 25,
+    "sample": "Beumer BE 250"
+   },
+   {
+    "sel": ".asset-card-meta",
+    "tag": "div",
+    "n": 25,
+    "sample": "Mechanical · Workshop"
+   },
+   {
+    "sel": ".risk-chip",
+    "tag": "span",
+    "n": 25,
+    "sample": "MEDIUM RISK 65%"
+   },
+   {
+    "sel": ".crit-pill.crit-medium",
+    "tag": "span",
+    "n": 12,
+    "sample": "MEDIUM"
+   },
+   {
+    "sel": "[data-action]",
+    "tag": "button",
+    "n": 9,
+    "sample": "Approve"
+   },
+   {
+    "sel": ".crit-pill.crit-critical",
+    "tag": "span",
+    "n": 6,
+    "sample": "CRITICAL"
+   },
+   {
+    "sel": ".crit-pill.crit-low",
+    "tag": "span",
+    "n": 4,
+    "sample": "LOW"
+   },
+   {
+    "sel": "[data-rag-tile]",
+    "tag": "div",
+    "n": 3,
+    "sample": "TOTAL ASSETS 25 25 approved assets in this hive MATURE"
+   },
+   {
+    "sel": ".sc-label",
+    "tag": "div",
+    "n": 3,
+    "sample": "TOTAL ASSETS"
+   },
+   {
+    "sel": ".sc-hero",
+    "tag": "div",
+    "n": 3,
+    "sample": "25"
+   },
+   {
+    "sel": ".sc-sub",
+    "tag": "div",
+    "n": 3,
+    "sample": "25 approved assets in this hive"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#page-wrap",
+    "tag": "div",
+    "kids": 4,
+    "sample": "Asset Hub 360 view of any equipment in your hive Live + dail"
+   },
+   {
+    "sel": "#page-title",
+    "tag": "h1",
+    "kids": 0,
+    "sample": "Asset Hub"
+   },
+   {
+    "sel": "#page-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "360 view of any equipment in your hive"
+   },
+   {
+    "sel": "#wh-page-source-chip",
+    "tag": "p",
+    "kids": 1,
+    "sample": "Live + daily snapshot · Based on your asset records, risk sc"
+   },
+   {
+    "sel": "#list-view",
+    "tag": "div",
+    "kids": 12,
+    "sample": "ALL ASSETS ! Asset fleet mostly healthy, a couple of things "
+   },
+   {
+    "sel": "#ah-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "! Asset fleet mostly healthy, a couple of things to do 4 pen"
+   },
+   {
+    "sel": "#ah-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "!"
+   },
+   {
+    "sel": "#ah-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Asset fleet mostly healthy, a couple of things to do"
+   },
+   {
+    "sel": "#ah-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "4 pending."
+   },
+   {
+    "sel": "#ah-card-total",
+    "tag": "div",
+    "kids": 4,
+    "sample": "TOTAL ASSETS 25 25 approved assets in this hive MATURE"
+   },
+   {
+    "sel": "#ah-total-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "25"
+   },
+   {
+    "sel": "#ah-total-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "25 approved assets in this hive"
+   },
+   {
+    "sel": "#ah-total-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "MATURE"
+   },
+   {
+    "sel": "#ah-card-critical",
+    "tag": "div",
+    "kids": 4,
+    "sample": "CRITICAL ASSETS 6 6 critical assets: these drive every relia"
+   },
+   {
+    "sel": "#ah-critical-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "6"
+   },
+   {
+    "sel": "#ah-critical-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "6 critical assets: these drive every reliability KPI"
+   },
+   {
+    "sel": "#ah-critical-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "TRACKED"
+   },
+   {
+    "sel": "#ah-card-pending",
+    "tag": "div",
+    "kids": 4,
+    "sample": "PENDING ASSETS 4 4 assets awaiting supervisor sign-off REVIE"
+   },
+   {
+    "sel": "#ah-pending-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "4"
+   },
+   {
+    "sel": "#ah-pending-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "4 assets awaiting supervisor sign-off"
+   },
+   {
+    "sel": "#ah-pending-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "REVIEW"
+   },
+   {
+    "sel": "#ah-action-text",
+    "tag": "div",
+    "kids": 0,
+    "sample": "4 assets awaiting your sign-off. Open the Pending Approvals "
+   },
+   {
+    "sel": "#ah-action-btn",
+    "tag": "a",
+    "kids": 0,
+    "sample": "Review 4 pending →"
+   },
+   {
+    "sel": "#details-toggle-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Show details"
+   },
+   {
+    "sel": "#scan-btn",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Scan"
+   },
+   {
+    "sel": "#pending-assets-card",
+    "tag": "div",
+    "kids": 2,
+    "sample": "PENDING ASSET APPROVALS 4 PENDING · 1 REJECTED BE-002 Mechan"
+   }
+  ],
+  "wanted": [
+   "C1: asset node row",
+   "C2: FMEA mode row",
+   "C3: sensor panel"
+  ]
+ },
+ "analytics": {
+  "repeated": [
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 18,
+    "sample": "30 days"
+   },
+   {
+    "sel": "[data-dim]",
+    "tag": "button",
+    "n": 12,
+    "sample": "All"
+   },
+   {
+    "sel": ".refresh-btn",
+    "tag": "a",
+    "n": 5,
+    "sample": "📄 PDF Report"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 5,
+    "sample": "PDF Report"
+   },
+   {
+    "sel": "[data-rag-tile]",
+    "tag": "div",
+    "n": 4,
+    "sample": "OEE (AVG, PARTIAL) - Loading... - ISO 22400-2:2014 · Availab"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "div",
+    "n": 4,
+    "sample": "OEE (AVG, PARTIAL)"
+   },
+   {
+    "sel": "[data-phase]",
+    "tag": "button",
+    "n": 4,
+    "sample": "What happened Descriptive"
+   },
+   {
+    "sel": ".period-btn",
+    "tag": "button",
+    "n": 3,
+    "sample": "30 days"
+   },
+   {
+    "sel": ".sc-hero",
+    "tag": "div",
+    "n": 3,
+    "sample": "-"
+   },
+   {
+    "sel": ".sc-sub",
+    "tag": "div",
+    "n": 3,
+    "sample": "Loading..."
+   },
+   {
+    "sel": ".sc-tag",
+    "tag": "span",
+    "n": 3,
+    "sample": "-"
+   },
+   {
+    "sel": "[data-lang]",
+    "tag": "button",
+    "n": 2,
+    "sample": "EN"
+   },
+   {
+    "sel": ".period-row",
+    "tag": "div",
+    "n": 2,
+    "sample": "30 days 90 days 180 days 1 year 🔄 Refresh 📄 PDF Report ✉️ "
+   },
+   {
+    "sel": ".role-icon",
+    "tag": "span",
+    "n": 2,
+    "sample": "🔧"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 7,
+    "sample": "Analytics Engine ISO 14224 · SMRP Metrics · Stage 3 Cyborg W"
+   },
+   {
+    "sel": "#an-lang",
+    "tag": "div",
+    "kids": 2,
+    "sample": "EN FIL"
+   },
+   {
+    "sel": "#wh-source-chip",
+    "tag": "p",
+    "kids": 2,
+    "sample": "Recomputed just now · Based on your logbook How this is comp"
+   },
+   {
+    "sel": "#refresh-btn",
+    "tag": "button",
+    "kids": 2,
+    "sample": "🔄 Refresh"
+   },
+   {
+    "sel": "#refresh-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "🔄"
+   },
+   {
+    "sel": "#refresh-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Refresh"
+   },
+   {
+    "sel": "#report-pdf-btn",
+    "tag": "a",
+    "kids": 1,
+    "sample": "📄 PDF Report"
+   },
+   {
+    "sel": "#report-send-btn",
+    "tag": "a",
+    "kids": 1,
+    "sample": "✉️ Send"
+   },
+   {
+    "sel": "#an-summary",
+    "tag": "div",
+    "kids": 5,
+    "sample": "· Rolling up reliability KPIs... Reading your logbook for th"
+   },
+   {
+    "sel": "#an-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "· Rolling up reliability KPIs... Reading your logbook for th"
+   },
+   {
+    "sel": "#an-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "·"
+   },
+   {
+    "sel": "#an-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Rolling up reliability KPIs..."
+   },
+   {
+    "sel": "#an-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "Reading your logbook for this period."
+   },
+   {
+    "sel": "#an-card-oee",
+    "tag": "div",
+    "kids": 5,
+    "sample": "OEE (AVG, PARTIAL) - Loading... - ISO 22400-2:2014 · Availab"
+   },
+   {
+    "sel": "#an-oee-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "-"
+   },
+   {
+    "sel": "#an-oee-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Loading..."
+   },
+   {
+    "sel": "#an-oee-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "-"
+   },
+   {
+    "sel": "#an-card-mtbf",
+    "tag": "div",
+    "kids": 5,
+    "sample": "WORST MTBF (PARTIAL) - Loading... - ISO 14224:2016 · Counts "
+   },
+   {
+    "sel": "#an-mtbf-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "-"
+   },
+   {
+    "sel": "#an-mtbf-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Loading..."
+   },
+   {
+    "sel": "#an-mtbf-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "-"
+   },
+   {
+    "sel": "#an-card-pm",
+    "tag": "div",
+    "kids": 5,
+    "sample": "PM COMPLIANCE - Loading... - SMRP v5.0"
+   },
+   {
+    "sel": "#an-pm-label",
+    "tag": "div",
+    "kids": 0,
+    "sample": "PM COMPLIANCE"
+   },
+   {
+    "sel": "#an-pm-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "-"
+   },
+   {
+    "sel": "#an-pm-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Loading..."
+   },
+   {
+    "sel": "#an-pm-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "-"
+   }
+  ],
+  "wanted": [
+   "C1: KPI hero card (an- cohort chrome)",
+   "C2: Plotly chart",
+   "C3: verdict + action block"
+  ]
+ },
+ "alert-hub": {
+  "repeated": [
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 38,
+    "sample": "Show details"
+   },
+   {
+    "sel": ".alert-icon",
+    "tag": "div",
+    "n": 30,
+    "sample": "🧬"
+   },
+   {
+    "sel": ".alert-body",
+    "tag": "div",
+    "n": 30,
+    "sample": "HIGH BE-001 Multiple failure types on BE-001 (2 causes in 30"
+   },
+   {
+    "sel": ".alert-head",
+    "tag": "div",
+    "n": 30,
+    "sample": "HIGH BE-001"
+   },
+   {
+    "sel": ".alert-tag.tag-high",
+    "tag": "span",
+    "n": 30,
+    "sample": "HIGH"
+   },
+   {
+    "sel": ".alert-title",
+    "tag": "h3",
+    "n": 30,
+    "sample": "BE-001"
+   },
+   {
+    "sel": ".alert-msg",
+    "tag": "div",
+    "n": 30,
+    "sample": "Multiple failure types on BE-001 (2 causes in 30 days)"
+   },
+   {
+    "sel": ".alert-actions",
+    "tag": "div",
+    "n": 30,
+    "sample": "Open in Asset Hub → 👁 Seen ⏳ Snooze 7d ✓ Handled"
+   },
+   {
+    "sel": ".alert-action",
+    "tag": "a",
+    "n": 30,
+    "sample": "Open in Asset Hub →"
+   },
+   {
+    "sel": ".alert.kind-pattern",
+    "tag": "div",
+    "n": 20,
+    "sample": "🧬 HIGH BE-001 Multiple failure types on BE-001 (2 causes in"
+   },
+   {
+    "sel": "[data-seen-key]",
+    "tag": "button",
+    "n": 18,
+    "sample": "👁 Seen"
+   },
+   {
+    "sel": "[data-snooze-key]",
+    "tag": "button",
+    "n": 18,
+    "sample": "⏳ Snooze 7d"
+   },
+   {
+    "sel": "[data-dismiss-key]",
+    "tag": "button",
+    "n": 18,
+    "sample": "✓ Handled"
+   },
+   {
+    "sel": ".alert.kind-pm",
+    "tag": "div",
+    "n": 9,
+    "sample": "⚠️ HIGH Toyota 8FG25 PM 17d overdue (Forklift) Open PM Sched"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 4,
+    "sample": "Alert Hub Everything that needs your attention, in one place"
+   },
+   {
+    "sel": "#page-sub",
+    "tag": "p",
+    "kids": 0,
+    "sample": "Everything that needs your attention, in one place."
+   },
+   {
+    "sel": "#wh-source-chip",
+    "tag": "p",
+    "kids": 1,
+    "sample": "Live data · Based on your risk scores · PM overdue: counted "
+   },
+   {
+    "sel": "#hive-pill",
+    "tag": "span",
+    "kids": 0,
+    "sample": "🐝 Baguio Textile Mills"
+   },
+   {
+    "sel": "#main-content",
+    "tag": "div",
+    "kids": 9,
+    "sample": "⚠ Needs your attention now You have open critical alerts. Cl"
+   },
+   {
+    "sel": "#ah-summary",
+    "tag": "div",
+    "kids": 5,
+    "sample": "⚠ Needs your attention now You have open critical alerts. Cl"
+   },
+   {
+    "sel": "#ah-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "⚠ Needs your attention now You have open critical alerts. Cl"
+   },
+   {
+    "sel": "#ah-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "⚠"
+   },
+   {
+    "sel": "#ah-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Needs your attention now"
+   },
+   {
+    "sel": "#ah-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "You have open critical alerts. Clear the top of the feed fir"
+   },
+   {
+    "sel": "#ah-card-critical",
+    "tag": "div",
+    "kids": 4,
+    "sample": "HIGH-SEVERITY ALERTS 51 51 of 61 alerts need eyes now STACKI"
+   },
+   {
+    "sel": "#ah-critical-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "51"
+   },
+   {
+    "sel": "#ah-critical-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "51 of 61 alerts need eyes now"
+   },
+   {
+    "sel": "#ah-critical-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "STACKING UP"
+   },
+   {
+    "sel": "#ah-card-anomaly",
+    "tag": "div",
+    "kids": 4,
+    "sample": "ANOMALY SIGNALS 0 No fused anomalies in your hive right now "
+   },
+   {
+    "sel": "#ah-anomaly-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#ah-anomaly-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "No fused anomalies in your hive right now"
+   },
+   {
+    "sel": "#ah-anomaly-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "CLEAR"
+   },
+   {
+    "sel": "#ah-card-amc",
+    "tag": "div",
+    "kids": 4,
+    "sample": "AMC DAILY BRIEF None today No AMC brief for today's shift NO"
+   },
+   {
+    "sel": "#ah-amc-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "None today"
+   },
+   {
+    "sel": "#ah-amc-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "No AMC brief for today's shift"
+   },
+   {
+    "sel": "#ah-amc-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "NO BRIEF"
+   },
+   {
+    "sel": "#ah-action-text",
+    "tag": "div",
+    "kids": 0,
+    "sample": "51 critical/high alerts at the top of the feed. Clear those "
+   },
+   {
+    "sel": "#ah-action-btn",
+    "tag": "a",
+    "kids": 0,
+    "sample": "Clear 51 critical/high →"
+   },
+   {
+    "sel": "#details-toggle-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Show details"
+   },
+   {
+    "sel": "#filters",
+    "tag": "div",
+    "kids": 8,
+    "sample": "⊞ All 61 🤖 AMC 9 🔴 Risk 0 ⚠️ PM 29 📦 Stock 3 📥 Staging 0"
+   }
+  ],
+  "wanted": [
+   "C1: verdict hero trio (ah- cohort chrome)",
+   "C2: dismissible alert row",
+   "C3: anomaly signal row"
+  ]
+ },
+ "skillmatrix": {
+  "repeated": [
+   {
+    "sel": "[data-disc]",
+    "tag": "button",
+    "n": 10,
+    "sample": "−"
+   },
+   {
+    "sel": ".target-item",
+    "tag": "div",
+    "n": 5,
+    "sample": "Mechanical − 3 +"
+   },
+   {
+    "sel": ".target-name",
+    "tag": "div",
+    "n": 5,
+    "sample": "Mechanical"
+   },
+   {
+    "sel": ".stepper",
+    "tag": "div",
+    "n": 5,
+    "sample": "− 3 +"
+   },
+   {
+    "sel": ".step-val",
+    "tag": "span",
+    "n": 5,
+    "sample": "3"
+   },
+   {
+    "sel": "[data-disc]",
+    "tag": "div",
+    "n": 5,
+    "sample": "🔧 Mechanical Lv 2 / 3 Target: Level 3 · Actual: Level 2 Sta"
+   },
+   {
+    "sel": ".disc-card-header",
+    "tag": "div",
+    "n": 5,
+    "sample": "🔧 Mechanical Lv 2 / 3"
+   },
+   {
+    "sel": ".disc-card-name",
+    "tag": "div",
+    "n": 5,
+    "sample": "🔧 Mechanical"
+   },
+   {
+    "sel": ".disc-icon",
+    "tag": "span",
+    "n": 5,
+    "sample": "🔧"
+   },
+   {
+    "sel": ".disc-level-badge",
+    "tag": "div",
+    "n": 5,
+    "sample": "Lv 2 / 3"
+   },
+   {
+    "sel": ".disc-card-footer",
+    "tag": "div",
+    "n": 5,
+    "sample": "Target: Level 3 · Actual: Level 2 Start Level 3 →"
+   },
+   {
+    "sel": ".disc-target-row",
+    "tag": "div",
+    "n": 5,
+    "sample": "Target: Level 3 · Actual: Level 2"
+   },
+   {
+    "sel": ".disc-cta",
+    "tag": "div",
+    "n": 5,
+    "sample": "Start Level 3 →"
+   },
+   {
+    "sel": "[data-rag-tile]",
+    "tag": "div",
+    "n": 3,
+    "sample": "ON TARGET 4/5 1 discipline still behind target PROGRESSING"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#toast",
+    "tag": "div",
+    "kids": 2,
+    "sample": "✓"
+   },
+   {
+    "sel": "#toast-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "✓"
+   },
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 6,
+    "sample": "Growth Primary: Steam Systems · Leandro Marquez Skills Achie"
+   },
+   {
+    "sel": "#header-sub",
+    "tag": "p",
+    "kids": 0,
+    "sample": "Primary: Steam Systems · Leandro Marquez"
+   },
+   {
+    "sel": "#skillmatrix-source-chip",
+    "tag": "p",
+    "kids": 2,
+    "sample": "Live · refreshed on load · Based on your skills & skill badg"
+   },
+   {
+    "sel": "#main-content",
+    "tag": "div",
+    "kids": 10,
+    "sample": "! Skill matrix is climbing 4/5 disciplines on target · 1 qui"
+   },
+   {
+    "sel": "#sm-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "! Skill matrix is climbing 4/5 disciplines on target · 1 qui"
+   },
+   {
+    "sel": "#sm-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "!"
+   },
+   {
+    "sel": "#sm-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Skill matrix is climbing"
+   },
+   {
+    "sel": "#sm-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "4/5 disciplines on target · 1 quiz available right now."
+   },
+   {
+    "sel": "#sm-card-ontrack",
+    "tag": "div",
+    "kids": 4,
+    "sample": "ON TARGET 4/5 1 discipline still behind target PROGRESSING"
+   },
+   {
+    "sel": "#sm-ontrack-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "4/5"
+   },
+   {
+    "sel": "#sm-ontrack-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "1 discipline still behind target"
+   },
+   {
+    "sel": "#sm-ontrack-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "PROGRESSING"
+   },
+   {
+    "sel": "#sm-card-quizzes",
+    "tag": "div",
+    "kids": 4,
+    "sample": "QUIZZES AVAILABLE 1 1 discipline has a quiz you can take now"
+   },
+   {
+    "sel": "#sm-quizzes-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "1"
+   },
+   {
+    "sel": "#sm-quizzes-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "1 discipline has a quiz you can take now"
+   },
+   {
+    "sel": "#sm-quizzes-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "READY"
+   },
+   {
+    "sel": "#sm-card-badges",
+    "tag": "div",
+    "kids": 4,
+    "sample": "TOTAL BADGES 19 19 of 25 possible (5 levels × 5 disciplines)"
+   },
+   {
+    "sel": "#sm-badges-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "19"
+   },
+   {
+    "sel": "#sm-badges-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "19 of 25 possible (5 levels × 5 disciplines)"
+   },
+   {
+    "sel": "#sm-badges-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "MID"
+   },
+   {
+    "sel": "#sm-action-text",
+    "tag": "div",
+    "kids": 0,
+    "sample": "1 discipline has a quiz available right now. Tap a disciplin"
+   },
+   {
+    "sel": "#details-toggle-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Show details"
+   },
+   {
+    "sel": "#target-grid",
+    "tag": "div",
+    "kids": 5,
+    "sample": "Mechanical − 3 + Electrical − 2 + Instrumentation − 1 + Faci"
+   },
+   {
+    "sel": "#step-val-Mechanical",
+    "tag": "span",
+    "kids": 0,
+    "sample": "3"
+   }
+  ],
+  "wanted": [
+   "C1: skill cell",
+   "C2: exam question",
+   "C3: result / badge card"
+  ]
+ },
+ "shift-brain": {
+  "repeated": [
+   {
+    "sel": ".wh-pmdue-row",
+    "tag": "a",
+    "n": 12,
+    "sample": "OVERDUE Cleaver-Brooks CB-700-200 Critical Overdue by 23d"
+   },
+   {
+    "sel": ".oh-badge.oh-badge-critical",
+    "tag": "span",
+    "n": 12,
+    "sample": "OVERDUE"
+   },
+   {
+    "sel": ".row-meta",
+    "tag": "div",
+    "n": 12,
+    "sample": "Water level low alarm during peak demand"
+   },
+   {
+    "sel": ".row",
+    "tag": "div",
+    "n": 6,
+    "sample": "BLR-002 · Breakdown / Corrective Water level low alarm durin"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 4,
+    "sample": "Show details"
+   },
+   {
+    "sel": ".section-card",
+    "tag": "div",
+    "n": 4,
+    "sample": "TOP RISK ASSETS 1 HIGH TX-001 73%"
+   },
+   {
+    "sel": ".section-title",
+    "tag": "h2",
+    "n": 4,
+    "sample": "TOP RISK ASSETS 1"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 4,
+    "sample": "TOP RISK ASSETS"
+   },
+   {
+    "sel": ".section-count",
+    "tag": "span",
+    "n": 4,
+    "sample": "1"
+   },
+   {
+    "sel": ".oh-badge.oh-badge-high",
+    "tag": "span",
+    "n": 4,
+    "sample": "HIGH"
+   },
+   {
+    "sel": "[data-window]",
+    "tag": "button",
+    "n": 3,
+    "sample": "06-14 Morning"
+   },
+   {
+    "sel": ".sc-label",
+    "tag": "div",
+    "n": 3,
+    "sample": "TOP RISK THIS SHIFT"
+   },
+   {
+    "sel": ".sc-hero",
+    "tag": "div",
+    "n": 3,
+    "sample": "1"
+   },
+   {
+    "sel": ".sc-sub",
+    "tag": "div",
+    "n": 3,
+    "sample": "1 asset flagged for this window"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 12,
+    "sample": "Shift Brain Autonomous shift planner for your hive STALE · p"
+   },
+   {
+    "sel": "#page-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Autonomous shift planner for your hive"
+   },
+   {
+    "sel": "#shift-source-chip",
+    "tag": "p",
+    "kids": 1,
+    "sample": "STALE · plan generated Aug 13, 04:44 AM, not the current shi"
+   },
+   {
+    "sel": "#sb-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "⚠ Heavy shift: prioritize hot assets and carry-forward 1 hig"
+   },
+   {
+    "sel": "#sb-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "⚠"
+   },
+   {
+    "sel": "#sb-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Heavy shift: prioritize hot assets and carry-forward"
+   },
+   {
+    "sel": "#sb-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "1 high-risk · 29 PMs · 9 carry-forward · 3 parts to stage."
+   },
+   {
+    "sel": "#sb-card-risk",
+    "tag": "div",
+    "kids": 4,
+    "sample": "TOP RISK THIS SHIFT 1 1 asset flagged for this window WATCH"
+   },
+   {
+    "sel": "#sb-risk-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "1"
+   },
+   {
+    "sel": "#sb-risk-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "1 asset flagged for this window"
+   },
+   {
+    "sel": "#sb-risk-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "WATCH"
+   },
+   {
+    "sel": "#sb-card-pms",
+    "tag": "div",
+    "kids": 4,
+    "sample": "PMS DUE 29 29 preventive tasks due this window BUSY"
+   },
+   {
+    "sel": "#sb-pms-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "29"
+   },
+   {
+    "sel": "#sb-pms-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "29 preventive tasks due this window"
+   },
+   {
+    "sel": "#sb-pms-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "BUSY"
+   },
+   {
+    "sel": "#sb-card-carry",
+    "tag": "div",
+    "kids": 4,
+    "sample": "CARRY-FORWARD 9 9 open items carried over STACKING"
+   },
+   {
+    "sel": "#sb-carry-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "9"
+   },
+   {
+    "sel": "#sb-carry-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "9 open items carried over"
+   },
+   {
+    "sel": "#sb-carry-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "STACKING"
+   },
+   {
+    "sel": "#sb-action-text",
+    "tag": "div",
+    "kids": 0,
+    "sample": "9 open items carried forward. Close out the simplest ones fi"
+   },
+   {
+    "sel": "#sb-action-btn",
+    "tag": "a",
+    "kids": 0,
+    "sample": "Clear 9 carry-forward →"
+   },
+   {
+    "sel": "#details-toggle-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Show details"
+   },
+   {
+    "sel": "#briefing-card",
+    "tag": "div",
+    "kids": 3,
+    "sample": "06-14 AUG 13, 04:44 AM DRAFT ⚠ STALE [SAFETY] ACTIVE ISOLATI"
+   },
+   {
+    "sel": "#brief-window",
+    "tag": "span",
+    "kids": 0,
+    "sample": "06-14"
+   },
+   {
+    "sel": "#brief-date",
+    "tag": "span",
+    "kids": 0,
+    "sample": "AUG 13, 04:44 AM"
+   },
+   {
+    "sel": "#brief-status",
+    "tag": "span",
+    "kids": 0,
+    "sample": "DRAFT"
+   }
+  ],
+  "wanted": [
+   "C1: verdict hero trio",
+   "C2: plan row",
+   "C3: action block"
+  ]
+ },
+ "voice-journal": {
+  "repeated": [
+   {
+    "sel": ".history-entry",
+    "tag": "div",
+    "n": 8,
+    "sample": "09:06 AM SPEAK AGAIN Quote the warranty expiry date and invo"
+   },
+   {
+    "sel": ".history-meta",
+    "tag": "div",
+    "n": 8,
+    "sample": "09:06 AM SPEAK AGAIN"
+   },
+   {
+    "sel": "[data-action]",
+    "tag": "button",
+    "n": 8,
+    "sample": "SPEAK AGAIN"
+   },
+   {
+    "sel": ".history-text",
+    "tag": "div",
+    "n": 8,
+    "sample": "Quote the warranty expiry date and invoice number for the im"
+   },
+   {
+    "sel": ".history-reply",
+    "tag": "div",
+    "n": 8,
+    "sample": "Hala, QX-77777 again, you've asked that five times this week"
+   },
+   {
+    "sel": ".btn-ghost",
+    "tag": "button",
+    "n": 2,
+    "sample": "Voice On"
+   },
+   {
+    "sel": ".card",
+    "tag": "section",
+    "n": 2,
+    "sample": "TODAY, YOUR TURN TALKING WITH 🧭 Zaniah · Strategy 🛠️ Hezek"
+   },
+   {
+    "sel": "[data-persona]",
+    "tag": "button",
+    "n": 2,
+    "sample": "🧭 Zaniah · Strategy"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 8,
+    "sample": "Back WORKHIVE Voice Journal Voice On Cloud voice How this wo"
+   },
+   {
+    "sel": "#tts-toggle",
+    "tag": "button",
+    "kids": 1,
+    "sample": "Voice On"
+   },
+   {
+    "sel": "#tts-toggle-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Voice On"
+   },
+   {
+    "sel": "#sov-voice-toggle",
+    "tag": "button",
+    "kids": 1,
+    "sample": "Cloud voice"
+   },
+   {
+    "sel": "#sov-voice-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Cloud voice"
+   },
+   {
+    "sel": "#capture-panel",
+    "tag": "section",
+    "kids": 6,
+    "sample": "TODAY, YOUR TURN TALKING WITH 🧭 Zaniah · Strategy 🛠️ Hezek"
+   },
+   {
+    "sel": "#persona-row",
+    "tag": "div",
+    "kids": 3,
+    "sample": "TALKING WITH 🧭 Zaniah · Strategy 🛠️ Hezekiah · Technical"
+   },
+   {
+    "sel": "#persona-zaniah",
+    "tag": "button",
+    "kids": 2,
+    "sample": "🧭 Zaniah · Strategy"
+   },
+   {
+    "sel": "#persona-hezekiah",
+    "tag": "button",
+    "kids": 2,
+    "sample": "🛠️ Hezekiah · Technical"
+   },
+   {
+    "sel": "#mic-state",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Tap to start. Tap again to stop."
+   },
+   {
+    "sel": "#entry-count",
+    "tag": "span",
+    "kids": 0,
+    "sample": "80 entries"
+   },
+   {
+    "sel": "#filter-chips",
+    "tag": "div",
+    "kids": 1,
+    "sample": "All (80)"
+   },
+   {
+    "sel": "#history-list",
+    "tag": "div",
+    "kids": 9,
+    "sample": "TUE, AUG 4 09:06 AM SPEAK AGAIN Quote the warranty expiry da"
+   },
+   {
+    "sel": "#voice-load-more-wrap",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Load More"
+   },
+   {
+    "sel": "#wh-wayfinding",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Back Home › Voice Journal: WorkHive"
+   },
+   {
+    "sel": "#wh-hub",
+    "tag": "div",
+    "kids": 3,
+    "sample": "Voice Journal"
+   },
+   {
+    "sel": "#wh-hub-fab",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Voice Journal"
+   },
+   {
+    "sel": "#wh-hub-current-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Voice Journal"
+   },
+   {
+    "sel": "#wh-guide-link",
+    "tag": "div",
+    "kids": 2,
+    "sample": "📖 New to this page? Read the guide ×"
+   },
+   {
+    "sel": "#vj-source-chip",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Live · refreshed on load · Based on your voice journal entri"
+   }
+  ],
+  "wanted": [
+   "C1: record control + mic state",
+   "C2: transcript block",
+   "C3: entry row"
+  ]
+ },
+ "assistant": {
+  "repeated": [
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 3,
+    "sample": "New Chat"
+   },
+   {
+    "sel": ".starter-chip",
+    "tag": "button",
+    "n": 3,
+    "sample": "Which of my assets has the worst MTBF, and what should I do?"
+   },
+   {
+    "sel": ".fade-up",
+    "tag": "div",
+    "n": 2,
+    "sample": "Hi Leandro Marquez! I'm your WorkHive Work Assistant. I can "
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 11,
+    "sample": "Setup Work Assistant Leandro Marquez New Chat Chat Journal H"
+   },
+   {
+    "sel": "#chat-screen",
+    "tag": "div",
+    "kids": 5,
+    "sample": "Setup Work Assistant Leandro Marquez New Chat Chat Journal H"
+   },
+   {
+    "sel": "#chat-worker-name",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Leandro Marquez"
+   },
+   {
+    "sel": "#tab-chat",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Chat"
+   },
+   {
+    "sel": "#tab-journal",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Journal"
+   },
+   {
+    "sel": "#chat-messages",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Hi Leandro Marquez! I'm your WorkHive Work Assistant. I can "
+   },
+   {
+    "sel": "#chat-input-area",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Powered by WorkHive AI"
+   },
+   {
+    "sel": "#wh-hub",
+    "tag": "div",
+    "kids": 3,
+    "sample": "AI Assistant"
+   },
+   {
+    "sel": "#wh-hub-fab",
+    "tag": "button",
+    "kids": 2,
+    "sample": "AI Assistant"
+   },
+   {
+    "sel": "#wh-hub-current-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "AI Assistant"
+   },
+   {
+    "sel": "#wh-wayfinding",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Back Home › AI Work Assistant: WorkHive"
+   },
+   {
+    "sel": "#wh-guide-link",
+    "tag": "div",
+    "kids": 2,
+    "sample": "📖 New to this page? Read the guide ×"
+   }
+  ],
+  "wanted": [
+   "C1: message bubble",
+   "C2: source/provenance chip",
+   "C3: composer"
+  ]
+ },
+ "community": {
+  "repeated": [
+   {
+    "sel": ".reaction-btn",
+    "tag": "button",
+    "n": 20,
+    "sample": "👍 0"
+   },
+   {
+    "sel": ".author-link",
+    "tag": "button",
+    "n": 8,
+    "sample": "Bryan Garcia"
+   },
+   {
+    "sel": ".wh-avatar-lvl",
+    "tag": "span",
+    "n": 7,
+    "sample": "60"
+   },
+   {
+    "sel": "[data-cat]",
+    "tag": "button",
+    "n": 6,
+    "sample": "All"
+   },
+   {
+    "sel": ".wh-avatar.wh-tier-gold",
+    "tag": "div",
+    "n": 5,
+    "sample": "BG 60"
+   },
+   {
+    "sel": ".cat-badge",
+    "tag": "span",
+    "n": 5,
+    "sample": "TECHNICAL"
+   },
+   {
+    "sel": ".post-card",
+    "tag": "div",
+    "n": 4,
+    "sample": "BG 60 Bryan Garcia TECHNICAL Jul 16, 2026 Tip: keep a spare "
+   },
+   {
+    "sel": ".wh-card",
+    "tag": "div",
+    "n": 4,
+    "sample": "YOUR PROFILE LM 80 Leandro Marquez Supervisor 3 Posts 0 Comm"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 2,
+    "sample": "Feed"
+   },
+   {
+    "sel": ".wh-avatar.wh-tier-platinum",
+    "tag": "div",
+    "n": 2,
+    "sample": "LM 80"
+   },
+   {
+    "sel": ".wh-avatar.wh-tier-iron",
+    "tag": "div",
+    "n": 2,
+    "sample": "WM 5"
+   },
+   {
+    "sel": ".lb-row",
+    "tag": "div",
+    "n": 2,
+    "sample": "🥇 BG Bryan Garcia 185 XP"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#nav-worker",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Leandro Marquez"
+   },
+   {
+    "sel": "#toast",
+    "tag": "div",
+    "kids": 2,
+    "sample": "✓"
+   },
+   {
+    "sel": "#toast-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "✓"
+   },
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 2,
+    "sample": "Community Baguio Textile Mills · Discussion Board Live · upd"
+   },
+   {
+    "sel": "#hive-name-label",
+    "tag": "p",
+    "kids": 0,
+    "sample": "Baguio Textile Mills · Discussion Board"
+   },
+   {
+    "sel": "#community-source-chip",
+    "tag": "p",
+    "kids": 1,
+    "sample": "Live · updates automatically · Based on your community posts"
+   },
+   {
+    "sel": "#presence-bar",
+    "tag": "div",
+    "kids": 1,
+    "sample": "LM Leandro Marquez"
+   },
+   {
+    "sel": "#tab-feed",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Feed"
+   },
+   {
+    "sel": "#tab-global",
+    "tag": "button",
+    "kids": 0,
+    "sample": "🌐 Global"
+   },
+   {
+    "sel": "#tab-mod",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Mod Queue"
+   },
+   {
+    "sel": "#panel-feed-controls",
+    "tag": "div",
+    "kids": 2,
+    "sample": "All General Safety Technical Parts / Service Announcements"
+   },
+   {
+    "sel": "#filter-chips",
+    "tag": "div",
+    "kids": 6,
+    "sample": "All General Safety Technical Parts / Service Announcements"
+   },
+   {
+    "sel": "#panel-feed",
+    "tag": "div",
+    "kids": 3,
+    "sample": "BG 60 Bryan Garcia TECHNICAL Jul 16, 2026 Tip: keep a spare "
+   },
+   {
+    "sel": "#post-0f78265c-602b-4c5a-b617-1e8d40e47a84",
+    "tag": "div",
+    "kids": 1,
+    "sample": "BG 60 Bryan Garcia TECHNICAL Jul 16, 2026 Tip: keep a spare "
+   },
+   {
+    "sel": "#rxn-thumbs_up-0f78265c-602b-4c5a-b617-1e8d40e47a84",
+    "tag": "span",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#rxn-wrench-0f78265c-602b-4c5a-b617-1e8d40e47a84",
+    "tag": "span",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#rxn-fire-0f78265c-602b-4c5a-b617-1e8d40e47a84",
+    "tag": "span",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#rxn-eyes-0f78265c-602b-4c5a-b617-1e8d40e47a84",
+    "tag": "span",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#reply-btn-0f78265c-602b-4c5a-b617-1e8d40e47a84",
+    "tag": "button",
+    "kids": 2,
+    "sample": "0"
+   },
+   {
+    "sel": "#reply-count-0f78265c-602b-4c5a-b617-1e8d40e47a84",
+    "tag": "span",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#post-283f099a-3124-4335-98ce-3c7983103c98",
+    "tag": "div",
+    "kids": 1,
+    "sample": "BG 60 Bryan Garcia TECHNICAL Jul 15, 2026 Saved 20% on lube "
+   },
+   {
+    "sel": "#rxn-thumbs_up-283f099a-3124-4335-98ce-3c7983103c98",
+    "tag": "span",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#rxn-wrench-283f099a-3124-4335-98ce-3c7983103c98",
+    "tag": "span",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#rxn-fire-283f099a-3124-4335-98ce-3c7983103c98",
+    "tag": "span",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#rxn-eyes-283f099a-3124-4335-98ce-3c7983103c98",
+    "tag": "span",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#reply-btn-283f099a-3124-4335-98ce-3c7983103c98",
+    "tag": "button",
+    "kids": 2,
+    "sample": "0"
+   }
+  ],
+  "wanted": [
+   "C1: post card",
+   "C2: reply row",
+   "C3: reaction bar"
+  ]
+ },
+ "public-feed": {
+  "repeated": [
+   {
+    "sel": ".post-card",
+    "tag": "div",
+    "n": 15,
+    "sample": "Jericho Bonifacio GENERAL Jul 16, 2026 Reminder: MCCB recall"
+   },
+   {
+    "sel": ".post-meta",
+    "tag": "div",
+    "n": 15,
+    "sample": "Jericho Bonifacio GENERAL Jul 16, 2026"
+   },
+   {
+    "sel": ".post-author",
+    "tag": "span",
+    "n": 15,
+    "sample": "Jericho Bonifacio"
+   },
+   {
+    "sel": ".cat-badge",
+    "tag": "span",
+    "n": 15,
+    "sample": "GENERAL"
+   },
+   {
+    "sel": ".post-time",
+    "tag": "span",
+    "n": 15,
+    "sample": "Jul 16, 2026"
+   },
+   {
+    "sel": ".post-content",
+    "tag": "p",
+    "n": 15,
+    "sample": "Reminder: MCCB recall notice from Schneider for batch # ABC1"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "p",
+    "n": 2,
+    "sample": "Public posts from WorkHive maintenance teams. Sign in to joi"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "a",
+    "n": 2,
+    "sample": "Sign in to post →"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 6,
+    "sample": "What hives are talking about Public posts from WorkHive main"
+   },
+   {
+    "sel": "#pf-source-chip",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Live · refreshed on load · Based on your community posts"
+   },
+   {
+    "sel": "#wh-hub",
+    "tag": "div",
+    "kids": 3,
+    "sample": "Home"
+   },
+   {
+    "sel": "#wh-hub-fab",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Home"
+   },
+   {
+    "sel": "#wh-hub-current-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Home"
+   },
+   {
+    "sel": "#wh-wayfinding",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Back Home › Public Feed: WorkHive"
+   }
+  ],
+  "wanted": [
+   "C1: post card",
+   "C2: retry control",
+   "C3: feed header / loader"
+  ]
+ },
+ "achievements": {
+  "repeated": [
+   {
+    "sel": "[data-ach]",
+    "tag": "div",
+    "n": 12,
+    "sample": "🔧 45 Wrench Chronicle Silver Lv.45 1949 XP to Lv.46"
+   },
+   {
+    "sel": ".domain-badge-wrap",
+    "tag": "div",
+    "n": 12,
+    "sample": "🔧 45"
+   },
+   {
+    "sel": ".domain-name",
+    "tag": "div",
+    "n": 12,
+    "sample": "Wrench Chronicle"
+   },
+   {
+    "sel": ".domain-tier-label",
+    "tag": "div",
+    "n": 12,
+    "sample": "Silver Lv.45"
+   },
+   {
+    "sel": ".wh-avatar-lvl",
+    "tag": "span",
+    "n": 11,
+    "sample": "80"
+   },
+   {
+    "sel": ".xp-text",
+    "tag": "div",
+    "n": 11,
+    "sample": "1949 XP to Lv.46"
+   },
+   {
+    "sel": ".wh-avatar.wh-tier-iron",
+    "tag": "div",
+    "n": 10,
+    "sample": "★ 5"
+   },
+   {
+    "sel": ".activity-row",
+    "tag": "div",
+    "n": 10,
+    "sample": "🔧 Logbook entry submitted Wrench Chronicle · 9d ago +20"
+   },
+   {
+    "sel": ".activity-icon-sm",
+    "tag": "div",
+    "n": 10,
+    "sample": "🔧"
+   },
+   {
+    "sel": ".activity-body",
+    "tag": "div",
+    "n": 10,
+    "sample": "Logbook entry submitted Wrench Chronicle · 9d ago"
+   },
+   {
+    "sel": ".activity-name",
+    "tag": "div",
+    "n": 10,
+    "sample": "Logbook entry submitted"
+   },
+   {
+    "sel": ".activity-sub",
+    "tag": "div",
+    "n": 10,
+    "sample": "Wrench Chronicle · 9d ago"
+   },
+   {
+    "sel": ".activity-xp",
+    "tag": "div",
+    "n": 10,
+    "sample": "+20"
+   },
+   {
+    "sel": ".tier-sample",
+    "tag": "div",
+    "n": 6,
+    "sample": "★ 5 Iron Lv 1-10"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 6,
+    "sample": "Growth ← Skills Achievements Live · refreshed on load · Base"
+   },
+   {
+    "sel": "#achievements-source-chip",
+    "tag": "p",
+    "kids": 1,
+    "sample": "Live · refreshed on load · Based on your achievements, XP hi"
+   },
+   {
+    "sel": "#ac-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "! No XP this week Logbook entries, PM completions, and knowl"
+   },
+   {
+    "sel": "#ac-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "!"
+   },
+   {
+    "sel": "#ac-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "No XP this week"
+   },
+   {
+    "sel": "#ac-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "Logbook entries, PM completions, and knowledge contributions"
+   },
+   {
+    "sel": "#ac-card-week",
+    "tag": "div",
+    "kids": 4,
+    "sample": "XP THIS WEEK +0 No XP earned in the past 7 days IDLE"
+   },
+   {
+    "sel": "#ac-week-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "+0"
+   },
+   {
+    "sel": "#ac-week-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "No XP earned in the past 7 days"
+   },
+   {
+    "sel": "#ac-week-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "IDLE"
+   },
+   {
+    "sel": "#ac-card-active",
+    "tag": "div",
+    "kids": 4,
+    "sample": "ACTIVE DOMAINS 4/12 4 of 12 domains touched at Level 1+ BUIL"
+   },
+   {
+    "sel": "#ac-active-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "4/12"
+   },
+   {
+    "sel": "#ac-active-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "4 of 12 domains touched at Level 1+"
+   },
+   {
+    "sel": "#ac-active-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "BUILDING"
+   },
+   {
+    "sel": "#ac-card-level",
+    "tag": "div",
+    "kids": 4,
+    "sample": "TOTAL LEVEL 153 Sum of levels across all 12 domains (max 1,2"
+   },
+   {
+    "sel": "#ac-level-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "153"
+   },
+   {
+    "sel": "#ac-level-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Sum of levels across all 12 domains (max 1,200 = 12 domains "
+   },
+   {
+    "sel": "#ac-level-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "EXPERT"
+   },
+   {
+    "sel": "#ac-action-text",
+    "tag": "div",
+    "kids": 0,
+    "sample": "No XP this week. The easiest source is logging a breakdown w"
+   },
+   {
+    "sel": "#details-toggle-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Show details"
+   },
+   {
+    "sel": "#hero-avatar-wrap",
+    "tag": "div",
+    "kids": 1,
+    "sample": "LM 80"
+   },
+   {
+    "sel": "#hero-name",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Leandro Marquez"
+   },
+   {
+    "sel": "#hero-tier-label",
+    "tag": "div",
+    "kids": 0,
+    "sample": "PLATINUM TECHNICIAN"
+   },
+   {
+    "sel": "#hero-stats",
+    "tag": "div",
+    "kids": 3,
+    "sample": "153 TOTAL LEVEL 4/12 DOMAINS ACTIVE 80 HIGHEST LEVEL"
+   },
+   {
+    "sel": "#stat-composite",
+    "tag": "div",
+    "kids": 0,
+    "sample": "153"
+   },
+   {
+    "sel": "#stat-active",
+    "tag": "div",
+    "kids": 0,
+    "sample": "4/12"
+   }
+  ],
+  "wanted": [
+   "C1: achievement tile",
+   "C2: XP log row",
+   "C3: level / progress bar"
+  ]
+ },
+ "engineering-design": {
+  "repeated": [
+   {
+    "sel": "[data-id]",
+    "tag": "div",
+    "n": 10,
+    "sample": "❄️ HVAC Cooling Load Room heat gain, AC capacity in kW / TR"
+   },
+   {
+    "sel": ".calc-desc",
+    "tag": "div",
+    "n": 10,
+    "sample": "Room heat gain, AC capacity in kW / TR"
+   },
+   {
+    "sel": "[data-disc]",
+    "tag": "button",
+    "n": 6,
+    "sample": "❄️ HVAC & Cooling 10"
+   },
+   {
+    "sel": ".pill-count",
+    "tag": "span",
+    "n": 6,
+    "sample": "10"
+   },
+   {
+    "sel": ".card",
+    "tag": "div",
+    "n": 5,
+    "sample": "STEP 1: DISCIPLINE ❄️ HVAC & Cooling 10 🔧 Mechanical 4 ⚡ El"
+   },
+   {
+    "sel": "[data-tab]",
+    "tag": "button",
+    "n": 3,
+    "sample": "Calculator"
+   },
+   {
+    "sel": ".calc-subcat-header",
+    "tag": "div",
+    "n": 3,
+    "sample": "LOAD CALCULATIONS"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#eng-source-chip",
+    "tag": "p",
+    "kids": 1,
+    "sample": "Calculated on demand · Based on your saved calculations, sta"
+   },
+   {
+    "sel": "#tab-calculator",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Step 2 of 4: Select Calculation Type STEP 1: DISCIPLINE ❄️ H"
+   },
+   {
+    "sel": "#step-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Step 2 of 4: Select Calculation Type"
+   },
+   {
+    "sel": "#step1-card",
+    "tag": "div",
+    "kids": 2,
+    "sample": "STEP 1: DISCIPLINE ❄️ HVAC & Cooling 10 🔧 Mechanical 4 ⚡ El"
+   },
+   {
+    "sel": "#step2-card",
+    "tag": "div",
+    "kids": 2,
+    "sample": "STEP 2: CALCULATION TYPE LOAD CALCULATIONS ❄️ HVAC Cooling L"
+   },
+   {
+    "sel": "#step3-card",
+    "tag": "div",
+    "kids": 2,
+    "sample": "STEP 3: PROJECT & INPUTS ⇄ Units: Metric (SI) Select a calcu"
+   },
+   {
+    "sel": "#units-toggle-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "⇄ Units: Metric (SI)"
+   },
+   {
+    "sel": "#input-form-area",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Select a calculation type first."
+   },
+   {
+    "sel": "#step4-card",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Run Calculation"
+   },
+   {
+    "sel": "#calc-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Run Calculation"
+   },
+   {
+    "sel": "#report-empty",
+    "tag": "div",
+    "kids": 3,
+    "sample": "📐 No Report Yet Fill in the inputs on the left and click Ru"
+   },
+   {
+    "sel": "#wh-hub",
+    "tag": "div",
+    "kids": 3,
+    "sample": "Eng. Design"
+   },
+   {
+    "sel": "#wh-hub-fab",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Eng. Design"
+   },
+   {
+    "sel": "#wh-hub-current-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Eng. Design"
+   },
+   {
+    "sel": "#wh-wayfinding",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Back Home › Engineering Design Calculator: WorkHive"
+   },
+   {
+    "sel": "#wh-guide-link",
+    "tag": "div",
+    "kids": 2,
+    "sample": "📖 New to this page? Read the guide ×"
+   }
+  ],
+  "wanted": [
+   "C1: calc input form",
+   "C2: result / report block",
+   "C3: diagram (drawing-symbols + mermaid)"
+  ]
+ },
+ "resume": {
+  "repeated": [
+   {
+    "sel": ".sec-head",
+    "tag": "div",
+    "n": 9,
+    "sample": "📎 Add from files Dump as many as you like: photo, screensho"
+   },
+   {
+    "sel": ".card",
+    "tag": "div",
+    "n": 9,
+    "sample": "Your Details The top of your resume FULL NAME HEADLINE / ROL"
+   },
+   {
+    "sel": ".sec-title",
+    "tag": "div",
+    "n": 8,
+    "sample": "Your Details"
+   },
+   {
+    "sel": ".field",
+    "tag": "div",
+    "n": 7,
+    "sample": "FULL NAME"
+   },
+   {
+    "sel": "[data-action]",
+    "tag": "button",
+    "n": 7,
+    "sample": "+ Add work experience"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 4,
+    "sample": "👁 Preview & Export"
+   },
+   {
+    "sel": ".sec-sub",
+    "tag": "div",
+    "n": 4,
+    "sample": "The top of your resume"
+   },
+   {
+    "sel": ".btn.btn-ghost",
+    "tag": "button",
+    "n": 3,
+    "sample": "💾 Save"
+   },
+   {
+    "sel": ".btn.btn-primary",
+    "tag": "button",
+    "n": 2,
+    "sample": "✨ Auto-fill from my WorkHive data"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "div",
+    "n": 2,
+    "sample": "📎 Add from files"
+   },
+   {
+    "sel": ".field-row",
+    "tag": "div",
+    "n": 2,
+    "sample": "EMAIL PHONE"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#main",
+    "tag": "main",
+    "kids": 7,
+    "sample": "📄 Resume / CV Builder Build a professional resume from your"
+   },
+   {
+    "sel": "#ctx-pill",
+    "tag": "div",
+    "kids": 0,
+    "sample": "🏭 Baguio Textile Mills · supervisor"
+   },
+   {
+    "sel": "#btn-autofill",
+    "tag": "button",
+    "kids": 0,
+    "sample": "✨ Auto-fill from my WorkHive data"
+   },
+   {
+    "sel": "#btn-save",
+    "tag": "button",
+    "kids": 0,
+    "sample": "💾 Save"
+   },
+   {
+    "sel": "#btn-resumes",
+    "tag": "button",
+    "kids": 0,
+    "sample": "📂 My Resumes"
+   },
+   {
+    "sel": "#btn-export",
+    "tag": "button",
+    "kids": 0,
+    "sample": "👁 Preview & Export"
+   },
+   {
+    "sel": "#btn-undo",
+    "tag": "button",
+    "kids": 0,
+    "sample": "↩ Undo"
+   },
+   {
+    "sel": "#upload-card",
+    "tag": "div",
+    "kids": 8,
+    "sample": "📎 Add from files Dump as many as you like: photo, screensho"
+   },
+   {
+    "sel": "#btn-photo",
+    "tag": "button",
+    "kids": 0,
+    "sample": "📷 Take photos"
+   },
+   {
+    "sel": "#btn-file",
+    "tag": "button",
+    "kids": 0,
+    "sample": "📁 Choose files"
+   },
+   {
+    "sel": "#sections",
+    "tag": "div",
+    "kids": 9,
+    "sample": "Your Details The top of your resume FULL NAME HEADLINE / ROL"
+   },
+   {
+    "sel": "#btn-autofill-2",
+    "tag": "button",
+    "kids": 0,
+    "sample": "✨ Auto-fill from WorkHive"
+   },
+   {
+    "sel": "#btn-file-2",
+    "tag": "button",
+    "kids": 0,
+    "sample": "📁 Upload a resume"
+   },
+   {
+    "sel": "#wh-hub",
+    "tag": "div",
+    "kids": 3,
+    "sample": "Resume Builder"
+   },
+   {
+    "sel": "#wh-hub-fab",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Resume Builder"
+   },
+   {
+    "sel": "#wh-hub-current-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Resume Builder"
+   },
+   {
+    "sel": "#wh-wayfinding",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Back Home › Resume / CV Builder"
+   },
+   {
+    "sel": "#wh-guide-link",
+    "tag": "div",
+    "kids": 2,
+    "sample": "📖 New to this page? Read the guide ×"
+   }
+  ],
+  "wanted": [
+   "C1: upload card + multi-file input",
+   "C2: checklist review row",
+   "C3: resume version row"
+  ]
+ },
+ "report-sender": {
+  "repeated": [
+   {
+    "sel": "[data-id]",
+    "tag": "button",
+    "n": 6,
+    "sample": "PM Overdue"
+   },
+   {
+    "sel": ".chip-label",
+    "tag": "span",
+    "n": 6,
+    "sample": "PM Overdue"
+   },
+   {
+    "sel": ".history-item",
+    "tag": "div",
+    "n": 5,
+    "sample": "PM Overdue 14h ago There are 29 overdue assets and 1 at-risk"
+   },
+   {
+    "sel": ".history-body",
+    "tag": "div",
+    "n": 5,
+    "sample": "PM Overdue 14h ago There are 29 overdue assets and 1 at-risk"
+   },
+   {
+    "sel": ".history-type",
+    "tag": "div",
+    "n": 5,
+    "sample": "PM Overdue"
+   },
+   {
+    "sel": ".history-meta",
+    "tag": "div",
+    "n": 5,
+    "sample": "14h ago"
+   },
+   {
+    "sel": ".history-summary",
+    "tag": "div",
+    "n": 5,
+    "sample": "There are 29 overdue assets and 1 at-risk asset, with the to"
+   },
+   {
+    "sel": ".history-ai-mark",
+    "tag": "div",
+    "n": 5,
+    "sample": "🤖 AI-drafted summary"
+   },
+   {
+    "sel": "[data-type]",
+    "tag": "button",
+    "n": 5,
+    "sample": "Resend"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "h2",
+    "n": 3,
+    "sample": "REPORTS SELECTED"
+   },
+   {
+    "sel": ".sc-hero",
+    "tag": "div",
+    "n": 3,
+    "sample": "0"
+   },
+   {
+    "sel": ".sc-sub",
+    "tag": "div",
+    "n": 3,
+    "sample": "Pick 1+ from the 4 available"
+   },
+   {
+    "sel": ".sc-tag",
+    "tag": "span",
+    "n": 3,
+    "sample": "NONE"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 3,
+    "sample": "Show details"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 7,
+    "sample": "WORKHIVE Reports Select reports. Add email. Send. How this p"
+   },
+   {
+    "sel": "#report-sender-source-chip",
+    "tag": "p",
+    "kids": 1,
+    "sample": "Live · contacts refreshed on load, history on load · Based o"
+   },
+   {
+    "sel": "#install-icon-btn",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Install"
+   },
+   {
+    "sel": "#install-guide",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Install on Desktop (Chrome / Edge) Look for the install icon"
+   },
+   {
+    "sel": "#install-guide-text",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Install on Desktop (Chrome / Edge) Look for the install icon"
+   },
+   {
+    "sel": "#rs-verdict",
+    "tag": "div",
+    "kids": 2,
+    "sample": "· Pick a report and a recipient 4 reports available · 0 save"
+   },
+   {
+    "sel": "#rs-verdict-icon",
+    "tag": "span",
+    "kids": 0,
+    "sample": "·"
+   },
+   {
+    "sel": "#rs-verdict-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Pick a report and a recipient"
+   },
+   {
+    "sel": "#rs-verdict-sub",
+    "tag": "small",
+    "kids": 0,
+    "sample": "4 reports available · 0 saved contacts ready."
+   },
+   {
+    "sel": "#rs-card-reports",
+    "tag": "div",
+    "kids": 4,
+    "sample": "REPORTS SELECTED 0 Pick 1+ from the 4 available NONE"
+   },
+   {
+    "sel": "#rs-reports-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#rs-reports-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Pick 1+ from the 4 available"
+   },
+   {
+    "sel": "#rs-reports-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "NONE"
+   },
+   {
+    "sel": "#rs-card-recipients",
+    "tag": "div",
+    "kids": 4,
+    "sample": "RECIPIENTS 0 Pick a saved contact or type an email NONE"
+   },
+   {
+    "sel": "#rs-recipients-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#rs-recipients-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Pick a saved contact or type an email"
+   },
+   {
+    "sel": "#rs-recipients-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "NONE"
+   },
+   {
+    "sel": "#rs-card-contacts",
+    "tag": "div",
+    "kids": 4,
+    "sample": "SAVED CONTACTS 0 No contacts saved yet, add one above START"
+   },
+   {
+    "sel": "#rs-contacts-hero",
+    "tag": "div",
+    "kids": 0,
+    "sample": "0"
+   },
+   {
+    "sel": "#rs-contacts-sub",
+    "tag": "div",
+    "kids": 0,
+    "sample": "No contacts saved yet, add one above"
+   },
+   {
+    "sel": "#rs-contacts-tag",
+    "tag": "span",
+    "kids": 0,
+    "sample": "START"
+   },
+   {
+    "sel": "#rs-action-text",
+    "tag": "div",
+    "kids": 0,
+    "sample": "Start here: tap a report chip above. PM Overdue is the easie"
+   },
+   {
+    "sel": "#details-toggle-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "Show details"
+   },
+   {
+    "sel": "#main-card",
+    "tag": "div",
+    "kids": 3,
+    "sample": "SELECT REPORTS PM Overdue Failure Digest Shift Handover Pred"
+   },
+   {
+    "sel": "#main-content",
+    "tag": "div",
+    "kids": 11,
+    "sample": "SELECT REPORTS PM Overdue Failure Digest Shift Handover Pred"
+   },
+   {
+    "sel": "#chips-grid",
+    "tag": "div",
+    "kids": 6,
+    "sample": "PM Overdue Failure Digest Shift Handover Predictive OEE Summ"
+   }
+  ],
+  "wanted": [
+   "C1: report row",
+   "C2: contact row",
+   "C3: send form"
+  ]
+ },
+ "project-report": {
+  "repeated": [
+   {
+    "sel": "[data-i]",
+    "tag": "button",
+    "n": 2,
+    "sample": "Print"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#cov-code",
+    "tag": "span",
+    "kids": 0,
+    "sample": "PROJECT"
+   },
+   {
+    "sel": "#cov-title",
+    "tag": "h1",
+    "kids": 0,
+    "sample": "Project Report"
+   },
+   {
+    "sel": "#cov-type",
+    "tag": "span",
+    "kids": 0,
+    "sample": "TYPE"
+   },
+   {
+    "sel": "#cov-status",
+    "tag": "span",
+    "kids": 0,
+    "sample": "status"
+   },
+   {
+    "sel": "#cov-owner",
+    "tag": "span",
+    "kids": 0,
+    "sample": "-"
+   },
+   {
+    "sel": "#cov-period",
+    "tag": "span",
+    "kids": 0,
+    "sample": "-"
+   },
+   {
+    "sel": "#cov-generated",
+    "tag": "span",
+    "kids": 0,
+    "sample": "-"
+   },
+   {
+    "sel": "#cov-hive",
+    "tag": "span",
+    "kids": 0,
+    "sample": "-"
+   },
+   {
+    "sel": "#exec-summary",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Open this page from the Project Manager (Detail → Print Repo"
+   },
+   {
+    "sel": "#appendix-section",
+    "tag": "div",
+    "kids": 1,
+    "sample": "This report follows: PMBOK 7th ed., AACE 17R-97 (Cost Estima"
+   },
+   {
+    "sel": "#wh-main-content",
+    "tag": "main",
+    "kids": 2,
+    "sample": "No project specified ← Back 🤖 AI: Narrative Print Save as P"
+   },
+   {
+    "sel": "#tb-title",
+    "tag": "h2",
+    "kids": 0,
+    "sample": "No project specified"
+   },
+   {
+    "sel": "#ai-narrative-btn",
+    "tag": "button",
+    "kids": 0,
+    "sample": "🤖 AI: Narrative"
+   },
+   {
+    "sel": "#pr-source-chip",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Recomputed when this report is generated · Based on your pro"
+   },
+   {
+    "sel": "#wh-hub",
+    "tag": "div",
+    "kids": 3,
+    "sample": "Project Report"
+   },
+   {
+    "sel": "#wh-hub-fab",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Project Report"
+   },
+   {
+    "sel": "#wh-hub-current-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Project Report"
+   },
+   {
+    "sel": "#wh-wayfinding",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Back Home › Project Report"
+   }
+  ],
+  "wanted": [
+   "C1: exec summary block",
+   "C2: progress / items table",
+   "C3: budget block"
+  ]
+ },
+ "analytics-report": {
+  "repeated": [
+   {
+    "sel": ".pill-btn.period-btn",
+    "tag": "button",
+    "n": 4,
+    "sample": "30d"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 4,
+    "sample": "Supervisor"
+   },
+   {
+    "sel": "[data-i]",
+    "tag": "span",
+    "n": 2,
+    "sample": "PERIOD"
+   },
+   {
+    "sel": ".pill-btn.role-btn",
+    "tag": "button",
+    "n": 2,
+    "sample": "Supervisor"
+   }
+  ],
+  "ids": [
+   {
+    "sel": "#ar-page",
+    "tag": "main",
+    "kids": 2,
+    "sample": "Reports Standards-grade. Print-ready. Save as PDF for client"
+   },
+   {
+    "sel": "#ar-toolbar",
+    "tag": "div",
+    "kids": 11,
+    "sample": "PERIOD 30d 90d 180d 365d AUDIENCE Supervisor Worker Generate"
+   },
+   {
+    "sel": "#role-supervisor",
+    "tag": "button",
+    "kids": 1,
+    "sample": "Supervisor"
+   },
+   {
+    "sel": "#role-worker",
+    "tag": "button",
+    "kids": 1,
+    "sample": "Worker"
+   },
+   {
+    "sel": "#generate-btn",
+    "tag": "button",
+    "kids": 1,
+    "sample": "Generate Report"
+   },
+   {
+    "sel": "#pdf-btn",
+    "tag": "button",
+    "kids": 1,
+    "sample": "Save as PDF"
+   },
+   {
+    "sel": "#ar-print-wrapper",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Click Generate Report to compile the latest analytics into a"
+   },
+   {
+    "sel": "#ar-report-mount",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Click Generate Report to compile the latest analytics into a"
+   },
+   {
+    "sel": "#ar-empty",
+    "tag": "div",
+    "kids": 1,
+    "sample": "Click Generate Report to compile the latest analytics into a"
+   },
+   {
+    "sel": "#wh-hub",
+    "tag": "div",
+    "kids": 3,
+    "sample": "Reports"
+   },
+   {
+    "sel": "#wh-hub-fab",
+    "tag": "button",
+    "kids": 2,
+    "sample": "Reports"
+   },
+   {
+    "sel": "#wh-hub-current-label",
+    "tag": "span",
+    "kids": 0,
+    "sample": "Reports"
+   },
+   {
+    "sel": "#wh-wayfinding",
+    "tag": "div",
+    "kids": 2,
+    "sample": "Back Home › Analytics Report"
+   },
+   {
+    "sel": "#wh-guide-link",
+    "tag": "div",
+    "kids": 2,
+    "sample": "📖 New to this page? Read the guide ×"
+   }
+  ],
+  "wanted": [
+   "C1: cover / header block",
+   "C2: finding card",
+   "C3: action item row"
+  ]
+ }
+}

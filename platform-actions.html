@@ -59,7 +59,15 @@
     .gate { max-width:520px; margin:12vh auto; text-align:center; background:var(--card); border:1px solid var(--border);
             border-radius:1rem; padding:2rem; }
     .gate a { color:var(--blue); }
-    #toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:9999; }
+      /* env(safe-area-inset-bottom) added 2026-08-06: this toast sat a fixed distance from the
+         bottom with NO home-indicator guard, so on an iPhone it could render under the indicator.
+         Found by auditing every toast rule on the platform after the layout lens reported
+         declaresSafeArea=false for div#toast on voice-journal and engineering-design: 6 of the 8
+         toast rules were missing the guard and only community + pm-scheduler had it — a shared
+         component copied per page and then diverged. The original offset is preserved; only the
+         inset is added. Read via the CSSOM, not getComputedStyle, which resolves env() to 0 on
+         desktop and makes a guarded and an unguarded rule look identical. */
+    #toast { position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:9999; }
     .toast-msg { background:#1f2937; color:#fff; padding:0.7rem 1.1rem; border-radius:0.6rem; font-size:0.85rem;
                  border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.4); }
     .toast-msg.success { border-color:rgba(52,211,153,0.5); }
@@ -81,7 +89,11 @@
        tapping the search box. The battery measured these two at 12.8px. */
     .fb-filter { padding:0.5rem 0.7rem; border-radius:var(--wh-radius-sm); background:rgba(255,255,255,0.05); color:#fff;
                  border:1px solid var(--border); font-size:16px; min-height:44px; }
-    .fb-filter::placeholder { color:rgba(255,255,255,0.5); }
+    /* white@0.5 composites to rgb(146,151,160) on this card = APCA Lc 41.1 against the Lc 60
+       floor for 16px/400, so the only hint telling a sighted user what this field searches was
+       under the floor. WCAG passed it at 4.61, which is why only the APCA lens caught it.
+       --wh-steel-bright is the platform's established bright-placeholder token (23 uses). */
+    .fb-filter::placeholder { color:var(--wh-steel-bright); }
     .fb-card { display:block; width:100%; text-align:left; cursor:pointer; padding:0.65rem 0.15rem;
                background:none; border:0; border-top:1px solid var(--border); color:#fff; min-height:44px; }
     .fb-card:first-child { border-top:0; }
@@ -580,7 +592,17 @@
             </div>
           </div>`; }).join('');
       }
-      setCount('mkt-listings-count', (m.drafts || []).length, 'warn');
+      /* A BADGE MUST NOT ASSERT A COUNT FROM A READ THAT FAILED (found 2026-08-08 by injecting a 500
+         into the moderation reads as a verified admin). The pane above handles m._error and says so,
+         but this line ran UNCONDITIONALLY: on a failed read `m.drafts` is undefined, `(m.drafts ||
+         []).length` is 0, and the badge asserted "0 listings awaiting review" beside a pane that was
+         simultaneously reporting the failure -- a screen disagreeing with ITSELF, which is worse than
+         one merely stale, because the admin cannot tell which half to believe. On a moderation queue
+         a 0 is a false ALL-CLEAR: it says nothing needs review when the truth is that nobody knows.
+         This is the same defect this file already fixed for the top-up queue (:482) and the feedback
+         queue (:1022), both of which set an em-dash on error; these two marketplace badges were the
+         ones never given that branch. An em-dash asserts nothing, which is the only honest answer. */
+      setCount('mkt-listings-count', m._error ? '—' : (m.drafts || []).length, m._error ? '' : 'warn');
 
       // Sellers awaiting verification
       const sc = document.getElementById('mkt-sellers-content');
@@ -604,7 +626,13 @@
           sc.innerHTML = rows || `<div class="mod-empty">${e(emptyText('Every seller is verified.'))}</div>`;
         }
       }
-      setCount('mkt-sellers-count', sellerCount, 'warn');
+      /* Same defect, and worse here because it is invisible in the source: sellerCount is only ever
+         incremented INSIDE the success branch's map, so on a failed read it is still 0 and this line
+         asserted "0 sellers awaiting verification" while the pane beside it reported the failure. A
+         reader auditing this line alone sees a variable, not a fallback, which is exactly why the 500
+         injection found it and four greps did not. Gated on the same m._error the pane uses, so the
+         badge and the pane can no longer disagree about whether the read happened. */
+      setCount('mkt-sellers-count', m._error ? '—' : sellerCount, m._error ? '' : 'warn');
 
       /* The "Open disputes" renderer was RETIRED 2026-08-03 with its table. Its honest-empty copy
          ("none can arrive") was the right fix for a queue that had to stay; deleting the queue is the

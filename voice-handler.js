@@ -309,6 +309,23 @@
       border-color: rgba(239,87,87,0.25);
       color: #ffaeae;
     }
+
+    /* WCAG 2.2.2 Pause-Stop-Hide, LEVEL A: four animations here, three of them infinite. This
+       file DOES consult prefers-reduced-motion - but only in JS, further down, for a different
+       purpose; its injected stylesheet had no guard, so the motion ran regardless of the setting.
+       A grep for prefers-reduced-motion in this file returns a hit, which is exactly why the
+       absence went unnoticed.
+       EVERY STATE SURVIVES THE STILLNESS, checked one at a time rather than assumed:
+       .recording keeps its red gradient background and the mm:ss timer beside it, so "I am
+       recording" is still unmistakable without the shadow pulse; .wh-voice-dot sets no opacity of
+       its own and its keyframes only dip to 0.4, so animation:none leaves it at full opacity,
+       brighter than mid-pulse rather than dimmer; the dots and the bubble simply appear. */
+    @media (prefers-reduced-motion: reduce) {
+      .wh-voice-btn.recording,
+      .wh-voice-dot,
+      .wh-voice-bubble,
+      .wh-voice-dots i { animation: none !important; }
+    }
   `;
 
   const VOICE_BTN_HTML = `

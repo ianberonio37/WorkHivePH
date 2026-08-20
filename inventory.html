@@ -82,6 +82,11 @@
     .part-card.stock-critical { border-left-color: rgb(251,113,133); }
     .part-card.stock-out { border-left-color: var(--wh-red); }
     @keyframes slide-in { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+    /* 8 part cards slid in on every render with no motion guard - the largest visible-motion
+       count on the platform after the tier rings. Safe to still: .part-card sets `animation` and
+       nothing else about opacity, so stopping it leaves each card at full opacity, exactly as it
+       looks once the 0.22s entry finishes. The stock-state border-left colour is untouched. */
+    @media (prefers-reduced-motion: reduce) { .part-card { animation: none; } }
 
     /* Inputs */
     .wh-input {
@@ -175,11 +180,18 @@
     .asset-tag {
       display: inline-flex; align-items: center;
       padding: 0.35rem 0.75rem; border-radius: 999px;
+      /* ★TOUCH FLOOR. Measured 30 of these at 36px tall inside #part-modal via tools/prove_dialog_layout.mjs, under this platform's 44px
+         rule. Height-only fix: the width was already fine, so raising min-height cannot introduce the
+         horizontal overflow the same prover checks in the same run. */
+      min-height: 44px;
       font-size: 0.7rem; font-weight: 600; cursor: pointer;
       border: 1px solid rgba(255,255,255,0.1);
       background: rgba(255,255,255,0.04);
       color:rgba(255,255,255,0.80);
-      transition: all 0.15s; user-select: none; min-height: 36px;
+      transition: all 0.15s; user-select: none;
+      /* the trailing `min-height: 36px` that used to sit here is REMOVED, not just overridden: it came
+         AFTER the 44px declaration in the same rule, so last-wins made my first fix a no-op and the
+         prover still measured 36. A duplicate property in one block is the quietest kind of override. */
     }
     .asset-tag:hover { border-color: rgba(41,182,217,0.35); color: var(--wh-blue); }
     .asset-tag.selected { background: rgba(41,182,217,0.15); border-color: rgba(41,182,217,0.4); color: var(--wh-blue); }
@@ -370,7 +382,10 @@
     </div>
 
     <!-- Empty state -->
-    <div id="empty-state" class="text-center py-20 empty-state">
+    <!-- Ships HIDDEN: a pending or failed read also yields 0 items, and "No parts in inventory yet"
+         is then a claim about the store-room that the server never made. Only a successful render
+         may assert it. -->
+    <div id="empty-state" class="text-center py-20 empty-state hidden">
       <span class="ic ic-parts" aria-hidden="true"></span>
       <p class="text-sm text-white/80 font-medium">No parts in inventory yet.</p>
       <p class="text-xs text-white/80 mt-1">Add your first spare part to start monitoring stock levels.</p>
@@ -659,6 +674,20 @@ function loadMoreInventory() { _invDisplayCount += 12; renderParts(); }
 let _items  = [];
 let _txns   = [];
 let _assets = [];
+// A read failure must reach the RENDER, not just the console. The load path has computed
+// _invReadErr since P2 ("honest-degraded") but only used it to skip the localStorage
+// re-migration, so a 500 still rendered 0/0/0 under the words CLEAR, STOCKED and "Every part
+// above its reorder point" — an affirmative all-clear computed from a count that never arrived.
+// Measured with a live 500 injected into this page's own reads: 27 parts and 3 low became six
+// zeros, with no notice at any of 1.2s/3s/5s/9s/15s. A stockroom must not answer STOCKED while blind.
+let _invReadFailed = false;
+// The ASSETS read has its own outcome, and renderAssetLinker needs it. _assetReadErr was already
+// captured at the load site but only console.warn'd, so the asset linker could not tell "no assets
+// registered" from "the assets read has not resolved yet". Measured: opening the part-modal 2.4s into
+// a slow load showed "No assets registered. Register assets in the Logbook first." on a hive with a
+// full asset register - an instruction to go and duplicate work that already exists.
+let _assetsReadFailed = false;
+let _assetsLoaded     = false;   // false until the first assets read resolves, either way
 // Phase ML-2: active reservations from parts_staged_reservations (item_id -> qty reserved)
 let _reservations = new Map();
 function getReservedQty(itemId) { return Number(_reservations.get(itemId) || 0); }
@@ -739,6 +768,16 @@ function formatDate(iso) {
 function stockStatus(item) {
   const q = Number(item.qty_on_hand);
   const m = Number(item.min_qty) || 0;
+  // ★ A MISSING QUANTITY USED TO READ AS "IN STOCK". `Number(null)` is NaN, and EVERY comparison against
+  // NaN is false — so a null qty_on_hand failed `q <= 0`, failed the critical test, failed low, failed
+  // surplus, and fell through to the healthy default. The badge said "In Stock" beside a blank number.
+  // That is the worst possible direction for this error: a technician deciding whether to drive to the
+  // store is told the part is there. Unknown is its own state, and it must be SAID, not defaulted into
+  // the reassuring one. (Measured 2026-08-14 by nulling every non-id field of every row.)
+  // Explicit null/undefined/'' rejection — NOT Number.isFinite(q), because Number(null) is 0 and that
+  // sends a missing quantity down the `q <= 0` branch, labelling an unknown part OUT OF STOCK.
+  if (item.qty_on_hand === null || item.qty_on_hand === undefined || item.qty_on_hand === ''
+      || !Number.isFinite(q)) return 'unknown';
   if (item.is_out_of_stock === true || q <= 0) return 'out';
   if (item.is_critical_low === true || (item.is_critical_low === undefined && m > 0 && q <= m / 2)) return 'critical';
   if (item.is_low_stock === true || (item.is_low_stock === undefined && m > 0 && q <= m)) return 'low';
@@ -746,13 +785,17 @@ function stockStatus(item) {
   return 'ok';
 }
 
-const STATUS_LABEL = { surplus: 'Surplus', ok: 'In Stock', low: 'Low Stock', critical: 'Critical Low', out: 'Out of Stock' };
+const STATUS_LABEL = { surplus: 'Surplus', ok: 'In Stock', low: 'Low Stock', critical: 'Critical Low', out: 'Out of Stock',
+  // Not a stock level — a statement about what we know. Deliberately NOT worded as a quantity.
+  unknown: 'Stock unknown' };
 const STATUS_COLORS = {
   surplus:  { bg:'rgba(56,189,248,0.15)',  text:'rgb(56,189,248)', border:'rgba(56,189,248,0.25)' },
   ok:  { bg:'rgba(34,197,94,0.15)',  text:'#4ade80', border:'rgba(34,197,94,0.25)' },
   low: { bg:'rgba(247,162,27,0.15)', text:'#FDB94A', border:'rgba(247,162,27,0.25)' },
   critical: { bg:'rgba(251,113,133,0.18)', text:'#FCA5A5', border:'rgba(251,113,133,0.30)' },   /* C2: AA-safe red (was #f87171 @ 3.66:1, matches 'out' below) */
   out: { bg:'rgba(239,68,68,0.15)',  text:'#FCA5A5', border:'rgba(239,68,68,0.25)' },
+  // Neutral grey on purpose: "unknown" must not borrow the reassurance of green or the alarm of red.
+  unknown: { bg:'rgba(255,255,255,0.07)', text:'rgba(255,255,255,0.72)', border:'rgba(255,255,255,0.14)' },
 };
 const CAT_COLORS = {
   Bearing:    { bg:'rgba(247,162,27,0.15)', text:'#FDB94A',  border:'rgba(247,162,27,0.25)' },
@@ -764,6 +807,18 @@ const CAT_COLORS = {
   Lubricant:  { bg:'rgba(34,197,94,0.15)',  text:'#4ade80',  border:'rgba(34,197,94,0.25)' },
   Other:      { bg:'rgba(255,255,255,0.07)',text:'rgba(255,255,255,0.72)',border:'rgba(255,255,255,0.12)' },
 };
+
+// ★ `Number(null)` IS 0, NOT NaN — which is the whole trap here, and the first version of this guard
+// fell into it. `Number.isFinite(Number(null))` is TRUE, so a null sailed through the check and printed
+// itself; only `undefined` coerces to NaN. Worse, the same mistake in stockStatus() sent null down the
+// `q <= 0` branch and labelled the part OUT OF STOCK — a confident wrong answer rather than a blank.
+// Null must be rejected EXPLICITLY, before any coercion. (Caught by re-running the injector after the
+// "fix": the page still rendered "OUT OF STOCK null pcs".)
+const hasQty = (v) => v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v));
+// A quantity we do not have is an em-dash, never the word `null` and never a 0 — 0 is a REAL and very
+// different answer ("we are out"), and printing it for "we don't know" is the same category error as
+// the badge defaulting to In Stock.
+function qtyText(v) { return hasQty(v) ? v : '—'; }
 
 function statusBadge(st) {
   const s = STATUS_COLORS[st];
@@ -821,6 +876,27 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
     const s = document.getElementById('inv-' + name + '-sub');  if (s) s.textContent = sub;
     const t = document.getElementById('inv-' + name + '-tag');  if (t) t.textContent = tag;
   };
+
+  // The read failed: say so, and show NOTHING that could be mistaken for a count. A zero here is
+  // not a fallback — it is the absence of an answer wearing the costume of one, and the verdict
+  // words below ("CLEAR", "STOCKED", "Every part above its reorder point") would certify exactly
+  // the thing the failure makes unknowable. The sentinel is the em-dash, matching the fix already
+  // proven on platform-actions.html:591/615.
+  if (_invReadFailed) {
+    if (invProg) invProg.innerHTML = '';
+    setCard('out',     '—', 'Could not read stock', 'UNKNOWN', 'grey');
+    setCard('low',     '—', 'Could not read stock', 'UNKNOWN', 'grey');
+    setCard('pending', '—', 'Could not read stock', 'UNKNOWN', 'grey');
+    const vB = document.getElementById('inv-verdict');
+    if (vB) { vB.classList.remove('healthy','watch','attn','empty'); vB.classList.add('attn'); }
+    const vI = document.getElementById('inv-verdict-icon');  if (vI) vI.textContent = '⚠';
+    const vL = document.getElementById('inv-verdict-label'); if (vL) vL.textContent = 'Could not load your inventory';
+    const vS = document.getElementById('inv-verdict-sub');
+    if (vS) vS.textContent = 'Stock levels are unknown right now, not zero. Check your connection and reload before ordering or issuing parts.';
+    const aB = document.getElementById('inv-action-text');
+    if (aB) aB.textContent = 'Reload the page. If it keeps failing, tell your supervisor before relying on these numbers.';
+    return;
+  }
 
   setCard('out',
     String(outCount),
@@ -931,9 +1007,20 @@ function renderParts() {
   const lowOnlyCount  = stockItems.filter(i => stockStatus(i) === 'low').length;
   const lowCount = criticalCount + lowOnlyCount;   // "at or below min_qty"
   const outCount = stockItems.filter(i => stockStatus(i) === 'out').length;
-  document.getElementById('stat-total').textContent = items.length;
-  document.getElementById('stat-low').textContent   = lowCount;
-  document.getElementById('stat-out').textContent   = outCount;
+  // A FAILED READ MUST DASH THESE, NOT COUNT AN EMPTY LIST. `items` is [] when the read failed, so
+  // these three printed "0 parts / 0 low / 0 out" beside the verdict that correctly said "Stock levels
+  // are unknown right now, not zero" - two elements on one screen contradicting each other, and the
+  // reason this page's fail_500 row was withdrawn today rather than left green. The heroes were already
+  // fixed; the lens that banked them never enumerated these pills.
+  if (_invReadFailed) {
+    ['stat-total', 'stat-low', 'stat-out'].forEach(id => {
+      const e = document.getElementById(id); if (e) e.textContent = '—';
+    });
+  } else {
+    document.getElementById('stat-total').textContent = items.length;
+    document.getElementById('stat-low').textContent   = lowCount;
+    document.getElementById('stat-out').textContent   = outCount;
+  }
 
   // Plain-Read summary (Layer D). Rolls up the same counts into the
   // verdict + 3 cards above the engineering list.
@@ -959,8 +1046,36 @@ function renderParts() {
 
   if (items.length === 0) {
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
-    empty.classList.remove('hidden');
     noRes.classList.add('hidden');
+    // An empty set from a FAILED read is not an empty inventory. #empty-state says "No parts in
+    // inventory yet" and invites you to add your first spare — advice that is actively wrong when
+    // the parts exist and the read broke. Distinguish the two, or a 500 reads as a fresh account.
+    if (_invReadFailed) {
+      empty.classList.add('hidden');
+      // ★IT TOLD A PERSON TO RELOAD AND GAVE THEM NOTHING TO PRESS. This block said "Your parts are
+      // still there. Reload to see them." — correct, reassuring, and not actionable: measured under an
+      // injected 500, the page said a failure had happened and rendered ZERO retry affordances.
+      // ★AND THE COMPONENT WAS ALREADY IMPORTED. whListError(el, message, onRetry) renders the inline
+      // error WITH a Retry control, this file already calls it on the OFFLINE path (see the try/catch
+      // around initData), and 16 pages across the roster use it. The gap was never a missing capability
+      // — a 500 and a dead network arrive through different doors, as the comment there says, and only
+      // one door had been wired to the component. skillmatrix renders Retry under the same injected
+      // 500; inventory and hive did not. So this is ADOPTION, not design.
+      const _m = (typeof whReadError === 'function')
+        ? whReadError({ _httpStatus: 500 }, 'your parts')
+        : 'Could not load your parts. This is a connection problem, not an empty inventory. Your parts are still there.';
+      if (typeof whListError === 'function') {
+        whListError(list, _m, () => location.reload());
+      } else {
+        list/* xss-allow: static fallback, no interpolation */ .innerHTML =
+          '<div class="text-center py-16 empty-state">' +
+          '<p class="text-sm text-white/80 font-medium">Could not load your parts.</p>' +
+          '<p class="text-xs text-white/80 mt-1">This is a connection problem, not an empty inventory. ' +
+          'Your parts are still there. Reload to see them.</p></div>';
+      }
+    } else {
+      empty.classList.remove('hidden');
+    }
     return;
   }
   empty.classList.add('hidden');
@@ -1048,7 +1163,7 @@ function renderParts() {
           </div>
           <div class="flex items-end justify-between gap-3 flex-wrap">
             <div class="flex items-baseline gap-2 flex-wrap">
-              <span class="text-3xl font-black leading-none" style="color:${sc.text}">${item.qty_on_hand}</span>
+              <span class="text-3xl font-black leading-none" style="color:${sc.text}">${qtyText(item.qty_on_hand)}</span>
               <span class="text-xs text-white/80">${escHtml(item.unit || 'pcs')}</span>
               ${item.min_qty > 0 ? `<span class="text-[11px] text-white/80">Min: ${item.min_qty}</span>` : ''}
               ${getReservedQty(item.id) > 0 ? `<span class="text-[11px] font-semibold" style="color:var(--wh-orange-text); background:rgba(251,146,60,.12); padding:2px 6px; border-radius:6px;" title="Pre-staged for predicted asset failures via Auto-Staging">${getReservedQty(item.id)} reserved</span>` : ''}
@@ -1130,6 +1245,14 @@ function renderAssetLinker() {
   if (assets.length === 0) {
     linker/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     linker.appendChild(emptyEl);
+    // THREE STATES, NOT TWO. An empty list here means one of: the register really is empty, the read
+    // has not resolved yet, or it failed. Only the first justifies sending someone to the Logbook to
+    // add their first asset - the other two send them to duplicate what they already have.
+    emptyEl.textContent = !_assetsLoaded
+      ? 'Loading your assets...'
+      : (_assetsReadFailed
+          ? 'Could not load your assets. This is a connection problem, not an empty asset register. Reload before registering an asset you may already have.'
+          : 'No assets registered. Register assets in the Logbook first.');
     emptyEl.classList.remove('hidden');
     return;
   }
@@ -1418,7 +1541,13 @@ async function submitPart() {
     if (qty > 0) addTransaction(item.id, 'add', qty, qty, 'Initial stock entry');
     writeAuditLog('create_inventory_item', 'inventory_items', item.id, partName || partNumber,
       { initial_qty: qty, status: item.status || (HIVE_ID ? 'pending' : 'approved') });
-    showToast(HIVE_ID ? `${partNumber} submitted for supervisor approval.` : `${partNumber} added to inventory.`);
+    // NAMES THE EFFECT, NOT A CLOCK — asset-hub's shipped pattern ('... → feeds this asset's risk
+    // score → Predictive · Alert Hub · Analytics'). 'Submitted for supervisor approval' says what
+    // happens next without saying what it is FOR, so the person cannot tell whether the wait matters.
+    // Where the row goes answers that without promising a review window this page cannot enforce.
+    showToast(HIVE_ID
+      ? `${partNumber} submitted for supervisor approval → once approved it counts toward stock levels, low-stock alerts & reorder suggestions.`
+      : `${partNumber} added to inventory → counts toward stock levels, low-stock alerts & reorder suggestions.`);
   }
 
   closePartModal();
@@ -1465,7 +1594,26 @@ function openUseModal(id) {
   document.getElementById('use-modal-part-name').textContent = `${item.part_number}: ${item.part_name}`;
   document.getElementById('use-qty').value = '1';
   document.getElementById('use-job-ref').value = '';
-  document.getElementById('use-qty-available').textContent = `Available: ${item.qty_on_hand} ${item.unit || 'pcs'}`;
+  // The unit was guarded and the QUANTITY was not, so this read "Available: null pcs" — the fallback on
+  // the decoration, none on the number someone acts on.
+  // ★ AND "AVAILABLE" WAS THE WRONG NUMBER. This printed qty_on_hand under the word AVAILABLE, ignoring
+  // parts already staged against a predicted failure. Measured 2026-08-17 on BRG-6310
+  // (item inv-83be923f073e): on_hand 2, qty_reserved 1, so ONE is genuinely free — and the modal said
+  // "Available: 2 pcs". A technician reading that takes both, and the part staged for the predicted
+  // failure is gone; the reservation exists precisely so that does not happen. The list card already
+  // shows a "1 reserved" chip (:1136), so the page HAS the number — it just did not carry it into the
+  // one screen where someone commits to a quantity.
+  // Both numbers are shown and both are labelled, because "Available: 1" alone invites "but I can see
+  // two on the shelf": the person needs to know where the other one went.
+  const _resv = (typeof getReservedQty === 'function') ? getReservedQty(item.id) : 0;
+  const _unit = item.unit || 'pcs';
+  document.getElementById('use-qty-available').textContent =
+    !hasQty(item.qty_on_hand)
+      ? 'Available: not known right now. Reload before recording a use.'
+      : _resv > 0
+        ? `Available: ${Number(item.qty_on_hand) - _resv} ${_unit} `
+          + `(${item.qty_on_hand} on hand − ${_resv} staged for a predicted failure)`
+        : `Available: ${item.qty_on_hand} ${_unit}`;
   document.getElementById('use-modal-error').classList.add('hidden');
   document.getElementById('use-modal').style.display = 'flex';
   setTimeout(() => document.getElementById('use-qty').select(), 80);
@@ -1491,9 +1639,24 @@ async function submitUse() {
   const idx   = items.findIndex(i => i.id === activeItemId);
   if (idx === -1) return;
 
+  // ★ THE GUARD AND THE LABEL MUST MEAN THE SAME THING. The modal above now distinguishes ON HAND from
+  // AVAILABLE (on hand minus parts staged against a predicted failure). This message did not: it
+  // reported qty_on_hand under the word "available", so a person told "Available: 1" could be refused
+  // with "Only 2 available" — the check and the label contradicting each other on one screen.
+  // WHAT IS DELIBERATELY *NOT* CHANGED: the hard block stays at qty_on_hand, because that is physical
+  // reality — you cannot take stock that does not exist. A staged reservation is a RECOMMENDATION
+  // (parts_staged_reservations.recommendation_id), not a lock, and refusing an urgent job because an
+  // algorithm earmarked the part would be the platform overruling the person at the machine. So
+  // exceeding the free stock WARNS and names what it is spending; it does not forbid.
+  const _uResv = (typeof getReservedQty === 'function') ? getReservedQty(items[idx].id) : 0;
+  const _uUnit = items[idx].unit || 'pcs';
   if (qty > items[idx].qty_on_hand) {
-    errEl.textContent = `Only ${items[idx].qty_on_hand} ${items[idx].unit || 'pcs'} available.`;
+    errEl.textContent = `Only ${items[idx].qty_on_hand} ${_uUnit} on hand.`;
     errEl.classList.remove('hidden'); return;
+  }
+  if (_uResv > 0 && qty > (Number(items[idx].qty_on_hand) - _uResv)) {
+    showToast(`Heads up: ${_uResv} ${_uUnit} of this part is staged for a predicted failure. `
+      + `Taking ${qty} spends some of it.`, 'warn', 6000);
   }
 
   // The Use modal captures a Job Reference (for the audit trail), not a free note.
@@ -1560,7 +1723,7 @@ async function submitUse() {
   else if (st === 'low')
     showToast(`${items[idx].part_number} LOW: ${items[idx].qty_on_hand} ${items[idx].unit || 'pcs'} left → Alert Hub stock alert · feeds Analytics stockout forecast.`, 'warn', 6000);
   else
-    showToast(`Used ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number} → feeds Analytics parts-consumption rate.`, undefined, 5000);
+    showToast(`Used ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number} → off the shelf now, and it feeds the Analytics parts-consumption rate.`, undefined, 5000);
 }
 
 // ────────────────────────────────────────────
@@ -1637,7 +1800,7 @@ async function submitRestock() {
   renderParts();
   // Phase D1 — cross-surface receipt: a restock clears low/out flags (Alert Hub) and
   // feeds Analytics parts-consumption; name the ripple.
-  showToast(`Restocked ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number} → clears stock alerts · feeds Analytics.`, undefined, 5000);
+  showToast(`Restocked ${qty} ${items[idx].unit || 'pcs'} of ${items[idx].part_number} → on the shelf now, clearing its stock alerts and feeding Analytics.`, undefined, 5000);
 }
 
 // ────────────────────────────────────────────
@@ -1807,6 +1970,11 @@ function openDetailModal(id) {
 function closeDetailModal() { document.getElementById('detail-modal').style.display = 'none'; }
 
 async function confirmDeleteItem(id) {
+  // inventory_items IS the queued table for stock MOVES, but deleting the part record is destructive and
+    // stock-critical, which the platform classes online-only-with-clarity - a queued delete could drain
+    // after a concurrent stock move and take the movement with it.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Deleting this part', (m) => showToast(m))) return;
   const item = loadInventory().find(i => i.id === id);
   if (!item) return;
   // Workers can only delete their own rejected items; approved/pending items are supervisor-only
@@ -2005,7 +2173,14 @@ async function initData() {
       (HIVE_ROLE === 'supervisor'
         ? _hiveItemsQ.in('status', ['approved', 'pending', 'rejected'])
         : _hiveItemsQ.eq('status', 'approved')
-      ).order('created_at').limit(2000),
+      // MR4 tiebreaker: the sort above is not total on its own. This was the ONE ordered read on the
+      // page without it, and the tell was the asymmetry - its sibling on the very next line, inside
+      // this same Promise.all, already had .order('id'). Measured cost: all 81 rows in
+      // v_inventory_items_truth share a SINGLE created_at value, so ordering by that column alone
+      // gives no deterministic order whatsoever - 81 rows tied on the sort key, sequence decided by
+      // the planner and free to differ on every read. A supervisor comparing two loads of the hive's
+      // spares would see the list reshuffle with nothing having changed.
+      ).order('created_at').order('id').limit(2000),
       db.from('v_inventory_items_truth').select('*').eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).order('created_at').order('id').limit(2000)
     ]);
     // canonical-allow: inventory's asset picker writes back asset_nodes
@@ -2054,6 +2229,11 @@ async function initData() {
   const _assetReadErr = (HIVE_ID ? (hiveAssetsRes.error || myAssetsRes.error) : (assetsRes && assetsRes.error)) || null;
   if (_invReadErr)   console.warn('inventory items read failed:', _invReadErr.message);
   if (_assetReadErr) console.warn('inventory assets read failed:', _assetReadErr.message);
+  // Carry the failure into the render. Without this the summary is computed over an empty set and
+  // reports it as good news; see _invReadFailed's declaration for the measurement.
+  _invReadFailed     = !!_invReadErr;
+  _assetsReadFailed  = !!_assetReadErr;
+  _assetsLoaded      = true;   // resolved, whatever the outcome
 
   // Migrate inventory items + transactions from localStorage if Supabase is empty
   if (mergedItems.length === 0 && lsItems.length > 0 && !_invReadErr) {
@@ -2204,6 +2384,12 @@ async function validateHiveMembership() {
       whListError(document.getElementById('parts-list'), "Couldn’t load your inventory. Check your connection and try again.", () => location.reload());
     }
     if (typeof showToast === 'function') showToast('Inventory failed to load. Tap Retry.', 'warn');
+    // A 500 and a dead network arrive through DIFFERENT doors: a 500 RESOLVES with res.error (handled at
+    // the read site), offline REJECTS and lands here. Measured with fetch made to reject: the KPIs kept
+    // their HTML zeros and the verdict stayed frozen at "Computing stock health...", because the flag was
+    // never set and the summary never re-ran. Set it and render, so the sentinel path covers both doors.
+    _invReadFailed = true;
+    try { renderInventorySummary([], 0, 0, 0); } catch (_) { /* empty-catch-allow: the failure render is best-effort */ }
   }
 
   // Phase D3 — live cross-page stock propagation (hive mode only; no-op solo).
@@ -2250,7 +2436,6 @@ async function validateHiveMembership() {
   <script src="nav-hub.js"></script>
 <script>window.addEventListener('load', function () { if (window.whAutoSaveDraft) whAutoSaveDraft('invpart', ['f-notes']); });</script>
   <script src="companion-launcher.js"></script>
-<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
   <script src="impact-preview.js"></script><!-- Phase D2: pre-commit "updates N pages" hint -->
   <script src="qr-scanner.js"></script>
   <!-- button-lock helper: prevents double-tap submits on use / restock / save flows.

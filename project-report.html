@@ -18,7 +18,30 @@
   :root {
     --paper: #FFFFFF; --ink: #1F2A37; --muted: #5B6878;
     --accent: #0E5E8A; --rule: #D7DDE5; --cell-bg: #F7F9FC;
-    --green: #1F7A3A; --amber: var(--wh-orange); --red: var(--wh-red); --gold: var(--wh-orange);
+    /* RAG inks are PAPER inks, not screen fills. Measured live 2026-08-06 on the rendered report,
+       whose --paper is #FFFFFF: --green #1F7A3A already passed comfortably (WCAG 5.38, APCA Lc 79.1)
+       but --amber and --red were pointed at the brand SCREEN fills --wh-orange #f7a21b (2.07 / Lc 42.8)
+       and --wh-red #f87171 (2.77 / Lc 55.5) - both failing BOTH standards on white, in the KPI values a
+       client reads. The lens caught the red one at 19px Lc 49 against its 60 floor and named the exact
+       node, which is how this was found rather than guessed.
+       Replaced with the 700-weight inks of the same hues, chosen to sit alongside the green that was
+       already right: #b45309 (5.02 / 76.7) and #b91c1c (6.47 / 82.9). Same family, same weight, all
+       three now legible on paper. Third instance of the fill-hue-as-text class this session, after
+       dayplanner's missed blocks and analytics-report's severity chips. */
+    /* SECOND PASS, and the correction matters more than the first. My first fix measured --amber
+       against the WHITE paper only (#b45309 on #FFFFFF = 5.02, PASS) and left --gold alone entirely.
+       Re-walking in the live MCP browser then reported a REAL axe violation I had not caused but had
+       also not looked for: .phase-close renders var(--gold) - still the screen fill #f7a21b - on the
+       pale #FBEED2 pill at 11px/700, ratio 1.80. Auditing EVERY usage against its ACTUAL background
+       (not just the paper) also caught my own amber falling short: --amber is used on .status-on_hold,
+       another #FBEED2 pill, where #b45309 gives only 4.37 against the 4.5 bar.
+       #92400e (amber-800) clears BOTH surfaces - 6.17 on the #FBEED2 pill and higher on the #F7F9FC
+       card - and sits with the sibling phase tags, which run 4.53 to 5.89. --gold points at it too: its
+       only use in this file is that same pill.
+       The lesson recorded: a token fix has to be measured against every background the token is USED
+       on. Checking it against one and declaring the class fixed is the same partial-fix error as
+       repairing the walked path and missing its sibling. */
+    --green: #1F7A3A; --amber: #92400e; --red: #b91c1c; --gold: #92400e;
     --bg-shell: #0f1923; --shell-text: var(--wh-cloud);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -84,6 +107,21 @@
   .status-archived  { background: #ECEFF4; color: var(--muted); }
 
   .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0 8px; }
+  /* SPI AND "BEHIND SCHEDULE" WERE UNREACHABLE ON A PHONE, which on an executive project report are
+     the two numbers a manager reads to decide whether the project is in trouble.
+     `1fr` is `minmax(auto, 1fr)`, so every track floors at its own min-content and four tracks refuse
+     to share a narrow row: at innerWidth 390 they computed to 158.4 / 136.6 / 91.4 / 105.3px - 522px
+     of grid inside a 291px container. Measured cell positions: BUDGET (BAC) and EARNED (EV) visible,
+     SPI cut at right edge 444 against a 390 viewport, and SCHEDULE STATUS entirely offscreen starting
+     at left 454. And it could not be recovered by scrolling, because the clipping ancestor is
+     `body { overflow-x: clip }`, which unlike `hidden` cannot be scrolled at all - which is also why
+     documentElement.scrollWidth == clientWidth reported no overflow while content was being cut.
+     Two columns at these widths, and `min-width: 0` on the items so a long value wraps inside its cell
+     instead of pushing the track wider than the share it was given. analytics-report already had
+     exactly this rule for its own copy of .kpi-strip (@media max-width:720px -> repeat(2,1fr)); this
+     copy never got it, so the component had drifted rather than being newly broken. */
+  @media (max-width: 720px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
+  .kpi-strip > * { min-width: 0; }
   .kpi { background: var(--cell-bg); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; }
   .kpi-label { font-size: 8.5pt; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
   .kpi-value { font-size: 18pt; font-weight: 800; color: var(--ink); margin-top: 2px; line-height: 1.05; }
@@ -144,10 +182,38 @@
     table.doc-table, .signoff-block { page-break-inside: avoid; }
     tr { page-break-inside: avoid; }
   }
+  /* ── NARROW-WIDTH OVERRIDES, DELIBERATELY LAST IN THE SHEET ────────────────────────────────────
+     These two live here, at the end, because my first attempt put them up beside `.kpi-strip` and
+     they silently lost: a media query adds NO specificity, so `.kpi-value { font-size: 18pt }` and
+     `.signoff-row { grid-template-columns: 1fr 1fr }` - both declared further down - kept winning on
+     source order, and the re-measure still read 17px of overflow with the rules apparently in place.
+     Two columns stopped the EVM cells being cut, but an 18pt peso figure still breached its OWN cell:
+     "₱1,850,000" measured 17px wider than the 140px track's content box, and it cannot wrap because
+     there is no break opportunity inside it. Nothing was lost - the number stayed on screen - but it
+     crossed its cell border into the gap, and the oracle here is that nothing overflows its container,
+     so it is fixed rather than argued down. 14pt fits the same 10 characters inside the track and the
+     figure stays the largest thing in the cell, which is the point of the KPI treatment.
+     The signoff block is the same shape: two 1fr columns with a 30px gap pushed the owner's name past
+     its own column at 390. A signature block is exactly what a phone reader scrolls to confirm, so it
+     stacks rather than squeezes. */
+  @media (max-width: 720px) {
+    .kpi-value { font-size: 14pt; }
+    .signoff-row { grid-template-columns: 1fr; gap: 18px; }
+  }
   .hidden { display: none !important; }
 </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
-body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
+body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}
+/* The matching BOTTOM reserve, which was missing: body computed padding-bottom 0px while #wh-hub sits
+   fixed across the bottom 56px of the viewport (765-821 of 845). Measured at MAXIMUM scroll - the
+   position a reader cannot scroll past - five content elements were behind the hub: #wh-main-content,
+   .toolbar, and the #pr-source-chip provenance line telling the reader where these figures come from.
+   analytics-report reserves calc(80px + inset) for the same chrome; this page reserved nothing, so the
+   pattern had drifted rather than being absent by intent. 80px clears the 56px hub and grows with the
+   device's home-indicator inset. Reset for print, where there is no chrome and the space would just be
+   80px of blank paper at the end of a client-delivered report. */
+body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
+@media print { body{padding-top:0;padding-bottom:0;} }</style>
 </head>
 <body>
 
@@ -239,8 +305,13 @@ const db = getDb(
 // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
 // empty or stale. Must run AFTER `db` is declared — `typeof db` on a not-yet-
 // initialised const throws TDZ ReferenceError rather than returning 'undefined'.
+// The promise is KEPT, so the auth gate below can await it instead of racing it. A cold identity cache
+// is not proof of being signed out: measured 2026-08-14, with the cache cleared and the session alive,
+// this page bounced a signed-in project manager to the landing page — and the next load worked, because
+// the restore had completed by then. Ordering, not capability.
+let _identityRestored = Promise.resolve('');
 if (typeof restoreIdentityFromSession === 'function') {
-  restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+  _identityRestored = restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; return _n; });
 }
 // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
 if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
@@ -264,6 +335,9 @@ function getPhase(it) {
 }
 
 (async () => {
+  // Consult the SESSION before bouncing. This gate is already inside an async IIFE, so it can simply
+  // await the restore rather than race it — the cheapest form of this fix in the roster.
+  if (!WORKER_NAME) { await _identityRestored.catch(() => {}); }
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get('project_id');
@@ -275,20 +349,91 @@ function getPhase(it) {
   await loadAndRender(projectId);
 })();
 
+// ★ THE IDENTIFIER IS THE PAYLOAD ON THIS PAGE, AND IT WAS THE ONE FIELD WITH NO FALLBACK.
+// Measured 2026-08-14 by nulling every non-id field of every row: the executive hero read
+//     "HERO FINDING null is 0% complete: 10 scope items defined, 0 done."
+// `project_code` was interpolated bare in EIGHT places — the document title, the toolbar title, the
+// cover code, the assistant's grounding lines and all five hero branches — while `estimated_hours`,
+// `actual_hours` and the blocker counts on the lines directly above it all carried `|| 0`. That is
+// this platform's recurring habit: the fallback guards the ARITHMETIC and skips the IDENTIFIER
+// (inventory's `null pcs`, alert-hub's `shift null`, skillmatrix's `Primary: null`). It is worse on
+// a document someone PRINTS AND SIGNS — an unnamed report is not a cosmetic blemish, it is a
+// statement about a project the reader cannot identify, and a client cannot ask "which project?" of
+// a PDF. Two fallbacks, because a sentence and a field want different things: a sentence needs a
+// readable SUBJECT, a form field needs a placeholder that does not pretend to be a value.
+const projField = (p) => (p && p.project_code) || '—';
+const projLabel = (p) => (p && p.project_code) || (p && p.name) || 'This project';
+
 async function loadAndRender(projectId) {
   // G1 (FF1): canonical skeleton in the summary section while the 4 project queries run.
   const _es = document.getElementById('exec-summary');
   if (_es && !_es.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_es, 3);
-  const [projRes, itemsRes, linksRes, logsRes] = await Promise.all([
+  // ★ `Promise.all` REJECTS, AND THE SKELETON PAID FOR IT. The branch below reasons carefully about
+  // projRes.error — 401 vs 42501 vs a fault vs a genuine deletion, four different recoveries — but it
+  // only ever runs when the reads RESOLVE. A dropped connection or a transport timeout rejects, so
+  // `await` throws here, this function exits, and the three skeleton rows painted two lines above
+  // shimmer forever. Measured 2026-08-17 under an injected timeout: "4 skeleton(s) are STILL
+  // shimmering", on a page whose whole purpose is to be read and signed.
+  // allSettled rather than a try/catch around the destructure: it keeps EVERY read's own outcome, so a
+  // rejection is handed to the existing logic as `{ error }` and lands in the same four-way branch
+  // instead of a fifth path that would drift from it.
+  const [_p, _i, _l, _g] = await Promise.allSettled([
     db.from('v_project_truth').select('*, id:project_id, end_date:target_end_date').eq('project_id', projectId).maybeSingle(),
-    db.from('v_project_items_truth').select('*').eq('project_id', projectId).order('sort_order').order('project_id').limit(500),
+    /* Same inert-tiebreaker defect as hive.html's worker card (both fixed 2026-08-08): this filters
+       .eq('project_id', projectId) and then orders by .order('project_id') - constant across every
+       returned row, so it breaks no tie. v_project_items_truth holds 90 rows over 12 distinct
+       project_ids (78 ties). On an executive report the item SEQUENCE is the reading order, and items
+       sharing a sort_order had no defined position, so two regenerations of the same report could list
+       the same work in a different order - which is exactly the "regenerating produces the same report"
+       invariant this page is supposed to hold. .order('id') is unique and totalises it. */
+    db.from('v_project_items_truth').select('*').eq('project_id', projectId).order('sort_order').order('id').limit(500),
     db.from('project_links').select('*').eq('project_id', projectId).order('created_at').order('id').limit(500),
     db.from('v_project_progress_truth').select('*').eq('project_id', projectId).order('log_date', { ascending: false }).order('id').limit(60),
   ]);
+  // Normalise settled results back into the { data, error } shape the rest of this function reads. A
+  // REJECTION becomes an error object, so a dropped connection reaches the same four-way branch below
+  // as a resolved failure — one place decides what the reader is told, whichever way the read failed.
+  const _settled = (r) => (r.status === 'fulfilled' ? r.value
+    : { data: null, error: (r.reason instanceof Error ? r.reason : new Error(String(r.reason || 'read failed'))) });
+  const projRes = _settled(_p), itemsRes = _settled(_i), linksRes = _settled(_l), logsRes = _settled(_g);
+  // ONE SENTENCE COVERED THREE DIFFERENT SITUATIONS WITH THREE DIFFERENT RECOVERIES. `projRes.error ||
+  // !projRes.data` merged a transport fault, a refusal and a deletion, and the copy said "It may have
+  // been removed, or you may not have access." Measured with 7 reads answered 500: a server fault told
+  // the reader they might lack permission, which sends them to ask an administrator for access they
+  // already hold, or to conclude a live project was deleted. This is the 401-vs-403 class already
+  // recorded on this platform - two events must not share one message when the actions differ (wait and
+  // retry / request access / accept that it is gone).
   if (projRes.error || !projRes.data) {
-    if (projRes.error) console.error('project-report load:', projRes.error.message);
-    $('tb-title').textContent = 'Project not found';
-    $('exec-summary').innerHTML = '<div class="empty-section">This project could not be loaded. It may have been removed, or you may not have access. <a href="project-manager.html" style="color: var(--accent);">Back to Project Manager</a></div>';
+    const _e = projRes.error;
+    if (_e) console.error('project-report load:', _e.message);
+    const _status = _e && _e.status != null ? String(_e.status) : '';
+    const _code   = _e && _e.code ? String(_e.code) : '';
+    const _msg    = _e ? String(_e.message || '') : '';
+    // 42501 = insufficient_privilege: the caller WAS identified and refused, so it is access, not a fault.
+    const _refused  = _status === '403' || _code === '42501' || /permission denied/i.test(_msg);
+    const _expired  = typeof whIsAuthFailure === 'function' ? whIsAuthFailure(_e) : _status === '401';
+    const _back = ' <a href="project-manager.html" style="color: var(--accent);">Back to Project Manager</a>';
+    let _title, _body;
+    if (_expired) {
+      _title = 'Sign in again';
+      _body  = 'Your session expired while this report was loading. Sign in again to read it.' + _back;
+    } else if (_refused) {
+      _title = 'No access to this project';
+      _body  = 'You do not have access to this project. Ask its manager to add you.' + _back;
+    } else if (_e) {
+      _title = 'Could not load this report';
+      _body  = 'This is a connection problem, not a missing project. The report is unknown right now, '
+             + 'not empty, so do not report status from this page yet. '
+             + '<button type="button" onclick="location.reload();" style="min-height:44px;padding:0 0.9rem;'
+             + 'border-radius:8px;font-size:0.8rem;font-weight:600;background:rgba(247,162,27,0.12);'
+             + 'border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button>' + _back;
+    } else {
+      _title = 'Project not found';
+      _body  = 'This project no longer exists.' + _back;
+    }
+    $('tb-title').textContent = _title;
+    $('exec-summary')/* xss-allow: static branch strings, no user input */.innerHTML =
+      '<div class="empty-section">' + _body + '</div>';
     return;
   }
   const project = projRes.data;
@@ -322,8 +467,8 @@ async function loadAndRender(projectId) {
   } catch (_) { /* empty-catch-allow: a failed budget read must not take the whole report down */ }
   project.budget_php = budgetPhp;
   project._budget_withheld = budgetWithheld;
-  document.title = `${project.project_code}: Project Report`;
-  $('tb-title').textContent = `${project.project_code}: ${project.name}`;
+  document.title = `${projField(project)}: Project Report`;
+  $('tb-title').textContent = `${projField(project)}: ${project.name || 'Untitled project'}`;
   // Phase 6.1 — feed floating-ai context for this project
   if (window.WHAssistant?.setContext) {
     // PII-SAFE grounding (K4, 2026-07-12): now transmitted to the LLM (piiSafe:true —
@@ -331,14 +476,14 @@ async function loadAndRender(projectId) {
     // this report). Carries only codes / enums / counts / dates / budget — NEVER owner_name
     // (person PII); blockers are already a COUNT, not free-text.
     const lines = [
-      `Project: ${project.project_code} (${project.project_type}): ${project.name}`,
+      `Project: ${projField(project)} (${project.project_type || 'type not set'}): ${project.name || 'Untitled project'}`,
       `Status: ${project.status}`,
       project.start_date && project.end_date ? `Period: ${project.start_date} to ${project.end_date}` : null,
       `Scope items: ${items.length}, ${items.filter(i => i.status === 'done').length} done, ${items.filter(i => i.status === 'blocked').length} blocked`,
       `Progress logs: ${logs.length} (${logs.filter(l => (l.blockers || '').trim()).length} flagged blockers)`,
       project.budget_php ? `Budget: ${whFmtPeso(project.budget_php)}` : null,
     ].filter(Boolean).join('\n');
-    window.WHAssistant.setContext({ key: 'project:' + project.id, summary: lines, badge: project.project_code + ' (report)', piiSafe: true });
+    window.WHAssistant.setContext({ key: 'project:' + project.id, summary: lines, badge: projField(project) + ' (report)', piiSafe: true });
   }
 
   // Cache for narrative function to use
@@ -380,7 +525,19 @@ async function aiGenerateNarrative() {
     if (insightCard && data.hero_finding) insightCard.textContent = data.hero_finding;
     // Append AI executive summary + lessons synthesis below the KPI strip
     const summaryDiv = document.createElement('div');
-    summaryDiv.style.cssText = 'background: #FBEED2; border-left: 4px solid #f7a21b; padding: 12px 16px; border-radius: 6px; margin: 12px 0;';
+    // id: this block makes an AI-AUTHORED claim ("AI-drafted executive summary") and had no id at all, so
+    // nothing could address it — not a gate, not a probe, not a bug report. A dynamically created container
+    // with no id is untestable by construction: every check that wants to measure it must guess a selector,
+    // and this roadmap already records what guessing costs. Added while grounding project-report's V2/V3
+    // rows, which stalled precisely because this page's rendered views had no stable anchors.
+    summaryDiv.id = 'pr-ai-exec-summary';
+    // var(--gold), not the raw #f7a21b this line used to carry. The :root comment above already
+    // records darkening --gold from that brand screen fill to #92400e because it failed on the pale
+    // #FBEED2 pill - and this inline style is the sibling that same pass walked past, so the token
+    // moved while the hardcoded copy stayed on the old value. It is the exact partial-fix error that
+    // comment warns about. The design-token ratchet caught it as the single raw brand hex over
+    // baseline (169 vs 168), which is the gate doing its job on a real usage rather than a false hit.
+    summaryDiv.style.cssText = 'background: #FBEED2; border-left: 4px solid var(--gold); padding: 12px 16px; border-radius: 6px; margin: 12px 0;';
     summaryDiv.innerHTML = `
       <div style="font-size: 8.5pt; color: #5B6878; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">🤖 AI-drafted executive summary</div>
       <div style="font-size: 11pt; margin-top: 6px;">${(data.executive_summary || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
@@ -394,7 +551,7 @@ async function aiGenerateNarrative() {
 }
 
 function renderCover(p) {
-  $('cov-code').textContent = p.project_code;
+  $('cov-code').textContent = projField(p);
   $('cov-title').textContent = p.name;
   $('cov-type').textContent = p.project_type;
   $('cov-type').className = 'ptype-pill ptype-' + p.project_type;
@@ -411,9 +568,18 @@ function renderCover(p) {
 
 function renderExecSummary(p, items, logs) {
   const totalW = items.reduce((s, i) => s + (i.estimated_hours || 1), 0) || 1;
-  const pct = items.length
-    ? Math.round(items.reduce((s, i) => s + (i.pct_complete || 0) * (i.estimated_hours || 1), 0) / totalW)
+  // ★MONEY MUST NOT BE DERIVED FROM A ROUNDED PERCENTAGE. Measured live on the Cooling Tower project:
+  // the hours-weighted completion is exactly 42.5%, Math.round made it 43, and EV = BAC x (pct/100) then
+  // printed ₱120,400 against a ₱280,000 budget - ₱1,400 too much. project-manager renders the same
+  // project's EV as ₱119,000 from the unrounded 0.425, so the two surfaces disagreed about one project's
+  // earned value, which this page's own contract forbids ("report figures equal project-manager's for the
+  // same project"). The error scales with the budget: the same half-point would overstate the ₱1.85M
+  // project by about ₱9,250. PV was already correct here because it uses an unrounded day ratio.
+  // So: keep the EXACT ratio for anything monetary, and round only for the sentences a person reads.
+  const pctExact = items.length
+    ? items.reduce((s, i) => s + (i.pct_complete || 0) * (i.estimated_hours || 1), 0) / totalW
     : 0;
+  const pct = Math.round(pctExact);
   const itemsDone = items.filter(i => i.status === 'done').length;
   const hoursEst  = items.reduce((s, i) => s + (i.estimated_hours || 0), 0);
   const hoursAct  = items.reduce((s, i) => s + (i.actual_hours || 0), 0);
@@ -421,11 +587,12 @@ function renderExecSummary(p, items, logs) {
   const recentBlockers = logs.filter(l => (l.blockers || '').trim()).length;
 
   let hero;
-  if (p.status === 'complete')      hero = `${p.project_code} is complete: ${itemsDone} of ${items.length} scope items closed, ${hoursAct.toFixed(0)} hours logged.`;
-  else if (blockers > 0)            hero = `${p.project_code} has ${blockers} blocked scope item${blockers === 1 ? '' : 's'} requiring attention.`;
-  else if (pct >= 95)               hero = `${p.project_code} is ${pct}% complete: closeout phase.`;
-  else if (pct >= 50)               hero = `${p.project_code} is ${pct}% complete with ${items.length - itemsDone} scope items remaining.`;
-  else                              hero = `${p.project_code} is ${pct}% complete: ${items.length} scope items defined, ${itemsDone} done.`;
+  const subject = projLabel(p);
+  if (p.status === 'complete')      hero = `${subject} is complete: ${itemsDone} of ${items.length} scope items closed, ${hoursAct.toFixed(0)} hours logged.`;
+  else if (blockers > 0)            hero = `${subject} has ${blockers} blocked scope item${blockers === 1 ? '' : 's'} requiring attention.`;
+  else if (pct >= 95)               hero = `${subject} is ${pct}% complete: closeout phase.`;
+  else if (pct >= 50)               hero = `${subject} is ${pct}% complete with ${items.length - itemsDone} scope items remaining.`;
+  else                              hero = `${subject} is ${pct}% complete: ${items.length} scope items defined, ${itemsDone} done.`;
 
   let evHtml = '';
   // PJ16 — an absent cost section used to look identical whether the budget was withheld, never
@@ -445,7 +612,7 @@ function renderExecSummary(p, items, logs) {
     const daysTotal   = dt(p.start_date, p.end_date) || 1;
     const plannedPct  = Math.min(1, daysElapsed / daysTotal);
     const PV  = BAC * plannedPct;
-    const EV  = BAC * (pct / 100);
+    const EV  = BAC * (pctExact / 100);   // exact ratio, not the display rounding
     // PJ16 — this rate is an ASSUMPTION, and this is a document a client signs.
     //
     // The platform has no cost ledger, so Actual Cost is derived as logged hours x a labour rate.
@@ -485,12 +652,21 @@ function renderExecSummary(p, items, logs) {
     // SCHEDULE only, and says so, rather than blending a sound index with a broken one.
     const spiNum = SPI === '-' ? 1 : Number(SPI);
     const cls = spiNum >= 0.95 ? 'green' : spiNum >= 0.85 ? 'amber' : 'red';
+    // SAY THE STATUS, DON'T PRINT THE CSS CLASS. Found 2026-08-06 walking the populated report: the
+    // "Schedule Status" KPI rendered ${cls} verbatim, so a client-facing report literally read "RED".
+    // That is an internal styling token on the glass - the raw-enum shape - and on this page it is
+    // worse than usual for two reasons: this document is printed and handed over, and its own domain
+    // truth is that it must be legible in GREYSCALE, where a status whose only meaning is a colour name
+    // conveys nothing. A phrase carries the meaning without the colour having to.
+    const statusLabel = cls === 'green' ? 'On schedule'
+                      : cls === 'amber' ? 'At risk'
+                      : 'Behind schedule';
     evHtml += `
       <div class="kpi-strip">
         <div class="kpi"><div class="kpi-label">Budget (BAC)</div><div class="kpi-value">${e(fmtPHP(BAC))}</div></div>
         <div class="kpi"><div class="kpi-label">Earned (EV)</div><div class="kpi-value">${e(fmtPHP(EV))}</div><div class="kpi-sub">budget &times; ${e(String(pct))}% complete</div></div>
         <div class="kpi ${cls}"><div class="kpi-label">SPI</div><div class="kpi-value">${e(SPI)}</div><div class="kpi-sub">schedule performance</div></div>
-        <div class="kpi ${cls}"><div class="kpi-label">Schedule Status</div><div class="kpi-value" style="font-size: 14pt; text-transform: uppercase;">${e(cls)}</div><div class="kpi-sub">AACE 80R-13 &middot; schedule only</div></div>
+        <div class="kpi ${cls}"><div class="kpi-label">Schedule Status</div><div class="kpi-value" style="font-size: 14pt;">${e(statusLabel)}</div><div class="kpi-sub">AACE 80R-13 &middot; schedule only</div></div>
       </div>
       <p class="muted" style="margin:-4px 0 12px; font-size:9.5pt;">
         Labour logged to date: <strong>${e(fmtPHP(labourCost))}</strong>

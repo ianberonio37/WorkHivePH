@@ -65,7 +65,16 @@
       border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; padding: 1.1rem 1.2rem; margin-bottom: 1rem; }
     .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
     .sec-title { font-size: 0.95rem; font-weight: 700; color: #fff; }
-    .sec-sub { font-size: 0.68rem; color: var(--wh-steel); margin-top: 0.1rem; }
+    /* --wh-steel-bright, not --wh-steel, on every one of this page-s muted labels. tokens.css
+       annotates the reason on the token itself: --wh-steel #7B8794 measures 3.3-3.9:1 on the card
+       gradient and FAILS WCAG AA for small text, which is why --wh-steel-bright #CFD7E0 exists for
+       dark surfaces. Measured here: 28 of 54 text nodes at exactly 3.92:1 against rgb(29,43,62) -
+       one identical ratio repeated 28 times, which is the signature of one shared token rather
+       than 28 separate decisions. All 10 uses on this page are 0.64-0.76rem on dark cards.
+       The worst-placed of them was the privacy promise - "your files are read just to fill in your
+       resume, then discarded" - so the single most consequential sentence on the page was also the
+       hardest to read. */
+    .sec-sub { font-size: 0.68rem; color: var(--wh-steel-bright); margin-top: 0.1rem; }
 
     /* ── Buttons ── */
     .btn { min-height: 44px; border-radius: 0.7rem; font-family: inherit; font-size: 0.85rem; font-weight: 700;
@@ -81,7 +90,8 @@
     .preview-bar .btn-sm { min-height: 44px; }
     .btn-add { width: 100%; margin-top: 0.6rem; background: rgba(41,182,217,0.08); border: 1px dashed rgba(41,182,217,0.4); color: var(--wh-blue-light); }
     .btn-add:active { background: rgba(41,182,217,0.15); }
-    .icon-del { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: var(--wh-red);
+    /* -text variant, not the fill token: tokens.css annotates the base as a FILL and names the AA-safe text variant. Measured APCA below the 60 floor as small text; the variant already exists. */
+    .icon-del { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: var(--wh-red-text);
       width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 1rem; flex-shrink: 0; }
     .icon-mv { background: rgba(148,163,184,0.10); border: 1px solid rgba(148,163,184,0.30); color: #cbd5e1;
       width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 0.85rem; flex-shrink: 0; }
@@ -94,11 +104,11 @@
     /* ── Inputs (font-size 16px = no iOS auto-zoom) ── */
     .field { margin-bottom: 0.65rem; }
     .field label { display: block; font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-      color: var(--wh-steel); margin-bottom: 0.25rem; }
+      color: var(--wh-steel-bright); margin-bottom: 0.25rem; }
     .wh-input { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.6rem; border: 1px solid rgba(255,255,255,0.12);
       background: rgba(22,32,50,0.55); color: var(--wh-cloud); font-size: 1rem; font-family: inherit; line-height: 1.4; }
     .wh-input:focus { outline: none; border-color: rgba(41,182,217,0.6); }
-    .field-hint { font-size: 0.64rem; color: var(--wh-steel); margin-top: 0.25rem; line-height: 1.4; }
+    .field-hint { font-size: 0.64rem; color: var(--wh-steel-bright); margin-top: 0.25rem; line-height: 1.4; }
     textarea.wh-input { resize: vertical; min-height: 64px; }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
 
@@ -132,8 +142,18 @@
     .quant-coach.ok { color: var(--wh-green); background: rgba(46,158,91,0.10); border-color: rgba(46,158,91,0.3); }
 
     /* ── Extraction option toggle ── */
+    /* #9fb0c0 -> #b6c4d1. Measured live 2026-08-06: at this 14px size the old colour composites to
+       APCA Lc 57.7 on the card, 2.3 short of the 60 floor; #b6c4d1 gives 69.3. Chosen from a measured
+       ladder rather than picked - it is the smallest step that clears with real margin, so the
+       secondary-text feel is kept (slate-300 #cbd5e1 would have jumped to 79.8 and read as body text).
+       FIXED ON THE CLASS, not on the node the lens named. The lens reported the failure on
+       `#upload-card > label.opt-toggle > span > b` - the <b>Off by default</b> - because that is the
+       only LEAF text node here: the surrounding <span> contains both text and the <b>, so it has
+       childElementCount 1 and the lens skips it. The whole sentence inherits this same colour and was
+       therefore equally short; fixing only the <b> would have left the explanatory text it sits in
+       just as unreadable while the metric went green. */
     .opt-toggle { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.6rem; min-height: 44px;
-      font-size: 0.875rem; color: #9fb0c0; cursor: pointer; }
+      font-size: 0.875rem; color: #b6c4d1; cursor: pointer; }
     .opt-toggle input { width: 18px; height: 18px; flex: 0 0 auto; accent-color: var(--wh-blue); }
     :focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
 
@@ -154,7 +174,17 @@
     .sheet-group-title { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
       color: var(--wh-blue-light); margin: 0.9rem 0 0.45rem; }
     .check-row { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .check-row input[type="checkbox"] { width: 24px; height: 24px; min-width: 24px; margin-top: 0.5rem; accent-color: var(--wh-blue); }
+    /* ★24px ON THE ONE CONTROL THAT DECIDES WHAT ENTERS SOMEONE'S CV. These are the review sheet's
+       per-item checkboxes - the mechanism behind this page's own promise that nothing is added without
+       confirmation - and they shipped at 24x24 on a phone-first surface, well under the 44px floor the
+       comment three lines below already cites WCAG 2.2 SC 2.5.8 for. A mis-tap here includes a job the
+       person meant to drop, or drops one they meant to keep, and they may not notice until an employer
+       reads it.
+       Found only because tools/dialog_targets.mjs had this view recorded as notDrivable ("openReview is
+       module-scoped and not callable from the page"), which is false - window.WHResume.openReview exposes
+       it. Nine provers skipped #review-sheet on that claim; the layout prover reported it FAIL on the
+       first run after the entry was corrected. */
+    .check-row input[type="checkbox"] { width: 44px; height: 44px; min-width: 44px; margin-top: 0.15rem; accent-color: var(--wh-blue); }
     .check-row .cr-body { flex: 1; }
     /* Clear the sticky .sheet-foot so the LAST review row's editable input is never
        obscured by the footer (WCAG 2.2 SC 2.5.8 target-size). */
@@ -163,7 +193,7 @@
     .rm-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .rm-row-main { flex: 1; min-width: 0; }
     .rm-row-title { font-size: 0.86rem; font-weight: 600; color: #fff; overflow-wrap: break-word; }
-    .rm-row-sub { font-size: 0.66rem; color: var(--wh-steel); margin-top: 0.1rem; }
+    .rm-row-sub { font-size: 0.66rem; color: var(--wh-steel-bright); margin-top: 0.1rem; }
     .rm-badge { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
       color: #0B1220; background: var(--wh-blue-light); border-radius: 999px; padding: 0.05rem 0.4rem; margin-left: 0.35rem; vertical-align: middle; }
     .rm-row-actions { display: flex; align-items: center; gap: 0.4rem; flex: 0 0 auto; }
@@ -217,7 +247,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <input type="file" id="file-photo" aria-label="Take or choose photos of your resume or certificates" accept="image/*" capture="environment" multiple style="display:none;" />
       <input type="file" id="file-any" aria-label="Choose a PDF, Word, Excel, text, or image file to import" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.txt,.md,text/plain,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />
       <p id="upload-status" style="font-size:0.72rem;color:var(--wh-blue-light);margin-top:0.6rem;display:none;"></p>
-      <p style="font-size:0.66rem;color:var(--wh-steel);margin-top:0.4rem;" data-i="rz_upload_privacy">Your files are read just to fill in your resume, then discarded. Nothing is added until you tap to confirm. Keep adding more anytime: it builds on what you already have.</p>
+      <p style="font-size:0.66rem;color:var(--wh-steel-bright);margin-top:0.4rem;" data-i="rz_upload_privacy">Your files are read just to fill in your resume, then discarded. Nothing is added until you tap to confirm. Keep adding more anytime: it builds on what you already have.</p>
       <script>
         // P11 i18n — adopt the SHARED data-i/_t system (utils.js WH_FIL_PAGE lever, P5 lever ladder).
         // First batch: upload-card chrome + header actions. Natural Taglish, English domain terms kept.
@@ -413,8 +443,33 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       'Uploaded':     { c: '#29b6d9', b: 'rgba(45,212,191,0.12)' },
       'You typed':    { c: '#94A3B8', b: 'rgba(148,163,184,0.12)' },
     };
+    // ★NOTHING CHECKED THAT A JOB ENDED AFTER IT STARTED. Dates here are free text ('2021',
+    // '2021-03', 'Present'), and there was no comparison anywhere in the page - so 'From 2024 To 2021'
+    // rendered exactly as typed onto a document someone hands an employer. This deliberately does NOT
+    // reorder entries, flag overlaps, or comment on gaps: concurrent roles are real and gaps are the
+    // person's to explain, which is this page's stated posture. It catches only the one case that is
+    // unambiguously a mistake rather than a life choice - an end that precedes its own start - and it
+    // warns in the BUILDER where it can be fixed, never on the exported paper an employer reads.
+    function _dateOrderWarning(it) {
+      const parse = (v) => {
+        const m = /^\s*(\d{4})(?:[-/](\d{1,2}))?/.exec(String(v || ""));
+        return m ? Number(m[1]) * 12 + (m[2] ? Number(m[2]) - 1 : 0) : null;
+      };
+      const a = parse(it && it.startDate), b = parse(it && it.endDate);
+      if (a === null || b === null) return "";   // "Present", blank, or unparseable: not our business
+      if (b >= a) return "";
+      return '<span class="date-warn" style="font-size:0.62rem;color:#f87171;margin-left:0.4rem;">'
+        + '⚠ ends before it starts</span>';
+    }
+
     function srcChip(src) {
-      const s = SRC_STYLE[src] || SRC_STYLE['You typed'];
+      // ★ATTRIBUTION WAS CATEGORY-LEVEL ON A MULTI-FILE UPLOAD. Every item extracted from every file
+      // carried the same chip, 'Uploaded', so a worker who uploaded an old CV, a certificate and a
+      // payslip and then found a wrong job title had no way to tell WHICH file produced it - which is
+      // exactly the 'find and undo a bad import' the review sheet exists for. The chip now carries the
+      // filename; the style is resolved by the part before the colon so 'Uploaded: cv-2019.pdf' keeps
+      // the Uploaded colour rather than falling through to the grey default.
+      const s = SRC_STYLE[src] || SRC_STYLE[String(src || '').split(':')[0].trim()] || SRC_STYLE['You typed'];
       return `<span class="src-chip" style="color:${s.c};background:${s.b};border-color:${s.c};">${escHtml(src || 'You typed')}</span>`;
     }
 
@@ -457,7 +512,22 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const _aiCard = document.getElementById('ai-card');
       if (_aiCard) _aiCard.style.display = isEmptyResume() ? 'none' : '';
       let html = renderBasics();
-      if (isEmptyResume()) {
+      if (_cloudLoadFailed) {
+        // THE FAILED READ GETS ITS OWN CARD, ABOVE EVERYTHING. Whether the form below is empty or
+        // holding a device copy, the one thing the person must not conclude is "my resume is gone".
+        // Wording follows report-sender's fallback card: name what happened, say what is on screen,
+        // and say what NOT to do — because the damaging action here is re-typing a resume that exists.
+        html += `<div class="card empty-prompt">
+          <div class="big">⚠️</div>
+          <p><b>Could not load your saved resume.</b></p>
+          <p>${isEmptyResume()
+            ? 'This is a connection problem, not an empty resume. Anything you saved is still on the server. Try again before typing it out from scratch.'
+            : 'What you see below is the copy saved on this device, which may be older than your saved version. Try again before editing, so you do not overwrite newer work.'}</p>
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
+            <button class="btn btn-primary" id="btn-retry-load" type="button">↻ Try again</button>
+          </div>
+        </div>`;
+      } else if (isEmptyResume()) {
         // Empty state = a first-timer's "start here". Present ALL three paths
         // neutrally: the old copy assumed "you already have ... in WorkHive",
         // which is FALSE for a brand-new solo worker (the core audience) — they
@@ -479,6 +549,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (a2) a2.addEventListener('click', runAutofill);
       const f2 = document.getElementById('btn-file-2');
       if (f2) f2.addEventListener('click', () => document.getElementById('file-any').click());
+      const rl = document.getElementById('btn-retry-load');
+      if (rl) rl.addEventListener('click', () => { loadResumeIntoView(); });
       updateQuantCoach();
     }
 
@@ -571,7 +643,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         }
         if (pendingHalf) fieldsHtml += `<div class="field-row">${pendingHalf}</div>`;
         body += `<div class="item">
-          <div class="item-top">${srcChip(item._source)}
+          <div class="item-top">${srcChip(item._source)}${_dateOrderWarning(item)}
             <div class="item-actions">
               ${idx > 0 ? `<button class="btn icon-mv" data-action="up" data-sec="${sec.key}" data-idx="${idx}" type="button" aria-label="Move up">▲</button>` : ''}
               ${idx < items.length - 1 ? `<button class="btn icon-mv" data-action="down" data-sec="${sec.key}" data-idx="${idx}" type="button" aria-label="Move down">▼</button>` : ''}
@@ -582,7 +654,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return `<div class="card">
         <div class="sec-head"><div><div class="sec-title" role="heading" aria-level="2">${escHtml(sec.title)}</div>${sec.sub ? `<div class="sec-sub">${escHtml(sec.sub)}</div>` : ''}</div></div>
         ${sec.key === 'work' ? '<div id="quant-coach" class="quant-coach" role="status" aria-live="polite" style="display:none;"></div>' : ''}
-        ${body || `<p style="font-size:0.76rem;color:var(--wh-steel);">Nothing here yet.</p>`}
+        ${body || `<p style="font-size:0.76rem;color:var(--wh-steel-bright);">Nothing here yet.</p>`}
         <button class="btn btn-add" data-action="add" data-sec="${sec.key}" type="button">+ Add ${escHtml(sec.title.replace(/s$/, '').toLowerCase())}</button>
       </div>`;
     }
@@ -702,7 +774,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           _resumeId = data.id;
         }
         await saveLocal();
-        if (!silent) toast('✓ Resume saved.');
+        // NAMES WHERE IT WENT AND WHAT WAS KEPT. '✓ Resume saved.' states that something happened but
+        // not what a person can rely on afterwards - and on this page that matters more than most,
+        // because the whole point is that their work survives. What this path verifiably does: upserts
+        // resume_documents (the cloud copy tied to their account), writes the on-device copy via
+        // saveLocal(), and has already taken a snapshotVersion('before save') into resume_versions,
+        // pruned to the ten most recent. The sentence claims exactly those and nothing more. The
+        // signed-out and offline branches above already name their effect well and are unchanged.
+        if (!silent) toast('✓ Resume saved → backed up to your account now, and on this device. The previous version is kept in your history.');
         if (typeof logEvent === 'function') logEvent(db, 'resume_saved', { page: 'resume' });
       } catch (err) {
         console.error('resume saveCloud failed:', err);   // L-layer: keep the cloud-save failure greppable
@@ -713,6 +792,48 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
     }
 
+    // ★ `return false` MEANT TWO OPPOSITE THINGS. The line below used to read
+    //     if (error || !data || !data.doc || !data.doc.basics) return false;
+    // collapsing "the read FAILED" into "you have NO resume" — and the caller, having no way to tell
+    // them apart, showed the first-timer onboarding card: "🧰 Three ways to start". Measured under an
+    // injected 500: a person with a saved resume was greeted as though they had never written one.
+    // That is the same defect this platform already fixed on skillmatrix, where a failed read asked a
+    // worker to re-pick their discipline. Here the stakes are a person's own employment document.
+    // The flag is not just for the message — a false empty invites RE-TYPING work that already exists.
+    let _cloudLoadFailed = false;
+
+    // ONE load sequence, used by first paint AND by Retry. A Retry that re-implements the load is a
+    // second definition of "how this page opens", and the two drift — so the button re-runs exactly
+    // what DOMContentLoaded runs.
+    // ★ NOTHING WAS ON SCREEN WHILE THIS RAN. render() paints #sections and only runs after both cloud
+    // reads settle, so with the read stalled the page showed 1254 chars of chrome and no Details form,
+    // no field labels, no starting prompts, and no sign anything was coming. Measured 2026-08-14 with
+    // every read held: no skeleton, no spinner, no "loading", not even an animated element. The page
+    // already owns the right affordance and uses it one screen over (renderResumeList, :851); the main
+    // form simply never got it. Same shape as project-report's G1 skeleton, the pattern copied here.
+    // The try/catch around the awaits is load-bearing, not decoration: a skeleton a THROW can strand
+    // is worse than the blank it replaced, because it promises something is coming forever and is
+    // invisible to every gate. render() must run on every path out of this function.
+    async function loadResumeIntoView() {
+      const _sections = document.getElementById('sections');
+      if (_sections && typeof whListSkeleton === 'function') whListSkeleton(_sections, 4);
+      _cloudLoadFailed = false;
+      let draft = null, loaded = false;
+      try {
+        draft = await idbGet('current');
+        if (draft && draft._resumeId) loaded = await loadCloudById(draft._resumeId);
+        if (!loaded) loaded = await loadCloud();
+      } catch (err) {
+        _cloudLoadFailed = true;
+        console.error('resume load failed:', err && err.message ? err.message : err);
+      }
+      if (!loaded) {
+        if (draft && draft.resume && draft.resume.basics) { resume = mergeDefaults(draft.resume); _resumeId = draft._resumeId || null; }
+        else if (!resume.basics.name) resume.basics.name = WORKER_NAME;
+      }
+      render();
+    }
+
     async function loadCloud() {
       if (!_authUid) return false;
       try {
@@ -720,11 +841,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const { data, error } = await db.from('resume_documents')
           .select('id, doc, template, title').eq('auth_uid', _authUid)
           .order('updated_at', { ascending: false }).order('id').limit(1).maybeSingle();
-        if (error || !data || !data.doc || !data.doc.basics) return false;
+        if (error) { _cloudLoadFailed = true; console.warn('resume cloud read failed:', error.message); return false; }
+        if (!data || !data.doc || !data.doc.basics) return false;
         resume = mergeDefaults(data.doc);
         _resumeId = data.id;
         return true;
-      } catch (_) { return false; }
+      } catch (e) { _cloudLoadFailed = true; console.warn('resume cloud read threw:', e && e.message); return false; }
     }
 
     // Guard against older/partial docs missing newer keys.
@@ -758,10 +880,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // canonical-allow: resume_documents is a PRIVATE owner-scoped personal document (RLS owner-only); loads ONE of the worker's own resume drafts by id for the picker — single-surface, not a cross-surface KPI/aggregate, so a v_*_truth wrapper does not apply.
         const { data, error } = await db.from('resume_documents')
           .select('id, doc, template, title').eq('auth_uid', _authUid).eq('id', id).maybeSingle();
-        if (error || !data || !data.doc || !data.doc.basics) return false;
+        // Same collapse as loadCloud, and it matters MORE here: this path loads the resume the person
+        // last had OPEN. A failed read falling through to "no resume" is how someone gets shown an
+        // empty page for a document they were editing minutes ago.
+        if (error) { _cloudLoadFailed = true; console.warn('resume cloud read (by id) failed:', error.message); return false; }
+        if (!data || !data.doc || !data.doc.basics) return false;
         resume = mergeDefaults(data.doc); _resumeId = data.id;
         return true;
-      } catch (_) { return false; }
+      } catch (e) { _cloudLoadFailed = true; console.warn('resume cloud read (by id) threw:', e && e.message); return false; }
     }
     // Only persist-before-switch if there is real content worth a row (a brand-new
     // blank carrying just the worker's name should NOT spawn an "Untitled" doc).
@@ -784,15 +910,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (s < 86400) return Math.floor(s / 3600) + ' hr ago';
       const d = Math.floor(s / 86400); return d + ' day' + (d > 1 ? 's' : '') + ' ago';
     }
+    // WCAG 2.4.3 NOTE, measured 2026-08-13 — the focus-restore on this sheet is BROKEN, and the fix does
+    // NOT belong in these two functions, which is why there is a note here instead of a patch.
+    // Live probe: click #btn-resumes, press Escape. The sheet closes correctly, but activeElement ends on
+    // BODY while #btn-resumes is still in the DOM, visible and focusable (a manual .focus() on it
+    // succeeds straight afterwards) — a keyboard user loses their place. Instrumenting
+    // HTMLElement.prototype.focus showed the miss: on open it reads `#btn-resumes -> #rm-current-title`
+    // correctly, but on close it fires .focus() at #rm-current-title, an element INSIDE the sheet that has
+    // just been hidden, so focus falls to the body.
+    // AND THE CLOSER IS NOT closeResumeManager. #resume-manager carries `class="sheet-overlay"`, and
+    // utils.js:2800-2830 (whSheetA11y) AUTO-WIRES every .sheet-overlay/.modal-overlay through
+    // whModalA11y — self-wiring at load and via a MutationObserver, with no page-level call. So the
+    // shared helper owns Escape for this sheet; a repair added here changed nothing when probed, because
+    // Escape never reaches this function. The fix belongs in whModalA11y's restore path (or in how it
+    // arms for an overlay that is wired while closed). Left as a note, not a patch, because an unverified
+    // fix in the wrong place is worse than none.
     async function openResumeManager() {
       document.getElementById('rm-current-title').value = resume.meta.title || 'My Resume';
       await renderResumeList();
       document.getElementById('resume-manager').classList.add('open');
-      trapFocus(document.querySelector('#resume-manager .sheet-panel'));
+      // NO trapFocus() here — see the note above. This sheet is `.sheet-overlay`, so whSheetA11y has
+      // already wired it through whModalA11y, which owns the trap, Escape and focus-restore.
     }
     function closeResumeManager() {
       document.getElementById('resume-manager').classList.remove('open');
-      releaseFocusTrap(true);
     }
     async function renderResumeList() {
       const wrap = document.getElementById('rm-list');
@@ -800,7 +941,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // E2 consistent states: shared shimmer skeleton while saved resumes load
       // (was a plain "Loading…" the List View Contract didn't recognize).
       if (typeof whListSkeleton === 'function') whListSkeleton(wrap, 3);
-      else wrap.innerHTML = '<div style="font-size:0.74rem;color:var(--wh-steel);padding:0.4rem 0;">Loading…</div>';
+      else wrap.innerHTML = '<div style="font-size:0.74rem;color:var(--wh-steel-bright);padding:0.4rem 0;">Loading…</div>';
       let docs;
       try {
         docs = await listResumes();
@@ -813,7 +954,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return;
       }
       if (!docs.length) {
-        wrap.innerHTML = '<p style="font-size:0.74rem;color:var(--wh-steel);padding:0.4rem 0;">No saved resumes yet. Edit this one and tap 💾 Save, or start a new blank.</p>';
+        wrap.innerHTML = '<p style="font-size:0.74rem;color:var(--wh-steel-bright);padding:0.4rem 0;">No saved resumes yet. Edit this one and tap 💾 Save, or start a new blank.</p>';
         return;
       }
       wrap.innerHTML = docs.map((d) => {
@@ -859,15 +1000,44 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       closeResumeManager();
       toast('Started a new blank resume. Edit it, then tap 💾 Save.');
     }
+    let _deletingResume = false;
     async function deleteResume(id) {
+      // ★THE MOST DESTRUCTIVE ACTION ON THE PAGE HAD NO IN-FLIGHT LOCK. The inline two-tap confirm
+      // (✕ -> "Delete? Yes / No") protects against an accidental single press, and it works - the first
+      // tap on ✕ writes nothing. But "Yes" was never disabled once pressed. MEASURED 2026-08-18: three
+      // taps on Yes dispatched in one JS task fired THREE resume_versions deletes AND THREE
+      // resume_documents deletes, and toasted "Resume deleted." three times.
+      // A second tap on Yes is the ordinary reflex when a delete takes a moment, not an exotic input, and
+      // this is the one action here that cannot be undone: the document and its ENTIRE version history go
+      // together, which is the same history the save toast promises is kept.
+      // Same shape as this page's own _wireBusy (disabled-check, aria-busy, restore in finally); that
+      // helper binds by static element id at DOMContentLoaded, and these Yes buttons are built by
+      // renderResumeList() on demand, so it cannot be reused here.
+      const yesBtn = document.querySelector('[data-rm-del-yes="' + id + '"]');
+      if (_deletingResume || (yesBtn && yesBtn.disabled)) return;
+      _deletingResume = true;
+      if (yesBtn) { yesBtn.disabled = true; yesBtn.setAttribute('aria-busy', 'true'); yesBtn.textContent = 'Deleting...'; }
       try {
-        await db.from('resume_versions').delete().eq('resume_id', id);  // best-effort (FK may already cascade)
-        const { error } = await db.from('resume_documents').delete().eq('id', id);
-        if (error) throw error;
-      } catch (err) { console.error('resume delete failed:', err); toast('Could not delete: ' + (err.message || 'error')); return; }
-      if (id === _resumeId) { resume = emptyResume(); resume.basics.name = WORKER_NAME; _resumeId = null; render(); await saveLocal(); }
-      toast('Resume deleted.');
-      await renderResumeList();
+        try {
+          await db.from('resume_versions').delete().eq('resume_id', id);  // best-effort (FK may already cascade)
+          const { error } = await db.from('resume_documents').delete().eq('id', id);
+          if (error) throw error;
+        } catch (err) {
+          console.error('resume delete failed:', err);
+          toast('Could not delete: ' + (err.message || 'error'));
+          // Put the control back so the person can retry the thing that just failed.
+          if (yesBtn) { yesBtn.disabled = false; yesBtn.removeAttribute('aria-busy'); yesBtn.textContent = 'Yes'; }
+          return;
+        }
+        if (id === _resumeId) { resume = emptyResume(); resume.basics.name = WORKER_NAME; _resumeId = null; render(); await saveLocal(); }
+        // NAME WHAT WENT, AND THAT IT IS FINAL. "Resume deleted." said neither: this removes the resume
+        // AND every saved version of it, which is exactly the history the save confirmation tells the
+        // worker is being kept for them.
+        toast('Resume deleted - it and all of its saved versions are gone for good.');
+        await renderResumeList();
+      } finally {
+        _deletingResume = false;
+      }
     }
     // List-row clicks: Open / Delete (two-tap inline confirm, no native confirm()).
     function onResumeManagerClick(ev) {
@@ -1046,7 +1216,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       document.getElementById('review-body').innerHTML = html;
       updateReviewCount();
       document.getElementById('review-sheet').classList.add('open');
-      trapFocus(document.querySelector('#review-sheet .sheet-panel'));
+      // NO trapFocus() — `.sheet-overlay`, so whModalA11y owns the trap and the restore (same reason as
+      // #resume-manager above). #preview-overlay is DIFFERENT: its class is `.preview-overlay`, which
+      // whSheetA11y does not sweep, so that one KEEPS its hand-rolled trap.
     }
     function updateReviewCount() {
       const n = _reviewItems.filter(it => it.checked).length;
@@ -1055,7 +1227,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     function closeReview() {
       document.getElementById('review-sheet').classList.remove('open');
       _reviewItems = []; _reviewConfirm = null;
-      releaseFocusTrap(true);
+      // NO releaseFocusTrap() — removed with the matching trapFocus() in openReview, and the pairing is
+      // why it has to go too: the trap slot is GLOBAL (`_lastFocused`, one slot, "WorkHive sheets do not
+      // stack"). Releasing here while nothing of ours is trapped would release whatever IS — namely
+      // #preview-overlay, the one dialog on this page that still legitimately owns the hand-rolled trap
+      // because its class is `.preview-overlay` and whSheetA11y never sweeps it. whModalA11y owns this
+      // sheet's Escape and focus-restore.
     }
     function onReviewInput(e) {
       const cb = e.target.dataset.reviewCheck, vv = e.target.dataset.reviewValue;
@@ -1197,8 +1374,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Turn an extracted JSON Resume partial into editable checklist items.
     // Items that already exist in the resume are pre-UNCHECKED and labelled,
     // and every apply() guards against duplicates as a safety net.
-    function fieldsToChecklist(f) {
-      const items = [], S = 'Uploaded', DUP = ' (already in your resume)';
+    function fieldsToChecklist(f, fileName) {
+      const _fn = String(fileName || '').trim();
+      const items = [], S = _fn ? 'Uploaded: ' + (_fn.length > 28 ? _fn.slice(0, 25) + '…' : _fn) : 'Uploaded',
+            DUP = ' (already in your resume)';
       const b = f.basics || {};
       [['name', 'Full name'], ['label', 'Headline'], ['email', 'Email'], ['phone', 'Phone'], ['summary', 'Summary']].forEach(([k, lab]) => {
         if (b[k]) items.push({ group: 'Your details', label: lab, value: b[k], checked: true, src: S,
@@ -1268,7 +1447,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (kind === 'text' && (!payload || payload.trim().length < 10)) return { error: 'empty' };
       const fields = await callResumeExtract(kind, payload, source);
       if (!fields) return { error: 'failed' };
-      return { items: fieldsToChecklist(fields) };
+      return { items: fieldsToChecklist(fields, file && file.name) };
     }
 
     // Dump one OR many files -> read each (with progress) -> ONE combined
@@ -1593,7 +1772,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         html += `<div class="kw-group-title" style="color:var(--wh-orange)">Missing from your resume (${miss.length})</div>`;
         html += `<div class="kw-wrap" id="jd-miss-wrap">${miss.map(k =>
           `<button type="button" class="kw-chip kw-miss" data-term="${e(k.term)}" aria-pressed="${_jdSelected.has(k.term)}">${k.importance === 'high' ? '★ ' : ''}${e(k.term)}</button>`).join('')}</div>`;
-        html += `<p style="font-size:0.68rem;color:var(--wh-steel);margin:0.5rem 0 0;">Tap the ones you genuinely have, then add them to Skills. ★ = the job stresses it. Never add a skill you cannot back up.</p>`;
+        html += `<p style="font-size:0.68rem;color:var(--wh-steel-bright);margin:0.5rem 0 0;">Tap the ones you genuinely have, then add them to Skills. ★ = the job stresses it. Never add a skill you cannot back up.</p>`;
         html += `<button type="button" id="btn-jd-add" class="btn btn-primary" style="width:100%;margin-top:0.6rem;display:none;">+ Add selected to Skills</button>`;
       }
       if (hit.length) {
@@ -1659,7 +1838,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       panel.innerHTML =
         `<div class="kw-group-title" style="color:var(--wh-blue-light)">Your cover letter draft</div>` +
         `<textarea id="cl-text" class="wh-input" rows="12" aria-label="Cover letter draft" style="width:100%;font-size:1rem;line-height:1.5;">${e(letter)}</textarea>` +
-        `<p style="font-size:0.68rem;color:var(--wh-steel);margin:0.4rem 0;">Drafted from your real experience. Read it, edit anything, and make it yours before sending. We never invent facts.</p>` +
+        `<p style="font-size:0.68rem;color:var(--wh-steel-bright);margin:0.4rem 0;">Drafted from your real experience. Read it, edit anything, and make it yours before sending. We never invent facts.</p>` +
         `<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">` +
         `<button type="button" id="cl-copy" class="btn btn-primary btn-sm" style="flex:1;min-width:120px;">📋 Copy</button>` +
         `<button type="button" id="cl-download" class="btn btn-ghost btn-sm" style="flex:1;min-width:120px;">⬇ Download .txt</button></div>`;
@@ -1994,15 +2173,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // device draft → empty. With named multiple resumes, reopening the newest
       // doc would silently switch you off the one you were editing - so prefer the
       // last-open id and only fall back to "newest" when it is gone or you are new.
-      const draft = await idbGet('current');
-      let loaded = false;
-      if (draft && draft._resumeId) loaded = await loadCloudById(draft._resumeId);
-      if (!loaded) loaded = await loadCloud();
-      if (!loaded) {
-        if (draft && draft.resume && draft.resume.basics) { resume = mergeDefaults(draft.resume); _resumeId = draft._resumeId || null; }
-        else if (!resume.basics.name) resume.basics.name = WORKER_NAME;
-      }
-      render();
+      await loadResumeIntoView();
       updateOfflineUI();
 
       // Wire events (delegation)

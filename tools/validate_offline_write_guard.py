@@ -44,12 +44,30 @@ GREEN, RED, YEL, DIM, BOLD, RST = "\033[92m", "\033[91m", "\033[93m", "\033[2m",
 PAGES = ["marketplace.html", "marketplace-seller.html"]
 
 WRITE = re.compile(r"\.(insert|update|upsert|delete)\s*\(|db\.rpc\s*\(")
-GUARD = re.compile(r"RequireOnline\s*\(|navigator\.onLine\s*===?\s*false")
+# ★THE NEGATION FORM WAS MISSING, AND IT IS THE COMMON ONE. This matched `navigator.onLine === false`
+# but not `!navigator.onLine`, so a correctly-guarded write read as unguarded. Found 2026-08-18 on
+# resume.html's saveCloud, which does better than refuse - `if (!navigator.onLine) { toast('Offline:
+# saved on this device, will sync later.'); await saveLocal(); return; }` - and was still reported as a
+# missing guard while sweeping the roster. A validator that cannot see the idiomatic spelling of the
+# thing it demands manufactures work and erodes trust in its own red.
+# The AFTER-the-write check below still applies, so broadening this cannot excuse a post-mortem guard.
+GUARD = re.compile(r"RequireOnline\s*\(|!\s*navigator\.onLine\b|navigator\.onLine\s*===?\s*false")
 FUNC = re.compile(r"async\s+function\s+([A-Za-z_$][\w$]*)\s*\(")
 
 # RPCs that only READ. A read failing offline is a stale screen, not a lost commitment — the page's
 # empty/error state covers it. Listed by name so the exemption is auditable rather than a heuristic.
-READ_ONLY_RPC = {"my_service_provider_ids", "auth_worker_names"}
+READ_ONLY_RPC = {
+    "my_service_provider_ids", "auth_worker_names",
+    # Added 2026-08-18 after this list's incompleteness produced two false "unguarded write" findings
+    # while sweeping the 22 roster pages: community's openPersonCard was flagged for calling
+    # get_community_reputation, and index's submitSignUp matched on check_username_available. Both only
+    # READ. A read failing offline is a stale screen, not a lost commitment, and the page's empty/error
+    # state covers it - the same reason the original two are exempt. Listed by NAME so every exemption
+    # stays auditable rather than becoming a name-shaped heuristic that quietly excuses real writes.
+    "get_community_reputation", "check_username_available",
+    "find_hive_by_code", "get_project_budget", "get_hive_trade_peers",
+    "search_voice_journal_entries",
+}
 
 
 def body_of(src: str, start: int) -> tuple[str, int]:

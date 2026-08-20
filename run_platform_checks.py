@@ -543,6 +543,48 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "cl_page_contrast",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "page_contrast", "--gate"],
+        "label":   "CL ui-visual CONTRAST on every production page, populated - BOTH oracles, run on the platform's OWN two calibrated lenses (live-state-runner's composited APCA + axe's WCAG) rather than a third implementation. It settles the 78 rows the bank had owed behind a recorded belief that contrast is 'NOT computable from the CSSOM here' - true of the NAIVE probe that produced it (uncomposited alpha reads ratio 1.00, a gradient defeats a single-colour sample) and false of this one, which composites alpha up the ancestor chain, averages gradient stops, resolves background-clip:text, and reports candidates/truncated so a cap can never hide under '0 failing'. IT WAS AN ORPHAN: built, working, and invokable from NOWHERE - registered in no suite and absent from PROVERS - so it enforced nothing for months while reporting 0 failing across 22 pages on the strength of a teeth claim that was a COMMENT ABOUT A DIFFERENT FILE'S MATHS. Now falsifiable: --teeth plants an 18px #6b6b6b-on-#5a5a5a violator and a #fff-on-#000 satisfier BEFORE the first lens runs, and requires the violator caught on BOTH lenses and the satisfier clean (measured 0/305 -> 1/307 when planted). Baseline: 22 pages, 2503 APCA nodes, 0 failing, nothing truncated. Reports carry teethRun so a teeth run can never be misread as a measurement - a mistake made once here.",
+        "group":   "Frontend",
+        "severity": "fail",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "cl_view_contrast",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "view_contrast", "--gate"],
+        "label":   "CL ui-visual CONTRAST inside the opened V2/V3 dialogs - 43 declared targets across 22 pages, each opened through its own source-read path. Same two lenses, same teeth (2/2 views caught the planted violator on both). Baseline: 37 targets reached, 36 graded, 1151 nodes, 0 failing. The dialog surface is where contrast debt hides: a modal's text sits on a translucent card over a gradient, which is exactly the shape the naive CSSOM probe could not read and this one can.",
+        "group":   "Frontend",
+        "severity": "fail",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "revoke-actually-revoked",
+        "script":  "tools/validate_revoke_actually_revoked.py",
+        "args":    [],
+        "label":   "REVOKE ACTUALLY REVOKED - a `REVOKE EXECUTE ... FROM anon, authenticated` is a NO-OP, because every function is created with EXECUTE granted to PUBLIC and every role inherits PUBLIC. Measured 2026-08-20: of 21 functions a migration revokes, ELEVEN were still callable by any signed-in user. Three were exploitable - award_achievement_xp (self-award arbitrary XP; its own migration says \"Block direct client calls: XP must come from DB triggers only\" and that was aspirational for three months), reverse/restore_community_post_xp (cross-tenant XP IDOR: takes a post_id, derives hive_id FROM THE ROW, checks nothing), and enqueue_service_push_uids (arbitrary push title/body/URL to ANY user, no auth.uid() at all). This gate asks the LIVE catalog via aclexplode(proacl) whether grantee 0 (PUBLIC) still holds EXECUTE - never proacl::text, because `postgres=X/postgres` contains `=X/` and fools a LIKE. Exemptions must NAME THEIR CALLER: store_memory_turn and update_dialog_state are called from voice-handler.js and gate themselves, so revoking them would be an outage wearing a security fix's clothes; five reads gate via the platform helper user_can_access_hive() rather than a literal auth.uid(), which a narrower grep missed and nearly caused a working guard to be patched. Teeth: --selftest. Skips cleanly when the DB is down.",
+        "group":   "Security",
+        "severity": "fail",
+    },
+    {
+        "id":      "session-death-is-not-removal",
+        "script":  "tools/validate_session_death_is_not_removal.py",
+        "args":    [],
+        "label":   "SESSION DEATH IS NOT REMOVAL - an expired session returns ZERO ROWS with NO ERROR under RLS, which is indistinguishable from \"you were removed from this hive\" unless the session is checked. asset-hub and shift-brain did not check, so a lapsed session fell into the not-a-member branch, DELETED the user's saved hive keys and told them to \"join or create one\". Requires every page that wipes those keys behind a membership check to gate on a resolved auth uid FIRST, at a brace depth the check shares - depth, not indentation, because the first fix put the gate inside `if (!WORKER_NAME)` where it read as correct and would never have run.",
+        "group":   "Security",
+        "severity": "fail",
+    },
+    {
+        "id":      "trigger-writes-need-definer",
+        "script":  "tools/validate_trigger_writes_need_definer.py",
+        "args":    [],
+        "label":   "DEFINER FOR CLIENT-UNWRITABLE WRITES - a SECURITY INVOKER function that writes a table the end user cannot write raises 42501 INSIDE the trigger and takes the user's own statement down with it. Found 2026-08-20: migration ...061 added an AFTER DELETE trigger on logbook that INSERTs into achievement_xp_log, where anon/authenticated hold SELECT and nothing more (deliberately - a client that can write its own XP can self-deal), so a worker could no longer delete their OWN logbook entry. The award side it reverses, award_achievement_xp, has been SECURITY DEFINER + SET search_path since 2026-05; the reversal simply never copied the clause, which is the third time in this codebase a compensating write has not inherited its counterpart's protection. The gate builds the client-unwritable set from the migrations' own GRANTs (SELECT to anon/authenticated and never INSERT/UPDATE/DELETE), then FAILs any function body writing one without SECURITY DEFINER. Result on the real tree: 548 migrations, 229 function bodies, 89 client-unwritable tables -> exactly 2 findings, both in ...061, zero false positives across the whole history. Teeth: --selftest plants an INVOKER writer and a DEFINER writer of the same table and requires the first caught and the second NOT. Static, no DB; ABSTAINS loudly rather than passing when it can prove nothing.",
+        "group":   "Security",
+        "severity": "fail",
+    },
+    {
         "id":      "no-client-truncate",
         "script":  "tools/validate_no_client_truncate.py",
         "args":    [],
@@ -5511,6 +5553,34 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        "id":      "gate_milestone_ratchet",
+        "script":  "tools/gate_milestone_ledger.py",
+        "args":    ["--check"],
+        "label":   "GATE MILESTONE RATCHET (Ian, 2026-08-17: 'save for all the platform gates if we achieve "
+                   "considerable percentage green, like 80% and 100%'). platform_baseline.json is only "
+                   "written when EVERYTHING passes, so the entire climb was unrecorded — there was no way "
+                   "to say when the suite reached 80%, nor to notice it slipping back under. This records "
+                   "each crossing of 80/90/95/100 with its git SHA, its counts, and the NAMES of every "
+                   "failing and skipped gate, then holds it forward-only. ★THE MILESTONE IS CLAIMED ON THE "
+                   "STRICT DENOMINATOR (pass / ALL registered), never on pass/ran: the live run reads 572 "
+                   "pass · 8 fail · 158 skip of 738, which is 77.5% strict but 98.6% excluding skips — two "
+                   "defensible percentages twenty-one points apart from ONE run, where 21% of the suite "
+                   "never executed. The lenient figure is recorded beside it, labelled, because it also "
+                   "IMPROVES when a gate starts skipping (DB down, tool missing, no baseline): the suite "
+                   "goes quieter and the score goes up. Two refusals, both self-tested: a new milestone is "
+                   "REFUSED when total_registered SHRANK since the last one (a higher fraction over a "
+                   "smaller set is a deletion laundered into an achievement — the exact shape of "
+                   "[[feedback_short_denominator_is_a_false_100]] and "
+                   "[[feedback_coverage_improved_by_deleting_obligations]]), and --check FAILS both when "
+                   "strict green falls below an earned rung AND when the registry shrinks beneath the size "
+                   "that rung was earned at, since a percentage-only ratchet would applaud dropping 100 "
+                   "gates. Skipped gates are ENUMERATED with reasons, never averaged away "
+                   "([[feedback_a_skipped_partition_reads_as_a_covered_one]]). Reads platform_health.json "
+                   "that this runner already wrote — it never re-runs the suite. Self-test: --selftest.",
+        "group":   "AI Validation",
+        "report":  "gate_milestone_ledger.json",
+    },
+    {
         # Marketplace Deepwalk EXPANSION arc (2026-07-24) — the ANTI-DRIFT COMPASS with teeth.
         # The arc grows TWO denominators: journeys (20 x 5 phases G/W/O/H/R, each requiring >=2
         # personas AND >=2 states) and new MK dimension classes (10 x 6 stages). This gate is the
@@ -5640,6 +5710,776 @@ VALIDATORS = [
         "label":   "Digest contract (v3 prose defect stays fixed; v4 expires real code AND real markup; "
                    "v3 recordings never reinterpreted; narrowing keeps top-level keys; mutated sources "
                    "restored byte-for-byte)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
+        # ORDER TOTALITY, ASKED OF THE SCHEMA RATHER THAN THE PAGE'S GOOD INTENTIONS. A paginated read
+        # whose ORDER BY does not uniquely determine sequence may return the same row on two pages or
+        # skip it, because Postgres breaks ties as it pleases between two queries. The codebase already
+        # carries the fix in places ("MR4 tiebreaker: the sort above is not total on its own") — this
+        # keeps it true everywhere, and keeps it true against the CATALOG: v_pm_compliance_truth,
+        # v_pm_scope_items_truth and v_inventory_items_truth are VIEWS with no single-column unique
+        # index, so `.order('id')` on them is not self-evidently a tiebreaker.
+        # It reports four verdicts, and the middle two are why it is trustworthy: `total` (the last
+        # order column is unique per pg_index), `total-in-practice` (no unique tiebreaker but zero ties
+        # measured today), `capped-unordered` (a lone `.limit()` row cap — NOT pagination, so no row can
+        # double; worth naming, not a defect) and `NON-TOTAL` (`.range(` with ties, or with no order at
+        # all). Its first version reported 11 of 11 logbook reads NON-TOTAL; both causes were the lens
+        # (a char window that swallowed the next query's `.limit(`, and treating a cap as pagination),
+        # which is why the categories are separated now. Runs on psql via docker exec; skips if the DB
+        # is down, and needs no browser — the local-substitute path when the Playwright MCP is absent.
+        "id":      "order_totality",
+        "script":  "tools/prove_order_totality.py",
+        "args":    ["--gate"],
+        "label":   "Order totality (every paginated read ends in a tiebreaker the CATALOG confirms is "
+                   "unique; a lone .limit() cap is reported, not failed)",
+        "group":   "Platform",
+        "report":  "order_totality_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # THE OTHER HALF OF THE SAME QUESTION. Order totality asks whether the ORDER pins row sequence;
+        # this asks whether two executions of the identical read actually agree, byte for byte, over the
+        # full ordered projection. The two runs are SEPARATE psql connections on purpose: two CTEs in one
+        # statement would let Postgres compute the scan once and compare it with itself, which passes by
+        # construction — the same vacuity as an injection that intercepts zero requests.
+        # AND IT CARRIES A NON-VACUITY CONTROL, because two identical SELECTs against a database nobody
+        # is writing to match almost by definition, so a bare "idempotent" is a pass that cost nothing.
+        # The digest must be shown to MOVE: one row vs two rows of the same relation must hash
+        # differently, or the reading is REFUSED as control-failed instead of reported. Getting that
+        # control right took two corrections — perturbing the read's own `.limit()` compares a
+        # `.limit(1)` read with itself, and a cap ABOVE the relation's size (hive_members has 18 rows
+        # behind `.limit(500)`) makes limit and limit-1 identical, which produced three false
+        # control-failures while the digest was demonstrably sensitive.
+        # SCOPE, stated so a pass is not over-read: this measures the DATABASE's answer, not PostgREST's
+        # serialisation of it. envelope_shape and status_body_agreement need the REST gateway and stay
+        # owed rather than being inferred from here.
+        "id":      "read_idempotency",
+        "script":  "tools/prove_read_idempotency.py",
+        "args":    ["--gate"],
+        "label":   "Read idempotency (the same ordered read twice, over two separate connections, "
+                   "returns the same bytes — with a proven-sensitive digest, not a vacuous match)",
+        "group":   "Platform",
+        "report":  "read_idempotency_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # DOES A QUANTITY CARRY ITS UNIT ACROSS THE BOUNDARY? The defect class is a knob set to 10
+        # meaning 1000% — a number crossing a seam with its scale left to convention, so two callers can
+        # read one column under two conventions and nothing errors. Asks two questions of every column in
+        # the money/credits/percent/duration families: is the unit DECLARED (a CHECK bounding the range, a
+        # column COMMENT, a sibling unit/uom/currency column, or a name that carries the unit itself), and
+        # do the stored values AGREE WITH ONE SCALE — the second asked in SQL, because a percent column
+        # holding both (0,1] and >1 values is storing fractions and whole percents in one place, which is
+        # the defect rather than a smell.
+        # ITS FIRST RUN FLAGGED 21 COLUMNS AND MEANT 7, and the corrections are why it is trustworthy now:
+        # a bare `total` matched total_tokens / total_chunks / xp_total (counts, not money), a bare `min`
+        # matched min_chars and reward_min_per_listing (a character count and a MINIMUM, not minutes), and
+        # a suffix-only self-declaring test called hours_worked / duration_ms / day_count undeclared when
+        # the unit is right there in the name. Reading the output against the schema is what took 21 to 7.
+        # EXPOSURE IS RANKED rather than binary, because "undeclared" means something different for an
+        # empty column than a populated one: a populated one is a LIVE ambiguity, an empty one is latent
+        # and the first writer's guess becomes every later reader's inheritance.
+        "id":      "units_at_boundary",
+        "script":  "tools/prove_units_at_boundary.py",
+        "args":    ["--gate"],
+        "label":   "Units at the boundary (every money/credit/percent/duration column declares its unit "
+                   "by CHECK, comment, sibling column or name — and no column mixes two scales)",
+        "group":   "Platform",
+        "report":  "units_at_boundary_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # DOES NULL MEAN THE SAME THING ON BOTH SIDES? The oracle names its own defect: NULL meant "no
+        # cap" in the DB and arrived as a cap of ZERO in the client. Both halves are measured here.
+        # DB SIDE: every view output column whose whole value is a COALESCE, located by a BALANCED-PAREN
+        # scan (a character window is defeated by COALESCE(a, COALESCE(b, 0)), exactly as one defeated the
+        # order-totality prover). CLIENT SIDE: every `x.col ?? 0` / `|| ''` site that is genuinely a
+        # NULLABLE column of a relation THAT PAGE READS — narrowed that far because the 22 pages contain
+        # 1,557 matching sites and almost none are this defect (`opts.icon || ''` is a render option,
+        # `error.message || ''` is an exception, `target.value || ''` is the DOM).
+        # THE VERDICT TURNS ON A PAIR, NOT ON THE PRESENCE OF A COALESCE, because most are correct:
+        # COALESCE(count(x), 0) is not a defect — for a count, "no rows" and "zero" are THE SAME FACT.
+        # What fails is a substitution a reader cannot distinguish from a real value: avg/min/max
+        # defaulted to 0, a timestamp defaulted to now() (absence becomes the FRESHEST POSSIBLE instant,
+        # and it moves on every read), a non-zero constant standing in for a missing measurement, or a
+        # nullable column defaulted to a value that is legal for its type.
+        # THE TEXT IS ONLY A LOCATOR — the DB gives the verdict. count(*) minus count(col) over the view
+        # must be 0, or the reading was wrong about that column being on the output path and it is dropped
+        # rather than reported (one was). AND A LATENT RISK IS NOT A LIVE DEFECT: the source is counted in
+        # SQL, over the WHOLE fallback chain. The first run reported a live collapse on
+        # COALESCE(knowledge, problem, action, '') from 43 NULL `knowledge` rows when the default needs
+        # all three NULL and that count is zero — one argument tested where three were needed.
+        # NON-VACUITY CONTROL: it must find a view column that really does emit a NULL, or a broken query
+        # would report "nothing coalesced anywhere" and agree with itself forever.
+        # DOES A MULTI-TABLE WRITE LAND WHOLE, OR CAN IT LAND HALF? Two halves, because the oracle has
+        # two. STRUCTURE: a page writing two tables through two awaited client calls has no transaction
+        # around them, so a 500 or a dead network between them leaves the first applied and the second
+        # missing with nothing erroring afterwards; a page that writes one table and lets a TRIGGER or an
+        # RPC write the second is atomic by construction. That linkage is READ OUT of pg_trigger and
+        # pg_proc (each body scanned for INSERT/UPDATE/DELETE targets), never guessed. LEDGER: structure
+        # says a half-write is POSSIBLE, five declared conservation invariants say whether one HAS
+        # happened — and only that half is asserted.
+        # THE INVARIANTS ARE DECLARED WITH THEIR REASONING, because one wrong entry silently converts a
+        # violation into a pass — and two of them exist to record comparisons that MISLEAD.
+        # sum(inventory_transactions.qty_change) differs from inventory_items.qty_on_hand on 65 of 81
+        # items and that is NOT a partial write (opening balances were seeded without an opening
+        # transaction); the invariant that holds is the ledger's own running balance, newest qty_after ==
+        # current qty_on_hand, 81 of 81. And reconciling community_xp against achievement_xp_log reports
+        # 10 of 10 workers mismatched by up to thousands — a CATEGORY ERROR, they are different ledgers.
+        # THIS GATE'S MEASUREMENT FOUND A REAL DEFECT: reply XP was paid by
+        # `PERFORM increment_community_xp(...)` with no award row and no reversal, farmable via the REST
+        # delete path, feeding a COMMERCIAL trust signal. Closed by 20260812000060 and locked by 7 new
+        # checks in validate_community_xp_ledger.py.
+        # NON-VACUITY: the linkage detector must SEE community_posts -> community_post_xp_awards, or a
+        # detector matching nothing would call every pair on the platform client-sequenced.
+        # SCOPE: the pairing is PAGE-level, not ACTION-level, so the client-sequenced count is an upper
+        # bound on structural exposure and is REPORTED rather than failed.
+        # DOES EVERY FIELD NAME STILL EXIST ON THE RELATION IT IS USED AGAINST? A rename on the DB side
+        # that the client still reads by the old name fails differently depending on where the stale name
+        # sits, and the worst case is the silent one: in a .select() list or a filter PostgREST 400s the
+        # whole request, so ONE stale name blanks an entire panel; in an insert/update object the write
+        # 400s and a capture silently fails; but after select('*'), `row.old_name` raises NOTHING — it is
+        # undefined, and combined with the `?? 0` / `|| ''` defaults this platform uses it RENDERS AS A
+        # REAL VALUE. Names are resolved against the LIVE CATALOG, never a hand-kept list, because a
+        # hand-kept list is a second source of truth that drifts from the schema it describes. PostgREST
+        # aliases are resolved to the real column (`id:project_id` names project_id).
+        # ITS FIRST RUN PRODUCED ONE FINDING AND IT WAS FALSE, which is why it reads code and not prose:
+        # it flagged v_project_truth.id, matching an `.order('id')` written inside project-report.html's
+        # seven-line comment explaining why that ordering totalises a DIFFERENT query. The
+        # paginated-order-totality gate had already been bitten by this exact file, so this imports that
+        # gate's line-preserving comment stripper instead of hand-rolling a second one — and stripping
+        # RAISED the count 1606 -> 1611, because fixing the chain windows attributed more real filters.
+        # NON-VACUITY: a column that cannot exist is injected and must be caught, or a regex that
+        # silently matched nothing would report "0 stale" over 0 checked and look perfectly clean.
+        # SCOPE: concatenated select lists, embedded resources, and bare row.property reads after
+        # select('*') are counted as SKIPPED rather than silently dropped; the last is the known gap.
+        # IS WHAT THE CLIENT WRITES WHAT THE DATABASE HANDS BACK? On this platform the interesting answer
+        # is not network corruption — it is that 87 BEFORE triggers DELIBERATELY rewrite NEW.<column> on
+        # the way in, across 54 relations, so a submitted value can differ from the stored one with no
+        # error. The gate therefore asks whether every rewrite is one we can NAME: attribution-rebind (35,
+        # a SECURITY feature — a spoofed worker_name/auth_uid is replaced with the caller's own, which
+        # also means any surface optimistically echoing the form is showing a value the DB refused),
+        # silent-truncation (33), timestamp-stamp (14), status-coercion (2), matching (1),
+        # derived-from-row (1), default-fill (1). An UNEXPLAINED rewrite fails.
+        # THE LIVE HALF, because a possible truncation and an actual one are different facts: all 106
+        # left(NEW.col,N) caps are measured and NONE holds a value at its cap (widest: sow_text 984/4000).
+        # CORRECTED TWICE BEFORE ANY ROW WAS BANKED, neither time by widening until green. A name-only
+        # classifier called 5 legitimate rewrites UNEXPLAINED, so classification now reads the ASSIGNED
+        # EXPRESSION (does it mention now(), is it built from the caller's own NEW columns, is it guarded
+        # by a comparison against the column default). Then apply_hive_broadcast_radius matched
+        # derived-from-row because service_knob(NEW.hive_id,...) mentions a NEW column — but that label
+        # asserts "nothing external overrode their intent" and a hive knob IS external, so default-fill is
+        # now tested first. A label that OVERSTATES what was proven is the same defect as a wrong verdict.
+        # A FINDING THAT WAS NOT ONE, recorded so it is not re-derived: root_cause is capped at 200 while
+        # logbook.html's maxlength=2000 covers only problem/action/knowledge — but f-root-cause is a
+        # SELECT, so the cap is unreachable, and the longest stored value is 20 chars.
+        # NON-VACUITY: the census must SEE logbook.auth_uid rebound by bind_logbook_submitter. It earned
+        # its place immediately — a broken edit dropped the trigger body from the query, the census
+        # returned 0, and the control refused to let that report as a clean bill of health.
+        # WHAT THE HTTP GATEWAY ACTUALLY RETURNS — and these three oracles sat OWED for sessions on a
+        # premise that lived in our own tooling. Two provers documented that they "need the REST gateway,
+        # which is not reachable from this shell (kong publishes no host port)", and one copied that
+        # sentence into banked evidence. FALSE: docker ps shows 0.0.0.0:54321->8000/tcp and one curl with
+        # the publishable key answers 200. A ceiling written into a docstring stops reading like a claim
+        # and starts reading like documentation, which is exactly why it survived.
+        # Real GETs against the live local gateway, 40 relations, three personas — anon with the
+        # publishable key, an AUTHENTICATED member with a minted JWT, and no apikey at all. GET only, so
+        # nothing is written. Result: ZERO envelope defects and ZERO status/body disagreements — the error
+        # body always carries {code,message,details,hint}, an unknown column is 400 (not 500), a
+        # single-object read of 0 rows is 406/PGRST116, and Prefer: count=exact returns Content-Range.
+        # THE FINDING IS ABOUT THE CONTRACT, NOT A BUG: on 26 of 40 relations a REFUSAL IS
+        # INDISTINGUISHABLE FROM ABSENCE — anon and a member both get 200 and a JSON array, differing only
+        # in row count, and a request with NO apikey also gets 200 []. That is PostgREST+RLS by
+        # construction (row filtering is not request refusal), so it is reported rather than failed — but
+        # it is an obligation every surface inherits: decide refusal-vs-absence from SESSION STATE, or an
+        # expired session renders as an empty plant. Some relations answer 42501 instead, which is the
+        # behaviour a client can actually act on.
+        # THREE NON-VACUITY CONTROLS, all required to pass: an unknown column must 400; community_posts
+        # must return rows to anon (it is the public feed, so a 200 [] elsewhere is RLS not a dead key);
+        # and authenticated must out-read anon somewhere, without which the headline finding would be
+        # vacuously true.
+        # ITS OWN FIRST RUN REPORTED TWO DEFECTS THAT WERE BOTH THE PROBE'S FAULT: it queried ?id=eq.<uuid>
+        # on community_xp, which is keyed (worker_name, hive_id) and has no id column, and it treated
+        # projects' 42501 as a shape violation when a coded refusal is a correct envelope.
+        "id":      "http_envelope",
+        "script":  "tools/prove_http_envelope.py",
+        "args":    ["--gate"],
+        "label":   "HTTP envelope at the live gateway (error bodies carry all four keys, status agrees "
+                   "with body; refusal-vs-absence measured across anon/member/no-key)",
+        "group":   "Platform",
+        "report":  "http_envelope_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # THE FOUR BROWSER PROVERS. Everything else in this block reads source or the database; these
+        # four need a signed-in page, and each exists because the cheap version of its measurement was
+        # WRONG in a way that read green (or read as a defect that was not there).
+        # viewport_overflow: the browser's scale factor is measured and divided out — the MCP browser
+        # runs at 1.5x and an unscaled read invented 142 of 398 "offenders"; a width it cannot verify
+        # is refused rather than reported. It also signs in and ASSERTS THE LANDED URL, because an
+        # earlier run measured the sign-in screen for 18 of 22 pages and called it the page.
+        "id":      "cj_viewport_overflow",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "viewport_overflow", "--gate"],
+        "label":   "CJ ui-layout live (no unclipped horizontal overflow at 390/641/1280 on any of the "
+                   "22 production pages; every effective tap target >= 44px, with skipped candidates "
+                   "counted WITH their reason — a labelled radio is activated by its label, so "
+                   "measuring the 16px box instead of the target fabricated 7 defects)",
+        "group":   "Platform",
+        "report":  "viewport_overflow_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # Arms its recorder in addInitScript BEFORE first paint. Arming at readyState 'interactive'
+        # lost the first ~650ms and banked "no loading state" for components that had one.
+        "id":      "ck_component_states",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "component_states", "--gate"],
+        "label":   "CK ui-state live (no component left stuck in a loading or skeleton state — a stuck "
+                   "skeleton is invisible to every other gate: 200 OK, rows returned, promise "
+                   "resolved, axe clean, shimmer forever. A positive control fires per page, and "
+                   "stuck candidates are re-checked after +9s so SLOW is not reported as STUCK)",
+        "group":   "Platform",
+        "report":  "component_states_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # The non-vacuity control is the point: a window wide enough to find real labels is also wide
+        # enough to find SOME text near anything, so a bare 4242 is injected and MUST come back
+        # unlabelled. It caught two pages mid-render, which is the control refusing a half-painted page.
+        "id":      "cm_number_labelled",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "number_labelled", "--gate"],
+        "label":   "CM ux-comprehension live (every number a page renders carries a label naming what "
+                   "it is, proven with an injected bare-number control per page so the zero is "
+                   "load-bearing rather than free; ordinals and asset codes excluded WITH reasons)",
+        "group":   "Platform",
+        "report":  "number_labelled_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # getComputedStyle CANNOT answer this — headless resolves env(safe-area-inset-*) to 0px, so a
+        # computed read cannot distinguish "declared" from "absent". The AUTHORED css is read over CDP.
+        # SEVEN corrections; the last two are the ones that matter. Matching the inset DIRECTION to the
+        # pinned edge stopped a false GREEN on index (a padding-BOTTOM rule passing a TOP-pinned nav),
+        # and refusing the ancestor credit for a viewport-pinned box stopped two more: `position:fixed`
+        # is never displaced by ancestor padding, and `position:sticky` is covered at rest but pins to
+        # viewport top 0 the moment the page scrolls — which is exactly when a person is reading it.
+        "id":      "cj_safe_area",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "safe_area", "--gate"],
+        "label":   "CJ safe-area live (every piece of edge-pinned chrome declares the safe-area inset "
+                   "for the edge IT is pinned to, read from the authored CSS over CDP; the "
+                   "DECLARATION is proven, rendering on a notched device is not, and that limit is "
+                   "stated on every row rather than implied)",
+        "group":   "Platform",
+        "report":  "safe_area_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # NOT a presence check. A back control that exists and lands somewhere unrelated is worse than
+        # none, because discovering that costs a navigation. wayfinding.js defines the destination in a
+        # fixed order (?from= slug -> same-origin referrer -> PARENT[path] -> index.html), so each page
+        # is driven TWICE: once arriving from a referrer, once with none, because those are different
+        # promises. The referrer is chosen to be neither the page nor its mapped parent — using `hive`
+        # for everything made both branches expect the same destination on the three pages whose parent
+        # IS hive, where a component that ignored the referrer entirely would have passed both.
+        "id":      "co_back_out",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "back_out", "--gate"],
+        "label":   "CO ux-recovery live (every non-home page offers a reachable in-app way OUT that "
+                   "lands where the platform's own wayfinding contract says it should, proven on both "
+                   "the referrer branch and the parent-map branch; the mirrored PARENT map is read "
+                   "back out of wayfinding.js each run, so a drifted copy fails loudly instead of "
+                   "grading every page against the wrong destination)",
+        "group":   "Platform",
+        "report":  "back_out_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # The failure this platform has shipped three times in three different costumes: a read that
+        # could NOT have succeeded renders as though it had. Two moderation badges asserting "0 waiting"
+        # on a failed read; a 42501 telling a signed-IN buyer their session had expired; skillmatrix
+        # offering first-run onboarding after a failed read, overwriting the discipline the worker had
+        # already picked. Every time the page was confident and wrong.
+        # NOT graded as "does it redirect to sign-in" — several of these surfaces are legitimately
+        # readable signed-out, so a redirect is only ONE honest answer. Three are accepted and NAMED
+        # (redirect/prompt, empty-with-a-reason, genuinely-public-and-identical); what fails is the
+        # fourth behaviour, hive-scoped numbers or unexplained zeros standing in for data that isn't
+        # there. The session is killed in localStorage (supabase-js persists `sb-<ref>-auth-token`
+        # there, NOT in a cookie, so clearCookies would leave the page signed in and measure nothing),
+        # every `sb-*` key is swept rather than one hardcoded project ref, and the signed-in reading is
+        # taken FIRST as a control — a probe that cannot prove it changed anything cannot report that
+        # the change was handled well.
+        "id":      "co_session_died",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "session_died", "--gate"],
+        "label":   "CO ux-recovery live (a dead session is never presented as signed-in data: every "
+                   "page either redirects/prompts, states why it is empty, or is genuinely public and "
+                   "identical — never confident zeros standing in for a read that could not succeed)",
+        "group":   "Platform",
+        "report":  "session_died_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # ADOPTION half of CO back_out for the modal views, and static on purpose. Driving 17 modals live
+        # needs each page's OPENER, and the roadmap records what guessing those costs (a generic label
+        # regex matched "Load more posts" instead of a composer). The way out of a modal is not per-page
+        # anyway — it is one shared helper, whModalA11y, which wires Escape + focus-restore; so this asks
+        # the question that IS answerable from source: is each dialog view registered with it.
+        # THREE OUTCOMES, NOT TWO, and that distinction is the whole value. Its first run reported SIX
+        # pages with "no registered keyboard way out" — including inventory's #part-modal, whose
+        # registration at inventory.html:585 I had read minutes earlier. The loop regex captured the
+        # forEach body as a LAZY `([\s\S]{0,400}?)\)`, which stopped at the first `)` — the one in
+        # `document.getElementById(id)` — so the capture ended before `whModalA11y(el)`. Fixed, 6 became 3.
+        # Then the remaining 3 turned out to hand-roll the behaviour rather than lack it
+        # (community.html:2822 states it outright, resume.html:2088 has its own handler), so calling them
+        # failures was a second over-claim. Now: no way out at all = FAIL; registered with the helper =
+        # PASS; hand-rolled = UNGRADED with the divergence recorded, because a page-level Escape handler
+        # is evidence the page implements this, not proof it covers THAT modal. Result: 0 failing, 10
+        # modals on the helper, 5 hand-rolled across community/index/resume — a real CENTRALIZE-FIRST
+        # divergence this gate now holds at its current size. The BEHAVIOUR half stays with
+        # arc_u_focus_trap_probe.mjs; adoption alone is never banked as a green
+        # (feedback_banner_adoption_is_not_write_refusal).
+        "id":      "co_modal_escape_adoption",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "modal_escape", "--gate"],
+        "label":   "CO ux-recovery, modal-exit ADOPTION (every V2/V3 dialog view named in "
+                   "page_bank_anatomy has a keyboard way out; registration with the shared whModalA11y "
+                   "helper PASSES, a hand-rolled Escape handler is UNGRADED with the divergence "
+                   "recorded for centralization, and only a dialog with neither FAILS)",
+        "group":   "Platform",
+        "report":  "modal_escape_adoption_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # BEHAVIOUR half, and it found a real WCAG 2.4.3 defect that adoption alone certified as fine.
+        # resume's #resume-manager closed on Escape but left focus on BODY, with the opener still in the
+        # DOM, visible and focusable. Instrumenting HTMLElement.prototype.focus showed the restore firing
+        # at #rm-current-title — an element INSIDE the just-hidden sheet — so focus fell to the body.
+        # ROOT CAUSE was a DUPLICATE focus manager, not a missing one: #resume-manager is
+        # `class="sheet-overlay"`, and utils.js:2800-2830 (whSheetA11y) auto-wires every
+        # .sheet-overlay/.modal-overlay through whModalA11y at load and on mutation. resume ALSO kept its
+        # own trapFocus/releaseFocusTrap pair, whose single global `_lastFocused` slot captured
+        # activeElement AFTER the shared helper had already moved focus into the sheet. On Escape both
+        # restored, and the page's stale in-sheet element won. Removing the page's duplicate trap for its
+        # two auto-wired sheets fixed it — verified focus=true (#btn-resumes) — while #preview-overlay
+        # KEEPS the hand-rolled trap, because its class is `.preview-overlay`, which whSheetA11y does not
+        # sweep. Exactly the CENTRALIZE-FIRST failure: a hand-rolled copy left in place after the shared
+        # wirer arrived, where each mechanism alone would have been correct.
+        # Two assertion strengths, deliberately: Escape-closes is proven for every target; focus-restore
+        # ONLY where a real opener ELEMENT is clicked, because whModalA11y restores to whatever was active
+        # at open time — open a dialog by calling the page's function and that is <body>, so asserting
+        # restore there would measure the probe's own starting state.
+        "id":      "co_modal_escape_live",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "modal_escape_live", "--gate"],
+        "label":   "CO ux-recovery, modal-exit BEHAVIOUR live (Escape closes each V2/V3 dialog and focus "
+                   "returns to the control that opened it; every target's open path is a source ref, "
+                   "never a label guess, and focus-restore is asserted only where a real opener element "
+                   "was clicked)",
+        "group":   "Platform",
+        "report":  "modal_escape_live_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # CJ measured INSIDE the opened V2/V3 dialogs — rows that sat owed not because the oracle was hard
+        # but because nobody could open those views. Resolving all 15 dialog open paths for the CO back_out
+        # work removed the blocker; the table is shared via tools/dialog_targets.mjs so the two provers
+        # cannot drift. Scoped to the DIALOG element, never document.body, or a sheet overlaying the page
+        # would re-measure V1 and bank it as V2.
+        # THE TAP-TARGET RULE IS PORTED VERBATIM FROM prove_viewport_overflow.mjs. The first cut omitted
+        # four of V1's exclusions (sr-only, disabled, the actionable check, the WCAG 2.5.5 inline-link
+        # exception) and REPLACED a control's rect with its label instead of UNIONING them — a stricter
+        # ruler at V2 than V1 manufactures a difference between the views and calls it a defect. With V1's
+        # exact rule the count came back identical, which is what makes the findings real.
+        # RESULT: 13 of 15 dialogs graded (resume's #review-sheet has no read-only path in; hive's
+        # #handover-sheet cannot be reached at all), ZERO unclipped overflow in all 13, and 10 of 13 clean
+        # on tap targets. Three fail and they share a shape: 36px chips (inventory .asset-tag,
+        # report-sender .label-pill), 40px tabs and an 11.7x20 close button (index #signin-modal).
+        # CM IS MEASURED HERE AND DELIBERATELY ABSTAINS: its non-vacuity control FAILS inside a dialog,
+        # because a dialog's whole subtree is usually under the 400-char ancestor-text cap so the top
+        # ancestor "labels" every number. The control refusing to let a free zero be banked is the control
+        # working; CJ still reports because it is geometric.
+        "id":      "cj_dialog_layout",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "dialog_layout", "--gate"],
+        "label":   "CJ ui-layout inside the V2/V3 DIALOGS (each opened by its own source-read path: no "
+                   "unclipped horizontal overflow at 390 and every effective tap target >= 44px, on the "
+                   "same ruler that banked 750/750 at page level; CM abstains per dialog because its "
+                   "control cannot discriminate at that scope, so those rows stay owed)",
+        "group":   "Platform",
+        "report":  "dialog_layout_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # CL inside the opened V2/V3 dialogs — three of its five oracles, and the two omissions are
+        # deliberate: contrast_wcag/contrast_apca are NOT computable from the CSSOM here (uncomposited
+        # alpha reads a ratio of 1.00 and a gradient defeats a single-colour sample), so those rows stay
+        # OWED rather than banked from a number known to be wrong.
+        # FOUR INSTRUMENT CORRECTIONS, every one of which would have shipped false findings:
+        #  1. focus was driven with el.focus(), and `:focus-visible` deliberately does NOT match a
+        #     PROGRAMMATIC focus in Chromium. It reported resume 0/3, achievements 0/1, inventory 7/25 —
+        #     while index passed 9/9 only because index styles plain `:focus`. Now focus is driven by TAB,
+        #     which is what a keyboard user does.
+        #  2. the baseline was captured while the dialog had ALREADY autofocused its first control, so that
+        #     control's "unfocused" style was its focused style and it read as having no indicator. Now any
+        #     focus inside the dialog is blurred before the baseline. (This surfaced only after the
+        #     duplicate focus trap was removed from resume — the fix exposed it.)
+        #  3. reduced_motion flagged every transition, including Tailwind's transition-colors, and called
+        #     index's close button and both auth tabs defects. WCAG 2.3.3 is about MOTION; a 150ms colour
+        #     change is not motion. Only transform/offset/dimension transitions and keyframe animations
+        #     count now, and spinners are exempt and counted — an indeterminate indicator that stops
+        #     animating stops meaning anything.
+        #  4. innerText is not used for names (it returned '' for visible controls in an earlier arc and
+        #     inflated the unnamed count 0 -> 12); textContent plus a glyph test instead.
+        # A FRESH CONTEXT PER DIALOG, because reduced-motion is emulated per context and a leaked
+        # emulation would measure every later dialog under the wrong media state.
+        "id":      "cl_dialog_a11y",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "dialog_a11y", "--gate"],
+        "label":   "CL ui-visual inside the V2/V3 DIALOGS (every control has an accessible name; focus is "
+                   "visible, verified CAUSALLY by tabbing and comparing each control against its own "
+                   "unfocused baseline rather than trusting a stylesheet rule; nothing moves under "
+                   "prefers-reduced-motion, with spinners exempt and counted. Contrast is NOT claimed — "
+                   "it is not computable from the CSSOM here, so those rows stay owed)",
+        "group":   "Platform",
+        "report":  "dialog_a11y_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # CO session_died one level IN: with the session killed, what happens to the DIALOG / TAB / SECTION?
+        # Reuses tools/dialog_targets.mjs, so these are the same views the layout and a11y provers measure.
+        # UNREACHABLE COUNTS AS A PASS, and recognising that is the point — it is the answer most of this
+        # platform gives (10 of 22 pages redirect to index on a dead session) and it is the correct one: with
+        # no session there is no view, so there is nothing to mislead anyone with. What FAILS is a view that
+        # opens and still shows values that outlived the session, or bare zeros with no explanation.
+        # THE SIGNED-IN READING IS THE CONTROL: a view that cannot be opened even WITH a session is UNGRADED,
+        # never passed, or "unreachable" would be indistinguishable from "unreachable BECAUSE the session is
+        # gone" — which is the entire question.
+        # TWO CORRECTIONS, both caught pre-bank. It reported achievements' #levelup-overlay as leaking the
+        # value "2" — which is the newLevel argument the probe itself passes to showLevelUpModal, i.e. its own
+        # input rendered back at it; that target is now flagged syntheticContent and this oracle abstains on
+        # it. And it judged only the VIEW's text for an explanation, reporting analytics V2/V3 as unexplained
+        # while the PAGE around them had changed to a signed-out state — a section may be legitimately empty
+        # if the page says why, so the page-level signal now counts too.
+        "id":      "co_dialog_session_died",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "dialog_session_died", "--gate"],
+        "label":   "CO ux-recovery at V2/V3 (with the stored session removed, no dialog, tab or section "
+                   "opens and presents figures that outlived it; redirect-before-open and "
+                   "empty-with-a-stated-reason both count as honest, and a view unopenable even WITH a "
+                   "session is ungraded rather than passed)",
+        "group":   "Platform",
+        "report":  "dialog_session_died_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # CO back_out for the TAB and SECTION views, and it is a genuinely different question from the modal
+        # one rather than a workaround. A dialog's way out is Escape (co_modal_escape_live owns that). A tab
+        # or section has NO Escape — pressing it there should do nothing — so that prover skips them, which
+        # left these rows owed. What matters for a tab is whether the PAGE-LEVEL way out survives the view
+        # being open: a tab that quietly breaks the back affordance strands someone as effectively as a modal
+        # with no close button. The view is confirmed OPEN before the affordance is looked for, so a failure
+        # is a property of the view and not of the page at rest.
+        # Contract is wayfinding.js's own, and the mirrored PARENT map is re-read from that file every run so
+        # a drifted copy fails loudly instead of grading against the wrong destination. The referrer is chosen
+        # to be neither the page nor its mapped parent, so a tier-1 affordance can only pass by honouring the
+        # referrer rather than falling through to the parent map; a tier-2 (the page's own in-layout link) is
+        # NOT referrer-aware and that weaker guarantee is recorded on the row rather than failed.
+        # ONE CORRECTION, carried over rather than rediscovered: index is HOME, and wayfinding.js skips
+        # IS_HOME by design, so its landing was reported as "NO way out is visible" — true, and the specified
+        # behaviour. It is declared-na, matching the V1 row already banked for the same reason; failing it
+        # would have contradicted a green row on the same page.
+        "id":      "co_dialog_back_out",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "dialog_back_out", "--gate"],
+        "label":   "CO ux-recovery for TAB/SECTION views (with each view OPEN, the page-level way out is "
+                   "still visible and still lands where wayfinding.js's contract says; home is declared-na "
+                   "because IS_HOME deliberately has no back affordance)",
+        "group":   "Platform",
+        "report":  "dialog_back_out_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # CM why_refused — induces a REAL PostgREST row-level-security refusal (403 + 42501 "permission denied
+        # for table") on every read via a window.fetch patch, then asks whether the page tells the person WHY.
+        # THE GOOD NEWS FIRST: zero of 16 graded pages blamed IDENTITY for the refusal. That inversion is a bug
+        # this platform HAS shipped (a 42501 rendered as "your session has expired", sending a signed-IN person
+        # to re-authenticate for something authentication cannot fix), and utils.js:1607 whIsAuthFailure() is
+        # why it is now absent: it returns FALSE for 403 with the comment "authenticated, and refused. Not a
+        # session problem". That discrimination is holding.
+        # THE FINDING IS ONE MISSING SURFACE, NOT 15 PAGE BUGS: 13 of 16 pages said NOTHING when every read was
+        # refused, 2 showed only a generic error, 1 passed. On logbook "516 entries 30 machines 6 open" became
+        # "- entries - machines - open" with the body text identical to the character (1107 before and after)
+        # and no word about why. The platform has a central WRITE-failure message and the correct 401-vs-403
+        # discriminator; the READ path has no equivalent. One adoption, not fifteen edits.
+        # THE INJECTION PROVES ITSELF, because the first version silently did not run: a regex written inside a
+        # template literal collapsed to one terminating at its second character, so the init script was a
+        # SyntaxError, every read succeeded, and the prover reported "the reads were all refused and the page
+        # said nothing" while nothing had been refused. Now every intercepted call increments a counter (8-42
+        # per page on the recorded run) and a zero-hit page is UNGRADED rather than judged.
+        # CN ux-journey, the family that had 330 rows and not one walk. Extends the discipline in
+        # tests/ux-journeys.spec.ts (which covers only the 4 marketplace surfaces) to the 22 product pages:
+        # every step asserts the TRANSITION rather than that a control was clickable, and a journey that
+        # cannot be CONSTRUCTED fails instead of skipping. Personas are not invented here — each page's own
+        # page_bank_anatomy/<page>.json `journey_personas` supplies the label, and a label this harness
+        # cannot establish FAILS rather than quietly defaulting to a signed-in worker.
+        # The tooth: skillmatrix once asked a worker to re-pick a discipline they had already chosen,
+        # because the READ had failed and onboarding was the fallback — which a naive "did they reach
+        # something actionable?" check scores as a PASS while it is about to overwrite their real setup.
+        # So an onboarding screen counts as value only if the page's own reads SUCCEEDED, counted from the
+        # network rather than guessed.
+        # CM reward_explained. The reward pattern is a REGEX LITERAL handed over as .source, never a
+        # hand-escaped string: '\d' inside a JS single-quoted string collapses to 'd', which silently
+        # matched nothing and reported every page as having no rewards at all. The same collapse once made
+        # a whole injection script inert. The element must also BE the figure, not prose mentioning one —
+        # "4 of 12 domains touched at Level 1+" matches on "Level 1" and is a sentence, not a reward.
+        # CC failure-injection for the 20 product pages. It found and closed a real gap on its first run:
+        # the transport notice hung off `.then(res => …)`, so a REJECTED or ABORTED fetch — which never
+        # produces a res — skipped it entirely. logbook answered a dead network with zero page errors,
+        # zero console errors and not one word on screen. utils.js now notices transport failures in a
+        # `.catch` that RE-THROWS (the wrapper's own note forbids swallowing the error callers surface).
+        # Two instrument traps are baked in: the patch is installed via addInitScript so supabase-js
+        # constructs its client around it (a post-load override silently no-ops), and the hang stub
+        # honours the AbortController — without that it suppressed the very timeout under test.
+        "id":      "cc_failure_injection",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "failure_injection", "--gate"],
+        "label":   "CC failure-injection (500 / 401 / timeout / offline: a failed read renders a FAILURE, "
+                   "never an emptiness, a stuck skeleton, or silence; injection is hit-counted so a "
+                   "page where it never fired is ungraded rather than judged)",
+        "group":   "Platform",
+        "report":  "failure_injection_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # ★ WHY A GATE AND NOT A BANK ROW. PB-logbook-105 asserts "LOTO status is read from the
+        # loto_applied column, never re-derived from a free-text regex" — a claim about DERIVATION,
+        # which none of the bank's evidence kinds (live-walk / gate / psql / declared-na) lets a source
+        # reading satisfy. Writing the check makes the claim re-provable on every run instead of
+        # resting on one afternoon's grep.
+        # WHY IT EARNS A GATE AT ALL: lock-out/tag-out is the record that a machine was isolated before
+        # someone put their hands in it. `entry.loto_applied` is a boolean a worker set — auditable and
+        # defensible to DOLE. `/loto/i.test(entry.action)` is an INFERENCE that reads "applied" for
+        # "LOTO not required" and "not applied" whenever someone isolated the machine and did not write
+        # the word. Both directions are dangerous; the second invites a supervisor to "correct" a
+        # record that was already right.
+        # Verified both ways before registering: clean exit 0; a planted
+        # `/loto|lock ?out/i.test(entry.action)` caught at its exact line with exit 1.
+        "id":      "safety_field_provenance",
+        "script":  "tools/validate_safety_field_provenance.py",
+        "args":    [],
+        "label":   "Safety field provenance (LOTO / permit come from their COLUMN, never inferred from "
+                   "free text — an isolation record guessed from prose is true when the word appears "
+                   "and false when a worker isolated the machine without writing it)",
+        "group":   "Platform",
+        "report":  "",
+        "skip_if_fast": False,
+    },
+    {
+        # CI is the family that asks an ENGINEERING question rather than a software one: is this the
+        # ISO 14224 definition of MTBF, does this OEE state which factor is missing, does this reorder
+        # point name the threshold it crossed. A page can be flawless software and still be wrong here,
+        # and the person it misleads is a planner making a decision about a plant.
+        # ★ REGISTERED RED, DELIBERATELY, and that is the point of registering it. It currently fails on
+        # 8 measured findings (analytics states no PM tolerance window and no rolling-vs-calendar;
+        # pm-scheduler names neither its 90-day compliance window nor a tolerance; asset-hub gives no
+        # 1-10 RPN range or critical band and no sensor age; hive's readiness cannot be fully
+        # decomposed; inventory suggests a reorder with no lead time — that last one needs a schema
+        # column, so it is Ian's call, not a patch). Precedent: co_modal_escape_live is red by design on
+        # the hive handover finding. A gate that goes green only once real defects are fixed is the
+        # forward-only ratchet working; hiding it until then would be the coverage-by-deletion move this
+        # bank exists to prevent.
+        # Every pattern it uses was HARVESTED FROM A LIVE RENDER, it records the exact string it matched
+        # so a verdict can be audited without re-running it, and `--selftest` plants a satisfying AND a
+        # violating text per check so one that cannot fire is caught before it banks anything.
+        "id":      "cm_quota_legible",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "quota_legible", "--gate"],
+        "label":   "CM what_does_it_cost, QUOTA half — a rate limit must be reported AS a rate limit. "
+                   "Model quota is invisible until you hit it, so the constraint is INDUCED: every "
+                   "AI/orchestrator invoke is answered 429 and the surface is read. LOCKS A CLASS FOUND "
+                   "THREE TIMES AND FIXED (2026-08-17): assistant collapsed every gateway failure into a "
+                   "single null and said 'Assistant timed out. Please retry on a faster connection'; "
+                   "shift-brain matched 429 with a network-error regex, so a rate limit read as 'Shift "
+                   "planner is offline locally. Run npx supabase functions serve' — a developer command "
+                   "shown to a plant supervisor; report-sender carried a COMMENT asserting invoke() parses "
+                   "the body into `data` on a non-2xx, which it does not in this client version, so the "
+                   "toast fell through to 'All reports failed, check connection and try again'. One shape: "
+                   "a broad failure classifier swallowing a specific actionable cause, and all three sent "
+                   "someone chasing bandwidth while the connection was fine and the service was busy. "
+                   "Messages are sampled ACROSS the window (they are ~1s toasts) and controls are clicked "
+                   "in-page (shift-brain's has offsetParent null), because both shortcuts previously "
+                   "produced a false 'the surface said nothing'. A page whose action draws no invoke is "
+                   "UNGRADED, never failed — no quota spent means nothing to be legible about.",
+        "group":   "Platform",
+        "report":  "quota_legible_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "ci_domain_truth",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "domain_truth", "--gate"],
+        "label":   "CI domain-truth (a metric names its standard AND its basis, a partial figure is "
+                   "labelled partial, a reorder names its threshold, a composite states its bands — "
+                   "RED by design on 8 measured findings until they are fixed)",
+        "group":   "Platform",
+        "report":  "domain_truth_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "cm_reward_explained",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "reward_explained", "--gate"],
+        "label":   "CM ux-comprehension (a reward figure — XP, level, tier — states its criteria in its "
+                   "own card: what earns it or the threshold it sits at; a page with no reward on screen "
+                   "is not applicable and stays owed rather than being failed)",
+        "group":   "Platform",
+        "report":  "reward_explained_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "cn_journey",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "journey", "--gate"],
+        "label":   "CN ux-journey (a first-timer reaches value without a dead end and a returning person "
+                   "is not made to redo setup, walked as each page's own grounded persona; onboarding "
+                   "shown over a failed read is a failure, not value)",
+        "group":   "Platform",
+        "report":  "journey_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "cm_why_refused",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "why_refused", "--gate"],
+        "label":   "CM ux-comprehension (a 42501/403 read refusal must be explained by NAMING permission: not "
+                   "blamed on identity, not left as a bare generic error, not silent. The injection counts "
+                   "its own hits and a zero-hit page is ungraded; a page whose ordinary copy already matches "
+                   "the vocabulary is ungraded too, so the signal has to APPEAR)",
+        "group":   "Platform",
+        "report":  "why_refused_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "values_survive_write",
+        "script":  "tools/prove_values_survive_the_write.py",
+        "args":    ["--gate"],
+        "label":   "Values survive the write (every BEFORE-trigger rewrite of a submitted value belongs "
+                   "to a named class, and no capped column has truncated stored text)",
+        "group":   "Platform",
+        "report":  "values_survive_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "field_names_survive",
+        "script":  "tools/prove_field_names_survive.py",
+        "args":    ["--gate"],
+        "label":   "Field names survive the seam (every literal column name a page uses still exists on "
+                   "the relation it is used against, resolved against the live catalog)",
+        "group":   "Platform",
+        "report":  "field_names_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "write_atomicity",
+        "script":  "tools/prove_write_atomicity.py",
+        "args":    ["--gate"],
+        "label":   "Write atomicity (no declared ledger invariant shows a half-applied write; "
+                   "client-sequenced write pairs reported as structural exposure)",
+        "group":   "Platform",
+        "report":  "write_atomicity_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "null_semantics",
+        "script":  "tools/prove_null_semantics.py",
+        "args":    ["--gate"],
+        "label":   "NULL semantics across the seam (no view column and no client `?? 0` substitutes a "
+                   "value a reader could mistake for a real one, for a NULL that is present today)",
+        "group":   "Platform",
+        "report":  "null_semantics_report.json",
+        "skip_if_fast": True,
+    },
+    {
+        # THE FIRST DEFECT THE PAGE BANKS FOUND, AND THE GATE THAT KEEPS IT DEAD. Walking
+        # PB-community-057 on 2026-08-05 measured three cycles of (post a category='safety' post ->
+        # soft-delete it) moving one worker's community_xp from 185 to 260 with ZERO posts left visible
+        # on any feed. community_xp was a running TOTAL with no ledger, so no award could be attributed
+        # to the post that earned it and nothing could reverse one — the one-sided-write class, in
+        # reputation instead of pesos. It reached further than gamification: community_xp feeds the hive
+        # board, achievements XP parity, and the community->commerce reputation seam
+        # (get_community_reputation / v_marketplace_sellers_truth), so farmed XP inflated a COMMERCIAL
+        # trust signal.
+        # The load-bearing check here is LIVE, not structural: it re-runs the original farm in a
+        # rolled-back transaction and fails if the total moves. A structural "table exists, triggers
+        # attached" check would stay green through a logic change that silently stopped reversing,
+        # which is the exact false-green shape this whole bank exists to end. Proven by fault
+        # injection: disabling trg_community_post_visibility_xp turns it RED.
+        # A SKELETON MAY NOT OUTLIVE ITS LOAD. Found 2026-08-05 walking PB-logbook-126: the logbook
+        # entry feed showed a permanent shimmer, still there at 14s, on the platform's primary capture
+        # surface. NOTHING existing could have caught it — the request returned 200, 200 rows were
+        # loaded, loadEntries resolved in 58ms, the console was silent at warning level and above, axe
+        # reported zero violations and every static validator passed. The page simply looked slow,
+        # forever. Root cause was a contract violation: loadEntries() paints the skeleton whenever the
+        # list is empty, while its own comment says "Mine-mode only"; in team mode renderEntries clears
+        # the list and shows a search prompt, then the init-time personal load re-painted a placeholder
+        # no later render would clear.
+        # RESOLVED 2026-08-06. This note used to call the headless auth a known limitation; it was not
+        # one. The probe must sign in to reach the surfaces that paint list skeletons, and it failed with
+        # "name resolution failed" — which reads like DNS and points at the wrong layer entirely. Sign-in
+        # goes through the `login` EDGE FUNCTION; the supabase_edge_runtime_workhive container was
+        # stopped, and Kong words an unresolvable upstream exactly that way. A `docker start` took this
+        # gate from SKIP to PASS on 8 of 8 surfaces, each with a real signed-in render of 1,145-4,707
+        # chars. Before believing a DNS or credential story, check that the container is up.
+        # The non-vacuity floor (MIN_RENDERED_CHARS) stays and stays load-bearing — its first run PASSED
+        # three pages at an identical 407 chars, the signed-out shell, where "no skeleton" was true only
+        # because there was no page.
+        "id":      "skeleton_resolves",
+        "script":  "tools/validate_skeleton_resolves.py",
+        "args":    ["--settle", "9"],
+        "label":   "Loading skeletons resolve (no shimmer may outlive its load; a stuck placeholder is "
+                   "invisible to console, axe and every static check — logbook's team-mode orphan)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
+        # LATE CONTENT MAY NOT PUSH THE PAGE, AND A RESERVATION MAY NOT ROT IN SILENCE. Found 2026-08-06
+        # walking PB-project-manager: CLS 0.108 against the 0.1 budget, caused not by a missing
+        # reservation but by two that had gone SHORT — #pm-mgr-source-chip reserved 54px and rendered 62,
+        # #pm-verdict reserved 99 and rendered 102. Eleven px of drift across two hand-picked numbers
+        # nobody re-measured after the copy changed.
+        # WHY 11px COST 0.108: CLS is impact-fraction x distance-fraction, and both reservations sit near
+        # the top of #list-view, so everything below them moved together — verdict, stat row, action
+        # card, tab strip, filter row, about 95% of the viewport. A small miss at the TOP of a page is
+        # not a small defect. Fixing the two numbers took it to 0.0066.
+        # WHY A GATE AND NOT A CODE REVIEW: nine surfaces each hand-pick a pixel for the SAME component
+        # (the empty <p> renderSourceChip() fills) and they disagree by 6x — 27, 30, 40, 54, 54, 62, 76,
+        # 161. Each was right when measured and each rots silently when the copy, font or breakpoint
+        # moves. Nothing recomputed them and nothing noticed.
+        "id":      "cls_reservations",
+        "script":  "tools/validate_cls_reservations.py",
+        "args":    ["--settle", "9"],
+        "label":   "Late-filled blocks don't push the page (CLS <= 0.1 per surface; reports which "
+                   "min-height reservation has gone SHORT, because layout-shift sources name the blocks "
+                   "that MOVED, never the one that grew)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "community_xp_ledger",
+        "script":  "tools/validate_community_xp_ledger.py",
+        "args":    [],
+        "label":   "Community XP is attributable, reversible and unfarmable (award ledger keyed "
+                   "(post_id, reason); reversal hangs on the deleted_at TRANSITION because the product "
+                   "soft-deletes — an ON DELETE trigger would never fire on a real person's delete; "
+                   "live teeth re-run the farm and require zero drift)",
         "group":   "Platform",
         "report":  None,
         "skip_if_fast": True,
@@ -6956,34 +7796,71 @@ VALIDATOR_TIMEOUT_SECONDS = 1200  # per-validator hard cap; hung child gets SIGT
 # the signal to refactor it (index by tail-N bytes / parallelize tables).
 
 
+def _kill_process_tree(pid):
+    """Kill the child AND every descendant.
+
+    subprocess.run(timeout=) kills only the DIRECT child. A validator driving Playwright leaves
+    node/chromium GRANDCHILDREN alive, and they inherited the stdout pipe -- so the kill is
+    followed by a communicate() that blocks forever waiting for an EOF a live browser will never
+    send. The suite then hangs with no timeout left to save it.
+
+    Measured 2026-08-20, three times in ONE run: the suite process sat at 0.00 CPU-sec/25s while a
+    single node worker idled at ~1%, and each time killing node by hand let the suite advance
+    within seconds. The old comment claimed "hung child gets SIGTERM" -- there is no SIGTERM on
+    Windows, and it would not have reached the grandchildren in any case.
+    """
+    if os.name == "nt":
+        try:
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)],
+                           capture_output=True, text=True, timeout=60)
+        except Exception:
+            pass
+    else:
+        import signal as _signal
+        try:
+            os.killpg(os.getpgid(pid), _signal.SIGKILL)
+        except Exception:
+            pass
+
 def run_validator(v):
     if not os.path.exists(v["script"]):
         return {"status": "ERROR", "reason": f"Script not found: {v['script']}", "output": ""}
 
     cmd = [PYTHON, v["script"]] + v["args"]
     t0  = time.time()
+    popen_kw = {}
+    if os.name != "nt":
+        popen_kw["start_new_session"] = True   # so the whole group can be signalled
     try:
-        result = subprocess.run(
-            cmd, capture_output=True, text=True,
-            encoding="utf-8", errors="replace",
-            timeout=VALIDATOR_TIMEOUT_SECONDS,
-        )
+        proc = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            text=True, encoding="utf-8", errors="replace", **popen_kw)
+    except Exception as ex:
+        return {"status": "ERROR", "reason": str(ex), "output": "", "elapsed": 0}
+    try:
+        out, err = proc.communicate(timeout=VALIDATOR_TIMEOUT_SECONDS)
         elapsed = round(time.time() - t0, 1)
-        stdout  = (result.stdout or "") + (result.stderr or "")
-        status  = "PASS" if result.returncode == 0 else "FAIL"
+        stdout  = (out or "") + (err or "")
+        status  = "PASS" if proc.returncode == 0 else "FAIL"
         return {"status": status, "output": stdout, "elapsed": elapsed}
-    except subprocess.TimeoutExpired as ex:
-        # Child has been killed by subprocess.run. Capture whatever it
-        # wrote before the timeout so we can see where it hung.
+    except subprocess.TimeoutExpired:
+        # THE TREE, not just the child. Draining only becomes possible once the
+        # grandchildren holding the inherited pipe are gone (see _kill_process_tree).
+        _kill_process_tree(proc.pid)
+        try:
+            out, err = proc.communicate(timeout=60)
+        except Exception:
+            out, err = "", ""
         elapsed = round(time.time() - t0, 1)
-        partial = (ex.stdout or "") + (ex.stderr or "")
+        partial = (out or "") + (err or "")
         return {
             "status":  "FAIL",
-            "reason":  f"hung; killed after {VALIDATOR_TIMEOUT_SECONDS}s",
-            "output":  partial + f"\n[TIMEOUT — killed after {VALIDATOR_TIMEOUT_SECONDS}s]",
+            "reason":  f"hung; process TREE killed after {VALIDATOR_TIMEOUT_SECONDS}s",
+            "output":  partial + f"{chr(10)}[TIMEOUT — process TREE killed after {VALIDATOR_TIMEOUT_SECONDS}s]",
             "elapsed": elapsed,
         }
     except Exception as ex:
+        _kill_process_tree(proc.pid)
         return {"status": "ERROR", "reason": str(ex), "output": "", "elapsed": 0}
 
 

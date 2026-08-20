@@ -127,6 +127,10 @@ verify_jwt = false
 enabled = true
 verify_jwt = false
 
+[functions.resend-webhook-receiver]
+enabled = true
+verify_jwt = false
+
 # verify_jwt = TRUE, unlike its sibling above: this one is called by a signed-in
 # provider or buyer uploading their own receipt, so the caller IS a user and the
 # platform should say who. It reads an image and returns two fields for a human to

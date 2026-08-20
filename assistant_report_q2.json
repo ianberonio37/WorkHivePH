@@ -1,0 +1,39 @@
+{
+ "origin": "http://127.0.0.1:5000",
+ "replay": true,
+ "checks": [
+  {
+   "id": "gateway_only_path",
+   "ok": true,
+   "why": "every model request left through the one front door and nothing went around it. Watching ALL 47 requests the page issued, 1 reached /functions/v1/ai-gateway and ZERO reached a model provider host directly — no anthropic, openai, groq, mistral, cohere or google generative endpoint appears anywhere in the traffic. This is measured from the wire rather than from the source, which matters: a bypass added by a script, an inlined SDK or a stray fetch would be invisible to a grep of this page but unmissable here. Edge functions touched: [\"semantic-search\",\"ai-gateway\"]",
+   "saw": "requests=47 gateway=1 direct=0 fns=[\"semantic-search\",\"ai-gateway\"]"
+  },
+  {
+   "id": "pii_egress_rule",
+   "ok": true,
+   "why": "what actually crosses the boundary carries no personal identifier. The outbound body was intercepted and read: the message field contains no email address, no phone number, no bearer token and no uuid other than the hive being asked about. This is the half of the question that source review cannot answer — the page enriches the question before sending (`enrichedQuestion`), so what a reviewer reads in the composer is not what leaves the browser, and only the wire shows the difference",
+   "saw": "{\"len\":835,\"email\":false,\"phone\":false,\"token\":false,\"uuids\":0,\"foreign\":0}"
+  },
+  {
+   "id": "scope_stated",
+   "ok": true,
+   "why": "the request names the scope it is asking within rather than leaving the model to infer it: hive_id is carried explicitly and equals the signed-in hive, and the agent is declared as \"assistant\" with its calling surface in context.source. A request that omitted the hive would be answerable from anything the service role can see, which is the shape a cross-tenant answer takes",
+   "saw": "{\"hive_id\":\"084c113b-99c0-45c6-a8e8-b4b8349da46d\",\"agent\":\"assistant\",\"context\":{\"source\":\"assistant-page\"}}"
+  },
+  {
+   "id": "no_fabricated_identifiers",
+   "ok": null,
+   "why": "the answer rendered and its asset codes need checking against asset_nodes before this can be graded — recorded UNGRADED rather than guessed, because an identifier that merely LOOKS plausible is exactly this oracle's failure mode",
+   "saw": "Hi Leandro Marquez! I'm your WorkHive Work Assistant. I can see your job records and will reference them when relevant. What do you need? TRY ASKING Which of my assets has the worst MTBF, and what sho"
+  },
+  {
+   "id": "failure_renders_as_failure",
+   "ok": true,
+   "why": "with the gateway forced to 500, the thread says the request FAILED rather than answering confidently from nothing. That distinction is the whole row: on this page an outage and an empty result are indistinguishable to the reader unless the surface says which, and a fluent \"there are no open work orders\" over a dead gateway is worse than an error — it is a false statement about the plant, delivered in the same voice as a true one",
+   "saw": "Hi Leandro Marquez! I'm your WorkHive Work Assistant. I can see your job records and will reference them when relevant. What do you need? TRY ASKING Which of my assets has the worst MTBF, and what should I do? What should I prioritise this "
+  }
+ ],
+ "sent": "{\"agent\":\"assistant\",\"message\":\"Which of my assets has the worst MTBF, and what should I do?\\n\\n--- RELEVANT TEAM KNOWLEDGE (from fault history and skills) ---\\nRELEVANT FAULT HISTORY:\\n- GEN-001: problem=\\\"Spare parts shelf audit\\\", root cause=\\\"\\\", fix=\\\"Counted critical spares vs min levels\\\", lesson=\\\"2 items below min, raised PR\\\"\\n- SUB-001: problem=\\\"Spare parts shelf audit\\\", root cause=\\\"\\\", fix=\\\"Counted critical spares vs min levels\\\", lesson=\\\"2 items below min, raised PR\\\"\\n- SUB-001: problem=\\\"Spare parts shelf audit\\\", root cause=\\\"\\\", fix=\\\"Counted critical spares vs min levels\\\", lesson=\\\"2 items below min, raised PR\\\"\\n\\nRELEVANT SKILL PROFILES:\\n- Leandro Marquez: Facilities Management Level 5 (primary: Steam Systems)\\n- Leandro Marquez: Mechanical Level 2 (primary: Steam Systems)\\n- Leandro Marquez: Production Lines Level 3 (primary: Steam Systems)\\n--- END KNOWLEDGE ---\",\"hive_id\":\"084c113b-99c0-45c6-a8e8-b4b8349da46d\",\"context\":{\"source\":\"assistant-page\"}}",
+ "answerLen": 705,
+ "answer": "Hi Leandro Marquez! I'm your WorkHive Work Assistant. I can see your job records and will reference them when relevant. What do you need? TRY ASKING Which of my assets has the worst MTBF, and what should I do? What should I prioritise this week? Any parts running low that I should reorder? Which of my assets has the worst MTBF, and what should I do? The asset with the worst MTBF is AC-003. It has experienced multiple failures, including threaded joint thread sealant failure and filter issues. To improve its MTBF, ensure regular inspections and replacements of thread sealants and filters. Additionally, monitor gas levels in TX-001 and inspect cable seals in SUB-001 to prevent similar issues. 👍 👎"
+}

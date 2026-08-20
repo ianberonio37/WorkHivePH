@@ -161,7 +161,7 @@
       margin-bottom: 16px;
     }
     .amc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
-    .amc-badge { font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--purple); padding: 3px 8px; border-radius: var(--wh-radius-sm); background: rgba(167,139,250,0.14); border: 1px solid rgba(167,139,250,0.25); }
+    .amc-badge { font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--wh-violet-text); padding: 3px 8px; border-radius: var(--wh-radius-sm); background: rgba(167,139,250,0.14); border: 1px solid rgba(167,139,250,0.25); }
     .amc-headline { font-size: .98rem; font-weight: 800; color: var(--text); line-height: 1.35; }
     /* CLS: #amc-summary starts empty, fills with a short summary, then is UPGRADED IN PLACE to the
        taller renderActionBrief card — that growth shifted the content below (a full-sweep-contention
@@ -363,7 +363,7 @@
     <div id="anomaly-engine-panel" class="amc-card" style="display:none; background:linear-gradient(145deg, rgba(58,42,88,0.55), rgba(22,32,50,0.85)); border:1px solid rgba(167,139,250,0.25);">
       <div class="amc-head">
         <div>
-          <span class="amc-badge" data-help="anomaly_signals" tabindex="0" style="background:rgba(167,139,250,0.18); color:var(--wh-violet); border-color:rgba(167,139,250,0.3);">Anomaly Engine 2.0</span>
+          <span class="amc-badge" data-help="anomaly_signals" tabindex="0" style="background:rgba(167,139,250,0.18); color:var(--wh-violet-text); border-color:rgba(167,139,250,0.3);">Anomaly Engine 2.0</span>
           <span id="anomaly-engine-meta" style="font-size:.65rem; color:var(--muted); margin-left:6px;"></span>
         </div>
         <span id="anomaly-engine-count" class="alert-tag tag-info" style="font-weight:800;">0 signals</span>
@@ -439,6 +439,18 @@
   }
   if (!WORKER_NAME) { window.location.href = 'index.html?signin=1'; return; }
 
+  // IDENTITY SURVIVING IS NOT THE SESSION SURVIVING. The redirect above fires only when we cannot name
+  // the worker at all — but WORKER_NAME is restored from cached identity, so it outlives the JWT. When
+  // it does, every read below succeeds and returns zero rows through RLS, and the inbox rolls up a
+  // confident "0 critical". So confirm the SESSION itself, and record its absence as its own condition:
+  // "your session ended" and "we could not read your alerts" are two different sentences with two
+  // different truth conditions and two different fixes (sign in vs reload), and collapsing them is the
+  // 401-is-not-403 defect. Only claim the session is dead when getSession() actually returns none.
+  try {
+    const { data: _sess } = await db.auth.getSession();
+    _ahSessionDead = !_sess?.session;
+  } catch (_) { /* empty-catch-allow: if we cannot ask, do not claim the session is dead */ }
+
   const HIVE_ID   = whHiveId() || '';
   const HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
   const HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
@@ -475,6 +487,36 @@
   let _amcBrief = null;
   let _amcChannel = null;
   let _alerts = [];
+  // A FAILED READ IS INVISIBLE ON THIS PAGE TWICE OVER, which is why it rendered 450 characters and
+  // said nothing under an injected 500. The loads use Promise.allSettled and each consumer tests
+  // `xRes.status === 'fulfilled'` before reading `xRes.value.data || []`. But supabase-js RESOLVES a
+  // failed request rather than rejecting it, so a 500 arrives as status 'fulfilled' with `data: null`
+  // and the `|| []` coalesces it to an empty list: the status check cannot see the failure and the
+  // coalesce erases it, so "no alerts" and "could not read alerts" render identically - on the inbox
+  // whose entire job is telling someone what needs attention.
+  // DECLARED HERE, not beside renderAlertSummary: `let` is hoisted but uninitialised, and the loader
+  // that assigns this runs before a declaration further down the file is evaluated. Placing it there
+  // threw ReferenceError (temporal dead zone) on EVERY load, healthy included - caught by the probe's
+  // pageerror listener on the first verification run.
+  let _ahAlertReadFailed = false;
+  // A DEAD SESSION IS NOT A READ FAILURE, AND THAT IS EXACTLY WHY IT SLIPPED PAST THE FLAG ABOVE.
+  // `_ahAlertReadFailed` catches an ERRORING read (a 500, a rejection, a `.value.error`). But when the
+  // session dies while the cached WORKER_NAME survives, the reads do not error at all — RLS simply
+  // matches no rows and every query returns a clean, successful, EMPTY result. So the error flag stays
+  // false, `all` stays empty, and the inbox rolls up a confident "0 critical" over a plant whose alert
+  // state was never actually read. Measured by tools/prove_session_died.mjs: 10 figures, all zero, and
+  // nothing on screen saying the data could not be loaded — on the page whose whole job is telling
+  // someone what needs attention. This is the page's own CI5 domain truth ("0 alerts must distinguish
+  // 'nothing wrong' from 'nothing computed yet'") failing against the one cause that produces a
+  // legitimate-looking zero.
+  // `var`, NOT `let`: the identity/session block at the top of initAlertHub runs BEFORE this line is
+  // evaluated, and a `let` read from there throws ReferenceError in the temporal dead zone — the exact
+  // trap `_ahAlertReadFailed` documents one comment above. `var` hoists AND initialises to undefined.
+  // AND NO INITIALISER, for the second half of the same trap: the session check above runs at top level
+  // BEFORE this line is reached, so writing `= false` here re-executes on the way down and silently
+  // ERASES the flag that was just set — the page went on rendering its ten zeroes and the probe kept
+  // failing while the fix looked correct. Declared bare; `undefined` is falsy, which is the wanted default.
+  var _ahSessionDead;
   let _dismissals = {};         // Arc Y Y3: { alert_key: action } active dismissals (handled/snoozed = hidden)
   let _seen = {};               // Arc Y Y3: { alert_key: true } acknowledged alerts (kept in feed, dimmed)
   // Arc Y Y3 (Arc X A3 pattern): the active filter persists in the URL (?kind=)
@@ -596,7 +638,25 @@
     card.style.display = 'block';
 
     const meta = document.getElementById('amc-shift-meta');
-    if (meta) meta.textContent = `shift ${brief.shift_date} · model ${brief.model_version || 'amc-v1'}`;
+    // `model_version` was guarded and `shift_date` was not, so this rendered "shift null · model amc-v1".
+    // The guarded half is the one nobody reads; the DATE is what tells a supervisor whether this brief is
+    // today's or yesterday's — and a daily brief with no date is exactly the stale-number failure the
+    // domain truths for this page call out.
+    // ★THE BRIEF IS A STORED COPY AND THE CARD NEVER SAID SO. This panel is the platform's clearest
+    // primary/fallback pair: the row is served instantly from amc_briefings and the orchestrator call is
+    // a background UPGRADE. Measured with every /functions/v1/ call answered 500, the card still showed
+    // 4 figures from that stored row - correct behaviour - under a header naming only the shift and the
+    // model, so nothing distinguished "computed just now" from "loaded from this morning's brief". The
+    // generated_at stamp is the honest half: a supervisor reading a 6am brief at 4pm should be able to
+    // see that without opening anything. Mirrors the same fix made to shift-brain's source chip.
+    const _gen = brief.generated_at ? new Date(brief.generated_at) : null;
+    const _genTxt = _gen && !isNaN(_gen)
+      ? ` · stored brief, generated ${_gen.toLocaleString([], { month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit' })}`
+      : ' · stored brief';
+    if (meta) meta.textContent = (brief.shift_date
+      ? `shift ${brief.shift_date} · model ${brief.model_version || 'amc-v1'}`
+      : `shift date missing · model ${brief.model_version || 'amc-v1'}`) + _genTxt;
 
     const statusPill = document.getElementById('amc-status-pill');
     if (statusPill) {
@@ -748,6 +808,14 @@
   async function actOnAmcBrief(newStatus) {
     if (HIVE_ROLE !== 'supervisor') { showAmcMsg('Supervisor approval required.'); return; }
     if (!_amcBrief || _amcBrief.status !== 'pending') return;
+    // ★REFUSE BEFORE ASKING THEM TO COMMIT. This is an APPROVAL write, and offline it fired into a dead
+    // network. The guard sits BEFORE the reject confirmation on purpose: making a supervisor confirm
+    // "the crew will not act on it" and only then failing is worse than refusing up front, because they
+    // have already made the decision and cannot tell whether it was recorded. Message goes to
+    // showAmcMsg, this card's own channel, where 'Supervisor approval required.' also lands.
+    if (typeof whRequireOnline === 'function'
+        && !whRequireOnline(newStatus === 'rejected' ? 'Rejecting this brief' : 'Approving this brief',
+                            (m) => showAmcMsg(m))) return;
     if (newStatus === 'rejected' && !(await window.whConfirm('Reject today\'s AMC brief? The crew will not act on it.', { okLabel: 'Reject', cancelLabel: 'Cancel' }))) return;
 
     const approveBtn = document.getElementById('amc-approve-btn');
@@ -827,8 +895,13 @@
   const ANOMALY_SEVERITY = {
     critical: { color: '#f87171', bg: 'rgba(248,113,113,0.15)', label: 'CRITICAL' },
     warning:  { color: '#F7A21B', bg: 'rgba(247,162,27,0.15)',  label: 'WARNING'  },
-    watch:    { color: '#facc15', bg: 'rgba(250,204,21,0.12)',  label: 'WATCH'    },
-    info:     { color: '#94a3b8', bg: 'rgba(148,163,184,0.12)', label: 'INFO'     },
+    // ★ONE STORED VALUE WAS SHOWING TWO DIFFERENT WORDS. compute_anomaly_signals emits exactly
+    // three severities - critical, warning, info - and never 'watch', so the key here was dead.
+    // Meanwhile hive.html labels the SAME stored 'info' as 'Watch' (critical/warning/info ->
+    // Critical/Warning/Watch). A person moving between the two boards saw INFO here and Watch there
+    // for the identical signal. 'Watch' is the better word - it says what to do rather than naming a
+    // tier - so info adopts it and the unreachable 'watch' key goes, leaving one word per value.
+    info:     { color: '#facc15', bg: 'rgba(250,204,21,0.12)', label: 'WATCH'    },
   };
   // _anomalyChannel + _anomalyLoading + _anomalyDebounce are declared at
   // the top of the IIFE (next to _amcChannel) so the early `await loadAll()`
@@ -1084,6 +1157,7 @@
         .eq('status', 'failed')
         .gte('triggered_at', dayAgo)
         .order('triggered_at', { ascending: false })
+        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(10),
 
       // Phase 3 one-brain (2026-06-10): read the SAME alert composer the Hive
@@ -1103,7 +1177,11 @@
         .limit(20),
 
       db.from('parts_staging_recommendations')
-        .select('id, asset_name, risk_score, parts, rationale, confidence, generated_at, expires_at')
+        // failure_mode is stored on every recommendation ('Repeat bearing failure pattern') and was
+        // never selected, so the alert could say WHICH ASSET and WHY IN AGGREGATE but not WHAT FAILURE
+        // it is staging against - the one thing a maintainer needs to judge whether the parts are the
+        // right ones. It is one column on a query that already runs.
+        .select('id, asset_name, failure_mode, risk_score, parts, rationale, confidence, generated_at, expires_at')
         .eq('hive_id', HIVE_ID)
         .eq('status', 'pending')
         // AH14 (Asset Hub deepwalk, 2026-07-28) — the inherited F43, which was here too and worse:
@@ -1120,6 +1198,16 @@
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(20),
     ]);
+
+    // Errors must be counted, not skipped. `.value.error` is the half the status check misses.
+    _ahAlertReadFailed = [riskRes, invRes, pmAssetsRes, autoLogRes, patternRes, stagingRes]
+      .some(r => r && (r.status === 'rejected' || (r.value && r.value.error)));
+    if (_ahAlertReadFailed) {
+      const first = [riskRes, invRes, pmAssetsRes, autoLogRes, patternRes, stagingRes]
+        .find(r => r && (r.status === 'rejected' || (r.value && r.value.error)));
+      console.error('alert-hub read failed:',
+        (first && (first.reason || (first.value && first.value.error && first.value.error.message))) || 'unknown');
+    }
 
     const all = [];
 
@@ -1263,7 +1351,7 @@
           dedupeKey: 'staging:' + (r.asset_name || 'unknown'),   // Arc Y Y3: stable dismissal key
           severity: _stagingSev,
           title: r.asset_name || 'Unknown asset',
-          msg: `${partsCount} part${partsCount === 1 ? '' : 's'} recommended (${conf}% confidence): ${r.rationale || ''}`.slice(0, 200),
+          msg: `${partsCount} part${partsCount === 1 ? '' : 's'} recommended (${conf}% confidence)${r.failure_mode ? ' for ' + r.failure_mode : ''}: ${r.rationale || ''}`.slice(0, 220),
           time: r.generated_at,
           href: 'asset-hub.html?tag=' + encodeURIComponent(r.asset_name || ''),
           actionLabel: 'Review & stage',
@@ -1299,14 +1387,28 @@
       renderAmcCard(amcRes.todayBrief);
       for (const b of (amcRes.historic || [])) {
         const head = (b.brief && b.brief.headline) ? String(b.brief.headline) : '(no headline)';
+        // ★A BRIEF STILL AWAITING A DECISION WAS FILED AS NEWS. The map sent anything not rejected or expired
+        // to 'info' - the lowest severity - which includes PENDING. And the approve/reject pair lives only on
+        // the TODAY card, while this loop renders the neq.today rows, so once the Manila day rolls over a
+        // pending brief appears here as an informational line reading '(pending)' with actionLabel '' and no
+        // way to act on it. Measured: shift_date on this platform is timezone('Asia/Manila', now())::date, and
+        // a brief generated at 06:00 Manila stays pending until someone approves it - so the window for that
+        // decision closes silently at midnight Manila.
+        // Raised so an overdue decision reads as one rather than as history. NOT claimed as fully fixed: the
+        // feed still offers no approve action, because actOnAmcBrief() operates on the module-level TODAY brief
+        // (_amcBrief) and wiring an arbitrary id through it is a change to the approval path, not a wording fix.
+        const stranded = b.status === 'pending';
         const sev  = b.status === 'rejected' ? 'high'
+                   : stranded               ? 'high'
                    : b.status === 'expired'  ? 'medium'
                    : 'info';
         all.push({
           kind: 'amc',
           severity: sev,
           title: `AMC brief ${b.shift_date}`,
-          msg: head + ' (' + b.status + ')',
+          msg: stranded
+            ? head + '. Still awaiting approval from an earlier shift - open the brief for that day to decide.'
+            : head + ' (' + b.status + ')',
           time: b.generated_at,
           href: '#',
           actionLabel: '',
@@ -1433,6 +1535,14 @@
   // feed never lies. 'handled' hides until the underlying signal re-fires (new key).
   async function dismissAlert(key, action = 'handled', snoozeDays = 0) {
     if (!key || !HIVE_ID) return;
+    // ★THE ALERT VANISHED AND NOTHING WAS RECORDED. This mutates _dismissals, filters the alert out of
+    // _alerts and re-renders BEFORE the write - so offline the alert disappeared from the feed while the
+    // insert died, and a supervisor believed a plant alert had been handled. On an alert inbox that is
+    // the dangerous direction to fail in: a dismissal that did not land quietly hides something that is
+    // still true. Refusing before the optimistic mutation leaves the feed honest.
+    if (typeof whRequireOnline === 'function'
+        && !whRequireOnline(action === 'snoozed' ? 'Snoozing this alert' : 'Dismissing this alert',
+                            (m) => showToast(m))) return;
     const prev = _alerts;
     const snoozeUntil = (action === 'snoozed' && snoozeDays > 0)
       ? new Date(Date.now() + snoozeDays * 86400000).toISOString() : null;
@@ -1447,7 +1557,16 @@
       if (error) throw error;
       writeAuditLog(action === 'snoozed' ? 'alert_snoozed' : 'alert_handled', 'alert', key, key,
                     snoozeUntil ? { snooze_until: snoozeUntil } : {});
-      showToast(action === 'snoozed' ? `Snoozed for ${snoozeDays} day${snoozeDays === 1 ? '' : 's'}` : 'Alert marked handled');
+      // ★SAY THAT THIS HIDES THE ALERT FOR EVERYONE. The upsert two lines above is keyed
+      // onConflict: 'hive_id,alert_key' - the dismissal is HIVE state, not personal state - so one person
+      // marking an alert handled removes it from every teammate's inbox. The old copy ('Alert marked handled')
+      // never said so, which is the one failure mode this page cannot afford: a plant alert quietly blinded
+      // for the whole crew by someone who thought they were tidying their own view. The row also records
+      // actor: WORKER_NAME, so the action IS attributable - and saying that out loud is what makes the scope
+      // feel deliberate rather than accidental. Both halves are claims the code backs on the same statement.
+      showToast(action === 'snoozed'
+        ? `Snoozed for ${snoozeDays} day${snoozeDays === 1 ? '' : 's'} → hidden for your whole hive until then, under your name.`
+        : 'Alert marked handled → hidden for your whole hive now, recorded under your name.');
     } catch (e) {
       console.error('alert-hub dismiss failed:', e);
       delete _dismissals[key];
@@ -1466,6 +1585,10 @@
   // load filter). Optimistic with rollback so the feed never lies.
   async function acknowledgeAlert(key) {
     if (!key || !HIVE_ID) return;
+    // Same shape as dismissAlert: _seen is toggled and the feed re-rendered BEFORE the write, so
+    // offline the alert read as acknowledged while nothing was recorded. Refuse before the toggle.
+    if (typeof whRequireOnline === 'function'
+        && !whRequireOnline('Marking this alert seen', (m) => showToast(m))) return;
     const wasSeen = !!_seen[key];
     if (wasSeen) delete _seen[key]; else _seen[key] = true;
     renderFeed();
@@ -1494,6 +1617,64 @@
   // Layer D Plain-Read summary — rolls up _alerts + _anomalySignals + AMC.
   // Called from renderFeed so it refreshes whenever the alert pipeline runs.
   function renderAlertSummary() {
+    // A failed read must not roll up as "nothing needs your attention". Same pattern as asset-hub's
+    // renderAssetSummary; both belong in ONE utils.js helper for the ah-/sb-/an- verdict cohort rather
+    // than a third copy (the credits-chip drift class).
+    // The session branch runs FIRST and says something different, because the person's next action is
+    // different: a dead session is fixed by signing in, a failed read by reloading. Telling someone to
+    // reload when their session expired sends them round a loop that cannot end.
+    if (_ahSessionDead) {
+      const setTxt = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
+      ['critical', 'anomaly', 'amc'].forEach(n => {
+        setTxt('ah-' + n + '-hero', '—');
+        setTxt('ah-' + n + '-sub', 'Signed out. Not read');
+        setTxt('ah-' + n + '-tag', 'UNKNOWN');
+        const c = document.getElementById('ah-card-' + n);
+        if (c) { c.classList.remove('tag-green', 'tag-amber', 'tag-red'); c.classList.add('tag-grey'); }
+      });
+      const vBox = document.getElementById('ah-verdict');
+      if (vBox) { vBox.classList.remove('healthy', 'watch', 'attn', 'empty'); vBox.classList.add('attn'); }
+      setTxt('ah-verdict-icon', '⚠');
+      setTxt('ah-verdict-label', 'Your session ended. These alerts were not read');
+      setTxt('ah-verdict-sub', 'This is not an all-clear. Nothing below was loaded with your account, so a critical alert would not appear here. Sign in to see your real alert state.');
+      setTxt('ah-action-text', 'Sign in to read your alert state.');
+      return;
+    }
+    if (_ahAlertReadFailed) {
+      const setTxt = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
+      ['critical', 'anomaly', 'amc'].forEach(n => {
+        setTxt('ah-' + n + '-hero', '—');
+        setTxt('ah-' + n + '-sub', 'Could not read alert state');
+        setTxt('ah-' + n + '-tag', 'UNKNOWN');
+        const c = document.getElementById('ah-card-' + n);
+        if (c) { c.classList.remove('tag-green', 'tag-amber', 'tag-red'); c.classList.add('tag-grey'); }
+      });
+      const vBox = document.getElementById('ah-verdict');
+      if (vBox) { vBox.classList.remove('healthy', 'watch', 'attn', 'empty'); vBox.classList.add('attn'); }
+      setTxt('ah-verdict-icon', '⚠');
+      setTxt('ah-verdict-label', 'Could not load your alerts');
+      setTxt('ah-verdict-sub', 'Critical alerts are unknown right now, not zero. Reload before treating this plant as quiet.');
+      // ★"RELOAD TO READ YOUR ALERT STATE" IS ADVICE, NOT A PATH. Measured by failing every
+      // /rest/v1/ read with a 500: this page said the failure exactly right — "Critical alerts are
+      // unknown right now, not zero. Reload before treating this plant as quiet" — and rendered ZERO
+      // retry affordances. On a plant alert inbox, the gap between knowing you are blind and being
+      // able to do something about it is the whole point of the surface.
+      // ★THE CONTROL GOES IN THE VERDICT CTA, not into a list. shift-brain taught this the hard way:
+      // rendering the shared error+retry into a list container that EXISTS but is HIDDEN produced a
+      // control at height 0 — real, correct, and invisible, which the probe scored (rightly) as no
+      // retry at all. #ah-action-btn is the visible control this chrome already reserves for the next
+      // action.
+      setTxt('ah-action-text', 'Retry loading your alert state.');
+      const _ahCta = document.getElementById('ah-action-btn');
+      if (_ahCta) {
+        _ahCta.classList.remove('hidden');
+        _ahCta.textContent = 'Retry';
+        _ahCta.setAttribute('href', '#');
+        _ahCta.setAttribute('aria-label', 'Retry loading your alert state');
+        _ahCta.onclick = (ev) => { ev.preventDefault(); location.reload(); };
+      }
+      return;
+    }
     const critical = _alerts.filter(a => a.severity === 'critical' || a.severity === 'high').length;
     const total = _alerts.length;
 
@@ -1538,11 +1719,27 @@
     );
 
     // Card 2 — Anomaly signals
+    // ★A GREEN "CLEAR" FOR A SCAN THAT NEVER RAN. _anomalyCount starts as null, which MEANS "not computed",
+    // and the line above used to collapse it to 0 - so this card rendered "0 / No fused anomalies in your hive
+    // right now / CLEAR" in GREEN before any anomaly data had been read. The comment there justified it by
+    // saying renderAnomalyEngine re-invokes this summary once it resolves, so the verdict corrects itself. It
+    // does not always resolve: loadAnomalyEngine is MATURITY-GATED (Stair 3) and returns early when the gate
+    // blocks or when checkMaturityGate is unavailable, leaving _anomalyCount null for the whole session.
+    // Measured live on this hive: ZERO anomaly-related requests were made - no v_anomaly_truth read, no
+    // compute_anomaly_signals - and the card still said CLEAR in green.
+    // That is the exact failure this page's own domain truth forbids: "0 alerts" must distinguish "nothing
+    // wrong" from "nothing computed yet". On a plant alert surface the green one is the dangerous direction, so
+    // the not-computed state now says so plainly and wears a neutral tone instead of a reassuring one.
+    const anomalyKnown = (_anomalyCount != null);
     setCard('anomaly',
-      String(anomalyCount),
-      anomalyCount === 0 ? 'No fused anomalies in your hive right now' : `${anomalyCount} multi-source anomalies in attention`,
-      anomalyCount === 0 ? 'CLEAR' : anomalyCount > 3 ? 'STACKING UP' : 'WATCH',
-      anomalyCount === 0 ? 'green' : anomalyCount > 3 ? 'red' : 'amber'
+      anomalyKnown ? String(anomalyCount) : '—',
+      !anomalyKnown ? 'Anomaly scan has not run for this hive'
+        : anomalyCount === 0 ? 'No fused anomalies in your hive right now'
+        : `${anomalyCount} multi-source anomalies in attention`,
+      !anomalyKnown ? 'NOT RUN'
+        : anomalyCount === 0 ? 'CLEAR' : anomalyCount > 3 ? 'STACKING UP' : 'WATCH',
+      !anomalyKnown ? 'grey'
+        : anomalyCount === 0 ? 'green' : anomalyCount > 3 ? 'red' : 'amber'
     );
 
     // Card 3 — AMC brief
@@ -1605,8 +1802,20 @@
       // (or the AMC card) so the recommended step is one tap away.
       const setCta = (label, scroll) => {
         const b = document.getElementById('ah-action-btn'); if (!b) return;
-        b.textContent = label; b.classList.remove('hidden'); b.setAttribute('href', '#');
-        b.onclick = (e) => { e.preventDefault(); const t = document.querySelector(scroll); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+        b.textContent = label; b.classList.remove('hidden');
+        // ★COHORT DRIFT, CLOSED. analytics / alert-hub / shift-brain render the SAME executive-summary
+        // chrome under three id prefixes, and analytics had already fixed this while the other two had not:
+        // an on-page CTA gets a REAL fragment href, not "#", so the browser jumps to the target with zero
+        // JS and the handler below only UPGRADES that to a smooth scroll. `href="#"` strands the button if
+        // the script ever fails, and reads as a dead link to a11y tooling. Ported verbatim in reasoning
+        // from analytics.html's setCta so the three copies stop diverging.
+        b.setAttribute('href', (scroll || '#').replace(/^\./, '#'));
+        b.onclick = (e) => {
+          const t = scroll && document.querySelector(scroll);
+          if (!t) return;                       // no target -> let the href do its job
+          e.preventDefault();
+          t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
       };
       const hideCta = () => { const b = document.getElementById('ah-action-btn'); if (b) b.classList.add('hidden'); };
       let text;
@@ -1771,7 +1980,6 @@
   };
 </script>
 <script src="companion-launcher.js"></script>
-<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 <!-- U3 status-feedback: persistent polite live region (STREAMLINE E2). showToast/whListError announce here; screen readers get status, never a silent fetch. -->
 <div id="toast" role="alert" aria-live="polite"></div>
 

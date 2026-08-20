@@ -376,19 +376,24 @@
   <div class="simple-row">
     <div class="simple-card hero tag-grey" id="ac-card-week" data-rag-tile="achievements:xp_this_week" data-rag-label="XP this week">
       <h2 class="sc-label" style="margin:0;" data-i="ach_xpweek">XP this week</h2>
-      <div class="sc-hero" id="ac-week-hero">0</div>
+      <!-- These ship as an em dash, not 0. Measured under an injected 500: all three read 0 while
+             stat-composite / stat-active / stat-top beside them correctly dashed - two element sets on
+             one screen disagreeing. "Total level 0" is the cruellest of them, on the surface whose whole
+             purpose is recognising what a worker has earned; the true value was 153. An honest DEFAULT
+             covers every abort path at once, including the ones no flag enumerates. -->
+      <div class="sc-hero" id="ac-week-hero">—</div>
       <div class="sc-sub" id="ac-week-sub">Loading...</div>
       <span class="sc-tag" id="ac-week-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="ac-card-active" data-rag-tile="achievements:active_domains" data-rag-label="Active domains">
       <h2 class="sc-label" style="margin:0;" data-i="ach_activedom">Active domains</h2>
-      <div class="sc-hero" id="ac-active-hero">0</div>
+      <div class="sc-hero" id="ac-active-hero">—</div>
       <div class="sc-sub" id="ac-active-sub">Loading...</div>
       <span class="sc-tag" id="ac-active-tag">-</span>
     </div>
     <div class="simple-card tag-grey" id="ac-card-level" data-rag-tile="achievements:total_level" data-rag-label="Total level">
       <h2 class="sc-label" style="margin:0;" data-i="ach_totallvl">Total level</h2>
-      <div class="sc-hero" id="ac-level-hero">0</div>
+      <div class="sc-hero" id="ac-level-hero">—</div>
       <div class="sc-sub" id="ac-level-sub">Loading...</div>
       <span class="sc-tag" id="ac-level-tag">-</span>
     </div>
@@ -411,6 +416,19 @@
       <li><strong>Total level</strong>: sum of your level across all 12 domains. Drives your worker tier.</li>
       <li><strong>Verdict</strong>: green if 50+ XP this week; amber if 1-49 XP; empty if no XP yet; never red (Achievements is purely motivational).</li>
     </ul>
+    <strong style="display:block;margin:10px 0 6px;color:rgba(255,255,255,0.85);">What each action earns</strong>
+    <div style="font-size:11px;color:rgba(255,255,255,0.80);margin-bottom:6px;">The rates below are the ones the platform actually awards, so you can decide before you do the work rather than after.</div>
+    <ul style="margin:0;padding-left:20px;font-size:11px;">
+      <li><strong>Log an entry</strong>: 20 XP, plus 20 more when problem, action and knowledge together run past 200 characters.</li>
+      <li><strong>Close a job</strong>: 50 XP, plus 30 for a root cause, 15 for machine and downtime hours, and 25 if you close it within 24 hours. Up to 120.</li>
+      <li><strong>Close a breakdown with a root cause</strong>: 100 XP (Failure Hunter).</li>
+      <li><strong>Safety-category entry</strong>: 60 XP (Safety Sentinel).</li>
+      <li><strong>Complete a PM</strong>: 60 XP.</li>
+      <li><strong>Community post</strong>: 20 XP, plus 40 when it is a safety post.</li>
+      <li><strong>Earn a skill badge</strong>: 250 XP, the largest single award.</li>
+      <li><strong>Run a calculator</strong>: 40 XP. <strong>Publish a shift plan</strong>: 40 XP. <strong>Add a team member</strong>: 50 XP.</li>
+    </ul>
+    <div style="font-size:11px;color:rgba(255,255,255,0.70);margin-top:6px;">XP is a record of work done here. It is not money, and it buys nothing. If the work behind an award is deleted, the XP is taken back with it.</div>
     <p style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:11px;">Scroll for the Tier Guide and domain-by-domain breakdown.</p>
   </div>
 
@@ -470,6 +488,14 @@
   <!-- Hive standings -->
   <div class="section-card" id="standings-section" style="display:none;">
     <div class="section-heading">Hive Standings</div>
+    <!-- The score is sum(current_level) across every achievement domain — NOT XP and not
+         "points". It was labelled "pts", a unit this number has never been in; a worker
+         comparing themselves on this board could not tell what they were being ranked by.
+         The heading now names the criteria once for the list, and each row names its unit. -->
+    <p class="section-sub" style="margin:-2px 0 10px;font-size:0.68rem;color:rgba(255,255,255,0.72);">
+      Ranked by total achievement <strong>levels</strong> earned across all skill domains, one level
+      per domain milestone, so a worker levelling three domains outranks one levelling a single domain.
+    </p>
     <div id="standings-list"></div>
   </div>
 
@@ -486,17 +512,34 @@
   logPageView(db);
   let WORKER_NAME = whWorker()
                    || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker() || '';
-    // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was
-    // empty or stale. Fire-and-forget -- the sync auth-check redirect still runs
-    // first; session identity overrides asynchronously.
+    // Auth C4: refresh WORKER_NAME from Supabase Auth session if localStorage was empty or stale.
+    // NO LONGER FIRE-AND-FORGET. The old comment here read "the sync auth-check redirect still runs
+    // first; session identity overrides asynchronously" — but the redirect NAVIGATES AWAY, so there is
+    // nothing left to override. A signed-in person whose localStorage was cleared or evicted was thrown
+    // to the landing page by a check whose answer was already in flight one line above it.
+    // Measured 2026-08-14: with the identity cache cleared and the SESSION perfectly alive, this page
+    // bounced to index — and the very next load succeeded, because the restore had by then completed and
+    // re-cached the name. The recovery always worked; only its ordering was wrong.
+    // The promise is kept so the redirect below can WAIT for it. restoreIdentityFromSession is
+    // authoritative: it consults the session and returns '' only when there genuinely is none.
+    let _identityRestored = Promise.resolve('');
     if (typeof restoreIdentityFromSession === 'function' && typeof db !== 'undefined') {
-      restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; });
+      _identityRestored = restoreIdentityFromSession(db).then(_n => { if (_n) WORKER_NAME = _n; return _n; });
     }
     // AU2: kick the JWT attach early so init's gated reads don't race it (cold-load-401 class)
     if (typeof db !== 'undefined' && db.auth) db.auth.getUser().catch(() => {});
   const HIVE_ID    = whHiveId() || '';
 
-  if (!WORKER_NAME) { window.location.href = 'index.html'; }
+  // A COLD CACHE IS NOT PROOF OF BEING SIGNED OUT. Only bounce once the SESSION has actually been
+  // consulted — otherwise clearing site data (or a routine eviction) throws a signed-in person to the
+  // landing page while their session is perfectly valid. If the restore yields a name, we stay and the
+  // page carries on with it; if it yields '' there really is no session, and the bounce is correct.
+  if (!WORKER_NAME) {
+    _identityRestored
+      // Same omission as community's: bounce WITH the sign-in prompt, not to a silent homepage.
+      .then(_n => { if (!_n) window.location.href = 'index.html?signin=1'; })
+      .catch(() => { window.location.href = 'index.html?signin=1'; });
+  }
 
   // ── Static achievement config ───────────────────────────────
   const ACHIEVEMENT_DEFS = {
@@ -530,11 +573,32 @@
     pm_complete:         'PM task completed',
     community_post:      'Community post published',
     skill_badge_earned:  'Skill badge earned',
+    calc_run:            'Engineering calculation run',
   };
+
+  // ★AN UNMAPPED ACTION USED TO REACH THE PERSON AS ITS DATABASE VALUE. Both call sites read
+  // `ACTION_LABELS[a] || a`, so the day a new source_action shipped without a label, the XP feed
+  // rendered the column: measured live, three rows of this list read "calc_run". Adding the missing
+  // label fixes today; humanising the FALLBACK fixes every next one, because the failure mode is a new
+  // enum arriving before its copy does, and that will happen again. "calc_run" -> "Calc run" is not as
+  // good as a written sentence, but it is a phrase rather than a field name.
+  const actionLabel = (a) => ACTION_LABELS[a]
+    || (a ? String(a).replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase()) : 'XP earned');
 
   // ── State ───────────────────────────────────────────────────
   let _achievements = [];
   let _xpLog        = [];
+  // ★ THE `+` IS PART OF A CLAIM, SO IT CANNOT BE PRINTED WITHOUT THE NUMBER. Both XP rows hard-coded
+  // "+" before an unguarded `e.xp_earned`, so a null rendered "+null" — ten times on one screen. The
+  // sibling weekXP figure (:681) is carefully guarded with a `typeof === 'number'` check; these two,
+  // written in the same file, are bare. The guard went where the arithmetic was and skipped the display.
+  // "+0" would be a lie of a different kind (XP was awarded and it was zero), so an unknown amount drops
+  // the sign entirely and says so.
+  // ★ NOT `Number.isFinite(Number(v))` — `Number(null)` is 0, so that check passes null through and
+  // still prints "+null". Only `undefined` coerces to NaN. Reject the absent values explicitly.
+  const xpText = (v) => (v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v))
+    ? `+${v}` : 'XP not recorded');
+
   let _weekXP       = null; // dedicated 7-day XP SUM — must NOT be derived from the 30-row _xpLog list (see init: an active worker can log >30 XP events/week, silently undercounting the sum).
   let _achChannel   = null;
 
@@ -732,6 +796,32 @@
   }
 
   function renderHero() {
+    // A DEAD SESSION RENDERS HERE AS A BEGINNER, NOT AS AN ERROR. WORKER_NAME comes from localStorage,
+    // which outlives the auth token, so the bounce above (which only fires when the name is missing)
+    // lets this page render with no session at all: `_achievements` comes back empty through RLS, every
+    // reduce below collapses to 0, and the page tells someone with 19 badges that they have none.
+    // On a page that is a record of what a person has EARNED, that is worse than an error message —
+    // it is a quiet, confident denial of their record. Measured by tools/prove_session_died.mjs.
+    (async () => {
+      try {
+        if (typeof db === 'undefined' || document.getElementById('ac-session-dead')) return;
+        const { data: _s } = await db.auth.getSession();
+        if (_s?.session) return;
+        const host = document.querySelector('main');
+        if (!host) return;
+        const note = document.createElement('div');
+        note.id = 'ac-session-dead';
+        note.setAttribute('role', 'status');
+        note.style.cssText = 'margin:0 0 14px;padding:12px 14px;border-radius:10px;'
+          + 'background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.42);'
+          + 'color:#fde68a;font-size:0.8rem;line-height:1.5;';
+        note.innerHTML = '<strong>Your session ended. Your achievements were not read.</strong><br>'
+          + 'The zeros below are unknown, not lost. '
+          + '<a href="index.html?signin=1" style="color:#fcd34d;text-decoration:underline;">Sign in</a> '
+          + 'to see your real record.';
+        host.insertBefore(note, host.firstChild);
+      } catch (_) { /* empty-catch-allow: if we cannot ask, do not claim the session is dead */ }
+    })();
     const topLevel = _achievements.reduce((m, a) => Math.max(m, a.current_level || 0), 0);
     const tier     = getWorkerTier(topLevel);
     const composite = _achievements.reduce((s, a) => s + (a.current_level || 0), 0);
@@ -777,7 +867,7 @@
     el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _xpLog.slice(0, 10).map(e => {
       const def    = ACHIEVEMENT_DEFS[e.achievement_id];
       const icon   = def ? def.icon : '⭐';
-      const label  = ACTION_LABELS[e.source_action] || e.source_action || 'XP earned';
+      const label  = actionLabel(e.source_action);
       const domain = def ? def.name : e.achievement_id;
       return `<div class="activity-row">
         <div class="activity-icon-sm">${icon}</div>
@@ -785,7 +875,7 @@
           <div class="activity-name">${escHtml(label)}</div>
           <div class="activity-sub">${escHtml(domain)} · ${escHtml(timeAgo(e.earned_at))}</div>
         </div>
-        <div class="activity-xp">+${e.xp_earned}</div>
+        <div class="activity-xp">${xpText(e.xp_earned)}</div>
       </div>`;
     }).join('');
   }
@@ -808,10 +898,10 @@
       return;
     }
     eventsEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = events.map(e => {
-      const label = ACTION_LABELS[e.source_action] || e.source_action;
+      const label = actionLabel(e.source_action);
       return `<div class="event-row">
         <span class="event-label">${escHtml(label)}</span>
-        <span class="event-xp">+${e.xp_earned}</span>
+        <span class="event-xp">${xpText(e.xp_earned)}</span>
         <span class="event-time">${escHtml(timeAgo(e.earned_at))}</span>
       </div>`;
     }).join('');
@@ -852,6 +942,14 @@
         '<div style="font-size:0.78rem;opacity:0.85;">' + jobs + ' job' + (jobs === 1 ? '' : 's') + ' done' +
         (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + '</div>' +
         '<div style="font-size:0.75rem;opacity:0.8;margin-top:0.25rem;">' + escHtml(next) + '</div>' +
+        // ★THE THRESHOLDS WERE STATED; THE AUTHORITY WAS NOT. The line above already tells the person
+        // exactly how far they are from the next tier, using the same numbers the view computes with
+        // (10 jobs for Silver; 25 plus a 4.5 average for Gold). What it never said is WHO decides -
+        // and on a standing that affects who gets first look at paid hails, 'is this earned or is this
+        // granted?' is the question a provider actually has. It is earned: v_service_provider_truth
+        // computes the tier from verified completions and rating, and there is no stored counter anyone
+        // can set by hand. Saying so is what turns a badge into a claim the holder can defend.
+        '<div style="font-size:0.72rem;opacity:0.7;margin-top:0.35rem;">Set automatically by WorkHive from your verified completed jobs and rating, not granted by hand.</div>' +
         '<a href="marketplace-seller.html" style="display:inline-flex;align-items:center;min-height:44px;margin-top:0.5rem;padding:0.5rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;font-size:0.8rem;" aria-label="Open my service provider console">Open my provider console →</a>' +
         '</div>';
     } catch (_) { /* empty-catch-allow: the tier card is additive; a failure leaves it silent */ }
@@ -918,7 +1016,7 @@
         <div class="standing-rank ${rankClass(i)}">${rankIcon(i)}</div>
         <div class="standing-avatar-wrap">${renderWorkerAvatar(w.worker_name, tierMap[w.worker_name] || 0, 28)}</div>
         <div class="standing-name">${escHtml(w.worker_name)}${w.worker_name === WORKER_NAME ? ' <span style="font-size:0.55rem;color:rgba(255,255,255,0.80);">(you)</span>' : ''}</div>
-        <div class="standing-score">${w.total} pts</div>
+        <div class="standing-score" title="Total achievement levels across all domains">${w.total} ${w.total === 1 ? 'level' : 'levels'}</div>
       </div>`).join('');
 
     document.getElementById('standings-section').style.display = '';
@@ -1089,7 +1187,6 @@
   };
 </script>
 <script src="companion-launcher.js"></script>
-<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 <!-- Bottom E3 provenance chip (#ach-source-chip) REMOVED 2026-07-22 (Ian: "merge to one chip"): it
      duplicated the header #achievements-source-chip (both full-width "Live · … source" chips). Its
      v_worker_truth attribution was folded into the header chip's source above. -->

@@ -55,6 +55,11 @@ function whCalcLabel(s) { return String(s == null ? '' : s).replace(/\s—\s/g, 
 let _lastNarrative = null;
 let _lastInputs  = null;
 let _currentStep = 1;
+// In-flight guards for the two engineering_calcs writers. Both are bound with inline onclick and had
+// neither a flag nor a disabled state, so a second press during a slow insert landed a duplicate row
+// into a table with no unique constraint that project-manager reads as project evidence.
+let _savingCalc   = false;
+let _savingBomSow = false;
 
 // ─── Recent calcs tracking ────────────────────────────────────────────────────
 const RECENT_KEY = 'wh-recent-calcs';
@@ -2534,8 +2539,8 @@ function renderGuide() {
 
   if (!guide) {
     el/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
-      <h2 class="font-bold text-lg mb-3" style="color:#F7A21B;">Calculation Guide</h2>
-      <p class="text-sm" style="color:rgba(255,255,255,0.5);">
+      <h2 class="font-bold text-lg mb-3" style="color:var(--wh-orange-text);">Calculation Guide</h2>
+      <p class="text-sm" style="color:rgba(255,255,255,0.85);">
         ${_calcType ? `No guide available yet for "${escHtml(whCalcLabel(_calcType))}". Select a different calculation type or check back after it is built.` : 'Select a discipline and calculation type first, then open the Guide tab to see field descriptions, formulas, and tips.'}
       </p>`;
     return;
@@ -2613,7 +2618,17 @@ function selectDiscipline(disc) {
   renderCalcTypes();
   setStep(2);
   // Reset form & report
-  document.getElementById('input-form-area').innerHTML = '<p class="text-sm" style="color:rgba(255,255,255,0.6);">Select a calculation type first.</p>';
+  // 0.6 -> 0.80. Measured live 2026-08-06: this placeholder rendered rgba(255,255,255,0.6) at 14px,
+  // which composites to rgb(165,170,178) on the panel and gives APCA Lc 55.2 against a floor of 60 -
+  // short, on the empty state a first-time visitor reads before choosing a calculator. 0.80 gives
+  // Lc 79.8, and it is the value the STATIC copy of this same sentence already uses
+  // (engineering-design.html:687), so this aligns the JS-rendered instance with its own page rather
+  // than inventing a number.
+  // Worth recording how it was found, because the first attempt failed: the lens reported the failure
+  // by TEXT only, a DOM search for that string hit the static 0.80 instance which MEASURES AS PASSING,
+  // and the real culprit stayed hidden. The lens now emits a selector (#input-form-area > p.text-sm)
+  // and that is what pinned this line.
+  document.getElementById('input-form-area').innerHTML = '<p class="text-sm" style="color:rgba(255,255,255,0.8);">Select a calculation type first.</p>';
   showEmpty();
 }
 
@@ -2732,15 +2747,36 @@ function _formUnitInputs() {
 }
 
 // User clicked the toggle: convert the displayed values + swap the unit labels.
+// ★THE ROUND TRIP LOST PRECISION BECAUSE IT CONVERTED THE ROUNDED DISPLAY BACK. Each conversion
+// runs through _uRound for legibility, and flipping back re-converted that ROUNDED number rather
+// than the value the person actually typed. Measured: 100 mm pipe diameter -> 3.94 in -> 100.08 mm.
+// Small in percentage terms and wrong in the way that matters here - 100 mm is a standard DN size,
+// 100.08 is not a size at all, and it feeds straight into velocity and friction head. Every other
+// field happened to survive, which is exactly why this needed measuring rather than assuming.
+// The fix keeps the display rounded and the VALUE exact: the pre-conversion number is remembered on
+// the field, and flipping back restores it - but ONLY if the displayed value is still the one this
+// function produced. If the person edited it while in the other unit system, their edit wins and the
+// normal conversion runs.
 function toggleUnitSystem() {
   const toIP = _unitSystem === 'SI';
   _formUnitInputs().forEach(({ inp, uEl, conv, mode, siLabel }) => {
     const has = inp.value !== '' && !isNaN(parseFloat(inp.value));
+    const untouched = has && inp.dataset.whUnitShown === inp.value;
     if (toIP && mode === 'SI') {
-      if (has) inp.value = _uRound(conv.toIP(parseFloat(inp.value)));
+      if (has) {
+        const restored = untouched && inp.dataset.whUnitOrig !== undefined ? inp.dataset.whUnitOrig : null;
+        inp.dataset.whUnitOrig = inp.value;
+        inp.value = restored !== null ? restored : _uRound(conv.toIP(parseFloat(inp.value)));
+        inp.dataset.whUnitShown = inp.value;
+      }
       uEl.textContent = conv.ip;
     } else if (!toIP && mode === 'IP') {
-      if (has) inp.value = _uRound(conv.toSI(parseFloat(inp.value)));
+      if (has) {
+        const restored = untouched && inp.dataset.whUnitOrig !== undefined ? inp.dataset.whUnitOrig : null;
+        inp.dataset.whUnitOrig = inp.value;
+        inp.value = restored !== null ? restored : _uRound(conv.toSI(parseFloat(inp.value)));
+        inp.dataset.whUnitShown = inp.value;
+      }
       uEl.textContent = siLabel;
     }
   });
@@ -9582,6 +9618,43 @@ async function runCalculation() {
   const inputs = collectInputs();
   _restoreInputDisplay(_ipRestore);
 
+  // ★THE FIELDS DECLARED THEIR RANGES AND NOTHING ENFORCED THEM. Every numeric input carries min
+  // and/or max, but those attributes only gate NATIVE form submission and this button is a plain
+  // onclick - so the values were read straight past them. Measured live on Pump Sizing (TDH): pump
+  // efficiency, declared max=100, accepted 112345 and the calculation ran to completion and produced
+  // a report. An efficiency above 100% is not a large number, it is a physically impossible one, and
+  // the number it yields can end up in a specification. The per-calc checks below are bespoke (flow
+  // rate > 0, supply temp > return temp) and cannot cover 55 calculators; this one reads the
+  // constraints the fields ALREADY declare, so it covers all of them and stays true as calculators
+  // are added. Only VISIBLE fields are checked - hidden inputs belong to other calc types and hold
+  // stale values - and the refusal NAMES the range rather than saying 'invalid input', because the
+  // person needs to know what would be acceptable.
+  {
+    const _visible = (el) => {
+      for (let n = el; n; n = n.parentElement) {
+        const cs = window.getComputedStyle(n);
+        if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+      }
+      return true;
+    };
+    const _bad = [];
+    document.querySelectorAll('input[type=number]').forEach((el) => {
+      if (!_visible(el) || el.value === '') return;
+      const v = Number(el.value);
+      if (!Number.isFinite(v)) return;
+      const hasMin = el.min !== '' && el.min != null;
+      const hasMax = el.max !== '' && el.max != null;
+      if ((hasMin && v < Number(el.min)) || (hasMax && v > Number(el.max))) {
+        const lbl = (document.querySelector('label[for="' + el.id + '"]') || {}).textContent
+          || el.getAttribute('aria-label') || el.placeholder || el.id;
+        const range = hasMin && hasMax ? Number(el.min) + ' to ' + Number(el.max)
+          : hasMax ? 'at most ' + Number(el.max) : 'at least ' + Number(el.min);
+        _bad.push(String(lbl).replace(/\s+/g, ' ').trim().replace(/[:*]$/, '') + ' must be ' + range + ' (you entered ' + v + ')');
+      }
+    });
+    if (_bad.length) { showToast(_bad[0], 6000); return; }
+  }
+
   if (_calcType === 'Pump Sizing (TDH)' || _calcType === 'Pipe Sizing') {
     if (!inputs.flow_rate || inputs.flow_rate <= 0) {
       showToast('Please enter the flow rate.');
@@ -11309,6 +11382,27 @@ function renderPipeReport(inputs, results, narrative) {
 }
 
 // ─── Pump Sizing Report ───────────────────────────────────────────────────────
+// ★THE REPORT CALLED A DERIVED NUMBER "(user input)". The cell renders results.pipe_dia_mm - the
+// RESOLVED internal diameter - while labelling it with the user's provenance. Measured: typing 100
+// produced "102.3 (user input) mm". 102.3 is correct engineering (a DN100 PVC pipe's internal bore is
+// not 100 mm), but it is not what anyone typed, and this is a document an engineer signs. Worse, the
+// only alternative label was unreachable: it keys off results.inputs_used.pipe_dia_source, which is
+// never populated, so the ternary ALWAYS chose "(user input)" no matter where the number came from.
+// Now the note is derived from the two values themselves: equal means it really is the user's figure,
+// different means say so and show what they entered.
+function _pipeDiaNote(inputs, results) {
+  const src = results && results.inputs_used && results.inputs_used.pipe_dia_source;
+  if (src === 'Auto-selected') return '(auto-selected)';
+  const typed = Number(inputs && (inputs.pipe_diameter !== undefined ? inputs.pipe_diameter
+    : inputs.pipe_dia !== undefined ? inputs.pipe_dia : inputs.pipe_dia_mm));
+  const used  = Number(results && results.pipe_dia_mm);
+  if (!Number.isFinite(typed)) return '(resolved)';
+  if (Number.isFinite(used) && Math.abs(used - typed) > 0.05) {
+    return '(internal dia. for ' + typed + ' mm nominal)';
+  }
+  return '(user input)';
+}
+
 function renderPumpReport(inputs, results, narrative) {
   const now     = new Date();
   const dateStr = now.toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
@@ -11353,7 +11447,7 @@ function renderPumpReport(inputs, results, narrative) {
       <tr><td>Static Head (elevation diff)</td><td>${escHtml(String(inputs.static_head))}</td><td>m</td></tr>
       <tr><td>Total Pipe Length</td><td>${escHtml(String(inputs.pipe_length))}</td><td>m</td></tr>
       <tr><td>Pipe Material</td><td>${escHtml(inputs.pipe_material || 'PVC')}</td><td>-</td></tr>
-      <tr><td>Pipe Diameter</td><td>${escHtml(String(results.pipe_dia_mm))} ${results.inputs_used?.pipe_dia_source === 'Auto-selected' ? '(auto-selected)' : '(user input)'}</td><td>mm</td></tr>
+      <tr><td>Pipe Diameter</td><td>${escHtml(String(results.pipe_dia_mm))} ${_pipeDiaNote(inputs, results)}</td><td>mm</td></tr>
       <tr><td>Suction Head</td><td>${escHtml(String(inputs.suction_head || 0))}</td><td>m</td></tr>
       <tr><td>Discharge Pressure Head</td><td>${escHtml(String(inputs.pressure_head || 0))}</td><td>m</td></tr>
       <tr><td>Pump Efficiency (assumed)</td><td>${escHtml(String(inputs.pump_efficiency || 70))}</td><td>%</td></tr>
@@ -18234,6 +18328,17 @@ async function _tryServerPdf(html, fileName) {
 }
 
 function _fallbackHtml2pdf(reportEl, fileName) {
+  // ★THE LAST RESORT HAD NO FAILURE PATH OF ITS OWN. html2pdf is a CDN script with no onerror
+  // handler and no typeof guard anywhere, and this is the FALLBACK - it runs precisely when the
+  // server-side PDF is already unavailable. Measured with the CDN blocked and the server returning
+  // 503: 'html2pdf is not defined' was thrown, NO file was produced, and the surface said nothing at
+  // all. Someone pressing Download PDF on a finished calculation got silence. A missing third party
+  // is not a state a person can debug, so it has to be named - and the work is not lost: the report
+  // is on screen and the browser's own print dialog can still produce a PDF from it.
+  if (typeof html2pdf !== 'function') {
+    showToast('The PDF exporter could not be loaded (offline, or a blocked CDN). Your report is still on screen: use Print → Save as PDF.', 7000);
+    return;
+  }
   const noPrintEls  = reportEl.querySelectorAll('.no-print');
   const editableEls = reportEl.querySelectorAll('.editable-field');
   noPrintEls.forEach(el => el.style.display = 'none');
@@ -28022,67 +28127,170 @@ function validateBeforeSave() {
 }
 
 async function saveCalc() {
-  if (!_lastResults || !_lastInputs) return;
+  // ★THE SHARED GATE'S MESSAGES WERE UNREACHABLE FOR THE CASES THEY DESCRIBE. A bare
+  // 'if (!_lastResults || !_lastInputs) return;' sat here, one line ABOVE validateBeforeSave() - so the
+  // most common failure (pressing Save before running a calculation) returned before the gate could
+  // speak, and 'Run the calculation before saving.' / 'Select a calculation before saving.' were dead
+  // code. One path returned in total SILENCE; the other said a generic 'No calculation to save.' while
+  // the gate could have named which of the two things was missing. Both pre-guards are removed: the
+  // gate already tests exactly these conditions (okObj on both objects, plus _calcType/_discipline) and
+  // is the single validate-before-persist point its own comment claims it is.
   if (!validateBeforeSave()) return;   // I-5
 
-  // I-1/I-8 (deep-arc P2): resolve the authenticated identity, guard the write on
-  // it, AND stamp auth_uid. worker_name/hive_id come from localStorage (spoofable);
-  // auth_uid is the server-verifiable owner (locked attribution rule).
-  const uid = (await db.auth.getUser())?.data?.user?.id;
-  if (!uid) { showToast('Sign in to save.'); return; }
+  // ★NO OFFLINE REFUSAL - AND MY OWN EXPOSURE SWEEP NEVER SAW THIS FILE. The roster scan that drove
+  // this session's whRequireOnline adoption read only *.html, so every write in engineering-design.js
+  // was invisible to it and the page scored 'reachable=0' while holding three real ones. A coverage
+  // measurement is only as wide as the files it opens.
+  // engineering-design registers no offline write queue, so these are online-only-with-clarity.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Saving this calculation', (m) => showToast(m, 5000))) return;
 
-  const payload = {
-    hive_id:      HIVE_ID,
-    auth_uid:     uid,
-    worker_name:  WORKER_NAME,
-    discipline:   _discipline,
-    calc_type:    _calcType,
-    project_name: _lastInputs.project_name,
-    inputs:       _lastInputs,
-    results:      _lastResults,
-    narrative:    _lastNarrative,
-  };
+  // ★TWO PRESSES WERE TWO ROWS, AND NOTHING ON SCREEN DISCOURAGED THE SECOND PRESS. This is bound with
+  // an inline onclick="saveCalc()", so it had no element to disable, no re-entrancy flag, and no
+  // in-flight state of any kind: press Save, and until the insert returned there was no spinner, no
+  // disabled button and no 'Saving' label. A person whose save is slow presses again - that is the
+  // ordinary behaviour, not the exotic one - and the second press ran the whole function again and
+  // landed a SECOND engineering_calcs row.
+  // Why a duplicate here is not cosmetic: there is no unique constraint on this table, and
+  // project-manager reads engineering_calcs through project_links as a project's linked ENGINEERING
+  // EVIDENCE (project-manager.html ~2350). Two rows for one calculation double-count that evidence,
+  // and the platform's own rule for linked evidence is that it must be counted once.
+  // Guard, in-flight state and release are the same pattern this session applied to the other
+  // committing controls: check the flag AND the button, restore on EVERY exit path in the finally.
+  const btn = document.getElementById('save-calc-btn');
+  if (_savingCalc || (btn && btn.disabled)) return;
+  _savingCalc = true;
+  let restore = () => {};
+  if (btn) {
+    const _label = btn.innerHTML;
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    btn.textContent = 'Saving...';
+    restore = () => {
+      btn.disabled = false;
+      btn.removeAttribute('aria-busy');
+      btn.innerHTML = _label;
+    };
+  }
 
-  const { error } = await db.from('engineering_calcs').insert(payload);
-  if (error) {
-    showToast('Save failed: ' + error.message, 5000);
-  } else {
-    showToast('Calculation saved to history.');
+  try {
+    // I-1/I-8 (deep-arc P2): resolve the authenticated identity, guard the write on
+    // it, AND stamp auth_uid. worker_name/hive_id come from localStorage (spoofable);
+    // auth_uid is the server-verifiable owner (locked attribution rule).
+    const uid = (await db.auth.getUser())?.data?.user?.id;
+    if (!uid) { showToast('Sign in to save.'); return; }
+
+    const payload = {
+      hive_id:      HIVE_ID,
+      auth_uid:     uid,
+      worker_name:  WORKER_NAME,
+      discipline:   _discipline,
+      calc_type:    _calcType,
+      project_name: _lastInputs.project_name,
+      inputs:       _lastInputs,
+      results:      _lastResults,
+      // ★THE GOVERNING STANDARD WAS DISPLAYED AND NEVER STORED. Every calculator declares its
+      // standards in GUIDES[_calcType].standards - 'UPC Table 7-3', 'NSPC', 'DENR DAO 2016-08' and so
+      // on - and the guide shows them, but the SAVE wrote only inputs/results/narrative. Checked
+      // against the stored rows: 0 of 30 carry a standard code anywhere. So a calc reopened next year,
+      // or pulled into a project as engineering evidence, cannot say what it was computed UNDER, and a
+      // result under a superseded edition is not the same result. Stamped at save time from the same
+      // definition the guide renders, so the record and the screen cannot disagree.
+      narrative:    (function () {
+        const g = (typeof GUIDES !== 'undefined' && GUIDES[_calcType]) || null;
+        const std = g && Array.isArray(g.standards) ? g.standards.slice() : null;
+        if (!std || !std.length) return _lastNarrative;
+        return Object.assign({}, _lastNarrative || {}, { standards: std, calc_type: _calcType });
+      })(),
+    };
+
+    const { error } = await db.from('engineering_calcs').insert(payload);
+    if (error) {
+      showToast('Save failed: ' + error.message, 5000);
+    } else {
+      // Was 'Calculation saved to history.' - a destination with no timing and no route to it. A saved
+      // calc is reachable evidence, so the confirmation names where it is, that it is there NOW, and
+      // what can be done with it next.
+      showToast('Saved -> it is in your calculation history now, and you can reopen or export it from the History tab.');
+    }
+  } finally {
+    _savingCalc = false;
+    restore();
   }
 }
 
 async function saveWithBomSow() {
-  if (!_lastResults || !_lastInputs) { showToast('No calculation to save.'); return; }
+  // ★THE SHARED GATE'S MESSAGES WERE UNREACHABLE FOR THE CASES THEY DESCRIBE. A bare
+  // 'if (!_lastResults || !_lastInputs) return;' sat here, one line ABOVE validateBeforeSave() - so the
+  // most common failure (pressing Save before running a calculation) returned before the gate could
+  // speak, and 'Run the calculation before saving.' / 'Select a calculation before saving.' were dead
+  // code. One path returned in total SILENCE; the other said a generic 'No calculation to save.' while
+  // the gate could have named which of the two things was missing. Both pre-guards are removed: the
+  // gate already tests exactly these conditions (okObj on both objects, plus _calcType/_discipline) and
+  // is the single validate-before-persist point its own comment claims it is.
   if (!validateBeforeSave()) return;   // I-5
 
-  // I-1/I-8 (deep-arc P2): guard + attribute (see saveCalc).
-  const uid = (await db.auth.getUser())?.data?.user?.id;
-  if (!uid) { showToast('Sign in to save.'); return; }
+  // ★NO OFFLINE REFUSAL - AND MY OWN EXPOSURE SWEEP NEVER SAW THIS FILE. The roster scan that drove
+  // this session's whRequireOnline adoption read only *.html, so every write in engineering-design.js
+  // was invisible to it and the page scored 'reachable=0' while holding three real ones. A coverage
+  // measurement is only as wide as the files it opens.
+  // engineering-design registers no offline write queue, so these are online-only-with-clarity.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Saving this calculation with its BOM and SOW', (m) => showToast(m, 5000))) return;
 
-  // Collect final BOM from preview table inputs
-  const bomRows = collectBomFromPreview();
-  // Collect final SOW text from preview
-  const sowText = document.getElementById('sow-doc-preview')?.innerText || '';
+  // Same double-press exposure as saveCalc(), and worse in consequence: this row carries the BOM and
+  // the SOW, so a duplicate is a second bill of materials and a second scope of work for one job.
+  // Guard + in-flight state + release on every path (see saveCalc for the full reasoning).
+  const btn = document.getElementById('save-bomsow-btn');
+  if (_savingBomSow || (btn && btn.disabled)) return;
+  _savingBomSow = true;
+  let restore = () => {};
+  if (btn) {
+    const _label = btn.innerHTML;
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    btn.textContent = 'Saving...';
+    restore = () => {
+      btn.disabled = false;
+      btn.removeAttribute('aria-busy');
+      btn.innerHTML = _label;
+    };
+  }
 
-  const payload = {
-    hive_id:      HIVE_ID,
-    auth_uid:     uid,
-    worker_name:  WORKER_NAME,
-    discipline:   _discipline,
-    calc_type:    _calcType,
-    project_name: _lastInputs.project_name,
-    inputs:       _lastInputs,
-    results:      _lastResults,
-    narrative:    _lastNarrative,
-    bom_data:     bomRows,
-    sow_text:     sowText,
-  };
+  try {
+    // I-1/I-8 (deep-arc P2): guard + attribute (see saveCalc).
+    const uid = (await db.auth.getUser())?.data?.user?.id;
+    if (!uid) { showToast('Sign in to save.'); return; }
 
-  const { error } = await db.from('engineering_calcs').insert(payload);
-  if (error) {
-    showToast('Save failed: ' + error.message, 5000);
-  } else {
-    showToast('Saved with BOM + SOW.');
+    // Collect final BOM from preview table inputs
+    const bomRows = collectBomFromPreview();
+    // Collect final SOW text from preview
+    const sowText = document.getElementById('sow-doc-preview')?.innerText || '';
+
+    const payload = {
+      hive_id:      HIVE_ID,
+      auth_uid:     uid,
+      worker_name:  WORKER_NAME,
+      discipline:   _discipline,
+      calc_type:    _calcType,
+      project_name: _lastInputs.project_name,
+      inputs:       _lastInputs,
+      results:      _lastResults,
+      narrative:    _lastNarrative,
+      bom_data:     bomRows,
+      sow_text:     sowText,
+    };
+
+    const { error } = await db.from('engineering_calcs').insert(payload);
+    if (error) {
+      showToast('Save failed: ' + error.message, 5000);
+    } else {
+      // Was 'Saved with BOM + SOW.' - it named WHAT was saved but not where it went or what to do next.
+      showToast('Saved -> the calculation, its BOM and its SOW are in your history now, and you can reopen or export them from the History tab.');
+    }
+  } finally {
+    _savingBomSow = false;
+    restore();
   }
 }
 
@@ -28123,10 +28331,35 @@ async function loadHistory() {
     q = q.is('hive_id', null).eq('auth_uid', uid || '00000000-0000-0000-0000-000000000000');
   }
   const { data, error } = await q
+    // ★created_at ALONE IS NOT A TOTAL ORDER, and this read is capped at 50. Two calcs saved in the same
+    // second have no defined relative order, so the list can reshuffle between reads and - once a hive
+    // passes 50 saved calcs - a row can repeat on one page and be skipped on the next. Measured live: the
+    // request went out as `order=created_at.desc&limit=50` with no tiebreaker, while project-manager's
+    // read of THIS SAME TABLE already appends .order('id') (project-manager.html:2441). id is unique, so
+    // adding it as the last key makes the order total without changing the primary sort or which row wins
+    // for any distinct timestamp. Today's data happens to have 6 rows with 6 distinct timestamps, which is
+    // why nothing was visibly wrong - an accidental total order, not a guaranteed one.
     .order('created_at', { ascending: false })
+    .order('id')
     .limit(50);
 
-  if (error || !data?.length) {
+  // A FAILED READ AND AN EMPTY RESULT SHARED ONE BRANCH, so `error` and `!data?.length` produced the
+  // identical screen: "No saved calculations yet." Measured by answering the history tab's own read
+  // with a 500 - a saved calculation someone attached to a project as its engineering justification
+  // appeared simply absent, and project-manager reads `engineering_calcs` as linked project
+  // EVIDENCE. On a page whose whole output is a number under a named standard (API 610, NFPA 13),
+  // "none saved" invites recomputing work that already exists. The two cases are now separate.
+  if (error) {
+    console.error('saved calcs read failed:', error.message);
+    list/* xss-allow: static markup, no user input */ .innerHTML = `<div class="text-center py-16" style="color:rgba(255,255,255,0.85);">
+      <div style="font-size:2rem;margin-bottom:0.75rem;">⚠</div>
+      <div>Could not load your saved calculations.</div>
+      <div style="font-size:0.72rem;margin-top:0.4rem;color:rgba(255,255,255,0.7);">This is a connection problem, not an empty history. Reload before recomputing a calculation you may already have saved.</div>
+      <button type="button" onclick="loadHistory();" style="margin-top:0.8rem;min-height:44px;padding:0 0.9rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button>
+    </div>`;
+    return;
+  }
+  if (!data?.length) {
     list/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `<div class="text-center py-16" style="color:rgba(255,255,255,0.6);">
       <div style="font-size:2rem;margin-bottom:0.75rem;">📋</div>
       <div>No saved calculations yet.</div>
@@ -28158,7 +28391,7 @@ async function loadHistory() {
             <div class="text-xs" style="color:rgba(255,255,255,0.6);">${dt}</div>
             <div class="flex gap-2 mt-2">
               <button class="btn-ghost text-xs py-1 px-3" onclick="viewHistoryById('${row.id}')">View</button>
-              <button class="btn-ghost text-xs py-1 px-3" style="border-color:rgba(239,68,68,0.3);color:rgba(239,68,68,0.7);" onclick="deleteCalc('${row.id}')">Delete</button>
+              <button class="btn-ghost text-xs py-1 px-3" style="border-color:rgba(239,68,68,0.3);color:var(--wh-red-text);" onclick="deleteCalc('${row.id}')">Delete</button>
             </div>
           </div>
         </div>
@@ -28246,7 +28479,41 @@ function viewHistoryReport(row) {
 }
 
 async function deleteCalc(id) {
-  if (!(await window.whConfirm('Delete this calculation?', { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
+  // ★NO OFFLINE REFUSAL - AND MY OWN EXPOSURE SWEEP NEVER SAW THIS FILE. The roster scan that drove
+  // this session's whRequireOnline adoption read only *.html, so every write in engineering-design.js
+  // was invisible to it and the page scored 'reachable=0' while holding three real ones. A coverage
+  // measurement is only as wide as the files it opens.
+  // engineering-design registers no offline write queue, so these are online-only-with-clarity.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Deleting this calculation', (m) => showToast(m, 5000))) return;
+  // Placed BEFORE the confirmation on purpose: this is a HARD delete with no soft-delete column and
+  // no restore path, and project-manager reads engineering_calcs through project_links as a project's
+  // evidence - asking someone to confirm destroying that and only then failing is the worst order.
+  // ★THE CONFIRMATION ASKED ABOUT THE CALC AND NEVER MENTIONED WHAT DEPENDS ON IT. The note below
+  // records the gap honestly - project-manager joins engineering_calcs through project_links, so a
+  // deleted calc becomes a project's MISSING EVIDENCE, and nothing here checked. Refusing outright is
+  // wrong: the owner may legitimately want it gone. What was missing is the fact, at the moment the
+  // decision is made. So the links are looked up first and NAMED in the prompt - 'Delete this
+  // calculation?' becomes a different question once you know two projects cite it. The lookup is
+  // best-effort: if it fails, the original prompt still runs, because a read error must not become a
+  // reason someone cannot delete their own work.
+  let _linkWarn = '';
+  try {
+    const { data: _links } = await db.from('project_links')
+      .select('project_id, label')
+      .eq('link_type', 'engineering_calc')
+      .eq('link_id', String(id))
+      .order('project_id')
+      .limit(200);
+    const n = (_links || []).length;
+    if (n) {
+      const projects = new Set((_links || []).map(l => l.project_id));
+      _linkWarn = ' It is linked as evidence in ' + projects.size + ' project'
+        + (projects.size === 1 ? '' : 's')
+        + ', and deleting it removes that evidence permanently.';
+    }
+  } catch (_) { /* empty-catch-allow: a failed link lookup must not block deleting your own calc */ }
+  if (!(await window.whConfirm('Delete this calculation?' + _linkWarn, { okLabel: 'Delete', cancelLabel: 'Cancel' }))) return;
   // I-4 (deep-arc P2): object-level auth — scope the delete by auth_uid (the
   // server-verified owner), not the spoofable worker_name. The tightened RLS
   // delete policy enforces the same at the DB; this is defense-in-depth. .eq()
@@ -28256,7 +28523,16 @@ async function deleteCalc(id) {
   const { error } = await db.from('engineering_calcs').delete()
     .eq('id', id).eq('auth_uid', uid);
   if (error) { showToast('Delete failed.'); return; }
-  showToast('Deleted.');
+  // ★A DESTRUCTIVE ACTION MUST SAY IT IS PERMANENT. 'Deleted.' named neither what was removed nor
+  // whether it could be undone - on the one control on this page that destroys work. This is a HARD
+  // delete (db.from('engineering_calcs').delete(), auth_uid-scoped, no soft-delete column and no
+  // restore path anywhere in this file), so permanence is a fact worth stating rather than leaving a
+  // person to discover. The whConfirm gate above already asks first; this closes the loop after.
+  // DELIBERATELY NOT CLAIMED: whether anything LINKED to this calc is affected. project-manager joins
+  // engineering_calcs through project_links, so a deleted calc can be a project's missing evidence -
+  // and nothing here checks for that. Saying 'nothing else is affected' would be a promise the code
+  // does not keep, so the sentence stays inside what is verifiable.
+  showToast('Deleted → removed from your saved calculations. This cannot be undone.');
   loadHistory();
 }
 
@@ -31746,6 +32022,13 @@ function syncCalcCounts() {
 async function init() {
   // C4: restore identity from auth session on new device
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
+  // NOTE (2026-08-19): I wrote an outage-vs-signed-out split here and REMOVED it, because I could not
+  // make it fire. Under a forced 500 on every REST read this page renders IDENTICALLY - 1845 characters
+  // healthy, 1845 failed - so identity restore was never the thing failing, and the branch would have
+  // been unverified code in a 28k-line file dressed as a fix. The real reading is that the calculators
+  // are pure client-side: the 7 failed calls withhold nothing the person asked for on this view, which
+  // is the same "not a constraint" shape alert-hub's load-time orchestrator call has. That makes the CC
+  // cells here a SCOPING question for the oracle, not a product defect - recorded rather than patched.
   if (!WORKER_NAME) { window.location.href = 'index.html'; return; }
   syncCalcCounts();
   const _engChip = document.getElementById('eng-source-chip');

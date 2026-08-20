@@ -240,14 +240,35 @@ def check_edge_new_logbook_fields(ts, path):
 def check_html_toast_on_error(html, page):
     if not html:
         return []
-    catch_m = re.search(r"catch\s*\(err\)", html)
-    if not catch_m:
+    # TWO DEFECTS FIXED 2026-08-20, both of which failed a file that is CORRECT:
+    #   1. re.search took only the FIRST catch(err); analytics.html has two.
+    #   2. a 600-char window over a 1568-char body -- the showToast sits at 1492, so even a
+    #      compliant block failed. Brace-match the body instead: that is what "does this catch
+    #      tell the user?" actually means, and it cannot be outgrown by the comments inside it.
+    catches = list(re.finditer(r"catch\s*\(err\)", html))
+    if not catches:
         return [{"check": "toast_on_error", "page": page,
                  "reason": "No catch(err) block found — errors may be silently swallowed"}]
-    window = html[catch_m.start():catch_m.start() + 600]
-    if "showToast" not in window:
+    silent = []
+    for m in catches:
+        i = html.find("{", m.end())
+        if i < 0:
+            continue
+        depth, body = 0, ""
+        for j in range(i, len(html)):
+            if html[j] == "{":
+                depth += 1
+            elif html[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    body = html[i:j + 1]
+                    break
+        if body and "showToast" not in body:
+            silent.append(html[:m.start()].count("\n") + 1)
+    if silent:
         return [{"check": "toast_on_error", "page": page,
-                 "reason": "showToast not called in error catch — users will not see feedback"}]
+                 "reason": f"showToast not called in the catch(err) at line(s) {silent} — "
+                           f"users will not see feedback"}]
     return []
 
 

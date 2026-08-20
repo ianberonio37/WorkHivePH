@@ -638,11 +638,65 @@
   };
 
   // ── CSV export — supervisor-friendly compliance artifact ────────────────────
-  function exportCsv() {
+  // ★A COMPLIANCE EXPORT MUST NOT INHERIT THE FEED'S ROW CAP (2026-08-19, same class as logbook's).
+  // This wrote applyFilters() over _entries, which is filled by a read capped at .limit(500) — right
+  // for a scrolling feed, wrong for the artifact the comment above calls a compliance record.
+  // Measured: this hive holds 847 audit rows against that 500 cap, so 347 were dropped into a file
+  // named audit-log-<hive>-<date>.csv with nothing saying so. An audit trail that silently omits a
+  // third of itself is worse than no export, because the omission is invisible on disk. The export
+  // now reads its OWN complete set, paged past the cap with the same hive scope and time range, and
+  // the file states what it covers.
+  async function fetchAllForExport() {
+    const PAGE = 500;
+    const out = [];
+    for (let from = 0; ; from += PAGE) {
+      let q = db.from('hive_audit_log')
+        .select('id, actor, action, target_type, target_id, target_name, meta, created_at')
+        .eq('hive_id', HIVE_ID)
+        .order('created_at', { ascending: false })
+        .order('id')                 // MR4: the sort above is not total on its own
+        .range(from, from + PAGE - 1);
+      // Resolve the range the SAME way loadEntries does (:471) — RANGES is an ARRAY keyed by .id,
+      // not an object, so indexing it by _activeRange yields undefined and would silently widen the
+      // export to all history. Reusing the exact lookup keeps the file's scope equal to the screen's.
+      const _r = RANGES.find(r => r.id === _activeRange) || RANGES[1];
+      if (_r && _r.hours) q = q.gte('created_at', new Date(Date.now() - _r.hours * 3600 * 1000).toISOString());
+      const { data, error } = await q;
+      if (error) throw error;
+      out.push(...(data || []));
+      if (!data || data.length < PAGE) return out;
+    }
+  }
+
+  async function exportCsv() {
+    let source = _entries;
+    let complete = false;
+    try { source = await fetchAllForExport(); complete = true; }
+    catch (e) {
+      // Never hand over a shorter file silently — say what it contains.
+      console.warn('audit export: full read failed, exporting the loaded window', e);
+      showToast('Could not read the full log, so this exports the ' + _entries.length + ' entries loaded.');
+    }
+    const _saved = _entries;
+    _entries = source;
     const items = applyFilters();
+    _entries = _saved;
     if (!items.length) { showToast('No entries to export.'); return; }
+    // The file states its own scope: an auditor holding the CSV has no page around it, so
+    // completeness must be legible from the artifact rather than inferred from where it came from.
+    const _r2 = RANGES.find(r => r.id === _activeRange) || RANGES[1];
+    const meta = [
+      'WorkHive audit log export',
+      'Hive: ' + (HIVE_NAME || '(unnamed)'),
+      'Range: ' + ((_r2 && _r2.label) || _activeRange) + (complete ? '' : ' (PARTIAL - loaded window only)'),
+      'Entries: ' + items.length,
+      'Filters: ' + [_activeActor && ('actor=' + _activeActor), _activeAction && ('action=' + _activeAction),
+                     _activeTarget && ('target=' + _activeTarget), _searchTerm && ('search=' + _searchTerm)]
+                    .filter(Boolean).join('; ') || 'none',
+      'Exported: ' + new Date().toISOString(),
+    ].map(csvEscape).join(String.fromCharCode(13, 10));
     const headers = ['created_at', 'actor', 'action', 'target_type', 'target_id', 'target_name', 'meta'];
-    const lines = [headers.join(',')];
+    const lines = [meta, '', headers.join(',')];
     for (const en of items) {
       const row = [
         en.created_at || '',

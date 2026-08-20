@@ -1,10 +1,10 @@
 {
   "_doc": "Deterministic edge-function cross-table WRITE map (Phase A residual-closer of INTERACTIVE_LINEAGE_ROADMAP). Parsed from each function's index.ts `.from(T).insert/upsert/update/delete`. disposition: data_mapped/data_unmapped (displayed table -> must be in causal_cascades.json) | operational (job/audit log) | self_config | infra (no display page).",
   "totals": {
-    "edge_fns_with_writes": 32,
+    "edge_fns_with_writes": 33,
     "data_cascades_mapped": 21,
     "data_cascades_UNMAPPED": 2,
-    "operational_log_writes": 14,
+    "operational_log_writes": 15,
     "self_config_writes": 2,
     "infra_writes": 9
   },
@@ -113,8 +113,8 @@
         {
           "fn": "analytics-orchestrator",
           "to_table": "analytics_snapshots",
-          "line": 1182,
-          "evidence": "functions/analytics-orchestrator/index.ts:1182",
+          "line": 1209,
+          "evidence": "functions/analytics-orchestrator/index.ts:1209",
           "downstream_pages": [
             "analytics"
           ],
@@ -146,8 +146,8 @@
         {
           "fn": "batch-risk-scoring",
           "to_table": "asset_risk_scores",
-          "line": 429,
-          "evidence": "functions/batch-risk-scoring/index.ts:429",
+          "line": 433,
+          "evidence": "functions/batch-risk-scoring/index.ts:433",
           "downstream_pages": [
             "alert-hub",
             "asset-hub"
@@ -160,7 +160,8 @@
           "line": 116,
           "evidence": "functions/batch-risk-scoring/index.ts:116",
           "downstream_pages": [
-            "alert-hub"
+            "alert-hub",
+            "report-sender"
           ],
           "disposition": "operational"
         }
@@ -190,7 +191,8 @@
           "line": 290,
           "evidence": "functions/benchmark-compute/index.ts:290",
           "downstream_pages": [
-            "alert-hub"
+            "alert-hub",
+            "report-sender"
           ],
           "disposition": "operational"
         },
@@ -233,7 +235,8 @@
           "line": 195,
           "evidence": "functions/cmms-push-completion/index.ts:195",
           "downstream_pages": [
-            "alert-hub"
+            "alert-hub",
+            "report-sender"
           ],
           "disposition": "operational"
         },
@@ -268,7 +271,8 @@
           "line": 407,
           "evidence": "functions/cmms-sync/index.ts:407",
           "downstream_pages": [
-            "alert-hub"
+            "alert-hub",
+            "report-sender"
           ],
           "disposition": "operational"
         },
@@ -456,7 +460,8 @@
           "line": 365,
           "evidence": "functions/failure-signature-scan/index.ts:365",
           "downstream_pages": [
-            "alert-hub"
+            "alert-hub",
+            "report-sender"
           ],
           "disposition": "operational"
         },
@@ -480,8 +485,8 @@
         {
           "fn": "fmea-populator",
           "to_table": "rcm_fmea_modes",
-          "line": 385,
-          "evidence": "functions/fmea-populator/index.ts:385",
+          "line": 391,
+          "evidence": "functions/fmea-populator/index.ts:391",
           "downstream_pages": [
             "asset-hub"
           ],
@@ -557,7 +562,8 @@
           "line": 284,
           "evidence": "functions/intelligence-report/index.ts:284",
           "downstream_pages": [
-            "alert-hub"
+            "alert-hub",
+            "report-sender"
           ],
           "disposition": "operational"
         },
@@ -610,7 +616,8 @@
           "line": 86,
           "evidence": "functions/parts-staging-recommender/index.ts:86",
           "downstream_pages": [
-            "alert-hub"
+            "alert-hub",
+            "report-sender"
           ],
           "disposition": "operational"
         },
@@ -655,8 +662,8 @@
         {
           "fn": "pf-calculator",
           "to_table": "pf_intervals",
-          "line": 300,
-          "evidence": "functions/pf-calculator/index.ts:300",
+          "line": 306,
+          "evidence": "functions/pf-calculator/index.ts:306",
           "downstream_pages": [
             "asset-hub"
           ],
@@ -687,6 +694,25 @@
       "reads": [],
       "invoked_by_pages": []
     },
+    "resend-webhook-receiver": {
+      "writes": [
+        {
+          "fn": "resend-webhook-receiver",
+          "to_table": "automation_log",
+          "line": 142,
+          "evidence": "functions/resend-webhook-receiver/index.ts:142",
+          "downstream_pages": [
+            "alert-hub",
+            "report-sender"
+          ],
+          "disposition": "operational"
+        }
+      ],
+      "reads": [
+        "automation_log"
+      ],
+      "invoked_by_pages": []
+    },
     "scheduled-agents": {
       "writes": [
         {
@@ -706,7 +732,8 @@
           "line": 40,
           "evidence": "functions/scheduled-agents/index.ts:40",
           "downstream_pages": [
-            "alert-hub"
+            "alert-hub",
+            "report-sender"
           ],
           "disposition": "operational"
         }
@@ -719,7 +746,9 @@
         "v_project_progress_truth",
         "v_project_truth"
       ],
-      "invoked_by_pages": []
+      "invoked_by_pages": [
+        "report-sender"
+      ]
     },
     "semantic-fact-extractor": {
       "writes": [
@@ -743,10 +772,11 @@
         {
           "fn": "send-report-email",
           "to_table": "automation_log",
-          "line": 243,
-          "evidence": "functions/send-report-email/index.ts:243",
+          "line": 253,
+          "evidence": "functions/send-report-email/index.ts:253",
           "downstream_pages": [
-            "alert-hub"
+            "alert-hub",
+            "report-sender"
           ],
           "disposition": "operational"
         }
@@ -755,7 +785,9 @@
         "automation_log",
         "v_hives_truth"
       ],
-      "invoked_by_pages": []
+      "invoked_by_pages": [
+        "report-sender"
+      ]
     },
     "sensor-readings-ingest": {
       "writes": [
@@ -781,8 +813,8 @@
         {
           "fn": "shift-planner-orchestrator",
           "to_table": "shift_plans",
-          "line": 288,
-          "evidence": "functions/shift-planner-orchestrator/index.ts:288",
+          "line": 293,
+          "evidence": "functions/shift-planner-orchestrator/index.ts:293",
           "downstream_pages": [
             "shift-brain"
           ],
@@ -857,7 +889,8 @@
           "line": 135,
           "evidence": "functions/trigger-ml-retrain/index.ts:135",
           "downstream_pages": [
-            "alert-hub"
+            "alert-hub",
+            "report-sender"
           ],
           "disposition": "operational"
         }
@@ -896,8 +929,8 @@
         {
           "fn": "weibull-fitter",
           "to_table": "weibull_fits",
-          "line": 304,
-          "evidence": "functions/weibull-fitter/index.ts:304",
+          "line": 310,
+          "evidence": "functions/weibull-fitter/index.ts:310",
           "downstream_pages": [
             "asset-hub"
           ],

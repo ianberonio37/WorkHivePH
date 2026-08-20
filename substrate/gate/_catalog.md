@@ -2,16 +2,16 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: a3cc3c79a1bee39c
+source_sha: 996042b5cc21173c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (770) — the 'what's already gated' brain
+## gate · registered validators (778) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
 
-### AI Validation (120)
+### AI Validation (121)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `ai_fabrication_contract` ⚡ [fail] — Arc H: AI action-faithfulness rail centralized (D13, no fabricated completed-write)
 - `ai_input_caps` ⚡ [fail] — Arc R: AI input caps (user text length-capped before LLM; LLM10)
@@ -36,6 +36,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `auth_rate_limit_live` [fail] — Arc I: live AI rate-limit enforcement (counter at limit → 429; LLM10)
 - `auth_role_guard_live` [fail] — Arc I: live function-level role guard (worker → 403 on supervisor-only fn)
 - `auth_role_render_live` [fail] — Arc I: live role-gated render (RBAC at the render layer; supervisor-only visibility)
+- `authority-links` [fail] — Authority-link resolution (V3 5, AIO: every outbound citation still resolves; 404/410 = dead and ratcheted, bot-challenge 403 = shielded and reported, never fai
 - `bom_sow_grounding` [fail] — AI Self-Improvement: BOM/SOW Grounding-Consistency (§13.13, live LLM)
 - `calc-claim-consistency` [fail] — Calculator-Claim Consistency Gate (V3 §5: every self-reported calculator/discipline count matches a derived SSOT; visible Updated == schema dateModified; forwar
 - `calc-pages` ⚡ [fail] — Programmatic Calculator-Page Gate (Pillar 3: crawlable + answer-first + SoftwareApplication/FAQPage schema + non-orphan; static HTML for AI crawlers)
@@ -170,6 +171,10 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `fb2-browser-ci-persona` ⚡ [regression] — FB2 Browser-CI Multi-Persona Live Floor Ratchet (every page walked HEADLESS as field-tech/supervisor/new-worker/admin = role x viewport x hive; the persona-delt
 - `fb4-grounding-eval` [regression] — FB4 Live-LLM Grounding/Fabrication Eval (invokes the served LLM edge fns with DIVERSE ASKER PERSONAS - earnest/edge-case/adversarial-injection/Tagalog - and gra
 
+### Frontend (2)
+- `cl_page_contrast` [fail] — CL ui-visual CONTRAST on every production page, populated - BOTH oracles, run on the platform's OWN two calibrated lenses (live-state-runner's composited APCA +
+- `cl_view_contrast` [fail] — CL ui-visual CONTRAST inside the opened V2/V3 dialogs - 43 declared targets across 22 pages, each opened through its own source-read path. Same two lenses, same
+
 ### Maturity P1 (7)
 - `connection-pool-saturation` ⚡ [regression] — Connection-Pool Saturation Ratchet (LB GH: leak surfaces frozen at 0 + surface count + alarm declared)
 - `connection-surface-discovery` ⚡ [regression] — Connection-Surface Discovery (LB G-1: every subscribing surface registered + budgeted)
@@ -234,7 +239,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (549)
+### Platform (551)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -349,6 +354,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `clone-debt` ⚡ [fail] — Clone Debt (jscpd cross-page duplication; forward-only ratchet — redundancy critic)
 - `cls_reservations` [fail] — Late-filled blocks don't push the page (CLS <= 0.1 per surface; reports which min-height reservation has gone SHORT, because layout-shift sources name the block
 - `cm_number_labelled` [fail] — CM ux-comprehension live (every number a page renders carries a label naming what it is, proven with an injected bare-number control per page so the zero is loa
+- `cm_quota_legible` [fail] — CM what_does_it_cost, QUOTA half — a rate limit must be reported AS a rate limit. Model quota is invisible until you hit it, so the constraint is INDUCED: every
 - `cm_reward_explained` [fail] — CM ux-comprehension (a reward figure — XP, level, tier — states its criteria in its own card: what earns it or the threshold it sits at; a page with no reward o
 - `cm_why_refused` [fail] — CM ux-comprehension (a 42501/403 read refusal must be explained by NAMING permission: not blamed on identity, not left as a bare generic error, not silent. The 
 - `cmms-contracts` ⚡ [fail] — CMMS Contracts Validator (STATUS_MAP parity, DB column targets, shared imports)
@@ -467,6 +473,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `fk-on-delete` ⚡ [fail] — FK ON DELETE (every REFERENCES declares explicit ON DELETE behavior; covers ALTER ADD CONSTRAINT supersede; forward-only ratchet)
 - `flywheel-turn` ⚡ [fail] — Flywheel Turn (walks every Mega Gate layer; ratchet/regression diff vs prior turn)
 - `fmea_priority_order` ⚡ [fail] — AH7 - a severity-9 failure mode must never be buried by RPN. The RPN arithmetic was already sound (rpn is a GENERATED ALWAYS column S x O x D, inputs CHECK-boun
+- `fn-digest-contract` [fail] — Digest contract (v3 prose defect stays fixed; v4 expires real code AND real markup; v3 recordings never reinterpreted; narrowing keeps top-level keys; mutated s
 - `followup-queue-wiring` ⚡ [fail] — Follow-up Queue Wiring (Prospective layer: agent_followups store + _shared/followups.ts enqueue/recall-due/surface + ai-gateway surfacing + envelope-driven enqu
 - `form-submission-target` ⚡ [fail] — <form> Submission Target (every form has action OR onsubmit OR addEventListener('submit'); forward-only ratchet)
 - `formula-invocation` ⚡ [fail] — Formula Invocation Drift (Tier D-f refinement: same formula called with different period_days across consumers)
@@ -816,9 +823,12 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `sitemap-sync` ⚡ [fail] — Sitemap Sync Validator (3-layer: sitemap URLs <-> filesystem in sync + metadata complete)
 - `tool-aligned-cta` ⚡ [fail] — Tool-Aligned CTA Validator (3-layer: every /learn/ article anchors to a /<tool>.html + names the tool)
 
-### Security (3)
+### Security (6)
 - `no-client-truncate` ⚡ [fail] — NO CLIENT TRUNCATE - RLS IS NEVER CONSULTED FOR TRUNCATE, so the grant is the only control. FOUND 2026-08-03 by the live-MCP flywheel, three steps from where it
 - `payment-rails` ⚡ [fail] — PAYMENT RAILS - three GCash accounts meet in this product and only ONE of them may ever be on a given screen. WorkHive has no business registration and therefor
+- `revoke-actually-revoked` ⚡ [fail] — REVOKE ACTUALLY REVOKED - a `REVOKE EXECUTE ... FROM anon, authenticated` is a NO-OP, because every function is created with EXECUTE granted to PUBLIC and every
+- `session-death-is-not-removal` ⚡ [fail] — SESSION DEATH IS NOT REMOVAL - an expired session returns ZERO ROWS with NO ERROR under RLS, which is indistinguishable from "you were removed from this hive" u
+- `trigger-writes-need-definer` ⚡ [fail] — DEFINER FOR CLIENT-UNWRITABLE WRITES - a SECURITY INVOKER function that writes a table the end user cannot write raises 42501 INSIDE the trigger and takes the u
 - `unprotected-write-grant` ⚡ [fail] — UNPROTECTED WRITE GRANT — no end-user write privilege may stand on the GRANT alone. FOUND 2026-07-30 by teaching the marketplace test bank's SQL runner the `ano
 
 ### Sentinel (2)

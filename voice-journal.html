@@ -246,9 +246,17 @@
       background: rgba(247,162,27,0.18); border-color: rgba(247,162,27,0.35); color: var(--wh-orange-light);   /* C2: AA-safe orange (was --wh-orange @ 4.44:1) */
     }
     @media (max-width: 480px) { .filter-chip { min-height: 44px; padding: 0.45rem 0.95rem; } }
+      /* env(safe-area-inset-bottom) added 2026-08-06: this toast sat a fixed distance from the
+         bottom with NO home-indicator guard, so on an iPhone it could render under the indicator.
+         Found by auditing every toast rule on the platform after the layout lens reported
+         declaresSafeArea=false for div#toast on voice-journal and engineering-design: 6 of the 8
+         toast rules were missing the guard and only community + pm-scheduler had it — a shared
+         component copied per page and then diverged. The original offset is preserved; only the
+         inset is added. Read via the CSSOM, not getComputedStyle, which resolves env() to 0 on
+         desktop and makes a guarded and an unguarded rule look identical. */
 
     .toast {
-      position: fixed; left: 50%; bottom: 1.5rem;
+      position: fixed; left: 50%; bottom: calc(1.5rem + env(safe-area-inset-bottom));
       transform: translateX(-50%) translateY(4px);
       background: linear-gradient(135deg, rgba(42,61,88,0.95), rgba(31,46,69,0.98));
       border: 1px solid rgba(255,255,255,0.12);
@@ -271,6 +279,10 @@
 
     @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .fade-up { animation: fadeUp 0.3s ease forwards; }
+    /* This page ALREADY had a reduce block (the .mic-btn ring, above) and .fade-up escaped it -
+       which is why a page-level "does a reduce rule exist" check reported this page compliant
+       while 8 entries kept sliding. The guard has to name every animation, not exist. */
+    @media (prefers-reduced-motion: reduce) { .fade-up { animation: none; } }
 
     #signin-gate { display: none; }
     #signin-gate.show { display: block; }
@@ -327,7 +339,43 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div style="padding:0.5rem 1rem 0;">
       <details class="wh-help">
         <summary>How this works</summary>
-        <p>Record or type a note. The assistant turns it into a structured entry. Review it before you save. Use the voice buttons above to control spoken replies. Your past entries stay in the list below.</p>
+        <!-- ★ THIS PARAGRAPH MADE THREE PROMISES AND KEPT ONE (corrected 2026-08-18). Traced, not assumed:
+             (1) "Record OR TYPE a note" - there was no way to type one. The only <input> in the whole
+                 document was the entries search box. FIXED by building the typed entrance below, because
+                 the promise was the right one: it is the fallback for a loud plant floor, a denied mic, or
+                 a worker who cannot speak.
+             (2) "REVIEW IT BEFORE YOU SAVE" - there is no review step and never was. ai-gateway calls
+                 persistJournalEntry(transcript, reply) inside the SAME call that generates the reply
+                 (functions/ai-gateway/index.ts ~1669, for every SEMANTIC_RECALL_AGENT), so the row is
+                 written server-side before the person has seen anything. There is also no edit and no
+                 delete: the sole per-entry action in renderHistory is "Speak again". The note is
+                 permanent the instant it is sent.
+                 That is the opposite of what this sentence promised, and the gap is not cosmetic - it
+                 told a worker they had a gate before committing. The comment further up this same
+                 disclosure worries about capturing "a name, a phone number or a complaint nobody meant
+                 to keep"; a promised review is exactly what someone would rely on to catch that.
+                 Corrected to state when the save happens, rather than inventing a review step in a
+                 server-side write path shared by every recall agent.
+             (3) The audio-is-discarded claim was verified TRUE by an earlier session (see above). Kept. -->
+        <p>Record or type a note. The assistant turns it into a structured entry and replies. Your note is
+           <strong>saved as soon as the assistant replies</strong> — there is no separate save step, and an
+           entry cannot be edited or removed here afterwards, so leave out anything you would not want kept.
+           Use the voice buttons above to control spoken replies. Your past entries stay in the list below.</p>
+        <!-- ★ THE PAGE RECORDED SOMEONE'S VOICE AND NEVER SAID WHAT HAPPENED TO THE AUDIO. Measured:
+             with this disclosure OPEN, the rendered page contained no "audio", no "stored", no
+             "discarded", no "recording" — nothing a person could act on. On the surface most likely to
+             capture a name, a phone number or a complaint nobody meant to keep, silence is the one
+             answer that helps nobody: a cautious worker assumes the worst and stops using it, and an
+             incautious one assumes the best without checking.
+             THE GOOD NEWS WAS ALREADY TRUE — this states it rather than changing anything. Verified on
+             all three links, the same way the resume promise was: (1) voice-journal.html contains no
+             `storage.from` / `.upload(` / bucket write; (2) `voice_journal_entries` is (id, auth_uid,
+             worker_name, hive_id, transcript, reply, lang, embedding, meta, created_at) — it holds the
+             TRANSCRIPT and has no column for audio at all; (3) supabase/functions/voice-transcribe
+             writes no storage, its only "bucket" being a rate-limit comment.
+             Language is named in the same breath because the field reality here is Taglish, and a
+             worker deciding whether to speak naturally needs to know that is expected. -->
+        <p>Your <strong>voice recording is not kept</strong>: the audio is transcribed and then discarded, and only the text of your entry is saved to your account. Speak in <strong>Filipino, English or Taglish</strong> — the transcript keeps whatever you actually said.</p>
       </details>
     </div>
 
@@ -360,12 +408,51 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         </button>
       </div>
 
-      <button id="mic-btn" class="mic-btn" aria-label="Hold to talk">
+      <!-- ★ THE ACCESSIBLE NAME TAUGHT THE WRONG GESTURE, AND ONLY TO THE PEOPLE WHO COULD NOT SEE THE
+           CORRECTION. This said "Hold to talk". The handler is a TOGGLE on click (toggleRecord), the
+           visible line right below reads "Tap to start. Tap again to stop.", and every runtime label the
+           code sets afterwards says Tap ('Tap to stop' :1089 / 'Tap to start' :1117). So the ONE label a
+           screen-reader user meets FIRST - the one that teaches the interaction - was the only one that
+           said Hold, and a sighted user never saw the contradiction because the visible instruction sits
+           directly beneath the button.
+           Following "Hold to talk" does not fail loudly, which is what makes it worse: a click fires on
+           RELEASE, so press-hold-release STARTS a recording. The user lets go believing they have
+           finished speaking, and the mic is still live and recording the room. On the one page whose
+           whole job is capturing audio, that is the wrong failure to hand someone who cannot see the
+           button state. Now matches the handler, the visible copy, and its own later labels. -->
+      <button id="mic-btn" class="mic-btn" aria-label="Tap to start recording">
         <span class="ic ic-voice" aria-hidden="true"></span>
       </button>
 
       <div id="mic-state" class="text-center text-sm text-white/80 mt-3" style="min-height:1.25rem;">Tap to start. Tap again to stop.</div>
       <div id="mic-timer" class="text-center text-xs text-white/80 mt-1" style="min-height:1rem;"></div>
+
+      <!-- ★ THE PAGE PROMISED A TYPE PATH AND DID NOT HAVE ONE. "How this works" has always said
+           "Record or type a note", and the only <input> in the entire document was the entries SEARCH
+           box - no textarea, no contenteditable, nothing to type a note into.
+           That missing path is the accessibility fallback, not a nicety, and this is the page where it
+           matters most: a plant floor loud enough that speech will not transcribe, a denied or broken
+           mic permission, a quiet control room where speaking aloud is not an option, a worker who
+           cannot speak at all. Each of them reads "or type" and looks for a box that is not there.
+           The promise was the RIGHT promise, so it is now true rather than deleted from the copy.
+           A disclosure, not a second hero: the mic stays the page's primary action, while this is
+           keyboard-reachable and named. The label is visible rather than aria-only, so the sighted
+           worker who needs it can find it too. -->
+      <details id="type-fallback" class="wh-help mt-4">
+        <summary>Prefer to type? Write your note instead</summary>
+        <label for="type-input" class="block text-xs text-white/80 mb-1 mt-2">Write your journal note
+          <span class="text-white/70">(up to 2000 characters)</span></label>
+        <!-- maxlength is stated in the label rather than left to enforce itself silently: a cap that
+             stops accepting keystrokes with no explanation reads as a broken keyboard. This textarea is
+             the page's only data-entry field, so it is also the only place a constraint can live. -->
+        <textarea id="type-input" class="wh-input" rows="3" maxlength="2000"
+                  placeholder="Type what you would have said - Filipino, English or Taglish."></textarea>
+        <div class="flex justify-end mt-2">
+          <button id="type-send" type="button" class="btn-primary">Send note</button>
+        </div>
+        <div id="type-state" class="text-xs text-white/80 mt-2" style="min-height:1rem;"
+             role="status" aria-live="polite"></div>
+      </details>
 
       <div class="mt-4 space-y-3" id="current-turn" style="display:none;">
         <div class="flex items-center justify-between gap-2">
@@ -495,7 +582,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     let _busy = false;
 
     // History state
-    let _entries      = [];       // pairs of { user, agent, lang, ts }
+    let _entries      = [];       // pairs of { user, agent, lang, ts } — capped at HISTORY_LIMIT
+    // The TRUE number of entries this person has, or null when the count could not be read. Null is a
+    // third state on purpose: an unknown total must not be rendered as "N total", which would replace
+    // one false claim with another.
+    let _totalEntries = null;
     let _activeFilter = 'all';
     let _voiceDisplayCount = 8;  // List View Contract: client-side slice pagination (Arc P Wave 2: glance-first initial slice; Load More reveals +10)
 
@@ -819,19 +910,63 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       else listEl.innerHTML = '<div class="skeleton-row mb-2"></div><div class="skeleton-row mb-2"></div><div class="skeleton-row"></div>';
       emptyEl.style.display = 'none';
 
-      const { data, error } = await db.from('voice_journal_entries')
-        .select('id, transcript, reply, lang, created_at')
-        .order('created_at', { ascending: false })
-        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(HISTORY_LIMIT);
+      // ★ THE ERROR BRANCH BELOW ONLY CATCHES A *RESOLVED* ERROR, AND THE SKELETON PAID FOR IT.
+      // PostgREST resolves a 500 as `{ data: null, error }` — handled. But a dropped connection or a
+      // transport timeout REJECTS: `await` throws, this function exits before reaching any of the
+      // cleanup below, and the three skeleton rows painted at the top shimmer forever. Measured
+      // 2026-08-17 under injected offline and timeout: "3 skeleton(s) are STILL shimmering" — the page
+      // promising, indefinitely, that entries are on their way.
+      // A stuck skeleton is invisible to every gate (200 OK is never seen, no error reaches the
+      // console, nothing throws at the top level) and it is worse than an error message, because it
+      // tells the person to keep waiting for something that is never coming.
+      let data, error;
+      try {
+        ({ data, error } = await db.from('voice_journal_entries')
+          .select('id, transcript, reply, lang, created_at')
+          .order('created_at', { ascending: false })
+          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
+          .limit(HISTORY_LIMIT));
+      } catch (e) {
+        // A THROW is a failed read like any other — same destination as the branch below, so the two
+        // cannot drift apart.
+        error = e || new Error('journal read failed');
+      }
 
       if (error) {
         console.error('loadHistory:', error);
         listEl.innerHTML = '';
         emptyEl.style.display = 'block';
-        emptyEl.textContent = 'Could not load your journal. Try again.';
+        // ★"TRY AGAIN" WITH NOTHING TO TRY IT WITH. Measured by failing every /rest/v1/ read with a
+        // 500: this page said the failure and rendered ZERO retry affordances — the sentence literally
+        // instructs an action the page does not offer. On a journal, the distinction also matters for a
+        // second reason: an empty list here reads as "you have written nothing", and the person may
+        // simply re-record something they already captured.
+        // ★whListError(el, message, onRetry) already exists in utils.js and 16 pages import it, so this
+        // is ADOPTION rather than design. loadHistory() is the reader (not a renderer over stale
+        // state), so a targeted retry is correct here — hive's failure came from wiring a retry to a
+        // function that re-rendered a cache still holding the error, which is not the shape of this one.
+        if (typeof whListError === 'function') {
+          whListError(emptyEl, 'Could not load your journal. This is a connection problem, not an empty '
+            + 'journal. Your entries are still there.', () => loadHistory());
+        } else {
+          emptyEl.textContent = 'Could not load your journal. Try again.';
+        }
         return;
       }
+
+      // ★ THE PAGE CALLED A ROW CAP A TOTAL, AND THE SEARCH INHERITED THE LIE. HISTORY_LIMIT is 80;
+      // measured on this account, voice_journal_entries holds 108. The header rendered "80 entries" and
+      // the filter chip read "All (80)" — an explicit claim of completeness that was false by 28 rows.
+      // Worse, the search box above filters CLIENT-SIDE over exactly this loaded array, so searching for
+      // something said four months ago returns nothing and the page offers no reason. A search that
+      // silently covers part of the corpus is worse than one that refuses: the person concludes they
+      // never said it.
+      // A head:true count is one cheap round-trip and it is the only way to know whether the cap bit.
+      try {
+        const { count } = await db.from('voice_journal_entries')
+          .select('id', { count: 'exact', head: true });
+        _totalEntries = typeof count === 'number' ? count : null;
+      } catch (_) { _totalEntries = null; }   // unknown stays NULL, and the label then claims nothing
 
       _entries = (data || []).map(r => ({
         id:    r.id,
@@ -872,7 +1007,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
       const displays = Object.keys(seenByDisplay).sort((a, b) => seenByDisplay[b] - seenByDisplay[a]);
       const chips = [
-        `<button class="filter-chip ${_activeFilter === 'all' ? 'active' : ''}" data-filter="all" type="button" aria-pressed="${_activeFilter === 'all' ? 'true' : 'false'}" translate="no">All (${_entries.length})</button>`,
+        // ★ "All (80)" WAS THE MOST EXPLICIT VERSION OF THE LIE. The count above at least stated a
+        // number; this chip named it ALL. When the 80-row cap has bitten (108 on the measured account)
+        // the honest label is "Latest 80" — it still selects the same set, it just stops claiming the
+        // set is everything.
+        `<button class="filter-chip ${_activeFilter === 'all' ? 'active' : ''}" data-filter="all" type="button" aria-pressed="${_activeFilter === 'all' ? 'true' : 'false'}" translate="no">${
+          (typeof _totalEntries === 'number' && _totalEntries > _entries.length)
+            ? `Latest ${_entries.length}` : `All (${_entries.length})`}</button>`,
       ].concat(displays.map(d =>
         `<button class="filter-chip ${_activeFilter === d ? 'active' : ''}" data-filter="${escSafe(d)}" type="button" aria-pressed="${_activeFilter === d ? 'true' : 'false'}" translate="no">${escSafe(d)} (${seenByDisplay[d]})</button>`
       ));
@@ -915,9 +1056,23 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             || (p.agent || '').toLowerCase().includes(search);
       });
 
+      // Say WHICH entries these are. When the cap bit, the count names both numbers and the search box
+      // above stops implying it covers everything the person has ever said.
+      const _capped = typeof _totalEntries === 'number' && _totalEntries > _entries.length;
       $('entry-count').textContent = filtered.length
-        ? `${filtered.length} entr${filtered.length === 1 ? 'y' : 'ies'}`
+        ? (_capped
+            // Unfiltered, the honest sentence is about the CAP; filtered, it is about the subset AND
+            // the cap, because "12 entries" would otherwise imply 12 of everything.
+            ? (filtered.length === _entries.length
+                ? `latest ${_entries.length} of ${_totalEntries}`
+                : `${filtered.length} of the latest ${_entries.length} · ${_totalEntries} total`)
+            : `${filtered.length} entr${filtered.length === 1 ? 'y' : 'ies'}`)
         : '';
+      const _si = $('search-input');
+      if (_si) {
+        _si.placeholder = _capped ? `Search the latest ${_entries.length} entries…` : 'Search your entries...';
+        _si.setAttribute('aria-label', _si.placeholder);
+      }
 
       if (!filtered.length) {
         listEl.innerHTML = '';
@@ -1079,27 +1234,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           return;
         }
 
-        $('mic-state').textContent = 'Composing reply...';
-        $('current-reply-loading').style.display = 'block';
-
-        const reply = await callJournalAgent(transcript.text, transcript.lang);
-        $('current-reply-loading').style.display = 'none';
-        if (!reply) {
-          $('mic-state').textContent = 'No reply. Try again.';
-          return;
-        }
-        $('current-reply').textContent = reply;
-        $('current-reply').style.display = 'block';
-        $('current-replay').style.display = 'inline-flex';
-        $('current-replay').onclick = () => speak(reply, transcript.lang || 'en');
-
-        // Auto-speak the reply.
-        speak(reply, transcript.lang || 'en');
-
-        $('mic-state').textContent = 'Tap to add another thought.';
-
-        // Refresh history so the new pair shows up.
-        loadHistory().catch(e => console.warn('history refresh failed:', e));
+        await processTurn(transcript.text, transcript.lang,
+                          (m) => { $('mic-state').textContent = m; },
+                          'Tap to add another thought.');
       } catch (err) {
         console.error('onStopRecording:', err);
         $('current-reply-loading').style.display = 'none';
@@ -1109,6 +1246,88 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         _busy = false;
         $('mic-btn').disabled = false;
         $('mic-btn').classList.remove('processing');
+      }
+    }
+
+    // ONE turn pipeline, TWO entrances (mic and keyboard). Everything after transcription already
+    // operated on plain text, so the typed path shares this exact tail instead of copying it - two
+    // copies of a flow is how the same fix lands on one entrance and not the other.
+    // Returns true only when a reply actually arrived, so each caller can leave its own state right.
+    async function processTurn(text, lang, setStatus, doneMsg) {
+      setStatus('Composing reply...');
+      $('current-reply-loading').style.display = 'block';
+
+      const reply = await callJournalAgent(text, lang);
+      $('current-reply-loading').style.display = 'none';
+      if (!reply) {
+        setStatus('No reply. Try again.');
+        return false;
+      }
+      $('current-reply').textContent = reply;
+      $('current-reply').style.display = 'block';
+      $('current-replay').style.display = 'inline-flex';
+      $('current-replay').onclick = () => speak(reply, lang || 'en');
+
+      // Auto-speak the reply.
+      speak(reply, lang || 'en');
+
+      setStatus(doneMsg);
+
+      // Refresh history so the new pair shows up.
+      loadHistory().catch(e => console.warn('history refresh failed:', e));
+      return true;
+    }
+
+    // The keyboard entrance to the same pipeline. Shares _busy with the mic, so a typed note cannot
+    // race a recording in either direction, and re-checks the button's own disabled state - the
+    // double-submit guard this platform requires on every committing control (one submission, one
+    // entry). Every exit path re-enables the control and says something: a guard that returns in
+    // silence leaves a person tapping a dead button with no idea why.
+    let _typeDraft = null;
+    async function onSendTyped() {
+      const btn = $('type-send');
+      if (_busy || btn.disabled) return;
+      const text = ($('type-input').value || '').trim();
+      if (!text) {
+        $('type-state').textContent = 'Write a note first, then send it.';
+        $('type-input').focus();
+        return;
+      }
+
+      _busy = true;
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+      const label = btn.textContent;
+      btn.textContent = 'Sending...';
+
+      // Show the turn surface with what was typed, exactly as the mic path shows the transcript.
+      $('current-turn').style.display = 'block';
+      $('current-transcript').classList.remove('empty');
+      $('current-transcript').textContent = text;
+      $('current-lang').style.display = 'none';
+      $('current-reply').style.display = 'none';
+      $('current-replay').style.display = 'none';
+      $('current-reply-loading').style.display = 'none';
+
+      try {
+        // A typed note carries no detected language: the agent replies in English either way, and
+        // claiming a detection we never ran would be a made-up provenance chip.
+        const ok = await processTurn(text, 'en',
+                                    (m) => { $('type-state').textContent = m; },
+                                    'Saved to your journal - it is in the list below now. Write another any time.');
+        // Clear the draft only on a CONFIRMED save. On a failure the text stays in the box AND in
+        // the draft, which is the whole point of keeping one.
+        if (ok) { $('type-input').value = ''; if (_typeDraft) _typeDraft.clear(); }
+      } catch (err) {
+        console.error('onSendTyped:', err);
+        $('current-reply-loading').style.display = 'none';
+        $('type-state').textContent = 'Something went wrong - your note was not saved. Try sending it again.';
+        showToast(whAiError(err, 'Could not save your note.'));
+      } finally {
+        _busy = false;
+        btn.disabled = false;
+        btn.removeAttribute('aria-busy');
+        btn.textContent = label;
       }
     }
 
@@ -1164,6 +1383,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       $('tts-toggle').addEventListener('click', toggleTts);
       $('sov-voice-toggle').addEventListener('click', toggleSovereignVoice);
       $('mic-btn').addEventListener('click', toggleRecord);
+      // X2 interruption resilience: this box takes up to 2000 characters and is the page's only
+      // data-entry field, so an interruption part-way through loses everything. The shared helper
+      // restores into the field only when it is EMPTY, so it can never clobber live typing.
+      _typeDraft = (typeof whAutoSaveDraft === 'function')
+        ? whAutoSaveDraft('voicejournal-type', ['type-input']) : null;
+      $('type-send').addEventListener('click', onSendTyped);
       $('search-input').addEventListener('input', () => { _voiceDisplayCount = 8; renderHistory(); _vjSyncUrl(); });
       if (window.whAutoRememberFilters) whAutoRememberFilters('vj-filters', ['search-input']);   // G5a: remember the journal search cross-session
       window.loadMoreVoice = () => { _voiceDisplayCount += 10; renderHistory(); };
@@ -1195,7 +1420,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   </script>
 
 </main>
-  <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 <script>
   // E3 provenance (FAMILY F3): sources = this page's verified reads.
   window.addEventListener('load', function () {

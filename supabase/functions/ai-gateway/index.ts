@@ -236,7 +236,14 @@ async function buildOeeFacts(client: SupabaseClient, hiveId: string): Promise<st
   try {
     const { data } = await client.from("analytics_snapshots")
       .select("payload,period_days").eq("hive_id", hiveId)
-      .eq("phase", "descriptive").order("computed_at", { ascending: false }).limit(1);
+      // ★LIMIT 1 ON A NON-UNIQUE SORT KEY IS THE SHARPEST FORM OF THIS BUG: with two snapshots
+      // sharing a computed_at for the same (hive, phase), "the latest" is undefined - and the rows
+      // differ in period_days, so the OEE handed to the assistant could silently be a 30-day figure
+      // one call and a 90-day figure the next, with no way for the answer to say which. No such tie
+      // exists in this database today, which is why it has never misfired; id is unique, so the
+      // choice is now deterministic instead of merely unobserved.
+      .eq("phase", "descriptive").order("computed_at", { ascending: false })
+      .order("id", { ascending: false }).limit(1);
     // deno-lint-ignore no-explicit-any
     const row = (data?.[0] as any);
     const arr = row?.payload?.oee?.oee_by_asset as Array<{ oee_pct?: number }> | undefined;

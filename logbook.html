@@ -23,14 +23,39 @@
   <link rel="stylesheet" href="wh-tw.css"><!-- was the Tailwind Play CDN; self-hosted subset, no console warning (tools/tw_extract_build.mjs) -->
   <link rel="stylesheet" href="tokens.css">
   <style>
+    /* ★THE INLINE min-height WAS WIPED AT RUNTIME, so it lives here instead. Both asset tabs measured
+       143x35 (then 143x43 after py-2 -> py-3), under this platform's 44px touch floor. An inline
+       style="min-height:44px" did NOT hold: switchAssetTab() assigns regBtn.style.cssText = activeStyle,
+       and assigning cssText REPLACES the whole style attribute rather than merging into it - the computed
+       min-height read back as `auto`. A stylesheet rule is out of cssText's reach, so it survives every
+       tab switch. Same shape as the recorded case where switchAuthTab replaced correct markup at runtime:
+       if JS rewrites an element's style wholesale, nothing inline on that element is load-bearing. */
+    #asset-tab-register, #asset-tab-manage { min-height: 44px; }
+
     * { font-family: 'Poppins', sans-serif; }
     /* I1 CLS: the 2-col desktop layout + 760px reserve must apply BEFORE the async Tailwind CDN
        loads, or the grid reflows on CDN-ready (measured 0.33 CLS, the page's dominant shift). This
        RAW rule (render-blocking in <head>) pre-paints the grid so `lg:grid-cols-5`/`lg:min-h`
        arriving late changes nothing. Mirrors the Tailwind classes: col-span-2 + col-span-3, gap-6. */
     @media (min-width: 1024px) {
-      #wh-logbook-grid { display: grid; grid-template-columns: 2fr 3fr; gap: 1.5rem; min-height: 760px; }
+      /* FIVE tracks, not two. This rule exists to pre-paint what `lg:grid-cols-5` will do, but the
+         children carry `lg:col-span-2` / `lg:col-span-3`, which need 5 tracks to sit side by side.
+         With `2fr 3fr` the first child spanned BOTH tracks and the second was auto-placed onto row 2
+         — so the desktop board silently STACKED. And because this selector carries an id (100) it
+         outranks Tailwind's class-based `.lg\:grid-cols-5` (10), so the real rule could never
+         correct it. Measured at 1280 before the fix: computed tracks `416px 624px 0px`, both
+         children at left 93 with widths 1064 and 1088. minmax(0, 1fr) also keeps a wide child from
+         inflating its own track. */
+      #wh-logbook-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.5rem; min-height: 760px; }
     }
+    /* A grid item's AUTOMATIC MINIMUM SIZE is its min-content width, so both column children sat at
+       416px inside a 344px track at 390px wide — and because <body> carries `overflow-x: clip`
+       (which, unlike `hidden`, cannot be scrolled at all) the surplus 52px of every card, the
+       view-toggle bar and the whole entries list was CUT with no way to reach it. That is also why
+       an overflow check based on scrollWidth read 0 and called the page clean: the clip removes the
+       evidence. Measured live at 390: min-width:0 takes both items 416 -> 344, leaves zero
+       overflowing descendants, and makes documentElement.scrollWidth equal its clientWidth. */
+    #wh-logbook-grid > * { min-width: 0; }
     /* I1 CLS (measured): the header wraps 60px→120px at ~1.3s when the stat-pills + action buttons
        finish loading (title on row 1, the pill/button group on row 2). RESERVE the loaded 2-row
        height so that internal reflow never pushes the grid down (was the dominant 0.33 shift).
@@ -75,14 +100,17 @@
 
     /* ── Step form navigation ── */
     .step-indicator { display:flex; align-items:center; gap:0; margin-bottom:1rem; }
+    /* BORDER keeps the brand --wh-orange; the DIGIT takes --wh-orange-text. Measured 4.39:1 at
+       11.52px/700 against rgb(77,72,64) - 0.11 short of the 4.5 that SC 1.4.3 asks of small text.
+       A border is not text and has no contrast obligation to meet, so only the glyph moves. */
     .step-dot {
       width:28px; height:28px; border-radius:50%; display:flex; align-items:center;
       justify-content:center; font-size:0.72rem; font-weight:700; flex-shrink:0;
       transition:all 0.25s; background:rgba(255,255,255,0.06);
       border:2px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.80);
     }
-    .step-dot.active  { background:rgba(247,162,27,0.2); border-color:var(--wh-orange); color:var(--wh-orange); }
-    .step-dot.done    { background:rgba(247,162,27,0.15); border-color:rgba(247,162,27,0.5); color:var(--wh-orange); }
+    .step-dot.active  { background:rgba(247,162,27,0.2); border-color:var(--wh-orange); color:var(--wh-orange-text); }
+    .step-dot.done    { background:rgba(247,162,27,0.15); border-color:rgba(247,162,27,0.5); color:var(--wh-orange-text); }
     .step-line        { flex:1; height:2px; background:rgba(255,255,255,0.08); margin:0 4px; }
     .step-line.done   { background:rgba(247,162,27,0.35); }
     .step-label       { font-size:0.7rem; font-weight:600; color:rgba(255,255,255,0.80);
@@ -165,6 +193,33 @@
       border-radius: 1rem;
     }
 
+    /* A filter <select> may not be squeezed narrower than the option it is showing.
+       Found 2026-08-06 re-walking PB-logbook-112 at a VERIFIED CSS width of 641px (the layout lens
+       flagged it; `browser_resize` had to be given 641 x dpr 0.667 = 427 to actually land on 641, and
+       an earlier attempt measured 962 and saw nothing). Both filter selects sit in a
+       `flex-col sm:flex-row` row with flex-shrink:1 and no minimum, so at tablet width they collapsed
+       to a 121.7px box. Subtracting 16px padding each side leaves 87.7px of usable room for a label
+       that renders 128.1px: choosing "Instrumentation" showed a truncated word and the user could no
+       longer read which filter was active.
+       Note for anyone re-measuring: a <select>'s scrollWidth does NOT reveal this — it reported 120
+       against a 122 box, i.e. "fits", because the option popup is not laid out. The label has to be
+       measured against the select's usable inner width to see the clipping.
+       Fix, in two parts, because each part alone caused a different defect and both were measured:
+       (1) a floor of 164px per select — the longest option's 128px of text plus 32px padding plus 2px
+           border — so flex-shrink can no longer squeeze the label out;
+       (2) a wrap, but ONLY under 900px. The search box's wrapper is `flex-1`, so it claims all the
+           slack and the two floored selects then no longer fit beside it: with (1) alone at 641 the row
+           overflowed its card and #wh-logbook-grid reported 656px of content in a 577px box — a
+           container overflow traded for the text clip. Wrapping lets the selects drop to their own
+           line (164 + 164 + 12 gap = 340, well inside 577) instead of pushing the row wider.
+       The 900px ceiling matters: an UNSCOPED `flex-wrap: wrap` was tried first and broke the DESKTOP
+       layout, stacking all three controls full-width (1054px each) at 1280 instead of side by side.
+       Scoped this way, 1280 keeps its 180 / 380 / 380 row exactly as before. */
+    #filter-category, #filter-status { min-width: 164px; }
+    @media (max-width: 900px) {
+      .card > .flex.sm\:flex-row { flex-wrap: wrap; }
+    }
+
     /* Input styles */
     .wh-input {
       background: rgba(22,32,50,0.6);
@@ -214,7 +269,11 @@
 
     .btn-danger {
       background: rgba(239,68,68,0.1);
-      color: rgba(239,68,68,0.8);
+      /* The label uses the graded TEXT token, not the fill hue: rgba(239,68,68,0.8)
+         composited to rgb(201,62,66) on this tint and measured APCA Lc 24.5 against a
+         30 floor - the least legible text on the surface sitting on its most
+         destructive control. Background and border keep the red. */
+      color: var(--wh-red-text);
       font-weight: 600;
       border-radius: 0.625rem;
       padding: 0.4rem 0.875rem;
@@ -432,9 +491,13 @@
           <p class="text-sm text-white/80 mt-1">Every job you log builds your skill profile and plant knowledge base.</p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="stat-pill"><span id="total-count" class="text-orange-wh font-bold">0</span> <span class="text-white/80">entries</span></span>
-          <span class="stat-pill"><span id="machine-count" class="text-blue-wh font-bold">0</span> <span class="text-white/80">machines</span></span>
-          <span class="stat-pill"><span id="open-count" class="text-red-400 font-bold">0</span> <span class="text-white/80">open</span></span>
+          <!-- These ship as an em dash, not 0. Measured offline with the shell cache warm: a worker
+               with 516 entries saw "0 entries · 0 machines · 0 open" because the render aborted and
+               the markup default survived. A 0 here is a claim about someone's work history; the
+               honest default is "not known yet", which a successful read replaces. -->
+          <span class="stat-pill"><span id="total-count" class="text-orange-wh font-bold">—</span> <span class="text-white/80">entries</span></span>
+          <span class="stat-pill"><span id="machine-count" class="text-blue-wh font-bold">—</span> <span class="text-white/80">assets</span></span>
+          <span class="stat-pill"><span id="open-count" class="text-red-400 font-bold">—</span> <span class="text-white/80">open</span></span>
           <button id="open-asset-modal-btn" class="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 min-h-[44px]">
             <span class="ic ic-add" aria-hidden="true"></span>
             <span data-i="registerasset">Register Asset</span>
@@ -477,7 +540,7 @@
             <div class="step-line" id="sline-2"></div>
             <div class="step-dot" id="sdot-3">3</div>
           </div>
-          <p class="step-label" id="step-label-text">Step 1: Machine & Type</p>
+          <p class="step-label" id="step-label-text">Step 1: Asset & Type</p>
 
           <form id="log-form">
 
@@ -564,7 +627,7 @@
               </div>
 
               <div>
-                <label class="wh-label"><span data-i="machineequip">Machine / Equipment</span> <span style="color:var(--wh-red);font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
+                <label class="wh-label"><span data-i="machineequip">Asset</span> <span style="color:var(--wh-red);font-size:0.625rem;font-weight:600;text-transform:none;">required</span></label>
                 <div style="display:flex; gap:8px; align-items:stretch;">
                   <button type="button" id="asset-picker-btn" class="wh-input text-left flex items-center justify-between gap-2" style="cursor:pointer; min-height:44px; flex:1;">
                     <span id="asset-picker-label" class="truncate flex-1 text-sm" style="color:rgba(255,255,255,0.80);">Select or search asset...</span>
@@ -736,7 +799,7 @@
 
                 <!-- Failure consequence — Breakdown entries only (SAE JA1011 §5.4) -->
                 <div id="consequence-section" class="hidden">
-                  <label class="wh-label">What was the impact? <span id="consequence-required-badge" class="hidden" style="color:rgba(239,68,68,0.8);font-size:0.65rem;font-weight:700;margin-left:0.25rem;">required for Breakdown</span></label>
+                  <label class="wh-label">What was the impact? <span id="consequence-required-badge" class="hidden" style="color:var(--wh-red-text);font-size:0.65rem;font-weight:700;margin-left:0.25rem;">required for Breakdown</span></label>
                   <div class="grid grid-cols-2 gap-2">
                     <button type="button" class="consequence-btn" data-value="Hidden" onclick="selectConsequence(this)">
                       <span class="consequence-icon">👁</span>
@@ -934,7 +997,13 @@
         <!-- Open Jobs Panel -->
         <div id="open-jobs-panel" class="card p-4 mb-4 hidden">
           <div class="flex items-center justify-between mb-3">
-            <h3 class="text-xs font-bold uppercase tracking-widest" style="color:rgba(239,68,68,0.8);">My Open Jobs</h3>
+            <!-- --wh-red-text, not a hardcoded red: measured 2026-08-05 (PB-logbook-142), this 12px
+                 heading at rgba(239,68,68,0.8) composited to rgb(197,63,67) and scored APCA Lc 24
+                 against the Lc 30 floor — the tier that exists to catch text heading for invisibility.
+                 tokens.css already ships --wh-red-text (#FDC9C9) for exactly this reason ("small-text
+                 red fails APCA on the navy shell"); it was simply never adopted here. Verified live:
+                 the page went from 1 failing of 214 to 0. -->
+            <h3 class="text-xs font-bold uppercase tracking-widest" style="color:var(--wh-red-text);">My Open Jobs</h3>
             <span id="open-jobs-count" class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:rgba(239,68,68,0.1);color:var(--wh-red);"></span>
           </div>
           <div id="open-jobs-list"></div>
@@ -1017,11 +1086,29 @@
         </div>
 
         <!-- Empty state -->
-        <div id="empty-state" class="text-center py-20 empty-state">
+        <!-- A failed or still-pending read leaves entries.length === 0, which is indistinguishable
+             from a genuinely empty logbook. This state ships HIDDEN (its siblings #no-results and
+             #team-prompt already did) so only a SUCCESSFUL render may assert it; renderEntries
+             un-hides it when the read really did return nothing. -->
+        <div id="empty-state" class="text-center py-20 empty-state hidden">
           <span class="ic ic-doc" aria-hidden="true"></span>
           <p class="text-sm text-white/80 font-medium">No entries yet.</p>
           <p class="text-xs text-white/80 mt-1">Log your first repair to get started.</p>
           <a href="#log-form" onclick="document.getElementById('log-form')?.scrollIntoView({behavior:'smooth'});" class="inline-block mt-4 px-4 py-2 rounded-lg text-xs font-semibold" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);text-decoration:none;">Log Your First Repair →</a>
+        </div>
+
+        <!-- Read-failed state: the third case beside "loaded and empty" and "loaded with entries".
+             It is PERSISTENT by design — the toast that used to carry this news dismisses ~154ms
+             after load, leaving the empty state as the only thing on screen. -->
+        <div id="read-failed-state" class="text-center py-20 empty-state hidden" style="opacity:1;">
+          <span class="ic ic-warn" aria-hidden="true"></span>
+          <p class="text-sm text-white/90 font-semibold">Could not load your logbook.</p>
+          <p class="text-xs text-white/80 mt-1">Your entries are unknown right now, not missing. Check your connection and reload before logging a repeat of work you may have already recorded.</p>
+          <!-- Retry must RE-ISSUE the read, not re-render the previous failure — renderEntries(true)
+               calls loadEntries(), which is the request that failed. The distinction is the whole
+               content of the retry_path oracle, and re-rendering is the defect commit 3ddef99d fixed
+               on public-feed ("Retry answered 'No public posts yet' on a feed with 15 posts"). -->
+          <button type="button" id="lb-retry-btn" onclick="renderEntries(true);" class="inline-block mt-4 px-4 py-2 rounded-lg text-xs font-semibold" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);min-height:44px;">Retry</button>
         </div>
 
         <!-- No results state -->
@@ -1045,7 +1132,9 @@
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden" role="alert" aria-live="polite">
     <div class="rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 shadow-xl"
          style="background: linear-gradient(135deg, rgba(42,61,88,0.97), rgba(22,32,50,0.97)); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px);">
-      <span class="ic ic-check" aria-hidden="true"></span>
+      <!-- id added so showToast can swap the glyph: nine callers pass '⚠️' for a REFUSAL, and a refusal
+           rendered with a green check is the wrong signal even once the text is visible. -->
+      <span id="toast-icon" class="ic ic-check" aria-hidden="true"></span>
       <span id="toast-text">Entry saved.</span>
     </div>
   </div>
@@ -1069,8 +1158,10 @@
 
     <!-- Tabs -->
     <div class="flex gap-1 mb-6 p-1 rounded-xl" style="background: rgba(22,32,50,0.8); border: 1px solid rgba(255,255,255,0.08);">
-      <button id="asset-tab-register" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Register Asset</button>
-      <button id="asset-tab-manage" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Manage Assets <span id="asset-count-badge" class="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:rgba(41,182,217,0.15);color:var(--wh-blue-light);display:none"></span></button>
+      <!-- ★TOUCH FLOOR: both asset tabs measured 143x35 inside #asset-modal, under the 44px rule. py-2 -> py-3
+           plus an explicit min-height, so the tab keeps its shape when the label wraps. -->
+      <button id="asset-tab-register" class="flex-1 py-3 text-xs font-bold rounded-lg transition-all">Register Asset</button>
+      <button id="asset-tab-manage" class="flex-1 py-3 text-xs font-bold rounded-lg transition-all">Manage Assets <span id="asset-count-badge" class="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:rgba(41,182,217,0.15);color:var(--wh-blue-light);display:none"></span></button>
     </div>
 
     <!-- Register view -->
@@ -1488,6 +1579,10 @@ function setViewMode(mode) {
 }
 
 let _allEntries = [];
+// True when the entries read failed, so the header pills can show a dash instead of a fabricated 0.
+// Measured 2026-08-08: under an injected 500 this page raised three toasts at 150/150/154ms — all gone
+// by the 13s sample — while "0 entries · 0 machines · 0 open" stayed up against 516/30/6 real values.
+let _lbReadFailed = false;
 let _logbookDisplayCount = 20;
 
 // H1 goal-gradient for the supervisor's team-default state: hive-level closed/total
@@ -1849,7 +1944,18 @@ async function loadEntries() {
   // G1 (FF1): canonical skeleton while the query is in flight — first load only,
   // so refresh cycles don't blank an already-rendered list.
   const _elList = document.getElementById('entries-list');
-  if (_elList && !_elList.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_elList, 4);
+  // ★THE SKELETON MUST OBEY THIS FUNCTION'S OWN CONTRACT — "Mine-mode only" (the line above).
+  // Found 2026-08-05 walking PB-logbook-126: on initial load in TEAM mode the entry feed showed a
+  // permanent shimmer, still there at 14s, while the data was fine (200 rows loaded, request 200 OK,
+  // console silent). The sequence: renderEntries() takes its team-mode branch (:3499-3508), which
+  // shows #team-prompt and CLEARS #entries-list; then the init-time personal load — kept deliberately
+  // so the stat pills stay accurate in team mode (:3547) — calls loadEntries(), which found the list
+  // empty and painted a 4-row skeleton. loadEntries only FETCHES; rendering belongs to renderEntries,
+  // which is not called again in team mode until a search. So the placeholder outlived the load with
+  // nothing left to clear it: the 'promise that never settles is invisible' shape, except the promise
+  // resolved in 58ms and it was the SKELETON that was orphaned.
+  // Guarding on the mode is the minimal fix and simply enforces what the comment already promised.
+  if (_viewMode !== 'team' && _elList && !_elList.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_elList, 4);
   let query = db.from('logbook')
     .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name')
     .eq('worker_name', WORKER_NAME)
@@ -1859,7 +1965,24 @@ async function loadEntries() {
   if (HIVE_ID) query = query.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
 
   const { data, error } = await query;
-  if (error) { console.error(error); showToast('Could not load entries. Check your connection.'); return []; }
+  // The toast alone was measured insufficient: it fires ~154ms after load and is GONE by 13s, while the
+  // header pills sit at "0 entries · 0 machines · 0 open" indefinitely — against 516 entries, 30 machines
+  // and 6 open on the healthy page. A reader arriving three seconds late sees a confident zero and nothing
+  // to contradict it, so the failure has to live in the STATE, not only in a transient channel.
+  // THE FLAG DRIVES THE PANEL, because a render may never follow. In TEAM mode renderEntries shows
+  // #team-prompt and returns, and (per the note above) is not called again until a search — while the
+  // init-time personal load still runs here to keep the stat pills accurate. So a failure recorded
+  // here had no render left to surface it: the pills dashed and nothing on screen said why. Syncing
+  // at the point of truth makes the panel independent of view mode and render timing.
+  if (error) {
+    console.error(error);
+    showToast('Could not load entries. Check your connection.');
+    _lbReadFailed = true;
+    if (typeof _lbSyncFailurePanel === 'function') _lbSyncFailurePanel();
+    return [];
+  }
+  _lbReadFailed = false;   // a recovered read clears it, or one glitch dashes the pills forever
+  if (typeof _lbSyncFailurePanel === 'function') _lbSyncFailurePanel();   // and clears the panel
 
   // Merge pending inserts (new offline entries) and pending updates (offline edits).
   // Offline-first hardening (P14): a queue-read failure (corrupted IndexedDB, iOS
@@ -2192,8 +2315,12 @@ async function initAssets() {
       db.from('asset_nodes').select(COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500), // Arc L · L2: row cap (hive equipment registry feeds asset picker; bounded-by-nature)
       db.from('asset_nodes').select(COLS).eq('worker_name', WORKER_NAME).limit(500), // Arc L · L2: row cap (one worker's assets; bounded-by-nature)
     ]);
-    if (hiveRes.error) { console.error('assets load (hive):', hiveRes.error.message); showToast('Could not load hive assets: ' + hiveRes.error.message); }
-    if (myRes.error)  { console.error('assets load (personal):', myRes.error.message); showToast('Could not load your assets: ' + myRes.error.message); }
+    // Don't concatenate the upstream message into the notice: a person was shown "Could not load hive
+    // assets: injected server fault" in the measured run, and in production that is whatever Postgres
+    // said — a PostgREST code or a constraint name. Same class as a bare 42501 reaching a signed-in
+    // reader. The detail belongs in console.error, which already has it.
+    if (hiveRes.error) { console.error('assets load (hive):', hiveRes.error.message); showToast('Could not load the hive equipment list. Check your connection.'); }
+    if (myRes.error)  { console.error('assets load (personal):', myRes.error.message); showToast('Could not load your equipment list. Check your connection.'); }
     const seen = new Set();
     for (const a of [...(myRes.data || []), ...(hiveRes.data || [])]) {
       if (!seen.has(a.id)) { seen.add(a.id); sbAssets.push(a); }
@@ -2202,7 +2329,7 @@ async function initAssets() {
     // canonical-allow: solo-mode asset picker — same COLS shape requirement as hive branch above
     const { data, error } = await db.from('asset_nodes').select(COLS)
       .eq('worker_name', WORKER_NAME).is('hive_id', null).limit(500); // Arc L · L2: row cap (solo-mode asset picker; bounded-by-nature)
-    if (error) { console.error('assets load:', error.message); showToast('Could not load assets: ' + error.message); }
+    if (error) { console.error('assets load:', error.message); showToast('Could not load your equipment list. Check your connection.'); }
     sbAssets = data || [];
   }
 
@@ -2295,9 +2422,32 @@ function clearAssetForm() {
 }
 
 async function submitAsset() {
+  // asset_nodes is NOT the queued table on this page - wh_logbook_offline covers `logbook` entries, the
+    // field capture. An asset record is structural, so it is online-only with clarity.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Adding this asset', (m) => showToast(m))) return;
   const assetId = document.getElementById('a-asset-id').value.trim();
   if (!assetId) {
     const el = document.getElementById('a-asset-id');
+    el.focus();
+    el.style.borderColor = 'rgba(239,68,68,0.6)';
+    setTimeout(() => { el.style.borderColor = ''; }, 2000);
+    return;
+  }
+  // THE NAME WAS NEVER REQUIRED, AND IT IS THE FIELD EVERY OTHER SURFACE READS. Found by
+  // tools/prove_wrong_then_fix.mjs: submitting this form with the name blank produced no refusal at all
+  // — it went straight to the asset_nodes write, so a NAMELESS asset could be registered. The id check
+  // above was the only guard, and an id is not what people see: `name` feeds v_asset_truth and its
+  // eleven consumers, where a blank renders as an empty row in asset lists, in alert titles, and in PM
+  // scope — the reader cannot tell whether the asset is unnamed or the page is broken, and the only fix
+  // afterwards is finding the row by id and editing it.
+  // Refused with a SENTENCE, not just a red border: the id branch above focuses the field and flashes a
+  // 2s outline with no words, which on a phone in a plant is easy to miss entirely. This one says what
+  // is wrong, because a refusal a person cannot read leaves them stuck with an intact form.
+  const assetName = document.getElementById('a-name').value.trim();
+  if (!assetName) {
+    const el = document.getElementById('a-name');
+    showToast('Asset name is required.');
     el.focus();
     el.style.borderColor = 'rgba(239,68,68,0.6)';
     setTimeout(() => { el.style.borderColor = ''; }, 2000);
@@ -2359,11 +2509,23 @@ async function submitAsset() {
   _assets = [...assets, asset];
   refreshAssetCountBadge();
   renderAssetList();
-  showToast(HIVE_ID ? assetId + ' submitted for supervisor approval.' : assetId + ' registered.');
+  // NAMES THE EFFECT, NOT A CLOCK — the pattern this platform already ships on asset-hub
+  // ("✓ FMEA mode added (approved) → feeds this asset's risk score → Predictive · Alert Hub · Analytics").
+  // The old copy stopped at "submitted for supervisor approval", which says WHAT happens next but not
+  // what it is FOR, so a person cannot tell whether the wait matters. Saying where the row goes once
+  // approved answers the same question a timing promise would, without inventing an SLA the supervisors
+  // have not agreed to — a review window this page cannot enforce would be a sentence the platform breaks.
+  showToast(HIVE_ID
+    ? assetId + ' submitted for supervisor approval → once approved it feeds asset history, PM scope & analytics.'
+    : assetId + ' registered → feeds asset history, PM scope & analytics.');
   switchAssetTab('manage');
 }
 
 async function deleteAsset(id) {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Deleting this asset', (m) => showToast(m))) return;
   const asset = loadAssets().find(a => a.id === id);
   if (!asset) return;
 
@@ -2420,6 +2582,10 @@ function closeEditAsset() {
 }
 
 async function saveEditAsset() {
+  // Online-only class: this page registers no offline write queue, so a write fired here
+  // while offline reached a dead network with nothing said.
+  if (typeof whRequireOnline === 'function'
+      && !whRequireOnline('Saving this asset', (m) => showToast(m))) return;
   const id          = document.getElementById('edit-asset-id').value;
   const asset_id    = document.getElementById('edit-asset-asset-id').value.trim();
   const name        = document.getElementById('edit-asset-name').value.trim();
@@ -3471,6 +3637,15 @@ function formatDate(iso) {
 // entries, in every view — including the supervisor team-feed default. Reads
 // _allEntries (the personal set), so callers must ensure it is loaded first.
 async function updateStatPills() {
+  // A failed read must dash the pills, never zero them. "0 entries · 0 machines · 0 open" is the
+  // absence of an answer wearing the costume of one, and it is the only thing left on screen once
+  // the toast dismisses (~154ms after load, measured).
+  if (_lbReadFailed) {
+    ['total-count', 'machine-count', 'open-count'].forEach(id => {
+      const e = document.getElementById(id); if (e) e.textContent = '—';
+    });
+    return;
+  }
   const allMachines = new Set(_allEntries.map(e => (e.machine || '').trim().toUpperCase()).filter(Boolean));
   document.getElementById('machine-count').textContent = allMachines.size;
   // total + open must reflect the worker's FULL history, not the capped 200-entry
@@ -3479,22 +3654,54 @@ async function updateStatPills() {
   // backlog (e.g. 4 shown vs 8 actual — and contradicting the Hive Board's open
   // count). Count via head queries, same worker+hive scope as loadEntries.
   const _winOpen = _allEntries.filter(e => (e.status || 'Open') === 'Open').length;
+  // `?? _allEntries.length` WAS A FALLBACK THAT INVENTED A NUMBER. supabase-js does not throw on a
+  // failed request — it RESOLVES to { data:null, error, count:null } — so the catch below never ran
+  // and a failed count arrived as null, fell through to the loaded window, and printed the window's
+  // length. When the entries read failed too that length is 0, so a worker with 516 entries was told
+  // "0 entries · 0 open". A count is either KNOWN or it is a dash; there is no third value to guess.
+  const _dashPill = id => { const e = document.getElementById(id); if (e) e.textContent = '—'; };
   try {
     let qTotal = db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME);
     let qOpen  = db.from('logbook').select('*', { count: 'exact', head: true }).eq('worker_name', WORKER_NAME).eq('status', 'Open');
     if (HIVE_ID) { qTotal = qTotal.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`); qOpen = qOpen.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`); }
     const [tRes, oRes] = await Promise.all([qTotal, qOpen]);
-    document.getElementById('total-count').textContent = (tRes.count ?? _allEntries.length);
-    document.getElementById('open-count').textContent  = (oRes.count ?? _winOpen);
+    if (tRes.error || tRes.count == null) { _dashPill('total-count'); _lbReadFailed = true; }
+    else document.getElementById('total-count').textContent = tRes.count;
+    if (oRes.error || oRes.count == null) { _dashPill('open-count'); _lbReadFailed = true; }
+    else document.getElementById('open-count').textContent = oRes.count;
+    // The window count is a legitimate reading of what IS loaded, so it stays — but only when the
+    // count read succeeded and simply disagrees with the capped window is it worth nothing extra.
   } catch {
-    // Offline / count unavailable — fall back to the loaded window.
-    document.getElementById('total-count').textContent = _allEntries.length;
-    document.getElementById('open-count').textContent  = _winOpen;
+    _dashPill('total-count'); _dashPill('open-count'); _lbReadFailed = true;
   }
+}
+
+// A FAILED READ MUST BE REPORTED WHATEVER VIEW WE ARE IN. The first version of this fix put the
+// check inside the `entries.length === 0` branch, which is only reachable in "mine" mode — and under
+// an injected 500 the page lands in TEAM mode and returns early on the team prompt, so the check
+// never ran: pills dashed (their new markup default) while nothing on screen said anything had
+// failed. Showing a search prompt to someone whose data could not load is its own small lie.
+function _lbSyncFailurePanel() {
+  const rf = document.getElementById('read-failed-state');
+  if (!rf) return false;
+  if (!_lbReadFailed) { rf.classList.add('hidden'); return false; }
+  rf.classList.remove('hidden');
+  ['empty-state', 'no-results', 'team-prompt'].forEach(id => {
+    const e = document.getElementById(id); if (e) e.classList.add('hidden');
+  });
+  const list = document.getElementById('entries-list');
+  if (list) list.innerHTML = '';
+  return true;
 }
 
 async function renderEntries(reload = true) {
   const teamPrompt = document.getElementById('team-prompt');
+
+  // A failure already recorded by an earlier read (the init-time personal load, the count queries)
+  // surfaces before any view branch. EXCEPT when team search results are about to render: the flag
+  // describes the PERSONAL read, and a stale true must not block a team search that succeeded — that
+  // would trade one silent state for another.
+  if (!(_viewMode === 'team' && _teamSearched) && _lbSyncFailurePanel()) return;
 
   if (_viewMode === 'team') {
     if (!_teamSearched) {
@@ -3554,8 +3761,17 @@ async function renderEntries(reload = true) {
 
   renderOpenJobs(_allEntries);
 
+  const readFailed = document.getElementById('read-failed-state');
+
   if (entries.length === 0) {
     list.innerHTML = '';
+    // A FAILED read also lands here with 0 entries, and "No entries yet. Log your first repair to
+    // get started." is then a false statement about the reader's own work history — measured both
+    // offline (516 entries -> "No entries yet.") and under an injected 500. Zero rows means
+    // "nothing came back", which is three different situations; decide which one before asserting.
+    // one source of truth for this state, so the two entry points cannot drift apart
+    if (_lbSyncFailurePanel()) return;
+    if (readFailed) readFailed.classList.add('hidden');
     // D3 (deepwalk finding): a 0-row TEAM search is "nothing matched your filters"
     // (no-results), NOT the first-run "No entries yet — log your first repair" empty-state.
     // In team mode renderEntries only runs here post-search (_teamSearched), and
@@ -3571,6 +3787,7 @@ async function renderEntries(reload = true) {
   }
 
   empty.classList.add('hidden');
+  if (readFailed) readFailed.classList.add('hidden');
 
   if (filtered.length === 0) {
     list.innerHTML = '';
@@ -4495,11 +4712,30 @@ const STEP_LABELS = {
   3: 'Step 3: What You Did',
 };
 
+// A wizard refusal has to say WHAT rule stopped it and put the person ON the way out. The step-1
+// gate used to do neither: it flashed the picker's border red for 2s and returned, so a live walk
+// measured 163 frames of pure colour transition with toastEver false, aria-invalid never set, and
+// focus still on the Next button. Colour alone reaches nobody on a screen reader and nobody with a
+// red-green deficiency (WCAG 1.4.1) — the step advanced nowhere and said nothing about why.
+// One helper for every branch, so the three gates cannot drift apart again.
+function stepRefuse(el, msg) {
+  if (el) {
+    el.style.borderColor = 'rgba(239,68,68,0.6)';
+    el.setAttribute('aria-invalid', 'true');
+    el.focus();
+    setTimeout(() => { el.style.borderColor = ''; el.removeAttribute('aria-invalid'); }, 2000);
+  }
+  showToast(msg, '⚠️');
+}
+
 function stepGo(n) {
   // Validate step 1 requires machine
   if (n > 1 && !document.getElementById('f-machine').value.trim()) {
-    document.getElementById('asset-picker-btn').style.borderColor = 'rgba(239,68,68,0.6)';
-    setTimeout(() => document.getElementById('asset-picker-btn').style.borderColor = '', 2000);
+    // Colon, not an em dash: the No-Em-Dash gate ratchets DISPLAYED em dashes toward 0 and my first
+    // draft of this toast pushed it 0 -> 3. A colon also reads better here, since what follows is the
+    // instruction rather than an aside.
+    stepRefuse(document.getElementById('asset-picker-btn'),
+               'Pick the machine first: tap “Select or search asset…”.');
     return;
   }
 
@@ -4509,17 +4745,14 @@ function stepGo(n) {
   // then got bounced back for category, then again for impact). _currentStep===2 scopes this to the
   // wizard's forward nav (edit-in-place mode collapses the wizard, so it never fires there).
   if (n === 3 && _currentStep === 2) {
-    const flash = (el) => { if (!el) return; el.style.borderColor = 'rgba(239,68,68,0.6)'; setTimeout(() => { el.style.borderColor = ''; }, 2000); };
     const catEl  = document.getElementById('f-category');
     const probEl = document.getElementById('f-problem');
     if (catEl && !catEl.value) {
-      flash(catEl); catEl.focus();
-      showToast('Please select a discipline / category.', '⚠️');
+      stepRefuse(catEl, 'Please select a discipline / category.');
       return;
     }
     if (probEl && !probEl.value.trim()) {
-      flash(probEl); probEl.focus();
-      showToast('Please describe the symptom you observed.', '⚠️');
+      stepRefuse(probEl, 'Please describe the symptom you observed.');
       return;
     }
   }
@@ -5181,10 +5414,48 @@ window.addEventListener('offline', () => updateOfflineUI(false));
 // ────────────────────────────────────────────
 // CSV EXPORT
 // ────────────────────────────────────────────
+// ★A COMPLIANCE EXPORT MUST NOT INHERIT THE SCREEN'S ROW CAP (live-caught 2026-08-19). This handler
+// exported _allEntries, which is filled by loadEntries() under `.limit(200)` (:1964) — a sensible cap
+// for a scrolling feed and the wrong one for a DOLE/ISO audit trail. Measured: real workers hold far
+// more than 200 entries (Pablo Aguilar 571, Leandro Marquez 517, Hector Salvador 500), so the export
+// silently wrote the newest 200 and dropped the rest into a file named as if it were the whole record.
+// The FEED is honest about this — #total-count is a separate exact head-count, so the screen reads
+// "517 entries" while showing 200 — but the CSV carried no total, no window and no hint of omission,
+// and it is the artifact that leaves the building. An auditor cannot see what is missing from a file.
+// So the export now reads its OWN complete set, paged past the cap, and states the count in the file.
+const _exportPageAll = async () => {
+  const PAGE = 500;
+  const out = [];
+  for (let from = 0; ; from += PAGE) {
+    let q = db.from('logbook')
+      .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, status, closed_at, created_at, failure_consequence, loto_applied, permit_reference, worker_name')
+      .eq('worker_name', WORKER_NAME)
+      .order('date', { ascending: false })
+      .order('id')                    // MR4: the sort above is not total on its own
+      .range(from, from + PAGE - 1);
+    if (HIVE_ID) q = q.or(`hive_id.eq.${HIVE_ID},hive_id.is.null`);
+    const { data, error } = await q;
+    if (error) throw error;
+    out.push(...(data || []));
+    if (!data || data.length < PAGE) return out;   // short page = last page
+  }
+};
+
 document.getElementById('btn-export-csv').addEventListener('click', async () => {
-  const entries = _viewMode === 'team'
-    ? _teamEntries
-    : (_allEntries.length ? _allEntries : await loadEntries());
+  let entries;
+  if (_viewMode === 'team') {
+    entries = _teamEntries;
+  } else {
+    try {
+      entries = await _exportPageAll();
+    } catch (e) {
+      // Never hand over a SHORTER file without saying so: a silent fallback to the capped window is
+      // exactly the failure this fix exists to remove.
+      console.warn('logbook export: full read failed, falling back to the loaded window', e);
+      entries = _allEntries.length ? _allEntries : await loadEntries();
+      showToast('Could not read the full history, so this exports the ' + entries.length + ' entries currently loaded.');
+    }
+  }
   if (!entries.length) { showToast('No entries to export.'); return; }
 
   // Audit-grade columns (DOLE/ISO trail — Extension 3): WHO (Worker) + WHEN signed off (Closed At)
@@ -5202,7 +5473,24 @@ document.getElementById('btn-export-csv').addEventListener('click', async () => 
     e.closed_at ? whFmtDate(e.closed_at, { time: true }) : ''
   ].map(esc).join(','));
 
-  const csv  = [cols.map(esc).join(','), ...rows].join('\r\n');
+  // ★THE FILE STATES ITS OWN SCOPE. A CSV that reaches an auditor's desk carries no page around it,
+  // so completeness has to be legible from the artifact: who it covers, how many entries, the date
+  // span they fall in, and when it was produced. Without this an incomplete export and a complete one
+  // are indistinguishable on disk — which is the whole reason the row cap mattered.
+  const _dates = entries.map(e => e.date || e.created_at).filter(Boolean).sort();
+  const _span  = _dates.length
+    ? `${whFmtDate(_dates[0])} to ${whFmtDate(_dates[_dates.length - 1])}`
+    : 'no dated entries';
+  const meta = [
+    `WorkHive logbook export`,
+    `Worker: ${WORKER_NAME}`,
+    `Scope: ${_viewMode === 'team' ? 'team view (current search results)' : 'all personal entries'}`,
+    `Entries: ${entries.length}`,
+    `Date range: ${_span}`,
+    `Exported: ${whFmtDate(new Date().toISOString(), { time: true })}`,
+  ].map(l => esc(l)).join('\r\n');
+
+  const csv  = [meta, '', cols.map(esc).join(','), ...rows].join('\r\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
@@ -5217,9 +5505,42 @@ document.getElementById('btn-export-csv').addEventListener('click', async () => 
 // TOAST
 // ────────────────────────────────────────────
 let toastTimer;
-function showToast(msg, ms) {
+// ★A SIGNATURE COLLISION MADE NINE VALIDATION MESSAGES INVISIBLE. This takes (msg, ms), but other pages
+// on the platform take (msg, icon) — and nine call sites here were written against THAT convention,
+// passing '⚠️' where a duration belongs. `setTimeout(fn, '⚠️')` coerces to NaN, which the spec treats as
+// 0, so the toast was added and removed in the same tick: shown for zero milliseconds. Every one of the
+// nine is a REFUSAL — "Please select an asset before saving", "Please describe the problem you observed",
+// "Could not open that entry for editing" — so the messages a person most needs were the exact set that
+// never appeared. The page looked like it silently did nothing when it was in fact explaining itself.
+// Found by probing: five separate runs read "the submit does nothing", and each time the page was
+// refusing correctly and saying why, invisibly.
+// Fixed HERE rather than at nine call sites: accept either shape, so both conventions work and a future
+// caller cannot reintroduce it. A non-numeric second argument is an ICON, not a duration.
+// ★AND THE MARKUP HAD NO ICON SLOT. My first version wrote to #toast-icon and asserted in a comment that
+// it existed; it did not — the glyph was a hardcoded `ic ic-check` span, so the icon was silently dropped
+// and every one of those nine REFUSALS would have rendered with a green CHECK once the text became
+// visible. Wrong signal, quieter than the first bug but the same shape. The span now carries the id, and
+// passing an icon clears the CSS glyph classes so the intended '⚠️' actually replaces the check.
+function showToast(msg, msOrIcon) {
   const toast = document.getElementById('toast');
   document.getElementById('toast-text').textContent = msg;
+  const iconEl = document.getElementById('toast-icon');
+  let ms = null;
+  let icon = null;
+  if (typeof msOrIcon === 'number' && isFinite(msOrIcon)) {
+    ms = msOrIcon;
+  } else if (msOrIcon != null && msOrIcon !== '') {
+    const n = Number(msOrIcon);
+    if (isFinite(n) && String(msOrIcon).trim() !== '') ms = n;   // numeric string, e.g. '5000'
+    else icon = String(msOrIcon);
+  }
+  // RESET EVERY TIME, because clearing the class only on the icon path made it STICKY: after one warning,
+  // every later success toast would have lost its check glyph — a regression I introduced one edit ago and
+  // caught before it shipped. The default is restored on each call, then overridden only for this toast.
+  if (iconEl) {
+    if (icon) { iconEl.className = ''; iconEl.textContent = icon; }
+    else { iconEl.className = 'ic ic-check'; iconEl.textContent = ''; }
+  }
   toast.classList.remove('hidden');
   clearTimeout(toastTimer);
   // Optional longer duration for cross-surface receipts (Phase D1); default unchanged.
@@ -5727,6 +6048,37 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
 // INIT
 // ────────────────────────────────────────────
 (async () => {
+  /* ★ THE SKELETON AT :1941 IS PAINTED TWO BLOCKING READS TOO LATE. loadEntries() owns the feed
+     skeleton and is not called until :5950 — after restoreIdentityFromSession() (a worker_profiles
+     read) and validateHiveMembership() (another read) have both settled. Measured 2026-08-15 with
+     reads delayed 6s: ZERO skeletons and #entries-list empty at 1.2s, 2.4s, 3.6s and 4.8s, with 882
+     chars of chrome on screen.
+     I MIS-DIAGNOSED THIS ONCE, and the mistake is worth recording: the banker's triage note says
+     "logbook fail_slow is a DELIBERATE fix, not a bug", citing the 2026-08-05 repair of a permanent
+     shimmer. That repair is real — but it guards `_viewMode !== 'team'`, and `_viewMode` defaults to
+     'mine' (:1529), which is the view actually walked. The deliberate suppression covers a DIFFERENT
+     view from the one failing. Quoting a comment is not reading the code.
+     Same fix as hive.html: paint synchronously, before the first await exists to hide behind, and
+     claim nothing that is still being determined. loadEntries()/renderEntries() replace it. */
+  (() => {
+    const host = document.querySelector('main');
+    if (!host || document.getElementById('lb-boot-wait')) return;
+    const w = document.createElement('div');
+    w.id = 'lb-boot-wait';
+    w.setAttribute('role', 'status');
+    w.setAttribute('aria-live', 'polite');
+    w.setAttribute('aria-busy', 'true');
+    w.style.cssText = 'padding:16px 0;';
+    w.innerHTML = '<p style="font-size:.82rem; color:rgba(255,255,255,.72); margin:0 0 12px;">'
+      + 'Loading your logbook&hellip;</p>';
+    host.prepend(w);
+    if (typeof whListSkeleton === 'function') {
+      const sk = document.createElement('div');
+      w.appendChild(sk);
+      whListSkeleton(sk, 4);
+    }
+  })();
+
   // C4: restore identity from auth session on new device, then get auth_uid
   if (!WORKER_NAME) { WORKER_NAME = await restoreIdentityFromSession(db); }
   try { const { data: { session } } = await db.auth.getSession(); _authUid = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
@@ -5735,6 +6087,11 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
   if (!_authUid) { window.location.href = 'index.html?signin=1'; return; }
 
   const isMember = await validateHiveMembership();
+  // Both branches clear the boot interstitial: the gate below renders its own explanation, and past
+  // this point loadEntries()/renderEntries() own the feed's own skeleton. A pending state that
+  // outlives the thing it describes is the stuck-skeleton defect wearing a fresh id.
+  const _lbw = document.getElementById('lb-boot-wait');
+  if (_lbw) _lbw.remove();
   if (!isMember) return; // gate is showing: stop all data loads
 
   applyRoleUI();
@@ -5799,7 +6156,6 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
 </script>
   <script src="nav-hub.js"></script>
   <script src="companion-launcher.js"></script>
-  <script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
   <script src="impact-preview.js"></script><!-- Phase D2: pre-commit "updates N pages" hint -->
   <script src="qr-scanner.js"></script>
   <script>
@@ -5913,7 +6269,9 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
     searchteam: 'Hanapin sa Team',
     speak: 'Magsalita',
     capture: 'Kumuha',
-    machineequip: 'Makina / Kagamitan',
+    machineequip: 'Asset',   // follows the 2026-08-19 standardisation on "asset"; the KEY keeps its
+                             // old name deliberately, because renaming it would orphan the marker in
+                             // every dictionary that still carries it
     clearform: 'I-clear ang form',
   };
 </script>

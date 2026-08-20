@@ -33,13 +33,23 @@ void _whWarmClient;
 
 // ── Report metadata ───────────────────────────────────────────────────────────
 
-const REPORT_META: Record<string, { label: string; color: string; link: string }> = {
-  pm_overdue:     { label: "PM Overdue",          color: "#F7A21B", link: "https://workhiveph.com/pm-scheduler.html" },
-  failure_digest: { label: "Failure Digest",      color: "#ef4444", link: "https://workhiveph.com/logbook.html"      },
-  shift_handover: { label: "Shift Handover",      color: "#29B6D9", link: "https://workhiveph.com/logbook.html"      },
-  predictive:     { label: "Predictive Analysis", color: "#a78bfa", link: "https://workhiveph.com/analytics.html"    },
-  oee:            { label: "OEE Summary",          color: "#22c55e", link: "https://workhiveph.com/analytics.html"    },
-  descriptive:    { label: "Weekly Analytics",    color: "#6366f1", link: "https://workhiveph.com/analytics.html"    },
+// ★EVERY FIGURE CARRIES ITS WINDOW. The recipient sees a number and a date and has no way to know
+// whether "failures" means 7 days or 90 - and these report types genuinely disagree: the failure
+// digest asks the RPCs for 7 days (scheduled-agents PERIOD=7), predictive asks for 90
+// (get_mtbf_by_machine p_period_days:90), handover reads the last 8 hours, and PM Overdue is not a
+// window at all - it is current scope state, true only as of the moment it ran. A date alone reads
+// as "this is the news today" for all four, which is wrong for three of them. `window` is the
+// qualifier, rendered NEXT TO the label rather than in a footer, because a qualifier that sits far
+// from its figure is one the reader has already passed.
+const REPORT_META: Record<string, { label: string; color: string; link: string; window: string }> = {
+  pm_overdue:     { label: "PM Overdue",          color: "#F7A21B", link: "https://workhiveph.com/pm-scheduler.html" , window: "current status as of this report"},
+  failure_digest: { label: "Failure Digest",      color: "#ef4444", link: "https://workhiveph.com/logbook.html"      , window: "last 7 days"},
+  shift_handover: { label: "Shift Handover",      color: "#29B6D9", link: "https://workhiveph.com/logbook.html"      , window: "last 8 hours"},
+  predictive:     { label: "Predictive Analysis", color: "#a78bfa", link: "https://workhiveph.com/analytics.html"    , window: "last 90 days"},
+  oee:            { label: "OEE Summary",          color: "#22c55e", link: "https://workhiveph.com/analytics.html"    , window: ""},
+  descriptive:    { label: "Weekly Analytics",    color: "#6366f1", link: "https://workhiveph.com/analytics.html"    , window: ""},
+  project_risk:   { label: "Project Risk",         color: "#f97316", link: "https://workhiveph.com/project-manager.html", window: "last 30 days"},
+  project_suggestions: { label: "Project Suggestions", color: "#14b8a6", link: "https://workhiveph.com/project-manager.html", window: "last 90 days"},
 };
 
 // ── Email helpers ─────────────────────────────────────────────────────────────
@@ -65,12 +75,12 @@ function buildEmailHtml(
   sentAt: string
 ): string {
   const cards = reports.map(r => {
-    const meta  = REPORT_META[r.type] ?? { label: r.type, color: "#F7A21B", link: "https://workhiveph.com" };
+    const meta  = REPORT_META[r.type] ?? { label: r.type, color: "#F7A21B", link: "https://workhiveph.com", window: "" };
     const safeSummary = esc(r.summary);
     const safeLabel   = esc(meta.label);   // r.type on the unknown-type fallback = client-controlled
     return `
       <div style="background:#1a2a3d;border-left:3px solid ${meta.color};padding:16px 20px;margin-bottom:8px;border-radius:0 8px 8px 0;">
-        <div style="font-size:10px;font-weight:700;color:${meta.color};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">${safeLabel}</div>
+        <div style="font-size:10px;font-weight:700;color:${meta.color};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">${safeLabel}${meta.window ? ` <span style="font-weight:600;color:#8fa3bd;text-transform:none;letter-spacing:0;">&middot; ${esc(meta.window)}</span>` : ""}</div>
         <p style="color:#d4dce8;font-size:14px;line-height:1.55;margin:0 0 10px;">${safeSummary}</p>
         <a href="${meta.link}" style="font-size:11px;font-weight:600;color:${meta.color};text-decoration:none;">View in WorkHive &rarr;</a>
       </div>`;
@@ -289,7 +299,10 @@ serveObserved("send-report-email", async (req) => {
       job_name: "send_report_email",
       hive_id,
       status:   "success",
-      detail:   `Sent ${reports.length} report(s) to ${recipient_email}`,
+      // The provider's message id is the only key an asynchronous bounce can be joined back to.
+      // It was previously returned to the caller and then dropped, so a bounce arriving minutes
+      // later had nothing to match against. resend-webhook-receiver greps this detail for it.
+      detail:   `Sent ${reports.length} report(s) to ${recipient_email} [resend_id=${emailData.id}]`,
     });
 
     return new Response(

@@ -113,6 +113,37 @@ def analyze():
             "unexplained": unexplained, "samples": samples}
 
 
+# A second way one reliability number stops meaning one thing. The mtbf check above catches a
+# METHODOLOGY fork (cached value vs live engine). This catches a VERSION fork: v_risk_truth keeps the
+# newest score per (hive, asset_name), so an asset the scoring batch stopped covering keeps its old
+# row forever, and the view then serves two model_versions side by side. index's risk tile counts
+# critical/high across that mixture and analytics reads the same view, so both surfaces agree with
+# each other while comparing assets scored by different formulas. Found 2026-08-20: rules-v2 on 94
+# rows, rules-v1 on 3 last scored 2026-07-20, both present in the critical/high subset.
+VERSION_SPLIT_SQL = """
+SELECT count(DISTINCT model_version),
+       coalesce(string_agg(DISTINCT model_version, ','), ''),
+       (SELECT count(*) FROM public.v_risk_truth
+         WHERE model_version IS DISTINCT FROM (
+           SELECT model_version FROM public.v_risk_truth
+            GROUP BY model_version ORDER BY count(*) DESC, model_version LIMIT 1))
+FROM public.v_risk_truth;
+"""
+
+
+def check_model_version_split():
+    out = psql(VERSION_SPLIT_SQL)
+    if out is None:
+        return {"skipped": True}
+    try:
+        n, versions, minority = out.splitlines()[0].split("|")
+        n, minority = int(n), int(minority)
+    except (ValueError, IndexError):
+        return {"skipped": True}
+    # 0 rows scored at all is not a pass: an empty view would report one version by vacuity.
+    return {"skipped": False, "versions": versions, "n_versions": n, "minority_rows": minority}
+
+
 def _func_sources_canonical_rpc():
     try:
         with open(os.path.abspath(FUNC), encoding="utf-8") as f:
@@ -149,6 +180,12 @@ def main():
         if res.get("skipped"):
             print(f"  SKIP -- {res['reason']}")
         elif res["unexplained"] == 0:
+            _v = check_model_version_split()
+            if not _v.get("skipped") and _v["n_versions"] > 1:
+                print(f"  WARN: v_risk_truth serves {_v['n_versions']} model_versions ({_v['versions']}); "
+                      f"{_v['minority_rows']} row(s) are not on the majority version. One score, two "
+                      f"definitions: assets scored by different formulas are being ranked together. "
+                      f"Fix: re-run batch-risk-scoring for the uncovered assets.")
             print(f"  PASS: 0 unexplained divergences across {res['joined']} machines "
                   f"({res['stale_pending']} bounded-stale, pending the next refresh cron -- monitored by cron-health)")
         else:

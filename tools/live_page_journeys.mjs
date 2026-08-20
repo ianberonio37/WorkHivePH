@@ -477,3 +477,16 @@ const __runArcK = async () => {
 
 // Run the Arc-K sweep ONLY when invoked directly — not when imported as a recipe library.
 if (IS_MAIN) __runArcK();
+
+// A failed sign-in must ABORT, never yield a signed-out walk. signIn() RETURNS {ok:false,err}
+// rather than throwing, so `.catch(() => {})` discarded the failure twice over: the result was
+// never read and the exception was swallowed. A signed-out walk makes every auth-gated page read
+// as "the page said NOTHING" -- findings that are indistinguishable from real ones.
+export async function assertSignedIn(p) {
+  let r;
+  try { r = await p; }
+  catch (e) { throw new Error(`SIGN-IN THREW: ${e && e.message ? e.message : e}`); }
+  if (r && r.anon) return r;
+  if (!r || !r.ok) throw new Error(`SIGN-IN FAILED: ${(r && r.err) || 'no session'} -- refusing to walk signed-out, every auth-gated reading would be fabricated`);
+  return r;
+}

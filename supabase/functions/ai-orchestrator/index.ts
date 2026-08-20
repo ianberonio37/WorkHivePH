@@ -224,7 +224,13 @@ async function workforceMatchAgent(db: SupabaseClient, hiveId: string | null, wo
   const skillsQ = db.from("v_worker_skill_truth")  // canonical: worker_skill_truth
     .select("worker_name, discipline, current_level, primary_skill, badge_count")
     .not("discipline", "is", null)
+    // ★current_level ties 94.4% in live data (90 skill rows over 5 distinct levels), so at the cap
+    // the tie decides which workers the assignment agent considers at all. Under the 100 cap today
+    // with 90 rows, so nothing is dropped yet. (worker_name, discipline) is the grain of this view
+    // and makes the order total.
     .order("current_level", { ascending: false })
+    .order("worker_name", { ascending: true })
+    .order("discipline", { ascending: true })
     .limit(100);
   if (hiveId) skillsQ.eq("hive_id", hiveId);
 
@@ -331,8 +337,27 @@ const ROUTE_SYSTEM = `You are a maintenance intelligence router. Given a user qu
 Respond only in JSON: { "agents": ["failure_analysis","pm_status","inventory_risk","knowledge_extraction","workforce_match","shift_handover","predictive"] }
 Include only the agents relevant to the question. Use at least 1 and at most 4 agents.`;
 
+// ★THE VERBATIM RULE EXISTED, BUT ONLY IN COACH MODE. COACH_SYNTH_SYSTEM below carries a hard
+// 'every machine value MUST appear VERBATIM in the agent data, NEVER invent or generalize' clause.
+// SYNTH_SYSTEM - the prompt behind ordinary assistant answers - carried only 'be specific: name
+// actual machines'. Measured live: asked for the worst MTBF, it answered 'The asset with the worst
+// MTBF is AC-003' from a grounding set that contained no MTBF figures and never mentioned AC-003.
+// AC-003 is not the worst on ANY basis the platform computes - v_risk_truth (full history) ranks
+// CH-001 at 5.80d worst with AC-003 4th at 7.30d, and get_mtbf_by_machine (90-day window) ranks
+// CT-001 first; AC-003 is 10th. What AC-003 IS worst at is health_score (25.4) - so the model
+// silently substituted one platform metric for another and stated the swap as a fact.
+//
+// Two clauses added, both narrow. The VERBATIM clause is COACH's, ported. The ORDERING clause is
+// new and is the one this failure needed: naming a real asset is not enough when the CLAIM is a
+// ranking - a superlative asserts an ordering, and an ordering can only come from figures the
+// model was actually handed. The definitions are listed because these terms have platform meanings
+// that differ from the model's priors, and a term used on its own terms is a wrong answer wearing
+// the right word. Kept short deliberately: this prompt is paid for on every single call.
 const SYNTH_SYSTEM = `You are a senior maintenance manager AI. Given agent results, write a clear, practical answer to the user's question.
 Be specific: name actual machines, workers, parts. Use bullet points for lists. Keep it under 200 words.
+Rules: every asset code you name MUST appear VERBATIM in the agent data above - copy it exactly, and NEVER invent, guess or generalize one.
+A superlative (worst/best/highest/lowest/most/least/top) is a claim about an ORDERING. Only make one if the agent data actually contains the figures being ordered, and say which figure you ranked on. If it does not, say what you can see and point the user to the Analytics page rather than ranking from impressions.
+Use these terms only as this platform defines them: MTBF = mean calendar days between corrective failures (ISO 14224). MTTR = mean repair hours, not calendar time. OEE = Availability x Performance x Quality (ISO 22400). PM compliance = PMs completed / PMs scheduled in the window (SMRP). Health score and risk score are SEPARATE rankings - never report one as the other.
 Respond only in JSON: { "answer": "your response here" }`;
 
 // ── COACH MODE synthesis (Phase 1.3 — Reliability Coach) ─────────────────────
@@ -384,6 +409,34 @@ const BENCHMARK_FRAME_RE = /\b(?:world[- ]class|benchmark|industry|typical(?:ly)
 //  (b) NO-provenance form — "Your split is 41% planned." (no "from records" phrase → the old rail was a
 //      no-op) now gets an honest hedge when the % is ungrounded, possessive-current-state framed, and NOT a
 //      benchmark. Conservative: a grounded % is left as-is; benchmarks + unit-constant advice are untouched.
+// CL10b SUPERLATIVE rail (2026-08-19, live-caught). CL10 guards NUMERIC current-state claims and opens
+// with `if (!pcts.length) return answer` — so an answer carrying no digit at all is never examined. A
+// SUPERLATIVE carries the same authority as a number and is just as falsifiable, with nothing for a
+// %-only rail to catch. Measured live: asked "which of my assets has the worst MTBF", the model was
+// handed an 835-character grounding set containing free-text fault history, asset codes GEN-001 and
+// SUB-001, and ZERO MTBF figures. It answered "The asset with the worst MTBF is AC-003" — an asset that
+// appears NOWHERE in its grounding — as a bare fact. Against v_risk_truth the worst MTBF is CH-001 at
+// 5.80 days; AC-003 is 7.30, joint 4th of 30. The code was real (so nothing was invented) but the
+// RANKING was produced from nothing, and CL10 never ran because the sentence had no percentage.
+//
+// Conservative by construction, mirroring CL10: it fires ONLY when the answer names an asset code in a
+// superlative frame AND that code is absent from the grounding set. A superlative about an asset the
+// model was actually shown is left untouched (it may be legitimately derived), and no sentence is ever
+// deleted — the caveat is appended, so a possibly-correct answer survives with its confidence corrected
+// rather than its content destroyed.
+const SUPERLATIVE_ASSET_RE =
+  /\b(worst|best|highest|lowest|most|least|top|poorest)\b[^.?!]{0,60}?\b([A-Z]{2,6}-\d{2,4})\b|\b([A-Z]{2,6}-\d{2,4})\b[^.?!]{0,60}?\b(?:has|is)\s+(?:the\s+)?(worst|best|highest|lowest|most|least|poorest)\b/;
+
+function hedgeUngroundedSuperlative(answer: string, grounding: string): string {
+  if (!answer) return answer;
+  const m = SUPERLATIVE_ASSET_RE.exec(answer);
+  if (!m) return answer;
+  const code = m[2] || m[3];
+  if (!code) return answer;
+  if ((grounding || "").includes(code)) return answer;   // the model was actually shown this asset
+  return `${answer.trim()} (Note: I ranked that from what I could retrieve, and ${code} wasn't in the records I pulled — check the Asset Hub or Analytics page for the measured figures before acting on the ordering.)`;
+}
+
 function stripFalseKpiProvenance(answer: string, grounding: string): string {
   if (!answer) return answer;
   const pcts = answer.match(/\b\d{1,3}(?:\.\d+)?\s?%/g) || [];
@@ -458,7 +511,27 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
     // prior turns) so the assistant answers conversationally from the working buffer.
     const hasMemory = !!(memoryBlock && memoryBlock.trim());
     if (!(hasMemory && RECALL_RE.test(question || ""))) {
-      return { answer: "I couldn't find enough data to answer that yet. Add more logbook entries, PM completions, or skill badges to build up your knowledge base.", agents_used: agentsToRun };
+      // ★THE DEFLECTION MUST NOT DIAGNOSE A CAUSE IT NEVER CHECKED (live-caught 2026-08-19). This is
+      // the THIRD time this one fallback has misattributed its own boundary: Family R found it
+      // blaming DATA for a CAPABILITY limit ("order 5 parts"), CL5 found it blaming DATA for a
+      // MEMORY lookup ("what did I just tell you"), and both fixes narrowed WHEN it fires without
+      // ever touching WHAT IT SAYS. Measured: a supervisor on a hive holding 3,812 logbook rows, 9
+      // open work orders and 79% PM compliance asked for exactly those figures, no agent returned a
+      // result, and the reply told them to "add more logbook entries, PM completions, or skill
+      // badges to build up your knowledge base." Every clause of that is false about their hive. The
+      // honest statement is about OUR retrieval, not THEIR records — we know no source answered, and
+      // we have not checked whether the hive is empty, so we must not assert that it is. The
+      // onboarding advice survives only as a CONDITIONAL, which is true for a new hive and harmless
+      // for a full one, and the reply now routes the person to the surfaces that do hold the answer
+      // instead of leaving them to add data that was never missing.
+      return {
+        answer: "I couldn't pull that from your hive just now — none of my sources returned "
+          + "anything for that question, which usually means it sits outside what I can reach rather "
+          + "than that your records are missing. Open work orders are on the Hive board, and PM "
+          + "compliance is on the Analytics page. If your hive is new, adding logbook entries, PM "
+          + "completions and skill badges will widen what I can answer.",
+        agents_used: agentsToRun,
+      };
     }
     // else: a recall/reference question WITH conversation memory → fall through to memory-grounded synthesis.
   }
@@ -547,7 +620,10 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
   // CL10 faithfulness rails (2026-07-08): (1) neutralize/hedge an ungrounded KPI %, then (2) strip any
   // fabricated COMPLETED-write claim ("Log entry added", "Updated maintenance record"). The assistant is
   // read-only advisory; a false "I did X" is trust-breaking in a maintenance context. Live-caught 2026-07-08.
-  answer = stripFalseKpiProvenance(answer, `${resultsText}\n${semanticContext}\n${memoryBlock || ""}`);
+  const _grounding = `${resultsText}\n${semanticContext}\n${memoryBlock || ""}`;
+  answer = stripFalseKpiProvenance(answer, _grounding);
+  // CL10b: the same grounding set, asked the non-numeric question CL10 cannot reach.
+  answer = hedgeUngroundedSuperlative(answer, _grounding);
   const actionGate = stripFalseActionClaims(answer);
   if (actionGate.hit) {
     answer = (actionGate.clean && actionGate.clean.length >= 15)

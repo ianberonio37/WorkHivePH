@@ -25,7 +25,12 @@ import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ORCH = ROOT / "supabase" / "functions" / "ai-orchestrator" / "index.ts"
-DEFLECT = "couldn't find enough data"
+# Re-pointed 2026-08-20. The literal deflection text was rewritten by the 2026-08-19 fix that
+# stopped it diagnosing a cause it never checked ("add more logbook entries" told to a hive
+# holding 3,812 rows). The wording is expected to keep improving; what this gate actually locks
+# is that the deflection stays MEMORY-AWARE (guarded by memoryBlock + RECALL_RE), which is
+# unchanged. Anchored on the shortest phrase that survives rewording of the diagnosis.
+DEFLECT = "couldn't pull that from your hive"
 
 
 def analyze():

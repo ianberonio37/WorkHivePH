@@ -42,7 +42,7 @@ _POPPINS_FORMS = [
 DEFAULT_FILES = [
     "nav-hub.js", "companion-launcher.js", "wh-feedback-fab.js", "connectivity-widget.js",
     "voice-handler.js", "wh-persona.js", "session-timeout.js", "wayfinding.js",
-    "search-overlay.js", "learn-link.js", "wh-help.js", "onboarding.js", "provenance-hover.js",
+    "search-overlay.js", "learn-link.js", "wh-help.js", "onboarding.js",
     "utils.js",
 ]
 

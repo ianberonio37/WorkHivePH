@@ -86,9 +86,17 @@
     /* Profile stats grid */
     .profile-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.625rem; }
     .pstat { text-align: center; background: rgba(0,0,0,0.2); border-radius: 0.625rem; padding: 0.625rem 0.35rem; }
-    .pstat-num { font-size: 1.2rem; font-weight: 800; color: var(--wh-orange); }
-    .pstat-num.blue { color: var(--wh-blue); }
+    /* TEXT tier, not the FILL tier -- the fourth instance of this on this page (see the seller
+       initials at :67). #F7A21B on the dark card scores APCA Lc 59.5 against the Lc 60 floor for
+       19px/800, so all three stat numbers missed by half a point while WCAG passed them at 7.56.
+       --wh-orange-text / --wh-blue-text exist for exactly this. */
+    .pstat-num { font-size: 1.2rem; font-weight: 800; color: var(--wh-orange-text); }
+    .pstat-num.blue { color: var(--wh-blue-text); }
     .pstat-num.green { color: var(--wh-green); }
+    /* `.red` was USED at :290 and :2736 and DEFINED NOWHERE, so "New Inquiries" and "Pending"
+       fell back to the base orange: a warning-coloured metric rendered as the normal accent, and
+       nothing could reveal it because the fallback looks deliberate. */
+    .pstat-num.red { color: var(--wh-red-text); }
     .pstat-lbl { font-size: 0.62rem; color: var(--wh-steel-bright); margin-top: 0.1rem; }
 
     /* Tabs */
@@ -113,10 +121,28 @@
     .listing-item.published { border-left: 3px solid var(--wh-green); }
     .listing-item.removed   { border-left: 3px solid var(--wh-red); opacity: 0.65; }
     .listing-item.sold      { border-left: 3px solid var(--wh-blue); }
-    .li-body { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem; }
+    /* WRAP, DON'T SQUEEZE THE TEXT COLUMN TO 40px (fixed 2026-08-08, found at 200% zoom). This row
+       did not wrap, so its width was spent in fixed order: ~28px padding + a 56px flex-shrink:0
+       thumbnail + a 12px gap + the action buttons, and .li-info took whatever remained. At a 390px
+       viewport zoomed to 200% (layout width 172px) that remainder was 40px, and titles broke
+       MID-WORD over six lines -- 'Permit-to-Work Refresher (1 day)' in a 40px box, and the seller's
+       own name rendering as 'Leandr/o/Marque/z'. WCAG 1.4.4 expects content to stay usable at 200%.
+       No gate caught it, and could not have: min-width:0 on .li-info means the row WRAPS its text
+       instead of overflowing, so scrollWidth == clientWidth, there is no sideways scroll, nothing is
+       clipped, and nothing overlaps. Every overflow probe asks "is content cut or pushed off-screen"
+       and the honest answer was no. See feedback_a_zero_that_was_never_a_fallback's sibling lesson:
+       an instrument answering its own question truthfully while the artefact is unreadable. */
+    .li-body { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem; flex-wrap: wrap; }
     .li-thumb { width: 56px; height: 56px; border-radius: 0.5rem; flex-shrink: 0; background: rgba(42,61,88,0.8); display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); overflow: hidden; }
     .li-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .li-info { flex: 1; min-width: 0; }
+    /* `flex: 1` alone gave this column the REMAINDER of the row, which at 200% zoom was 40px. The
+       9rem basis (144px) means that once the thumbnail, gap, padding and buttons cannot leave it at
+       least that much, it wraps to its OWN line at full width instead of being crushed. min-width:0
+       stays: it is what stops a long unbreakable word from forcing a horizontal scrollbar, and it was
+       never the bug -- the bug was having no floor for the column BEFORE that shrink applies. At
+       normal widths flex-grow still fills the row beside the 56px thumb, so wide layouts are
+       unchanged. */
+    .li-info { flex: 1 1 9rem; min-width: 0; }
     .li-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.25rem; }
     .li-meta { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
     .meta-chip { padding: 0.12rem 0.45rem; border-radius: 999px; font-size: 0.62rem; font-weight: 600; background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08); }
@@ -305,7 +331,18 @@
         <strong style="font-size:0.85rem;">WorkHive Credits</strong>
         <span id="cw-total" style="margin-left:auto;font-size:0.8rem;opacity:0.85;"></span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+      <!-- auto-fit, not a hard `1fr 1fr` (fixed 2026-08-08 at 200% zoom). Two fixed columns split a
+           172px layout into ~34px each, so "Held by live listings" broke mid-word under the credits
+           figure - on the panel that tells a seller how much of their money is tied up. minmax(9rem,1fr)
+           drops to ONE column when two 9rem tracks will not fit and keeps two at normal width. No
+           overflow gate could see this either: a grid track at 34px wraps its text, it does not
+           overflow, so scrollWidth == clientWidth and nothing is clipped. -->
+      <!-- 8rem, NOT 9rem, and the 1rem matters - measured, not guessed. This container's inner width
+           is 293px at a 390px viewport, and two 9rem (144px) tracks plus the 8px gap need 296px, so
+           auto-fit dropped to ONE column and I had turned a 200%-zoom fix into a regression at the
+           PRIMARY viewport. Two 8rem (128px) tracks need 264px, which fits at 390 and still cannot
+           fit in the 122px available at 200% zoom, so it stacks exactly where it should. -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:0.5rem;">
         <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.55rem 0.7rem;">
           <div id="cw-available" style="font-size:1.05rem;font-weight:700;">-</div>
           <div style="font-size:0.7rem;opacity:0.75;">Available to list</div>
@@ -3015,7 +3052,6 @@ window.addEventListener('load', function () {
 <script src="button-lock.js"></script>
 <script src="oc-helper.js"></script>
 <script src="companion-launcher.js"></script>
-<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
 <script>
   // E3 provenance (FAMILY F3): sources = this page's verified reads.
   window.addEventListener('load', function () {

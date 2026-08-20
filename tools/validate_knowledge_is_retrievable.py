@@ -57,6 +57,52 @@ select
 """
 
 
+# WHY a row is unindexed decides who fixes it, and the three causes need three different people:
+#   pending   - the trigger enqueued it and the DRAIN never ran. Nothing is broken in the code.
+#   dead      - it was attempted and gave up. Needs the last_error read.
+#   unqueued  - genuinely never enqueued: THAT is the "new write path" case.
+# This gate used to assert the third unconditionally. Measured 2026-08-20, both uncovered rows
+# were enqueued (one pending with 0 attempts, one DEAD after 5), so the message sent the reader
+# hunting for an unindexed write path that does not exist.
+UNCOVERED_IDS_SQL = """
+with composed as (
+  select l.id,
+    length({composed}) as tlen,
+    exists(select 1 from public.fault_knowledge f where f.logbook_id = l.id) as embedded
+  from public.logbook l)
+select c.id,
+  case when o.row_id is null then 'unqueued'
+       when o.done_at is not null then 'dead'
+       else 'pending' end,
+  coalesce(o.attempts, 0),
+  coalesce(left(o.last_error, 70), '-')
+from composed c
+left join lateral (
+  select * from public.embedding_outbox o2
+  where o2.source_table = 'logbook' and o2.row_id = c.id
+  order by o2.enqueued_at desc limit 1) o on true
+where c.tlen >= 50 and not c.embedded
+order by c.id;"""
+
+
+def diagnose_uncovered():
+    sql = UNCOVERED_IDS_SQL.replace("{composed}", COMPOSED)
+    try:
+        r = subprocess.run(["docker", "exec", CONTAINER, "psql", "-U", "postgres", "-d", "postgres",
+                            "-t", "-A", "-F", "|", "-c", sql],
+                           capture_output=True, text=True, encoding="utf-8",
+                           errors="replace", timeout=90)
+    except Exception:
+        return []
+    if r.returncode != 0:
+        return []
+    rows = []
+    for line in (r.stdout or "").splitlines():
+        parts = line.split("|")
+        if len(parts) >= 4:
+            rows.append({"id": parts[0], "why": parts[1], "attempts": parts[2], "err": parts[3]})
+    return rows
+
 def measure():
     try:
         r = subprocess.run(["docker", "exec", CONTAINER, "psql", "-U", "postgres", "-d", "postgres",
@@ -143,8 +189,22 @@ def main(argv):
         print(f"  {DIM}baseline set to {m['uncovered']} uncovered{RST}")
         return 0
     if m["uncovered"] > base:
-        print(f"  {RED}FAIL{RST} — written-only entries ROSE {base} -> {m['uncovered']}. A new write path is "
-              f"putting knowledge on the board without indexing it, so it cannot be found again.")
+        print(f"  {RED}FAIL{RST} — written-only entries ROSE {base} -> {m['uncovered']}.")
+        rows = diagnose_uncovered()
+        buckets = {}
+        for row in rows:
+            buckets.setdefault(row["why"], []).append(row)
+        for why, items in sorted(buckets.items()):
+            print(f"    {why}: {len(items)}")
+            for row in items[:5]:
+                print(f"      {row['id']}  attempts={row['attempts']}  {row['err']}")
+        if buckets.get("unqueued"):
+            print("  A write path is putting knowledge on the board WITHOUT enqueueing it - the "
+                  "trigger did not fire for those rows, so they can never be found again.")
+        if buckets.get("pending") or buckets.get("dead"):
+            print("  These were enqueued correctly: the code is not at fault. `pending` means the "
+                  "embedding DRAIN has not run (it spends API credits, so it is a deliberate "
+                  "decision, not a bug); `dead` gave up after its attempts and needs its error read.")
         return 1
     if m["uncovered"] < base:
         write()

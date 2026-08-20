@@ -861,7 +861,24 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     } catch (err) {
       console.warn('[analytics] recompute risk failed:', (err && err.message) || err);
       if (lbl) lbl.textContent = '⚠ Try again';
-      showToast('Recompute failed, check console');
+      // ★THE SERVER ALREADY SAID SOMETHING USEFUL AND THIS LINE THREW IT AWAY. Measured live: the
+      // recompute returns HTTP 429 with {"error":"AI call limit reached for this hive. Try again in an
+      // hour.","scope":"hour"} — it names the limit, the scope AND when it clears. "Recompute failed,
+      // check console" sent a supervisor to a developer tool to learn they should wait an hour.
+      // ★AND THE MESSAGE IS IN THE RESPONSE BODY, NOT IN THE ERROR. functions.invoke rejects with a
+      // FunctionsHttpError whose message is only "Edge Function returned a non-2xx status code", so
+      // whAiError(err) alone still fell through to a generic line — my first attempt at this fix did
+      // exactly that and I only caught it by reading the toast the page actually produced. The body
+      // lives on err.context (the Response), which is where analytics-report.html's version gets the
+      // sentence it renders verbatim. Read it, fall back to the mapper, then to a plain line.
+      let msg = '';
+      try {
+        if (err && err.context && typeof err.context.json === 'function') {
+          const body = await err.context.json();
+          msg = (body && (body.error || body.message)) || '';
+        }
+      } catch (_) { /* empty-catch-allow: body may not be JSON — fall through to the mapper below */ }
+      showToast(msg || whAiError(err, 'Recompute failed. Try again shortly.'), 'error');
     } finally {
       setTimeout(() => { if (lbl) lbl.textContent = orig; if (btn) btn.disabled = false; }, 2600);
     }
@@ -1048,6 +1065,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     startLoadingMessages();
 
     // All 4 phases run simultaneously — no more 4× wait
+    // ★fetchPhase SWALLOWS ITS OWN ERRORS — it catches, toasts via whAiError, and paints the
+    // "Analytics unavailable" verdict itself, so every promise here settles FULFILLED even when all
+    // four phases were refused. I wrote a rejection-inspecting branch on top of this and it was dead
+    // code: measured live under a forced 429, the page already says "You have hit the AI rate limit.
+    // Wait a moment and try again." The FAIL that sent me here was the prover's, not the page's.
     await Promise.allSettled(PHASES.map(p => fetchPhase(p)));
 
     stopLoadingMessages();
@@ -1065,8 +1087,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // day computes + saves; later views render the saved copy instantly and
   // only the Refresh button recomputes. Solo mode and filtered views always
   // compute live (snapshots are hive-keyed, default-view only).
+  // Set when the SAVED-COPY read failed, as opposed to there being no saved copy. The freshness chip
+  // reads it, because "Recomputed just now" over a page missing its snapshot content is a claim about
+  // completeness that nobody checked.
+  let _snapshotReadFailed = false;
   async function loadSnapshots() {
     if (!HIVE_ID) return [];
+    _snapshotReadFailed = false;
     loadPmOntime();  // the cached path renders without ever calling fetchPhase
     if (_filters.criticality !== 'all' || _filters.discipline !== 'all') return [];
     try {
@@ -1075,7 +1102,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .eq('hive_id', HIVE_ID)
         .eq('period_days', _period)
         .limit(500);
-      if (error || !data) return [];
+      // ★ FOURTH INSTANCE OF ONE `return` MEANING TWO OPPOSITE THINGS. `error` (the saved copy could
+      // not be READ) and `!data` (there is no saved copy) both returned [], so the page fell back to a
+      // live recompute and said nothing. The numbers that come back are fine — but the snapshot payload
+      // also carries the AI RECOMMENDATION block, which simply vanished, and the freshness chip then
+      // announced "Recomputed just now" as though everything on screen were current and complete.
+      // Measured 2026-08-14 under an injected 500: the recommendation and its verdict disappeared with
+      // no message anywhere. A SILENT DEGRADATION is the hardest kind to notice, because what remains
+      // looks healthy.
+      if (error) { _snapshotReadFailed = true; console.warn('[analytics] snapshot read failed:', error.message); return []; }
+      if (!data) return [];
       // Fresh = computed today in PHT (UTC+8); the first opener after the PHT
       // day rolls over recomputes, mirroring the "first view of the day" rule.
       const phtNow = new Date(Date.now() + 8 * 3600 * 1000);
@@ -1208,9 +1244,28 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const _pmPeriod = (data && data.period_days) || _period;
     const _pmLabel = document.getElementById('an-pm-label');
     if (_pmLabel) _pmLabel.textContent = _t(`PM compliance (${_pmPeriod} days)`, `PM compliance (${_pmPeriod} araw)`);
+    // ★THE SAME CLAIM LIVED IN TWO PLACES AND ONLY THE VISIBLE ONE WAS FIXED. #an-card-pm also
+    // carries data-rag-label, hardcoded at ":555 as "PM compliance (30d approx)", and that attribute is
+    // what the RAG / AI-grounding layer reads. Measured live with the period at 90: the person saw
+    // "PM COMPLIANCE (90 DAYS) 79%" while any answer built on this tile would have cited 30 days - the
+    // window is the denominator's definition, so the two labels were making different claims about the
+    // same number. Written from the SAME _pmPeriod as the visible label, from the payload that produced
+    // the figure, so they cannot drift apart again.
+    const _pmCard = document.getElementById('an-card-pm');
+    if (_pmCard) _pmCard.setAttribute('data-rag-label', `PM compliance (${_pmPeriod}d)`);
     const _pmFoot = document.getElementById('an-pm-foot');
-    if (_pmFoot) _pmFoot.textContent = _t(`SMRP v5.0 · Estimated from the last ${_pmPeriod} days.`,
-                                          `SMRP v5.0 · Tinatayang mula sa huling ${_pmPeriod} araw.`);
+    // ★ THE PERIOD WAS STATED AND THE TOLERANCE WAS NOT, so "compliance" named a fraction whose
+    // numerator was undefined. SMRP compliance is completed-ON-TIME / scheduled, and "on time" has to
+    // mean something specific before the % can be audited or compared between periods.
+    // Read from get_pm_ontime_delivery's body rather than assumed: a completion counts as on time when
+    //     completed_at <= prev_at + (frequency_days || ' days')::interval
+    // so there is NO fixed grace period — the tolerance IS each PM's own frequency. A monthly PM done
+    // on day 30 is on time, on day 35 it is late, and a quarterly PM has ninety days of room.
+    // Same sentence as pm-scheduler's card, deliberately: one definition, two surfaces, so a reader
+    // moving between them is not quietly handed two different meanings of the same word.
+    if (_pmFoot) _pmFoot.textContent = _t(
+      `SMRP v5.0 · Estimated from the last ${_pmPeriod} days · on time = within each PM's own interval.`,
+      `SMRP v5.0 · Tinatayang mula sa huling ${_pmPeriod} araw · on time = sa loob ng sariling interval ng bawat PM.`);
     const setCard = (name, hero, sub, tag, tone) => {
       const card = document.getElementById('an-card-' + name);
       if (card) {
@@ -1259,7 +1314,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const tone = d < 14 ? 'red' : d < 30 ? 'amber' : 'green';
       // MTBF row uses the `machine` field (matches renderMTBF + renderOEE).
       const assetLabel = worstMTBF.machine || worstMTBF.asset_name || _t('Worst asset','Pinakamasamang asset');
-      setCard('mtbf', d + 'd', _t(`${assetLabel} between failures`, `${assetLabel} sa pagitan ng pagkasira`), tag, tone);
+      // ★A MEAN FROM ONE INTERVAL WAS OUT-RANKING A MEAN FROM FOUR. This card picks the lowest
+      // mtbf_days in the window and never looks at how many failures produced it. Live: CT-001
+      // logged 2 failures in 90 days - ONE interval, min=max=0.6d - and headlined as the fleet's
+      // worst MTBF over CH-001, whose 5.7d is the mean of four intervals. Across all history
+      // CT-001 actually averages 8.61 days and is not the worst by any reading; v_risk_truth,
+      // which uses full history, puts CH-001 first. Both numbers are honest for their own window,
+      // so the fix is not to change the ranking - it is to stop presenting n=1 as if it were a
+      // rate. The failure count already rides along in the row, and the predictive section of
+      // analytics-report already shows it ('2 prior failures'); only this headline card hid it.
+      const fc = Number(worstMTBF.failure_count);
+      const basis = Number.isFinite(fc) && fc > 0
+        ? _t(` · from ${fc} failure${fc === 1 ? '' : 's'}`, ` · mula sa ${fc} pagkasira`)
+        : '';
+      setCard('mtbf', d + 'd', _t(`${assetLabel} between failures${basis}`, `${assetLabel} sa pagitan ng pagkasira${basis}`), tag, tone);
     }
 
     // ── PM compliance ────────────────────────────────────────────────
@@ -1453,7 +1521,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       (a.oee_pct == null ? Infinity : a.oee_pct) - (b.oee_pct == null ? Infinity : b.oee_pct));
     const table = renderListWithShowAll({
       items: sorted,
-      tableHeader: '<thead><tr><th>Machine</th><th class="num">Availability</th><th class="num">Quality</th><th class="num">OEE (partial)</th></tr></thead>',
+      tableHeader: '<thead><tr><th>Asset</th><th class="num">Availability</th><th class="num">Quality</th><th class="num">OEE (partial)</th></tr></thead>',
       defaultN: 8,
       itemNoun: 'asset',
       renderRow: (r) => {
@@ -1518,7 +1586,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     const detail = renderListWithShowAll({
       items: d.mttr_by_asset,
-      tableHeader: '<thead><tr><th>Machine</th><th class="num">Repairs</th><th class="num">Total DT</th><th class="num">MTTR</th></tr></thead>',
+      tableHeader: '<thead><tr><th>Asset</th><th class="num">Repairs</th><th class="num">Total DT</th><th class="num">MTTR</th></tr></thead>',
       defaultN: 8,
       itemNoun: 'asset',
       searchable: true,
@@ -1791,7 +1859,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
     const list = renderListWithShowAll({
       items: d.repeats,
-      tableHeader: '<thead><tr><th>Machine</th><th>Root Cause</th><th class="num">Count</th></tr></thead>',
+      tableHeader: '<thead><tr><th>Asset</th><th>Root Cause</th><th class="num">Count</th></tr></thead>',
       defaultN: 8,
       itemNoun: 'pair',
       renderRow: (r) => `<tr>
@@ -1937,7 +2005,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="stat-tile"><div class="val">${d.overall_avg_mttr_h}h</div><div class="label">Avg MTTR</div></div>
         <div class="stat-tile"><div class="val">${d.median_mttr_h}h</div><div class="label">Median MTTR</div></div>
       </div>
-      ${rows ? `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Machine</th><th class="num">Downtime</th><th class="num">Above avg</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table></div>` : ''}
+      ${rows ? `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Asset</th><th class="num">Downtime</th><th class="num">Above avg</th><th>Date</th></tr></thead><tbody>${rows}</tbody></table></div>` : ''}
       <p style="font-size:0.65rem;color:rgba(255,255,255,0.80);margin-top:0.75rem;">${escHtml(d.note || '')}</p>
     </div>`;
   }
@@ -2090,7 +2158,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     const baselineList = renderListWithShowAll({
       items: d.baselines,
-      tableHeader: '<thead><tr><th>Machine</th><th>Reading</th><th class="num">Mean</th><th class="num">UCL</th><th class="num">Last</th></tr></thead>',
+      tableHeader: '<thead><tr><th>Asset</th><th>Reading</th><th class="num">Mean</th><th class="num">UCL</th><th class="num">Last</th></tr></thead>',
       defaultN: 8,
       itemNoun: 'reading',
       searchable: true,
@@ -2194,7 +2262,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     const list = renderListWithShowAll({
       items: d.predictions,
-      tableHeader: '<thead><tr><th>Machine</th><th class="num">MTBF</th><th class="num">Last Logged</th><th class="num">Predicted Next</th><th>Status</th></tr></thead>',
+      tableHeader: '<thead><tr><th>Asset</th><th class="num">MTBF</th><th class="num">Last Logged</th><th class="num">Predicted Next</th><th>Status</th></tr></thead>',
       defaultN: 8,
       itemNoun: 'machine',
       searchable: true,
@@ -2554,7 +2622,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }).join('');
     return `<div class="card">
       <h2 class="card-title">Technician Assignment <span class="card-standard">SMRP workforce · ${d.open_job_count || 0} open job(s)</span></h2>
-      ${assignments ? `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Machine</th><th>Problem</th><th>Assign To</th><th class="num">Level</th></tr></thead><tbody>${assignments}</tbody></table></div>` : ''}
+      ${assignments ? `<!-- table-name-allow: maintenance analytics data table --> <div class="wh-scroll-x"><table class="data-table"><thead><tr><th>Asset</th><th>Problem</th><th>Assign To</th><th class="num">Level</th></tr></thead><tbody>${assignments}</tbody></table></div>` : ''}
       ${gaps}
     </div>`;
   }
@@ -2948,9 +3016,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                     : `${Math.round(mins / 1440)} araw ang nakalipas`;
       _freshness = _t(`Saved snapshot, computed ${when} · Refresh to recompute`,
                       `Naka-save na snapshot, kinalkula ${whenFil} · I-refresh para muling kalkulahin`);
+    } else if (_snapshotReadFailed) {
+      // The figures below ARE freshly computed, so "Recomputed just now" is true — but it is not the
+      // whole truth while the saved copy (and the AI recommendation it carries) could not be read.
+      _freshness = _t('Recomputed just now · saved copy could not be read, so some sections are missing',
+                      'Kakakalkula lang · hindi mabasa ang naka-save na kopya, may mga seksyong nawawala');
     } else {
       _freshness = _t('Recomputed just now', 'Kakakalkula lang');
     }
+    // WHICH ENGINE ANSWERED. The AI chain walks groq -> cerebras -> sambanova -> gemini-flash-lite
+    // -> openrouter, skipping any provider that is down, and returned only the content: a degraded
+    // answer served from deep in the chain looked exactly like a primary one. The orchestrator now
+    // reports the provider that actually served (_engine), and depth 0 means primary, so anything
+    // deeper is stated rather than hidden.
+    try {
+      const _pd = _cache && _cache[_phase];
+      const _eng = _pd && _pd.action_plan
+        && (typeof _pd.action_plan === 'string' ? JSON.parse(_pd.action_plan) : _pd.action_plan)._engine;
+      if (_eng && _eng.providerName) {
+        _freshness += _eng.depth > 0
+          ? _t(` · answered by ${_eng.providerName} (backup engine, primary unavailable)`,
+               ` · sinagot ng ${_eng.providerName} (backup na engine)`)
+          : _t(` · answered by ${_eng.providerName}`, ` · sinagot ng ${_eng.providerName}`);
+      }
+    } catch (_) { /* empty-catch-allow: the engine note is an explainer, never a blocker */ }
     // source-chip-allow: analytics computes via Postgres RPCs (calc_mtbf /
     // calc_mttr / calc_oee) over v_logbook_truth — no direct db.from() of
     // the view, but the RPC bodies guarantee identical lineage.
@@ -2959,6 +3048,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     el/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
       freshness: _freshness,
       source:    'v_logbook_truth via Postgres RPCs',
+      // ★ SAY WHETHER THE WINDOW ROLLS. The period was stated ("30 days") and its KIND was not, and on a
+      // reliability trend those are different numbers: a rolling 30 days ends now and moves every time
+      // you look, a calendar month does not. A planner comparing this month's figure with last month's
+      // cannot interpret either without knowing which they hold.
+      // Not a guess — read from the function body behind these RPCs:
+      //     now() - (p_period_days || ' days')::interval
+      // which is a rolling window ending at the moment of the call. `renderSourceChip` already carries a
+      // `window` field for exactly this, so the fix is to pass the fact rather than to invent markup.
+      window:    _t(`last ${_period} days (rolling, ending now)`,
+                    `huling ${_period} araw (rolling, hanggang ngayon)`),
       method:    [`MTBF / MTTR / OEE @ ${_period}d ${_t('window (selected period)', 'window (piniling panahon)')}`],
     });
   }
@@ -3052,7 +3151,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   };
 </script>
 <script src="companion-launcher.js"></script>
-<script src="provenance-hover.js"></script><!-- Phase E2: "where did this come from?" provenance affordance -->
   <!-- AV1 (FULLSTACK_COMPONENT_LIBRARY Layer AV): the offline canonical set — ships as one unit -->
   <script src="offline-banner.js"></script>
   <script defer src="offline-queue.js"></script>

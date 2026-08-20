@@ -47,7 +47,46 @@ HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 CHECK_NAMES = ["event_listener_cleanup"]
 
 
+# A listener bound to nodes that were JUST rebuilt is self-cleaning: the old nodes (and their
+# listeners) are discarded by the innerHTML assignment, which this file's own docstring already
+# allows for ("rely on element removal to clean them") but could not detect. voice-journal.html
+# crossed the 10-add threshold purely on rebuild-scoped binds and flipped the ratchet red with no
+# new leak. The pattern exempted is deliberately TIGHT -- a querySelectorAll(...).forEach bind
+# that follows an innerHTML/insertAdjacentHTML/replaceChildren on the same short span:
+#     root.innerHTML = chips.join("");
+#     root.querySelectorAll(".filter-chip").forEach(btn => btn.addEventListener("click", ...))
+# A bare document/window bind is NOT exempted, because nothing removes those.
+REBUILD_RE = __import__("re").compile(
+    r"(?:innerHTML\s*=|insertAdjacentHTML\(|replaceChildren\()[\s\S]{0,400}?"
+    r"querySelectorAll\([\s\S]{0,200}?forEach\([\s\S]{0,200}?$")
+
+
+def _rebuild_scoped(body, pos):
+    return bool(REBUILD_RE.search(body[max(0, pos - 700):pos]))
+
+def selftest() -> int:
+    # Rebuild-scoped binds are exempted. That exemption must stay TIGHT: a bare document/window
+    # bind has nothing to clean it up and must still count.
+    sprawl  = "document.addEventListener(" + "'click'" + ", f);"
+    rebuild = ("root.innerHTML = html;" + chr(10) +
+               "root.querySelectorAll('.x').forEach(b => b.addEventListener('click', f));")
+    detached = ("root.innerHTML = html;" + chr(10) * 40 +
+                "window.addEventListener('resize', f);")
+    cases = [
+        ("a bare document bind is still counted", not _rebuild_scoped(sprawl, sprawl.index("addEventListener"))),
+        ("a rebuild-scoped bind is exempted", _rebuild_scoped(rebuild, rebuild.index("addEventListener"))),
+        ("a window bind far below a rebuild is still counted",
+         not _rebuild_scoped(detached, detached.index("addEventListener"))),
+    ]
+    ok = all(v for _n, v in cases)
+    for name, v in cases:
+        print(("  PASS  " if v else "  FAIL  ") + name)
+    print("  selftest: " + ("teeth intact" if ok else "VACUOUS - the exemption swallows real sprawl"))
+    return 0 if ok else 1
+
 def main() -> int:
+    if "--selftest" in sys.argv:
+        return selftest()
     per_page = []
     total_risk = 0
 
@@ -58,13 +97,18 @@ def main() -> int:
         if ALLOW_RE.search(body):
             per_page.append({"page": name, "add": 0, "remove": 0, "allowed": True})
             continue
-        adds    = len(ADD_RE.findall(body))
-        removes = len(REMOVE_RE.findall(body))
-        # Heuristic threshold — 10+ adds with zero removes is suspect.
+        all_adds = [m.start() for m in ADD_RE.finditer(body)]
+        rebuild  = [o for o in all_adds if _rebuild_scoped(body, o)]
+        adds     = len(all_adds) - len(rebuild)
+        removes  = len(REMOVE_RE.findall(body))
+        # Heuristic threshold — 10+ UNMANAGED adds with zero removes is suspect. Rebuild-scoped
+        # binds are excluded above: the nodes they attach to are replaced wholesale on re-render.
         risky = adds >= 10 and removes == 0
         if risky:
             total_risk += 1
-        per_page.append({"page": name, "add": adds, "remove": removes, "risky": risky})
+        per_page.append({"page": name, "add": adds, "remove": removes,
+                         "add_raw": len(all_adds), "rebuild_scoped": len(rebuild),
+                         "risky": risky})
 
     risky_pages = [p for p in per_page if p.get("risky")]
 

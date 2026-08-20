@@ -7,10 +7,10 @@ candidates punch list. Allowlist a column by adding it to
 
 ## Summary
 
-- Tables scanned:           **176**
-- Total columns:            **1863**
-- Alive (consumed):         **1414** ✅
-- Universal-skipped:        **449** (id, created_at, hive_id, ...)
+- Tables scanned:           **179**
+- Total columns:            **1885**
+- Alive (consumed):         **1433** ✅
+- Universal-skipped:        **452** (id, created_at, hive_id, ...)
 - Allowlisted phantoms:     **0**
 - Phantom (deletion cand):  **0** ❌
 

@@ -35,7 +35,21 @@
            V1 caught pm-scheduler fab × wh-guide-link. Raise it clear of the page-FAB zone (Ian: colliding widgets). */
         'position:fixed;left:12px;bottom:calc(132px + env(safe-area-inset-bottom,0px));z-index:60;' +
         'max-width:min(320px,calc(100vw - 24px));display:flex;align-items:center;gap:8px;' +
-        'background:rgba(22,32,50,0.96);border:1px solid rgba(247,162,27,0.35);border-radius:12px;' +
+        // OPAQUE, so this chip's contrast is a property of the chip and not of whatever scrolled under
+        // it. At 0.96 alpha the three labels here measure 5.06:1, 7.89:1 and 6.67:1 against the
+        // composited chip, so nothing was FAILING - but axe abstained on all three, on every page,
+        // because the element is position:fixed and a fixed element's true backdrop is whatever the
+        // page happens to have scrolled beneath it, which no static tool can resolve. Those
+        // abstentions were the last nodes on five walked pages judged by NEITHER axe nor the APCA lens
+        // (which excludes shared chrome by design), so they were the residue blocking contrast_wcag
+        // from being fully dispositioned. 0.96 -> 1 is imperceptible (it removes a 4% bleed-through)
+        // and converts an unjudgeable node into a judgeable one. Same reasoning as wayfinding.js's
+        // crumb chip this session, where the translucency was the actual defect at 3.89:1.
+        // var(--wh-navy), not the raw rgb(22,32,50) it was: that value IS the canonical brand navy
+        // token (tokens.css:56), and the centralization roadmap counts this file's one raw literal in
+        // its purity table. Using the token makes the fix satisfy both rules at once instead of trading
+        // one debt for another. The fallback keeps the chip opaque if the sheet ever fails to load.
+        'background:var(--wh-navy,#162032);border:1px solid rgba(247,162,27,0.35);border-radius:12px;' +
         'padding:9px 10px 9px 12px;box-shadow:0 8px 24px rgba(0,0,0,0.35);' +
         'font:600 0.78rem/1.25 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;';
       var a = document.createElement('a');
@@ -64,6 +78,54 @@
 
       bar.appendChild(a); bar.appendChild(x);
       (document.body || document.documentElement).appendChild(bar);
+
+      /* ★A FLOATING HELPER MUST NOT INTERCEPT A DIALOG'S OWN BUTTONS.
+         The V1 fix above moved this chip clear of the bottom-left page FABs by raising it to bottom:132px
+         — which put it squarely over the ACTION ROW of every modal on the platform. Measured on
+         pm-scheduler at 390x844: #pm-edit-save-btn ("Save Changes") centres at (95, 606); this chip
+         occupies x 12-207, y 583-647; document.elementFromPoint(95, 606) returned a <span> inside
+         #wh-guide-link, NOT the button. #pm-edit-modal and this chip are BOTH z-index 60, and equal
+         z-index resolves by DOM order — the chip is appended last, so it wins. A supervisor could not
+         save a PM asset edit at all, and the modal's own inputs tested fine, so nothing about the
+         dialog looked broken.
+         Raising the modals instead would be a third round of the same nudge (Ian: colliding widgets),
+         and it would only hold until the next widget. The rule is behavioural: while a dialog is up,
+         a page-level guide is irrelevant, so it stands down entirely — no tap interception, no focus
+         stop inside a modal's trap, no contrast question over a backdrop. It returns when the dialog
+         closes. Cheap: attribute-only observer, one rAF-debounced check, and it disconnects itself if
+         the chip is dismissed (dismissal calls bar.remove()). */
+      (function standDownWhileDialogOpen() {
+        // Kept identical to nav-hub.js's list on purpose: two copies of one rule that drift are how a
+        // component gets fixed on one surface and stays broken on the next. .sheet-overlay.open is
+        // community's convention and was missing here.
+        var DIALOGISH = '[role="dialog"],dialog[open],.sheet.open,.modal.open,[id$="-sheet"].open,'
+          + '[id$="-modal"].open,.sheet-overlay.open';
+        var shown = true, queued = false;
+        function visible(el) {
+          var cs = getComputedStyle(el);
+          // NOT opacity: a dialog mid-fade reports opacity 0 on the first frame after its class flips,
+          // and with no further mutation to re-trigger the check the chrome stays up for the dialog's
+          // whole life. Found on nav-hub.js's copy of this rule; fixed here too so the two cannot drift.
+          if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+          var r = el.getBoundingClientRect();
+          return r.width > 0 && r.height > 0;
+        }
+        function sync() {
+          queued = false;
+          if (!bar.isConnected) { obs.disconnect(); return; }   /* dismissed: stand down for good */
+          var open = false, all = document.querySelectorAll(DIALOGISH);
+          for (var i = 0; i < all.length; i++) { if (visible(all[i])) { open = true; break; } }
+          if (open === !shown) return;                          /* already in the right state */
+          shown = !open;
+          bar.style.display = open ? 'none' : 'flex';
+        }
+        function schedule() { if (!queued) { queued = true; requestAnimationFrame(sync); } }
+        document.addEventListener('transitionend', schedule, true);
+        var obs = new MutationObserver(schedule);
+        obs.observe(document.documentElement, { attributes: true, subtree: true,
+          attributeFilter: ['style', 'class', 'open', 'aria-hidden', 'hidden'] });
+        sync();
+      })();
     }).catch(function () { /* empty-catch-allow: best-effort; no guide bar if the map cannot load */ });
   } catch (e) { /* empty-catch-allow: never break the host page over an optional guide bar */ }
 })();

@@ -1,0 +1,343 @@
+{
+ "_why": "CK-ui-state asks its five questions of THREE named components per page (C1/C2/C3), but every component-state prover measured the PAGE and would have banked one reading against all three subjects — the 'one measurement swept two views' error that put V1's verdicts on 14 V2 rows earlier in this arc. A subject cannot be measured until it can be SELECTED, and the bank's own subject.seen refs only carry a real CSS selector for 39 of 66; the other 27 are prose ('hive_members read', 'grid render'). This file is the missing structure: the live-resolved selector for each component, discovered by loading all 22 pages signed-in and reading the DOM, then verified to resolve before being trusted.",
+ "_rules": [
+  "on_load=true means the component is rendered by the page's own load path, so the loading/skeleton/busy/populated oracles have a real subject.",
+  "on_load=false means it only exists after a person opens something (a modal, a tab, a form). Its load-state oracles have NO subject and bank declared-na with that reason — never green, which would be vacuity, and never failed, which would be a fabricated defect.",
+  "Every selector here must RESOLVE live or it does not belong in this file; unresolved components stay owed with the reason recorded, because a selector that matches nothing measures nothing while looking like coverage."
+ ],
+ "pages": {
+  "index": {
+   "C1": {
+    "sel": ".oh-tile-num",
+    "on_load": true
+   },
+   "C2": {
+    "sel": ".oh-job-row",
+    "on_load": true
+   },
+   "C3": {
+    "sel": ".oh-more",
+    "on_load": true
+   }
+  },
+  "hive": {
+   "C1": {
+    "sel": "#ss-card-pm, .ss-card-pm",
+    "on_load": true
+   },
+   "C2": {
+    "sel": "#ss-cards, .ss-cards",
+    "on_load": true
+   },
+   "C3": {
+    "sel": "#benchmark-panel",
+    "on_load": true,
+    "note": "a <details> that ships with class 'hidden' and is revealed by the hive_benchmarks/network_benchmarks read; present in the DOM from parse, so it selects even while hidden"
+   }
+  },
+  "logbook": {
+   "C1": {
+    "sel": "#wh-logbook-grid",
+    "on_load": true
+   },
+   "C2": {
+    "sel": "#step-panel-1",
+    "on_load": false
+   },
+   "C3": {
+    "sel": "#parts-picker-modal",
+    "on_load": false
+   }
+  },
+  "inventory": {
+   "C1": {
+    "sel": ".part-card",
+    "on_load": true,
+    "note": "corrected 2026-08-17 after a map audit vs the bank subject names: a part row; #parts-list is the container and measuring it recorded the whole list"
+   },
+   "C2": {
+    "sel": "#use-modal",
+    "on_load": false
+   },
+   "C3": {
+    "sel": "#restock-modal",
+    "on_load": false
+   }
+  },
+  "pm-scheduler": {
+   "C1": {
+    "sel": ".asset-card",
+    "on_load": true,
+    "note": "corrected 2026-08-17 after a map audit vs the bank subject names: a PM task row; #asset-list is the container"
+   },
+   "C2": {
+    "sel": "#completion-sheet",
+    "on_load": false
+   },
+   "C3": {
+    "sel": "#completion-sheet",
+    "on_load": false,
+    "note": "the scope-item checklist renders inside the completion sheet (pm_scope_items), not on load"
+   }
+  },
+  "project-manager": {
+   "C1": {
+    "sel": ".pcard",
+    "on_load": true
+   },
+   "C2": {
+    "sel": ".pcard-head",
+    "on_load": true
+   },
+   "C3": {
+    "sel": "#list-view .pcard",
+    "on_load": false,
+    "note": "change-order rows live in the change-order panel, not the default project list"
+   }
+  },
+  "dayplanner": {
+   "C1": {
+    "sel": ".dp-slot",
+    "on_load": true
+   },
+   "C2": {
+    "sel": "#modal",
+    "on_load": false
+   },
+   "C3": {
+    "sel": ".view-tab",
+    "on_load": true
+   }
+  },
+  "asset-hub": {
+   "C1": {
+    "sel": ".asset-card",
+    "on_load": true
+   },
+   "C2": {
+    "sel": "#ah-card-pending",
+    "on_load": true
+   },
+   "C3": {
+    "sel": "#ah-card-critical",
+    "on_load": true
+   }
+  },
+  "analytics": {
+   "C1": {
+    "sel": "#an-card-oee",
+    "on_load": true
+   },
+   "C2": {
+    "sel": ".js-plotly-plot",
+    "on_load": true,
+    "note": "corrected 2026-08-17 after a map audit vs the bank subject names: the Plotly chart roots; .card matched unrelated furniture"
+   },
+   "C3": {
+    "sel": "#an-verdict-label",
+    "on_load": true
+   }
+  },
+  "alert-hub": {
+   "C1": {
+    "sel": "#ah-card-critical",
+    "on_load": true
+   },
+   "C2": {
+    "sel": ".alert",
+    "on_load": true
+   },
+   "C3": {
+    "sel": "#ah-card-anomaly",
+    "on_load": true
+   }
+  },
+  "skillmatrix": {
+   "C1": {
+    "sel": ".disc-card",
+    "on_load": true
+   },
+   "C2": {
+    "sel": "#exam-modal",
+    "on_load": false
+   },
+   "C3": {
+    "sel": "#result-modal",
+    "on_load": false
+   }
+  },
+  "shift-brain": {
+   "C1": {
+    "sel": "#sb-card-risk",
+    "on_load": true
+   },
+   "C2": {
+    "sel": ".wh-pmdue-row",
+    "on_load": true
+   },
+   "C3": {
+    "sel": "#briefing-card",
+    "on_load": true
+   }
+  },
+  "voice-journal": {
+   "C1": {
+    "sel": "#capture-panel",
+    "on_load": true
+   },
+   "C2": {
+    "sel": ".history-text",
+    "on_load": true
+   },
+   "C3": {
+    "sel": ".history-entry",
+    "on_load": true
+   }
+  },
+  "assistant": {
+   "C1": {
+    "sel": "[class*=\"bubble-\"]",
+    "on_load": true,
+    "note": "corrected 2026-08-17 after a map audit vs the bank subject names: the message bubbles (.bubble-assistant/.bubble-user); .ic was an icon utility class"
+   },
+   "C2": {
+    "sel": ".starter-chip",
+    "on_load": false,
+    "note": "a source/provenance chip renders on a REPLY that cites sources; the default thread has none"
+   },
+   "C3": {
+    "sel": "textarea, #composer",
+    "on_load": true
+   }
+  },
+  "community": {
+   "C1": {
+    "sel": ".post-card",
+    "on_load": true,
+    "note": "corrected 2026-08-17 after a map audit vs the bank subject names: the feed's post cards themselves, not #feed-list which merely holds them"
+   },
+   "C2": {
+    "sel": ".vcard-stub",
+    "on_load": true
+   },
+   "C3": {
+    "sel": ".reaction-btn",
+    "on_load": true
+   }
+  },
+  "public-feed": {
+   "C1": {
+    "sel": ".post-card",
+    "on_load": true
+   },
+   "C2": {
+    "sel": "#feed-list",
+    "on_load": true
+   },
+   "C3": {
+    "sel": ".post-meta",
+    "on_load": true
+   }
+  },
+  "achievements": {
+   "C1": {
+    "sel": ".domain-card",
+    "on_load": true
+   },
+   "C2": {
+    "sel": "#ac-card-week",
+    "on_load": true
+   },
+   "C3": {
+    "sel": ".domain-tier-label",
+    "on_load": true
+   }
+  },
+  "engineering-design": {
+   "C1": {
+    "sel": "#step1-card",
+    "on_load": true
+   },
+   "C2": {
+    "sel": "#step3-card",
+    "on_load": true
+   },
+   "C3": {
+    "sel": ".calc-card",
+    "on_load": true
+   }
+  },
+  "resume": {
+   "C1": {
+    "sel": "#upload-card",
+    "on_load": true
+   },
+   "C2": {
+    "sel": "#sections",
+    "on_load": false,
+    "note": "the checklist review sheet is a separate step reached after an upload/extract"
+   },
+   "C3": {
+    "sel": "#btn-resumes",
+    "on_load": false,
+    "note": "the version list lives in the resume manager, opened from #btn-resumes"
+   }
+  },
+  "report-sender": {
+   "C1": {
+    "sel": "#rs-card-reports",
+    "on_load": true
+   },
+   "C2": {
+    "sel": ".history-item",
+    "on_load": true
+   },
+   "C3": {
+    "sel": "#main-card",
+    "on_load": true
+   }
+  },
+  "project-report": {
+   "C1": {
+    "sel": "#exec-summary",
+    "on_load": true,
+    "note": "resolved 2026-08-17 live WITH ?project_id; the page returns early without one, which is why a paramless walk found nothing"
+   },
+   "C2": {
+    "sel": "#progress-section",
+    "on_load": true,
+    "note": "resolved 2026-08-17 live WITH ?project_id"
+   },
+   "C3": {
+    "sel": "#exec-summary .kpi",
+    "on_load": false,
+    "note": "budget figures render inside the KPI strip; no distinct budget block exists on load"
+   }
+  },
+  "analytics-report": {
+   "C1": {
+    "sel": ".ar-header",
+    "on_load": true,
+    "note": "resolved 2026-08-17 live; the rest of this page is an #ar-empty state until a report is generated"
+   },
+   "C2": {
+    "sel": "#ar-report-mount",
+    "on_load": false,
+    "note": "finding cards only exist after Generate; the page ships an #ar-empty state"
+   },
+   "C3": {
+    "sel": "#ar-report-mount",
+    "on_load": false,
+    "note": "action rows only exist after Generate"
+   }
+  }
+ },
+ "_unresolved": {
+  "_why": "Still unresolved after a second live pass; their CK rows stay OWED with the reason.",
+  "logbook.C1": "entry row — #wh-logbook-grid children are unclassed layout wrappers; the entry list needs a view toggle (#btn-view-mine/#btn-view-team) to enumerate"
+ },
+ "_urls": {
+  "_why": "Some pages render nothing without a URL parameter; a paramless walk grades a DIFFERENT page. Resolved with tools/page_query.mjs.",
+  "project-report": "?project_id=853abed7-4a61-4bb4-b771-f0d2d0196490"
+ }
+}

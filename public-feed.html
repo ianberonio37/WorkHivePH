@@ -47,6 +47,11 @@
       background: rgba(22,32,50,0.92); backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255,255,255,0.07);
       padding: 0.875rem 1.25rem;
+      /* Sticky at top:0, so the moment the feed scrolls this bar pins to the viewport edge and its
+         title and buttons sit under the notch. The body padding-top below is NOT this: that reserves
+         the wayfinding back-pill band, and the pill carries its own inset (wayfinding.js:77). An
+         ancestor's padding cannot hold a viewport-pinned box clear of the notch — it needs its own. */
+      padding-top: calc(0.875rem + env(safe-area-inset-top, 0px));
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
     }
     .header-left { display: flex; align-items: center; gap: 10px; }
@@ -198,6 +203,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   logPageView(_DB);
   const PAGE_SIZE = 20;
   let _lastCreatedAt = null;
+  let _lastId = null;   // MR4b: the cursor must carry the SAME key the order does
   let _hasMore = true;
   let _loading = false;
 
@@ -240,10 +246,38 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       .select('id, author_name, content, category, created_at')
       .eq('public', true)
       .eq('flagged', false)
+      // ★A DELETED POST WAS STILL PUBLISHED TO THE OPEN INTERNET (live-caught 2026-08-19).
+      // v_community_posts_truth deliberately EXPOSES deleted_at and even computes an is_deleted
+      // column - it is a truth view, so it hands the decision to each caller rather than filtering
+      // for them. community.html takes that decision correctly at all three of its call sites
+      // (:982, :1277, :1307 each add .is('deleted_at', null)). This query did not, and it is the one
+      // surface a stranger reaches without signing in. Measured: soft-delete a public post and the
+      // rows matching this exact query stay at 15 - the removed post remains on the public feed while
+      // vanishing from its own team's board, so moderation was surface-LOCAL in the one direction
+      // that cannot be walked back. Latent only because no currently-deleted post happens to be
+      // public. Filtering here, not in the view, keeps the view honest for callers that legitimately
+      // need to see deletions (moderation tooling, audit).
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
       .limit(PAGE_SIZE);
-    if (_lastCreatedAt) q = q.lt('created_at', _lastCreatedAt);
+    // ★MR4b: THE ORDER WAS MADE TOTAL AND THE CURSOR WAS LEFT BEHIND. The sort above is
+    // (created_at desc, id asc) - a previous pass added `.order('id')` precisely because created_at
+    // alone is not total - but the cursor stayed `.lt('created_at', T)`, which is strictly-less-than
+    // on the timestamp ALONE. When the LIMIT falls in the middle of a group of posts sharing one
+    // created_at, page 2 asks for `created_at < T` and thereby excludes EVERY remaining post at
+    // exactly T. Those posts are not duplicated and not shown late - they are silently skipped, and
+    // appear on no page at all. A half-total keyset is worse than an untotal one, because the order
+    // looks correct in review while the cursor quietly drops rows. Latent today (15 public posts
+    // against PAGE_SIZE 20, and no created_at ties among them), and it would begin dropping posts
+    // the moment the feed outgrows one page with two posts published in the same second.
+    // The compound cursor below matches the order exactly: strictly older, OR the same instant with
+    // a higher id - the tiebreaker the ORDER already uses.
+    if (_lastCreatedAt) {
+      q = _lastId
+        ? q.or(`created_at.lt.${_lastCreatedAt},and(created_at.eq.${_lastCreatedAt},id.gt.${_lastId})`)
+        : q.lt('created_at', _lastCreatedAt);
+    }
     return q;
   }
 
@@ -261,6 +295,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        which is the correct shape; this page simply never grew the guard. Reset here, where a fresh
        first page is the whole intent; loadMore keeps the cursor, because advancing it IS its job. */
     _lastCreatedAt = null;
+    _lastId = null;
     _hasMore = false;
     // G1 (FF1) converge: canonical skeleton takes over the wait state once JS runs; the
     // static .skeleton-card divs stay in markup only as the pre-JS first-paint reserve.
@@ -310,7 +345,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     document.getElementById('feed-list').innerHTML = data.map(renderCard).join('');
-    if (data.length > 0) _lastCreatedAt = data[data.length - 1].created_at;
+    if (data.length > 0) {
+      _lastCreatedAt = data[data.length - 1].created_at;
+      _lastId = data[data.length - 1].id;
+      _lastId = data[data.length - 1].id;
+    }
     _hasMore = data.length === PAGE_SIZE;
 
     const lmWrap = document.getElementById('load-more-wrap');

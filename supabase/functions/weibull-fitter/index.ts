@@ -183,7 +183,13 @@ serveObserved("weibull-fitter", async (req) => {
       .eq("hive_id", hive_id)
       .eq("asset_node_id", asset_id)
       .gte("created_at", sinceIso)
+      // ★created_at IS NOT A TOTAL ORDER ON THIS TABLE, AND THIS READ IS CAPPED AT 500.
+      // Measured live: logbook holds 3,812 rows over 3,766 distinct created_at values - 46 genuine
+      // collisions, which is what a bulk import or one technician closing several jobs in the same
+      // second produces. Per-asset counts sit far below the cap today, so nothing is dropped; at the
+      // cap a tie would decide which entries the Weibull fit is computed from. id is unique, so the window is now reproducible.
       .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
       .limit(500);
     if (logErr) {
       return new Response(

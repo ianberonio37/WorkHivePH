@@ -1089,6 +1089,57 @@
     `;
 
     document.body.appendChild(wrapper);
+
+    /* ★THE FAB SAT ON TOP OF DIALOG ACTION ROWS, AND IT WINS EVERY TIME.
+       #wh-hub is position:fixed bottom-right at z-index 9998; a dialog on this platform sits at 50-60. So
+       any dialog whose primary control lands bottom-right is unreachable. Measured on community at 390x844:
+       #btn-submit-reply ("Reply") is 80x44 centred at (314, 784) inside #thread-sheet (z 51); #wh-hub-fab is
+       56x56 at top 764, left 303, z 9998; document.elementFromPoint(314, 784) returns #wh-hub-fab, NOT the
+       button. The textarea in the same overlay hit-tests to itself, so the dialog looks perfectly healthy —
+       a person can type a reply and simply be unable to send it.
+       This is the second shared-chrome component found doing this (learn-link.js's page-guide chip was the
+       first, over pm-scheduler's Save Changes), which is why the fix is the same behavioural rule rather
+       than another z-index nudge: while a dialog is up, page-level chrome stands down. It is also the
+       correct a11y posture — a modal traps focus, so a nav control behind it must not be reachable at all.
+       Deliberately identical in contract to learn-link.js's version, including the two modal conventions
+       this platform uses (display:flex modals and .open sheets), so the two cannot drift apart. */
+    (function standDownWhileDialogOpen() {
+      var DIALOGISH = '[role="dialog"],dialog[open],.sheet.open,.modal.open,[id$="-sheet"].open,'
+        + '[id$="-modal"].open,.sheet-overlay.open';
+      var hidden = false, queued = false;
+      function visible(el) {
+        var cs = getComputedStyle(el);
+        /* NOT opacity: a dialog mid-fade reports opacity 0 on the first frame after its class flips, and
+           rejecting it there left the chrome up over an OPENING dialog — with no further mutation to
+           re-trigger the check, it stayed up for the dialog's whole life. Measured on community: the thread
+           overlay was open and the hub still hit-tested over #btn-submit-reply. display and visibility are
+           the properties that actually mean "not there"; standing down a frame early is harmless. */
+        if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+        var r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      }
+      function sync() {
+        queued = false;
+        if (!wrapper.isConnected) { obs.disconnect(); return; }
+        var open = false, all = document.querySelectorAll(DIALOGISH);
+        for (var i = 0; i < all.length; i++) { if (visible(all[i])) { open = true; break; } }
+        if (open === hidden) return;
+        hidden = open;
+        /* visibility, not display: the hub's own panel logic reads and writes display on its children, and
+           blanking the wrapper's display would fight it. visibility:hidden removes it from hit-testing and
+           from the a11y tree while leaving that logic untouched. */
+        wrapper.style.visibility = open ? 'hidden' : '';
+        wrapper.setAttribute('aria-hidden', open ? 'true' : 'false');
+      }
+      function schedule() { if (!queued) { queued = true; requestAnimationFrame(sync); } }
+      /* A dialog that settles via a CSS transition emits no further mutation, so listen for the transition
+         too — belt and braces against the one-frame race above. */
+      document.addEventListener('transitionend', schedule, true);
+      var obs = new MutationObserver(schedule);
+      obs.observe(document.documentElement, { attributes: true, subtree: true,
+        attributeFilter: ['style', 'class', 'open', 'aria-hidden', 'hidden'] });
+      sync();
+    })();
   }
 
   // ─── FAB-CONSOLIDATION: connectivity pill painter ─────────────────────────────
@@ -1191,6 +1242,42 @@
   const FAB_STACK_SEL = '#wh-hub, .wh-conn-chip, .wh-conn-popover, .wh-fb-fab, #wh-guide-link, '
     + '#wh-ai-widget, #fab, .wh-companion-trigger';
 
+  // ── THE BAR THAT COVERS THE CONTENT SHOULD BE THE THING THAT RESERVES FOR IT ────────────────────
+  // #wh-hub is fixed across the bottom 56px of every page, and 11 of the 22 production pages computed
+  // `body { padding-bottom: 0 }`, so at MAXIMUM scroll - the position a reader cannot scroll past -
+  // content sat underneath it: index (footer + main, 79.7px under), logbook (80px, including the
+  // logbook grid), inventory (80.4), pm-scheduler (145 - the worst, the whole dashboard screen),
+  // dayplanner (48.5, its "About this dashboard" disclosure), voice-journal (80.4, its source chip),
+  // assistant (80.4, the chat input area), community (79.6), public-feed (80.4), engineering-design
+  // (79.8) and hive (64.5). The other 11 pages already reserve 80-96px, which is why this never
+  // showed up as a pattern: it looked like a per-page oversight each time it was found.
+  //
+  // I fixed two of them page-by-page earlier in this session before measuring the other twenty, and
+  // that was the wrong altitude: this is one shared bar, so it takes one shared reserve, exactly as
+  // wayfinding.js reserves the top band for its own pill. Placing it here also means a page added
+  // later inherits the reserve instead of shipping the bug again.
+  //
+  // MAX, not a flat set: a page that already reserves MORE (alert-hub 90, resume 96) keeps its own
+  // value, because those pages stack extra chrome above the bar. `max()` is doing the same job as
+  // wayfinding's `if (band > cur)` check, declaratively. Print resets it - paper has no fixed bar.
+  function ensureHubReserveStyle() {
+    if (document.getElementById('wh-hub-reserve-style')) return;
+    const s = document.createElement('style');
+    s.id = 'wh-hub-reserve-style';
+    s.textContent =
+      // --wh-fab-lift is IN the sum, not ignored, and pm-scheduler is why. That page has its OWN
+      // `.bottom-nav`, so nav-hub lifts the hub above it (the lift logic below) and the hub's top sat
+      // at 700 instead of the 765 every other page reports. The occluded band there is bottom-nav +
+      // hub, and it measured 145px - so a flat 80px reserve cleared ten pages and left that one still
+      // hiding its dashboard. Reusing the variable this file already maintains for that exact bar
+      // makes the reserve track the chrome instead of guessing at it.
+      'body { padding-bottom: max(' +
+        'var(--wh-hub-reserve, 80px),' +
+        ' calc(80px + var(--wh-fab-lift, 0px) + env(safe-area-inset-bottom, 0px))) !important; }'
+      + ' @media print { body { padding-bottom: 0 !important; } }';
+    document.head.appendChild(s);
+  }
+
   function ensureFabStackLiftStyle() {
     if (document.getElementById('wh-fab-lift-style')) return;
     const s = document.createElement('style');
@@ -1206,6 +1293,7 @@
 
   function liftFabStackAboveBottomNav() {
     try {
+      ensureHubReserveStyle();     // the bar covers the page's last 56px; reserve for it once, here
       ensureFabStackLiftStyle();   // safe-area clearance is owed regardless of any bottom-nav
       const nav = document.querySelector('.bottom-nav');
       if (!nav) return;

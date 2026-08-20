@@ -1,7 +1,7 @@
 {
-  "_overall_pct": 67.9,
+  "_overall_pct": 65.4,
   "axis_totals": {
-    "gateway": 9.0,
+    "gateway": 8.0,
     "gate": 11.0,
     "prod_real": 6.5
   },
@@ -11,11 +11,11 @@
     {
       "code": "A",
       "name": "APIs & Backend Logic",
-      "gateway": 1.0,
+      "gateway": 0.5,
       "gate": 1.0,
       "prod_real": 1.0,
-      "composite_pct": 100.0,
-      "gateway_basis": "m: bypass=0 via gateway_coverage_report.json (measured)",
+      "composite_pct": 83.3,
+      "gateway_basis": "m: bypass=2 via gateway_coverage_report.json (measured-partial)",
       "gate_basis": "m: edge_contracts + envelope ratchets",
       "prod_basis": "f: edge fns ARE the prod backend"
     },
@@ -103,18 +103,18 @@
       "gate": 0.5,
       "prod_real": 0.0,
       "composite_pct": 33.3,
-      "gateway_basis": "m: bypass=16 via structured_log_adoption_report.json (measured-partial)",
+      "gateway_basis": "m: bypass=17 via structured_log_adoption_report.json (measured-partial)",
       "gate_basis": "a: structured-log-adoption ratchet but sampled",
       "prod_basis": "f: PROD aggregation (Loki/Sentry) is external -- local ndjson only"
     },
     {
       "code": "AV",
       "name": "Availability & Recovery",
-      "gateway": 1.0,
+      "gateway": 0.5,
       "gate": 1.0,
       "prod_real": 0.0,
-      "composite_pct": 66.7,
-      "gateway_basis": "m: bypass=0 via health_surface_discovery_report.json (measured)",
+      "composite_pct": 50.0,
+      "gateway_basis": "m: bypass=1 via health_surface_discovery_report.json (measured-partial)",
       "gate_basis": "m: game-day-readiness ratchet (game_day + verify_backups + RTO/RPO present)",
       "prod_basis": "f: prod failover / multi-AZ / PITR drill are external/unbuilt"
     },
