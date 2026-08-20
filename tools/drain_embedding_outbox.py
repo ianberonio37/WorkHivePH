@@ -357,10 +357,26 @@ def main(argv):
         print(f"  {YEL}SKIP{RST} local service key unavailable (edge runtime not up) — jobs left queued")
         return 0
 
-    embedded = skipped = failed = 0
+    embedded = skipped = failed = orphaned = 0
     for jid, source_table, row_id, attempts in jobs:
         spec, err = compose_and_target(source_table, row_id)
         if spec is None:
+            # A source row DELETED after enqueue can NEVER embed, so retrying it is pure waste --
+            # the same 'nothing to retry' rule the min_chars branch below already applies. Without
+            # this, each orphan burned all 5 attempts and then dead-lettered, and because claim()
+            # takes the oldest ids first they sat at the HEAD of the queue deferring forever:
+            # measured 2026-08-20, 161 of 164 pending logbook jobs pointed at deleted entries and
+            # the relay had to cycle past every one of them to reach the 3 live rows.
+            # The reason is KEPT on the row: a job that vanishes silently looks like one that
+            # succeeded, which is the ambiguity this relay exists to remove.
+            still_there, _ = psql(
+                f"select 1 from public.{source_table} where id::text = {lit(row_id)} limit 1;")
+            if not still_there:
+                psql("update public.embedding_outbox set done_at = now(), last_error = "
+                     + lit('source row deleted after enqueue - nothing left to embed')
+                     + f" where id = {jid};", want_rows=False)
+                orphaned += 1
+                continue
             finish(jid, False, err)
             failed += 1
             continue
@@ -385,7 +401,7 @@ def main(argv):
             failed += 1
             print(f"  {YEL}retry{RST} {source_table}/{row_id} (attempt {attempts}): {detail[:110]}")
 
-    print(f"  claimed {len(jobs)} · embedded {embedded} · skipped-short {skipped} · deferred {failed}")
+    print(f"  claimed {len(jobs)} · embedded {embedded} · skipped-short {skipped} · orphaned {orphaned} · deferred {failed}")
     return 0
 
 
