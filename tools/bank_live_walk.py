@@ -71,15 +71,48 @@ def narrowed_fn_digests(V, deps, exercised):
     if not exercised:
         return full, False
     want = set(exercised)
-    out = {k: v for k, v in full.items() if k in want or k == "::v"}
-    for k in full:
-        if k == "::v":
-            out[k] = full[k]
-    if not any(k != "::v" for k in out):
+    # TOP-LEVEL KEYS ARE ALWAYS RETAINED, and dropping them was a real bug in the first cut of
+    # this function. `exercised` holds only FUNCTION keys, so filtering by it alone deleted every
+    # "::top:" statement hash — and a row that records no top-level statement cannot notice a
+    # change to top-level code, which DID run: loading a file executes its top level. That is
+    # under-sensitivity, i.e. a false green, which is strictly worse than the over-sensitivity
+    # this whole change exists to remove. Under v4 the top-level set is small and honest anyway
+    # (69 real statements for utils.js, against 881 under v3 where 93% of it was prose), so
+    # keeping it costs almost nothing and preserves the safety direction.
+    out = {k: v for k, v in full.items()
+           if k in want or k == "::v" or "::top:" in k or k.endswith("::toplevel")}
+    if not any(k != "::v" and "::top:" not in k and not k.endswith("::toplevel") for k in out):
         # Coverage that matches nothing in the dependency files is a broken capture, not a claim
         # resting on no code. Falling through to the full map keeps the row TRUE and merely wide.
         return full, False
     return out, True
+
+
+def load_coverage():
+    """Coverage captured per URL by capture_walk_coverage.py, keyed for lookup by a reading.
+
+    Closing the loop matters: without this the WIDE warning tells an operator to run a tool and
+    then nothing consumes its output, so the default stays wide and the advice is decoration.
+    A reading may still carry its own `fns_exercised`, which wins — this only fills the gap.
+
+    Accepts either a single capture ({"url":..., "fns_exercised":[...]}) or a list of them, so
+    one file can hold a whole walk. Missing or malformed: return {} and stamp wide, because a
+    wide-but-true stamp is always preferable to a narrow guess.
+    """
+    path = os.path.join(ROOT, ".tmp", "coverage.json")
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path, encoding="utf-8") as f:
+            raw = json.load(f)
+    except Exception:
+        return {}
+    entries = raw if isinstance(raw, list) else [raw]
+    out = {}
+    for e in entries:
+        if isinstance(e, dict) and e.get("url") and e.get("fns_exercised"):
+            out[e["url"]] = e["fns_exercised"]
+    return out
 
 
 def _gate():
@@ -118,6 +151,7 @@ def main(argv):
     banked = failed = unmatched = 0
     misses = []
     wide = []
+    coverage = load_coverage()
     for row in rows:
         key = (row.get("category"), row.get("state"), row.get("surface"))
         rd = index.get(key) or wild.get((row.get("state"), row.get("surface")))
@@ -134,7 +168,9 @@ def main(argv):
         before = (row.get("status"), row.get("evidence"), row.get("findings"))
         row["status"] = "green"
         row["findings"] = []
-        _fd, _narrowed = narrowed_fn_digests(V, deps, rd.get("fns_exercised"))
+        # the reading's own coverage wins; the capture file only fills a gap
+        _exercised = rd.get("fns_exercised") or coverage.get(rd.get("url"))
+        _fd, _narrowed = narrowed_fn_digests(V, deps, _exercised)
         if not _narrowed:
             wide.append(key)
         ev = {

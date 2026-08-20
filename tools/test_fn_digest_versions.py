@@ -117,6 +117,27 @@ def run():
        "v4 records fewer top-level keys than v3 (%d vs %d - the difference was prose)"
        % (len([k for k in base4 if "::top:" in k]), len([k for k in base3 if "::top:" in k])))
 
+    # ---- 4. the NARROWED stamp must stay safe -----------------------------------------
+    # The first cut of narrowed_fn_digests filtered by the exercised FUNCTION keys alone,
+    # which deleted every "::top:" statement hash. A row recording no top-level statement
+    # cannot notice a change to top-level code -- and loading a file EXECUTES its top level.
+    # That is a false green, strictly worse than the over-sensitivity being removed.
+    spec = importlib.util.spec_from_file_location(
+        "_blw_test", os.path.join(ROOT, "tools", "bank_live_walk.py"))
+    blw = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(blw)
+    fn_keys = [k for k in base4 if "::top:" not in k and k != "::v"]
+    narrow, was_narrowed = blw.narrowed_fn_digests(V, ["utils.js"], fn_keys[:5])
+    ck(was_narrowed, "a reading with coverage produces a NARROWED stamp")
+    kept_fns = [k for k in narrow if "::top:" not in k and k != "::v"]
+    kept_top = [k for k in narrow if "::top:" in k]
+    ck(len(kept_fns) == 5, "narrowing keeps only the exercised functions (%d)" % len(kept_fns))
+    ck(len(kept_top) == len([k for k in base4 if "::top:" in k]) and len(kept_top) > 0,
+       "narrowing RETAINS every top-level statement key (%d) - no false green" % len(kept_top))
+    wide, was_narrowed2 = blw.narrowed_fn_digests(V, ["utils.js"], None)
+    ck(not was_narrowed2 and len(wide) == len(base4),
+       "no coverage -> a WIDE but TRUE stamp, never a narrow guess")
+
     print("  %s" % ("ALL PASS" if ok else "FAILED"))
     return 0 if ok else 1
 
