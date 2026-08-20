@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "description": "C4 Phase 2a \u2014 frozen floor on uncovered seam count. Forward-only ratchet; baseline only ever drops as contract tests get wired in ai_seam_contracts.json."
+    "description": "C4 Phase 2a \u2014 frozen floor on uncovered seam count. Forward-only ratchet; baseline only ever drops as contract tests get wired in ai_seam_contracts.json. || 148 -> 150 on 2026-08-20 is a CATALOG CORRECTION, not a regression. tools/mine_ai_seams.py matched only /functions/v1/<fn> URLs, so it was blind to functions.invoke('<fn>') -- the platform's PREFERRED call style, because invoke forwards the caller's session JWT while a hand-rolled fetch does not (report-sender.html migrated two calls for exactly that reason: the raw fetch sent the publishable key and a signed-in supervisor was told to sign in). Teaching the miner that form revealed the inventory was wrong in BOTH directions and the errors cancelled at 177: 25 REAL production seams were invisible (asset-hub->ai-gateway, hive->ai-orchestrator, logbook->voice-logbook-entry, assistant->ai-gateway, marketplace->ai-gateway, shift-brain->shift-planner-orchestrator, +19) while 25 DUPLICATES from backup trees (.emoji_bak/.palette_bak/.hexvar_bak/.leftover_bak, each a full copy of the 49 root pages) were counted as production call sites. Those trees are now in SKIP_PARTS. Seams evidenced by functions.invoke went 0 -> 27. The floor is re-frozen on the corrected catalog; it still only ever drops as contract tests are wired."
   },
   "covered": 27,
   "total": 177,

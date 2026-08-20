@@ -7,62 +7,82 @@
   "per_page": [
     {
       "page": "index.html",
-      "add": 25,
+      "add": 26,
       "remove": 0,
+      "add_raw": 26,
+      "rebuild_scoped": 0,
       "risky": true
     },
     {
       "page": "hive.html",
       "add": 48,
       "remove": 0,
+      "add_raw": 49,
+      "rebuild_scoped": 1,
       "risky": true
     },
     {
       "page": "logbook.html",
-      "add": 72,
+      "add": 71,
       "remove": 0,
+      "add_raw": 72,
+      "rebuild_scoped": 1,
       "risky": true
     },
     {
       "page": "inventory.html",
-      "add": 27,
+      "add": 26,
       "remove": 0,
+      "add_raw": 27,
+      "rebuild_scoped": 1,
       "risky": true
     },
     {
       "page": "pm-scheduler.html",
       "add": 4,
       "remove": 0,
+      "add_raw": 4,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "analytics.html",
       "add": 2,
       "remove": 0,
+      "add_raw": 2,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "analytics-report.html",
       "add": 1,
       "remove": 1,
+      "add_raw": 1,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "skillmatrix.html",
-      "add": 14,
+      "add": 12,
       "remove": 1,
+      "add_raw": 14,
+      "rebuild_scoped": 2,
       "risky": false
     },
     {
       "page": "community.html",
       "add": 17,
       "remove": 1,
+      "add_raw": 17,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "public-feed.html",
       "add": 0,
       "remove": 0,
+      "add_raw": 0,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
@@ -79,26 +99,34 @@
     },
     {
       "page": "dayplanner.html",
-      "add": 4,
+      "add": 5,
       "remove": 0,
+      "add_raw": 5,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "engineering-design.html",
       "add": 1,
       "remove": 0,
+      "add_raw": 1,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "engineering-design.js",
       "add": 8,
       "remove": 0,
+      "add_raw": 8,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "assistant.html",
-      "add": 4,
+      "add": 5,
       "remove": 0,
+      "add_raw": 5,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
@@ -111,60 +139,80 @@
       "page": "project-manager.html",
       "add": 9,
       "remove": 0,
+      "add_raw": 9,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "integrations.html",
       "add": 4,
       "remove": 0,
+      "add_raw": 4,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "ph-intelligence.html",
       "add": 0,
       "remove": 0,
+      "add_raw": 0,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "project-report.html",
       "add": 1,
       "remove": 0,
+      "add_raw": 1,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "ai-quality.html",
       "add": 1,
       "remove": 0,
+      "add_raw": 1,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "plant-connections.html",
       "add": 1,
       "remove": 0,
+      "add_raw": 1,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "achievements.html",
       "add": 1,
       "remove": 0,
+      "add_raw": 1,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "asset-hub.html",
       "add": 11,
       "remove": 2,
+      "add_raw": 11,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "shift-brain.html",
       "add": 7,
       "remove": 0,
+      "add_raw": 7,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
       "page": "alert-hub.html",
       "add": 9,
       "remove": 0,
+      "add_raw": 9,
+      "rebuild_scoped": 0,
       "risky": false
     },
     {
@@ -175,8 +223,10 @@
     },
     {
       "page": "voice-journal.html",
-      "add": 9,
+      "add": 8,
       "remove": 0,
+      "add_raw": 10,
+      "rebuild_scoped": 2,
       "risky": false
     }
   ]

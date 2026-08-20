@@ -1,11 +1,16 @@
 {
   "summary": {
-    "pages_scanned": 27,
-    "total_links": 212,
+    "pages_scanned": 28,
+    "total_links": 290,
     "total_broken": 0,
     "baseline": 0
   },
   "per_page": [
+    {
+      "page": "index.html",
+      "link_count": 65,
+      "broken": []
+    },
     {
       "page": "hive.html",
       "link_count": 27,
@@ -78,7 +83,7 @@
     },
     {
       "page": "report-sender.html",
-      "link_count": 4,
+      "link_count": 6,
       "broken": []
     },
     {
@@ -113,17 +118,17 @@
     },
     {
       "page": "achievements.html",
-      "link_count": 7,
+      "link_count": 10,
       "broken": []
     },
     {
       "page": "asset-hub.html",
-      "link_count": 14,
+      "link_count": 18,
       "broken": []
     },
     {
       "page": "shift-brain.html",
-      "link_count": 5,
+      "link_count": 9,
       "broken": []
     },
     {

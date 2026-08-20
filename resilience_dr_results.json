@@ -1,5 +1,5 @@
 {
-  "scored_at": "2026-08-04T00:59:14+00:00",
+  "scored_at": "2026-08-20T10:53:22+00:00",
   "lenses": {
     "F": {
       "title": "Failure-tolerance",
@@ -52,8 +52,8 @@
     },
     "R": {
       "title": "Recovery",
-      "pct": 100.0,
-      "passed": 4,
+      "pct": 75.0,
+      "passed": 3,
       "total": 4,
       "floor": 95,
       "cells": [
@@ -61,7 +61,7 @@
           "key": "schema_backup",
           "validator": "verify_backups",
           "sublayer": "S2",
-          "status": "PASS",
+          "status": "FINDINGS",
           "note": "schema reproducible from migration lock + restore runbook present",
           "covered": true
         },
@@ -182,6 +182,8 @@
       ]
     }
   },
-  "floors_ok": true,
-  "regressions": []
+  "floors_ok": false,
+  "regressions": [
+    "R: 75.0 < baseline 100.0"
+  ]
 }

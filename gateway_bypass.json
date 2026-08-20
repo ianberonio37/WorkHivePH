@@ -1,6 +1,6 @@
 {
   "validator": "gateway-bypass",
-  "gateway_axis_total": 7.5,
+  "gateway_axis_total": 8.0,
   "n_layers": 13,
   "measured_layers": 9,
   "assessed_or_absent": 4,
@@ -8,9 +8,9 @@
     {
       "code": "A",
       "name": "APIs & Backend Logic",
-      "gateway_grade": 0.5,
-      "bypass": 2,
-      "basis": "measured-partial",
+      "gateway_grade": 1.0,
+      "bypass": 0,
+      "basis": "measured",
       "report": "gateway_coverage_report.json",
       "note": "edge fns route through platform-gateway or are code-verified exempt"
     },

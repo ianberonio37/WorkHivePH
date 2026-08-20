@@ -1,4 +1,80 @@
 {
- "green": 752,
- "note": "forward-only ratchet on GREEN. stale is excluded from the denominator."
+ "banks": {
+  "marketplace": {
+   "green": 752,
+   "note": "forward-only ratchet on GREEN. stale is excluded from the denominator."
+  },
+  "achievements": {
+   "green": 0
+  },
+  "alert-hub": {
+   "green": 0
+  },
+  "analytics-report": {
+   "green": 0
+  },
+  "analytics": {
+   "green": 0
+  },
+  "asset-hub": {
+   "green": 0
+  },
+  "assistant": {
+   "green": 0
+  },
+  "community": {
+   "green": 1
+  },
+  "dayplanner": {
+   "green": 0
+  },
+  "engineering-design": {
+   "green": 0
+  },
+  "hive": {
+   "green": 8
+  },
+  "index": {
+   "green": 24,
+   "note": "lowered by an audited false-green withdrawal, not by absorbing drift",
+   "withdrawn_ids": [
+    "PB-index-016-CA-layer-contract-L4-envelope_shape",
+    "PB-index-017-CA-layer-contract-L4-status_body_agreement"
+   ]
+  },
+  "inventory": {
+   "green": 1
+  },
+  "logbook": {
+   "green": 9
+  },
+  "pm-scheduler": {
+   "green": 7
+  },
+  "project-manager": {
+   "green": 0
+  },
+  "project-report": {
+   "green": 0
+  },
+  "public-feed": {
+   "green": 0
+  },
+  "report-sender": {
+   "green": 0
+  },
+  "resume": {
+   "green": 0
+  },
+  "shift-brain": {
+   "green": 0
+  },
+  "skillmatrix": {
+   "green": 0
+  },
+  "voice-journal": {
+   "green": 0
+  }
+ },
+ "note": "forward-only ratchet on GREEN, per bank. stale is excluded from the denominator."
 }

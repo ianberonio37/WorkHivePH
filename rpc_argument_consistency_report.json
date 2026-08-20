@@ -1,10 +1,10 @@
 {
   "summary": {
     "files_scanned": 172,
-    "total_calls": 90,
+    "total_calls": 91,
     "total_drift": 0,
     "baseline": 0,
-    "rpcs_known": 278
+    "rpcs_known": 286
   },
   "per_file": [
     {
@@ -209,10 +209,6 @@
     },
     {
       "file": "onboarding.js",
-      "issues": []
-    },
-    {
-      "file": "provenance-hover.js",
       "issues": []
     },
     {
@@ -601,6 +597,10 @@
     },
     {
       "file": "supabase\\functions\\project-progress\\index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase\\functions\\resend-webhook-receiver\\index.ts",
       "issues": []
     },
     {

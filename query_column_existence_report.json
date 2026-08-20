@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 130,
-    "total_calls": 768,
+    "files_scanned": 131,
+    "total_calls": 775,
     "total_drift": 0,
     "baseline": 0,
-    "tables_known": 201
+    "tables_known": 205
   },
   "per_file": [
     {
@@ -433,6 +433,10 @@
     },
     {
       "file": "supabase/functions/project-progress/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/resend-webhook-receiver/index.ts",
       "issues": []
     },
     {

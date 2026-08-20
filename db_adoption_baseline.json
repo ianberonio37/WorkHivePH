@@ -1,7 +1,7 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-08-05T20:39:27.116622+00:00",
-  "surfaces": 183,
+  "generated": "2026-08-20T08:38:13.505127+00:00",
+  "surfaces": 185,
   "rows": [
     {
       "id": "D1",
@@ -9,8 +9,8 @@
       "name": "RLS enabled on tenant tables",
       "satisfies": "tenant isolation floor",
       "mode": "measured",
-      "adopters_n": 109,
-      "need_n": 109,
+      "adopters_n": 111,
+      "need_n": 111,
       "pct": 100,
       "adopters": [
         "agent_episodic_memory",
@@ -44,10 +44,12 @@
         "canonical_period_summaries",
         "client_errors",
         "cmms_audit_log",
+        "community_post_xp_awards",
         "community_posts",
         "community_reaction_xp_awards",
         "community_reactions",
         "community_replies",
+        "community_reply_xp_awards",
         "community_xp",
         "companion_handoff",
         "consulting_engagements",
@@ -131,8 +133,8 @@
       "name": "hive-membership scoping policy",
       "satisfies": "multitenant isolation",
       "mode": "measured",
-      "adopters_n": 103,
-      "need_n": 105,
+      "adopters_n": 105,
+      "need_n": 107,
       "pct": 98,
       "adopters": [
         "agent_episodic_memory",
@@ -165,10 +167,12 @@
         "canonical_period_summaries",
         "client_errors",
         "cmms_audit_log",
+        "community_post_xp_awards",
         "community_posts",
         "community_reaction_xp_awards",
         "community_reactions",
         "community_replies",
+        "community_reply_xp_awards",
         "community_xp",
         "companion_handoff",
         "consulting_engagements",
@@ -395,8 +399,8 @@
     }
   ],
   "floors": {
-    "D1": 109,
-    "D2": 103,
+    "D1": 111,
+    "D2": 105,
     "D3": 31,
     "D4": 58
   }

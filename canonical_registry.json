@@ -9806,7 +9806,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 246.7
+      "size_kb": 248.6
     },
     "assistant.html": {
       "tables_read": [
@@ -9825,7 +9825,7 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 85.5
+      "size_kb": 86.6
     },
     "audit-log.html": {
       "tables_read": [
@@ -10160,7 +10160,7 @@
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 199.7
+      "size_kb": 200.4
     },
     "marketplace.html": {
       "tables_read": [
@@ -10274,7 +10274,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 91.2
+      "size_kb": 91.6
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -10425,7 +10425,7 @@
         "analytics-orchestrator",
         "shift-planner-orchestrator"
       ],
-      "size_kb": 69.2
+      "size_kb": 71.2
     },
     "skillmatrix.html": {
       "tables_read": [

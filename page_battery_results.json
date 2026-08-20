@@ -1,5 +1,5 @@
 {
-  "ran": "2026-08-04T00:03:46.371Z",
+  "ran": "2026-08-20T09:00:24.378Z",
   "role": "supervisor",
   "seeder": "http://127.0.0.1:5000",
   "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
@@ -10,7 +10,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=579 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=0"
+          "bodyLen=1120 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=0"
         ]
       },
       "P2": {
@@ -50,7 +50,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3297 title=\"Hive Live Board: WorkHive\" loadErrors=0"
+          "bodyLen=3247 title=\"Hive Live Board: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -70,7 +70,7 @@
         "score": 75,
         "overflow390": 0,
         "overflow1280": 0,
-        "scrollW390": 390
+        "scrollW390": 375
       },
       "P9": {
         "score": 90,
@@ -90,7 +90,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1126 title=\"Digital Maintenance Logbook: WorkHive\" loadErrors=0"
+          "bodyLen=1105 title=\"Digital Maintenance Logbook: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -130,7 +130,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1886 title=\"Spare-Parts Inventory: WorkHive\" loadErrors=0"
+          "bodyLen=1882 title=\"Spare-Parts Inventory: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -170,7 +170,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2417 title=\"PM Scheduler: WorkHive\" loadErrors=0"
+          "bodyLen=2469 title=\"PM Scheduler: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -210,7 +210,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3148 title=\"Asset Hub | WorkHive\" loadErrors=0"
+          "bodyLen=3135 title=\"Asset Hub | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -250,7 +250,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=4884 title=\"Alert Hub | WorkHive\" loadErrors=0"
+          "bodyLen=5011 title=\"Alert Hub | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -264,7 +264,9 @@
         "xssReflected": false,
         "xssExecuted": false,
         "inputsFuzzed": 0,
-        "handlerErrors": []
+        "handlerErrors": [
+          "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+        ]
       },
       "P8": {
         "score": 75,
@@ -282,7 +284,13 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P4",
+          "sev": 2,
+          "detail": "input-handler error: Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+        }
+      ]
     },
     {
       "page": "analytics.html",
@@ -290,7 +298,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=4178 title=\"Analytics Engine | WorkHive\" loadErrors=0"
+          "bodyLen=4416 title=\"Analytics Engine | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -303,7 +311,7 @@
         "score": 60,
         "xssReflected": false,
         "xssExecuted": false,
-        "inputsFuzzed": 2,
+        "inputsFuzzed": 3,
         "handlerErrors": []
       },
       "P8": {
@@ -370,7 +378,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2353 title=\"Achievements: WorkHive\" loadErrors=0"
+          "bodyLen=2574 title=\"Achievements: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -450,7 +458,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1396 title=\"Skill Matrix | WorkHive\" loadErrors=0"
+          "bodyLen=1395 title=\"Skill Matrix | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -530,7 +538,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1882 title=\"Community: WorkHive\" loadErrors=0"
+          "bodyLen=2484 title=\"Community: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -570,7 +578,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2131 title=\"Public Feed: WorkHive\" loadErrors=0"
+          "bodyLen=2477 title=\"Public Feed: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -610,7 +618,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=4154 title=\"Marketplace: WorkHive\" loadErrors=0"
+          "bodyLen=4151 title=\"Marketplace: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -650,7 +658,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1439 title=\"Seller Dashboard: WorkHive Marketplace\" loadErrors=0"
+          "bodyLen=1875 title=\"Seller Dashboard: WorkHive Marketplace\" loadErrors=0"
         ]
       },
       "P2": {
@@ -690,7 +698,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3967 title=\"Maintenance Day Planner: WorkHive\" loadErrors=0"
+          "bodyLen=3880 title=\"Maintenance Day Planner: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -770,7 +778,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=628 title=\"AI Work Assistant: WorkHive\" loadErrors=0"
+          "bodyLen=637 title=\"AI Work Assistant: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -810,7 +818,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1889 title=\"Report Sender | WorkHive\" loadErrors=0"
+          "bodyLen=1894 title=\"Report Sender | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -850,7 +858,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1529 title=\"Project Manager | WorkHive\" loadErrors=0"
+          "bodyLen=1580 title=\"Project Manager | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -930,7 +938,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1802 title=\"CMMS Integration | WorkHive\" loadErrors=0"
+          "bodyLen=1801 title=\"CMMS Integration | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -970,7 +978,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=795 title=\"Philippine Industrial Intelligence Report | WorkHive\" loadErrors=0"
+          "bodyLen=757 title=\"Philippine Industrial Intelligence Report | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1050,14 +1058,25 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3365 title=\"Shift Brain | WorkHive\" loadErrors=0"
+          "bodyLen=4244 title=\"Shift Brain | WorkHive\" loadErrors=0 rateLimited=1"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+          }
+        ],
         "consoleWarns": [],
-        "badNet": []
+        "badNet": [
+          {
+            "url": "http://127.0.0.1:54321/functions/v1/analytics-orchestrator",
+            "status": 429,
+            "method": "POST"
+          }
+        ]
       },
       "P4": {
         "score": 10,
@@ -1082,7 +1101,18 @@
         "unhandledRejections": 0,
         "leakedStack": false
       },
-      "findings": []
+      "findings": [
+        {
+          "phase": "P1",
+          "sev": 1,
+          "detail": "RATE-LIMITED (hive AI day-ceiling answering), not a load defect: Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+        },
+        {
+          "phase": "P2",
+          "sev": 2,
+          "detail": "POST 429 http://127.0.0.1:54321/functions/v1/analytics-orchestrator"
+        }
+      ]
     },
     {
       "page": "audit-log.html",
@@ -1090,7 +1120,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3170 title=\"Audit Log | WorkHive\" loadErrors=0"
+          "bodyLen=3069 title=\"Audit Log | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1130,7 +1160,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2323 title=\"Voice Journal: WorkHive\" loadErrors=0"
+          "bodyLen=2796 title=\"Voice Journal: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1170,7 +1200,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=14676 title=\"WorkHive Founder Console\" loadErrors=0"
+          "bodyLen=13985 title=\"WorkHive Founder Console\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1290,7 +1320,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2872 title=\"Platform Actions · WorkHive\" loadErrors=0"
+          "bodyLen=3659 title=\"Platform Actions · WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1370,7 +1400,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=570 title=\"WorkHive Gateway — Status\" loadErrors=0"
+          "bodyLen=1240 title=\"WorkHive Gateway — Status\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1408,12 +1438,12 @@
   "summary": {
     "pages": 35,
     "P1": 100,
-    "P2": 100,
+    "P2": 98,
     "P4": 36,
     "P8": 75,
     "P9": 90,
     "P12": 100,
-    "total_findings": 0,
+    "total_findings": 3,
     "high_sev": 0,
     "unhandled_pages": [],
     "a11y_pages": []

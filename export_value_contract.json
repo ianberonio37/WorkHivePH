@@ -2,8 +2,8 @@
   "tool": "tools/validate_export_value_contract.py",
   "subject": "each CSV-export column read resolves to a real source table/view field",
   "exports": 2,
-  "fields_total": 22,
-  "fields_resolved": 22,
+  "fields_total": 23,
+  "fields_resolved": 23,
   "resolved_pct": 100.0,
   "drift_cells": [],
   "new_drift": [],
@@ -26,7 +26,8 @@
         "knowledge",
         "downtime_hours",
         "status",
-        "closed_at"
+        "closed_at",
+        "created_at"
       ],
       "drift": []
     },

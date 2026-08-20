@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-20T02:47:55.696197+00:00",
+  "generated_at": "2026-08-20T11:02:23.719107+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -12,7 +12,7 @@
         {
           "feature": "imports_supabase_esm",
           "anti_pattern": false,
-          "conformance": 0.983,
+          "conformance": 0.984,
           "outlier_count": 1,
           "outliers": [
             "gcash-receipt-ocr"
@@ -21,7 +21,7 @@
         {
           "feature": "handles_options",
           "anti_pattern": false,
-          "conformance": 0.983,
+          "conformance": 0.984,
           "outlier_count": 1,
           "outliers": [
             "visual-defect-capture"
@@ -30,7 +30,7 @@
         {
           "feature": "uses_get_cors_headers",
           "anti_pattern": false,
-          "conformance": 0.983,
+          "conformance": 0.984,
           "outlier_count": 1,
           "outliers": [
             "visual-defect-capture"
@@ -39,7 +39,7 @@
         {
           "feature": "reads_supabase_url_env",
           "anti_pattern": false,
-          "conformance": 0.983,
+          "conformance": 0.984,
           "outlier_count": 1,
           "outliers": [
             "gcash-receipt-ocr"
@@ -48,7 +48,7 @@
         {
           "feature": "reads_service_role_env",
           "anti_pattern": false,
-          "conformance": 0.983,
+          "conformance": 0.984,
           "outlier_count": 1,
           "outliers": [
             "gcash-receipt-ocr"
@@ -57,28 +57,30 @@
         {
           "feature": "uses_error_envelope",
           "anti_pattern": false,
-          "conformance": 0.95,
-          "outlier_count": 3,
+          "conformance": 0.934,
+          "outlier_count": 4,
           "outliers": [
             "gcash-receipt-inbound",
             "gcash-receipt-ocr",
-            "notify-push"
+            "notify-push",
+            "resend-webhook-receiver"
           ]
         },
         {
           "feature": "sets_content_type_json",
           "anti_pattern": false,
-          "conformance": 0.95,
-          "outlier_count": 3,
+          "conformance": 0.934,
+          "outlier_count": 4,
           "outliers": [
             "gcash-receipt-inbound",
             "gcash-receipt-ocr",
-            "notify-push"
+            "notify-push",
+            "resend-webhook-receiver"
           ]
         }
       ],
       "summary": {
-        "fns_scanned": 60,
+        "fns_scanned": 61,
         "features_extracted": 35,
         "promotion_candidates": 7
       },
@@ -134,7 +136,7 @@
         }
       ],
       "summary": {
-        "files_scanned": 527,
+        "files_scanned": 549,
         "features_extracted": 22,
         "promotion_candidates": 1
       },
@@ -204,28 +206,13 @@
       "label": "Python tool patterns",
       "file": "python_tool_pattern_mining_report.json",
       "present": true,
-      "proposals": [
-        {
-          "feature": "has_print_calls",
-          "conformance": 0.989,
-          "outlier_count": 7,
-          "outliers": [
-            "analyze_walkthrough_new.py",
-            "auto_scenarios.py",
-            "claude_token_tracker.py",
-            "log_session.py",
-            "model_advisor.py",
-            "platform_intel.py",
-            "validate_voice_kb_context.py"
-          ]
-        }
-      ],
+      "proposals": [],
       "summary": {
-        "files_scanned": 623,
+        "files_scanned": 675,
         "features_extracted": 22,
-        "promotion_candidates": 1
+        "promotion_candidates": 0
       },
-      "proposal_count": 1
+      "proposal_count": 0
     },
     {
       "label": "Skill rules",

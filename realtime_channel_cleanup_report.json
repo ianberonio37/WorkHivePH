@@ -15,7 +15,7 @@
     {
       "page": "hive.html",
       "channels": 8,
-      "removes": 27,
+      "removes": 29,
       "has_unmount": true
     },
     {

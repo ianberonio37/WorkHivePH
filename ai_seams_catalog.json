@@ -2,7 +2,7 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-08-20T05:37:32Z",
+    "generated_at": "2026-08-20T08:56:42Z",
     "seam_count": 177,
     "by_kind": {
       "saas\u2192ai": 40,
@@ -1495,7 +1495,7 @@
       "caller": "asset-hub.html",
       "callee": "ai-gateway",
       "file": "asset-hub.html",
-      "line": 4054,
+      "line": 4064,
       "evidence": "const resp = await db.functions.invoke('ai-gateway', {",
       "contract_test": null
     },
@@ -1505,7 +1505,7 @@
       "caller": "asset-hub.html",
       "callee": "asset-brain-query",
       "file": "asset-hub.html",
-      "line": 4071,
+      "line": 4081,
       "evidence": "const { data, error } = await db.functions.invoke('asset-brain-query', {",
       "contract_test": null
     },
@@ -1515,7 +1515,7 @@
       "caller": "asset-hub.html",
       "callee": "fmea-populator",
       "file": "asset-hub.html",
-      "line": 3122,
+      "line": 3132,
       "evidence": "const { data, error } = await db.functions.invoke('fmea-populator', {",
       "contract_test": null
     },
@@ -1525,7 +1525,7 @@
       "caller": "assistant.html",
       "callee": "ai-gateway",
       "file": "assistant.html",
-      "line": 1180,
+      "line": 1192,
       "evidence": "const gwInvoke = db.functions.invoke('ai-gateway', {",
       "contract_test": null
     },
@@ -1715,7 +1715,7 @@
       "caller": "shift-brain.html",
       "callee": "analytics-orchestrator",
       "file": "shift-brain.html",
-      "line": 680,
+      "line": 690,
       "evidence": "const { data } = await db.functions.invoke('analytics-orchestrator', {",
       "contract_test": null
     },
@@ -1725,7 +1725,7 @@
       "caller": "shift-brain.html",
       "callee": "shift-planner-orchestrator",
       "file": "shift-brain.html",
-      "line": 516,
+      "line": 526,
       "evidence": "const { data, error } = await db.functions.invoke('shift-planner-orchestrator', {",
       "contract_test": null
     },

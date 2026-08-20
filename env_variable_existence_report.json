@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 189,
-    "total_refs": 360,
+    "files_scanned": 190,
+    "total_refs": 363,
     "total_missing": 0,
     "baseline": 0,
-    "env_names_known": 48
+    "env_names_known": 49
   },
   "per_file": [
     {
@@ -317,6 +317,10 @@
     },
     {
       "file": "supabase/functions/project-progress/index.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/resend-webhook-receiver/index.ts",
       "missing": []
     },
     {

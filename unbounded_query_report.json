@@ -1,9 +1,9 @@
 {
   "summary": {
-    "files_scanned": 130,
-    "total_calls": 768,
-    "total_unbounded": 1,
-    "baseline": 1
+    "files_scanned": 131,
+    "total_calls": 774,
+    "total_unbounded": 0,
+    "baseline": 0
   },
   "per_file": [
     {
@@ -64,12 +64,7 @@
     },
     {
       "file": "engineering-design.js",
-      "issues": [
-        {
-          "table": "engineering_calcs",
-          "offset": 1823312
-        }
-      ]
+      "issues": []
     },
     {
       "file": "assistant.html",
@@ -437,6 +432,10 @@
     },
     {
       "file": "supabase/functions/project-progress/index.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/resend-webhook-receiver/index.ts",
       "issues": []
     },
     {

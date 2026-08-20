@@ -5698,6 +5698,11 @@
       "column": "planned_end",
       "consumers": [
         {
+          "file": "project-manager.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "supabase/functions/project-orchestrator/index.ts",
           "shape": "direct",
           "smells": []

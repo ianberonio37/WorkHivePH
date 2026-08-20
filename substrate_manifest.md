@@ -1,4 +1,4 @@
-# Substrate Manifest — 2026-08-20T02:47:55.696197+00:00
+# Substrate Manifest — 2026-08-20T11:02:23.719107+00:00
 
 **Aggregates 13 pattern-miner + drift-detector outputs into one view.**
 
@@ -15,7 +15,7 @@
 | Seeder patterns | yes | `proposal_count`: 1 |
 | Validator patterns | yes | `proposal_count`: 1 |
 | JS module patterns | yes | `proposal_count`: 0 |
-| Python tool patterns | yes | `proposal_count`: 1 |
+| Python tool patterns | yes | `proposal_count`: 0 |
 | Skill rules | yes | — |
 | Test page drift | yes | `warnings`: [] |
 | Validator self coverage | yes | `warnings`: [{'check': 'unregistered', 'skip': True, 'reason': '`validate_empty_catch.py` exists but is not registered in run_platform_checks.py. Either add a registry entry, or list it in STANDALONE_OK with a justification (e.g., engineering-calc layer validator run via run_all_checks.py).'}] |
