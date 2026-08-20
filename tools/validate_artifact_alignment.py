@@ -133,7 +133,26 @@ def _chk_ai_doc_grounded(page, edge_fns):
     def fn(get):
         txt = get(f"{page}.html")
         called = any(e in txt for e in edge_fns)
-        grounds = re.search(r"body:\s*JSON\.stringify", txt) is not None
+        # TWO idioms carry page data, and only one of them stringifies. A raw fetch MUST
+        # (`body: JSON.stringify({...})`, which is what resume.html does), but
+        # db.functions.invoke() takes an OBJECT and serialises it itself -- pre-stringifying there
+        # would be wrong. Requiring the literal JSON.stringify therefore FAILED report-sender for
+        # using the BETTER idiom: it sends `reports: [{ type, summary }]`, real page data, through
+        # the shared wrapper that attaches the session. A gate that pushes a page toward the worse
+        # form to satisfy a regex is worse than no gate.
+        # Still falsifiable: a body with NO page data (empty, or only ids/timestamps) fails both
+        # arms, which is the case this check exists to catch.
+        _stringified = re.search(r"body:\s*JSON\.stringify\s*\(", txt) is not None
+        _obj_body = re.search(
+            r"functions\.invoke\(\s*[\"']([\w-]+)[\"'][\s\S]{0,200}?body:\s*\{[\s\S]{0,400}?\}",
+            txt)
+        _obj_grounds = False
+        if _obj_body and _obj_body.group(1) in edge_fns:
+            _body_src = _obj_body.group(0)
+            # a bare {hive_id, recipient, timestamp} is NOT grounding; it must carry page content
+            _obj_grounds = bool(re.search(r"\b(summary|report|content|payload|data|items|rows|text)\b",
+                                          _body_src))
+        grounds = _stringified or _obj_grounds
         ok = called and grounds
         hit = next((e for e in edge_fns if e in txt), "—")
         return ok, f"invokes {hit} with body: JSON.stringify(<page data>) — AI doc grounded in source"
