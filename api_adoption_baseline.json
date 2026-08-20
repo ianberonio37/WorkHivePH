@@ -1,6 +1,6 @@
 {
   "_doc": "Layer A adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-08-20T08:38:13.299437+00:00",
+  "generated": "2026-08-20T12:56:51.340377+00:00",
   "functions": 61,
   "rows": [
     {
@@ -425,9 +425,9 @@
       "satisfies": "AV G-1 /health endpoint",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 60,
+      "adopters_n": 61,
       "need_n": 61,
-      "pct": 98,
+      "pct": 100,
       "adopters": [
         "agent-memory-store",
         "agentic-rag-loop",
@@ -466,6 +466,7 @@
         "platform-scraper",
         "project-orchestrator",
         "project-progress",
+        "resend-webhook-receiver",
         "resume-extract",
         "resume-polish",
         "scheduled-agents",
@@ -490,9 +491,7 @@
         "walkthrough-analyzer",
         "weibull-fitter"
       ],
-      "gap": [
-        "resend-webhook-receiver"
-      ]
+      "gap": []
     },
     {
       "id": "A10",
@@ -516,6 +515,6 @@
     "A5": 41,
     "A6": 3,
     "A8": 61,
-    "A9": 60
+    "A9": 61
   }
 }

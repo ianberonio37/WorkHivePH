@@ -1,8 +1,8 @@
 {
- "generated": "2026-08-20T09:11:13+00:00",
- "coverage_pct": 99.0,
+ "generated": "2026-08-20T12:44:38+00:00",
+ "coverage_pct": 100.0,
  "page_pct": 100.0,
- "ai_surface_pct": 94.1,
+ "ai_surface_pct": 100.0,
  "surfaces": {
   "pages": 98,
   "ai_fns": 33
@@ -42,8 +42,8 @@
  ],
  "cells_total": 2322,
  "state_counts": {
-  "✅": 1268,
-  "🟡": 26,
+  "✅": 1294,
+  "🟡": 0,
   "⬜": 0,
   "n/a": 1028
  },
@@ -387,40 +387,26 @@
  "surface_set_hash": "e378067db1f8",
  "oracle_set_hash": "58ef82d9dc70",
  "live_bonus": {
-  "live_cells": 26,
+  "live_cells": 12,
   "live_cell_ids": [
-   "H1/I",
-   "H1/M",
-   "H1/U",
-   "H11/F",
    "H12/F",
-   "H13/F",
-   "H14/F",
    "H15/F",
-   "H2/A",
-   "H2/I",
    "H2/U",
    "H3/A",
    "H3/F",
    "H3/U",
-   "H4/A",
+   "H4/F",
    "H4/U",
-   "H5/A",
    "H5/F",
-   "H5/I",
    "H5/U",
-   "H6/A",
-   "H7/F",
-   "H7/U",
-   "H8/A",
-   "H8/I",
-   "H9/F"
+   "H8/F",
+   "H8/U"
   ],
   "breaches": 0,
-  "fresh": false,
-  "age_days": 16.3,
+  "fresh": true,
+  "age_days": 0.1,
   "proven_ever": 32,
-  "this_run": 26
+  "this_run": 12
  },
  "cells": {
   "achievements|D1": {
@@ -8748,9 +8734,9 @@
    "state": "n/a"
   },
   "agent-memory-store|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "agent-memory-store|D11": {
    "state": "✅",
@@ -8788,9 +8774,9 @@
    "locked": true
   },
   "agentic-rag-loop|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "agentic-rag-loop|D11": {
    "state": "✅",
@@ -8826,9 +8812,9 @@
    "state": "n/a"
   },
   "ai-eval-runner|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "ai-eval-runner|D11": {
    "state": "✅",
@@ -8864,9 +8850,9 @@
    "state": "n/a"
   },
   "ai-gateway|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "ai-gateway|D11": {
    "state": "✅",
@@ -8904,9 +8890,9 @@
    "locked": true
   },
   "ai-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "ai-orchestrator|D11": {
    "state": "✅",
@@ -8942,9 +8928,9 @@
    "state": "n/a"
   },
   "amc-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "amc-orchestrator|D11": {
    "state": "✅",
@@ -8980,9 +8966,9 @@
    "state": "n/a"
   },
   "analytics-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "analytics-orchestrator|D11": {
    "state": "✅",
@@ -9018,9 +9004,9 @@
    "state": "n/a"
   },
   "asset-brain-query|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "asset-brain-query|D11": {
    "state": "✅",
@@ -9192,9 +9178,9 @@
    "state": "n/a"
   },
   "engineering-bom-sow|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "engineering-bom-sow|D11": {
    "state": "✅",
@@ -9230,9 +9216,9 @@
    "state": "n/a"
   },
   "engineering-calc-agent|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "engineering-calc-agent|D11": {
    "state": "✅",
@@ -9302,9 +9288,9 @@
    "state": "n/a"
   },
   "failure-signature-scan|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "failure-signature-scan|D11": {
    "state": "✅",
@@ -9340,9 +9326,9 @@
    "state": "n/a"
   },
   "fmea-populator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "fmea-populator|D11": {
    "state": "✅",
@@ -9378,9 +9364,9 @@
    "state": "n/a"
   },
   "hierarchical-summarizer|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "hierarchical-summarizer|D11": {
    "state": "✅",
@@ -9416,9 +9402,9 @@
    "state": "n/a"
   },
   "intelligence-report|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "intelligence-report|D11": {
    "state": "✅",
@@ -9488,9 +9474,9 @@
    "state": "n/a"
   },
   "project-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "project-orchestrator|D11": {
    "state": "✅",
@@ -9526,9 +9512,9 @@
    "state": "n/a"
   },
   "scheduled-agents|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "scheduled-agents|D11": {
    "state": "✅",
@@ -9564,9 +9550,9 @@
    "state": "n/a"
   },
   "semantic-fact-extractor|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "semantic-fact-extractor|D11": {
    "state": "✅",
@@ -9602,9 +9588,9 @@
    "state": "n/a"
   },
   "shift-planner-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "shift-planner-orchestrator|D11": {
    "state": "✅",
@@ -9640,9 +9626,9 @@
    "state": "n/a"
   },
   "temporal-rag-orchestrator|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "temporal-rag-orchestrator|D11": {
    "state": "✅",
@@ -9678,9 +9664,9 @@
    "state": "n/a"
   },
   "visual-defect-capture|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "visual-defect-capture|D11": {
    "state": "✅",
@@ -9716,9 +9702,9 @@
    "state": "n/a"
   },
   "voice-action-router|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "voice-action-router|D11": {
    "state": "✅",
@@ -9788,9 +9774,9 @@
    "state": "n/a"
   },
   "voice-journal-agent|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "voice-journal-agent|D11": {
    "state": "✅",
@@ -9826,9 +9812,9 @@
    "state": "n/a"
   },
   "voice-logbook-entry|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "voice-logbook-entry|D11": {
    "state": "✅",
@@ -9864,9 +9850,9 @@
    "state": "n/a"
   },
   "voice-report-intent|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "voice-report-intent|D11": {
    "state": "✅",
@@ -9902,9 +9888,9 @@
    "state": "n/a"
   },
   "voice-semantic-rag|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "voice-semantic-rag|D11": {
    "state": "✅",
@@ -9940,9 +9926,9 @@
    "state": "n/a"
   },
   "walkthrough-analyzer|D10": {
-   "state": "🟡",
+   "state": "✅",
    "oracle": "validate_grounding_contract",
-   "locked": false
+   "locked": true
   },
   "walkthrough-analyzer|D11": {
    "state": "✅",
@@ -9984,7 +9970,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": 17.3,
+ "delta_vs_last": 1.0,
  "dry_streak": 0,
  "dry": false
 }

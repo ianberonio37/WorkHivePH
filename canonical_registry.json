@@ -9754,7 +9754,7 @@
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 191.2
+      "size_kb": 191.9
     },
     "architecture.html": {
       "tables_read": [],
@@ -10410,7 +10410,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 150.8
+      "size_kb": 151.3
     },
     "shift-brain.html": {
       "tables_read": [
@@ -11481,7 +11481,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 132
+      "loc": 147
     },
     "resume-extract": {
       "tables_read": [],
@@ -11566,7 +11566,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 307
+      "loc": 344
     },
     "shift-planner-orchestrator": {
       "tables_read": [

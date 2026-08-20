@@ -7,7 +7,7 @@
   "detail": {
     "Pump Sizing (TDH)": {
       "bom_http": 200,
-      "bom_len": 8358,
+      "bom_len": 10837,
       "cells": {
         "motor kW": {
           "value": 0.18,
@@ -23,7 +23,7 @@
     },
     "Transformer Sizing": {
       "bom_http": 200,
-      "bom_len": 5152,
+      "bom_len": 7839,
       "cells": {
         "rated kVA": {
           "value": 1000,
@@ -34,7 +34,7 @@
     },
     "AHU Sizing": {
       "bom_http": 200,
-      "bom_len": 13733,
+      "bom_len": 13724,
       "cells": {
         "coil kW": {
           "value": 75.12,
@@ -45,7 +45,7 @@
     },
     "Fire Pump Sizing": {
       "bom_http": 200,
-      "bom_len": 8768,
+      "bom_len": 8756,
       "cells": {
         "flow L/min": {
           "value": 2840,
@@ -61,7 +61,7 @@
     },
     "Generator Sizing": {
       "bom_http": 200,
-      "bom_len": 8275,
+      "bom_len": 9281,
       "cells": {
         "rated kVA": {
           "value": 87.5,
