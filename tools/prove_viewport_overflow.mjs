@@ -204,9 +204,19 @@ const SAFE = () => {
   for (const sheet of document.styleSheets) {
     let list;
     try { list = sheet.cssRules; } catch (e) { continue; }   // cross-origin sheet, unreadable
+    // A PLAIN CSSStyleRule EXPOSES .cssRules IN CHROMIUM (nested-CSS support). It is EMPTY but
+    // TRUTHY, so `if (r.cssRules)` sent every ordinary rule down the recurse-and-continue branch,
+    // where it descended into nothing and was NEVER TESTED. Measured 2026-08-20 on
+    // marketplace-seller: 11 rules mention safe-area-inset and this walk collected 0 of them, so
+    // #sheet-edit -- covered by `.sheet { padding: … calc(2rem + env(safe-area-inset-bottom)) }` --
+    // reported UNCOVERED.
+    // That is also why the earlier inlineHasInset fix LOOKED sufficient: hive writes its insets
+    // INLINE, so the inline path rescued it while the stylesheet path stayed dead. Any page that
+    // declares insets in CSS instead was silently under-reported.
+    // Recurse only into real GROUPING rules (@media/@supports), which carry a non-empty list.
     const walk = (rs) => {
       for (const r of rs) {
-        if (r.cssRules) { walk(r.cssRules); continue; }
+        if (r.cssRules && r.cssRules.length && !r.selectorText) { walk(r.cssRules); continue; }
         if (r.selectorText && insetRe.test(r.cssText)) rules.push(r.selectorText);
       }
     };
