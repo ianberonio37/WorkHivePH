@@ -28,6 +28,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 import { log } from "../_shared/logger.ts";
+import { handleHealth } from "../_shared/health.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -82,6 +83,22 @@ const HANDLED: Record<string, string> = {
 serveObserved("resend-webhook-receiver", async (req: Request) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  // Arc T/T1 liveness, the same probe every other fn on this platform exposes. It ships
+  // BEFORE the body is read: /health is a GET with no Svix headers, so letting it fall through
+  // would consume the request body and then fail signature verification -- a health check that
+  // reports a webhook as broken is worse than none.
+  // It reports whether the SIGNING SECRET is present, because that is this function's real
+  // readiness: without RESEND_WEBHOOK_SECRET it authenticates nothing and fails closed on every
+  // event, which is the intended degrade but is invisible from outside.
+  const _health = await handleHealth(req, "resend-webhook-receiver", async () => ({
+    deps: [
+      { name: "signing_secret", ok: Boolean(Deno.env.get("RESEND_WEBHOOK_SECRET")) },
+      { name: "supabase", ok: Boolean(Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) },
+    ],
+  }));
+  if (_health) return _health;
+
   const ctx = beginRequest(req, { route: "resend-webhook-receiver" });
 
   const body = await req.text();
