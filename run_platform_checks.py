@@ -4772,6 +4772,36 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        # AIO scores MULTI-SOURCE CREDIBILITY, and aio-readiness enforces that a source be
+        # LINKED rather than merely named. Nothing checked that the link still RESOLVES. A
+        # citation pointing at a 404 is worse than no citation: it is a claim a reader can
+        # disprove in one click, on exactly the pages built to look authoritative.
+        #
+        # NOT a naive status check, and that distinction is the whole design. First
+        # measurement returned 5 of 14 authority URLs as 403 -- dole.gov.ph, erc.gov.ph,
+        # iso.org, and both officialgazette.gov.ph laws. Reporting those as broken would
+        # have been a FABRICATED finding: re-checked through a real browser every one
+        # returned a page titled "Just a moment...", which is Cloudflare's bot challenge,
+        # and iec.ch returned CloudFront's block page. They are alive for a human and
+        # closed to a robot. So 404/410 counts as DEAD; 403/429/503 carrying a challenge
+        # marker is SHIELDED and reported but never failed; a network error is never DEAD,
+        # because that may be our connection rather than their site.
+        #
+        # ADVISORY (exit 0 unless a link is provably dead AND new). A gate that reaches the
+        # network flakes under load, and a check that reddens for something the author
+        # cannot fix is one the team learns to ignore -- this repo has both precedents.
+        # Current state: 15 citations, 9 alive, 6 shielded, 0 dead.
+        # Self-test: `python tools/authority_link_gate.py --self-test`.
+        "id":      "authority-links",
+        "script":  "tools/authority_link_gate.py",
+        "args":    [],
+        "label":   "Authority-link resolution (V3 5, AIO: every outbound citation still resolves; "
+                   "404/410 = dead and ratcheted, bot-challenge 403 = shielded and reported, never failed)",
+        "group":   "AI Validation",
+        "report":  "authority_link_report.json",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "aio-readiness",
         "script":  "tools/aio_readiness_gate.py",
         "args":    [],
