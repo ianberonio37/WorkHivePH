@@ -211,7 +211,7 @@ def lit(s):
     return "'" + str(s).replace("'", "''") + "'"
 
 
-def claim(batch):
+def claim(batch, only_source=None):
     """Claim up to `batch` due jobs. One statement, so two workers can never take the same row.
 
     THE LEASE IS LOAD-BEARING, and the self-test is what proved it. `FOR UPDATE SKIP LOCKED` only excludes
@@ -222,10 +222,19 @@ def claim(batch):
     invisible for LEASE_SECONDS, after which it becomes claimable again so a worker that DIED mid-job cannot
     strand it forever.
     """
+    # THE SELF-TEST DEAD-LETTERED A REAL JOB. claim() had no source filter and orders BY ID, so the
+    # oldest REAL job is taken first — while the self-test's own fixtures, freshly inserted, hold the
+    # HIGHEST ids and were never the ones claimed. The test then force-set attempts = MAX_ATTEMPTS and
+    # dead-lettered whatever it held. Measured 2026-08-20: logbook row log-ce3cffb97c83 sits DEAD
+    # carrying the test's own fixture string, 'DEAD after 5 attempts: still failing' — a fabricated
+    # failure for an entry that was never really attempted, and it has been the written-only baseline
+    # ever since. A test that mutates the queue it is testing must claim ONLY its own rows.
+    source_filter = "and source_table = " + lit(only_source) if only_source else ""
     sql = f"""
     with due as (
       select id from public.embedding_outbox
        where done_at is null
+         {source_filter}
          and next_attempt_at <= now()
          and (claimed_at is null or claimed_at < now() - interval '{LEASE_SECONDS} seconds')
        order by id
@@ -298,8 +307,8 @@ def selftest():
     psql("delete from public.embedding_outbox where source_table = 'selftest';", want_rows=False)
     psql("""insert into public.embedding_outbox(source_table, row_id) values
             ('selftest','a'),('selftest','b');""", want_rows=False)
-    first, _ = claim(1)
-    second, _ = claim(1)
+    first, _ = claim(1, only_source='selftest')
+    second, _ = claim(1, only_source='selftest')
     ids = {r[0] for r in (first or [])} | {r[0] for r in (second or [])}
     exclusive = len(first or []) == 1 and len(second or []) == 1 and len(ids) == 2
     print(f"    {'PASS' if exclusive else 'FAIL'}  two claims took two DIFFERENT jobs")

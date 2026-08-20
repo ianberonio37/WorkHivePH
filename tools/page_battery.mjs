@@ -109,8 +109,15 @@ async function runPage(context, pageFile) {
       const m = txt.slice(0, 6000).match(ERR_RE);
       return { len: txt.trim().length, hasErrBanner: !!m, errSnippet: m ? txt.slice(Math.max(0, m.index - 30), m.index + 80) : null, title: document.title };
     }).catch(() => ({ len: 0, hasErrBanner: false, errSnippet: null, title: '' }));
-    const loadErrors = consoleMsgs.filter(m => m.t === 'error' && !isBenign(BENIGN_CONSOLE, m.text));
-    rec.P1.notes.push(`bodyLen=${body.len} title="${body.title}" loadErrors=${loadErrors.length}`);
+    const allLoadErrors = consoleMsgs.filter(m => m.t === 'error' && !isBenign(BENIGN_CONSOLE, m.text));
+    // A 429 is the hive's AI day-ceiling (300/day, _shared/rate-limit.ts) ANSWERING, not a broken
+    // page load. Measured 2026-08-20: a day of local suite runs spent the quota and this gate then
+    // reported shift-brain sev3 "console error on load" - a load defect it never observed. It is
+    // still REPORTED (at sev 1, with the cause named) so it can never vanish silently; it simply
+    // stops failing --gate, which trips on sev>=3. Every other console error keeps its sev 3.
+    const rateLimited = allLoadErrors.filter(m => /\b429\b|too many requests|rate.?limit/i.test(m.text || ''));
+    const loadErrors  = allLoadErrors.filter(m => !rateLimited.includes(m));
+    rec.P1.notes.push(`bodyLen=${body.len} title="${body.title}" loadErrors=${loadErrors.length}`      + (rateLimited.length ? ` rateLimited=${rateLimited.length}` : ''));
     if (body.len > 200 && !body.hasErrBanner && loadErrors.length === 0) rec.P1.score = 100;
     else if (body.len > 200 && loadErrors.length === 0) rec.P1.score = 75;
     else if (body.len > 200) rec.P1.score = 50;
@@ -118,6 +125,8 @@ async function runPage(context, pageFile) {
     if (body.hasErrBanner) rec.findings.push({ phase: 'P1', sev: 3, detail: `error banner text in body: "${(body.errSnippet || '').replace(/\s+/g, ' ').trim()}"` });
     if (body.len <= 200) rec.findings.push({ phase: 'P1', sev: 3, detail: `near-blank body (len=${body.len})` });
     for (const e of loadErrors) rec.findings.push({ phase: 'P1', sev: 3, detail: `console error on load: ${e.text}` });
+    for (const e of rateLimited) rec.findings.push({ phase: 'P1', sev: 1,
+      detail: `RATE-LIMITED (hive AI day-ceiling answering), not a load defect: ${e.text}` });
 
     // ── P2 Console + Network (post-load capture) ──
     const warns = consoleMsgs.filter(m => m.t === 'warning' && !isBenign(BENIGN_CONSOLE, m.text));

@@ -160,7 +160,7 @@
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
     .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-family: 'Consolas','Courier New',monospace; font-size: 0.92rem; color: #FDB94A; }
     .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
-    .toc h4 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+    .toc h2 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
     .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
     .toc a { color: rgba(244,246,250,0.75); text-decoration: none; } .toc a:hover { color: #F7A21B; }
     .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
@@ -247,7 +247,12 @@
     <div class="answer-first">Three regimes cover most Philippine plant maintenance compliance: <strong>DOLE OSHS</strong> (the Occupational Safety and Health Standards, made mandatory and penalised under RA 11058 and DO 198-18) requires documented safety procedures and training; <strong>lockout/tagout</strong> under the same DO 198-18 requires a written, auditable energy-isolation procedure for every maintenance intervention; and <strong>RA 11285</strong> (the Energy Efficiency and Conservation Act) requires designated establishments to report energy use and run a conservation programme. In every case an inspector asks the same thing: <em>show me the records</em>: and a dated digital audit trail is the fastest way to pass. RA 11058 penalties for wilful violations reach <strong>&#8369;100,000 per day</strong>.</div>
 
     <div class="toc">
-      <h4>On this page</h4>
+      <!-- h2, not h4: this label is a PEER of the article's h2 sections, and as an h4 it made
+           every one of these 8 pages jump h1 -> h4, skipping two levels. Screen-reader users
+           navigate by that hierarchy, so the jump is a real defect on public content. The
+           .toc h2 rule below keeps the small-caps look identical -- the selector had to move
+           with the tag, or the swap would have silently rendered a full-size heading. -->
+      <h2>On this page</h2>
       <ol>
           <li><a href="#oshs">DOLE OSHS and the audit trail</a></li>
           <li><a href="#loto">Lockout/tagout (LOTO) under DO 198-18</a></li>

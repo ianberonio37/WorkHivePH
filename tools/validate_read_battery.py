@@ -69,7 +69,10 @@ def main() -> int:
     if r.returncode == 0:
         print("\n  PASS: read paths hold (rendered==DB / correct empty-vs-error / no stuck skeleton).\n")
     else:
-        print("\n  FAIL: a read-correctness regression (render drift / swallowed error / stuck skeleton).\n")
+        # Name only what was MEASURED. A 429 is excused as SKIP upstream, so reaching this line
+        # means a real invariant failed - but it must not assert "render drift" when the actual
+        # failure may be a count mismatch, a stuck skeleton, or something else entirely.
+        print("\n  FAIL: at least one read invariant did not hold. Read the per-page lines above for WHICH page and WHICH assertion. SKIP lines are rate-limited and were NOT decided.\n")
     return r.returncode
 
 

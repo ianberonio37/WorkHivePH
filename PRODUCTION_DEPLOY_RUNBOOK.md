@@ -288,6 +288,40 @@ which ships `class="hidden"`).
 After the fixes: **all 26 pages 0 APCA / 0 WCAG failing**, and `view_contrast` clean at **0 failing
 across 36 measurable views**.
 
+## 0h. SUITE TRIAGE — what the 10 red gates actually were (2026-08-20, post-commit)
+
+Most were NOT deployable code. Recorded because the wrong conclusion was one step away in three of
+these, and twice I was wrong about my own work before checking.
+
+| gate | verdict | what it really was |
+|---|---|---|
+| page battery | **fixed** | a **429**: the hive spent its 300/day AI ceiling (`DEFAULT_RATE_LIMIT_PER_DAY`). Now reported at sev 1 with the cause named, so it no longer gates. Findings went 2 → **3** — nothing suppressed, one reclassified |
+| read battery | **fixed** | same 429, on alert-hub. Now `SKIP` with a reason; summary reads `67/67 green · 1 SKIPPED (not decided)` rather than folding a skip into the green count |
+| PLATFORM flywheel v2 | **fixed** | a META-gate: it failed because one of its 46 locked gates did — `content_page_hygiene`, which found **8 learn articles jumping `h1 → h4`**. Real a11y defect on public SEO content. Coverage **81.7% → 99.0%**, page **79.2% → 100%** |
+| Arc Q Calc + Engines | diagnosed | `workhive_python_api_fwd` (alpine/socat) was **SIGTERM'd on 2026-07-19** and `restart=no`; a stray `python -m http.server 8000` then took the port, so `/health` 404s. The API itself is fine (`health=200` inside the container). **Only these two gates touch :8000** |
+| KNOWLEDGE IS RETRIEVABLE + marketplace SQL lane `TB-S9` | ONE root | both ratchet on `written_only`. The marketplace bank passes **189/190** cells; the single failure is the same unindexed entry |
+| clone debt | honest | +95 duplicated lines; clone COUNT fell 51 → 49, so existing clones GREW |
+| GUARD MUTATION SCORE · Playwright UI Smoke | **still open** | need the DB alone / the browser |
+
+**🔴 The finding worth reading twice: a SELF-TEST dead-lettered a real queue job, and two gates have
+ratcheted on the damage since 2026-07-31.**
+
+`drain_embedding_outbox.py --selftest` inserts fixtures then calls `claim(1)`. `claim()` had **no
+source filter** and orders **`by id`** — so it took the OLDEST REAL job, while its own fixtures held
+the highest ids. It then force-set `attempts = MAX_ATTEMPTS` and dead-lettered what it held. Logbook
+row `log-ce3cffb97c83` carries the test's fixture string verbatim: `"DEAD after 5 attempts: still
+failing"`. That entry was **never actually attempted** against the provider, and it became the
+`written_only = 1` baseline both gates measure against.
+
+Fixed: `claim(batch, only_source=...)`, and the self-test claims only `selftest` rows. Verified by
+before/after over real pending jobs — `max(attempts)|count` = **0|166 → 0|166**, with all three test
+assertions still passing (isolation gained, teeth kept).
+
+**Consequence for the outbox decision:** there is no provider error to investigate. Both rows are
+simply recoverable — reset `log-ce3cffb97c83` (`done_at`/`attempts`) and drain, and drain the pending
+`pm-1786962469659…`. **2 embedding calls**, which clears BOTH gates. Still a paid call, so still
+Ian's; nothing has been touched.
+
 ## 1. Pre-flight (all local, before any push)
 
 **Already run 2026-08-20 — results, not instructions:**

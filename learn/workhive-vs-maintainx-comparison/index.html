@@ -182,7 +182,7 @@
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: #F4F6FA; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
     .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; font-family: 'Consolas','Courier New',monospace; font-size: 0.92rem; color: #FDB94A; }
     .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px 26px; margin: 2rem 0 3rem; }
-    .toc h4 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+    .toc h2 { color: rgba(244,246,250,0.55); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
     .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.92rem; }
     .toc a { color: rgba(244,246,250,0.75); text-decoration: none; } .toc a:hover { color: #F7A21B; }
     .answer-first { background: rgba(247,162,27,0.08); border-left: 3px solid #F7A21B; border-radius: 8px; padding: 18px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
@@ -269,7 +269,12 @@
     <div class="answer-first"><strong>Choose MaintainX</strong> if in-app team communication and a polished mobile work-order experience are the priority: it is the strongest mobile-first product in the category, with published entry pricing around <strong>$20 per user per month</strong> and a feature-capped free tier. <strong>Choose WorkHive</strong> if you need <strong>genuinely free</strong> at the worker tier with no seat cost as the team grows, <strong>true offline capture</strong> for a plant floor with dead spots, <strong>Filipino/Taglish</strong> voice entry, and Philippine compliance records. Both handle work orders, PM scheduling, and asset history competently; the deciding factors are usually cost per seat and connectivity.</div>
 
     <div class="toc">
-      <h4>On this page</h4>
+      <!-- h2, not h4: this label is a PEER of the article's h2 sections, and as an h4 it made
+           every one of these 8 pages jump h1 -> h4, skipping two levels. Screen-reader users
+           navigate by that hierarchy, so the jump is a real defect on public content. The
+           .toc h2 rule below keeps the small-caps look identical -- the selector had to move
+           with the tag, or the swap would have silently rendered a full-size heading. -->
+      <h2>On this page</h2>
       <ol>
           <li><a href="#matrix">WorkHive vs MaintainX: feature and pricing comparison</a></li>
           <li><a href="#where-maintainx-wins">Where MaintainX is the better choice than WorkHive</a></li>
