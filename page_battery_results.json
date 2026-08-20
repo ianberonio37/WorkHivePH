@@ -1,5 +1,5 @@
 {
-  "ran": "2026-08-20T09:00:24.378Z",
+  "ran": "2026-08-20T12:23:18.436Z",
   "role": "supervisor",
   "seeder": "http://127.0.0.1:5000",
   "hive": "084c113b-99c0-45c6-a8e8-b4b8349da46d",
@@ -10,7 +10,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1120 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=0"
+          "bodyLen=584 title=\"WorkHive | Free Industrial Tools for Every Filipino Worker\" loadErrors=0"
         ]
       },
       "P2": {
@@ -50,7 +50,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3247 title=\"Hive Live Board: WorkHive\" loadErrors=0"
+          "bodyLen=3243 title=\"Hive Live Board: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -250,23 +250,32 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=5011 title=\"Alert Hub | WorkHive\" loadErrors=0"
+          "bodyLen=4971 title=\"Alert Hub | WorkHive\" loadErrors=0 rateLimited=1"
         ]
       },
       "P2": {
-        "score": 100,
-        "consoleErrors": [],
+        "score": 25,
+        "consoleErrors": [
+          {
+            "t": "error",
+            "text": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+          }
+        ],
         "consoleWarns": [],
-        "badNet": []
+        "badNet": [
+          {
+            "url": "http://127.0.0.1:54321/functions/v1/analytics-orchestrator",
+            "status": 429,
+            "method": "POST"
+          }
+        ]
       },
       "P4": {
         "score": 10,
         "xssReflected": false,
         "xssExecuted": false,
         "inputsFuzzed": 0,
-        "handlerErrors": [
-          "Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
-        ]
+        "handlerErrors": []
       },
       "P8": {
         "score": 75,
@@ -286,9 +295,14 @@
       },
       "findings": [
         {
-          "phase": "P4",
+          "phase": "P1",
+          "sev": 1,
+          "detail": "RATE-LIMITED (hive AI day-ceiling answering), not a load defect: Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+        },
+        {
+          "phase": "P2",
           "sev": 2,
-          "detail": "input-handler error: Failed to load resource: the server responded with a status of 429 (Too Many Requests)"
+          "detail": "POST 429 http://127.0.0.1:54321/functions/v1/analytics-orchestrator"
         }
       ]
     },
@@ -378,7 +392,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=2574 title=\"Achievements: WorkHive\" loadErrors=0"
+          "bodyLen=2562 title=\"Achievements: WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -978,7 +992,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=757 title=\"Philippine Industrial Intelligence Report | WorkHive\" loadErrors=0"
+          "bodyLen=795 title=\"Philippine Industrial Intelligence Report | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1120,7 +1134,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=3069 title=\"Audit Log | WorkHive\" loadErrors=0"
+          "bodyLen=3097 title=\"Audit Log | WorkHive\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1200,7 +1214,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=13985 title=\"WorkHive Founder Console\" loadErrors=0"
+          "bodyLen=14069 title=\"WorkHive Founder Console\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1400,7 +1414,7 @@
       "P1": {
         "score": 100,
         "notes": [
-          "bodyLen=1240 title=\"WorkHive Gateway — Status\" loadErrors=0"
+          "bodyLen=1249 title=\"WorkHive Gateway — Status\" loadErrors=0"
         ]
       },
       "P2": {
@@ -1438,12 +1452,12 @@
   "summary": {
     "pages": 35,
     "P1": 100,
-    "P2": 98,
+    "P2": 96,
     "P4": 36,
     "P8": 75,
     "P9": 90,
     "P12": 100,
-    "total_findings": 3,
+    "total_findings": 4,
     "high_sev": 0,
     "unhandled_pages": [],
     "a11y_pages": []
