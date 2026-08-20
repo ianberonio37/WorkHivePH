@@ -2,13 +2,13 @@
 name: page-resume
 type: page
 source: file:resume.html
-source_sha: daa2255948d28e89
+source_sha: 830ddd8c9b58383f
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `resume.html` — Resume / CV Builder | WorkHive
 
-Size: 150KB · 111 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 151KB · 111 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (5): `resume_documents.delete`, `resume_documents.insert`, `resume_documents.update`, `resume_versions.delete`, `resume_versions.insert`
 **RPC calls**: (none)
