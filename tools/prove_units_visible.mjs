@@ -132,8 +132,14 @@ const scan = async (page) => page.evaluate(() => {
     const hit = DIMS.find((d) => d.label.test(label));
     if (!hit) continue;                          // a count owes no unit
     const near = raw + ' ' + label;
+    // JUDGE AGAINST EVERY DIMENSION'S UNITS, not just the first label match. DIMS.find takes the
+    // FIRST dimension whose LABEL matches, and a label can belong to one dimension while the value
+    // carries another's unit. Measured 2026-08-20: 'Available to list' matched `quantity` (on the
+    // word 'available'), so the gate demanded pcs/units and rejected the perfectly well-united
+    // money value ₱0. A number showing ANY recognised unit is not a unit-less number.
+    const anyUnit = DIMS.some((d) => d.unit.test(near));
     out.push({ value: raw, label: label.slice(0, 70), dim: hit.dim,
-      hasUnit: hit.unit.test(near), where: (el.closest('[id]') || {}).id || null });
+      hasUnit: hit.unit.test(near) || anyUnit, where: (el.closest('[id]') || {}).id || null });
   }
   return out;
 });
