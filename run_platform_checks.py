@@ -5581,6 +5581,40 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        # THE EXPIRY RULE ABOVE IS ONLY AS GOOD AS ITS DIGEST, AND THE DIGEST WAS COUNTING PROSE.
+        # This bank collapsed four times (752 green -> 34, then 342, ~365, ~320 rows), each read at
+        # the time as "shared-library edits are expensive, batch them". They were not. fn_digests v3
+        # segments top-level code by counting brackets PER LINE, INSIDE COMMENTS INCLUDED, and this
+        # repo's house style names calls in prose. One line -- "// every client routes through getDb(
+        # and _timeoutFetch" -- carries an unbalanced paren, glues every following line into a single
+        # statement, and vanishes 881 of 881 utils.js keys. 93% of what v3 hashed as that file's
+        # "top-level statements" was prose. Writing a SENTENCE ABOUT the code counted as changing it.
+        #
+        # v4 strips comments (string-aware; and <!-- --> for .html, where the larger half of the bank
+        # actually lives) as a NEW VERSION, never a redefinition -- fn_digests_still_hold dispatches
+        # on the version each row recorded, because the last unversioned change here expired 661 rows
+        # in one run and the ratchet correctly refused it.
+        #
+        # This test exists because the fix has a converse that is easy to lose and fatal to miss: a
+        # v4 that merely stopped expiring would mint FALSE GREENS, which is strictly worse than the
+        # over-sensitivity it replaces. So it asserts BOTH directions -- prose expires nothing, real
+        # code and real markup edits still expire -- plus version isolation, plus that a narrowed
+        # stamp still retains every top-level key (filtering by exercised FUNCTIONS alone silently
+        # deleted them once, and a row recording no top-level statement cannot notice a top-level
+        # change). It mutates utils.js and marketplace.html and restores them BYTE-for-byte: the
+        # ad-hoc probe that found the defect used text mode and converted 4,024 CRLF endings to LF,
+        # manufacturing an 18-row phantom regression. Static, offline (~4s).
+        "id":      "fn-digest-contract",
+        "script":  "tools/test_fn_digest_versions.py",
+        "args":    [],
+        "label":   "Digest contract (v3 prose defect stays fixed; v4 expires real code AND real markup; "
+                   "v3 recordings never reinterpreted; narrowing keeps top-level keys; mutated sources "
+                   "restored byte-for-byte)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": True,
+    },
+    {
         # THE INSTRUMENT BEHIND 136 OF THAT BANK'S ROWS. Those rows assert things no page can show you
         # — the ledger conserves credits, every grant has a caller-aware policy behind it, a DEFINER
         # helper is not callable by a stranger — and until now each was walked BY HAND, which proves
