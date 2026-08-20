@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "WorkHive Edge API",
-    "version": "2026.08.03",
+    "version": "2026.08.20",
     "description": "Auto-generated from validate_edge_contracts.py (ALL_FUNCTIONS + REQUIRED_FIELDS). The contract source of truth is the validator; this spec is a machine-readable view. Regenerate with tools/gen_openapi.py."
   },
   "servers": [
@@ -3024,6 +3024,84 @@
                   "project_id",
                   "hive_id"
                 ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success \u2014 canonical ok envelope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden (cross-tenant / role)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/functions/v1/resend-webhook-receiver": {
+      "post": {
+        "operationId": "resend_webhook_receiver",
+        "summary": "Invoke the resend-webhook-receiver edge function",
+        "tags": [
+          "resend"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_": {
+                    "type": "object",
+                    "description": "no required fields"
+                  }
+                },
+                "required": []
               }
             }
           }
