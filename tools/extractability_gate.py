@@ -47,7 +47,8 @@ import platform_catalog as pc  # noqa: E402
 
 BASELINE_PATH = ROOT / "extractability_baseline.json"
 REPORT_PATH = ROOT / "extractability_report.json"
-CHECK_ORDER = ["answer_first", "has_statistic", "has_citation", "answer_quality"]
+CHECK_ORDER = ["answer_first", "has_statistic", "has_citation", "answer_quality",
+               "answer_not_framing"]
 
 # Authoritative-source signals an article may cite (standards bodies, agencies,
 # or any outbound link). Conservative: any ONE clears has_citation.
@@ -132,8 +133,34 @@ def analyze(html: str) -> dict:
     has_proper = bool(re.search(r"(?:[A-Z]{2,}|[A-Z][a-z]+\s+[A-Z][a-z]+)", opener))
     answer_quality = bool(opener) and has_num and has_unit and has_proper
 
+    # answer_not_framing — found by READING the openers, not by any check above.
+    # All three of these passed answer_quality with a number, a unit and a named entity,
+    # and still could not be lifted by an engine, because they opened by FRAMING rather
+    # than answering:
+    #   "Short answer: Imagine having an AI that plans your maintenance shifts for you..."
+    #   "Short answer: Imagine having one inbox for all plant alerts..."
+    #   "Short answer: In WorkHive Asset Hub, Asset Brain 360 gives you..."
+    # An engine lifts a sentence that STATES a fact; it cannot lift an invitation to
+    # imagine one, and a product-first opener answers "what does WorkHive sell" when the
+    # query asked "what is X". In each case the real answer already existed in the second
+    # half of the block, buried under a marketing preamble.
+    # Scoped to the OPENING words only: "imagine" further into the paragraph is ordinary
+    # prose, and flagging that would make this the kind of noisy check people learn to
+    # ignore. Product-first is judged by the block's first clause for the same reason.
+    # The window starts at `class="answer-first"`, which is INSIDE the opening tag, so the
+    # slice begins mid-tag and _TAG_RE (which needs a leading "<") never strips the
+    # `class="answer-first">` remnant. The first version of this check matched against that
+    # remnant, could therefore never fire, and passed 53/53 VACUOUSLY - a false green in the
+    # very check written to catch a quality miss. Drop everything up to the first ">".
+    _lead = opener[opener.find(">") + 1:] if ">" in opener[:40] else opener
+    lead = re.sub(r"^\s*(short answer:)?\s*", "", _lead.strip(), flags=re.I)
+    answer_not_framing = not re.match(
+        r"(imagine|picture|think about|ever wondered|have you ever|are you |do you "
+        r"|in today'?s|with workhive|in workhive)\b", lead, re.I)
+
     return {"answer_first": answer_first, "has_statistic": has_statistic,
-            "has_citation": has_citation, "answer_quality": answer_quality}
+            "has_citation": has_citation, "answer_quality": answer_quality,
+            "answer_not_framing": answer_not_framing}
 
 
 def run_checks(cat: dict | None = None) -> dict:
@@ -154,6 +181,12 @@ def run_checks(cat: dict | None = None) -> dict:
             checks["answer_quality"]["issues"].append(
                 {"page": page, "reason": f"{page} opener lacks a number+unit+named entity "
                                          f"(presence is not quality — the opener is what an engine lifts)"})
+        if not v["answer_not_framing"]:
+            checks["answer_not_framing"]["issues"].append(
+                {"page": page, "reason": f"{page} opener FRAMES instead of answering "
+                                         f"(opens with Imagine/rhetorical/product-first) - an engine "
+                                         f"lifts a sentence that states a fact, not one that invites "
+                                         f"you to imagine one"})
         if not v["has_citation"]:
             checks["has_citation"]["issues"].append(
                 {"page": page, "reason": f"{page} cites no authoritative source (Princeton: cite-sources lifts citation up to +40%)"})
@@ -231,6 +264,31 @@ def self_test() -> int:
 
     print("\n\033[1mextractability_gate.py --self-test\033[0m")
     print("=" * 55)
+
+    # answer_not_framing TEETH. The first version of this check matched against the
+    # `class="answer-first">` remnant the tag-stripper cannot remove (the window starts
+    # INSIDE the opening tag), so it could never fire and passed 53/53 VACUOUSLY - a false
+    # green inside the very check written to catch a quality miss. These cases fail loudly
+    # if that regression returns. The last one guards the opposite error: "imagine" in
+    # ordinary mid-sentence prose must NOT be flagged, or the check becomes noise people
+    # learn to ignore.
+    def _af(op):
+        return ('<div class="prose-wh"><div class="answer-first"><strong>Short answer:</strong> '
+                + op + '</div><p>' + ("word " * 40) + '</p><p>ISO 14224</p></div>')
+
+    for _op, _want, _why in (
+        ("Imagine having an AI that plans your shifts, 8 hours per brief, Shift Brain.",
+         False, "opener starting with 'Imagine' is FRAMING, not an answer"),
+        ("In WorkHive Asset Hub, Asset Brain 360 gives you 10 years of history.",
+         False, "product-first opener is FRAMING"),
+        ("Have you ever wondered how MTBF works? It is 4000 hours per ISO 14224.",
+         False, "rhetorical-question opener is FRAMING"),
+        ("Autonomous shift planning generates one brief every 8 hours via Shift Brain.",
+         True, "a real answer passes"),
+        ("A supervisor can imagine the whole plant, but MTBF is 4000 hours per ISO 14224.",
+         True, "'imagine' MID-sentence is ordinary prose, not framing"),
+    ):
+        ck(analyze(_af(_op))["answer_not_framing"] is _want, "answer_not_framing: " + _why)
 
     good = ('<div class="prose-wh"><p>' + "WorkHive logs a repair in under a minute and OEE rises to 85% per ISO 22400 "
             "after a month of consistent capture across the plant floor team here." + '</p>'
