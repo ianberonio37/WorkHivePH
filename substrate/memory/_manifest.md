@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:779-files
-source_sha: d64df6f20d8f79ca
+source: memory-curated:780-files
+source_sha: e3e7157a726413ba
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (779 durable topic files)
+## memory · curated auto-memory (780 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=398 · project=292 · reference=89
+**By type:** feedback=399 · project=292 · reference=89
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -54,6 +54,7 @@ Entries (name · type · sha):
 - `feedback_a_guard_that_returns_without_speaking` · feedback · 6950a294f0d27cf4
 - `feedback_a_hand_set_fixture_is_not_a_reachable_state` · feedback · d597a08046039864
 - `feedback_a_layout_shifts_sources_are_its_victims` · feedback · d2fb3a5511081a1c
+- `feedback_a_live_poll_repaint_destroys_focus_but_not_the_draft` · feedback · 523e21d446d18205
 - `feedback_a_media_query_adds_no_specificity` · feedback · 3b38eb8889861450
 - `feedback_a_metamorphic_relation_needs_a_non_vacuity_check` · feedback · 3ef9b3ad98824df5
 - `feedback_a_migration_expires_every_db_anchored_claim` · feedback · d122ca9d564b03b2
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `project_companion_memory_recall_fix_2026_06_12` · project · 13b2f5bbd040054c
 - `project_companion_memory_roadmap_2026_06_24` · project · 3c8a10210b97efd2
 - `project_companion_prj_scope_fix_2026_06_14` · project · 2deb9571eb5d1a66
-- `project_companion_production_ready_2026_05_25` · project · 3a3a73366a0f0366
-- … +279 more (all included in the fingerprint)
+- … +280 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]
