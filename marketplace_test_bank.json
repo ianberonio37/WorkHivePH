@@ -7054,7 +7054,7 @@
       "path": "happy",
       "lane": "sql",
       "oracle": "db-truth",
-      "status": "owed",
+      "status": "banked",
       "layers": [
         "S9-knowledge",
         "S4-db"
@@ -7072,7 +7072,7 @@
       "probe": {
         "file": "TB-S9-knowledge-retrievable-and-scoped.sql",
         "expect": {
-          "knowledge_written_only": "1",
+          "knowledge_written_only": "0",
           "knowledge_vector_spaces": "1",
           "knowledge_duplicate_sources": "0",
           "knowledge_hive_mismatched": "0",
