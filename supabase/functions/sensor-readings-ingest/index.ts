@@ -87,6 +87,7 @@ interface ReadingRow {
   value:       number;
   recorded_at: string;
   source:      string;
+  unit:        string | null;
   meta:        Record<string, unknown>;
   is_anomaly?: boolean;
 }
@@ -116,6 +117,27 @@ function baselineOf(values: number[]): { mean: number; std: number } | null {
   return { mean, std };
 }
 
+// ── unit resolution ──────────────────────────────────────────────────────────
+// v_sensor_recent EXPOSES `unit` so asset-hub can render telemetry WITH its unit (migration
+// ...068). Nothing filled it: `unit` appeared nowhere in this function and nowhere in its payload
+// contract, so every reading the plant bridge ever wrote had unit NULL. Measured 2026-08-20:
+// 77,814 SEEDED rows carry a unit, and the only 3 rows from this live path carry none — so the
+// telemetry panel would render `2.7` with nothing saying mm/s, which is precisely the bare-number
+// defect the units_declared oracle exists to catch.
+//
+// A bridge that KNOWS its unit is authoritative (a US plant may publish degF or in/s), so `unit`
+// is accepted from the payload. When absent we derive from the parameter, using the mapping the
+// 25,938-rows-per-parameter seed already established — and stamp meta.unit_source so a derived
+// unit is never mistaken for one the plant asserted. An UNKNOWN parameter is left NULL rather
+// than guessed: a wrong unit is worse than a missing one on a maintenance surface.
+const DERIVED_UNIT: Record<string, string> = {
+  vibration:    'mm/s',
+  temperature:  'celsius',
+  current_draw: 'ampere',
+};
+// Free text is never accepted: a unit is a label a person reads, so keep it short and printable.
+const UNIT_RE = /^[A-Za-z°][A-Za-z0-9°\/%._-]{0,15}$/;
+
 function validateReading(
   r: AnyRow, hive_id: string, idx: number,
 ): { ok: true; row: ReadingRow } | { ok: false; reason: string; index: number } {
@@ -141,6 +163,19 @@ function validateReading(
   if (ageMs > 365 * 86400 * 1000) return { ok: false, index: idx, reason: "recorded_at is older than 365 days" };
 
   const source = r.source ? String(r.source).toLowerCase() : "mqtt";
+
+  // Payload wins; derivation is the fallback. A malformed unit is REJECTED rather than silently
+  // dropped — a bridge sending garbage should learn, not have its label quietly replaced.
+  let unit: string | null = null;
+  let unitDerived = false;
+  if (r.unit !== undefined && r.unit !== null && String(r.unit).trim() !== "") {
+    const u = String(r.unit).trim();
+    if (!UNIT_RE.test(u)) return { ok: false, index: idx, reason: "unit fails allowlist regex" };
+    unit = u;
+  } else if (DERIVED_UNIT[parameter]) {
+    unit = DERIVED_UNIT[parameter];
+    unitDerived = true;
+  }
   if (!ALLOWED_SOURCES.has(source)) return { ok: false, index: idx, reason: `source '${source}' not allowed` };
 
   const meta = (r.meta && typeof r.meta === "object" && !Array.isArray(r.meta))
@@ -156,7 +191,11 @@ function validateReading(
       value:       valueNum,
       recorded_at: recordedDate.toISOString(),
       source,
-      meta,
+      unit,
+      // Provenance, not decoration: a DERIVED unit is this platform's inference from the
+      // parameter name, while a payload unit is what the plant asserted. Anything reading these
+      // rows later can tell the two apart instead of trusting a label whose origin is unknowable.
+      meta: unitDerived ? { ...meta, unit_source: 'derived' } : meta,
     },
   };
 }
