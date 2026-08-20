@@ -121,12 +121,31 @@ def keys_for_offsets(path, offsets):
 
 
 def capture(url, deps, wait_ms=2500, actions=None):
+    """Narrow the EXTERNAL .js deps by measured coverage; keep .html deps WIDE.
+
+    The asymmetry is deliberate and is the safety argument. V8 reports offsets for an
+    inline <script> relative to that script, not to the .html document, so mapping them
+    onto document positions would mint WRONG keys — and a wrong key is worse than a wide
+    one: it silently drops the real dependency and mints a false green. A page's own
+    inline functions are also exactly where a claim about that page lives, so keeping the
+    page wide costs little. utils.js is the shared library every row anchors to, and it is
+    where the whole cost sits, so that is what narrowing has to fix.
+
+    Python's Playwright has no page.coverage (Node-only), so this drives CDP Profiler
+    directly. Coverage must be armed BEFORE navigation or the load-time calls are missed.
+    """
     from playwright.sync_api import sync_playwright
     executed = dict((d, set()) for d in deps)
+    html_deps = [d for d in deps if d.endswith(".html")]
+    js_deps = [d for d in deps if d.endswith(".js")]
+
     with sync_playwright() as pw:
         b = pw.chromium.launch()
-        page = b.new_context().new_page()
-        page.coverage.start_js_coverage(raw_v8_coverage=True)
+        ctx = b.new_context()
+        page = ctx.new_page()
+        cdp = ctx.new_cdp_session(page)
+        cdp.send("Profiler.enable")
+        cdp.send("Profiler.startPreciseCoverage", {"callCount": True, "detailed": True})
         page.goto(url, wait_until="networkidle", timeout=30000)
         page.wait_for_timeout(wait_ms)
         for act in (actions or []):
@@ -135,24 +154,29 @@ def capture(url, deps, wait_ms=2500, actions=None):
                 page.wait_for_timeout(600)
             except Exception:
                 pass
-        cov = page.coverage.stop_js_coverage()
+        cov = (cdp.send("Profiler.takePreciseCoverage") or {}).get("result", [])
         b.close()
+
     for entry in cov:
         src_url = entry.get("url") or ""
-        for d in deps:
-            base = os.path.basename(d)
-            if base not in src_url:
+        for d in js_deps:
+            if os.path.basename(d) not in src_url:
                 continue
             offs = []
             for fn in entry.get("functions", []):
                 ranges = fn.get("ranges") or []
                 # count > 0 on the function's OWN range means it executed. A range with
-                # count 0 is code the walk loaded and never ran — exactly what must not
-                # be stamped, because stamping it is how a claim inherits a dependency
-                # it does not have.
+                # count 0 is code the walk loaded and never ran — exactly what must not be
+                # stamped, because stamping it is how a claim inherits a dependency it
+                # does not have.
                 if ranges and ranges[0].get("count", 0) > 0:
                     offs.append(ranges[0].get("startOffset", 0))
             executed[d] |= keys_for_offsets(d, offs)
+
+    V = _gate()
+    for d in html_deps:
+        executed[d] = set(k for k in V.fn_digests([d], version=4)
+                          if k != "::v" and "::top:" not in k)
     return dict((d, sorted(v)) for d, v in executed.items())
 
 
