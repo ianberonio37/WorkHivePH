@@ -71,7 +71,7 @@ Not to start, and buying them first is the most common mistake. Measurement and 
 
 Record every stoppage with asset, duration and cause. Without that record you cannot rank losses, prove improvement, or justify spending, and improvement that cannot be proven does not get funded.
 
-**[Try WorkHive free](https://workhiveph.com/#join)**: Free at the worker tier, offline-first, built for Philippine plants.
+**[Open the PM Scheduler](https://workhiveph.com/pm-scheduler.html)**: the step after recording stoppages, where a due date chases someone instead of sitting in a column. Pair it with the [Logbook](https://workhiveph.com/logbook.html) that captures asset, duration and cause. Free at the worker tier, offline-first. [Join WorkHive](https://workhiveph.com/#join) first if you do not have a hive yet.
 
 ## Sources
 
@@ -82,4 +82,4 @@ Record every stoppage with asset, duration and cause. Without that record you ca
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 8c616bf7b23af7da -->
+<!-- md-twin source-sha: d2a22672d723fd03 -->
