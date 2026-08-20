@@ -46,11 +46,23 @@ for _s in (sys.stdout, sys.stderr):
         pass
 
 # Action surfaces: the app's tools and the join flow.
+#
+# AN ORACLE'S VOCABULARY IS PART OF THE ORACLE, and this list was short by eight. The gate
+# reported 13 pages whose only next action was the generic /#join, which reads as an SXO
+# defect worth fixing by hand. Reading one of them showed the opposite: the shift-handover
+# guide already ends with <a href="/shift-brain.html" class="cta-btn">Open Shift Brain</a>,
+# a perfectly targeted CTA the gate simply could not see. Eight real tool pages were absent
+# from the allowlist, every one of them present on disk and linked as the "Open X" button of
+# exactly the article it belongs to. Adding them corrects a MEASUREMENT, and the alternative
+# was 13 hand-edits to pages that were never broken.
 ACTION_RE = re.compile(
     r'href="(/#join|/engineering-design\.html|/logbook\.html|/pm-scheduler\.html|'
     r'/skillmatrix\.html|/hive\.html|/assistant\.html|/analytics\.html|/inventory\.html|'
     r'/dayplanner\.html|/alert-hub\.html|/asset-hub\.html|/community\.html|/marketplace\.html|'
-    r'/resume\.html|/voice-journal\.html|/workhive/[^"]*)"')
+    r'/resume\.html|/voice-journal\.html|'
+    r'/shift-brain\.html|/integrations\.html|/project-manager\.html|/achievements\.html|'
+    r'/audit-log\.html|/ai-quality\.html|/plant-connections\.html|/ph-intelligence\.html|'
+    r'/workhive/[^"]*)"')
 
 
 def body_region(html: str) -> str:
@@ -141,6 +153,24 @@ def self_test() -> int:
        "footer chrome does not count — it is on every page")
     ck(ctas('<article><a href="/hive.html">a</a><a href="/hive.html">b</a></article>') == {"/hive.html"},
        "two links to one surface is one CTA")
+    # THE VOCABULARY GUARD. This gate once reported 13 pages as offering only the generic
+    # /#join. Eight of them already ended with a perfectly targeted CTA -- "Open Shift
+    # Brain", "Open Audit Log" -- pointing at real tool pages simply absent from ACTION_RE.
+    # The gate was not finding a content defect, it was describing its own blind spot, and
+    # acting on it would have meant 13 hand-edits to pages that were never broken. This
+    # fails if an article's cta-btn points somewhere the allowlist cannot see.
+    unseen = {}
+    for rel in _pages():
+        f = ROOT / rel
+        if not f.exists():
+            continue
+        body = body_region(f.read_text(encoding="utf-8", errors="replace"))
+        for href in re.findall(r'href="(/[a-z0-9\-]+\.html)"[^>]*class="cta-btn"', body):
+            if not ACTION_RE.search('href="%s"' % href):
+                unseen.setdefault(href, []).append(rel)
+    ck(not unseen,
+       "every cta-btn target is in ACTION_RE" + (f" (blind to: {sorted(unseen)})" if unseen else ""))
+
     rep = audit()
     ck(rep["pages"] > 100, f"audits the content surface ({rep['pages']} pages)")
     print("  self-test", "PASS" if ok else "FAIL")
