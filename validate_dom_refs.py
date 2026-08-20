@@ -122,6 +122,15 @@ def check_undefined_canonical_globals(pages):
         content = read_file(page)
         if content is None:
             continue
+        # Strip HTML COMMENTS FIRST. A comment may contain the literal text `<script>` --
+        # resume.html:285 and report-sender.html both say "must be in DOM before the <script>
+        # block runs" -- and the extractor below then starts capturing INSIDE the comment and
+        # swallows page markup until the next real </script>. Measured 2026-08-20: 3,546 chars of
+        # markup on resume.html and 1,922 on report-sender.html were being analysed as JavaScript.
+        # It changes no verdict TODAY only because none of CANONICAL_GLOBALS happens to appear in
+        # that markup; the day one does (an id, a data- attribute, visible text) the gate counts it
+        # as a USE and stops asking whether the page declares it -- a silent false PASS.
+        content = re.sub(r'<!--[\s\S]*?-->', ' ', content)
         # Extract inline script blocks only (skip <script src="...">)
         script_blocks = re.findall(r'<script(?:\s(?!src)[^>]*)?>(.+?)</script>',
                                    content, re.DOTALL | re.IGNORECASE)
