@@ -88,7 +88,7 @@ const RECORDER = (comps) => {
   // could see. So every transient state is ALSO recorded with its ancestor id-chain, and after the run each
   // component asks: did any of them happen in a region that CONTAINS me? A person waits on the card, not on
   // the <span> inside it.
-  const WAIT_WORD = /(loading|loading…|working|fetching|generating|calculating|rolling up|crunching|please wait)/i;
+  const WAIT_WORD = /\b(loading|loading…|working|fetching|generating|calculating|rolling up|crunching|please wait)\b/i;
   const chainIds = (e) => {
     const out = []; let n = e;
     for (let i = 0; i < 10 && n && n !== document.documentElement; i++) {

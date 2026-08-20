@@ -151,7 +151,7 @@ const SNAP = () => {
 // and pm-scheduler's "Live · refreshed on load · Based on your PM assets…", which is the page's provenance
 // chip re-appearing when its panel re-renders. Both are newly visible, so the newly-visible rule alone let
 // them through. Excluded by their own wording, harvested from this product's copy rather than invented.
-const WAIT_TEXT = /(thinking|loading|working|fetching|generating|calculating|saving|sending|please wait)|…$/i;
+const WAIT_TEXT = /\b(thinking|loading|working|fetching|generating|calculating|saving|sending|please wait)\b|…$/i;
 const CHIP_TEXT = /based on your|refreshed on load|^live\s*[·|]|updates automatically|source:/i;
 const isRealMessage = (t) => !!t && !WAIT_TEXT.test(t.trim()) && !CHIP_TEXT.test(t.trim());
 

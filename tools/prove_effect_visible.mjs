@@ -1004,7 +1004,7 @@ const run = async () => {
           }
           const all = [...document.querySelectorAll('button,[role="tab"],.filter-chip,.chip,.tab')]
             .filter((e) => e.getClientRects().length)
-            .find((e) => /^\s*(all|show all|all projects|all items)/i.test((e.textContent || '').trim()));
+            .find((e) => /^\s*(all|show all|all projects|all items)\b/i.test((e.textContent || '').trim()));
           if (all) { all.click(); done.push('all-filter'); }
           const mine = document.getElementById('btn-view-mine');
           if (mine) { mine.click(); done.push('view-mine'); }

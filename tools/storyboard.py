@@ -76,7 +76,7 @@ FEATURE_KEYWORDS: list[tuple[str, str, str]] = [
     (r"audit log|compliance|regulator|traceab", "audit_log", "Audit Log & Compliance"),
     (r"dashboard|supervisor|whole plant|at a glance", "hive_dashboard", "Hive Dashboard"),
     (r"engineering (design|calc)|pump sizing|tdh|standard", "engineering_calc", "Engineering Design Calculator"),
-    (r"resume|cv|curriculum vitae|ats|job applic|portfolio", "resume_builder", "Resume Builder"),
+    (r"resume|\bcv\b|curriculum vitae|ats|job applic|portfolio", "resume_builder", "Resume Builder"),
 ]
 
 # Feature display name → journey key (for the idea's primary solution_feature).

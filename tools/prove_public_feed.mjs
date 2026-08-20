@@ -173,7 +173,7 @@ const run = async () => {
       .exec(pop.allText || pop.body);
     const readOnly = /READ-?ONLY/i.exec(pop.body);
     // The failure mode is the opposite of a bad message: a control that LOOKS available and fails.
-    const deadControls = pop.retry.filter((t) => /^(post|reply|comment|like|react)/i.test(t));
+    const deadControls = pop.retry.filter((t) => /^(post|reply|comment|like|react)\b/i.test(t));
     const ok = !!(explains && readOnly) && deadControls.length === 0;
     rec('why_refused_V1_populated', pop.cards > 0 ? ok : null,
       pop.cards === 0 ? 'no populated feed to judge; UNGRADED'
@@ -285,7 +285,7 @@ const run = async () => {
     const z = await zp.evaluate(readPage);
     const saysEmpty = /no public posts yet|be the first|nothing (here|yet)/i.exec(z.body);
     const saysFailed = /could ?n.?t|could not|unable|failed|error|went wrong/i.test(z.body);
-    const promisesSignedIn = /(post|share|reply)[^.]{0,40}now|start posting|create a post/i
+    const promisesSignedIn = /(post|share|reply)[^.]{0,40}\bnow\b|start posting|create a post/i
       .exec(z.body);
     const okWhy = served > 0 && !!saysEmpty && !saysFailed;
     rec('why_refused_V3_empty', served ? okWhy : null,

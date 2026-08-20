@@ -96,7 +96,7 @@ const skip  = (name, detail) => results.push({ ok: true, skipped: true, name, de
 // correctly, the quota simply said no. Classifying it honestly keeps the gate believable.
 // TEETH ARE PRESERVED: only rate-limit lines are excused, and ONLY when every captured error is
 // one. Any other console error still FAILs, and a 429 mixed with a real error still FAILs.
-const isRateLimit = (t) => /429|too many requests|rate.?limit/i.test(t || '');
+const isRateLimit = (t) => /\b429\b|too many requests|rate.?limit/i.test(t || '');
 
 (async () => {
   const browser = await chromium.launch({ headless: !HEADED });

@@ -453,7 +453,7 @@ def check_badge_trigger_column_match():
     # community_post_xp_awards insert (ON CONFLICT (post_id, reason), migration 20260806000059).
     # It then reported that PostgreSQL "will reject the trigger" -- about a function the database is
     # currently running. A claim that checkable should be checked: pg_proc has it.
-    _sb = re.search(r'INSERT INTO skill_badges', fn_body)
+    _sb = re.search(r'INSERT INTO skill_badges\b', fn_body)
     _stmt = ''
     if _sb:
         _end = fn_body.find(';', _sb.end())

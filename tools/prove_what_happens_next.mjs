@@ -275,7 +275,7 @@ const CONFIRM_KEY = /toast|alert|status/i;
 // exists to read. Both live in the same toast, so both are rank 0 - and the window used to BREAK on the
 // first rank-0 candidate, which meant the in-flight message reliably beat the confirmation to the exit.
 // Recognising wait wording keeps the window open for the answer.
-const WAIT_WORDING = /(pulling|loading|working|fetching|generating|calculating|saving|sending|submitting|fitting|grading|computing|analys\w*|thinking|please wait)|\.\.\.$|…$/i;
+const WAIT_WORDING = /\b(pulling|loading|working|fetching|generating|calculating|saving|sending|submitting|fitting|grading|computing|analys\w*|thinking|please wait)\b|\.\.\.$|…$/i;
 const freshCandidates = (now, before) => {
   const was = new Map(before.map((n) => [n.key, n.text]));
   const out = [];

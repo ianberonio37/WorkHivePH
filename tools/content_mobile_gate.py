@@ -59,7 +59,7 @@ MEDIA_Q = re.compile(r"@media[^{]*\(")
 # Tailwind pages carry NO @media block of their own — the breakpoints are generated
 # at runtime from `sm:` / `md:` / `lg:` / `xl:` utility classes. Judging responsiveness
 # by @media alone scored 27/114 on a site built from one shared responsive template,
-# which is the same wrong-proxy error as matching `width` inside `max-width`.
+# which is the same wrong-proxy error as matching `\bwidth` inside `max-width`.
 TW_BREAKPOINTS = (" sm:", " md:", " lg:", " xl:", " 2xl:")
 VIEWPORT = re.compile(r'<meta[^>]+name=["\']viewport["\'][^>]*content=["\']([^"\']+)', re.I)
 PROSE_FS = re.compile(r"\.prose-wh\s*\{[^}]*font-size\s*:\s*([\d.]+)(rem|px)", re.S)

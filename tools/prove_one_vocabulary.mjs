@@ -82,7 +82,7 @@ const scan = async (page) => page.evaluate((GROUPS) => {
   // Ian settled the real drift (2026-08-19: "asset" everywhere, "hive" everywhere) and these two were
   // the residue that kept both concepts reading MIXED afterwards. They are stripped before matching, so
   // the oracle judges the vocabulary and not the brand.
-  const PROPER = [/machine\s+design/ig, /autonomous\s+maintenance\s+crew/ig, /AMC.{0,12}crew/ig];
+  const PROPER = [/machine\s+design/ig, /autonomous\s+maintenance\s+crew/ig, /\bAMC\b.{0,12}crew/ig];
   let joined = labels.join(' | ');
   for (const re of PROPER) joined = joined.replace(re, ' ');
   const blob = ' ' + joined + ' ';
