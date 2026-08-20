@@ -27,7 +27,11 @@ ALL_PUBLIC = all_public_pages()
 
 # Em-dash characters: U+2014 and the rarer U+2013 (en-dash) when surrounded
 # by spaces (the visible " – " pattern). We DO NOT flag bare hyphens.
-EM_DASH_RE = re.compile(r"[—]|\s–\s")
+# An en-dash only counted when SPACE-WRAPPED, which is not how real copy writes a range:
+# index.html ships "₱800K–₱2.4M in knowledge walks out the door" in marketing text and
+# "Username must be 3–30 characters" in a message a person reads, and BOTH slipped through.
+# A bare en-dash between word characters is the range form, so it is caught now too.
+EM_DASH_RE = re.compile(r"[—–]")  # ANY em/en dash: the name says "no em or en dashes", and now that block + trailing comments and the placeholder glyph are stripped, no qualifier is needed
 
 # Strip JSON-LD <script type="application/ld+json">...</script> blocks first
 # because schema authors sometimes legitimately use em-dashes inside strings.
@@ -44,7 +48,17 @@ HTML_COMMENT_RE = re.compile(r"<!--[\s\S]*?-->")
 # Strip JS line comments — same logic: code comments are not user-visible
 # body text. `canonical-allow:` markers and developer notes routinely
 # contain em-dashes for readability.
-JS_LINE_COMMENT_RE = re.compile(r"^[ \t]*//[^\n]*$", re.MULTILINE)
+# Line comments were only stripped when the // started the LINE, so a TRAILING comment
+# (`const d = x; // 4–6s`) still counted as body text -- and /* */ BLOCK comments were never
+# stripped at all, so two long contrast notes in index.html were reported as public copy.
+# Measured 2026-08-20: all 3 of this gate's hits on index.html were comments or the
+# placeholder glyph, while the 2 REAL user-visible en-dashes went unreported. Same rationale
+# the file already states: code comments are not user-visible body text.
+JS_LINE_COMMENT_RE = re.compile(r"(?<!:)//[^\n]*")
+JS_BLOCK_COMMENT_RE = re.compile(r"/\*[\s\S]*?\*/")
+# The platform renders a bare em-dash as its EMPTY-VALUE glyph (textContent = "—"). That is a
+# UI convention, not prose, so it is not a violation.
+PLACEHOLDER_GLYPH_RE = re.compile(r"""['"]—['"]""")
 
 
 def check_em_dashes(pages):
@@ -56,9 +70,11 @@ def check_em_dashes(pages):
         if content is None:
             continue
         # Strip JSON-LD blocks + HTML comments + JS line comments before scanning
-        scannable = JS_LINE_COMMENT_RE.sub(
-            "", HTML_COMMENT_RE.sub("", JSON_LD_RE.sub("", content))
-        )
+        scannable = JSON_LD_RE.sub("", content)
+        scannable = HTML_COMMENT_RE.sub("", scannable)
+        scannable = JS_BLOCK_COMMENT_RE.sub("", scannable)
+        scannable = JS_LINE_COMMENT_RE.sub("", scannable)
+        scannable = PLACEHOLDER_GLYPH_RE.sub("", scannable)
         matches = list(EM_DASH_RE.finditer(scannable))
         if matches:
             # Sample first 3 matches with surrounding context for the report
