@@ -85,7 +85,18 @@ def battery_index() -> dict:
     out = {}
     for p in d.get("pages", []):
         if isinstance(p, dict) and p.get("page"):
-            out[p["page"].replace(".html", "")] = {"ok": p.get("ok"), "findings": len(p.get("findings", []))}
+            # COUNT BY SEVERITY, not by length. page_battery grades sev 1..3 and its own --gate
+            # trips only on sev >= 3; a raw len() made a sev-1 NOTE weigh the same as a broken
+            # page. Measured 2026-08-20: alert-hub and shift-brain were reported as coverage GAPS
+            # on four findings that are all the hive AI day-ceiling answering 429 -- environmental,
+            # already classified sev1/sev2 by the battery, and the third surface where one rate
+            # limiter has masqueraded as a defect. Low-sev findings are still REPORTED below; they
+            # just no longer manufacture a gap.
+            _f = [x for x in p.get("findings", []) if isinstance(x, dict)]
+            _blocking = [x for x in _f if int(x.get("sev", 3) or 3) >= 3]
+            out[p["page"].replace(".html", "")] = {"ok": p.get("ok"),
+                                                   "findings": len(_blocking),
+                                                   "notes": len(_f) - len(_blocking)}
     return out
 
 def main() -> int:
