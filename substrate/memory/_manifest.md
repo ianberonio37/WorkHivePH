@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:779-files
-source_sha: ce78fb3fe1334793
+source_sha: d64df6f20d8f79ca
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -39,7 +39,7 @@ Entries (name · type · sha):
 - `feedback_a_crashlooping_sidecar_failed_26_tests` · feedback · 5d9635f833659a4e
 - `feedback_a_credential_lived_where_no_gate_looked` · feedback · 89ae2e7af003f369
 - `feedback_a_dead_fixture_invents_page_defects` · feedback · 4132e64aeb98e099
-- `feedback_a_dead_session_read_as_removal` · feedback · 98d8c81ff6c5407e
+- `feedback_a_dead_session_read_as_removal` · feedback · e3da539a1082ef88
 - `feedback_a_declaration_is_not_a_registration` · feedback · 26077d77981fc728
 - `feedback_a_degraded_instrument_is_a_pivot_not_a_ceiling` · feedback · 6019f6569a1dfbd2
 - `feedback_a_demo_that_films_an_empty_state` · feedback · 7341c21a91abf999
@@ -201,7 +201,7 @@ Entries (name · type · sha):
 - `feedback_gate_registration_cascade_exposes_bugs` · feedback · a5f40dfbd74a08b2
 - `feedback_gates_lock_refusal_not_permission` · feedback · c5541f9108685afc
 - `feedback_gates_that_charge_for_documentation` · feedback · 24d4b9ef4672c1bf
-- `feedback_gates_that_measure_prose_and_ratchets_that_loosen` · feedback · a7065ea1698558dc
+- `feedback_gates_that_measure_prose_and_ratchets_that_loosen` · feedback · 34397b4f700188a2
 - `feedback_grep_matched_the_comment_not_the_link` · feedback · 6ec5edc64e89c2cb
 - `feedback_handoff_trigger_phrases` · feedback · 291e2bd41d9ee4ad
 - `feedback_handover_report` · feedback · 3d092d6bf0d67b00
