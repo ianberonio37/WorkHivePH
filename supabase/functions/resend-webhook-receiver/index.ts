@@ -152,7 +152,7 @@ serveObserved("resend-webhook-receiver", async (req: Request) => {
       // messageId comes from the webhook PAYLOAD, so it is provider-supplied input going into a
       // LIKE pattern. An unescaped % or _ would widen the match and could resolve the WRONG
       // hive for a bounce. Escape the LIKE metacharacters (and the escape char itself first).
-      .ilike("detail", `%resend_id=${messageId.replace(/\/g, "\\\\").replace(/[%_]/g, (m) => "\\" + m)}%`)
+      .ilike("detail", `%resend_id=${messageId.replace(/\\/g, "\\\\").replace(/[%_]/g, (m) => "\\" + m)}%`)
       .order("triggered_at", { ascending: false })
       .limit(1);
     hiveId = sent?.[0]?.hive_id ?? null;
