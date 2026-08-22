@@ -71,3 +71,4 @@ npx supabase functions deploy gcash-receipt-inbound --no-verify-jwt
 # deploying it with --no-verify-jwt would open an Azure-billed endpoint to the internet. It follows
 # the same separate-deploy rule the runbook already applies to supervisor-reset-password. See
 # PRODUCTION_DEPLOY_RUNBOOK.md.
+npx supabase functions deploy resend-webhook-receiver --no-verify-jwt
