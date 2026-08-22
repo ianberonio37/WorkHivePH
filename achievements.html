@@ -976,7 +976,7 @@
       // whListError) instead of a stuck skeleton or blank panel.
       console.warn('hive standings load failed:', membersErr.message || membersErr);
       if (standingsEl && typeof whListError === 'function') {
-        whListError(standingsEl, "Couldn’t load hive standings. Check your connection and try again.", () => loadHiveStandings());
+        whListError(standingsEl, whReadError(membersErr, 'hive standings'), () => loadHiveStandings());
       }
       return;
     }
@@ -1102,6 +1102,14 @@
 
   // ── Main init ────────────────────────────────────────────────
   async function init() {
+    /* THE DATA HALF OF THE COLD-CACHE FIX (2026-08-22). The 2026-08-14 note above fixed the
+       REDIRECT half: with localStorage cleared and the session alive, the bounce now waits for
+       restoreIdentityFromSession. But every read below still fired immediately, so on that same
+       cold-cache load WORKER_NAME was '' at query time, .eq('worker_name','') matched nothing, and
+       a signed-in person with 274 levels saw an all-zero page with no error - the cure existed and
+       ran too late. Awaiting the restore costs nothing warm (it resolves from cache in one tick)
+       and makes the cold path read as the person, not as nobody. Measured: composite 0 -> 274. */
+    await _identityRestored;
     const _acChip = document.getElementById('achievements-source-chip');
     if (_acChip && typeof renderSourceChip === 'function') {
       _acChip/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = renderSourceChip({
@@ -1146,7 +1154,7 @@
       console.error('achievements load failed:', achRes.error.message || achRes.error);
       const _body = document.getElementById('achievements-body');
       if (_body && typeof whListError === 'function') {
-        whListError(_body, "Couldn’t load your achievements. Check your connection and try again.", () => init());
+        whListError(_body, whReadError(achRes.error, 'your achievements'), () => init());
       }
       if (typeof showToast === 'function') showToast('Achievements failed to load. Tap Retry.', 'warn');
       return;

@@ -251,6 +251,15 @@ def main(argv):
     print(f"\n  {n} non-total paginated orders across {len(by_file)} files "
           f"({chains} paginated+ordered chains scanned)")
 
+    # A per-run report, so this gate can TESTIFY about when it last read the current files. Until
+    # 2026-08-21 it wrote only the baseline (touched on change), which meant a bank row backed by
+    # this gate could never be honestly re-stamped: the re-stamper's recency rail compares the
+    # gate's artifact mtime against the row's dep mtimes, and a gate with no artifact has no word.
+    with open(os.path.join(ROOT, "paginated_order_totality_report.json"), "w", encoding="utf-8") as f:
+        json.dump({"violations": n, "files": len(by_file), "chains_scanned": chains,
+                   "_doc": "per-run scan result; the ratchet lives in paginated_order_baseline.json"},
+                  f, indent=2)
+
 
     base = None
     if os.path.exists(BASELINE):

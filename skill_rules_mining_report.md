@@ -15,7 +15,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | architect | 2 | 100% | 0 |
 | data-engineer | 1 | 100% | 0 |
 | designer | 7 | 78% | 34 |
-| frontend | 20 | 89% | 58 |
+| frontend | 20 | 89% | 59 |
 | mobile-maestro | 7 | 83% | 6 |
 | qa-tester | 6 | 96% | 10 |
 | security | 14 | 95% | 17 |
@@ -101,8 +101,8 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 |---|---|---:|---|---|
 | `designer_btn_primary_canonical_gradient` | designer | 0% (0/15) | html_and_js | convention |
 | `mobile_pdf_pagebreak_covers_p` | mobile-maestro | 0% (0/2) | html_pages | convention |
+| `frontend_classlist_over_classname` | frontend | 47% (20/42) | html_pages | anti_pattern |
 | `security_voice_transcript_length_cap` | security | 50% (1/2) | edge_fns | convention |
-| `frontend_classlist_over_classname` | frontend | 50% (21/42) | html_pages | anti_pattern |
 | `designer_uses_canonical_orange` | designer | 55% (22/40) | html_pages | convention |
 | `frontend_no_innerhtml_in_foreach` | frontend | 59% (25/42) | html_pages | anti_pattern |
 | `frontend_currency_uses_shared_formatter` | frontend | 71% (5/7) | html_pages | convention |
@@ -148,7 +148,7 @@ mined against the codebase. Source manifest: `skill_rules_manifest.json`.
 | `designer_card_radius_not_125rem` | designer | 100% (42/42) | html_pages | anti_pattern |
 | `a11y_img_has_alt` | qa-tester | 100% (42/42) | html_pages | anti_pattern |
 | `kg_voice_handler_must_call_platform_rpc` | architect | 100% (1/1) | js_modules | convention |
-| `kg_migrations_no_broadcast_across_hives` | architect | 100% (549/549) | migrations | anti_pattern |
+| `kg_migrations_no_broadcast_across_hives` | architect | 100% (550/550) | migrations | anti_pattern |
 | `frontend_detail_toggle_uses_shared_helper` | frontend | 100% (17/17) | html_pages | convention |
 | `frontend_calm_dashboard_has_verdict` | frontend | 100% (13/13) | html_pages | convention |
 | `frontend_calm_dashboard_uses_details_disclosure` | frontend | 100% (13/13) | html_pages | convention |

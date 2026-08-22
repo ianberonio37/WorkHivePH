@@ -1568,17 +1568,45 @@ export function layout(target) {
   // already measures. Exempt an element whose overflow is fully accounted for by its widest
   // out-of-flow child; a genuine in-flow overflow exceeds that, so this narrows the check without
   // blinding it — the same shape as the sr-only and negative-margin exemptions above.
-  const outOfFlowBleed = el => Math.max(0, ...[...el.children].map(c => {
+  // DESCENDANTS, not only children (2026-08-22): community's #profile-avatar was flagged for its
+  // GRANDCHILD - .wh-avatar-lvl, the level pill deliberately hung below the circle at bottom:-8px,
+  // position:absolute by design (utils.js documents the hang). An out-of-flow box cannot widen its
+  // ancestor's layout no matter its depth, and the child-only sweep missed exactly the depth the
+  // avatar markup uses. Bounded to 40 descendants so a huge container never turns this lens O(n²).
+  const outOfFlowBleed = el => Math.max(0, ...[...el.querySelectorAll('*')].slice(0, 40).map(c => {
     const pos = getComputedStyle(c).position;
     if (pos !== 'absolute' && pos !== 'fixed') return 0;
     return Math.max(0, Math.round(c.getBoundingClientRect().width) - el.clientWidth);
   }));
+  // AN ELEMENT'S OWN DECORATIVE PSEUDO IS NOT A CONTENT OVERFLOW (2026-08-21, community walk).
+  // The tier-legend avatar ring is ::before/::after halos that deliberately extend past the box
+  // (negative inset — and Chromium counts even a transformed pseudo's bounds in scrollWidth, so no
+  // halo-by-pseudo can ever satisfy a raw scrollWidth check). The oracle protects CONTENT — squeezed
+  // text, clipped children — and a pseudo cannot join a DOM Range, so measuring the element's REAL
+  // contents with one separates the two: if everything real fits while an absolute pseudo renders,
+  // the overflow is the decoration. Genuine squeezed text lays out wider than the box and the Range
+  // still catches it, so this narrows the check without blinding it — the fourth exemption of the
+  // same shape as sr-only, negative-margin and out-of-flow-child above.
+  const pseudoDecorOnly = el => {
+    const rendered = s => s.content !== 'none' && s.position === 'absolute';
+    const hasPseudo = n => rendered(getComputedStyle(n, '::before')) || rendered(getComputedStyle(n, '::after'));
+    // the decorating pseudo may live on a DESCENDANT while the scroll overflow propagates to the
+    // container (2026-08-22: #profile-avatar flagged for the tier ring on its inner .wh-avatar) -
+    // the Range still proves every REAL box fits, so the excess is the decoration wherever it hangs
+    if (!hasPseudo(el) && ![...el.querySelectorAll('*')].slice(0, 40).some(hasPseudo)) return false;
+    try {
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      return Math.round(r.getBoundingClientRect().width) <= el.clientWidth + 2;
+    } catch { return false; }
+  };
   const offenders = [...m.querySelectorAll('*')].filter(el =>
     el.scrollWidth > el.clientWidth + 2 && el.clientWidth > 0 &&
     getComputedStyle(el).overflowX === 'visible' &&
     !el.closest('details:not([open])') && !srOnly(el) && vis(el) &&
     (el.scrollWidth - el.clientWidth) > negPull(el) &&
-    (el.scrollWidth - el.clientWidth) > outOfFlowBleed(el)
+    (el.scrollWidth - el.clientWidth) > outOfFlowBleed(el) &&
+    !pseudoDecorOnly(el)
   ).map(el => ({ el: name(el), content: el.scrollWidth, box: el.clientWidth,
                  by: el.scrollWidth - el.clientWidth }))
    .sort((a, b) => b.by - a.by).slice(0, 8);
@@ -1907,6 +1935,13 @@ export async function availability(opts) {
 
   // ── slow_honest ─────────────────────────────────────────────────────────────────────────────
   {
+    // THE BASELINE IS RE-CAPTURED HERE, not inherited from availability()'s start: four inductions
+    // have run since then, and one of them can legitimately leave an empty-state invitation on
+    // screen (a 200-[] serve resolves a list to genuinely-zero). Judging THIS block against the
+    // pre-induction baseline attributed that leftover to the slow read and failed
+    // marketplace-seller-profile for a claim it never made mid-hang (2026-08-21; the isolated
+    // replication kept the loaded review on screen for the whole hang).
+    const baselineInviteNow = INVITE.test(txt());
     window.fetch = async (i, x) => {
       const u = typeof i === 'string' ? i : (i && i.url) || '';
       { const b = blockWrite(i, x, writeUrls); if (b) { writes++; return b; } }
@@ -1916,7 +1951,17 @@ export async function availability(opts) {
       return orig(i, x);
     };
     rerun(0);                                    // deliberately NOT awaited — sampled mid-flight
-    await new Promise(r => setTimeout(r, 2600));
+    await new Promise(r => setTimeout(r, 800));
+    if (reads === 0) {
+      // No loader reachable from window (IIFE-scoped pages) — drive the page's OWN route back to
+      // the network the way failures()' forceRead does: click an inactive tab/chip, fenced against
+      // navigation. Only then can a mid-hang sample measure anything real.
+      const el = [...m().querySelectorAll(
+        '[role="tab"]:not([aria-selected="true"]),.section-tab:not(.active),.cat-chip,.filter-chip,[data-section]')]
+        .filter(e => e.getClientRects().length && !navigatesAway(e))[0];
+      if (el) clickNoNav(el);
+    }
+    await new Promise(r => setTimeout(r, 1800));
     const t = txt();
     const busy = m().querySelectorAll(BUSY_SEL).length;
     const invites = INVITE.test(t);
@@ -1930,12 +1975,21 @@ export async function availability(opts) {
       vis(el) && el.children.length === 0 && INVITE.test(el.innerText || ''))[0] : null;
     out.slow_honest = {
       busySignals: busy,
-      prematureEmptyState: invites && !baselineInvite,   // "be the first" while it does not yet know
-      inviteAtRest: baselineInvite,
+      prematureEmptyState: invites && !baselineInviteNow,   // "be the first" while it does not yet know
+      inviteAtRest: baselineInviteNow,
       inviteText: inviteEl ? (inviteEl.innerText || '').trim().slice(0, 70) : ((txt().match(INVITE) || [])[0] || null),
       saysLoading,
       enabledActionControls: liveActions,
-      ok: (busy > 0 || saysLoading) && !(invites && !baselineInvite),
+      readsInFlight: reads,
+      // A LOADING STATE MEASURED WITH NOTHING LOADING IS VACUOUS - the same zero-reads guard
+      // failures() carries (its comment block above). marketplace-seller-profile keeps loadSeller/
+      // loadListings closure-scoped in an IIFE, so rerun() re-fired nothing, no read hung, and the
+      // quiet page scored `false` as if it had hidden a load it was never given (2026-08-21).
+      // `null` + note = abstain with mechanism, which the walker maps to declared-na, not to a pass.
+      ok: reads === 0 ? null : ((busy > 0 || saysLoading) && !(invites && !baselineInviteNow)),
+      note: reads === 0 ? 'no loader reachable from window (page-scoped symbols) - zero reads were '
+                        + 'induced, so no in-flight moment existed for this oracle to judge; a false '
+                        + 'here would indict a page that was never shown a slow read' : undefined,
     };
     await new Promise(r => setTimeout(r, 6200));  // let the hang drain before the next induction
   }

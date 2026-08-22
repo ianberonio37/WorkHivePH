@@ -10,23 +10,12 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SEEDER = 'http://127.0.0.1:5000';
 const REST = /\/rest\/v1\/(?!rpc\/)/;
 
+// Identity resolves at RUNTIME via the journeys helper — a pinned hive UUID rots at every reseed
+// and turns this diagnostic into a silent no-op (the test-hive-fixtures class; converted 2026-08-23).
+import { signIn, assertSignedIn } from './live_page_journeys.mjs';
 const browser = await chromium.launch();
 const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-{
-  const s = await context.newPage();
-  await s.goto(`${SEEDER}/workhive/shift-brain.html`, { waitUntil: 'domcontentloaded' });
-  await s.waitForFunction(() => typeof window.getDb === 'function' && !!window.supabase, { timeout: 20000 }).catch(() => {});
-  await s.evaluate(async () => {
-    try {
-      const db = window._whSupabaseClient || window.getDb('http://127.0.0.1:54321', window.SUPABASE_KEY);
-      await db.auth.signInWithPassword({ email: 'pabloaguilar@auth.workhiveph.com', password: 'test1234' });
-      localStorage.setItem('wh_active_hive_id', 'c9def338-fd73-4b19-8ef1-ee57625953d6');
-      localStorage.setItem('wh_last_worker', 'Pablo Aguilar');
-    } catch (e) {}
-  });
-  await s.waitForTimeout(1200);
-  await s.close();
-}
+await assertSignedIn(signIn(context, 'supervisor'));
 
 // 1. degraded on marketplace.html — the banner is included, so WHY was it not seen?
 {

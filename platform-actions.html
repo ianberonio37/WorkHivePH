@@ -1207,6 +1207,15 @@
         if (!okToPublish) return;
       }
 
+      // az_fail_offline: refuse the write AT THE DOOR when the connection is gone. A PATCH fired
+      // offline leaves the page with an unknowable outcome — the server may or may not receive it,
+      // so a retry risks applying the same triage twice. Refuse and say nothing was sent
+      // (tests/failure-injection.spec.ts az_fail_offline holds every write surface to this).
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        showToast('You appear to be offline. Nothing was sent: reconnect and save again.', 'error');
+        return;
+      }
+
       btn.disabled = true; btn.textContent = 'Saving…';
       try {
         // Optimistic concurrency: two admins triaging the same item would otherwise clobber each

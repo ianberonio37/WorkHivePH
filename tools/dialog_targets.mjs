@@ -102,23 +102,25 @@ export const TARGETS = [
   // were checked for WRITES before being driven (`generateHandover()` and logbook's `openModal(id)` each
   // contain no insert/update/upsert/delete/rpc/functions.invoke), because this prover must not touch the
   // shared test database.
+  // The entry point WAS unreachable for a while: #handover-panel shipped class="hidden" and nothing ever
+  // removed it, so a fully built flow (generateHandover() populates #handover-body, whModalA11y via the
+  // id array, source chip, "Handover to" field) had its door bricked up — recorded 2026-08-13 as an
+  // `unreachable` finding rather than auto-fixed, pending the placement question. Resolved 2026-08-21:
+  // the panel's own placement (main flow, after the Hive Activity disclosure, with heading + description
+  // + CTA) IS the designed entry point — the .hidden was an unflipped parking flag on a finished feature,
+  // not a decision. The class was removed; the panel now renders in place.
+  // PRECONDITION: hive raises #intent-capture (a first-run prompt) on load for a fresh profile, and it
+  // overlays the whole page — elementFromPoint at the handover button's center resolves into the prompt,
+  // so the click times out. Dismiss it via its own "Later" button (#intent-skip, data-wh-close at
+  // hive.html:969) — the real path a person takes, not a style hack.
   { page: 'hive', view: 'V2', modal: 'handover-sheet', openBy: 'click', opener: '.handover-btn',
-    unreachable:
-      'THE SHIFT HANDOVER FEATURE HAS NO REACHABLE ENTRY POINT. The only control that calls '
-      + 'generateHandover() is .handover-btn at hive.html:1417, and it lives inside '
-      + '#handover-panel (hive.html:1411) which ships class="hidden". Repo-wide, across every .js and '
-      + '.html, "handover-panel" appears ONLY at that declaration — nothing ever removes the class — and '
-      + 'generateHandover is referenced only by its definition at :5616 and that one button. Measured '
-      + 'live at 390, 641 and 1280: the panel computes display:none at every width, still carries '
-      + '.hidden, and the button has zero height, so this is not a breakpoint or a collapsed <details>. '
-      + 'The feature itself is fully built — generateHandover() populates #handover-body, the sheet is '
-      + 'registered with whModalA11y via the id array at :1565, there is a source chip '
-      + '(#handover-source-chip) and a "Handover to (incoming technician)" field — so a complete, wired '
-      + 'shift-handover flow is shipped with its door bricked up. NOT auto-fixed, because WHERE the entry '
-      + 'point belongs (the board, a nav item, the shift card) is a design decision, and un-hiding a '
-      + 'panel blind could surface something deliberately parked.',
-    ref: 'hive.html:1417 .handover-btn onclick="generateHandover()" reveals #handover-sheet; registered '
-       + 'via the id array at hive.html:1565; panel #handover-panel at :1411 is class="hidden"' },
+    pre: 'var m = document.getElementById("intent-capture"); '
+       + 'if (m && getComputedStyle(m).display !== "none") { '
+       + 'var b = m.querySelector("[data-wh-close]"); '
+       + 'if (!b) throw new Error("intent-capture is open but has no [data-wh-close] to dismiss it"); '
+       + 'b.click(); }',
+    ref: 'hive.html:1427 .handover-btn onclick="generateHandover()" reveals #handover-sheet; registered '
+       + 'via the id array at hive.html:1575; panel #handover-panel at :1421 (un-hidden 2026-08-21)' },
   // TWO RENDER PATHS, so the selector is the ATTRIBUTE, not the class. `.entry-card` (logbook.html:3767)
   // measured count=0 even at 10s on a hive that demonstrably has entries — because the list actually on
   // screen is the second path at :5823, an inline-styled div with `onclick="openModal('<id>')"` and no
@@ -341,7 +343,13 @@ export const TARGETS = [
   // reporting success. It is installed via addInitScript in a FRESH context that is closed afterwards, so
   // it cannot leak into another target. Non-writing by construction: it only ever makes a READ fail or
   // return an empty array.
+  // stateMarker is the SUBJECT PROOF: the selector that must exist for the row to be measuring the state
+  // it names. Without it, a prover that skipped the inject would bank the populated feed under BOTH rows —
+  // one reading recorded for two different subjects. The escape prover refuses to grade when it is absent.
+  // The ESCAPE contract for a state view is INVERTED: Escape must LEAVE the state intact (a keypress that
+  // wiped an error message would hide the failure from the person mid-read).
   { page: 'public-feed', view: 'V2', modal: 'feed-list', kind: 'state', mayStartOpen: true,
+    stateMarker: '#feed-list .wh-list-error',
     inject: `(() => { const of = window.fetch; window.fetch = function (u, o) {
       const s = typeof u === 'string' ? u : (u && u.url) || '';
       if (s.includes('v_community_posts_truth')) {
@@ -350,8 +358,10 @@ export const TARGETS = [
       }
       return of.apply(this, arguments); }; })()`,
     ref: 'public-feed.html:306 whListError(#feed-list, msg, retry) — the error state the anatomy names as '
-       + 'V2; reached by failing the v_community_posts_truth read at window.fetch' },
+       + 'V2; reached by failing the v_community_posts_truth read at window.fetch; marker .wh-list-error '
+       + 'is what whListError (utils.js:1447) renders' },
   { page: 'public-feed', view: 'V3', modal: 'feed-list', kind: 'state', mayStartOpen: true,
+    stateMarker: '#feed-list .empty-state',
     inject: `(() => { const of = window.fetch; window.fetch = function (u, o) {
       const s = typeof u === 'string' ? u : (u && u.url) || '';
       if (s.includes('v_community_posts_truth')) {

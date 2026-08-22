@@ -476,7 +476,9 @@
     { id: 'amc',     label: 'AMC',     icon: '🤖' },
     { id: 'risk',    label: 'Risk',    icon: '🔴' },
     { id: 'pm',      label: 'PM',      icon: '⚠️' },
-    { id: 'stock',   label: 'Stock',   icon: '📦' },
+    // 'Stock' alone made the chip's count read as a stock LEVEL ("Stock 3" = 3 on hand?) when it
+    // counts stock ALERTS - the one tab whose label is itself a quantity word (units_visible catch).
+    { id: 'stock',   label: 'Stock alerts', icon: '📦' },
     { id: 'staging', label: 'Staging', icon: '📥' },
     { id: 'pattern', label: 'Pattern', icon: '🧬' },
     { id: 'system',  label: 'System',  icon: '⚙️' },
@@ -1115,6 +1117,26 @@
     // so #feed never flashes blank before alerts render (shared whListSkeleton).
     if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('feed'), 5);
 
+    // ...and the SAME state inside #amc-card, which is the V2 view the anatomy names. The reveal has
+    // to happen HERE, before the FIRST await: under a slow backend every read in this function is
+    // delayed, so code placed just before fetchAmcBriefings() runs only after the earlier alert reads
+    // resolve — measured 2026-08-21, a 14s-per-read backend left the brief area a still, absent
+    // region at 2.5s with the "busy" code still queued behind the alert fetches. First-load latch so
+    // the 60s refresh poll and realtime re-invokes never flash a skeleton over a settled card.
+    if (!window._amcFirstLoadStarted) {
+      window._amcFirstLoadStarted = true;
+      const _c = document.getElementById('amc-card');
+      if (_c && !document.getElementById('amc-loading')) {
+        const _ld = document.createElement('div');
+        _ld.id = 'amc-loading';
+        _ld.setAttribute('aria-busy', 'true');
+        _c.appendChild(_ld);
+        if (typeof whListSkeleton === 'function') whListSkeleton(_ld, 2);
+        else _ld.textContent = 'Loading today’s brief…';
+        _c.style.display = 'block';
+      }
+    }
+
     const [riskRes, invRes, pmAssetsRes, autoLogRes, patternRes, stagingRes] = await Promise.allSettled([
       // Canonical: risk_truth — asset_risk_scores is insert-only (history),
       // v_risk_truth returns the latest score per asset via DISTINCT ON.
@@ -1383,7 +1405,21 @@
     loadAnomalyEngine().catch(err => console.warn('anomaly engine failed:', err?.message || err));
 
     try {
+      // The first-load busy child (appended at the top of loadAll — see the comment there for why it
+      // cannot live here) is retired the moment the brief read settles. A dedicated child, never an
+      // innerHTML swap: a round-trip would silently drop the listeners on the card's approve/reject
+      // pair, the exact overwrite class this platform has already shipped once. renderAmcCard then
+      // fills the card or hides it when no brief exists today (skeleton-then-empty is the platform
+      // pattern — public-feed does it inside #feed-list).
       const amcRes = await fetchAmcBriefings();
+      {
+        const _ld = document.getElementById('amc-loading');
+        if (_ld) {
+          _ld.remove();
+          const _c = document.getElementById('amc-card');
+          if (_c) _c.style.display = 'none';
+        }
+      }
       renderAmcCard(amcRes.todayBrief);
       for (const b of (amcRes.historic || [])) {
         const head = (b.brief && b.brief.headline) ? String(b.brief.headline) : '(no headline)';
@@ -1415,6 +1451,10 @@
         });
       }
     } catch (err) {
+      // The busy child must not outlive the read on ANY path — a skeleton left behind by a throw is
+      // the eternal-shimmer class this platform has measured before (stuckSkeleton true, no end).
+      const _ld = document.getElementById('amc-loading');
+      if (_ld) { _ld.remove(); const _c = document.getElementById('amc-card'); if (_c) _c.style.display = 'none'; }
       console.warn('amc fetch failed:', err && err.message ? err.message : err);
     }
 
@@ -1474,7 +1514,7 @@
       // (shared whListError) instead of a stuck/blank feed.
       const feedEl = document.getElementById('feed');
       if (feedEl && typeof whListError === 'function') {
-        whListError(feedEl, "Couldn’t show your alerts. Check your connection and try again.", () => loadAll());
+        whListError(feedEl, whReadError(err, 'your alerts'), () => loadAll());
       }
     } finally {
       // Plain-Read roll-up runs after the feed renders so the cards reflect

@@ -251,6 +251,36 @@ const CASES = {
     },
   },
 
+  // The services HAIL - the marketplace's service-request write, on the pane the ?section=services
+  // param + a real tab click reveal. svcRequireOnline is this flow's own guard (the az_fail_offline
+  // comment names it as the codebase's answer), so this measures the guard where it lives.
+  hail: {
+    page: 'marketplace',
+    query: '?section=services',
+    writePattern: /service_requests|rpc\/(svc_|hail|create_service)/,
+    action: 'Hailing a service',
+    async reach(p) {
+      await p.evaluate(() => document.querySelector('.section-tab[data-section="services"]')?.click());
+      await p.waitForTimeout(2500);
+      for (let i = 0; i < 15; i++) {
+        await p.waitForTimeout(1000);
+        const st = await p.evaluate(() => {
+          const go = document.getElementById('svc-hail-go');
+          if (!go || go.getBoundingClientRect().width === 0) return 'waiting';
+          const sel = document.getElementById('svc-hail-item');
+          if (sel && sel.options.length > 1 && !sel.value) {
+            sel.selectedIndex = 1; sel.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          const addr = document.getElementById('svc-hail-address');
+          if (addr && !addr.value) { addr.value = 'Offline probe site'; addr.dispatchEvent(new Event('input', { bubbles: true })); }
+          return 'ready';
+        });
+        if (st === 'ready') return { ok: true, control: '#svc-hail-go' };
+      }
+      return { ok: false, why: 'the hail form never rendered on the services pane' };
+    },
+  },
+
   // THE TEETH CASE, and a real measurement at the same time. report-sender's saveContact has no
   // connectivity check (measured statically across the roster), so this case must FAIL - if it passed,
   // the prover would be incapable of detecting a missing guard and its PASS on skillmatrix would be
@@ -481,24 +511,38 @@ const CASES = {
     writePattern: /generate_project_code|rest\/v1\/projects/,
     action: 'Creating this project',
     async reach(p) {
+      // The wizard is THREE STEPS and #wiz-create only exists on step 3: step 1 keeps wiz-next-1
+      // DISABLED until a type tile is picked, and step 2's "start with a blank project" link is a
+      // one-click jump to step 3. The old reach only re-clicked the opener, so it sat on step 1 for
+      // 22 seconds and reported the control unreachable (measured 2026-08-21: page healthy, probe
+      // stale). One rung of the ladder per second:
       for (let i = 0; i < 22; i++) {
         await p.waitForTimeout(1000);
         const ok = await p.evaluate(() => {
+          const vis = (el) => el && el.getBoundingClientRect().width > 0;
           const btn = document.getElementById('wiz-create');
-          if (!btn || btn.getBoundingClientRect().width === 0) {
-            const opener = [...document.querySelectorAll('button')].find(x =>
-              x.getBoundingClientRect().width > 0 && /new project/i.test(x.textContent || ''));
-            if (opener) opener.click();
-            return false;
+          if (vis(btn)) {
+            // fill the visible fields so a validation refusal cannot be mistaken for the guard
+            [...document.querySelectorAll('input,textarea,select')].forEach((e) => {
+              if (!vis(e)) return;
+              if ((e.type === 'text' || e.tagName === 'TEXTAREA') && !e.value) e.value = 'Offline probe project';
+              if (e.type === 'number' && !e.value) e.value = '1000';
+              e.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+            return true;
           }
-          // fill the wizard's visible fields so a validation refusal cannot be mistaken for the guard
-          [...document.querySelectorAll('input,textarea,select')].forEach((e) => {
-            if (e.getBoundingClientRect().width === 0) return;
-            if ((e.type === 'text' || e.tagName === 'TEXTAREA') && !e.value) e.value = 'Offline probe project';
-            if (e.type === 'number' && !e.value) e.value = '1000';
-            e.dispatchEvent(new Event('input', { bubbles: true }));
-          });
-          return true;
+          const tile = [...document.querySelectorAll('.type-tile[onclick*="wizardPickType"]')].find(vis);
+          const next1 = document.getElementById('wiz-next-1');
+          const blank = [...document.querySelectorAll('.blank-link')].find(vis);
+          if (vis(next1) && next1.disabled && tile) tile.click();
+          else if (vis(next1) && !next1.disabled) next1.click();
+          else if (blank) blank.click();
+          else {
+            const opener = [...document.querySelectorAll('button')].find(x =>
+              vis(x) && /new project/i.test(x.textContent || ''));
+            if (opener) opener.click();
+          }
+          return false;
         });
         if (ok) return { ok: true, control: '#wiz-create' };
       }
@@ -710,6 +754,13 @@ const CASES = {
             btn.setAttribute('data-probe', '1');
             return 'ready';
           }
+          // The lessons textarea + Save button live in the SIGN-OFF pane and are only rendered when
+          // that pane is activated (buildDetailTabs builds the strip; the pane body is lazy).
+          // Measured 2026-08-21: detail open, tabs present, saveLessons 0 nodes until the Sign-off
+          // tab is clicked - so with the detail open, the next rung is the tab, not more waiting.
+          const signoffTab = [...document.querySelectorAll('#detail-tabs button, [data-pane]')]
+            .find((x) => x.dataset && x.dataset.pane === 'signoff' && x.getBoundingClientRect().width > 0);
+          if (signoffTab) { signoffTab.click(); return 'activating-signoff'; }
           const card = [...document.querySelectorAll('[onclick]')]
             .find((x) => /openDetail\(|showDetail\(|openProject\(/.test(x.getAttribute('onclick') || '')
                          && x.getBoundingClientRect().width > 0);
@@ -856,5 +907,20 @@ console.log(`   what it said            : ${JSON.stringify(said)}`);
 console.log(`   pageerrors              : ${errs.length ? errs : 'none'}`);
 const pass = fired === 0 && told;
 console.log(`\n  ${pass ? 'PASS' : 'FAIL'} — ${c.page} / ${CASE}: refused before firing AND said so = ${pass}`);
+// PER-CASE REPORT ARTIFACT (2026-08-22, the view-pass conversion pipeline): each --case run
+// updates its own cell in offline_refusal_report.json (read-modify-write keyed by case), so a
+// loop over the cases leaves ONE report the converters and the recency rail can read. A prover
+// with no artifact cannot testify about when it last saw the current files.
+try {
+  const { readFileSync } = await import('fs');
+  let rep = {};
+  try { rep = JSON.parse(readFileSync('offline_refusal_report.json', 'utf8')); } catch {}
+  rep.cases = rep.cases || {};
+  rep.cases[CASE] = { case: CASE, page: c.page, ok: pass,
+                      refusedBeforeFiring: fired === 0, saidSo: told,
+                      said: said.slice(0, 200), ranAt: new Date().toISOString() };
+  const { writeFileSync } = await import('fs');
+  writeFileSync('offline_refusal_report.json', JSON.stringify(rep, null, 1));
+} catch (e) { console.log('  (report write skipped:', String(e.message).slice(0, 60), ')'); }
 await browser.close();
 process.exit(pass ? 0 : 1);

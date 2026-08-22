@@ -84,11 +84,14 @@ def main(argv):
             if row is None:
                 missing += 1
                 continue
-            if not res.get("ok"):
+            # `ok: null` + na is an ABSTAIN, not a failure — the walker's own contract. This test
+            # ran BEFORE the na branch below and `null` is falsy, so a measured not-applicable was
+            # being re-owed as "FAILED ... no note" (2026-08-21, public-feed what_is_this_number).
+            if not res.get("ok") and not res.get("na"):
                 row["status"] = "owed"
                 row["findings"] = [
                     f"re-walk FAILED {today} on {res.get('url')} ({res.get('state')}): "
-                    f"{res.get('notes') or 'no note'}"
+                    f"{res.get('notes') or res.get('note') or 'no note'}"
                     + (f" · page errors: {res['pageErrors'][:2]}" if res.get("pageErrors") else "")]
                 failed += 1
                 continue

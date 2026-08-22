@@ -247,6 +247,8 @@ const run = async () => {
   } catch (_) { /* empty-catch-allow: no prior report is the normal first run */ }
   writeFileSync(dest, JSON.stringify(out, null, 1));
   const g = out.pages.filter((p) => p.ok !== null);
+  // gate promotion 2026-08-21: failing rows set the exit code.
+  if (process.argv.includes('--gate')) process.exitCode = g.filter((p) => !p.ok).length ? 1 : 0;
   console.log('\n  ' + g.filter((p) => p.ok).length + ' pass | ' + g.filter((p) => !p.ok).length
     + ' fail | ' + (out.pages.length - g.length) + ' ungraded');
 };

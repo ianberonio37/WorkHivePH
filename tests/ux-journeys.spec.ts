@@ -139,8 +139,27 @@ for (const s of SURFACES) {
         const modals = [...document.querySelectorAll(
           '[role="dialog"], [aria-modal="true"], .modal, [class*="onboard"], [class*="tour"], [class*="welcome"]')]
           .filter(el => {
-            const r = el.getBoundingClientRect(), st = getComputedStyle(el);
-            return r.width > 120 && r.height > 80 && st.display !== 'none' && st.visibility !== 'hidden';
+            const r = el.getBoundingClientRect();
+            if (r.width <= 120 || r.height <= 80) return false;
+            // "Blocking" is a PAINTED-IN-FRONT-OF-THE-PERSON fact, and it took three terms to ask it
+            // honestly (measured 2026-08-21, six closed sheets reported as gates on a page the
+            // screenshot shows fully usable):
+            //  1. the element's own display/visibility/opacity — not enough, marketplace's dialog
+            //     sheets read opacity:1;
+            //  2. ancestor opacity via checkVisibility — not enough either, the opacity:0 overlay is
+            //     the sheet's SIBLING, not its parent (openSheet() flips .open on both);
+            //  3. viewport intersection — the sheets actually hide by TRANSLATING BELOW the viewport,
+            //     which no opacity or visibility check sees, while their boxes stay full-size.
+            const inViewport = r.bottom > 0 && r.right > 0
+              && r.top < window.innerHeight && r.left < window.innerWidth;
+            if (!inViewport) return false;
+            if (typeof (el as any).checkVisibility === 'function'
+                && !(el as any).checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) {
+              return false;
+            }
+            const st = getComputedStyle(el);
+            return st.display !== 'none' && st.visibility !== 'hidden' && +st.opacity > 0.01
+                   && st.pointerEvents !== 'none';
           });
         return modals.map(m => (m.textContent || '').replace(/\s+/g, ' ').slice(0, 90));
       });
@@ -161,18 +180,29 @@ for (const s of SURFACES) {
 // must land on THAT seller — not on a generic profile, and not on whoever the page defaults to. The
 // clicked name is captured from the DOM and compared to what the destination renders, so the test
 // cannot be satisfied by any profile page loading.
-for (const s of SURFACES.filter(x => x.name === 'market' || x.name === 'market_svc')) {
+// market only: ?section=services is the service-HAILING pane (SERVICE_HAILING_ROADMAP D14) — the
+// listings grid is hidden there and no seller card renders BY DESIGN, so a seller-handoff journey
+// does not exist on that surface (its own handoff, hail → offers → provider, is a different journey
+// that needs its own test). The two market_svc bank rows are declared-na with this reasoning; forcing
+// the listings-shaped oracle onto the hail pane produced only false "no seller link" findings
+// (measured 2026-08-21).
+for (const s of SURFACES.filter(x => x.name === 'market')) {
   test(`journey_cross_surface_handoff · ${s.name}: the seller you clicked is the seller you land on`,
     async ({ whPage }) => {
       await whPage.goto(s.url);
       await settle(whPage);
 
-      const link = whPage.locator('a.seller-link[data-seller]').first();
+      // :visible, because .first() alone picks DOCUMENT order: on the services section the first
+      // a.seller-link in the DOM belongs to the HIDDEN parts list, and the click waited 8s on an
+      // element that was never going to be visible (measured 2026-08-21 — the same document-order
+      // trap assistant's #chat-input selector recorded: the page renders every section's list and
+      // shows one).
+      const link = whPage.locator('a.seller-link[data-seller]:visible').first();
       const found = await link.count();
       expect(found,
-        `${s.name}: no seller link is on this surface, so the handoff cannot be walked. Either the ` +
-        `card stopped naming its seller or this test is looking for the wrong control — both are ` +
-        `findings, neither is a pass`).toBeGreaterThan(0);
+        `${s.name}: no VISIBLE seller link is on this surface, so the handoff cannot be walked. ` +
+        `Either the card stopped naming its seller or this test is looking for the wrong control — ` +
+        `both are findings, neither is a pass`).toBeGreaterThan(0);
 
       const clickedSeller = (await link.getAttribute('data-seller'))?.trim() || '';
       expect(clickedSeller,
@@ -222,8 +252,20 @@ for (const s of SURFACES.filter(x => x.composer)) {
 
       // Every write this surface makes, watched. Abandoning must send NOTHING — that is the whole
       // claim, and counting requests is the only way to see a write that left without a visible sign.
+      // ★ATTRIBUTION ENDS WHEN THE NEXT DOCUMENT COMMITS. The first version kept counting through
+      // the destination page's load, and failed seller/admin on SEVEN requests that were all the
+      // DESTINATION's own: its analytics_events insert and its read-only RPCs — which PostgREST
+      // transports as POST regardless of semantics (measured 2026-08-21: service_knob/_pct,
+      // get_marketplace_trust_badges). A beforeunload-fired write still lands inside the window,
+      // because it goes out BEFORE the new document commits — so a genuine leak cannot hide behind
+      // this cut; only the new page's own traffic falls outside it.
       const writes: string[] = [];
+      let departed = false;
+      whPage.on('framenavigated', f => {
+        if (f === whPage.mainFrame() && !f.url().includes(s.url)) departed = true;
+      });
       whPage.on('request', r => {
+        if (departed) return;
         if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(r.method())) writes.push(`${r.method()} ${r.url().slice(0, 90)}`);
       });
 

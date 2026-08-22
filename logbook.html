@@ -1976,8 +1976,14 @@ async function loadEntries() {
   // at the point of truth makes the panel independent of view mode and render timing.
   if (error) {
     console.error(error);
-    showToast('Could not load entries. Check your connection.');
+    showToast(whReadError(error, 'your entries'));
     _lbReadFailed = true;
+    // carry the diagnosis into the persistent read-failed panel too - the toast dies in seconds,
+    // and the panel's static markup cannot know at author time whether this is a 401, 429 or 500
+    const _rfMsg = document.querySelector('#read-failed-state p.text-xs');
+    if (_rfMsg) _rfMsg.textContent = 'Your entries are unknown right now, not missing. '
+      + whReadError(error, 'your logbook')
+      + ' Do not log a repeat of work you may have already recorded.';
     if (typeof _lbSyncFailurePanel === 'function') _lbSyncFailurePanel();
     return [];
   }
@@ -3869,7 +3875,17 @@ async function renderEntries(reload = true) {
 async function openModal(id) {
   let entry = (_viewMode === 'team' ? _teamEntries : _allEntries).find(e => e.id === id);
   if (!entry) {
-    const { data } = await db.from('logbook').select('*').eq('id', id).single();
+    /* A FAILED READ MUST SPEAK BEFORE RETURNING (2026-08-22, found by the rate-limit view pass).
+       This destructured `{ data }` alone and bailed on `if (!entry) return` - so under a 429 (or
+       any refused/failed read) tapping an entry did NOTHING AT ALL: no modal, no message, a dead
+       tap. A silent return is the guard-that-returns-without-speaking class; say which it is. */
+    const { data, error } = await db.from('logbook').select('*').eq('id', id).single();
+    if (error && !data) {
+      showToast(typeof whReadError === 'function'
+        ? whReadError(error, 'this entry')
+        : 'Couldn’t open this entry. Check your connection and try again.', 'error');
+      return;
+    }
     entry = data;
   }
   if (!entry) return;

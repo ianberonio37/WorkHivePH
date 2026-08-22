@@ -67,7 +67,10 @@ const scan = async (page) => page.evaluate(() => {
     // pass itself off as a measurement.
     { dim: 'quantity',
       label: /\b(quantity|qty|stock|on\s*hand|reorder\s*point|consumed|issued|received|available)\b/i,
-      unit: /\b(pcs?|pieces?|units?|ea|each|sets?|rolls?|boxe?s?|litres?|liters?|ml|kg|mm|cm|km)\b/i },
+      // COUNTED NOUNS COUNT AS UNITS (2026-08-22): '3 Parts low on stock' / '1 Quizzes available' /
+      // '0 Reports selected' were flagged unit-less while the label NAMES the counted thing - for a
+      // count, the noun IS the unit. Lexicon narrow so a bare '3 STATUS' still fails.
+      unit: /\b(pcs?|pieces?|units?|ea|each|sets?|rolls?|boxe?s?|litres?|liters?|ml|kg|mm|cm|km|parts?|quizzes|quiz|reports?|assets?|tasks?|items?|alerts?|posts?|members?|jobs?|listings?|disciplines?|entries|contacts?)\b/i },
     { dim: 'pressure', label: /\b(pressure|head|vacuum)\b/i,
       unit: /\b(psi|bar|kpa|mpa|pa|mmhg|inhg)\b/i },
     { dim: 'flow', label: /\b(flow|throughput|discharge)\b/i,
@@ -75,7 +78,7 @@ const scan = async (page) => page.evaluate(() => {
     { dim: 'vibration', label: /\b(vibration|amplitude)\b/i,
       unit: /mm\/s|in\/s|\b(ips|micron|um|mils?)\b/i },
     { dim: 'electrical', label: /\b(current|voltage|amperage|amps?|volts?|power\s*draw)\b/i,
-      unit: /\b(amps?|ma|volts?|kv|kw|kva|hp)\b/i },
+      unit: /\b(amps?|amperes?|ma|volts?|voltage|watts?|kv|kw|kva|hp)\b/i },  // spelled-out ampere/voltage/watt are units (2026-08-22)
     { dim: 'rotation', label: /\b(speed|rpm|shaft\s*speed)\b/i,
       unit: /\b(rpm|rps|hz)\b/i },
     { dim: 'torque', label: /\b(torque|tightening)\b/i,
@@ -318,6 +321,8 @@ const run = async () => {
   writeFileSync(path.join(ROOT, 'units_visible_report.json'), JSON.stringify(out, null, 1));
   const graded = out.pages.filter((p) => p.ok !== null && !p.error);
   const bad = graded.filter((p) => !p.ok);
+  // gate promotion 2026-08-21: failing rows set the exit code.
+  if (process.argv.includes('--gate')) process.exitCode = bad.length ? 1 : 0;
   console.log(`\n  ${graded.length} page(s) graded | ${bad.length} failing | `
     + `${out.pages.filter((p) => p.ok === null).length} abstained (no dimension-labelled number)`);
 };

@@ -246,7 +246,12 @@ const NUMBERS = () => {
       const box = el.closest('[class*="card"], [class*="tile"], [class*="stat"], li, td, section') || el.parentElement;
       label = ((box && box.innerText) || '').replace(/\s+/g, ' ').replace(t, ' ').trim();
     }
-    out[el.id] = { value: t, label: label.slice(0, 70).toLowerCase() };
+    // RELATIVE TIMES ARE A CLOCK, NOT A CLAIM (2026-08-23): the two sessions read the SAME
+    // timestamp minutes apart, so "last 34m ago" vs "35m ago" is the formatter crossing a minute
+    // boundary between reads - the two-clocks class. Normalise the elapsed figure so only the
+    // underlying state is compared; a real divergence (different counts, different rows) survives.
+    const norm = t.replace(/\b\d+\s*(?:s|m|h|d|min|mins|minute|minutes|hour|hours|day|days)\s+ago\b/gi, '⏱ ago');
+    out[el.id] = { value: norm, label: label.slice(0, 70).toLowerCase() };
   }
   return out;
 };

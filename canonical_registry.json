@@ -636,7 +636,8 @@
         "approved_by",
         "approved_at",
         "auth_uid",
-        "linked_asset_node_ids"
+        "linked_asset_node_ids",
+        "lead_time_days"
       ],
       "rls_enabled": true,
       "grants": {
@@ -6414,7 +6415,32 @@
         "platform-scraper",
         "shift-planner-orchestrator"
       ],
-      "columns": []
+      "columns": [
+        "id",
+        "hive_id",
+        "worker_name",
+        "part_number",
+        "part_name",
+        "category",
+        "unit",
+        "qty_on_hand",
+        "min_qty",
+        "reorder_point",
+        "bin_location",
+        "linked_asset_node_ids",
+        "notes",
+        "photo",
+        "status",
+        "submitted_by",
+        "approved_by",
+        "approved_at",
+        "created_at",
+        "updated_at",
+        "is_out_of_stock",
+        "is_low_stock",
+        "is_critical_low",
+        "lead_time_days"
+      ]
     },
     "v_pm_scope_items_truth": {
       "defined_in": "20260510000004_v_pm_scope_items_truth.sql",
@@ -9685,7 +9711,7 @@
         "my_service_provider_ids"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 63.8
+      "size_kb": 64.4
     },
     "agentic-rag-observability.html": {
       "tables_read": [
@@ -9732,7 +9758,7 @@
       "edge_fns_invoked": [
         "analytics-orchestrator"
       ],
-      "size_kb": 114.3
+      "size_kb": 116.6
     },
     "analytics-report.html": {
       "tables_read": [
@@ -9754,7 +9780,7 @@
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 191.9
+      "size_kb": 192.1
     },
     "architecture.html": {
       "tables_read": [],
@@ -9806,7 +9832,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 248.6
+      "size_kb": 251.2
     },
     "assistant.html": {
       "tables_read": [
@@ -9861,7 +9887,7 @@
         "set_community_best_answer"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 175.7
+      "size_kb": 177.0
     },
     "dayplanner.html": {
       "tables_read": [
@@ -9876,7 +9902,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 128.4
+      "size_kb": 128.5
     },
     "design-system.html": {
       "tables_read": [],
@@ -9964,7 +9990,7 @@
         "benchmark-compute",
         "supervisor-reset-password"
       ],
-      "size_kb": 360.2
+      "size_kb": 361.2
     },
     "index.html": {
       "tables_read": [],
@@ -10029,7 +10055,7 @@
         "inventory_restock"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 146.5
+      "size_kb": 150.5
     },
     "llm-observability.html": {
       "tables_read": [
@@ -10076,7 +10102,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 338.9
+      "size_kb": 339.9
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -10274,7 +10300,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 91.6
+      "size_kb": 92.2
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -10375,7 +10401,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 23.9
+      "size_kb": 24.6
     },
     "report-sender.html": {
       "tables_read": [
@@ -10392,7 +10418,7 @@
         "send-report-email",
         "voice-report-intent"
       ],
-      "size_kb": 115.1
+      "size_kb": 117.0
     },
     "resume.html": {
       "tables_read": [
@@ -10425,7 +10451,7 @@
         "analytics-orchestrator",
         "shift-planner-orchestrator"
       ],
-      "size_kb": 71.2
+      "size_kb": 72.4
     },
     "skillmatrix.html": {
       "tables_read": [
@@ -11481,7 +11507,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 147
+      "loc": 149
     },
     "resume-extract": {
       "tables_read": [],

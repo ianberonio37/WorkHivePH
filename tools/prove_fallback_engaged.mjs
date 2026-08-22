@@ -487,6 +487,9 @@ const run = async () => {
   await browser.close();
   writeFileSync(path.join(ROOT, 'fallback_engaged_report.json'), JSON.stringify(out, null, 1));
   const g = out.pages.filter((p) => p.ok !== null);
+  // gate promotion 2026-08-21: a gate that cannot fail is not a gate. (The exit line must sit BELOW
+  // the const it reads - the TDZ crash that broke prove_source_chip's --gate runs, third instance.)
+  if (process.argv.includes('--gate')) process.exitCode = g.filter((p) => !p.ok).length ? 1 : 0;
   console.log('\n  ' + g.filter((p) => p.ok).length + ' pass | ' + g.filter((p) => !p.ok).length
     + ' fail | ' + (out.pages.length - g.length) + ' ungraded');
   console.log('  NO WRITE LANDED: the edge was stubbed 500 and every mutating REST call was held.');

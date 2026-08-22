@@ -19,7 +19,7 @@
 
 ## 0. What ships
 
-**DB — 10 pending migrations** (2 inherited, 8 new today):
+**DB — 12 pending migrations** (2 inherited, 8 new 2026-08-20, plus `…069` in §0c and `…070` below):
 
 | migration | why it exists |
 |---|---|
@@ -32,8 +32,13 @@
 | `…066` | low-stock tile counted a **capped array** (`LIMIT 100`, no count) |
 | `…067` | PM-overdue tile had **no denominator and no unit** (28 = assets, not the 69 scope items) |
 | `…068` | `v_sensor_recent` dropped `unit` — asset-hub selected it, PostgREST **400s on unknown columns**, so the telemetry panel was dead on every load |
+| `…070` | (2026-08-21) **reorder suggestions had no lead time** (ci_domain_truth inventory CI2). No lead-time column existed anywhere. Adds nullable `inventory_items.lead_time_days` (CHECK 0–365) and carries it through `v_inventory_items_truth` (column appended LAST — Postgres forbids reordering; `security_invoker=true` restated so CREATE OR REPLACE can't drop it). Page states it at the reorder suggestion; empty field writes null ("not recorded"), never 0 |
 
-**Edge — 11 functions, 1 new.** `resend-webhook-receiver` (new), `send-report-email`,
+**Edge — 11 functions, 1 new.** ⚠ 2026-08-21: `resend-webhook-receiver` changed AFTER the 08-20
+verification — two bare `log(...)` calls were TypeErrors at runtime (`log` is an object of level
+methods; the structured-log ratchet caught it). Fixed to `log.warn/log.info(ctx, …)`; without this fix
+the receiver would have 500'd on every Resend event. Deploy the current file, not the 08-20 snapshot.
+`resend-webhook-receiver` (new), `send-report-email`,
 `analytics-orchestrator`, `shift-planner-orchestrator`, `ai-orchestrator`, `ai-gateway`,
 `asset-brain-query`, `batch-risk-scoring`, `fmea-populator`, `pf-calculator`.
 

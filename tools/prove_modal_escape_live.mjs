@@ -72,6 +72,55 @@ for (const t of TARGETS.filter((x) => !ONE || x.page === ONE.replace(/\.html$/, 
       + 'Escape is not its exit');
     continue;
   }
+  // A STATE VIEW IS NOT A DIALOG EITHER — but unlike a tab it IS graded here, with the contract
+  // INVERTED: Escape must LEAVE the state intact. A document-level Escape handler that wiped an error
+  // message would hide a failure from the person mid-read, exactly the "Escape closing it would be a
+  // defect" case the tab comment above names. Until 2026-08-21 the state rows fell through to the dialog
+  // path and FAILED for behaving correctly — and, because this prover never applied the roster's inject,
+  // both public-feed rows measured the POPULATED feed: one reading, two wrong subjects. The inject now
+  // runs via addInitScript in a FRESH context (window.fetch, not page.route — a warm service worker
+  // bypasses route interception), and the roster's stateMarker must be present before grading, so the
+  // row provably measures the state it names. No marker match = UNGRADED, never a guess.
+  if (t.kind === 'state') {
+    let sc = null;
+    try {
+      sc = await browser.newContext({ viewport: { width: 390, height: 844 } });
+      if (t.inject) await sc.addInitScript(t.inject);
+      const sp = await sc.newPage();
+      await sp.goto(`${ORIGIN}/${t.page}.html`, { waitUntil: 'domcontentloaded', timeout: 25000 });
+      await sp.waitForTimeout(4000);
+      rec.before = await sp.evaluate(VISIBLE, t.modal);
+      rec.markerBefore = t.stateMarker
+        ? await sp.evaluate((sel) => !!document.querySelector(sel), t.stateMarker)
+        : null;
+      if (!rec.before.present) {
+        rec.error = `#${t.modal} is not in the DOM — the anatomy ref may be stale`;
+      } else if (!rec.before.visible) {
+        rec.error = `#${t.modal} is not visible — the injected state did not render`;
+      } else if (t.stateMarker && !rec.markerBefore) {
+        rec.error = `state marker ${t.stateMarker} absent — the inject did not produce the state this `
+          + 'row names, so grading would bank a reading of a different subject';
+      } else {
+        await sp.keyboard.press('Escape');
+        await sp.waitForTimeout(900);
+        rec.afterEscape = await sp.evaluate(VISIBLE, t.modal);
+        rec.markerAfter = t.stateMarker
+          ? await sp.evaluate((sel) => !!document.querySelector(sel), t.stateMarker)
+          : null;
+        rec.escapeClosed = !rec.afterEscape.visible;
+        rec.stateSurvivedEscape = rec.afterEscape.visible
+          && (t.stateMarker ? rec.markerAfter === true : true);
+        rec.ok = rec.stateSurvivedEscape;
+      }
+    } catch (e) { rec.error = String(e).slice(0, 150); }
+    finally { if (sc) await sc.close(); }
+    if (rec.error) rec.ok = null;
+    results.push(rec);
+    console.log(`  ${t.page.padEnd(14)} ${t.view} #${t.modal.padEnd(17)} `
+      + `${rec.ok === true ? 'PASS' : rec.ok === false ? 'FAIL' : 'UNGRADED'}`
+      + (rec.error ? `  ${rec.error}` : `  state-survived-escape=${rec.stateSurvivedEscape}`));
+    continue;
+  }
   if (t.notDrivable) {
     rec.ok = null;
     rec.error = `NOT DRIVABLE by a read-only probe: ${t.notDrivable}`;
@@ -235,9 +284,16 @@ if (!graded.length) {
 } else if (bad.length) {
   console.log('  FAIL — ' + bad.map((r) => `${r.page} #${r.modal}`).join('; '));
 } else {
+  // TWO CONTRACTS, ONE VERDICT LINE — say each only about the rows it graded. "Escape closes all N
+  // dialogs" over a set that includes state rows would claim the OPPOSITE of what those rows proved.
   const fa = graded.filter((r) => typeof r.focusRestored === 'boolean').length;
-  console.log(`  PASS — Escape closes all ${graded.length} graded dialog(s)`
-    + (fa ? `, and focus returns to the opener on all ${fa} target(s) where a real opener element was `
+  const st = graded.filter((r) => r.kind === 'state').length;
+  const dl = graded.length - st;
+  console.log('  PASS — '
+    + (dl ? `Escape closes all ${dl} graded dialog(s)` : '')
+    + (dl && st ? '; ' : '')
+    + (st ? `Escape leaves all ${st} graded state view(s) intact` : '')
+    + (fa ? `; focus returns to the opener on all ${fa} target(s) where a real opener element was `
           + 'clicked'
           : '. Focus-restore was not assertable on any target in this run (none was opened by clicking '
           + 'a real element), so it is NOT claimed'));

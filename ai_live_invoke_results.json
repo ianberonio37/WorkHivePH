@@ -7,7 +7,7 @@
   "cells": {
     "H15/F": {
       "live": true,
-      "evidence": "intelligence-report narrative grounding LIVE: exec-summary cites the deterministic wo_count=2463 verbatim \u2014 headline grounded in real data, not a hallucinated figure (supporting cited: equipment_count=37, hive_count=3)"
+      "evidence": "intelligence-report narrative grounding LIVE: exec-summary cites the deterministic wo_count=2486 verbatim \u2014 headline grounded in real data, not a hallucinated figure (supporting cited: equipment_count=42, hive_count=3)"
     },
     "H1/U": {
       "live": false,
@@ -91,7 +91,7 @@
     },
     "H10/F": {
       "live": false,
-      "evidence": "temporal-rag answered w/o explicit abstention, 0 fabricated specifics (soft) \u00b7 ans=254ch"
+      "evidence": "temporal-rag answered w/o explicit abstention, 0 fabricated specifics (soft) \u00b7 ans=79ch"
     },
     "H8/F": {
       "live": true,

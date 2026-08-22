@@ -307,10 +307,19 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        sign that anything was happening. Measured 2026-08-04: 3 requests in flight, 0 skeleton nodes,
        looksEmptyInstead true, distinguishableFromEmpty FALSE. Retry is exactly the moment a person is
        already unsure whether the page is working, so it is the worst moment to go quiet.
-       Show it again on every entry, and pair it with hiding the list, so the two are never both up. */
-    if (_fsk) _fsk.style.display = '';
+       ...AND THE BUSY STATE MUST LIVE INSIDE #feed-list, not beside it. The sibling #feed-skeleton
+       satisfied a reader looking at the page, but #feed-list is the view the anatomy names (V2/V3):
+       hiding it during a slow read left the VIEW itself a still, empty region for the whole flight
+       (measured 2026-08-21: 14s read, 0 chars inside the view at 2.5s, no busy affordance in scope).
+       So once JS runs, the canonical skeleton renders INTO #feed-list and the read replaces it with
+       cards / error / empty in place; the sibling stays only as the pre-JS first-paint reserve. */
+    if (_fsk) _fsk.style.display = 'none';
     const _fl = document.getElementById('feed-list');
-    if (_fl) _fl.style.display = 'none';
+    if (_fl) {
+      _fl.style.display = 'block';
+      if (typeof whListSkeleton === 'function') whListSkeleton(_fl, 3);
+      else _fl.innerHTML = '<div class="empty-state" aria-busy="true">Loading the public feed…</div>';
+    }
     /* AND BOUND IT, or the skeleton above becomes the eternal one. A supabase-js query never passes
        through fetchWithTimeout, so a stalled read stays stalled and the page shimmers indefinitely at
        someone who has already concluded it is broken. Measured: stuckSkeleton true, saysSomething

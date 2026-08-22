@@ -153,7 +153,10 @@ def run_family(key, reg, V, apply):
         row["findings"] = []
         row["evidence"] = {
             "kind": "live-walk",
-            "ref": f"{cfg['spec']} — {today} · {title}",
+            # R3 requires a live-walk ref to NAME a surface URL from the bank — the row's own url.
+            # Without it every row this banker wrote was gate-rejected ("0 green · 15 owed" while the
+            # spec passed 3/3, measured 2026-08-21): the banker had drifted behind the gate's rule.
+            "ref": f"{cfg['spec']} — {today} · {row.get('url') or ''} · {title}",
             "asserts": row.get("oracle") or "",
             "checked": (f"asserted in a real browser against the live stack; the spec fails rather "
                         f"than skips when its journey cannot be constructed, and reads its effects "

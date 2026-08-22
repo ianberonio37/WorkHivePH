@@ -2,13 +2,13 @@
 name: page-public-feed
 type: page
 source: file:public-feed.html
-source_sha: a3993ebbabc7325c
+source_sha: 9ee211e45e1bb79d
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `public-feed.html` — Public Feed: WorkHive
 
-Size: 23KB · 7 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 24KB · 7 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

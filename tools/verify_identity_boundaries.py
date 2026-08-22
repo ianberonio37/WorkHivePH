@@ -202,6 +202,12 @@ def main():
         print(f"  {c}{tag}{RST}  {nm:22} {DIM}{detail}{RST}")
     print(f"\n  probed as {BOLD}{name}{RST} (verified NOT a platform admin) · "
           f"{GREEN if ok else RED}{sum(1 for _n, p, _d in results if p)}/{len(results)} hold{RST}")
+    # per-run artifact so bank rows citing this harness can be honestly re-stamped (the recency
+    # rail needs an mtime to compare against dep mtimes; a harness with no artifact has no word).
+    import json as _json, os as _os
+    with open(_os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                            "identity_boundaries_report.json"), "w", encoding="utf-8") as f:
+        _json.dump({n: {"pass": bool(p), "detail": str(d)[:300]} for n, p, d in results}, f, indent=1)
     return 0 if ok else 1
 
 

@@ -172,6 +172,10 @@ const run = async () => {
   await browser.close();
   writeFileSync(path.join(ROOT, 'source_chip_report.json'), JSON.stringify(out, null, 1));
   const graded = out.results.filter((r) => r.kind);
+  // gate promotion 2026-08-21 (moved BELOW the declaration 2026-08-22: the exit line was
+  // inserted ABOVE `const graded` and threw a TDZ ReferenceError on every --gate run - the
+  // flag path was patched without being run, the calling-by-hand-is-not-verifying class).
+  if (process.argv.includes('--gate')) process.exitCode = graded.filter((r) => r.kind === 'names-unread-feed').length ? 1 : 0;
   console.log(`\n  ${graded.length} view(s) graded · ${graded.filter((r) => r.ok).length} true · ` +
     `${graded.filter((r) => r.kind === 'no-claim').length} make no claim · ` +
     `${graded.filter((r) => r.kind === 'names-unread-feed').length} name an unread feed`);

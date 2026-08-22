@@ -481,6 +481,10 @@
           <input id="f-location" type="text" class="wh-input" placeholder="e.g. Bin A3, Shelf 2, Cabinet B" autocomplete="off" maxlength="200">
         </div>
         <div>
+          <label for="f-lead-time" class="wh-label"><span data-i="leadtime">Lead Time (days)</span> <span class="text-white/80 font-normal normal-case" data-i="leadtimehint">(supplier delivery time, shown when a reorder is suggested)</span></label>
+          <input id="f-lead-time" type="number" min="0" max="365" step="1" class="wh-input" placeholder="e.g. 7" />
+        </div>
+        <div>
           <label class="wh-label"><span data-i="linktoassets">Link to Assets</span> <span class="text-white/80 font-normal normal-case" data-i="whichmachines">(which machines use this part?)</span></label>
           <div id="asset-linker" class="flex flex-wrap gap-2 mt-1 rounded-xl p-3 min-h-[52px]"
                style="background:rgba(22,32,50,0.4); border:1px solid rgba(255,255,255,0.08);">
@@ -892,7 +896,9 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
     const vI = document.getElementById('inv-verdict-icon');  if (vI) vI.textContent = '⚠';
     const vL = document.getElementById('inv-verdict-label'); if (vL) vL.textContent = 'Could not load your inventory';
     const vS = document.getElementById('inv-verdict-sub');
-    if (vS) vS.textContent = 'Stock levels are unknown right now, not zero. Check your connection and reload before ordering or issuing parts.';
+    if (vS) vS.textContent = 'Stock levels are unknown right now, not zero. '
+      + whReadError(_invReadFailed === true ? { _httpStatus: 500 } : _invReadFailed, 'stock levels')
+      + ' Do not order or issue parts from these numbers.';
     const aB = document.getElementById('inv-action-text');
     if (aB) aB.textContent = 'Reload the page. If it keeps failing, tell your supervisor before relying on these numbers.';
     return;
@@ -906,7 +912,9 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
   );
   setCard('low',
     String(lowCount),
-    lowCount === 0 ? 'Every part above its reorder point' : `${lowCount} of ${total} parts at or below min_qty`,
+    // "minimum", not the column name: min_qty is schema vocabulary, and cl_a11y_states's no_raw_enum
+    // family caught it reaching the person on this tile (its first full run, 2026-08-21).
+    lowCount === 0 ? 'Every part above its reorder point' : `${lowCount} of ${total} parts at or below their minimum`,
     lowCount === 0 ? 'STOCKED' : lowCount > 5 ? 'WIDESPREAD' : 'PLAN RESTOCK',
     lowCount === 0 ? 'green' : lowCount > 5 ? 'red' : 'amber'
   );
@@ -967,7 +975,24 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
       text = `${pendingCount} parts are awaiting your approval. Filter to "Pending approval" and clear the backlog: Use and Restock are locked until you sign off.`;
       setCta(`Review ${pendingCount} pending →`, { scroll: '#parts-list' });
     } else if (lowCount > 0) {
-      text = `${lowCount} part${lowCount === 1 ? '' : 's'} at or below the reorder threshold. Order them before the next shift planning so they arrive before they hit zero.`;
+      // ci_domain_truth inventory CI2: lead time is stated WHERE the reorder is suggested — a person
+      // deciding when to order needs to know how long delivery takes, at the moment of the decision.
+      // lead_time_days is per-part and nullable (mig …070): state the longest among the low parts when
+      // known, and say plainly "not recorded" when nobody has entered one — never an invented figure.
+      // The low filter mirrors stockStatus()'s is_low_stock fallback at :783, view flag first.
+      const lowParts = items.filter(i => i.is_low_stock === true
+        || (i.is_low_stock === undefined && Number(i.min_qty) > 0
+            && Number(i.qty_on_hand) <= Number(i.min_qty)));
+      const leads = lowParts.map(i => Number(i.lead_time_days)).filter(n => Number.isFinite(n) && n >= 0);
+      const maxLead = leads.length ? Math.max(...leads) : null;
+      const leadNote = leads.length
+        ? ` Longest lead time among them: ${maxLead} day${maxLead === 1 ? '' : 's'}`
+          + (leads.length < lowParts.length
+            ? ` (${lowParts.length - leads.length} of these parts have no lead time recorded)`
+            : '')
+          + '. Order the long-lead parts first.'
+        : ' Lead time is not recorded for these parts. Add it on each part card, and confirm delivery time with your supplier when ordering.';
+      text = `${lowCount} part${lowCount === 1 ? '' : 's'} at or below the reorder threshold. Order them before the next shift planning so they arrive before they hit zero.${leadNote}`;
       setCta(`Order ${lowCount} low part${lowCount === 1 ? '' : 's'} →`, { scroll: '#parts-list' });
     } else if (pendingCount > 0) {
       text = `${pendingCount} part${pendingCount === 1 ? '' : 's'} awaiting your approval. Filter to "Pending approval" below and sign off so workers can use them.`;
@@ -1062,7 +1087,9 @@ function renderParts() {
       // one door had been wired to the component. skillmatrix renders Retry under the same injected
       // 500; inventory and hive did not. So this is ADOPTION, not design.
       const _m = (typeof whReadError === 'function')
-        ? whReadError({ _httpStatus: 500 }, 'your parts')
+        // the REAL error when we hold one (401 -> sign in, 429 -> wait); the synthesized 500
+        // only when the flag arrived as a bare boolean from an older path
+        ? whReadError(_invReadFailed === true ? { _httpStatus: 500 } : _invReadFailed, 'your parts')
         : 'Could not load your parts. This is a connection problem, not an empty inventory. Your parts are still there.';
       if (typeof whListError === 'function') {
         whListError(list, _m, () => location.reload());
@@ -1241,7 +1268,18 @@ let selectedAssetIds = new Set();
 function renderAssetLinker() {
   const assets  = loadAssets();
   const linker  = document.getElementById('asset-linker');
-  const emptyEl = document.getElementById('asset-linker-empty');
+  /* THE EMPTY ELEMENT MUST SURVIVE THE POPULATED RENDER (2026-08-22). The populated branch below
+     replaces linker.innerHTML, which DESTROYED #asset-linker-empty - so the SECOND open of this
+     modal (any second open, once assets had rendered) found emptyEl null and threw before the
+     modal could show: a person who added one part could never open Add Part again without a
+     reload. Caught by the why_refused view pass failing to REOPEN the dialog. Keep the element in
+     a module ref and re-append it after every populated render, hidden. */
+  let emptyEl = document.getElementById('asset-linker-empty') || window.__invAssetLinkerEmpty;
+  if (!emptyEl) {
+    emptyEl = document.createElement('p');
+    emptyEl.id = 'asset-linker-empty';
+    emptyEl.className = 'asset-linker-empty hidden';
+  }
   if (assets.length === 0) {
     linker/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     linker.appendChild(emptyEl);
@@ -1256,7 +1294,7 @@ function renderAssetLinker() {
     emptyEl.classList.remove('hidden');
     return;
   }
-  emptyEl.classList.add('hidden');
+  if (emptyEl) { window.__invAssetLinkerEmpty = emptyEl; emptyEl.classList.add('hidden'); }
   linker/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = assets.map(a => {
     const label = a.name ? `${a.asset_id}: ${a.name}` : a.asset_id;
     const sel   = selectedAssetIds.has(a.asset_id);
@@ -1338,10 +1376,11 @@ function openAddModal(prefillId) {
 
   // Reset form
   ['f-part-number','f-part-name','f-location','f-notes'].forEach(id => { document.getElementById(id).value = ''; });
-  document.getElementById('f-category').value = '';
-  document.getElementById('f-qty').value      = '';
-  document.getElementById('f-min-qty').value  = '';
-  document.getElementById('f-unit').value     = 'pcs';
+  document.getElementById('f-category').value  = '';
+  document.getElementById('f-qty').value       = '';
+  document.getElementById('f-min-qty').value   = '';
+  document.getElementById('f-lead-time').value = '';
+  document.getElementById('f-unit').value      = 'pcs';
   document.getElementById('f-photo-preview').style.display = 'none';
   document.getElementById('f-photo-preview').classList.add('hidden');
   document.getElementById('f-photo-dropzone').classList.remove('hidden');
@@ -1358,6 +1397,8 @@ function openAddModal(prefillId) {
     document.getElementById('f-min-qty').value     = item.min_qty || '';
     document.getElementById('f-unit').value        = item.unit || 'pcs';
     document.getElementById('f-location').value    = item.bin_location || '';
+    // Nullable metadata: '' round-trips to null in submitPart, so an untouched field never writes 0.
+    document.getElementById('f-lead-time').value   = (item.lead_time_days ?? '') === '' ? '' : String(item.lead_time_days);
     document.getElementById('f-notes').value       = item.notes || '';
     // Phase 5b.2: populate from uuid array, mapping back to display codes so
     // the picker UI keeps its (asset_id text) semantics. Codes without a uuid
@@ -1406,6 +1447,9 @@ async function submitPart() {
   if (isNaN(_qn) || _qn < 0) { showFormError(errEl, 'Qty on Hand must be 0 or a positive number.'); document.getElementById('f-qty').focus(); return; }
   const _mr = document.getElementById('f-min-qty').value;
   if (_mr !== '' && (isNaN(parseFloat(_mr)) || parseFloat(_mr) < 0)) { showFormError(errEl, 'Min Qty must be 0 or a positive number.'); document.getElementById('f-min-qty').focus(); return; }
+  // Mirrors the DB CHECK inventory_items_lead_time_days_sane (mig …070): 0–365 whole days or empty.
+  const _lt = document.getElementById('f-lead-time').value.trim();
+  if (_lt !== '' && (!/^\d+$/.test(_lt) || parseInt(_lt, 10) > 365)) { showFormError(errEl, 'Lead Time must be a whole number of days between 0 and 365, or left empty.'); document.getElementById('f-lead-time').focus(); return; }
 
   const items = loadInventory();
   if (items.some(i => i.part_number.toUpperCase() === partNumber.toUpperCase() && i.id !== editingItemId)) {
@@ -1431,6 +1475,9 @@ async function submitPart() {
     qty_on_hand:       qty,
     min_qty:           minQty,
     bin_location:      document.getElementById('f-location').value.trim(),
+    // Nullable on purpose: an empty field writes null ("not recorded"), never 0 — the reorder
+    // banner tells those two apart and must not be fed a fabricated same-day lead time.
+    lead_time_days:    _lt === '' ? null : parseInt(_lt, 10),
     // Phase 5b.2: write canonical uuids. selectedAssetIds holds display codes
     // (asset_id text); _assetIdToNodeId maps each to its asset_node uuid.
     // Codes without a matching node are dropped (they aren't in asset_nodes
@@ -2231,7 +2278,8 @@ async function initData() {
   if (_assetReadErr) console.warn('inventory assets read failed:', _assetReadErr.message);
   // Carry the failure into the render. Without this the summary is computed over an empty set and
   // reports it as good news; see _invReadFailed's declaration for the measurement.
-  _invReadFailed     = !!_invReadErr;
+  // the ERROR OBJECT when there is one - whReadError reads its status/code to name the remedy
+  _invReadFailed     = _invReadErr || false;
   _assetsReadFailed  = !!_assetReadErr;
   _assetsLoaded      = true;   // resolved, whatever the outcome
 
@@ -2381,14 +2429,14 @@ async function validateHiveMembership() {
   } catch (err) {
     console.error('inventory load failed:', err);
     if (typeof whListError === 'function') {
-      whListError(document.getElementById('parts-list'), "Couldn’t load your inventory. Check your connection and try again.", () => location.reload());
+      whListError(document.getElementById('parts-list'), whReadError(err, 'your inventory'), () => location.reload());
     }
     if (typeof showToast === 'function') showToast('Inventory failed to load. Tap Retry.', 'warn');
     // A 500 and a dead network arrive through DIFFERENT doors: a 500 RESOLVES with res.error (handled at
     // the read site), offline REJECTS and lands here. Measured with fetch made to reject: the KPIs kept
     // their HTML zeros and the verdict stayed frozen at "Computing stock health...", because the flag was
     // never set and the summary never re-ran. Set it and render, so the sentinel path covers both doors.
-    _invReadFailed = true;
+    _invReadFailed = err || true;
     try { renderInventorySummary([], 0, 0, 0); } catch (_) { /* empty-catch-allow: the failure render is best-effort */ }
   }
 

@@ -276,6 +276,9 @@ const run = async () => {
   await browser.close();
   writeFileSync(path.join(ROOT, 'retry_path_report.json'), JSON.stringify(out, null, 1));
   const t = (o) => out.pages.filter((p) => p.outcome === o).length;
+  // a gate that cannot fail is not a gate: FAIL outcomes set the exit code (added 2026-08-21 when
+  // this prover was promoted from walk instrument to registered gate).
+  if (process.argv.includes('--gate')) process.exitCode = t('FAIL') ? 1 : 0;
   console.log(`\n  ${out.pages.length} page(s) | PASS ${t('PASS')} | NO-RETRY ${t('NO-RETRY')} `
     + `| NO-RECOVER ${t('NO-RECOVER')} | SILENT ${t('SILENT')} | ERROR ${t('ERROR')}`);
 };

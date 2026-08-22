@@ -946,10 +946,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // state), so a targeted retry is correct here — hive's failure came from wiring a retry to a
         // function that re-rendered a cache still holding the error, which is not the shape of this one.
         if (typeof whListError === 'function') {
-          whListError(emptyEl, 'Could not load your journal. This is a connection problem, not an empty '
-            + 'journal. Your entries are still there.', () => loadHistory());
+          whListError(emptyEl, whReadError(error, 'your journal')
+            + ' A loading problem, not an empty journal - your entries are still there.', () => loadHistory());
         } else {
-          emptyEl.textContent = 'Could not load your journal. Try again.';
+          emptyEl.textContent = whReadError(error, 'your journal');
         }
         return;
       }
@@ -1413,7 +1413,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!ok) return;
       loadHistory().catch(e => {
         console.error('initial history:', e);
-        showToast('Could not load your journal.');
+        showToast(whReadError(e, 'your journal'));
       });
     });
   })();

@@ -5935,6 +5935,123 @@ VALIDATORS = [
     {
         # Arms its recorder in addInitScript BEFORE first paint. Arming at readyState 'interactive'
         # lost the first ~650ms and banked "no loading state" for components that had one.
+        # CL a11y-states, promoted from hand-walks by A16.C4 (rule of two): focus_visible /
+        # reduced_motion / icon_only_name / no_raw_enum had been live-MCP-walked at least twice and
+        # re-staled on every shared-file edit (~240 rows). The prover measures the four families
+        # per page with the recorded instrument traps honoured (trusted Tab because programmatic
+        # focus() never matches :focus-visible; focused-vs-unfocused DELTA because a standing
+        # box-shadow is not a focus ring; getAnimations() under emulateMedia so the RESULT is
+        # measured; CLARITY_PROBE reused for icon-only so there is one classifier, not two).
+        "id":      "cl_a11y_states",
+        "script":  "tools/validate_page_ui_provers.py",
+        "args":    ["--prover", "a11y_states", "--gate"],
+        "label":   "CL a11y states (focus visible as a style DELTA on sampled trusted-Tab stops; "
+                   "reduced-motion honoured as a measured RESULT; icon-only controls carry an "
+                   "accessible name; no raw snake_case enum reaches a person)",
+        "group":   "Platform",
+        "report":  "a11y_states_report.json",
+        "skip_if_fast": True,
+    },
+    # ── SEVEN WALK INSTRUMENTS PROMOTED TO GATES (2026-08-21, the owed-100 drive). Each had been
+    # run as a standalone walker and its bank rows re-staled on every shared edit; registration is
+    # what lets those rows convert to gate-backed one-way green (A15) and re-earn by RUNNING the
+    # gate. retry_path / count_matches_source / effect_visible were given real --gate exit codes at
+    # promotion — before that each always exited 0, a gate that could not fail.
+    {"id": "cb_did_it_land",     "script": "tools/prove_did_it_land.mjs",     "args": ["--gate"],
+     "label": "CB did-it-land (after a slow action the person can tell whether it landed; every mutating request intercepted in-page)",
+     "group": "Platform", "report": "did_it_land_report.json", "skip_if_fast": True},
+    {"id": "cb_retry_path",      "script": "tools/prove_retry_path.mjs",      "args": ["--gate"],
+     "label": "CB retry-path (a failure offers a retry that actually re-attempts and succeeds when the cause is gone)",
+     "group": "Platform", "report": "retry_path_report.json", "skip_if_fast": True},
+    {"id": "cf_count_matches_source", "script": "tools/prove_count_matches_source.mjs", "args": ["--gate"],
+     "label": "CF count-matches-source (a rendered count equals its canonical source read live)",
+     "group": "Platform", "report": "count_matches_source_report.json", "skip_if_fast": True},
+    {"id": "cb_wrong_then_fix",  "script": "tools/prove_wrong_then_fix.mjs",  "args": ["--gate"],
+     "label": "CB wrong-then-fix (an incomplete submit is refused with the reason, nothing is written, and the person's input is KEPT)",
+     "group": "Platform", "report": "wrong_then_fix_report.json", "skip_if_fast": True},
+    {"id": "cf_effect_visible",  "script": "tools/prove_effect_visible.mjs",  "args": ["--gate"],
+     "label": "CF effect-visible (a driven write lands in the DB and shows on the surface; cleanup verified)",
+     "group": "Platform", "report": "effect_visible_report.json", "skip_if_fast": True},
+    {"id": "cb_what_happens_next", "script": "tools/prove_what_happens_next.mjs", "args": ["--gate"],
+     "label": "CB what-happens-next (a confirmation says WHAT happens next and WHEN, not just that something fired)",
+     "group": "Platform", "report": "what_happens_next_report.json", "skip_if_fast": True},
+    {"id": "cb_double_fire",     "script": "tools/prove_double_fire.mjs",     "args": ["--gate"],
+     "label": "CB double-fire (a double-activated control sends ONE write; every mutating request counted and held in-page)",
+     "group": "Platform", "report": "double_fire_report.json", "skip_if_fast": True},
+    # batch-2 promotions, same drive: exit codes added at promotion (all five always exited 0).
+    {"id": "cd_fallback_engaged", "script": "tools/prove_fallback_engaged.mjs", "args": ["--gate"],
+     "label": "CD fallback-engaged (with the edge stubbed 500 the page's declared fallback actually engages; no write escapes)",
+     "group": "Platform", "report": "fallback_engaged_report.json", "skip_if_fast": True},
+    {"id": "cm_number_explained", "script": "tools/prove_number_explained.mjs", "args": ["--gate"],
+     "label": "CM number-explained (a derived figure can be explained without leaving the surface)",
+     "group": "Platform", "report": "number_explained_report.json", "skip_if_fast": True},
+    {"id": "cm_one_vocabulary",  "script": "tools/prove_one_vocabulary.mjs",  "args": ["--gate"],
+     "label": "CM one-vocabulary (a concept keeps ONE name across surfaces; MIXED concepts fail)",
+     "group": "Platform", "report": "one_vocabulary_report.json", "skip_if_fast": True},
+    {"id": "cb_abandon_resume",  "script": "tools/prove_abandon_resume.mjs",  "args": ["--gate"],
+     "label": "CB abandon-resume (abandoning midway leaves nothing half-applied; HALF-WRITTEN fails)",
+     "group": "Platform", "report": "abandon_resume_report.json", "skip_if_fast": True},
+    {"id": "cf_source_chip",     "script": "tools/prove_source_chip.mjs",     "args": ["--gate"],
+     "label": "CF source-chip (a chip naming a feed the page never read is a false provenance claim)",
+     "group": "Platform", "report": "source_chip_report.json", "skip_if_fast": True},
+    {"id": "cm_cost_before_commit", "script": "tools/prove_cost_before_commit.mjs", "args": ["--gate"],
+     "label": "CM cost-before-commit (a credit-costing action states its cost BEFORE the person commits)",
+     "group": "Platform", "report": "cost_before_commit_report.json", "skip_if_fast": True},
+    {"id": "cf_units_visible",   "script": "tools/prove_units_visible.mjs",   "args": ["--gate"],
+     "label": "CF units-visible (every examined quantity in each opened view carries its unit on screen)",
+     "group": "Platform", "report": "units_visible_report.json", "skip_if_fast": True},
+    {"id": "cj_zoom200",         "script": "tools/prove_zoom200.mjs",         "args": ["--gate"],
+     "label": "CJ zoom-200 (at 200% zoom content reflows without clipping, sideways scroll, or unreachable controls)",
+     "group": "Platform", "report": "zoom200_report.json", "skip_if_fast": True},
+    {"id": "co_back_nav",        "script": "tools/prove_back_nav.mjs",        "args": ["--gate"],
+     "label": "CO back-nav (browser Back lands where wayfinding says, with and without a referrer)",
+     "group": "Platform", "report": "back_nav_report.json", "skip_if_fast": True},
+    {"id": "cg_offline_views", "script": "tools/prove_offline_refusal.mjs", "args": ["--case", "contact"],
+     "label": "CG offline-views representative case (the full sweep is the per-case loop; each run "
+              "updates its cell in offline_refusal_report.json - refused BEFORE firing and SAID so, "
+              "with navigator.onLine overridden AND the network cut)",
+     "group": "Platform", "report": "offline_refusal_report.json", "skip_if_fast": True},
+    {"id": "cm_fallback_views", "script": "tools/prove_fallback_views.mjs", "args": [],
+     "label": "CM fallback-views (fallback_engaged per (page,view): when a dialog's OWN edge-fn "
+              "primary is answered 500, content still renders AND the view names a stored source "
+              "or announces the failure - judged per-sentence against the healthy-open baseline; "
+              "views measured to invoke no edge function are not-applicable)",
+     "group": "Platform", "report": "fallback_views_report.json", "skip_if_fast": True},
+    {"id": "cm_retry_views", "script": "tools/prove_retry_views.mjs", "args": [],
+     "label": "CM retry-views (retry_path per (page,view): a dialog whose reads fail paints the "
+              "failure AND offers a retry inside the view that actually re-attempts and recovers "
+              "once the cause clears; no-read and memory-rendered views are measured "
+              "not-applicable)",
+     "group": "Platform", "report": "retry_views_report.json", "skip_if_fast": True},
+    {"id": "cm_backnav_views", "script": "tools/prove_backnav_views.mjs", "args": [],
+     "label": "CM backnav-views (browser Back out of each open dialog leaves no orphaned overlay "
+              "and no locked body - judged for history-state sheets (close in place) and plain "
+              "sheets (leave cleanly) alike)",
+     "group": "Platform", "report": "backnav_views_report.json", "skip_if_fast": True},
+    {"id": "cm_number_views", "script": "tools/prove_number_views.mjs", "args": [],
+     "label": "CM number-views (number_explained per (page,view): every derived figure in an opened "
+              "dialog carries naming context in reach; raw counts explain themselves and figure-less "
+              "views are measured not-applicable; the vocab half reports snake_case-on-the-glass as "
+              "findings only)",
+     "group": "Platform", "report": "number_views_report.json", "skip_if_fast": True},
+    {"id": "cm_rate_views", "script": "tools/prove_rate_views.mjs", "args": [],
+     "label": "CM rate-views (rate_limit_legible per (page,view): a 429 with Retry-After injected "
+              "AFTER the view opens is answered by naming the WAIT, never a bare retry; both "
+              "induction paths tried; zero reads = measured not-applicable)",
+     "group": "Platform", "report": "rate_views_report.json", "skip_if_fast": True},
+    {"id": "cm_cost_views", "script": "tools/prove_cost_views.mjs", "args": [],
+     "label": "CM cost-views (what_does_it_cost per (page,view): a view with a commit control states "
+              "cost/hold/reward BEFORE the press; a view with none is measured not-applicable by "
+              "enumeration; commit-without-vocabulary cells queue for the declared FLOWS list, "
+              "never failed on a guess)",
+     "group": "Platform", "report": "cost_views_report.json", "skip_if_fast": True},
+    {"id": "svc_pane_populated", "script": "tools/prove_services_pane.mjs", "args": [],
+     "label": "market_svc populated (the services pane's every visible number attributed to its own "
+              "label and matched to the security_invoker view the page reads, under the caller's own "
+              "claims, across five personas; the tab driven by CLICK with aria-selected confirmed; "
+              "an em-dash badge is a failed read, never 0)",
+     "group": "Platform", "report": "services_pane_report.json", "skip_if_fast": True},
+    {
         "id":      "ck_component_states",
         "script":  "tools/validate_page_ui_provers.py",
         "args":    ["--prover", "component_states", "--gate"],
@@ -7826,7 +7943,11 @@ def run_validator(v):
     if not os.path.exists(v["script"]):
         return {"status": "ERROR", "reason": f"Script not found: {v['script']}", "output": ""}
 
-    cmd = [PYTHON, v["script"]] + v["args"]
+    # interpreter by extension: the seven walk-instruments promoted to gates on 2026-08-21 are
+    # node .mjs scripts registered directly (no python wrapper); running them under PYTHON would
+    # SyntaxError instantly and read as a broken gate rather than a wrong interpreter.
+    interp = "node" if v["script"].endswith((".mjs", ".js")) else PYTHON
+    cmd = [interp, v["script"]] + v["args"]
     t0  = time.time()
     popen_kw = {}
     if os.name != "nt":

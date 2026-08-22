@@ -422,7 +422,7 @@ async function loadAndRender(projectId) {
       _body  = 'You do not have access to this project. Ask its manager to add you.' + _back;
     } else if (_e) {
       _title = 'Could not load this report';
-      _body  = 'This is a connection problem, not a missing project. The report is unknown right now, '
+      _body  = e(whReadError(_e, 'this report')) + ' The report is unknown right now, '
              + 'not empty, so do not report status from this page yet. '
              + '<button type="button" onclick="location.reload();" style="min-height:44px;padding:0 0.9rem;'
              + 'border-radius:8px;font-size:0.8rem;font-weight:600;background:rgba(247,162,27,0.12);'

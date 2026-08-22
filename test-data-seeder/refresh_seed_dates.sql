@@ -17,9 +17,29 @@ UPDATE logbook SET
 FROM (SELECT now() - GREATEST(max(date), max(closed_at), max(created_at), max(updated_at)) AS iv FROM logbook) s;
 
 -- pm_completions: completed_at  (pm-done-today)
+-- WHOLE-DAY shift, unlike every other table here: pm_completions_dedup_uidx is unique on
+-- (scope_item_id, worker_name, (completed_at AT TIME ZONE 'UTC')::date). A fractional shift moves rows
+-- across UTC-date boundaries unevenly and collapses adjacent-date completions onto one date — the
+-- refresh aborted on exactly that collision on 2026-08-21. A whole-day shift maps every UTC date 1:1,
+-- so rows that were unique stay unique. The day count lands the newest row TODAY if its time-of-day
+-- has already passed, else YESTERDAY — never in the future, because a completion stamped later than
+-- now() is manufactured freshness.
+-- ...and in TWO PHASES, because the index is NON-DEFERRABLE: even a uniform shift collides
+-- TRANSIENTLY mid-UPDATE when a shifted row lands on a date an unshifted sibling still occupies
+-- (measured 2026-08-21: key 2026-07-17 collided with a not-yet-shifted row). Phase 1 jumps every row
+-- +400000 days plus the real shift (~year 3121 — a date space no unshifted row occupies); phase 2
+-- uniformly removes the jump. Day arithmetic is exact (no year/leap clamping), so the round trip is
+-- lossless and the final dates equal a single nd-day shift.
 UPDATE pm_completions SET
-  completed_at = completed_at + iv
-FROM (SELECT now() - max(completed_at) AS iv FROM pm_completions) s;
+  completed_at = completed_at + make_interval(days => 400000 + s.nd)
+FROM (
+  SELECT (current_date - (max(completed_at AT TIME ZONE 'UTC'))::date)
+         - CASE WHEN (max(completed_at AT TIME ZONE 'UTC'))::time > (now() AT TIME ZONE 'UTC')::time
+                THEN 1 ELSE 0 END AS nd
+  FROM pm_completions
+) s;
+UPDATE pm_completions SET
+  completed_at = completed_at - make_interval(days => 400000);
 
 -- sensor_readings: recorded_at  (sensor-anomaly-24h card)
 UPDATE sensor_readings SET

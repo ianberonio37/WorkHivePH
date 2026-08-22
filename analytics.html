@@ -2056,7 +2056,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   function renderEngineeringValidation(d) {
     if (!d?.flagged?.length) return `<div class="card">
-      <h2 class="card-title">Engineering Validation <span class="card-standard">WAT pattern: engineering_calcs × logbook</span></h2>
+      <!-- "engineering calculations", not the table name: engineering_calcs is schema vocabulary and
+           cl_a11y_states's no_raw_enum caught it reaching the person in this badge (2026-08-21). -->
+      <h2 class="card-title">Engineering Validation <span class="card-standard">WAT pattern: engineering calculations × logbook</span></h2>
       <div class="empty" style="padding:1rem 0;color:var(--wh-green);">✓ ${escHtml(d?.note || 'No matches found between failure history and engineering calc records.')}</div>
     </div>`;
     const rows = d.flagged.map(f => `

@@ -723,7 +723,8 @@ async function loadSchedule() {
     // render "Nothing scheduled: tap '+' to plan a task." and "No items past their date / CLEAR" — a
     // plan declared empty because the read broke. Measured with a live 500 (10 intercepted requests):
     // zero failure sentences and zero dashes at 5s AND at 13s, so the reader was never told at all.
-    _dpCloudReadFailed = true;
+    // The ERROR OBJECT, not a boolean - whReadError reads its status/code to name the remedy.
+    _dpCloudReadFailed = e || true;
   }
   renderSidebar();
   render();
@@ -1203,7 +1204,7 @@ function renderDayplannerSummary() {
     const vS = document.getElementById('dp-verdict-sub');
     if (vS) vS.textContent = stale
       ? 'These items came from this device and may be out of date. Reload once you are back online.'
-      : 'Your plan is unknown right now, not empty. Check your connection and reload before planning your day around this.';
+      : 'Your plan is unknown right now, not empty. ' + whReadError(_dpCloudReadFailed, 'your plan');
     const aB = document.getElementById('dp-action-text');
     if (aB) aB.textContent = 'Reload the page. Do not assume the day is clear until it loads.';
     const eS = document.getElementById('empty-state');

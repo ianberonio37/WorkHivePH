@@ -46,6 +46,23 @@ const esc = (s) => String(s).replace(/'/g, "''");
 // would have created; the fill is verified before the abandon so a no-op cannot pass.
 const CASES = [
   {
+    // registry BJ market rows (2026-08-22): a listing abandoned mid-compose must not land a draft.
+    page: 'marketplace', what: 'a listing, abandoned mid-compose',
+    table: 'marketplace_listings', col: 'title',
+    open: "var b=document.getElementById('fab-post'); if(b) b.click();",
+    settle: 2500,
+    fill: "var f=document.getElementById('post-title'); if(f){f.value=MARK; f.dispatchEvent(new Event('input',{bubbles:true})); return true;} return false;",
+  },
+  {
+    // registry BJ market_svc rows: a hail abandoned mid-fill must not land a service request. The
+    // hail form is INLINE on the services pane (no modal): the open drives the real tab.
+    page: 'marketplace', what: 'a service hail, abandoned mid-fill',
+    table: 'service_requests', col: 'address',
+    open: "var t=document.querySelector('.section-tab[data-section=\"services\"]'); if(t) t.click();",
+    settle: 6000,
+    fill: "var s=document.getElementById('svc-hail-item'); if(s&&s.options.length>1&&!s.value){s.selectedIndex=1;s.dispatchEvent(new Event('change',{bubbles:true}));} var f=document.getElementById('svc-hail-address'); if(f){f.value=MARK; f.dispatchEvent(new Event('input',{bubbles:true})); return true;} return false;",
+  },
+  {
     page: 'logbook', what: 'a maintenance entry, abandoned mid-capture',
     table: 'logbook', col: 'problem',
     // The opener and field ids come from tools/dialog_targets.mjs and the page itself, not from a
@@ -274,6 +291,8 @@ const run = async () => {
 
   await browser.close();
   writeFileSync(path.join(ROOT, 'abandon_resume_report.json'), JSON.stringify(out, null, 1));
+  // gate promotion 2026-08-21: a gate that cannot fail is not a gate.
+  if (process.argv.includes('--gate')) process.exitCode = out.cases.some((c) => c.outcome === 'HALF-WRITTEN') ? 1 : 0;
   const t = (o) => out.cases.filter((x) => x.outcome === o).length;
   console.log(`\n  ${out.cases.length} case(s) | PASS ${t('PASS')} | HALF-WRITTEN ${t('HALF-WRITTEN')} `
     + `| SILENT-DRAFT ${t('SILENT-DRAFT')} | UNGRADED ${t('UNGRADED')} | ERROR ${t('ERROR')}`);

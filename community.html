@@ -2380,7 +2380,25 @@
       .order('created_at', { ascending: true }).order('id').limit(200);
 
     const el = document.getElementById('thread-replies');
-    if (error) { el.innerHTML = '<p style="color:rgba(239,68,68,0.7); font-size:0.78rem;">Could not load replies.</p>'; return; }
+    if (error) {
+      // Route through the shared read-error taxonomy (2026-08-22, the rate-limit view pass): a 429
+      // answered with a bare "Could not load replies." names neither the cause nor the wait, and
+      // whReadError already carries the right sentence for every status (429 = wait, 403 = not
+      // allowed, network = check connection).
+      const msg = typeof whReadError === 'function' ? whReadError(error, 'the replies') : 'Could not load replies.';
+      // ...AND OFFER THE WAY BACK (2026-08-22, the retry view pass): the message alone left a person
+      // in the open thread with no affordance but close-and-reopen. The button re-runs this exact
+      // read; when the failure was a rate limit the wording above already says wait first.
+      el.innerHTML = '<p style="color:rgba(239,68,68,0.7); font-size:0.78rem;">' + escHtml(msg) + '</p>'
+        + '<button type="button" id="replies-retry" style="margin-top:0.4rem;min-height:44px;padding:0 0.9rem;'
+        + 'border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);'
+        + 'border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);cursor:pointer;">Retry</button>';
+      document.getElementById('replies-retry')?.addEventListener('click', () => {
+        el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80);">Loading replies…</p>';
+        loadReplies(postId);
+      });
+      return;
+    }
     if (!data || data.length === 0) {
       el.innerHTML = '<p style="font-size:0.78rem; color:rgba(255,255,255,0.80);">No replies yet. Start the conversation.</p>';
       return;

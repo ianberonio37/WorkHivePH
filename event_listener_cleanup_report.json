@@ -7,9 +7,9 @@
   "per_page": [
     {
       "page": "index.html",
-      "add": 26,
+      "add": 28,
       "remove": 0,
-      "add_raw": 26,
+      "add_raw": 28,
       "rebuild_scoped": 0,
       "risky": true
     },
@@ -71,9 +71,9 @@
     },
     {
       "page": "community.html",
-      "add": 17,
+      "add": 18,
       "remove": 1,
-      "add_raw": 17,
+      "add_raw": 18,
       "rebuild_scoped": 0,
       "risky": false
     },

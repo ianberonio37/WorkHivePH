@@ -2,7 +2,7 @@
 name: table-rls-inventory_items
 type: table-rls
 source: db:pg_policies+pg_trigger:inventory_items
-source_sha: c0fe52511ed6d732
+source_sha: 9996fddd3c12d384
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: True
 
-Columns (*=NOT NULL): id*, worker_name*, part_number*, part_name*, category, unit, qty_on_hand*, min_qty*, bin_location, notes, photo, updated_at, created_at, status, hive_id, submitted_by, approved_by, approved_at, auth_uid, linked_asset_node_ids
+Columns (*=NOT NULL): id*, worker_name*, part_number*, part_name*, category, unit, qty_on_hand*, min_qty*, bin_location, notes, photo, updated_at, created_at, status, hive_id, submitted_by, approved_by, approved_at, auth_uid, linked_asset_node_ids, lead_time_days
 
 Policies:
 - `inventory_items_write` [ALL · roles=public] USING=`((auth.uid() IS NOT NULL) AND (((hive_id IS NULL) AND (auth_uid = auth.uid())) OR ((auth_uid = auth.uid()) AND (hive_id ` CHECK=`((auth.uid() IS NOT NULL) AND (((hive_id IS NULL) AND (auth_uid = auth.uid())) OR ((auth_uid = auth.uid()) AND (hive_id `

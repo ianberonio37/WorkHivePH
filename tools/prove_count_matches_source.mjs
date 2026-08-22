@@ -302,6 +302,8 @@ const run = async () => {
   await browser.close();
   writeFileSync(path.join(ROOT, 'count_matches_source_report.json'), JSON.stringify(out, null, 1));
   const all = out.results.flatMap((r) => r.checks);
+  // gate promotion 2026-08-21: failing checks set the exit code.
+  if (process.argv.includes('--gate')) process.exitCode = all.some((c) => !c.ok) ? 1 : 0;
   console.log(`\n  ${all.length} check(s) over ${out.results.length} page(s) · ${all.filter((c) => !c.ok).length} failing`);
   console.log('  -> count_matches_source_report.json');
 };

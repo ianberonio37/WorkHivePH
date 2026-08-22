@@ -32,6 +32,7 @@ import { chromium } from 'playwright';
 import { writeFileSync } from 'fs';
 import { signIn, assertSignedIn } from './live_page_journeys.mjs';
 import { SIGNED_OUT_SRC, REFUSAL_SRC, GENERIC_ERROR_SRC } from './session_signals.mjs';
+import { viewTargets, openView } from './view_pass.mjs';
 
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
 const PAGES = ['hive', 'logbook', 'inventory', 'pm-scheduler', 'project-manager', 'dayplanner',
@@ -176,15 +177,171 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
   console.log(`  ${p.padEnd(20)} ${rec.ok === true ? 'PASS' : rec.ok === false ? 'FAIL' : 'UNGRADED'}  `
     + String(rec.verdict || rec.error || '').slice(0, 88));
 }
+// ── THE VIEW PASS (V2/V3), 2026-08-22 — the same oracle asked of each dialog_targets view ────────
+// Reach the view FIRST with the network healthy, then induce: the read under test is the one the
+// view issues when driven, and a view that could never open measures nothing (session_expiry_read's
+// deferral). The induction is CTX.ROUTE, not a late fetch patch — supabase-js binds fetch at
+// construction, so a post-load window.fetch override cannot reach it (the failure_injection note),
+// while ctx.route sits above the service worker (the blind-counter lesson). Hits are counted and a
+// zero counter is UNGRADED, never judged.
+const viewResults = [];
+if (!ONE || true) {
+  for (const pg of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
+    for (const t of viewTargets(pg)) {
+      const rec = { page: pg, view: t.view, modal: t.modal };
+      try {
+        const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+        if (!t.signedOut) await assertSignedIn(signIn(ctx, 'supervisor'));  // index V2/V3 run signed OUT by design
+        const p1 = await ctx.newPage();
+        await p1.goto(`${ORIGIN}/${pg}.html`, { waitUntil: 'domcontentloaded', timeout: 25000 });
+        await p1.waitForTimeout(3200);
+        const opened = await openView(p1, t);
+        if (!opened.ok) {
+          rec.ok = null; rec.verdict = `${opened.kind}: ${opened.why}`;
+          viewResults.push(rec); await ctx.close(); continue;
+        }
+        const readModal = (sel) => p1.evaluate(({ sel, soSrc, refSrc, genSrc }) => {
+          const el = document.getElementById(sel) || document.querySelector(`.${CSS.escape(sel)}`);
+          const scope = el || document.body;
+          const txt = ((scope.innerText || '') + ' ' + (document.body.innerText || '').slice(0, 800))
+            .replace(/\s+/g, ' ').trim();
+          const T = (src) => new RegExp(src, 'i').test(txt);
+          return { chars: txt.length, saysRefusal: T(refSrc), saysSignedOut: T(soSrc), saysGeneric: T(genSrc) };
+        }, { sel, soSrc: SIGNED_OUT_SRC, refSrc: REFUSAL_SRC, genSrc: GENERIC_ERROR_SRC });
+        rec.before = await readModal(t.modal);
+        let hits = 0;
+        await ctx.route('**/rest/v1/**', (route) => {
+          // READ-shaped RPCs travel as POSTs (/rpc/get_* bundles) - a GET-only induction reads an
+          // RPC-fed view as issuing no reads, a false NA. Fulfilling never lets the request leave.
+          const m = route.request().method();
+          const isRead = /GET|HEAD/i.test(m) || (/POST/i.test(m) && route.request().url().includes('/rpc/'));
+          if (!isRead) return route.continue();
+          hits++;
+          return route.fulfill({ status: 403, contentType: 'application/json',
+            body: JSON.stringify({ code: '42501', message: 'permission denied for table', details: null, hint: null }) });
+        });
+        // COLLECT ANNOUNCEMENTS CONTINUOUSLY from this moment: a toast lives about a second, and a
+        // read taken only after the reopen settles scores an expired message as silence (the
+        // toast-gone-before-the-verdict class; same collector session_expiry_read uses).
+        await p1.evaluate(() => {
+          window.__whSeen = window.__whSeen || [];
+          const grab = (n) => {
+            const t = (n.innerText || n.textContent || '').replace(/\s+/g, ' ').trim();
+            if (t) window.__whSeen.push(t.slice(0, 300));
+          };
+          const mo = new MutationObserver((muts) => {
+            for (const m of muts) for (const n of m.addedNodes || []) {
+              if (n.nodeType !== 1) continue;
+              if (n.matches?.('[role="alert"],[role="status"],[aria-live],.toast,[class*="toast"],[class*="error"]')) grab(n);
+              n.querySelectorAll?.('[role="alert"],[role="status"],[aria-live],.toast,[class*="toast"],[class*="error"]').forEach(grab);
+            }
+          });
+          mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+        });
+        // drive the view's own reads under the refusal: close (Escape) and reopen through the same door
+        await p1.keyboard.press('Escape').catch(() => {});
+        await p1.waitForTimeout(900);
+        const re = await openView(p1, t, { settleMs: 2600 });
+        rec.after = await readModal(t.modal);
+        // fold the collected announcements (toasts that may have already dismissed) into the reading
+        const seen = await p1.evaluate(() => [...new Set(window.__whSeen || [])].join(' ').slice(0, 1200)).catch(() => '');
+        if (seen) {
+          const T = (src) => new RegExp(src, 'i').test(seen);
+          rec.after.saysRefusal = rec.after.saysRefusal || T(REFUSAL_SRC);
+          rec.after.saysSignedOut = rec.after.saysSignedOut || T(SIGNED_OUT_SRC);
+          rec.after.saysGeneric = rec.after.saysGeneric || T(GENERIC_ERROR_SRC);
+          rec.collected = seen.slice(0, 240);
+        }
+        rec.injectionHits = hits;
+        await ctx.unroute('**/rest/v1/**').catch(() => {});
+        await ctx.close();
+        if (!hits) {
+          // A REOPEN issuing no read is not proof the view NEVER reads - a first-open-per-page-life
+          // cache reads once and never again (the vacuous-half trap). Second honest attempt: fresh
+          // context, page loads HEALTHY, induction installed, then the view's FIRST open - the
+          // page's own reads succeeded, only the view's first-open reads meet the refusal.
+          const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 } });
+          if (!t.signedOut) await assertSignedIn(signIn(ctx2, 'supervisor'));
+          const p2 = await ctx2.newPage();
+          await p2.goto(`${ORIGIN}/${pg}.html`, { waitUntil: 'domcontentloaded', timeout: 25000 });
+          await p2.waitForTimeout(3200);
+          let hits2 = 0;
+          await ctx2.route('**/rest/v1/**', (route) => {
+            const m2 = route.request().method();
+            const isRead2 = /GET|HEAD/i.test(m2) || (/POST/i.test(m2) && route.request().url().includes('/rpc/'));
+            if (!isRead2) return route.continue();
+            hits2++;
+            return route.fulfill({ status: 403, contentType: 'application/json',
+              body: JSON.stringify({ code: '42501', message: 'permission denied for table', details: null, hint: null }) });
+          });
+          await p2.evaluate(() => {
+            window.__whSeen = window.__whSeen || [];
+            const grab = (n) => { const t = (n.innerText || n.textContent || '').replace(/\s+/g, ' ').trim();
+                                  if (t) window.__whSeen.push(t.slice(0, 300)); };
+            const mo = new MutationObserver((muts) => {
+              for (const m of muts) for (const n of m.addedNodes || []) {
+                if (n.nodeType !== 1) continue;
+                if (n.matches?.('[role="alert"],[role="status"],[aria-live],.toast,[class*="toast"],[class*="error"]')) grab(n);
+                n.querySelectorAll?.('[role="alert"],[role="status"],[aria-live],.toast,[class*="toast"],[class*="error"]').forEach(grab);
+              }
+            });
+            mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+          });
+          const first = await openView(p2, t, { settleMs: 2600 });
+          const after2 = await p2.evaluate(({ soSrc, refSrc, genSrc }) => {
+            const txt = (document.body.innerText || '').replace(/\s+/g, ' ').trim()
+              + ' ' + [...new Set(window.__whSeen || [])].join(' ');
+            const T = (src) => new RegExp(src, 'i').test(txt);
+            return { saysRefusal: T(refSrc), saysSignedOut: T(soSrc), saysGeneric: T(genSrc) };
+          }, { soSrc: SIGNED_OUT_SRC, refSrc: REFUSAL_SRC, genSrc: GENERIC_ERROR_SRC }).catch(() => null);
+          await ctx2.close();
+          if (hits2 && after2) {
+            rec.injectionHits = hits2; rec.firstOpenPath = true;
+            if (after2.saysSignedOut && !after2.saysRefusal) {
+              rec.ok = false; rec.verdict = 'first-open path: BLAMES IDENTITY for a permission refusal';
+            } else if (after2.saysRefusal) {
+              rec.ok = true; rec.verdict = 'first-open path: the refusal is named';
+            } else if (after2.saysGeneric && !rec.before.saysGeneric) {
+              rec.ok = false; rec.verdict = 'first-open path: only a generic error';
+            } else {
+              rec.ok = false; rec.verdict = 'first-open path: reads refused and nothing said';
+            }
+          } else {
+            rec.ok = null;
+            rec.verdict = 'no REST read on reopen NOR on a fresh first open under induction — this view '
+              + 'reads nothing of its own, so the refusal oracle has no subject here';
+          }
+        } else if (rec.before.saysRefusal) {
+          rec.ok = null; rec.verdict = 'the view already carries refusal vocabulary at rest — signal unattributable';
+        } else if (rec.after.saysSignedOut && !rec.after.saysRefusal) {
+          rec.ok = false; rec.verdict = 'BLAMES IDENTITY for a permission refusal inside this view';
+        } else if (rec.after.saysRefusal) {
+          rec.ok = true; rec.verdict = 'the view names the refusal';
+        } else if (rec.after.saysGeneric && !rec.before.saysGeneric) {
+          rec.ok = false; rec.verdict = 'only a generic error inside the view — told it broke, not that they are not allowed';
+        } else {
+          rec.ok = false; rec.verdict = 'the refused view said nothing new';
+        }
+      } catch (e) { rec.ok = null; rec.verdict = String(e.message || e).slice(0, 140); }
+      viewResults.push(rec);
+      console.log(`  ${(rec.page + '#' + rec.view).padEnd(24)} ${rec.ok === true ? 'PASS' : rec.ok === false ? 'FAIL' : 'UNGRADED'}  ${String(rec.verdict).slice(0, 80)}`);
+    }
+  }
+}
+
 await browser.close();
 
 const graded = results.filter((r) => r.ok !== null);
 const bad = graded.filter((r) => !r.ok);
+const vGraded = viewResults.filter((r) => r.ok !== null);
+const vBad = vGraded.filter((r) => !r.ok);
 writeFileSync('why_refused_report.json', JSON.stringify({
   injected: { status: 403, code: '42501' },
   totals: { pages: results.length, graded: graded.length,
-            ungraded: results.filter((r) => r.ok === null).length, failing: bad.length },
+            ungraded: results.filter((r) => r.ok === null).length, failing: bad.length,
+            views: viewResults.length, viewsGraded: vGraded.length, viewsFailing: vBad.length },
   pages: results,
+  views: viewResults,
 }, null, 1));
 console.log('\n  wrote why_refused_report.json');
 for (const u of results.filter((r) => r.ok === null)) {

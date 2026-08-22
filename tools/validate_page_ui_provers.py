@@ -40,6 +40,10 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 ROOT = Path(__file__).resolve().parent.parent
 
 PROVERS = {
+    "a11y_states":       ("prove_a11y_states.mjs", "a11y_states_report.json",
+                          "CL a11y states: focus visible on sampled tab stops (trusted Tab, delta vs "
+                          "unfocused), reduced-motion honoured, icon-only controls named, no raw "
+                          "snake_case enum in person-facing text"),
     "viewport_overflow": ("prove_viewport_overflow.mjs", "viewport_overflow_report.json",
                           "CJ layout: no unclipped horizontal overflow at 390/641/1280, "
                           "every effective tap target >= 44px"),
@@ -151,6 +155,13 @@ TIMEOUT_S = {
     # Six pages, each held at 429 and then sampled across an 8s window rather than read at its end —
     # the sampling is the point, so the budget has to cover it.
     "quota_legible": 900,
+    # 66 personas × five journey families (first_run/repeat/two_sided/handoff/abandon), and every
+    # journey settles each navigation with a deliberate 3.6-4.2s wait. Measured 2026-08-21: the FULL
+    # walk took 2169s solo (start 09:02:12, end 09:38:21, 66 personas, 0 failing) — the 900s default
+    # was the "timeout shorter than the work" failure again: v7 and a solo re-run both reported
+    # "exceeded 900s" on a prover that was walking correctly. Budget = measured × 1.5, same margin
+    # rule as failure_injection above.
+    "journey": 3300,
 }
 DEFAULT_TIMEOUT_S = 900
 

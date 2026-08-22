@@ -92,7 +92,12 @@ const TRUTHS = {
       check: (t) => {
         // The most consequential zero on the platform. "0" alone is ambiguous in the one direction
         // that matters: a plant with nothing wrong and a plant nobody has looked at render alike.
-        const zero = near(t, /ANOMALY SIGNALS|ALERTS/i, /\b0\b/, 60);
+        // ANCHORED TO THE SUMMARY CARDS, not the bare word ALERTS (2026-08-23): the generic anchor
+        // swept the feed's FILTER-CHIP row ("Staging 0 · System 0" beside the "Alerts" heading) -
+        // per-kind counts over a LOADED list of 62, where 0 unambiguously means "none of this kind
+        // in the list below" and the nothing-computed ambiguity cannot arise. The domain zeros this
+        // claim governs live on the summary cards, whose labels are the anchor.
+        const zero = near(t, /ANOMALY SIGNALS|CRITICAL ALERTS/i, /\b0\b/, 60);
         if (!zero) return { ok: null, saw: 'no zero-valued alert figure on screen to judge' };
         const qualified = near(t, /\b0\b/, /no [a-z ]{0,24}(anomalies|alerts)[^\n]{0,30}|CLEAR|not (yet )?computed|nothing computed/i, 90);
         return { ok: !!qualified, saw: qualified || 'a bare 0 with nothing saying which kind of zero it is' };

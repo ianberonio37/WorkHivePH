@@ -551,6 +551,13 @@ def main(argv):
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args(argv)
     res = run_all()
+    # per-run artifact so bank rows citing this harness can be honestly re-stamped: the recency rail
+    # compares the artifact's mtime against each row's dep mtimes, and a harness with no artifact
+    # has no word (the paginated-order-totality lesson, 2026-08-21).
+    import os as _os
+    with open(_os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                            "money_lifecycle_report.json"), "w", encoding="utf-8") as f:
+        json.dump({k: {"status": v[0], "detail": str(v[1])[:300]} for k, v in res.items()}, f, indent=1)
     if a.json:
         print(json.dumps({k: {"status": v[0], "detail": v[1]} for k, v in res.items()}, indent=1))
         return 0 if not any(v[0] == "fail" for v in res.values()) else 1

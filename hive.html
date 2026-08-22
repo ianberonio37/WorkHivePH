@@ -393,7 +393,7 @@
     .ho-section:last-child { border-bottom: none; }
     .ho-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.5rem; }
     .ho-item { font-size: 0.78rem; color:rgba(255,255,255,0.83); padding: 3px 0; display: flex; align-items: baseline; gap: 6px; }
-    .ho-input { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.6rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); font-size: 0.8rem; font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.6rem; }
+    .ho-input { width: 100%; min-height: 44px; padding: 0.6rem 0.75rem; border-radius: 0.6rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); font-size: 0.8rem; font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.6rem; }
     .ho-input::placeholder { color: rgba(255,255,255,0.80); }
     .ho-input:focus { border-color: rgba(41,182,217,0.4); background: rgba(41,182,217,0.06); }
   </style>
@@ -1418,7 +1418,7 @@
            to the canonical feeds it reads (logbook + PM + LOTO scan),
            so the incoming technician knows what window + sources the
            handover covered. Populated by generateHandover(). -->
-      <div id="handover-panel" class="hidden mt-5 mb-5">
+      <div id="handover-panel" class="mt-5 mb-5">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[11px] font-semibold text-white/80 uppercase tracking-widest">Shift Handover</p>
         </div>
@@ -1438,7 +1438,9 @@
               <p class="font-black text-white text-base" id="ho-title">Shift Handover Report</p>
               <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.80);" id="ho-meta"></p>
             </div>
-            <button onclick="document.getElementById('handover-sheet').classList.add('hidden')" aria-label="Close handover sheet" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:rgba(255,255,255,0.80);">&#x2715;</button>
+            <!-- 44px effective target (dialog_layout floor): the sheet was unreachable until
+                 2026-08-21, so its 32px close button had never been measured. -->
+            <button onclick="document.getElementById('handover-sheet').classList.add('hidden')" aria-label="Close handover sheet" class="rounded-full flex items-center justify-center" style="min-width:44px;min-height:44px;background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:rgba(255,255,255,0.80);">&#x2715;</button>
           </div>
           <div id="handover-body"></div>
           <div class="p-4" style="border-top:1px solid rgba(255,255,255,0.07);">
@@ -1715,7 +1717,7 @@ async function loadMyOpenWork() {
     const { count, error } = await db.from('v_logbook_truth')
       .select('*', { count: 'exact', head: true })
       .eq('hive_id', HIVE_ID).eq('worker_name', WORKER_NAME).eq('status', 'Open');
-    if (error) { head.textContent = "Couldn't load your jobs"; sub.textContent = 'Tap to open your logbook.'; return; }
+    if (error) { head.textContent = "Couldn't load your jobs"; sub.textContent = whReadError(error, 'your jobs'); return; }
     const n = count || 0;
     if (n === 0) {
       head.textContent = "You're all caught up";
@@ -1724,7 +1726,7 @@ async function loadMyOpenWork() {
       head.textContent = `${n} open job${n === 1 ? '' : 's'} assigned to you`;
       sub.textContent  = 'Tap to review and update them in your logbook.';
     }
-  } catch (_e) { console.error('hive load-jobs failed:', _e); head.textContent = "Couldn't load your jobs"; sub.textContent = 'Tap to open your logbook.'; }
+  } catch (_e) { console.error('hive load-jobs failed:', _e); head.textContent = "Couldn't load your jobs"; sub.textContent = whReadError(_e, 'your jobs'); }
 }
 
 function genCode() {
@@ -2032,7 +2034,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       // Query failed (network/server issue): show onboard with a helpful hint
       showView('onboard');
       const sub = document.querySelector('#view-onboard p');
-      if (sub) sub.textContent = 'Could not reach your hive. Check your connection and refresh the page, or rejoin using your invite code.';
+      if (sub) sub.textContent = whReadError(recErr, 'your hive') + ' You can also rejoin using your invite code.';
       return;
     }
 
@@ -2781,12 +2783,20 @@ function renderMaturityStairway(row) {
   // not a direct db.from() — the chip documents the underlying canonical view
   // that materializes the same numbers for ad-hoc queries.
   const chipEl = document.getElementById('stair-source-chip');
+  // The weights note is the RPC's own (compute_hive_readiness): stating them lets a reader
+  // DECOMPOSE the composite instead of taking it as a vibe with a number attached. If the formula
+  // ever changes in the function, that note must change with it — it is a claim about that code,
+  // and ci_domain_truth (hive CI1) holds the page to it. (The comment sits OUTSIDE the notes
+  // array literal: the jargon gate reads display-string regions, and a code identifier in a
+  // comment INSIDE one reads as jargon-on-the-glass.)
   if (chipEl && typeof renderSourceChip === 'function') {
+    // source-chip-allow: page renders maturity via the readiness RPC, not a direct db.from() —
+    // the chip documents the underlying canonical view that materializes the same numbers.
     chipEl.innerHTML = renderSourceChip({
       freshness: 'Live · updates automatically',
       source:    'v_maturity_truth',
       notes:     [
-        'Dimensions: Process / Data / Resilience / Leadership / Culture',
+        'Weighted: Process 25% · Data 20% · Resilience 15% · Leadership 25% · Culture 15% of the score',
       ],
     });
   }
@@ -3556,7 +3566,7 @@ async function loadKnowledgePipeline() {
   if (kpipeErr) {
     const rowsEl = document.getElementById('kpipe-rows');
     const overallEl = document.getElementById('kpipe-overall');
-    if (rowsEl) rowsEl.innerHTML = '<div style="font-size:0.62rem; color:var(--wh-red-text); padding:8px;">' + _t("Couldn't load knowledge freshness: a loading problem, not an empty base. Refresh to retry.", 'Hindi ma-load ang knowledge freshness: problema sa pag-load, hindi walang laman. I-refresh para subukan ulit.') + '</div>';
+    if (rowsEl) rowsEl.innerHTML = '<div style="font-size:0.62rem; color:var(--wh-red-text); padding:8px;">' + escHtml(_t(whReadError(kpipeErr, 'knowledge freshness') + ' A loading problem, not an empty base.', 'Hindi ma-load ang knowledge freshness: problema sa pag-load, hindi walang laman. I-refresh para subukan ulit.')) + '</div>';
     if (overallEl) overallEl.textContent = _t('Knowledge pipeline unavailable', 'Hindi available ang knowledge pipeline');
     return;
   }
@@ -3846,7 +3856,7 @@ async function loadMembers() {
   // E2: distinguish a failed read (retry) from a genuinely empty roster (honest empty state) —
   // a blank card conflated both. memberNames (set above) still drives team-stock either way.
   if (membersErr) {
-    if (typeof whListError === 'function') whListError(list, _t("Couldn't load your roster", 'Hindi ma-load ang roster'), loadMembers);
+    if (typeof whListError === 'function') whListError(list, _t(whReadError(membersErr, 'your roster'), 'Hindi ma-load ang roster'), loadMembers);
     return;
   }
   if (!membersData.length) {
@@ -4025,12 +4035,12 @@ async function loadFeed() {
         // that still held the failed state. A retry that re-attempts and does not recover is its own
         // defect: the person presses it, something clearly happens, and the page still says it is
         // broken. initBoard() refills `_board`, which is what recovery actually requires.
-        whListError(feed, "Couldn't load the activity feed. This is a loading problem, not an empty "
-          + 'hive. The entries are still there.', () => initBoard());
+        whListError(feed, whReadError(feedReadErr, 'the activity feed')
+          + ' A loading problem, not an empty hive - the entries are still there.', () => initBoard());
       } else {
         feed.innerHTML = '<div class="wh-card p-6 text-center">'
-          + '<p class="text-sm text-white/85">Couldn\'t load the activity feed.</p>'
-          + '<p class="text-xs text-white/80 mt-1">This is a loading problem, not an empty hive. Check your connection and refresh.</p>'
+          + '<p class="text-sm text-white/85">' + escHtml(whReadError(feedReadErr, 'the activity feed')) + '</p>'
+          + '<p class="text-xs text-white/80 mt-1">This is a loading problem, not an empty hive.</p>'
           + '</div>';
       }
       return;
@@ -4217,7 +4227,7 @@ function _openWorkerProfileDrawer(workerName) {
     const body = document.getElementById('wh-wp-body');
     if (body) {
       body.innerHTML = '<p style="font-size:.72rem; color:rgba(255,255,255,0.80); margin:0;">'
-        + escHtml(_t("Couldn't load this profile. Close and try again.",
+        + escHtml(_t(whReadError(err, 'this profile'),
                      'Hindi ma-load ang profile na ito. Isara at subukan muli.')) + '</p>';
     }
     const sub = panel.querySelector('p:nth-of-type(1) + p');
@@ -4659,7 +4669,7 @@ async function checkTeamStockAlert() {
       // stock alert vanishing with no signal is dangerous. Surface a neutral inline retry instead.
       const alertEl = document.getElementById('team-stock-alert');
       const listEl  = document.getElementById('team-stock-list');
-      if (listEl && typeof whListError === 'function') whListError(listEl, "Couldn't load team stock", checkTeamStockAlert);
+      if (listEl && typeof whListError === 'function') whListError(listEl, whReadError(res.error, 'team stock'), checkTeamStockAlert);
       if (alertEl) { alertEl.style.background = 'rgba(255,255,255,0.03)'; alertEl.style.borderColor = 'rgba(255,255,255,0.12)'; alertEl.classList.remove('hidden'); }
       return;
     }
@@ -4740,7 +4750,8 @@ async function loadApprovalQueue() {
     ]);
     // P2-01 honest-degraded: a FAILED read must NOT render as a fake "All caught up" (which hides
     // pending items awaiting supervisor approval). Capture the error so renderApprovalQueue shows it.
-    _approvalReadErr = !!(assetsRes.error || partsRes.error);
+    // the ERROR OBJECT, not a boolean - whReadError needs the status/code to name the remedy
+    _approvalReadErr = assetsRes.error || partsRes.error || false;
     if (_approvalReadErr) console.warn('Approval queue read failed:', (assetsRes.error || partsRes.error).message);
     _pendingAssets = assetsRes.data || [];
     _pendingParts  = partsRes.data  || [];
@@ -4766,7 +4777,7 @@ function renderApprovalQueue() {
   if (!total) {
     list.innerHTML = '';
     emptyEl.querySelector('p').textContent = _approvalReadErr
-      ? "Couldn't load the approval queue: a loading problem, not an empty queue. Refresh to retry."
+      ? whReadError(_approvalReadErr, 'the approval queue') + ' A loading problem, not an empty queue.'
       : 'All caught up: no pending items.';
     emptyEl.classList.remove('hidden');
     return;
@@ -5008,7 +5019,7 @@ async function loadAuditLog() {
     console.error('audit log:', error.message);
     list.innerHTML = '';
     const msg = emptyEl.querySelector('p');
-    if (msg) msg.textContent = _t('Could not load the activity log. Check your connection and try again.', 'Hindi ma-load ang activity log. Suriin ang koneksyon at subukan ulit.');
+    if (msg) msg.textContent = _t(whReadError(error, 'the activity log'), 'Hindi ma-load ang activity log. Suriin ang koneksyon at subukan ulit.');
     emptyEl.classList.remove('hidden');
     return;
   }
@@ -5384,7 +5395,7 @@ async function loadPatternAlerts() {
     console.warn('loadPatternAlerts:', e);
     // E2: a failed scan on a safety-adjacent panel must be visible + retryable, not silently hidden
     // (a swallowed error read identically to "no pattern alerts" = a missed pre-failure signal).
-    if (typeof whListError === 'function') whListError(content, "Couldn't load pattern alerts", loadPatternAlerts);
+    if (typeof whListError === 'function') whListError(content, whReadError(e, 'pattern alerts'), loadPatternAlerts);
     panel.classList.remove('hidden');
   }
 }
@@ -5732,7 +5743,7 @@ async function switchToHive(id) {
     // Layer L: shown to the user, so capture it too — a switch that starts failing in the field
     // must not be invisible in the console.
     console.error('switchToHive membership verify failed:', _mErr.message || _mErr);
-    showToast('Could not verify your access to that hive. Check your connection and try again.');
+    showToast(whReadError(_mErr, 'your access to that hive'));
     return;
   }
   if (!_m || _m.hive_status === 'kicked') {

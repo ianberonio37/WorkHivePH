@@ -50,8 +50,8 @@
       "http": 200,
       "grounding_numbers": 46,
       "prose_strings": 1,
-      "substantive_nums_checked": 12,
-      "cited_grounded": 12,
+      "substantive_nums_checked": 20,
+      "cited_grounded": 20,
       "fabricated": [],
       "baseline_cap": 1,
       "new_drift": false

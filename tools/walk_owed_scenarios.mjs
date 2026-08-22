@@ -652,6 +652,11 @@ for (const k of ['component_loading', 'component_skeleton', 'component_disabled'
                  'fallback_engaged', 'slow_honest']) {
   PROBES[k] = fromStates(k);
 }
+// The AZ family's fail_slow asks the same question slow_honest answers - "a slow response keeps the
+// surface honest: a busy state that resolves, never a control that looks ready while nothing is" -
+// so it routes to the same availability-lens key (2026-08-22; the six fail_slow rows had no probe
+// and could only be hand-walked).
+PROBES.fail_slow = fromStates('slow_honest');
 
 // ── COMPREHENSION ─────────────────────────────────────────────────────────────────────────────────
 // comprehension() reports raw findings rather than verdicts — numbersFound/unexplained, cost{}, next{},
@@ -670,17 +675,29 @@ PROBES.what_is_this_number = async (page) => {
   const c = await comprehensionLens(page);
   const found = c.numbersFound || 0;
   const bad = c.unexplainedCount || 0;
-  const ok = found > 0 && bad === 0;
+  // ZERO NUMBERS IS AN ABSTAIN, NOT A FAILURE (2026-08-21, public-feed). The digits on that surface
+  // are dates and inline prose - nothing the lens counts as a judgeable figure - so "explaining
+  // numbers" has no subject there. `ok:false` kept the row owed forever for a defect that does not
+  // exist; `ok:null` + a note is the same declared-na shape units_visible already uses when nothing
+  // dimension-labelled renders. A surface that GAINS a number re-enters judgment on the next walk.
+  if (found === 0) {
+    return {
+      ok: null, na: true,
+      checked: ['numbers a person can see on this surface: 0'],
+      note: 'no judgeable number renders on this surface (its digits are dates/prose, which the '
+          + 'comprehension lens excludes as self-explaining) - nothing exists for this oracle to '
+          + 'judge, so the claim is declared-na with this measurement as its reasoning',
+      notes: '',
+    };
+  }
+  const ok = bad === 0;
   return {
     ok,
     checked: [
       `numbers a person can see on this surface: ${found}`,
       `of those, ones with nothing nearby saying what they mean: ${bad}`,
-      found === 0 ? 'NOTHING TO JUDGE: no numbers on this surface, so this is not a pass' : '',
-    ].filter(Boolean),
-    notes: ok ? '' : (found === 0
-      ? 'no numbers found, so explaining them cannot be demonstrated — recorded, not passed'
-      : `unexplained=${bad} ${JSON.stringify((c.unexplained || []).slice(0, 3))}`),
+    ],
+    notes: ok ? '' : `unexplained=${bad} ${JSON.stringify((c.unexplained || []).slice(0, 3))}`,
   };
 };
 
@@ -768,7 +785,10 @@ const BOUNDARY_RE = /not allowed|no access|do not have access|don['’]t have ac
 PROBES.boundary_not_emptiness = async (page, ctx) => {
   let refused = 0;
   await ctx.route(REST, async r => {
-    if (/GET|HEAD/i.test(r.request().method())) {
+    // READ-shaped RPCs travel as POSTs (marketplace holds 18 .rpc( reads) - a GET-only refusal
+    // leaves the RPC-fed half of the page un-refused and the claim overstates the tested scope.
+    const _m = r.request().method();
+    if (/GET|HEAD/i.test(_m) || (/POST/i.test(_m) && r.request().url().includes('/rpc/'))) {
       refused++;
       // The shape PostgREST returns for a row the caller may not read: 403 with a 42501 body, NOT a
       // 401. A 401 would make this a session test, which is a different row.
@@ -784,7 +804,14 @@ PROBES.boundary_not_emptiness = async (page, ctx) => {
   const st = await readSurface(page);
   await ctx.unroute(REST).catch(() => {});
 
-  const claimsEmpty = EMPTY_CLAIM_RE.test(st.text);
+  // JUDGED PER SENTENCE, NOT BODY-WIDE (2026-08-21, platform-actions). The page's boundary note
+  // reads "every queue below reads empty no matter what is actually waiting. Sign in as an admin" -
+  // the word "empty" INSIDE a sentence that names the boundary is a boundary statement, not an
+  // emptiness claim, and a body-wide EMPTY match flagged exactly the page that was doing this right
+  // (the a_body_wide_keyword_match class). An emptiness claim only counts against the page when its
+  // sentence does NOT itself name the boundary.
+  const sentences = st.text.split(/(?<=[.!?])\s+|\n+/);
+  const claimsEmpty = sentences.some(s => EMPTY_CLAIM_RE.test(s) && !BOUNDARY_RE.test(s));
   const namesBoundary = BOUNDARY_RE.test(st.text);
   const ok = refused > 0 && !claimsEmpty && namesBoundary;
   return {

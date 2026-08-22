@@ -2,7 +2,7 @@
 name: edge-fn-resend-webhook-receiver
 type: edge-fn
 source: file:supabase/functions/resend-webhook-receiver/index.ts
-source_sha: 1489b0a5130c041a
+source_sha: f205bb3c8719e0c8
 last_verified: 2026-07-13
 supersedes: null
 ---

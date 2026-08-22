@@ -139,7 +139,10 @@ def main(argv):
         row["findings"] = []
         row["evidence"] = {
             "kind": "live-walk",
-            "ref": f"{SPEC} — {today} · {title}",
+            # R3: a live-walk ref must NAME a surface URL from the bank — the same drift
+            # bank_spec_results had (fixed there 2026-08-21, missed here until 28 rows sat owed
+            # on "the spec passed but the gate rejects the evidence").
+            "ref": f"{SPEC} — {today} · {row.get('url') or ''} · {title}",
             "asserts": row.get("oracle") or "",
             "checked": (f"the failure was INJECTED at the network layer and the interception was "
                         f"asserted to have fired, so a surface that never met the failure fails "

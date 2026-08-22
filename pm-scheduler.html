@@ -1362,7 +1362,7 @@ async function loadData() {
   // The toast alone was not enough: it persisted, but so did "OVERDUE 0 · No overdue PMs · CLEAR" beside
   // it, on a plant whose own alert feed lists PMs 12-19 days overdue. A reader scanning hero tiles
   // believes the tile, not the notice. Carry the failure into the render so the tiles say UNKNOWN.
-  if (assetsRes.error) { console.error('pm_assets load:', assetsRes.error.message); showToast('Could not load PM assets. Check your connection.'); _pmReadFailed = true; renderPMUnknown(); return; }
+  if (assetsRes.error) { console.error('pm_assets load:', assetsRes.error.message); showToast(whReadError(assetsRes.error, 'PM assets')); _pmReadFailed = true; renderPMUnknown(); return; }
   assets = assetsRes.data || [];
 
   if (!assets.length) { scopeItems = []; completions = []; return; }

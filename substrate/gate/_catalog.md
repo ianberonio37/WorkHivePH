@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 996042b5cc21173c
+source_sha: d55fbef92fea2a5e
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (778) — the 'what's already gated' brain
+## gate · registered validators (803) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -239,7 +239,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Platform (551)
+### Platform (576)
 - `abort-timeout` ⚡ [fail] — AbortSignal Timeout Coverage (4-layer: external-no-signal + loop-no-timeout + timeout distribution + no-fetch fns)
 - `accessibility` ⚡ [fail] — Accessibility Baseline Validator
 - `accessor-load-order` ⚡ [fail] — Accessor-before-utils.js load-order (2026-07-22) — a utils.js-defined accessor (whWorker/whHiveId/…) called UNGUARDED in an inline script ABOVE the <script src=
@@ -339,13 +339,27 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `cascade-behavior` ⚡ [fail] — Cascade Behavior (4-layer: no-on-delete-clause + explicit-no-action + distribution + orphan-risk)
 - `catalog-scope` ⚡ [fail] — Catalog Approval Status Validator
 - `causal-cascade-coverage` [warn] — Causal Cascade Coverage (Phase A anti-rot: both legs — every DB-trigger AND every edge-fn cross-table data write is mapped in causal_cascades.json — surfaces a 
+- `cb_abandon_resume` [fail] — CB abandon-resume (abandoning midway leaves nothing half-applied; HALF-WRITTEN fails)
+- `cb_did_it_land` [fail] — CB did-it-land (after a slow action the person can tell whether it landed; every mutating request intercepted in-page)
+- `cb_double_fire` [fail] — CB double-fire (a double-activated control sends ONE write; every mutating request counted and held in-page)
+- `cb_retry_path` [fail] — CB retry-path (a failure offers a retry that actually re-attempts and succeeds when the cause is gone)
+- `cb_what_happens_next` [fail] — CB what-happens-next (a confirmation says WHAT happens next and WHEN, not just that something fired)
+- `cb_wrong_then_fix` [fail] — CB wrong-then-fix (an incomplete submit is refused with the reason, nothing is written, and the person's input is KEPT)
 - `cc_failure_injection` [fail] — CC failure-injection (500 / 401 / timeout / offline: a failed read renders a FAILURE, never an emptiness, a stuck skeleton, or silence; injection is hit-counted
+- `cd_fallback_engaged` [fail] — CD fallback-engaged (with the edge stubbed 500 the page's declared fallback actually engages; no write escapes)
+- `cf_count_matches_source` [fail] — CF count-matches-source (a rendered count equals its canonical source read live)
+- `cf_effect_visible` [fail] — CF effect-visible (a driven write lands in the DB and shows on the surface; cleanup verified)
+- `cf_source_chip` [fail] — CF source-chip (a chip naming a feed the page never read is a false provenance claim)
+- `cf_units_visible` [fail] — CF units-visible (every examined quantity in each opened view carries its unit on screen)
+- `cg_offline_views` [fail] — CG offline-views representative case (the full sweep is the per-case loop; each run updates its cell in offline_refusal_report.json - refused BEFORE firing and 
 - `change_order_immutability` ⚡ [fail] — PJK1 - a raised change order is a CONTRACT, not a draft. project_change_orders carries cost_impact_php and schedule_impact_days, so approving one commits money.
 - `ci_domain_truth` [fail] — CI domain-truth (a metric names its standard AND its basis, a partial figure is labelled partial, a reorder names its threshold, a composite states its bands — 
 - `cj_dialog_layout` [fail] — CJ ui-layout inside the V2/V3 DIALOGS (each opened by its own source-read path: no unclipped horizontal overflow at 390 and every effective tap target >= 44px, 
 - `cj_safe_area` [fail] — CJ safe-area live (every piece of edge-pinned chrome declares the safe-area inset for the edge IT is pinned to, read from the authored CSS over CDP; the DECLARA
 - `cj_viewport_overflow` [fail] — CJ ui-layout live (no unclipped horizontal overflow at 390/641/1280 on any of the 22 production pages; every effective tap target >= 44px, with skipped candidat
+- `cj_zoom200` [fail] — CJ zoom-200 (at 200% zoom content reflows without clipping, sideways scroll, or unreachable controls)
 - `ck_component_states` [fail] — CK ui-state live (no component left stuck in a loading or skeleton state — a stuck skeleton is invisible to every other gate: 200 OK, rows returned, promise res
+- `cl_a11y_states` [fail] — CL a11y states (focus visible as a style DELTA on sampled trusted-Tab stops; reduced-motion honoured as a measured RESULT; icon-only controls carry an accessibl
 - `cl_dialog_a11y` [fail] — CL ui-visual inside the V2/V3 DIALOGS (every control has an accessible name; focus is visible, verified CAUSALLY by tabbing and comparing each control against i
 - `clickable-keyboard-a11y` ⚡ [fail] — Clickable keyboard a11y (dim-8 RESOLVED, not ratcheted: a runtime polyfill in utils.js [whClickableKbdA11y] makes every mouse-only clickable div/span/li keyboar
 - `client-singleton` ⚡ [fail] — Client singleton / idle-refresh (every Supabase client routes through getDb() so it inherits the Finding-#6 token auto-refresh + visibilitychange refresh + time
@@ -353,14 +367,24 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `client_resilience` ⚡ [fail] — Deepwalk D20: client resilience (timeout-bounded fetch + offline/connectivity UX)
 - `clone-debt` ⚡ [fail] — Clone Debt (jscpd cross-page duplication; forward-only ratchet — redundancy critic)
 - `cls_reservations` [fail] — Late-filled blocks don't push the page (CLS <= 0.1 per surface; reports which min-height reservation has gone SHORT, because layout-shift sources name the block
+- `cm_backnav_views` [fail] — CM backnav-views (browser Back out of each open dialog leaves no orphaned overlay and no locked body - judged for history-state sheets (close in place) and plai
+- `cm_cost_before_commit` [fail] — CM cost-before-commit (a credit-costing action states its cost BEFORE the person commits)
+- `cm_cost_views` [fail] — CM cost-views (what_does_it_cost per (page,view): a view with a commit control states cost/hold/reward BEFORE the press; a view with none is measured not-applic
+- `cm_fallback_views` [fail] — CM fallback-views (fallback_engaged per (page,view): when a dialog's OWN edge-fn primary is answered 500, content still renders AND the view names a stored sour
+- `cm_number_explained` [fail] — CM number-explained (a derived figure can be explained without leaving the surface)
 - `cm_number_labelled` [fail] — CM ux-comprehension live (every number a page renders carries a label naming what it is, proven with an injected bare-number control per page so the zero is loa
+- `cm_number_views` [fail] — CM number-views (number_explained per (page,view): every derived figure in an opened dialog carries naming context in reach; raw counts explain themselves and f
+- `cm_one_vocabulary` [fail] — CM one-vocabulary (a concept keeps ONE name across surfaces; MIXED concepts fail)
 - `cm_quota_legible` [fail] — CM what_does_it_cost, QUOTA half — a rate limit must be reported AS a rate limit. Model quota is invisible until you hit it, so the constraint is INDUCED: every
+- `cm_rate_views` [fail] — CM rate-views (rate_limit_legible per (page,view): a 429 with Retry-After injected AFTER the view opens is answered by naming the WAIT, never a bare retry; both
+- `cm_retry_views` [fail] — CM retry-views (retry_path per (page,view): a dialog whose reads fail paints the failure AND offers a retry inside the view that actually re-attempts and recove
 - `cm_reward_explained` [fail] — CM ux-comprehension (a reward figure — XP, level, tier — states its criteria in its own card: what earns it or the threshold it sits at; a page with no reward o
 - `cm_why_refused` [fail] — CM ux-comprehension (a 42501/403 read refusal must be explained by NAMING permission: not blamed on identity, not left as a bare generic error, not silent. The 
 - `cmms-contracts` ⚡ [fail] — CMMS Contracts Validator (STATUS_MAP parity, DB column targets, shared imports)
 - `cmms-import-rollback` [fail] — P3 gate for integrations.html's bulk CMMS import (LIVE rolled-back SUPERVISOR-JWT psql + static teeth) — the last deferred P3-write frontier, closed 2026-07-21 
 - `cmms-reconciliation` [fail] — CMMS Reconciliation Validator (external_sync vs table counts, audit coverage, quality scores)
 - `cn_journey` [fail] — CN ux-journey (a first-timer reaches value without a dead end and a returning person is not made to redo setup, walked as each page's own grounded persona; onbo
+- `co_back_nav` [fail] — CO back-nav (browser Back lands where wayfinding says, with and without a referrer)
 - `co_back_out` [fail] — CO ux-recovery live (every non-home page offers a reachable in-app way OUT that lands where the platform's own wayfinding contract says it should, proven on bot
 - `co_dialog_back_out` [fail] — CO ux-recovery for TAB/SECTION views (with each view OPEN, the page-level way out is still visible and still lands where wayfinding.js's contract says; home is 
 - `co_dialog_session_died` [fail] — CO ux-recovery at V2/V3 (with the stored session removed, no dialog, tab or section opens and presents figures that outlived it; redirect-before-open and empty-
@@ -738,6 +762,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `supabase-object-existence` ⚡ [fail] — Supabase Object Existence (every .from/.rpc/REST object must exist in the canonical registry; forward-only ratchet)
 - `supabase-singleton` ⚡ [fail] — Supabase Client Singleton (at-most-one createClient per page; shared JS uses singleton)
 - `supervisor-approval-backstop` ⚡ [fail] — Supervisor-approval backstop (approval-gated tables asset_nodes/rcm_fmea_modes/rcm_strategies carry the tg_guard_approval trigger so a worker cannot self-approv
+- `svc_pane_populated` [fail] — market_svc populated (the services pane's every visible number attributed to its own label and matched to the security_invoker view the page reads, under the ca
 - `sw-offline` ⚡ [fail] — Service Worker Offline Coverage (4-layer: critical-in-shell + offline fallback + resilience + register)
 - `sw-shell-membership` ⚡ [fail] — CA (Caching/CDN) deep-walk cell — every page in the service-worker OFFLINE SHELL (sw.js SHELL_FILES) must (a) exist on disk (a stale entry 404s the SW precache 
 - `tabindex-positive` ⚡ [fail] — Positive tabindex (a11y anti-pattern: tabindex >= 1 breaks tab order; forward-only ratchet)

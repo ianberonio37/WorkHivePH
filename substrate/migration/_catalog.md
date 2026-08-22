@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:549
-source_sha: 07f25b54384c2b52
+source: dir:supabase/migrations:550
+source_sha: 17cc570710181e32
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (549 migrations)
+## migration · catalog (550 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260718000001_ops_artifact_metrics` — tables:ops_artifact_metrics
 - `20260718000002_cron_health_view` — (misc DDL/DML)
 - `20260718000003_storage_health_view` — (misc DDL/DML)
 - `20260718000004_register_ops_seller_canonical_sources` — (misc DDL/DML)
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20260820000067_the_pm_overdue_tile_had_no_denominator` — fns:get_hive_dashboard
 - `20260820000068_v_sensor_recent_dropped_the_unit_its_reader_needs` — (misc DDL/DML)
 - `20260820000069_xp_reversal_rpcs_were_callable_by_any_signed_in_user` — (misc DDL/DML)
+- `20260821000070_reorder_suggestions_had_no_lead_time` — tables:inventory_items
 
 (showing last 200)
 

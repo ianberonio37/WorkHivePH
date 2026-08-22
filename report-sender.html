@@ -1187,6 +1187,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     async function resendReport(reportType, summary, btn) {
+      // Same offline door as doSend — "a guard on one door is a guard on neither" (the comment
+      // above confirmOutsiders is this file's own rule).
+      if (typeof whRequireOnline === 'function'
+          && !whRequireOnline('Sending this report', (m) => showToast(m))) return;
+      if (typeof whRequireOnline !== 'function'
+          && typeof navigator !== 'undefined' && navigator.onLine === false) {
+        showToast('You appear to be offline. Nothing was sent: reconnect and send again.');
+        return;
+      }
       const recipients = [];
       for (const id of _selectedContacts) {
         const c = _contacts.find(x => x.id === id);
@@ -1325,7 +1334,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         console.error('report contacts read failed:', error.message);
         try { _contacts = JSON.parse(localStorage.getItem(LS_CONTACTS) || '[]'); }
         catch { _contacts = []; }
-        _rsReadFailed = true;
+        // the ERROR OBJECT, not a boolean - whReadError reads its status/code to name the remedy
+        _rsReadFailed = error;
         _rsUsedFallback = _contacts.length > 0;
       } else {
         _contacts = data || [];
@@ -1381,7 +1391,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!_contacts.length) {
         // A failed read with an empty backup is NOT "no contacts yet" — it is "we could not find out".
         list.innerHTML = _rsReadFailed
-          ? `<div class="contacts-empty" style="opacity:1;">Could not load your contacts.<br><span style="font-size:0.72rem;">This is a connection problem, not an empty contact list. Check your connection and reload before adding a contact you may already have, or before assuming a report has nowhere to go.</span><br><button type="button" onclick="loadContacts();" style="margin-top:0.6rem;min-height:44px;padding:0 0.9rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button></div>`
+          ? `<div class="contacts-empty" style="opacity:1;">Could not load your contacts.<br><span style="font-size:0.72rem;">${escHtml(whReadError(_rsReadFailed, 'your contacts'))} This is a loading problem, not an empty contact list - do not add a contact you may already have, or assume a report has nowhere to go.</span><br><button type="button" onclick="loadContacts();" style="margin-top:0.6rem;min-height:44px;padding:0 0.9rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button></div>`
           : `<div class="contacts-empty">No contacts yet, tap Add contact</div>`;
         _rsSummaryAfterContacts();
         return;
@@ -2021,6 +2031,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // ── Send flow ─────────────────────────────────────────────────────────────────
     async function doSend() {
       if (_cardState !== 'idle') return;
+      // Offline refusal AT THE DOOR, with words: sending a report is irreversible, and offline the
+      // outcome is unknowable (the email may or may not leave when connectivity returns). The
+      // contact add/remove paths already carry this guard; the SEND paths did not — caught by
+      // prove_offline_refusal (report-sender/send: "refused before firing AND said so = false",
+      // 2026-08-21). Same whRequireOnline contract, both doors (doSend + resendReport below).
+      if (typeof whRequireOnline === 'function'
+          && !whRequireOnline('Sending this report', (m) => showToast(m))) return;
+      if (typeof whRequireOnline !== 'function'
+          && typeof navigator !== 'undefined' && navigator.onLine === false) {
+        showToast('You appear to be offline. Nothing was sent: reconnect and send again.');
+        return;
+      }
 
       // Gather recipients — selected contacts + optional one-time email
       const recipients = [];
@@ -2286,7 +2308,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // is invisible to every gate: 200 OK, promise settled, nothing thrown at the top level.
     // The `.catch` classifies a throw as what it is — a failed read — so the card falls through to the
     // message that already exists for that case rather than back to "no contacts saved yet".
-    loadContacts()
+    // AFTER the identity restore, not beside it (2026-08-22, the achievements cold-cache data-half
+    // fix): with localStorage cleared and the session alive, WORKER_NAME is '' until
+    // restoreIdentityFromSession resolves, and a read fired before that answers for NOBODY -
+    // plausible-looking, silently wrong. Warm cache resolves in one tick; nothing slows down.
+    Promise.resolve(_identityRestored).catch(() => '')
+      .then(() => loadContacts())
       .catch((e) => { console.error('report contacts load threw:', e); _rsReadFailed = true; })
       .finally(() => { _rsContactsSettled = true; _rsSummaryAfterContacts(); });
 

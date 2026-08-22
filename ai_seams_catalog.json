@@ -2,7 +2,7 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-08-20T13:14:39Z",
+    "generated_at": "2026-08-22T15:54:43Z",
     "seam_count": 177,
     "by_kind": {
       "saas\u2192ai": 40,
@@ -1455,7 +1455,7 @@
       "caller": "alert-hub.html",
       "callee": "analytics-orchestrator",
       "file": "alert-hub.html",
-      "line": 696,
+      "line": 698,
       "evidence": "const { data } = await db.functions.invoke('analytics-orchestrator', {",
       "contract_test": null
     },
@@ -1495,7 +1495,7 @@
       "caller": "asset-hub.html",
       "callee": "ai-gateway",
       "file": "asset-hub.html",
-      "line": 4064,
+      "line": 4106,
       "evidence": "const resp = await db.functions.invoke('ai-gateway', {",
       "contract_test": null
     },
@@ -1505,7 +1505,7 @@
       "caller": "asset-hub.html",
       "callee": "asset-brain-query",
       "file": "asset-hub.html",
-      "line": 4081,
+      "line": 4123,
       "evidence": "const { data, error } = await db.functions.invoke('asset-brain-query', {",
       "contract_test": null
     },
@@ -1515,7 +1515,7 @@
       "caller": "asset-hub.html",
       "callee": "fmea-populator",
       "file": "asset-hub.html",
-      "line": 3132,
+      "line": 3141,
       "evidence": "const { data, error } = await db.functions.invoke('fmea-populator', {",
       "contract_test": null
     },
@@ -1575,7 +1575,7 @@
       "caller": "hive.html",
       "callee": "ai-gateway",
       "file": "hive.html",
-      "line": 5546,
+      "line": 5557,
       "evidence": "const resp = await db.functions.invoke('ai-gateway', {",
       "contract_test": null
     },
@@ -1585,7 +1585,7 @@
       "caller": "hive.html",
       "callee": "ai-orchestrator",
       "file": "hive.html",
-      "line": 5557,
+      "line": 5568,
       "evidence": "const { data, error } = await db.functions.invoke('ai-orchestrator', {",
       "contract_test": null
     },
@@ -1595,7 +1595,7 @@
       "caller": "logbook.html",
       "callee": "embed-entry",
       "file": "logbook.html",
-      "line": 2197,
+      "line": 2203,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },
@@ -1605,7 +1605,7 @@
       "caller": "logbook.html",
       "callee": "equipment-label-ocr",
       "file": "logbook.html",
-      "line": 3541,
+      "line": 3547,
       "evidence": "const { data, error } = await db.functions.invoke('equipment-label-ocr', {",
       "contract_test": null
     },
@@ -1615,7 +1615,7 @@
       "caller": "logbook.html",
       "callee": "visual-defect-capture",
       "file": "logbook.html",
-      "line": 5146,
+      "line": 5162,
       "evidence": "const { data, error } = await db.functions.invoke('visual-defect-capture', {",
       "contract_test": null
     },
@@ -1625,7 +1625,7 @@
       "caller": "logbook.html",
       "callee": "voice-logbook-entry",
       "file": "logbook.html",
-      "line": 4938,
+      "line": 4954,
       "evidence": "const res = await db.functions.invoke('voice-logbook-entry', {",
       "contract_test": null
     },
@@ -1695,7 +1695,7 @@
       "caller": "report-sender.html",
       "callee": "scheduled-agents",
       "file": "report-sender.html",
-      "line": 1935,
+      "line": 1945,
       "evidence": "const { data, error } = await db.functions.invoke('scheduled-agents', { body });",
       "contract_test": null
     },
@@ -1705,7 +1705,7 @@
       "caller": "report-sender.html",
       "callee": "voice-report-intent",
       "file": "report-sender.html",
-      "line": 1812,
+      "line": 1822,
       "evidence": "const { data, error } = await db.functions.invoke('voice-report-intent', {",
       "contract_test": null
     },
@@ -1715,7 +1715,7 @@
       "caller": "shift-brain.html",
       "callee": "analytics-orchestrator",
       "file": "shift-brain.html",
-      "line": 690,
+      "line": 697,
       "evidence": "const { data } = await db.functions.invoke('analytics-orchestrator', {",
       "contract_test": null
     },
@@ -1725,7 +1725,7 @@
       "caller": "shift-brain.html",
       "callee": "shift-planner-orchestrator",
       "file": "shift-brain.html",
-      "line": 526,
+      "line": 533,
       "evidence": "const { data, error } = await db.functions.invoke('shift-planner-orchestrator', {",
       "contract_test": null
     },

@@ -281,6 +281,10 @@ const run = async () => {
   await browser.close();
   writeFileSync(path.join(ROOT, 'number_explained_report.json'), JSON.stringify(out, null, 1));
   const graded = out.pages.filter((p) => p.ok !== null && !p.error);
+  // gate promotion 2026-08-21 (moved BELOW the declaration 2026-08-22: the exit line was
+  // inserted ABOVE `const graded` and threw a TDZ ReferenceError on every --gate run - the
+  // flag path was patched without being run, the calling-by-hand-is-not-verifying class).
+  if (process.argv.includes('--gate')) process.exitCode = graded.filter((p) => !p.ok).length ? 1 : 0;
   console.log(`\n  ${graded.length} graded | ${graded.filter((p) => !p.ok).length} failing | `
     + `${out.pages.filter((p) => p.ok === null).length} abstained (no derived figure)`);
 };

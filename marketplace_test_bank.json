@@ -5230,7 +5230,7 @@
         "MK5",
         "U3"
       ],
-      "status": "banked",
+      "status": "quarantined",
       "runner": "tools/validate_marketplace_bank_journey.py",
       "spec": "tests/marketplace-bank-two-context.spec.ts",
       "asserts": [
@@ -5244,6 +5244,11 @@
       "ufai_earned": {
         "U3": "the provider's screen stops asserting a job that no longer exists",
         "F6": "the DEGRADED path: work ends unexpectedly and the page reflects it rather than holding the last good state"
+      },
+      "quarantine": {
+        "count": 1,
+        "first_seen": "2026-07-29",
+        "last_reason": "Timeout"
       }
     },
     {

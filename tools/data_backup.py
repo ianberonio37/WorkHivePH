@@ -107,12 +107,16 @@ def do_drill(tables: list[str]) -> int:
     src = _rowcount(target)
     t0 = time.monotonic()
 
-    # 1. dump just this table, data-only (the "backup")
+    # 1. dump just this table, data-only (the "backup").
+    # Explicit UTF-8, same as do_backup's 2026-07-20 fix — WITHOUT it, Windows decodes with cp1252
+    # and a clean (rc=0) dump of a table holding multi-byte rows comes back with stdout None,
+    # crashing the drill at .replace(). The cure existed one function up and never reached this
+    # sibling (the fix-every-path class, 2026-08-23).
     dump = subprocess.run(["docker", "exec", DB, "pg_dump", "-U", "postgres", "-d", "postgres",
                            "--data-only", "--no-owner", "--table", f"public.{target}"],
-                          capture_output=True, text=True, timeout=120)
-    if dump.returncode != 0:
-        print(f"  {R}FAIL{X} pg_dump {target}: {dump.stderr.strip()[:160]}"); return 1
+                          capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120)
+    if dump.returncode != 0 or not dump.stdout:
+        print(f"  {R}FAIL{X} pg_dump {target}: {(dump.stderr or 'empty stdout').strip()[:160]}"); return 1
 
     # 2. restore the dump into a scratch schema (rewrite COPY/INSERT target schema)
     restored_sql = dump.stdout.replace("public.", "dr_drill.")
@@ -122,7 +126,8 @@ def do_drill(tables: list[str]) -> int:
         print(f"  {R}FAIL{X} could not create scratch schema"); return 1
     # feed the rewritten dump through psql stdin
     rp = subprocess.run(["docker", "exec", "-i", DB, "psql", "-U", "postgres", "-d", "postgres",
-                         "-v", "ON_ERROR_STOP=1"], input=restored_sql, capture_output=True, text=True, timeout=180)
+                         "-v", "ON_ERROR_STOP=1"], input=restored_sql, capture_output=True, text=True,
+                        encoding="utf-8", errors="replace", timeout=180)
     restored = -1
     rc = _psql(f'select count(*) from dr_drill."{target}";')
     try: restored = int(rc.stdout.strip())

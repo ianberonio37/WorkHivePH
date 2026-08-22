@@ -125,8 +125,12 @@ const CASES = [
     page: 'voice-journal',
     what: 'sending a typed journal note',
     marker: 'WH-EFFECT-PROBE-' + process.pid,
-    countBefore: (m) => `select count(*) from voice_journal_entries where worker_name='${esc(WORKER)}' and transcript like '%${esc(m)}%'`,
-    cleanup: (m) => `delete from voice_journal_entries where worker_name='${esc(WORKER)}' and transcript like '%${esc(m)}%'`,
+    // MARKER-ONLY scope (2026-08-23): the entry row is written SERVER-SIDE by voice-journal-agent,
+    // which resolves worker_name itself - filtering by this probe's WORKER read inDb=0 over a row
+    // that landed under the agent's resolution, and the same filter made cleanup MISS those rows
+    // (five orphaned probe entries from 2026-08-18 found in the shared table). The marker is unique.
+    countBefore: (m) => `select count(*) from voice_journal_entries where transcript like '%${esc(m)}%'`,
+    cleanup: (m) => `delete from voice_journal_entries where transcript like '%${esc(m)}%'`,
     // The typed entrance (#type-input -> onSendTyped) exists so this page is usable without a
     // microphone. onSendTyped guards on a _busy flag and refuses empty text, so the drive types real
     // text and then waits for the button to be released rather than racing it - clicking a control
@@ -147,7 +151,12 @@ const CASES = [
       btn.click();
       for (let i = 0; i < 20; i++) { await wait(500); if (!btn.disabled) break; }
       await wait(1500);
-      return { drove: 'saved' };
+      // READ THE PAGE'S OWN VERDICT (2026-08-23): this returned 'saved' unconditionally, so a
+      // 429-refused send (the page says "your note was not saved" and keeps the draft - honest)
+      // was graded as a saved-but-invisible effect. A drive's claim must rest on the page's words.
+      const st = (document.getElementById('type-state')?.textContent || '').trim();
+      if (/not saved|went wrong|no reply|try again/i.test(st)) return { drove: 'refused', reason: st.slice(0, 120) };
+      return { drove: 'saved', state: st.slice(0, 80) };
     }, marker),
   },
   {
@@ -430,10 +439,25 @@ const CASES = [
         const btn = document.getElementById('ai-narrative-btn');
         if (!btn) return { drove: 'no-narrative-button' };
         if (typeof window.aiGenerateNarrative !== 'function' && !btn.onclick) return { drove: 'no-handler' };
+        // ARM A COLLECTOR BEFORE THE CLICK (2026-08-23): under a drained AI budget the page DOES
+        // announce the refusal - a "AI failed" toast - but the toast dies before a single late
+        // read, so this drive returned 'saved' over a spoken refusal (the toast-is-gone-before-
+        // the-verdict class, again). The observer accumulates every message from click time.
+        const seen = [];
+        const mo = new MutationObserver((ms) => ms.forEach((mm) => mm.addedNodes.forEach((n) => {
+          if (n.nodeType === 1) { const t = (n.textContent || '').trim(); if (t && t.length < 300) seen.push(t); }
+        })));
+        mo.observe(document.body, { childList: true, subtree: true });
         btn.click();
         for (let i = 0; i < 40; i++) { await wait(1000);
           if (document.getElementById('pr-ai-exec-summary')) break; }
         await wait(1500);
+        mo.disconnect();
+        const said2 = seen.join(' | ');
+        if (/quota|limit|try again|failed|could not|couldn['’]t|unavailable/i.test(said2)
+            && !document.getElementById('pr-ai-exec-summary')) {
+          return { drove: 'refused', reason: said2.slice(0, 120) };
+        }
         return { drove: 'saved' };
       });
       if (said.drove !== 'saved') return said;
@@ -1161,6 +1185,17 @@ const run = async () => {
   await browser.close();
   writeFileSync(path.join(ROOT, 'effect_visible_report.json'), JSON.stringify(out, null, 1));
   const dirty = out.results.filter((r) => !r.cleanupOk);
+  // gate promotion 2026-08-21: a driven effect that failed to land or to show, or a dirty cleanup,
+  // sets the exit code.
+  if (process.argv.includes('--gate')) {
+    // Only a drive the page itself CLAIMED succeeded ('saved') can fail this oracle: a refused or
+    // un-constructable drive ('refused', 'no-reply', 'no-exam-questions') never became a write, and
+    // grading those as invisible effects made the gate red whenever the suite's own AI calls had
+    // drained the shared 429 budget - the gate-exhausts-its-own-rate-budget class (2026-08-23).
+    // Refusal HONESTY is quota_legible's and why_refused's oracle, and they measure it.
+    const bad = out.results.some((r) => r.drove === 'saved' && (r.effect_in_db === false || r.effect_visible === false));
+    process.exitCode = (bad || dirty.length) ? 1 : 0;
+  }
   if (dirty.length) console.log(`\n  ⚠ ${dirty.length} case(s) LEFT ROWS BEHIND — clean before trusting anything`);
   else console.log('\n  all cases cleaned up; the shared database is as it was found');
 };

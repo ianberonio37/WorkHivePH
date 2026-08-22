@@ -53,7 +53,11 @@ P6_REJECT_LOCK  = re.compile(r"""status:\s*['"]rejected['"][^;]{0,300}?\.eq\(\s*
 # FAILURE sets `_approvalReadErr` (vs a legitimately-empty queue) AND the render keeps the section
 # visible on error (`total === 0 && !_approvalReadErr`) so a failed load shows "couldn't load", never
 # a fake "All caught up" that would HIDE pending items awaiting supervisor approval (P2-01/P7-02).
-P7_DEGRADED_SET      = re.compile(r"""_approvalReadErr\s*=\s*!!\(""")
+# Two accepted idioms (2026-08-22): the original boolean `= !!(...)`, and the ERROR-OBJECT form
+# `= assetsRes.error || partsRes.error || false` - the object carries the status/code whReadError
+# needs to name the remedy (401 -> sign in, 429 -> wait), and truthiness consumers are unchanged.
+# The property locked is "a failed approval read SETS the flag", not the flag's type.
+P7_DEGRADED_SET      = re.compile(r"""_approvalReadErr\s*=\s*(?:!!\(|assetsRes\.error\s*\|\|\s*partsRes\.error)""")
 P7_DEGRADED_CONSUMED = re.compile(r"""total\s*===\s*0\s*&&\s*!_approvalReadErr""")
 
 

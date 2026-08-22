@@ -280,6 +280,12 @@
 
     <div class="section-card">
       <h2 class="section-title" style="margin:0;"><span data-i="carryforward">Carry-forward (open from prior shift)</span><span id="carry-count" class="section-count">0</span></h2>
+      <!-- ci_domain_truth CI3: carry-over must be DEFINED. The logbook records only Open/Closed
+           (verified live: two status values, nothing else), so per-item not-started / deferred /
+           blocked splits cannot be rendered honestly — the definition instead says plainly that the
+           bucket hides those three states and routes the reader to the person who knows. If a
+           carry-reason field is ever added to the log, replace this line with the real breakdown. -->
+      <p style="font-size:0.74rem; color:rgba(255,255,255,0.72); margin:4px 0 8px; line-height:1.5;" data-i="carrydef">Jobs still open from the prior shift. The log does not yet record <em>why</em> each is open: not started, deferred, or blocked all look the same here. Confirm the reason at handover before re-planning them.</p>
       <div id="carry-list"></div>
     </div>
 
@@ -451,7 +457,8 @@
         .limit(1);
 
       if (error) {
-        _sbReadFailed = true;
+        // the ERROR OBJECT, not a boolean - whReadError reads its status/code to name the remedy
+        _sbReadFailed = error;
         // Degraded state (table missing / RLS denied / auth required) = warn, not error.
         // Keeps the browser console clean for users on databases that haven't received
         // the migration yet, and stops Playwright from flagging it as a page error.
@@ -463,7 +470,7 @@
           console.warn('shift_plans (degraded — table or auth not ready):', error.message);
         } else {
           console.error('shift_plans load:', error.message);
-          showToast('Could not load plan: ' + error.message);
+          showToast(whReadError(error, 'the shift plan'));
         }
         // Fall through to renderPlan(null) so the verdict label updates to
         // the empty/degraded state instead of staying stuck on "Loading...".
@@ -564,7 +571,7 @@
         if (_sbReadFailed) {
           if (vLbl)  vLbl.textContent  = 'Could not load your shift plan';
           if (vSub)  vSub.textContent  = 'Risk, PMs due and carry-forward are unknown right now, not zero. '
-            + 'Reload before planning this shift - a plan may already be published.';
+            + whReadError(_sbReadFailed, 'your shift plan') + ' A plan may already be published.';
           if (vIcon) vIcon.textContent = '⚠';
           if (vBox)  { vBox.classList.remove('healthy','watch','empty'); vBox.classList.add('attn'); }
           // ★"RELOAD BEFORE PLANNING THIS SHIFT" IS ADVICE, NOT A PATH. Measured by failing every
@@ -1199,6 +1206,7 @@
     topriskassets: 'Pinakamataas na risk na asset',
     pmsdue: 'Mga PM na due',
     carryforward: 'Carry-forward (bukas mula sa nakaraang shift)',
+    carrydef: 'Mga trabahong bukas pa mula sa nakaraang shift. Hindi pa naitatala ng log kung bakit bukas ang bawat isa: pare-parehong itsura ng hindi pa nasisimulan, ipinagpaliban, o naharang. Kumpirmahin ang dahilan sa handover bago muling iplano.',
     partsprestage: 'Parts pre-stage (mababang stock)',
     rerunplan: 'I-rerun ang plano',
     publishtocrew: 'I-publish sa crew',

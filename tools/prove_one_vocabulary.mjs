@@ -148,6 +148,10 @@ const run = async () => {
   }
   writeFileSync(path.join(ROOT, 'one_vocabulary_report.json'), JSON.stringify(out, null, 1));
   const mixed = Object.entries(out.concepts).filter(([, v]) => v.verdict === 'MIXED');
+  // gate promotion 2026-08-21: a gate that cannot fail is not a gate. (Exit line BELOW the const
+  // it reads - the TDZ crash class, FOURTH instance found 2026-08-23; the crash exit(1) made this
+  // gate read as a standing product FAIL when every concept was consistent.)
+  if (process.argv.includes('--gate')) process.exitCode = mixed.length ? 1 : 0;
   console.log(`\n  ${mixed.length} concept(s) MIXED across surfaces`);
 };
 run().catch((e) => { console.error(e); process.exit(1); });

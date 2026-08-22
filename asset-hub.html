@@ -2631,6 +2631,15 @@
         let stripHtml = '';
         if (strat) {
           const decisionClass = 'rcm-decision-' + e(strat.decision || 'run_to_failure');
+          /* NO RAW ENUM ON THE GLASS (2026-08-22, the number-views vocab pass): the pill painted
+             'scheduled_restoration' verbatim while the select above it already speaks human.
+             One map, sourced from the select's own option labels (short halves). */
+          const DECISION_LABEL = {
+            run_to_failure: 'Run to failure', scheduled_on_condition: 'On-condition',
+            scheduled_restoration: 'Scheduled restoration', scheduled_discard: 'Scheduled discard',
+            failure_finding: 'Failure-finding', redesign_required: 'Redesign required',
+          };
+          const decisionLabel = DECISION_LABEL[strat.decision] || (strat.decision || '?').replace(/_/g, ' ');
           const intervalTxt   = strat.interval_days ? ' · every ' + Number(strat.interval_days) + 'd' : '';
           const linkedTxt     = strat.written_to_pm_scope_item_id
             ? '<span class="rcm-pm-linked">linked to PM</span>'
@@ -2640,7 +2649,7 @@
             : '<span class="fmea-source-pill fmea-status-pending">pending</span>';
           stripHtml = ''
             + '<div class="rcm-strip">'
-            +   '<span class="rcm-pill ' + decisionClass + '">' + e(strat.decision || '?') + '</span>'
+            +   '<span class="rcm-pill ' + decisionClass + '">' + e(decisionLabel) + '</span>'
             +   (strat.task_text ? '<span class="rcm-task-text">' + e(strat.task_text) + '</span>' : '')
             +   (intervalTxt ? '<span class="rcm-interval">' + e(intervalTxt) + '</span>' : '')
             +   stratStatus
@@ -2676,7 +2685,7 @@
           +       '<div style="font-size:.7rem; color:var(--muted);">' + e(m.function_text || '') + '</div>'
           +     '</div>'
           +     sodHtml
-          +     '<span class="fmea-source-pill ' + sourceClass + '">' + e(m.source || 'manual') + '</span>'
+          +     '<span class="fmea-source-pill ' + sourceClass + '">' + e((m.source === 'ai_logbook') ? 'from AI logbook scan' : (m.source || 'manual').replace(/_/g, ' ')) + '</span>'
           +     '<span class="fmea-source-pill ' + statusClass + '">' + statusLabel + '</span>'
           +   '</div>'
           +   effect
@@ -3217,7 +3226,10 @@
       if (metaEl) {
         const when = fit.generated_at ? whFmtDate(fit.generated_at, { time: true }) : '';
         const ll   = (fit.log_likelihood != null) ? ' · log-likelihood ' + Number(fit.log_likelihood).toFixed(2) : '';
-        metaEl.textContent = `n_failures ${fit.n_failures || 0} · n_censored ${fit.n_censored || 0} · window ${fit.source_window_days || '--'}d${ll}${when ? ' · last fit ' + when : ''}`;
+        // person-facing labels, not the stat column names (n_failures/n_censored are schema
+        // vocabulary — cl_a11y_states no_raw_enum caught them in this meta line, 2026-08-21); the
+        // detail table below already says "Failures observed"/"Right-censored", so match it.
+        metaEl.textContent = `failures ${fit.n_failures || 0} · right-censored ${fit.n_censored || 0} · window ${fit.source_window_days || '--'}d${ll}${when ? ' · last fit ' + when : ''}`;
       }
       if (diagEl) diagEl.textContent = fit.diagnostic || '';
     }
@@ -3231,9 +3243,39 @@
         .limit(1);
       if (error) {
         console.warn('weibull load:', error.message);
-        _renderWeibullFit(null);
+        // A failed read must render a FAILURE, never an emptiness. "No Weibull fit computed
+        // yet" here would send an engineer to recompute (an edge-fn spend) over a fit that
+        // may exist and simply failed to load.
+        const empty = document.getElementById('weibull-empty');
+        const summary = document.getElementById('weibull-summary');
+        if (empty) empty.style.display = 'none';
+        if (summary) summary.style.display = 'none';
+        const status = document.getElementById('weibull-status');
+        if (status) {
+          status.textContent = '';
+          const span = document.createElement('span');
+          span.textContent = ((typeof whReadError === 'function')
+            ? whReadError(error, 'the Weibull fit')
+            : 'Couldn’t load the Weibull fit. Check your connection and try again.') + ' ';
+          const btn = document.createElement('button');
+          btn.id = 'weibull-load-retry';
+          btn.type = 'button';
+          btn.className = 'add-edge-btn';
+          btn.style.cssText = 'min-height:32px; padding:2px 10px; font-size:0.72rem;';
+          btn.textContent = 'Retry';
+          btn.onclick = () => {
+            status.textContent = 'Loading the Weibull fit…';
+            loadLatestWeibull(nodeId);
+          };
+          status.appendChild(span);
+          status.appendChild(btn);
+        }
         return;
       }
+      // clear a prior failure's retry residue, and only that - computeWeibullFit writes its
+      // own status text ("Fit complete.") right before calling this loader, which must survive.
+      const st = document.getElementById('weibull-status');
+      if (st && st.querySelector('#weibull-load-retry')) st.textContent = '';
       _renderWeibullFit((data && data[0]) || null);
     }
 

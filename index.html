@@ -2987,6 +2987,19 @@
     try { if (_signinOpener && typeof _signinOpener.focus === 'function') _signinOpener.focus(); } catch (_) { /* empty-catch-allow: focus restore best-effort */ }
     _signinOpener = null;
   }
+  // Browser Back must not strand the dialog: the modal pushes no history state, and a signed-out
+  // hive.html redirect makes both history entries THIS page - so Back re-renders index (often from
+  // bfcache, DOM state intact) with the modal still up, ignoring the gesture a person uses to
+  // dismiss it. Close on popstate, and on a bfcache restore (pageshow persisted).
+  window.addEventListener('popstate', () => {
+    const m = document.getElementById('signin-modal');
+    if (m && !m.classList.contains('hidden')) closeSignIn();
+  });
+  window.addEventListener('pageshow', (ev) => {
+    if (!ev.persisted) return;
+    const m = document.getElementById('signin-modal');
+    if (m && !m.classList.contains('hidden')) closeSignIn();
+  });
 
   // ── Enterprise SSO (Phase 4.2) ─────────────────────────────────────────────
   async function signInWithSSO() {
@@ -4135,6 +4148,7 @@
     // mode (worker_name scope, which the hive-only RPC does not cover).
     // Parity proven by tests/journey-home-fanout-parity.spec.ts.
     let _ohLoadFailed = false;
+    let _ohLoadErr = null;   // the first concrete error among the failed reads, for whReadError
     let _dash = null;
     if (HIVE_ID) {
       try {
@@ -4274,6 +4288,12 @@
       _ohLoadFailed = [logRes, invRes, jobsCountRes].every(function (r) {
         return r.status === 'rejected' || (r.value && r.value.error);
       });
+      // captured HERE because logRes and friends are block-scoped to this legacy path -
+      // reading them from the failure branch below threw "logRes is not defined", which
+      // killed that branch before it rendered and left the jobs skeleton shimmering forever
+      _ohLoadErr = [logRes, invRes, jobsCountRes]
+        .map(function (r) { return r.status === 'rejected' ? r.reason : (r.value && r.value.error); })
+        .find(Boolean) || null;
     }  // end legacy multi-query fallback
 
     // A5: a total data-load failure (RPC null + every real read rejected =
@@ -4292,13 +4312,23 @@
       // is ADOPTION rather than design. A FULL RELOAD is the target because the failure blanks the
       // whole tile row plus this verdict: pm-scheduler proved a targeted re-render restores one region
       // and leaves the others still claiming failure — a partial recovery, worse than none.
+      // the first concrete error among the settled reads (captured up in the legacy block,
+      // where those results are in scope), so the message can name the remedy
+      // (401 -> sign in, 429 -> wait) instead of blaming the connection for all three
+      const _ohErr = _ohLoadErr;
+      // the jobs list installed a skeleton before the reads ran - left alone on this path it
+      // shimmers FOREVER, telling the person something is loading that will never arrive
+      // (plain string: `_t` in THIS branch is the #oh-today element, shadowing the translator)
+      const _ohJobsEl = document.getElementById('oh-jobs');
+      if (_ohJobsEl) _ohJobsEl.innerHTML = '<div class="oh-card" style="padding:12px 16px; font-size:.72rem; color:rgba(255,255,255,.7);">'
+        + 'Open jobs are unknown right now, not zero.</div>';
       if (_t && typeof whListError === 'function') {
-        whListError(_t, "Couldn't refresh. We could not load your latest hive data. These numbers are "
-          + 'unknown right now, not zero.', () => location.reload());
+        whListError(_t, whReadError(_ohErr, 'your latest hive data')
+          + ' These numbers are unknown right now, not zero.', () => location.reload());
       } else if (_t) {
         _t.innerHTML = '<div style="background:rgba(248,113,113,.10); border:1px solid rgba(248,113,113,.30); border-radius:12px; padding:14px 16px;">'
         + '<p style="font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--wh-red-text); margin:0 0 2px;">Couldn\'t refresh</p>'
-        + '<p style="font-size:.9rem; color:var(--wh-cloud); margin:0;">We could not load your latest hive data. Check your connection and try again.</p></div>';
+        + '<p style="font-size:.9rem; color:var(--wh-cloud); margin:0;">' + escHtml(whReadError(_ohErr, 'your latest hive data')) + '</p></div>';
       }
       return;
     }
@@ -4381,7 +4411,9 @@
         { kpi: 'pm-overdue',  num: pmOverdueCount,  label: (Number.isFinite(_pmAssetTotal) && _pmAssetTotal > 0)
             ? `${_t('PM Overdue','Lumipas na PM')} (${pmOverdueCount} ${_t('of','sa')} ${_pmAssetTotal} ${_t('assets','makina')})`
             : `${_t('PM Overdue','Lumipas na PM')} (${_t('assets','makina')})`,  color: '#29B6D9', href: 'pm-scheduler.html' },
-        { kpi: 'low-stock',   num: _lowStockTotal, label: _outOfStock > 0 ? `${_t('Stock','Stock')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low Stock','Kulang na Stock'), color: '#f7a21b', href: 'inventory.html'    },
+        // the label carries the NOUN (parts): a tile reading "LOW STOCK / 3" reads as a stock
+        // LEVEL of 3, not as 3 parts running low - the units_visible counted-noun discipline
+        { kpi: 'low-stock',   num: _lowStockTotal, label: _outOfStock > 0 ? `${_t('Parts','Piyesa')} (${_outOfStock} ${_t('out','ubos')} · ${_lowOnly} ${_t('low','kulang')})` : _t('Low-stock parts','Kulang na piyesa'), color: '#f7a21b', href: 'inventory.html'    },
         // A tile whose count could not be READ (null) must not be filtered out alongside the real
         // zeros — that is how an unreadable "Risk Alerts 3" became no tile at all, which reads as
         // "no risk alerts". Keep it, and let it show a gap.
@@ -4837,7 +4869,7 @@
       stockEl.style.display = 'block';
       stockEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
         <div class="oh-card" style="padding:12px 16px; border-left:3px solid var(--wh-orange);">
-          <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange); margin:0 0 8px;">${_t('Low Stock','Kulang na Stock')} (${lowStock.length})</p>
+          <p style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange); margin:0 0 8px;">${_t('Low Stock','Kulang na Stock')} (${lowStock.length} ${_t(lowStock.length === 1 ? 'part' : 'parts', 'piyesa')})</p>
           <div style="display:flex; flex-wrap:wrap; gap:6px;">
             ${lowStock.slice(0,8).map(i => `
               <div style="font-size:.72rem; font-weight:600; background:rgba(251,146,60,.08); border:1px solid rgba(251,146,60,.2); border-radius:6px; padding:.25rem .6rem; color:rgba(255,255,255,.7);">

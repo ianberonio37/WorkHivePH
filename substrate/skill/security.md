@@ -2,7 +2,7 @@
 name: skill-security
 type: skill
 source: skill:security
-source_sha: 2a2e5852243cd7a4
+source_sha: 1990c10f6ff60b28
 last_verified: 2026-07-13
 supersedes: null
 ---

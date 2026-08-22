@@ -28351,11 +28351,19 @@ async function loadHistory() {
   // "none saved" invites recomputing work that already exists. The two cases are now separate.
   if (error) {
     console.error('saved calcs read failed:', error.message);
+    // STATUS-AWARE, not one blanket sentence (2026-08-22, the rate-limit view pass): against a 429
+    // "connection problem ... Retry" is the one advice that extends the limit. whReadError carries
+    // the per-status sentence (429 = wait, 403 = not allowed, network = check connection); the
+    // failure-vs-empty separation above stays exactly as it was.
+    const _why = (typeof whReadError === 'function')
+      ? whReadError(error, 'your saved calculations')
+      : 'Could not load your saved calculations. This is a connection problem, not an empty history.';
+    const _is429 = (error.status === 429) || /rate limit|too many/i.test(String(error.message || ''));
     list/* xss-allow: static markup, no user input */ .innerHTML = `<div class="text-center py-16" style="color:rgba(255,255,255,0.85);">
       <div style="font-size:2rem;margin-bottom:0.75rem;">⚠</div>
-      <div>Could not load your saved calculations.</div>
-      <div style="font-size:0.72rem;margin-top:0.4rem;color:rgba(255,255,255,0.7);">This is a connection problem, not an empty history. Reload before recomputing a calculation you may already have saved.</div>
-      <button type="button" onclick="loadHistory();" style="margin-top:0.8rem;min-height:44px;padding:0 0.9rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button>
+      <div>${escHtml(_why)}</div>
+      <div style="font-size:0.72rem;margin-top:0.4rem;color:rgba(255,255,255,0.7);">This is not an empty history. Reload before recomputing a calculation you may already have saved.</div>
+      <button type="button" onclick="loadHistory();" style="margin-top:0.8rem;min-height:44px;padding:0 0.9rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">${_is429 ? 'Try again in a moment' : 'Retry'}</button>
     </div>`;
     return;
   }

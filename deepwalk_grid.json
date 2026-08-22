@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-20T12:44:38+00:00",
+ "generated": "2026-08-22T08:24:09+00:00",
  "coverage_pct": 100.0,
  "page_pct": 100.0,
  "ai_surface_pct": 100.0,
@@ -404,7 +404,7 @@
   ],
   "breaches": 0,
   "fresh": true,
-  "age_days": 0.1,
+  "age_days": 1.7,
   "proven_ever": 32,
   "this_run": 12
  },
@@ -9970,7 +9970,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": 1.0,
- "dry_streak": 0,
+ "delta_vs_last": 0.0,
+ "dry_streak": 1,
  "dry": false
 }

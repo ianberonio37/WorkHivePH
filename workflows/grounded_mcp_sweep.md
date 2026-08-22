@@ -67,6 +67,13 @@ skill the bug touched.
      future-dated after. A date-shift cannot DENSIFY sparse recent data (only a reseed
      can) — last-7-days may be thin (e.g. 1) even after; widen the filter to confirm the
      feature works.
+     ★ DATE-KEYED UNIQUE INDEXES (learned 2026-08-21, the refresh aborted twice on
+     `pm_completions_dedup_uidx`): a table with a UNIQUE index on a `::date` expression
+     must shift by WHOLE days (fractional shifts collapse adjacent dates), and even then
+     in TWO PHASES (+400000+nd days, then -400000) because a unique INDEX is non-deferrable
+     and a uniform shift collides transiently mid-UPDATE. The script now does this for
+     pm_completions; before adding any table to the refresh, list date-expression unique
+     indexes first (query in the script header / data-engineer skill).
   4. **On a SYSTEMIC red (many tests fail, slow times, 4xx/5xx/resource errors): suspect
      the ENVIRONMENT first, not the pages.** Reproduce ONE failing case live, one page at
      a time, and compare displayed-vs-canonical by hand. If it is perfect live, the suite

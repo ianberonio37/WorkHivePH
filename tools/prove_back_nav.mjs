@@ -206,6 +206,8 @@ const run = async () => {
   await browser.close();
   writeFileSync(path.join(ROOT, 'back_nav_report.json'), JSON.stringify(out, null, 1));
   const g = out.targets.filter((t) => t.ok !== null);
+  // gate promotion 2026-08-21: failing rows set the exit code.
+  if (process.argv.includes('--gate')) process.exitCode = g.filter((t) => !t.ok).length ? 1 : 0;
   const shapes = g.reduce((a, t) => { a[t.shape] = (a[t.shape] || 0) + 1; return a; }, {});
   console.log('\n  ' + g.filter((t) => t.ok).length + ' pass | ' + g.filter((t) => !t.ok).length
     + ' fail | ' + (out.targets.length - g.length) + ' ungraded   shapes: ' + JSON.stringify(shapes));

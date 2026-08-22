@@ -113,7 +113,9 @@ serveObserved("resend-webhook-receiver", async (req: Request) => {
   );
   if (!valid) {
     // Deliberately terse: a detailed reason tells a forger which half they got wrong.
-    log("resend-webhook-receiver", "rejected unsigned or stale webhook");
+    // log is an OBJECT of level methods (logger.ts:44), not a callable — a bare log(...) here was a
+    // TypeError waiting for the first rejected webhook; the structured-log ratchet caught it pre-deploy.
+    log.warn(ctx, "rejected unsigned or stale webhook");
     return fail(ctx, "invalid_signature", "invalid signature", { status: 401 });
   }
 
@@ -163,6 +165,6 @@ serveObserved("resend-webhook-receiver", async (req: Request) => {
     detail:   `Report to ${to} ${outcome}${reason ? `: ${reason}` : ""} [resend_id=${messageId}]`,
   });
 
-  log("resend-webhook-receiver", `${type} for ${to}`);
+  log.info(ctx, "webhook_recorded", { type, to });
   return ok(ctx, { recorded: type });
 });

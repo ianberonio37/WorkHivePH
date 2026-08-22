@@ -1039,7 +1039,7 @@ async function loadProjects() {
   // while three zeros stayed on screen, and it showed the reader the raw upstream text ("Load failed:
   // injected server fault" — in production, whatever Postgres said). Say it in a human sentence, keep
   // the detail in the console, and carry the failure into the render so it outlives the toast.
-  if (error) { console.error('projects load:', error.message); showToast('Could not load your projects. Check your connection.', 'error'); _pjReadFailed = true; renderProjectsSummary(); return; }
+  if (error) { console.error('projects load:', error.message); showToast(whReadError(error, 'your projects'), 'error'); _pjReadFailed = true; renderProjectsSummary(); return; }
   _pjReadFailed = false;
   _projects = data || [];
   // Pull rollup from project_items in batch (one query, then group)
@@ -2061,7 +2061,7 @@ async function openDetail(id) {
   if (_readErr) {
     console.error('project detail load failed:', _readErr);
     if (typeof showToast === 'function') {
-      showToast("Couldn't load this project's details, so nothing below is complete. Try again.", 'error');
+      showToast(whReadError(_readErr, "this project's details") + ' Nothing below is complete.', 'error');
     }
     throw _readErr;
   }
