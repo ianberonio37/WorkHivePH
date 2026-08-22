@@ -1,7 +1,7 @@
 {
   "generator": "platform_catalog.py",
   "version": 1,
-  "generated_at": "2026-08-05T02:54:12+00:00",
+  "generated_at": "2026-08-22T23:56:30+00:00",
   "features": [
     {
       "id": "index",
@@ -137,6 +137,7 @@
         "gamifying-maintenance-for-engagement",
         "industrial-community-of-practice-philippines",
         "joining-and-growing-your-hive",
+        "loto-procedures-dole-oshs-template",
         "maintenance-metrics-reliability-guide",
         "maintenance-project-planning-template",
         "maintenance-shift-handover-template",
@@ -486,6 +487,7 @@
         "ph-industrial-benchmarks-intelligence",
         "ph-plant-compliance-guide",
         "power-plant-reliability-metrics-philippines",
+        "ra-11285-energy-efficiency-plant-checklist",
         "what-is-workhive-complete-platform-guide"
       ]
     },
@@ -1103,7 +1105,9 @@
       "articles": [
         "free-engineering-calculators-philippine-plants",
         "maintenance-metrics-reliability-guide",
+        "mtbf-vs-mttr-for-supervisors",
         "ph-plant-compliance-guide",
+        "what-is-oee-how-to-calculate",
         "what-is-workhive-complete-platform-guide"
       ]
     },
@@ -1513,6 +1517,7 @@
         "ai-work-assistant-maintenance-technicians",
         "best-free-cmms-software-philippines",
         "building-asset-register-zero-budget",
+        "cmms-vs-excel-spreadsheet-maintenance",
         "connecting-workhive-to-sap-maximo-cmms",
         "dilo-wilo-day-planner-supervisors",
         "dole-iso-audit-trail-from-logbook",
@@ -1535,6 +1540,7 @@
         "skill-matrix-for-maintenance-technicians",
         "spare-parts-inventory-philippine-plants",
         "start-digital-logbook-philippine-factory",
+        "start-digital-maintenance-guide",
         "voice-to-text-maintenance-philippine-plant-floor",
         "what-is-oee-how-to-calculate",
         "what-is-workhive-complete-platform-guide",
@@ -1658,7 +1664,7 @@
       "slug": "asset-brain-360-one-machine-history-philippine-plant",
       "title": "Equipment History in One QR Scan: Asset Brain 360",
       "url": "/learn/asset-brain-360-one-machine-history-philippine-plant/",
-      "date_modified": "2026-07-02",
+      "date_modified": "2026-08-20",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -1672,7 +1678,7 @@
       "slug": "autonomous-shift-planning-philippine-plants",
       "title": "Autonomous Shift Planning: the AI Brief That Tells Your Crew What to Fix First",
       "url": "/learn/autonomous-shift-planning-philippine-plants/",
-      "date_modified": "2026-07-03",
+      "date_modified": "2026-08-20",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -1746,7 +1752,7 @@
       "slug": "cmms-vs-excel-spreadsheet-maintenance",
       "title": "CMMS vs Excel Spreadsheet for Maintenance: When to Switch",
       "url": "/learn/cmms-vs-excel-spreadsheet-maintenance/",
-      "date_modified": "2026-08-05",
+      "date_modified": "2026-08-20",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -1755,7 +1761,8 @@
         "pm-scheduler",
         "assistant",
         "asset-hub",
-        "audit-log"
+        "audit-log",
+        "predictive"
       ]
     },
     {
@@ -1884,7 +1891,7 @@
       "slug": "free-engineering-calculators-philippine-plants",
       "title": "Free Engineering Design Calculators for Philippine Plants",
       "url": "/learn/free-engineering-calculators-philippine-plants/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-17",
       "maps_to": "engineering-design",
       "maps_to_label": "Engineering Design",
       "features_referenced": [
@@ -2049,6 +2056,7 @@
       "maps_to_label": null,
       "features_referenced": [
         "index",
+        "logbook",
         "dayplanner",
         "audit-log"
       ]
@@ -2057,7 +2065,7 @@
       "slug": "maintenance-metrics-reliability-guide",
       "title": "Maintenance Metrics Guide: OEE, MTBF, MTTR & Reliability for Philippine Plants",
       "url": "/learn/maintenance-metrics-reliability-guide/",
-      "date_modified": "2026-08-05",
+      "date_modified": "2026-08-17",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2133,7 +2141,7 @@
       "slug": "mtbf-vs-mttr-for-supervisors",
       "title": "MTBF vs MTTR for Supervisors, Engineers, and Planners",
       "url": "/learn/mtbf-vs-mttr-for-supervisors/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-17",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2150,6 +2158,7 @@
         "audit-log",
         "voice-journal",
         "shift-brain",
+        "engineering-design",
         "project-manager",
         "marketplace",
         "achievements",
@@ -2220,7 +2229,7 @@
       "slug": "plant-alert-inbox-amc-daily-brief",
       "title": "One Alert Inbox for the Whole Plant: Risk, PM, Stock, and the 6 AM Brief",
       "url": "/learn/plant-alert-inbox-amc-daily-brief/",
-      "date_modified": "2026-07-03",
+      "date_modified": "2026-08-20",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2331,6 +2340,7 @@
       "features_referenced": [
         "index",
         "dayplanner",
+        "analytics-report",
         "audit-log"
       ]
     },
@@ -2338,7 +2348,7 @@
       "slug": "reduce-unplanned-downtime-guide",
       "title": "How to Reduce Unplanned Equipment Downtime in a Factory",
       "url": "/learn/reduce-unplanned-downtime-guide/",
-      "date_modified": "2026-08-05",
+      "date_modified": "2026-08-20",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2498,7 +2508,8 @@
         "logbook",
         "pm-scheduler",
         "assistant",
-        "asset-hub"
+        "asset-hub",
+        "predictive"
       ]
     },
     {
@@ -2570,7 +2581,7 @@
       "slug": "what-is-oee-how-to-calculate",
       "title": "What is OEE and How Do I Calculate It? (Worked Philippine Example)",
       "url": "/learn/what-is-oee-how-to-calculate/",
-      "date_modified": "2026-05-17",
+      "date_modified": "2026-08-17",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2585,6 +2596,7 @@
         "audit-log",
         "voice-journal",
         "shift-brain",
+        "engineering-design",
         "project-manager",
         "marketplace",
         "achievements",
@@ -2595,7 +2607,7 @@
       "slug": "what-is-workhive-complete-platform-guide",
       "title": "What is WorkHive? The Complete Guide to the Free Platform for Filipino Industrial Teams",
       "url": "/learn/what-is-workhive-complete-platform-guide/",
-      "date_modified": "2026-07-07",
+      "date_modified": "2026-08-17",
       "maps_to": null,
       "maps_to_label": null,
       "features_referenced": [
@@ -2946,6 +2958,7 @@
         "maintenance-metrics-reliability-guide",
         "start-digital-maintenance-guide",
         "ph-plant-compliance-guide",
+        "reduce-unplanned-downtime-guide",
         "workhive-vs-upkeep-free-cmms-comparison",
         "workhive-vs-maintainx-comparison",
         "best-free-cmms-software-philippines",
