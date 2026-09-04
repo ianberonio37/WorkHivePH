@@ -138,11 +138,27 @@ let bad = 0;
 try {
   // ── TIER 1: public (anon) ────────────────────────────────────────────────
   if (TIER === 'all' || TIER === 'public') {
-    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    // RECYCLE the context every RECYCLE_EVERY pages: one long-lived context accumulates memory and
+    // Chrome dies mid-sweep on a small host (observed ~page 29 on an 8GB box — a healthy page then
+    // read "browser has been closed"). A fresh context releases it so the full roster completes.
+    const RECYCLE_EVERY = 20;
+    let ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
     const urls = await publicUrls(ctx);
     log(`\nTIER 1 — PUBLIC (anon) · ${urls.length} URL(s) from ${BASE}/sitemap.xml`);
+    let i = 0;
     for (const u of urls) {
-      const r = await loadOne(ctx, u, SETTLE_PUBLIC, { authed: false });
+      if (i > 0 && i % RECYCLE_EVERY === 0) {
+        try { await ctx.close(); } catch (_) {}
+        ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+      }
+      i++;
+      let r = await loadOne(ctx, u, SETTLE_PUBLIC, { authed: false });
+      // a browser/context death is NOT a page defect — recycle and retry once before believing it
+      if (!r.ok && /browser has been closed|Target page|context or browser/i.test((r.errors || []).join(' '))) {
+        try { await ctx.close(); } catch (_) {}
+        ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+        r = await loadOne(ctx, u, SETTLE_PUBLIC, { authed: false });
+      }
       results.tier1.push(r);
       if (!r.ok) bad++;
       log(`  ${r.ok ? 'ok  ' : 'FAIL'} ${String(r.status).padStart(3)} ${(u || '/').padEnd(42)}`

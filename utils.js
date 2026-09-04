@@ -2528,7 +2528,14 @@ function whClockSkew(opts) {
     var base = window.WH_SUPABASE_URL || '';
     if (!base) return;
     var t0 = Date.now();
-    fetch(base + '/rest/v1/', { method: 'HEAD', cache: 'no-store' }).then(function (res) {
+    // Send the anon apikey so PostgREST answers this health-ping 200 (with its date header) instead
+    // of 401. A 401 still carries a date header so the skew check always worked — but the unauth'd
+    // HEAD logged "Failed to load resource: 401" to the console on EVERY page load for every visitor
+    // (caught by the prod post-deploy smoke, 2026-09-04). The key makes the ping clean; if it is not
+    // yet set the request still falls back to the 401 path, which remains functionally correct.
+    var _skewOpts = { method: 'HEAD', cache: 'no-store' };
+    if (window.WH_SUPABASE_ANON_KEY) _skewOpts.headers = { apikey: window.WH_SUPABASE_ANON_KEY };
+    fetch(base + '/rest/v1/', _skewOpts).then(function (res) {
       var hdr = res && res.headers && res.headers.get('date');
       if (!hdr) return;
       var serverMs = new Date(hdr).getTime();
